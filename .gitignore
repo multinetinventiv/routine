@@ -2,3 +2,5 @@
 **/obj/**/*
 **/*.userprefs
 **/routine.test.db
+**/*.suo
+**/*.csproj.user

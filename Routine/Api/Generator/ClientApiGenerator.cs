@@ -182,15 +182,13 @@ namespace Routine.Api.Generator
 			{
 				result.OutputAssembly = DefaultNamespace + ".dll";
 			}
-			result.ReferencedAssemblies.Add("Routine.dll");
-			foreach(var registration in typeRegistrations.Values)
+			foreach(var reference in references)
 			{
-				var reference = registration.Type.Assembly.GetName().Name + ".dll";
-				if(!result.ReferencedAssemblies.Contains(reference))
-				{
-					result.ReferencedAssemblies.Add(reference);
-				}
+				result.ReferencedAssemblies.Add(reference.GetName().Name + ".dll");
 			}
+            if (!result.ReferencedAssemblies.Contains("Routine.dll")) { result.ReferencedAssemblies.Add("Routine.dll"); }
+            if (!result.ReferencedAssemblies.Contains("System.Core.dll")) { result.ReferencedAssemblies.Add("System.Core.dll"); }
+
 			return result;
 		}
 

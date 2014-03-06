@@ -1,6 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Globalization;
 
 namespace Routine
 {
@@ -12,7 +13,7 @@ namespace Routine
 			if(source.Length == 0) { return source; }
 			if(source.Length == 1) { return source.ToUpper(); }
 
-			return char.ToUpper(source[0]) + source.Substring(1);
+			return char.ToUpper(source[0], new CultureInfo("en-US")) + source.Substring(1);
 		}
 
 		public static string SplitCamelCase(this string source)

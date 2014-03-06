@@ -301,7 +301,7 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreEqual(1.0d, type.of<double>().Parse("1.0"));
 			Assert.AreEqual(1.0, type.of<decimal>().Parse("1.0"));
 			Assert.AreEqual(1.0f, type.of<float>().Parse("1.0"));
-			Assert.AreEqual(new DateTime(2013, 7, 15, 11, 2, 10), type.of<DateTime>().Parse("11:02:10 7/15/2013"));
+            Assert.AreEqual(new DateTime(2013, 7, 15, 11, 2, 10), type.of<DateTime>().Parse(new DateTime(2013, 7, 15, 11, 2, 10).ToString()));
 			Assert.AreEqual(TestClass_Parseable.ParsedResult, type.of<TestClass_Parseable>().Parse("dummy"));
 		}
 	}
