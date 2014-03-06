@@ -1,6 +1,6 @@
-﻿using Routine.Api.SoaClientConfiguration;
+﻿using Routine.Soa.Configuration;
 
-namespace Routine.Api.Builder
+namespace Routine.Soa.Builder
 {
 	public class SoaClientConfigurationBuilder
 	{

@@ -1,4 +1,4 @@
-﻿namespace Routine.Api
+﻿namespace Routine.Soa
 {
 	public interface ISoaClientConfiguration
 	{

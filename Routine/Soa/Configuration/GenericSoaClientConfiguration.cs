@@ -1,4 +1,4 @@
-﻿namespace Routine.Api.SoaClientConfiguration
+﻿namespace Routine.Soa.Configuration
 {
 	public class GenericSoaClientConfiguration : ISoaClientConfiguration
 	{

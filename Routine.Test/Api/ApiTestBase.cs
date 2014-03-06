@@ -7,38 +7,34 @@ using Moq.Language.Flow;
 using NUnit.Framework;
 using Routine.Api;
 using Routine.Core.Service;
+using Routine.Api.ApiContext;
 
 namespace Routine.Test.Api
 {
 	public abstract class ApiTestBase
 	{
 		protected Mock<IObjectService> objectServiceMock;
-		private Mock<IFactory> factoryMock;
 		private Dictionary<string, ObjectModel> objectModelDictionary;
 		private Dictionary<ObjectReferenceData, ObjectData> objectDictionary;
 
+        protected IApiContext ctx;
 		protected Rapplication testingRapplication;
 
 		protected virtual string DefaultObjectModelId{get{return "DefaultModel";}}
-		protected IFactory Factory {get{return factoryMock.Object;}}
 		private IObjectService ObjectService{get{return objectServiceMock.Object;}}
 
 		[SetUp]
 		public virtual void SetUp()
 		{
 			objectServiceMock = new Mock<IObjectService>();
-			factoryMock = new Mock<IFactory>();
 			objectModelDictionary = new Dictionary<string, ObjectModel>();
 			objectDictionary = new Dictionary<ObjectReferenceData, ObjectData>();
 
-			testingRapplication = new Rapplication(objectServiceMock.Object, factoryMock.Object);
+            var ctx = new DefaultApiContext(objectServiceMock.Object);
+            this.ctx = ctx;
 
-			factoryMock.Setup(o => o.Create<Rapplication>()).Returns(testingRapplication);
-			factoryMock.Setup(o => o.Create<Robject>()).Returns(() => new Robject(ObjectService, Factory));
-			factoryMock.Setup(o => o.Create<Rmember>()).Returns(() => new Rmember(ObjectService, Factory));
-			factoryMock.Setup(o => o.Create<Roperation>()).Returns(() => new Roperation(ObjectService, Factory));
-			factoryMock.Setup(o => o.Create<Rparameter>()).Returns(() => new Rparameter(Factory));
-			factoryMock.Setup(o => o.Create<Rvariable>()).Returns(() => new Rvariable(Factory));
+			testingRapplication = new Rapplication(ctx);
+            ctx.Rapplication = testingRapplication;
 
 			objectServiceMock.Setup(o => o.GetApplicationModel())
 				.Returns(() => new ApplicationModel{Models = objectModelDictionary.Select(o => o.Value).ToList()});
@@ -392,7 +388,7 @@ namespace Routine.Test.Api
 
 		#endregion
 
-		protected Robject RobjNull(){return Factory.Create<Robject>().Null();}
+		protected Robject RobjNull(){return ctx.CreateRobject().Null();}
 		protected Robject Robj(string id) { return Robj(id, DefaultObjectModelId);}
 		protected Robject Robj(string id, string modelId) {return Robj(id, modelId, modelId);}
 		protected Robject Robj(string id, string actualModelId, string viewModelId)
@@ -402,12 +398,12 @@ namespace Routine.Test.Api
 
 		protected Rvariable Rvar(string name, Robject value)
 		{
-			return Factory.Create<Rvariable>().WithSingle(name, value);
+            return ctx.CreateRvariable().WithSingle(name, value);
 		}
 
 		protected Rvariable Rvarlist(string name, params Robject[] value)
 		{
-			return Factory.Create<Rvariable>().WithList(name, value);
+            return ctx.CreateRvariable().WithList(name, value);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -62,6 +62,7 @@
     <Compile Include="Configurator.cs" />
     <Compile Include="WindsorControllerFactory.cs" />
     <Compile Include="OrmConfiguration.cs" />
+    <Compile Include="WindsorPatterns.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -71,10 +72,6 @@
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Windsor\Routine.Windsor.csproj">
-      <Project>{1EA72513-963F-4774-8F3D-2D4BC76D7416}</Project>
-      <Name>Routine.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>

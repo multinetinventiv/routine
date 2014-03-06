@@ -2,27 +2,103 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Api.Builder;
-using Routine.Api.SoaClientConfiguration;
+using Routine.Api;
+using Routine.Api.ApiContext;
 using Routine.Core;
 using Routine.Core.Builder;
+using Routine.Core.Cache;
 using Routine.Core.CodingStyle;
+using Routine.Core.CoreContext;
 using Routine.Core.Extractor;
 using Routine.Core.Locator;
 using Routine.Core.Member;
 using Routine.Core.Operation;
 using Routine.Core.Reflection;
+using Routine.Core.Rest;
 using Routine.Core.Selector;
 using Routine.Core.Serializer;
+using Routine.Core.Service;
+using Routine.Core.Service.Impl;
+using Routine.Mvc;
 using Routine.Mvc.Builder;
 using Routine.Mvc.MvcConfiguration;
+using Routine.Mvc.MvcContext;
+using Routine.Soa;
 using Routine.Soa.Builder;
-using Routine.Soa.SoaConfiguration;
+using Routine.Soa.Configuration;
+using Routine.Soa.Context;
 
 namespace Routine
 {
 	public static class BuildRoutine
 	{
+		#region Construction Helpers
+		private static IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)
+		{
+			var result = new DefaultMvcContext(mvcConfiguration);
+
+			result.Application = new ApplicationViewModel(apiContext.Rapplication, result);
+
+			return result;
+		}
+
+		private static IApiContext ApiContext(IObjectService objectService)
+		{
+			var result = new DefaultApiContext(objectService);
+
+			result.Rapplication = new Rapplication(result);
+
+			return result;
+		}
+
+		private static ISoaContext SoaContext(ISoaConfiguration soaConfiguration, IObjectService objectService)
+		{
+			return new DefaultSoaContext(soaConfiguration, objectService);
+		}
+
+		private static IObjectService ObjectService(ICodingStyle codingStyle)
+		{
+			return new ObjectService(CoreContext(codingStyle), WebCache());
+		}
+
+		private static IObjectService ObjectServiceClient(ISoaClientConfiguration soaClientConfiguration)
+		{
+			return new RestClientObjectService(soaClientConfiguration, RestClient());
+		}
+
+		private static ICoreContext CoreContext(ICodingStyle codingStyle)
+		{
+			return new CachedCoreContext(codingStyle, WebCache());
+		}
+
+		private static IRestClient RestClient() { return new WebRequestRestClient(); }
+
+		private static ICache WebCache() { return new WebCache(); }
+
+		private static ICache dictionaryCache = new DictionaryCache();
+		private static ICache DictionaryCache() { return dictionaryCache; }
+		#endregion
+
+		public static IMvcContext MvcApplication(IMvcConfiguration mvcConfiguration, ICodingStyle codingStyle)
+		{
+			return MvcContext(mvcConfiguration, ApiContext(ObjectService(codingStyle)));
+		}
+
+		public static IMvcContext MvcSoaClient(IMvcConfiguration mvcConfiguration, ISoaClientConfiguration soaClientConfiguration)
+		{
+			return MvcContext(mvcConfiguration, ApiContext(ObjectServiceClient(soaClientConfiguration)));
+		}
+
+		public static IApiContext SoaClient(ISoaClientConfiguration soaClientConfiguration)
+		{
+			return ApiContext(ObjectServiceClient(soaClientConfiguration));
+		}
+
+		public static ISoaContext SoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
+		{
+			return SoaContext(soaConfiguration, ObjectService(codingStyle));
+		}
+
 		public static CodingStyleBuilder CodingStyle()
 		{
 			return new CodingStyleBuilder();

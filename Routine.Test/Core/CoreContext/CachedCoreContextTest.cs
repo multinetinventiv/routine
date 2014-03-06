@@ -15,23 +15,19 @@ namespace Routine.Test.Core.CoreContext.Domain
 namespace Routine.Test.Core.CoreContext
 {
 	[TestFixture]
-	public class CachedFactoryCoreContextTest : CoreTestBase
+	public class CachedCoreContextTest : CoreTestBase
 	{
 		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.CoreContext.Domain"};}}
 
 		[Test]
 		public void CachesDomainTypesByObjectModelId()
 		{
-			var factoryMock = new Mock<IFactory>();
-
 			ICodingStyle codingStyle = 
 				BuildRoutine.CodingStyle().FromBasic()
 					.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 					.Id.Done(e => e.ByPublicProperty(p => p.Returns<string>("Id")));
 
-			var testing = new CachedFactoryCoreContext(factoryMock.Object, codingStyle, new DictionaryCache());
-
-			factoryMock.Setup(o => o.Create<DomainType>()).Returns(() => new DomainType(testing));
+			var testing = new CachedCoreContext(codingStyle, new DictionaryCache());
 
 			var modelId = "Routine.Test.Core.CoreContext.Domain.CachedBusiness";
 
@@ -39,8 +35,6 @@ namespace Routine.Test.Core.CoreContext
 			var actual = testing.GetDomainType(modelId);
 
 			Assert.AreSame(expected, actual);
-
-			factoryMock.Verify(o => o.Create<DomainType>(), Times.Once());
 		}
 	}
 }

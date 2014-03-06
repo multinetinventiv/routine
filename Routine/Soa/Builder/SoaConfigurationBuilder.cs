@@ -1,5 +1,5 @@
 ﻿using System;
-using Routine.Soa.SoaConfiguration;
+using Routine.Soa.Configuration;
 
 namespace Routine.Soa.Builder
 {

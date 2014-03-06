@@ -6,9 +6,9 @@ using System;
 namespace Routine.Mvc
 {
 	public class ParameterViewModel : ViewModelBase
-	{		
-		public ParameterViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+	{
+        public ParameterViewModel(IMvcContext mvcContext)
+			: base(mvcContext) {}
 
 		private Rparameter rpar;
 

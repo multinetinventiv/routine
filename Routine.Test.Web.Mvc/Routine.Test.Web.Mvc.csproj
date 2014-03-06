@@ -177,10 +177,6 @@
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Routine.Windsor\Routine.Windsor.csproj">
-      <Project>{1EA72513-963F-4774-8F3D-2D4BC76D7416}</Project>
-      <Name>Routine.Windsor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj">
       <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
       <Name>Routine.Test.Module.Todo</Name>

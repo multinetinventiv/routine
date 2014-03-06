@@ -7,9 +7,9 @@ using System.Collections.Generic;
 namespace Routine.Mvc
 {
 	public class OperationViewModel : ViewModelBase
-	{		
-		public OperationViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+	{
+        public OperationViewModel(IMvcContext mvcContext)
+			: base(mvcContext) {}
 
 		private bool separator;
 		private Roperation rop;

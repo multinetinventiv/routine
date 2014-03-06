@@ -1,7 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using Castle.Windsor;
-using Routine.Windsor;
 using Routine.Api;
 
 namespace Routine.Test.Performance
@@ -9,19 +7,15 @@ namespace Routine.Test.Performance
 	[TestFixture]
 	public class SoaServiceTest
 	{
-		private IWindsorContainer container;
+		private IApiContext soaClientContext;
 		private Rapplication rapp;
 
 		[SetUp]
 		public void SetUp()
 		{			
-			if(container == null)
-			{
-				container = new WindsorContainer()
-					.InstallSoaClient(BuildRoutine.SoaClientConfig().FromBasic().ServiceUrlBaseIs("http://127.0.0.1:2222/Soa"));
+			soaClientContext = BuildRoutine.SoaClient(BuildRoutine.SoaClientConfig().FromBasic().ServiceUrlBaseIs("http://127.0.0.1:2222/Soa"));
 
-				rapp = container.Resolve<Rapplication>();
-			}
+			rapp = soaClientContext.Rapplication;
 		}
 
 		[Test][Ignore]

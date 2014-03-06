@@ -6,11 +6,11 @@ namespace Routine.Api
 {
 	public class Rparameter
 	{		
-		private readonly IFactory factory;
+		private readonly IApiContext context;
 
-		public Rparameter(IFactory factory)
+		public Rparameter(IApiContext context)
 		{
-			this.factory = factory;
+            this.context = context;
 		}
 
 		private Roperation parentOperation;
@@ -45,7 +45,7 @@ namespace Routine.Api
 		public Rvariable CreateVariable(params Robject[] robjs) {return CreateVariable(robjs.ToList());}
 		public Rvariable CreateVariable(List<Robject> robjs)
 		{
-			var result = factory.Create<Rvariable>().WithList(Id, robjs);
+            var result = context.CreateRvariable().WithList(Id, robjs);
 
 			if(!IsList) 
 			{

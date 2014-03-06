@@ -6,13 +6,11 @@ namespace Routine.Api
 {
 	public class Roperation
 	{
-		private readonly IObjectService objectService;
-		private readonly IFactory factory;
+		private readonly IApiContext context;
 
-		public Roperation(IObjectService objectService, IFactory factory)
+        public Roperation(IApiContext context)
 		{
-			this.objectService = objectService;
-			this.factory = factory;
+			this.context = context;
 		}
 
 		private Robject parentObject;
@@ -26,7 +24,7 @@ namespace Routine.Api
 			this.parameters = new Dictionary<string, Rparameter>();
 			foreach(var parameter in model.Parameters)
 			{
-				parameters[parameter.Id] = factory.Create<Rparameter>().With(this, parameter);
+				parameters[parameter.Id] = context.CreateRparameter().With(this, parameter);
 			}
 
 			return this;
@@ -56,7 +54,7 @@ namespace Routine.Api
 		{
 			if(model.IsHeavy)
 			{
-				SetData(objectService.GetOperation(parentObject.ObjectReferenceData, model.Id));
+				SetData(context.ObjectService.GetOperation(parentObject.ObjectReferenceData, model.Id));
 			}
 			else
 			{
@@ -82,14 +80,14 @@ namespace Routine.Api
 				parameterValues.Add(parameterValue);
 			}
 
-			var resultData = objectService.PerformOperation(parentObject.ObjectReferenceData, model.Id, parameterValues);
+            var resultData = context.ObjectService.PerformOperation(parentObject.ObjectReferenceData, model.Id, parameterValues);
 
 			if(ResultIsVoid)
 			{
-				return factory.Create<Rvariable>().Void();
+                return context.CreateRvariable().Void();
 			}
 
-			return factory.Create<Rvariable>().With(resultData.Value);
+            return context.CreateRvariable().With(resultData.Value);
 		}
 
 		internal void Invalidate()

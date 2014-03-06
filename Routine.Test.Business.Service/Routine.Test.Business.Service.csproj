@@ -132,10 +132,6 @@
       <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
       <Name>Routine.Test.Module.Todo</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Routine.Windsor\Routine.Windsor.csproj">
-      <Project>{1EA72513-963F-4774-8F3D-2D4BC76D7416}</Project>
-      <Name>Routine.Windsor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
       <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
       <Name>Routine.Test.Common.Domain</Name>

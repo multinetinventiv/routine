@@ -4,7 +4,7 @@ using Castle.Windsor;
 using Routine.Core.Builder;
 using Routine.Core.CodingStyle;
 
-namespace Routine.Windsor
+namespace Routine.Test.Common.Configuration
 {
 	public static class WindsorPatterns
 	{

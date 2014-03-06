@@ -6,13 +6,11 @@ namespace Routine.Api
 {
 	public class Robject
 	{
-		private readonly IObjectService objectService;
-		private readonly IFactory factory;
+		private readonly IApiContext context;
 
-		public Robject(IObjectService objectService, IFactory factory)
+        public Robject(IApiContext context)
 		{
-			this.objectService = objectService;
-			this.factory = factory;
+            this.context = context;
 		}
 
 		private ObjectReferenceData objectReferenceData;
@@ -50,12 +48,12 @@ namespace Routine.Api
 
 			foreach(var member in model.Members)
 			{
-				members.Add(member.Id, factory.Create<Rmember>().With(this, member));
+				members.Add(member.Id, context.CreateRmember().With(this, member));
 			}
 
 			foreach(var operation in model.Operations)
 			{
-				operations.Add(operation.Id, factory.Create<Roperation>().With(this, operation));
+				operations.Add(operation.Id, context.CreateRoperation().With(this, operation));
 			}
 		}
 
@@ -75,7 +73,7 @@ namespace Routine.Api
 				return;
 			}
 
-			value = objectService.GetValue(objectReferenceData);
+			value = context.ObjectService.GetValue(objectReferenceData);
 		}
 
 		internal void LoadObject() 
@@ -84,7 +82,7 @@ namespace Routine.Api
 
 			LoadMembersAndOperationsIfNecessary();
 
-			var data = objectService.Get(objectReferenceData);
+            var data = context.ObjectService.Get(objectReferenceData);
 			value = data.Value;
 
 			foreach(var member in data.Members)
@@ -100,7 +98,7 @@ namespace Routine.Api
 
 		internal ObjectReferenceData ObjectReferenceData {get{return objectReferenceData;}}
 
-		public Rapplication Application{get{return factory.Create<Rapplication>();}}
+		public Rapplication Application{get{return context.Rapplication;}}
 		public string ActualModelId{get{return objectReferenceData.ActualModelId;}}
 		public string ViewModelId{get{return objectReferenceData.ViewModelId;}}
 		public string Id {get{return objectReferenceData.Id;}}
@@ -116,7 +114,7 @@ namespace Routine.Api
 		public Rvariable Perform(string operationModelId, params Rvariable[] parameters) { return Perform(operationModelId, parameters.ToList()); }
 		public Rvariable Perform(string operationModelId, List<Rvariable> parameters)
 		{
-			if(IsNull){return factory.Create<Rvariable>().Null();}
+			if(IsNull){return context.CreateRvariable().Null();}
 
 			Roperation operation;
 			if(ModelIsLoaded)
@@ -125,7 +123,7 @@ namespace Routine.Api
 			}
 			else
 			{
-				operation = factory.Create<Roperation>()
+				operation = context.CreateRoperation()
 					.With(this, model.Operations.Single(o => o.Id == operationModelId));
 			}
 

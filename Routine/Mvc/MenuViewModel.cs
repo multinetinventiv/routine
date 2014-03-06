@@ -6,8 +6,8 @@ namespace Routine.Mvc
 {
 	public class MenuViewModel : ViewModelBase
 	{		
-		public MenuViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+		public MenuViewModel(IMvcContext mvcContext)
+            : base(mvcContext) { }
 
 		private List<ObjectViewModel> links;
 		internal MenuViewModel With(List<Robject> links)

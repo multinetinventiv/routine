@@ -4,13 +4,11 @@ namespace Routine.Api
 {
 	public class Rmember
 	{
-		private readonly IObjectService objectService;
-		private readonly IFactory factory;
+        private readonly IApiContext context;
 
-		public Rmember(IObjectService objectService, IFactory factory)
+		public Rmember(IApiContext context)
 		{
-			this.objectService = objectService;
-			this.factory = factory;
+            this.context = context;
 		}
 
 		private Robject parentObject;
@@ -29,7 +27,7 @@ namespace Routine.Api
 		internal void SetData(MemberData data)
 		{
 			this.data = data;
-			this.value = factory.Create<Rvariable>().With(data.Value);
+			this.value = context.CreateRvariable().With(data.Value);
 		}
 
 		private Rvariable Value {get{FetchDataIfNecessary(); return value;}}
@@ -40,7 +38,7 @@ namespace Routine.Api
 			{
 				if(model.IsHeavy)
 				{
-					SetData(objectService.GetMember(parentObject.ObjectReferenceData, model.Id));
+					SetData(context.ObjectService.GetMember(parentObject.ObjectReferenceData, model.Id));
 				}
 				else
 				{

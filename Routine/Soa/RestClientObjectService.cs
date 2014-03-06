@@ -4,16 +4,16 @@ using System.Web.Script.Serialization;
 using Routine.Core.Rest;
 using Routine.Core.Service;
 
-namespace Routine.Api
+namespace Routine.Soa
 {
-	public class ObjectServiceRestClient : IObjectService
+	public class RestClientObjectService : IObjectService
 	{
-		private readonly ISoaClientConfiguration soaClientConfig;
+		private readonly ISoaClientConfiguration soaClientConfiguration;
 		private readonly IRestClient client;
 
-		public ObjectServiceRestClient(ISoaClientConfiguration soaClientConfig, IRestClient client)
+		public RestClientObjectService(ISoaClientConfiguration soaClientConfiguration, IRestClient client)
 		{
-			this.soaClientConfig = soaClientConfig;
+			this.soaClientConfiguration = soaClientConfiguration;
 			this.client = client;
 		}
 
@@ -24,7 +24,7 @@ namespace Routine.Api
 
 		private string Url(string serviceName)
 		{
-			return soaClientConfig.ServiceUrlBase + "/" + serviceName;
+			return soaClientConfiguration.ServiceUrlBase + "/" + serviceName;
 		}
 
 		private RestParameter Param(string name, string value)

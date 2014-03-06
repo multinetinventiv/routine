@@ -16,7 +16,6 @@ using Routine.Soa;
 using Routine.Test.Common.Domain;
 using Routine.Test.Common.Domain.NHibernate;
 using Routine.Test.Common.Domain.Windsor;
-using Routine.Windsor;
 
 namespace Routine.Test.Common.Configuration
 {
@@ -45,14 +44,22 @@ namespace Routine.Test.Common.Configuration
 
 			public void MvcApplication()
 			{
-				container.InstallMvcApplication(MvcConfiguration(), CodingStyle());
+				container.Register(
+					Component.For<IMvcContext>().Instance(BuildRoutine.MvcApplication(MvcConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<MvcController>().UsingFactoryMethod(k => new MvcController(k.Resolve<IMvcContext>().Application)).LifestylePerWebRequest()
+				);
+				
 				Modules();
 				DataAccess();
 			}
 
 			public void SoaApplication()
 			{
-				container.InstallSoaApplication(SoaConfiguration(), CodingStyle());
+				container.Register(
+					Component.For<ISoaContext>().Instance(BuildRoutine.SoaApplication(SoaConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<SoaController>().UsingFactoryMethod(k => new SoaController(k.Resolve<ISoaContext>())).LifestylePerWebRequest()
+				);
+				
 				Modules();
 				DataAccess();
 			}
@@ -79,7 +86,7 @@ namespace Routine.Test.Common.Configuration
 									 .Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
 									 .Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
 												.WhenType(t => container.TypeIsSingleton(t)))
-						.Done(e => e.ByConverting(o => string.Format("{0}", o)))
+									 .Done(e => e.ByConverting(o => string.Format("{0}", o)))
 
 						.Use(p => p.FromEmpty()
 							.Id.Done(e => e.ByProperty(pr => Orm.IsId(pr))
@@ -93,9 +100,8 @@ namespace Routine.Test.Common.Configuration
 							.OperationIsAvailable.Done(e => e.ByPublicMethod((obj, op) => m => m.HasNoParameters() && m.Returns<bool>("Can" + op.Name)))
 							.Operation.Exclude.Done(o => o.HasNoParameters() && o.Returns<bool>() && o.Name.StartsWith("Can")))
 
-						.OperationIsAvailable
-							.Done(e => e.ByPublicProperty(p => p.Returns<bool>("Active"))
-										.When((obj, op) => op.Name != "Activate"))
+						.OperationIsAvailable.Done(e => e.ByPublicProperty(p => p.Returns<bool>("Active"))
+														 .When((obj, op) => op.Name != "Activate"))
 						;
 			}
 

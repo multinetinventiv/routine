@@ -4,8 +4,8 @@ namespace Routine.Mvc
 {
 	public class VariableViewModel : ViewModelBase
 	{
-		public VariableViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+        public VariableViewModel(IMvcContext mvcContext)
+			: base(mvcContext) {}
 
 		private Rvariable rvar;
 
@@ -19,6 +19,6 @@ namespace Routine.Mvc
 		public bool IsVoid {get{return rvar.IsVoid;}}
 		public bool IsList{get{return rvar.IsList;}}
 
-		public ObjectViewModel Object{get{return Create<ObjectViewModel>().With(rvar.Object);}}
+		public ObjectViewModel Object{get{return CreateObject().With(rvar.Object);}}
 	}
 }

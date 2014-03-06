@@ -8,8 +8,8 @@ namespace Routine.Mvc
 {
 	public class ObjectViewModel : ViewModelBase
 	{
-		public ObjectViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+        public ObjectViewModel(IMvcContext mvcContext)
+			: base(mvcContext) {}
 
 		private Robject robj;
 

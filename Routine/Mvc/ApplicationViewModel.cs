@@ -10,11 +10,16 @@ namespace Routine.Mvc
 	{
 		private readonly Rapplication rapp;
 
-		public ApplicationViewModel(Rapplication rapp, IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory)
+        public ApplicationViewModel(Rapplication rapp, IMvcContext mvcContext)
+			: base(mvcContext)
 		{
 			this.rapp = rapp;
 		}
+
+        internal override Robject Robj(string id, string modelId)
+        {
+            return rapp.Get(id, modelId);
+        }
 
 		public ObjectViewModel Index
 		{

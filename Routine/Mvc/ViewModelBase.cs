@@ -6,25 +6,22 @@ namespace Routine.Mvc
 {
 	public abstract class ViewModelBase
 	{
-		private readonly IMvcConfiguration mvcConfig;
-		private readonly IFactory factory;
+		private readonly IMvcContext context;
 
-		protected ViewModelBase(IMvcConfiguration mvcConfig, IFactory factory)
+		protected ViewModelBase(IMvcContext context)
 		{
-			this.mvcConfig = mvcConfig;
-			this.factory = factory;
+            this.context = context;
 		}
 
-		protected IMvcConfiguration MvcConfig{get{return mvcConfig;}}
-		public ApplicationViewModel Application{get{return Create<ApplicationViewModel>();}}
+        protected IMvcConfiguration MvcConfig { get { return context.MvcConfiguration; } }
+		public ApplicationViewModel Application{get{return context.Application;}}
 
-		protected MenuViewModel CreateMenu() {return Create<MenuViewModel>();}
-		protected ObjectViewModel CreateObject() {return Create<ObjectViewModel>();}
-		protected MemberViewModel CreateMember() {return Create<MemberViewModel>();}
-		protected OperationViewModel CreateOperation() {return Create<OperationViewModel>();}
-		protected ParameterViewModel CreateParameter() {return Create<ParameterViewModel>();}
-		protected VariableViewModel CreateVariable() {return Create<VariableViewModel>();}
-		protected T Create<T>() { return factory.Create<T>(); }
+        protected MenuViewModel CreateMenu() { return context.CreateMenu(); }
+        protected ObjectViewModel CreateObject() { return context.CreateObject(); }
+        protected MemberViewModel CreateMember() { return context.CreateMember(); }
+        protected OperationViewModel CreateOperation() { return context.CreateOperation(); }
+        protected ParameterViewModel CreateParameter() { return context.CreateParameter(); }
+        protected VariableViewModel CreateVariable() { return context.CreateVariable(); }
 
 		public void Render(HtmlHelper html, params object[] viewData) { RenderAs(html, null, viewData); }
 		public void RenderAs(HtmlHelper html, string type, params object[] viewData)
@@ -41,9 +38,9 @@ namespace Routine.Mvc
 			html.RenderPartial(viewName, this, viewDataDict);
 		}
 
-		protected Robject Robj(string id, string modelId)
+		internal virtual Robject Robj(string id, string modelId)
 		{
-			return factory.Create<Robject>().With(id, modelId);
+			return context.Application.Robj(id, modelId);
 		}
 	}
 }

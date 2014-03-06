@@ -7,13 +7,11 @@ namespace Routine.Api
 {
 	public class Rapplication
 	{
-		private readonly IObjectService objectService;
-		private readonly IFactory factory;
+		private readonly IApiContext context;
 
-		public Rapplication(IObjectService objectService, IFactory factory)
+		public Rapplication(IApiContext context)
 		{
-			this.factory = factory;
-			this.objectService = objectService;
+            this.context = context;
 		}
 
 		private readonly object modelLock = new object();
@@ -27,7 +25,7 @@ namespace Routine.Api
 				{
 					if(model == null)
 					{
-						model = objectService.GetApplicationModel();
+						model = context.ObjectService.GetApplicationModel();
 						modelIndex = ObjectModelIndex.Build(model.Models, omid => new ObjectModel{
 							Id = omid,
 							IsValueModel = true,
@@ -53,7 +51,7 @@ namespace Routine.Api
 
 		public Rvariable NewVar(string name, Robject robj)
 		{
-			return factory.Create<Rvariable>().WithSingle(name, robj);
+			return context.CreateRvariable().WithSingle(name, robj);
 		}
 
 		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, string modelId)
@@ -68,14 +66,14 @@ namespace Routine.Api
 
 		public Rvariable NewVarList(string name, IEnumerable<Robject> list)
 		{
-			return factory.Create<Rvariable>().WithList(name, list);
+			return context.CreateRvariable().WithList(name, list);
 		}
 
 		private Robject Get<T>(T value, Func<T, string> idExtractor, string modelId)
 		{
 			if(object.Equals(value, default(T)))
 			{
-				return factory.Create<Robject>().Null();
+                return context.CreateRobject().Null();
 			}
 
 			return Get(idExtractor(value), modelId);
@@ -83,19 +81,19 @@ namespace Routine.Api
 
 		public Robject Get(string id, string modelId)
 		{
-			return factory.Create<Robject>().With(id, modelId);
+			return context.CreateRobject().With(id, modelId);
 		}
 
 		public Robject Get(string id, string actualModelId, string viewModelId)
 		{
-			return factory.Create<Robject>().With(id, actualModelId, viewModelId);
+			return context.CreateRobject().With(id, actualModelId, viewModelId);
 		}
 
 		public List<Robject> GetAvailableObjects(string modelId)
 		{
-			return objectService
+			return context.ObjectService
 				.GetAvailableObjects(modelId)
-				.Select(v => factory.Create<Robject>().With(v.Reference, v.Value))
+				.Select(v => context.CreateRobject().With(v.Reference, v.Value))
 				.ToList();
 		}
 

@@ -15,8 +15,6 @@ namespace Routine.Test.Core.Service
 	{
 		protected Dictionary<string, object> objectRepository;
 
-		protected Mock<IFactory> factoryMock;
-
 		protected ICoreContext ctx;
 		protected GenericCodingStyle codingStyle;
 
@@ -29,7 +27,6 @@ namespace Routine.Test.Core.Service
 
 			objectRepository = new Dictionary<string, object>();
 
-			factoryMock = new Mock<IFactory>();
 			codingStyle = BuildRoutine.CodingStyle().FromBasic()
 				.Use(p => p.NullPattern("_null"))
 				.Use(p => p.ParseableValueTypePattern(":"))
@@ -41,15 +38,9 @@ namespace Routine.Test.Core.Service
 				;
 
 			var cache = new DictionaryCache();
-			ctx = new CachedFactoryCoreContext(factoryMock.Object, codingStyle, cache);
+			ctx = new CachedCoreContext(codingStyle, cache);
 
 			testing = new ObjectService(ctx, cache);
-
-			factoryMock.Setup(o => o.Create<DomainType>()).Returns(() => new DomainType(ctx));
-			factoryMock.Setup(o => o.Create<DomainObject>()).Returns(() => new DomainObject(ctx));
-			factoryMock.Setup(o => o.Create<DomainMember>()).Returns(() => new DomainMember(ctx));
-			factoryMock.Setup(o => o.Create<DomainOperation>()).Returns(() => new DomainOperation(ctx));
-			factoryMock.Setup(o => o.Create<DomainParameter>()).Returns(() => new DomainParameter(ctx));
 		}
 
 		protected void AddToRepository(object obj)

@@ -2,15 +2,13 @@ using Routine.Core.Service;
 
 namespace Routine.Core.CoreContext
 {
-	public class CachedFactoryCoreContext : ICoreContext
+	public class CachedCoreContext : ICoreContext
 	{
-		private readonly IFactory factory;
 		private readonly ICodingStyle codingStyle;
 		private readonly ICache cache;
 
-		public CachedFactoryCoreContext(IFactory factory, ICodingStyle codingStyle, ICache cache)
+		public CachedCoreContext(ICodingStyle codingStyle, ICache cache)
 		{
-			this.factory = factory;
 			this.codingStyle = codingStyle;
 			this.cache = cache;
 		}
@@ -25,7 +23,7 @@ namespace Routine.Core.CoreContext
 				{
 					if(!cache.Contains(objectModelId))
 					{
-						cache.Add(objectModelId, factory.Create<DomainType>().For(objectModelId));
+						cache.Add(objectModelId, new DomainType(this).For(objectModelId));
 					}
 				}
 			}
@@ -35,22 +33,22 @@ namespace Routine.Core.CoreContext
 
 		public DomainMember CreateDomainMember(DomainType domainType, IMember member)
 		{
-			return factory.Create<DomainMember>().For(domainType, member);
+			return new DomainMember(this).For(domainType, member);
 		}
 
 		public DomainOperation CreateDomainOperation(DomainType domainType, IOperation operation)
 		{
-			return factory.Create<DomainOperation>().For(domainType, operation);
+			return new DomainOperation(this).For(domainType, operation);
 		}
 
 		public DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter)
 		{
-			return factory.Create<DomainParameter>().For(domainOperation, parameter);
+			return new DomainParameter(this).For(domainOperation, parameter);
 		}
 
 		public DomainObject GetDomainObject(ObjectReferenceData reference)
 		{
-			return factory.Create<DomainObject>().For(reference);
+			return new DomainObject(this).For(reference);
 		}
 	}
 }

@@ -2,15 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Fasterflect;
 using NUnit.Framework;
 using Routine.Api;
 using Routine.Core;
 using Routine.Core.Cache;
 using Routine.Core.Service;
-using Routine.Windsor;
 using Routine.Test.Performance.Domain;
 
 namespace Routine.Test.Performance.Domain
@@ -46,9 +43,6 @@ namespace Routine.Test.Performance
 	public class CorePerformanceTest
 	{
 		private Dictionary<string, object> objectRepository;
-		private IWindsorContainer container;
-
-		private IFactory factory;
 
 		private ICoreContext ctx;
 		private IObjectService objectService;

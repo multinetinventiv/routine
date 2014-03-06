@@ -5,9 +5,9 @@ using System.Linq;
 namespace Routine.Mvc
 {
 	public class MemberViewModel : ViewModelBase
-	{		
-		public MemberViewModel(IMvcConfiguration mvcConfig, IFactory factory)
-			: base(mvcConfig, factory) {}
+	{
+        public MemberViewModel(IMvcContext mvcContext)
+			: base(mvcContext) {}
 
 		private Rmember rmem;
 

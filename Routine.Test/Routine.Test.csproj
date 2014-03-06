@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -57,7 +57,7 @@
     <Compile Include="Core\Serializer\MultipleSerializerTest.cs" />
     <Compile Include="Api\ApiTest.cs" />
     <Compile Include="Api\ApiTestBase.cs" />
-    <Compile Include="Core\CoreContext\CachedFactoryCoreContextTest.cs" />
+    <Compile Include="Core\CoreContext\CachedCoreContextTest.cs" />
     <Compile Include="StringExtensionsTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
     <Compile Include="Soa\ObjectServiceControllerTest.cs" />
@@ -82,14 +82,7 @@
     <Compile Include="Api\Generator\ModuleFilterTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Api\" />
-    <Folder Include="Core\CoreContext\" />
-    <Folder Include="Soa\" />
-    <Folder Include="Core\Reflection\" />
-    <Folder Include="Core\Reflection\Optimization\" />
-    <Folder Include="Api\Generator\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

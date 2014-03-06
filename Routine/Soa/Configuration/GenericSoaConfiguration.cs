@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Routine.Soa.SoaConfiguration
+namespace Routine.Soa.Configuration
 {
 	public class GenericSoaConfiguration : ISoaConfiguration
 	{

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using Routine.Core.Service;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Api
 {
@@ -9,9 +9,9 @@ namespace Routine.Api
 	{
 		private const string ANONYMOUS = "__anonymous__";
 
-		private readonly IFactory factory;
+		private readonly IApiContext context;
 
-		public Rvariable(IFactory factory) { this.factory = factory; }
+        public Rvariable(IApiContext context) { this.context = context; }
 
 		private string name;
 		private List<Robject> value;
@@ -20,16 +20,16 @@ namespace Routine.Api
 
 		internal Rvariable With(ValueData data) 
 		{
-			return With(ANONYMOUS, data.Values.Select(svd => factory.Create<Robject>().With(svd.Reference, svd.Value)), data.IsList, false);
+            return With(ANONYMOUS, data.Values.Select(svd => context.CreateRobject().With(svd.Reference, svd.Value)), data.IsList, false);
 		}
 		internal Rvariable With(ReferenceData data) 
 		{
-			return With(ANONYMOUS, data.References.Select(ord => factory.Create<Robject>().With(ord)), data.IsList, false);
+            return With(ANONYMOUS, data.References.Select(ord => context.CreateRobject().With(ord)), data.IsList, false);
 		}
 		internal Rvariable Void() { return With(ANONYMOUS, new List<Robject>(), false, true); }
 
 		internal Rvariable Null() { return Null(ANONYMOUS); }
-		internal Rvariable Null(string name) { return WithSingle(name, factory.Create<Robject>().Null()); }
+        internal Rvariable Null(string name) { return WithSingle(name, context.CreateRobject().Null()); }
 		public Rvariable WithSingle(string name, Robject single) { return With(name, new []{ single }, false, false); }
 		public Rvariable WithList(string name, params Robject[] list) { return WithList(name, (IEnumerable<Robject>)list); }
 		public Rvariable WithList(string name, IEnumerable<Robject> list) { return With(name, list, true, false); }
@@ -72,7 +72,7 @@ namespace Routine.Api
 			{
 				if(value.Count <= 0)
 				{
-					return factory.Create<Robject>().Null();
+                    return context.CreateRobject().Null();
 				}
 
 				return value[0];
@@ -89,17 +89,17 @@ namespace Routine.Api
 
 		public Rvariable CreateAlias(string name)
 		{
-			return factory.Create<Rvariable>().With(name, value, list, @void);
+            return context.CreateRvariable().With(name, value, list, @void);
 		}
 
 		public Rvariable ToSingle()
 		{
-			return factory.Create<Rvariable>().WithSingle(name, Object);
+            return context.CreateRvariable().WithSingle(name, Object);
 		}
 
 		public Rvariable ToList()
 		{
-			return factory.Create<Rvariable>().WithList(name, List);
+            return context.CreateRvariable().WithList(name, List);
 		}
 
 		public T As<T>(Func<Robject, T> converter)
