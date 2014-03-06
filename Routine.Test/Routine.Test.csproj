@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Routine.Test</RootNamespace>
+    <AssemblyName>Routine.Test</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\Extractor\BaseOptionalExtractorTest.cs" />
+    <Compile Include="Core\Extractor\ConverterExtractorTest.cs" />
+    <Compile Include="Core\Extractor\MultipleExtractorTest.cs" />
+    <Compile Include="Core\Extractor\ReferenceValueExtractorTest.cs" />
+    <Compile Include="Core\Extractor\StaticExtractorTest.cs" />
+    <Compile Include="Core\Locator\BaseOptionalLocatorTest.cs" />
+    <Compile Include="Core\Locator\DelegateLocatorTest.cs" />
+    <Compile Include="Core\Locator\MultipleLocatorTest.cs" />
+    <Compile Include="Core\Selector\BaseOptionalSelectorTest.cs" />
+    <Compile Include="Core\Selector\DelegateSelectorTest.cs" />
+    <Compile Include="Core\Selector\MultipleSelectorTest.cs" />
+    <Compile Include="Core\Serializer\BaseOptionalSerializerTest.cs" />
+    <Compile Include="Core\Serializer\DelegateSerializerTest.cs" />
+    <Compile Include="Core\Serializer\MultipleSerializerTest.cs" />
+    <Compile Include="Api\ApiTest.cs" />
+    <Compile Include="Api\ApiTestBase.cs" />
+    <Compile Include="Core\CoreContext\CachedFactoryCoreContextTest.cs" />
+    <Compile Include="StringExtensionsTest.cs" />
+    <Compile Include="EnumerableExtensionsTest.cs" />
+    <Compile Include="Soa\ObjectServiceControllerTest.cs" />
+    <Compile Include="Core\Selector\NoneSelectorTest.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest_DataToStringAndEquals.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest_GetApplicationModel.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest_GetObjectData.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest_GetObjectModel.cs" />
+    <Compile Include="Core\Service\ObjectServiceTest_PerformOperation.cs" />
+    <Compile Include="Core\Service\ObjectServiceTestBase.cs" />
+    <Compile Include="Core\Reflection\TypeInfoTest.cs" />
+    <Compile Include="Core\Reflection\PropertyInfoTest.cs" />
+    <Compile Include="Core\Reflection\MethodInfoTest.cs" />
+    <Compile Include="Core\Reflection\ParameterInfoTest.cs" />
+    <Compile Include="Core\Reflection\ReflectionTestBase.cs" />
+    <Compile Include="ReflectionExtensionsTest.cs" />
+    <Compile Include="Core\CoreTestBase.cs" />
+    <Compile Include="Core\Reflection\Optimization\ReflectionOptimizerTest.cs" />
+    <Compile Include="Api\ObjectServiceRestClientTest.cs" />
+    <Compile Include="Api\Generator\ClientApiGeneratorTest.cs" />
+    <Compile Include="Api\Generator\ModuleFilterTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Api\" />
+    <Folder Include="Core\CoreContext\" />
+    <Folder Include="Soa\" />
+    <Folder Include="Core\Reflection\" />
+    <Folder Include="Core\Reflection\Optimization\" />
+    <Folder Include="Api\Generator\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Routine\Routine.csproj">
+      <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
+      <Name>Routine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
+      <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
+      <Name>Routine.Test.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A597022C-F6DD-495F-A846-290EEDE08B9D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Routine</RootNamespace>
+    <AssemblyName>Routine</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\Builder\CodingStyleBuilder.cs" />
+    <Compile Include="Core\Builder\ExtractorBuilder.cs" />
+    <Compile Include="Core\Builder\LocatorBuilder.cs" />
+    <Compile Include="Core\Builder\SelectorBuilder.cs" />
+    <Compile Include="Core\Builder\SerializerBuilder.cs" />
+    <Compile Include="Core\CodingStyle\GenericCodingStyle.cs" />
+    <Compile Include="Core\Extractor\BaseOptionalExtractor.cs" />
+    <Compile Include="Core\Extractor\ConverterExtractor.cs" />
+    <Compile Include="Core\Extractor\MultipleExtractor.cs" />
+    <Compile Include="Core\Extractor\ReferenceValueExtractor.cs" />
+    <Compile Include="Core\Extractor\StaticExtractor.cs" />
+    <Compile Include="Core\Locator\BaseOptionalLocator.cs" />
+    <Compile Include="Core\Locator\DelegateLocator.cs" />
+    <Compile Include="Core\Locator\MultipleLocator.cs" />
+    <Compile Include="Core\Operation\MethodOperation.cs" />
+    <Compile Include="Core\Operation\MethodParameter.cs" />
+    <Compile Include="Core\Selector\BaseOptionalSelector.cs" />
+    <Compile Include="Core\Selector\DelegateSelector.cs" />
+    <Compile Include="Core\Selector\Excluder.cs" />
+    <Compile Include="Core\Selector\MultipleSelector.cs" />
+    <Compile Include="Core\Selector\StaticSelector.cs" />
+    <Compile Include="Core\Serializer\BaseOptionalSerializer.cs" />
+    <Compile Include="Core\Serializer\DelegateSerializer.cs" />
+    <Compile Include="Core\Serializer\MultipleSerializer.cs" />
+    <Compile Include="Core\ICodingStyle.cs" />
+    <Compile Include="Core\IExtractor.cs" />
+    <Compile Include="Core\ILocator.cs" />
+    <Compile Include="Core\IOperation.cs" />
+    <Compile Include="Core\IParameter.cs" />
+    <Compile Include="Core\ISelector.cs" />
+    <Compile Include="Core\ISerializer.cs" />
+    <Compile Include="Core\DomainObject.cs" />
+    <Compile Include="Core\DomainType.cs" />
+    <Compile Include="IFactory.cs" />
+    <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Api\Rapplication.cs" />
+    <Compile Include="Core\IObjectItem.cs" />
+    <Compile Include="Core\IMember.cs" />
+    <Compile Include="Api\Robject.cs" />
+    <Compile Include="Api\Rmember.cs" />
+    <Compile Include="Api\Roperation.cs" />
+    <Compile Include="Api\Rparameter.cs" />
+    <Compile Include="Api\Rvariable.cs" />
+    <Compile Include="Core\Member\MethodMember.cs" />
+    <Compile Include="Core\Member\PropertyMember.cs" />
+    <Compile Include="Mvc\ApplicationViewModel.cs" />
+    <Compile Include="Mvc\ObjectViewModel.cs" />
+    <Compile Include="Mvc\VariableViewModel.cs" />
+    <Compile Include="Mvc\ViewModelBase.cs" />
+    <Compile Include="Mvc\MenuViewModel.cs" />
+    <Compile Include="Mvc\OperationViewModel.cs" />
+    <Compile Include="Mvc\MemberViewModel.cs" />
+    <Compile Include="Mvc\ParameterViewModel.cs" />
+    <Compile Include="Mvc\IMvcConfiguration.cs" />
+    <Compile Include="Mvc\MvcConfiguration\GenericMvcConfiguration.cs" />
+    <Compile Include="Mvc\Builder\MvcConfigurationBuilder.cs" />
+    <Compile Include="BuildRoutine.cs" />
+    <Compile Include="Core\ICoreContext.cs" />
+    <Compile Include="Core\CoreContext\CachedFactoryCoreContext.cs" />
+    <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="Core\ICache.cs" />
+    <Compile Include="Core\Cache\WebCache.cs" />
+    <Compile Include="Core\Cache\DictionaryCache.cs" />
+    <Compile Include="Core\Builder\PatternBuilder.cs" />
+    <Compile Include="CodingStylePatterns.cs" />
+    <Compile Include="MvcPatterns.cs" />
+    <Compile Include="Core\Selector\NoneSelector.cs" />
+    <Compile Include="Core\Service\Application.cs" />
+    <Compile Include="Core\Service\Impl\ObjectService.cs" />
+    <Compile Include="Core\Service\IObjectService.cs" />
+    <Compile Include="Core\Service\Member.cs" />
+    <Compile Include="Core\Service\Object.cs" />
+    <Compile Include="Core\Service\ObjectReference.cs" />
+    <Compile Include="Core\Service\Operation.cs" />
+    <Compile Include="Core\Service\Parameter.cs" />
+    <Compile Include="Core\Service\Result.cs" />
+    <Compile Include="Core\Service\Value.cs" />
+    <Compile Include="TypeInfo.cs" />
+    <Compile Include="Core\Reflection\MethodInfo.cs" />
+    <Compile Include="Core\Reflection\PropertyInfo.cs" />
+    <Compile Include="Core\Reflection\ParameterInfo.cs" />
+    <Compile Include="Core\Reflection\MemberIndex.cs" />
+    <Compile Include="Core\Reflection\DomainTypeInfo.cs" />
+    <Compile Include="Core\Reflection\ArrayTypeInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectedTypeInfo.cs" />
+    <Compile Include="Core\Reflection\VoidTypeInfo.cs" />
+    <Compile Include="Core\Reflection\EnumTypeInfo.cs" />
+    <Compile Include="Core\Reflection\PreloadedTypeInfo.cs" />
+    <Compile Include="Core\Reflection\ParseableTypeInfo.cs" />
+    <Compile Include="Core\Reflection\PreloadedPropertyInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectedPropertyInfo.cs" />
+    <Compile Include="Core\Reflection\PreloadedMethodInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectedMethodInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectedParameterInfo.cs" />
+    <Compile Include="Core\Reflection\PreloadedParameterInfo.cs" />
+    <Compile Include="Core\Reflection\Optimization\ReflectionOptimizer.cs" />
+    <Compile Include="Core\Reflection\Optimization\IMethodInvoker.cs" />
+    <Compile Include="Core\Reflection\Optimization\ReflectionMethodInvoker.cs" />
+    <Compile Include="Core\DomainMember.cs" />
+    <Compile Include="Core\DomainParameter.cs" />
+    <Compile Include="Core\DomainOperation.cs" />
+    <Compile Include="Core\Rest\IRestClient.cs" />
+    <Compile Include="Core\Rest\RestParameter.cs" />
+    <Compile Include="Mvc\MvcController.cs" />
+    <Compile Include="Soa\ISoaConfiguration.cs" />
+    <Compile Include="Soa\Builder\SoaConfigurationBuilder.cs" />
+    <Compile Include="Soa\SoaConfiguration\GenericSoaConfiguration.cs" />
+    <Compile Include="Soa\SoaController.cs" />
+    <Compile Include="Api\ObjectServiceRestClient.cs" />
+    <Compile Include="Api\ISoaClientConfiguration.cs" />
+    <Compile Include="Api\SoaClientConfiguration\GenericSoaClientConfiguration.cs" />
+    <Compile Include="Api\Builder\SoaClientConfigurationBuilder.cs" />
+    <Compile Include="Core\Rest\WebRequestRestClient.cs" />
+    <Compile Include="Api\Generator\ClientApiGenerator.cs" />
+    <Compile Include="Api\Generator\ModuleFilter.cs" />
+    <Compile Include="Api\Generator\ClientApiPatterns.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Api\" />
+    <Folder Include="Soa\" />
+    <Folder Include="Core\CoreContext\" />
+    <Folder Include="Core\Cache\" />
+    <Folder Include="Core\Reflection\Optimization\" />
+    <Folder Include="Core\Rest\" />
+    <Folder Include="Soa\Builder\" />
+    <Folder Include="Soa\SoaConfiguration\" />
+    <Folder Include="Api\Builder\" />
+    <Folder Include="Api\SoaClientConfiguration\" />
+    <Folder Include="Api\Generator\" />
+    <Folder Include="Api\Generator\Client\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Api\Generator\Client\ApiCodeModel.cs.template" />
+    <EmbeddedResource Include="Api\Generator\Client\ObjectCodeModel.cs.template" />
+  </ItemGroup>
+</Project>

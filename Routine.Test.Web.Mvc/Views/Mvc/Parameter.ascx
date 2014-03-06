@@ -1,0 +1,22 @@
+﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
+
+<% var model = Model as ParameterViewModel; %>
+<% var index = ViewData["index"]; %>
+<input type="hidden" name="parameters[<%= index %>].key" value="<%= model.Id %>" />
+<% if(!model.HasOptions) { %>
+	<% if(model.DataType == ":System.Boolean") { %>
+		<input type="checkbox" name="parameters[<%= index %>].value" 
+			   data-type="<%= model.DataType %>" value="True"  />
+		<input type="hidden" name="parameters[<%= index %>].value"
+			   data-type="<%= model.DataType %>" value="False"  />
+	<% } else { %>
+		<input type="text" name="parameters[<%= index %>].value" 
+			   data-type="<%= model.DataType %>" value="<%= model.DefaultValue %>" />
+	<% } %>
+<% } else { %>
+	<select name="parameters[<%= index %>].value">
+		<% foreach(var option in model.Options) { %>
+			<option value="<%= option.Id %>" selected="<%= option.Value==model.DefaultValue?"selected":"no" %>" ><%= option.Value %></option>
+		<% } %>
+	</select>
+<% } %>

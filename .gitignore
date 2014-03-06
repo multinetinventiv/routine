@@ -1,0 +1,4 @@
+**/bin/**/*
+**/obj/**/*
+**/*.userprefs
+**/routine.test.db
