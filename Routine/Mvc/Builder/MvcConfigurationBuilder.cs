@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Routine.Api;
-using Routine.Mvc.MvcConfiguration;
+using Routine.Mvc.Configuration;
 
 namespace Routine.Mvc.Builder
 {

@@ -2,7 +2,7 @@ using System;
 using Moq;
 using NUnit.Framework;
 using Routine.Core;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 using Routine.Core.Locator;
 
 namespace Routine.Test.Core.Locator

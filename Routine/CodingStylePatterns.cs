@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Routine.Core.Builder;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 
 namespace Routine
 {
@@ -61,6 +61,7 @@ namespace Routine
 		{
 			return source.CommonDomainTypeRootNamespacePattern(rootNamespace, "-"); 
 		}
+
 		public static GenericCodingStyle CommonDomainTypeRootNamespacePattern(this PatternBuilder<GenericCodingStyle> source, string rootNamespace, string separator)
 		{
 			var prefix = rootNamespace + ".";

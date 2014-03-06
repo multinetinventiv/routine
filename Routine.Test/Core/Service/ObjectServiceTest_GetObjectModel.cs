@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 using Routine.Test.Core.Service.Ignored;
 
 namespace Routine.Test.Core.Service.Ignored

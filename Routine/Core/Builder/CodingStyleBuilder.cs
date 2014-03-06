@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 
 namespace Routine.Core.Builder
 {

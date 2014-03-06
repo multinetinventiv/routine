@@ -2,7 +2,7 @@ using Moq;
 using NUnit.Framework;
 using Routine.Core;
 using Routine.Core.Cache;
-using Routine.Core.CoreContext;
+using Routine.Core.Context;
 
 namespace Routine.Test.Core.CoreContext.Domain
 {

@@ -2,7 +2,7 @@ using System;
 using Castle.Core;
 using Castle.Windsor;
 using Routine.Core.Builder;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 
 namespace Routine.Test.Common.Configuration
 {

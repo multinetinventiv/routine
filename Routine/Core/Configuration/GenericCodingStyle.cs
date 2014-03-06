@@ -5,7 +5,7 @@ using Routine.Core.Locator;
 using Routine.Core.Selector;
 using Routine.Core.Serializer;
 
-namespace Routine.Core.CodingStyle
+namespace Routine.Core.Configuration
 {
 	public class GenericCodingStyle : ICodingStyle
 	{

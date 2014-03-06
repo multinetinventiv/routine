@@ -4,7 +4,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Core;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 using Routine.Core.Selector;
 
 namespace Routine.Test.Core.Selector

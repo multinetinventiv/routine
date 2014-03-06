@@ -1,10 +1,6 @@
 ﻿using Routine.Core.Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Routine.Api.ApiContext
+namespace Routine.Api.Context
 {
     public class DefaultApiContext : IApiContext
     {

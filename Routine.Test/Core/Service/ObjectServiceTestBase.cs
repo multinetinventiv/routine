@@ -5,8 +5,8 @@ using NUnit.Framework;
 using Routine.Core.Service;
 using Routine.Core.Service.Impl;
 using Routine.Core;
-using Routine.Core.CodingStyle;
-using Routine.Core.CoreContext;
+using Routine.Core.Configuration;
+using Routine.Core.Context;
 using Routine.Core.Cache;
 
 namespace Routine.Test.Core.Service

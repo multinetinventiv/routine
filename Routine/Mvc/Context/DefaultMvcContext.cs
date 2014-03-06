@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Routine.Mvc.MvcContext
+namespace Routine.Mvc.Context
 {
     public class DefaultMvcContext : IMvcContext
     {

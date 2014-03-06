@@ -1,6 +1,6 @@
 using Routine.Core.Service;
 
-namespace Routine.Core.CoreContext
+namespace Routine.Core.Context
 {
 	public class CachedCoreContext : ICoreContext
 	{

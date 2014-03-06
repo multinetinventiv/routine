@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Routine.Core;
 using Moq;
 using Routine.Core.Serializer;
-using Routine.Core.CodingStyle;
+using Routine.Core.Configuration;
 using System;
 
 namespace Routine.Test.Core.Serializer

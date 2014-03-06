@@ -8,7 +8,7 @@ using Routine.Core.Extractor;
 using Routine.Core.Selector;
 using Routine.Core.Service;
 
-namespace Routine.Mvc.MvcConfiguration
+namespace Routine.Mvc.Configuration
 {
 	public class GenericMvcConfiguration : IMvcConfiguration
 	{
