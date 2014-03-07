@@ -1,15 +1,12 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Castle.Windsor;
 using Routine.Test.Common.Configuration;
 
 namespace Routine.Test.Web.Mvc
 {
 	public class MvcApplication : HttpApplication
 	{
-		protected IWindsorContainer container;
-
 		protected void Application_Start()
 		{
 			//mvc stuff

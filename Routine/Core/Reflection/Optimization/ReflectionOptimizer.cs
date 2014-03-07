@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CSharp;
@@ -138,19 +139,6 @@ namespace Routine.Core.Reflection.Optimization
 					.Replace("$Namespace$", method.ReflectedType.Namespace);
 		}
 
-		private static void AddReferences(System.Reflection.MethodBase method, CompilerParameters compilerparams)
-		{
-			compilerparams.ReferencedAssemblies.Add(typeof(IMethodInvoker).Assembly.GetName().Name + ".dll");
-			compilerparams.ReferencedAssemblies.Add(method.ReflectedType.Assembly.GetName().Name + ".dll");
-			if(method.ReflectedType.IsGenericType)
-			{
-				foreach(var genericArg in method.ReflectedType.GetGenericArguments())
-				{
-					compilerparams.ReferencedAssemblies.Add(genericArg.Assembly.GetName().Name + ".dll");
-				}
-			}
-		}
-
 		public IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
 		{
 			if(method == null){throw new ArgumentNullException("method");}
@@ -158,24 +146,33 @@ namespace Routine.Core.Reflection.Optimization
 			if(!method.ReflectedType.IsPublic && !method.ReflectedType.IsNestedPublic){return new ReflectionMethodInvoker(method);}
 
 			var provider = new CSharpCodeProvider();
-			var compilerparams = new CompilerParameters();
-			compilerparams.GenerateExecutable = false;
-			compilerparams.GenerateInMemory = true;
-			AddReferences(method, compilerparams);
+			var compilerParameters = new CompilerParameters();
+			compilerParameters.GenerateExecutable = false;
+			compilerParameters.GenerateInMemory = true;
+			compilerParameters.ReferencedAssemblies.Add(typeof(IMethodInvoker).Assembly.Location);
+			AddTypeReference(method.ReflectedType, compilerParameters);
+			AddTypeReference(method.DeclaringType, compilerParameters);
+			foreach (var parameter in method.GetParameters())
+			{
+				AddTypeReference(parameter.ParameterType, compilerParameters);
+			}
 
 			string typeName = method.ReflectedType.Namespace + "." + TypeName(method.ReflectedType) + "_" +  MethodName(method) + "Invoker";
 
 			string code = Method(method);
 
-			var results = provider.CompileAssemblyFromSource(compilerparams, code);
+			var results = provider.CompileAssemblyFromSource(compilerParameters, code);
 			if(results.Errors.HasErrors)
 			{
-				var errors = new StringBuilder("Compiler Errors :\r\n");
+				var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
 				foreach(CompilerError error in results.Errors)
 				{
-					errors.AppendFormat("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
+					errors.AppendFormat("Line {0},{1}\t: {2}", error.Line, error.Column, error.ErrorText);
+					errors.AppendLine();
 				}
-				Console.WriteLine("Generated Source Code: \n\n" + code);
+				Console.WriteLine("Generated Source Code:");
+				Console.WriteLine();
+				Console.WriteLine(code);
 				throw new Exception(errors.ToString());
 			}
 
@@ -183,6 +180,28 @@ namespace Routine.Core.Reflection.Optimization
 			var result = (IMethodInvoker)Activator.CreateInstance(type);
 
 			return result;
+		}
+
+		private static void AddTypeReference(Type type, CompilerParameters compilerParameters)
+		{
+			SafeAddReference(type.Assembly.Location, compilerParameters);
+			if (type.IsGenericType)
+			{
+				foreach (var genericArg in type.GetGenericArguments())
+				{
+					SafeAddReference(genericArg.Assembly.Location, compilerParameters);
+				}
+			}
+		}
+
+		private static void SafeAddReference(string assembly, CompilerParameters compilerParameters)
+		{
+			if (compilerParameters.ReferencedAssemblies.Contains(assembly))
+			{
+				return;
+			}
+
+			compilerParameters.ReferencedAssemblies.Add(assembly);
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace Routine.Test.Common.Configuration
 			return Fluently.Configure()
 					#if DEBUG
 					.Database(SQLiteConfiguration.Standard
-						.Driver<MonoSqliteDriver>()
+						.UsingCrossPlatformDriver()
 						.UsingFile("routine.test.db")
 						.ShowSql())
 					#else
@@ -101,19 +101,34 @@ namespace Routine.Test.Common.Configuration
 				return instance;
 			}
 		}
+	}
+
+	internal static class SQLiteConfigurationExtension
+	{
+		public static SQLiteConfiguration UsingCrossPlatformDriver(this SQLiteConfiguration source)
+		{
+			if (IsOnMono)
+			{
+				return source.Driver<MonoSqliteDriver>();
+			}
+
+			return source;
+		}
+
+		private static bool IsOnMono { get { return Type.GetType("Mono.Runtime") != null; } }
 
 		private class MonoSqliteDriver : ReflectionBasedDriver
-		{  
-			public MonoSqliteDriver() 
+		{
+			public MonoSqliteDriver()
 				: base("Mono.Data.Sqlite",
-					"Mono.Data.Sqlite",  
-					"Mono.Data.Sqlite.SqliteConnection",  
-					"Mono.Data.Sqlite.SqliteCommand") {}
+					"Mono.Data.Sqlite",
+					"Mono.Data.Sqlite.SqliteConnection",
+					"Mono.Data.Sqlite.SqliteCommand") { }
 
-			public override bool UseNamedPrefixInParameter{get{return true;}}
-			public override bool UseNamedPrefixInSql{get{return true;}}
-			public override string NamedPrefix{get{return "@";}}
-			public override bool SupportsMultipleOpenReaders{get{return false;}}
+			public override bool UseNamedPrefixInParameter { get { return true; } }
+			public override bool UseNamedPrefixInSql { get { return true; } }
+			public override string NamedPrefix { get { return "@"; } }
+			public override bool SupportsMultipleOpenReaders { get { return false; } }
 		}
 	}
 }
