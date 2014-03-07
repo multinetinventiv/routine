@@ -31,7 +31,7 @@ namespace Routine.Api.Generator
 				Type = type;
 				ModelId = modelId;
 				ClientType = clientType;
-
+				
 				if(!clientType)
 				{
 					ValueToStringCodeTemplate = "{value}";

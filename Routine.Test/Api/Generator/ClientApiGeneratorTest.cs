@@ -791,6 +791,24 @@ namespace Routine.Test.Api.Generator
 			Assert.AreEqual(expectedInstance2, actualInstance2);
 		}
 
+		[Test]
+		public void SystemReferenceAddedAutomatically()
+		{
+			Assert.Fail("not implemented");
+		}
+
+		[Test]
+		public void InternalSupport()
+		{
+			Assert.Fail("to be refactored");
+		}
+
+		[Test][Ignore]
+		public void Enum()
+		{
+			Assert.Fail("to be designed");
+		}
+
 		[Test][Ignore]
 		public void SingletonOnViewModels()
 		{
