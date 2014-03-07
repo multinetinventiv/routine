@@ -32,71 +32,9 @@ namespace Routine
 {
 	public static class BuildRoutine
 	{
-		#region Construction Helpers
-		private static IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)
+		public static ContextBuilder Context()
 		{
-			var result = new DefaultMvcContext(mvcConfiguration);
-
-			result.Application = new ApplicationViewModel(apiContext.Rapplication, result);
-
-			return result;
-		}
-
-		private static IApiContext ApiContext(IObjectService objectService)
-		{
-			var result = new DefaultApiContext(objectService);
-
-			result.Rapplication = new Rapplication(result);
-
-			return result;
-		}
-
-		private static ISoaContext SoaContext(ISoaConfiguration soaConfiguration, IObjectService objectService)
-		{
-			return new DefaultSoaContext(soaConfiguration, objectService);
-		}
-
-		private static IObjectService ObjectService(ICodingStyle codingStyle)
-		{
-			return new ObjectService(CoreContext(codingStyle), WebCache());
-		}
-
-		private static IObjectService ObjectServiceClient(ISoaClientConfiguration soaClientConfiguration)
-		{
-			return new RestClientObjectService(soaClientConfiguration, RestClient());
-		}
-
-		private static ICoreContext CoreContext(ICodingStyle codingStyle)
-		{
-			return new CachedCoreContext(codingStyle, WebCache());
-		}
-
-		private static IRestClient RestClient() { return new WebRequestRestClient(); }
-
-		private static ICache WebCache() { return new WebCache(); }
-
-		private static ICache dictionaryCache = new DictionaryCache();
-		private static ICache DictionaryCache() { return dictionaryCache; }
-		#endregion
-
-		public static IMvcContext MvcApplication(IMvcConfiguration mvcConfiguration, ICodingStyle codingStyle)
-		{
-			return MvcContext(mvcConfiguration, ApiContext(ObjectService(codingStyle)));
-		}
-
-		public static IMvcContext MvcSoaClient(IMvcConfiguration mvcConfiguration, ISoaClientConfiguration soaClientConfiguration)
-		{
-			return MvcContext(mvcConfiguration, ApiContext(ObjectServiceClient(soaClientConfiguration)));
-		}
-
-		public static IApiContext SoaClient(ISoaClientConfiguration soaClientConfiguration)
-		{
-			return ApiContext(ObjectServiceClient(soaClientConfiguration));
-		}
-
-		public static ISoaContext SoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
-		{
-			return SoaContext(soaConfiguration, ObjectService(codingStyle));
+			return new ContextBuilder();
 		}
 
 		public static CodingStyleBuilder CodingStyle()
@@ -159,7 +97,7 @@ namespace Routine
 			return new SerializerBuilder<T>();
 		}
 	}
-
+	
 	public static class BuildRoutineExtensions
 	{
 		#region Extractor

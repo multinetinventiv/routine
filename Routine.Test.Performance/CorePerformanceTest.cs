@@ -44,7 +44,7 @@ namespace Routine.Test.Performance
 	{
 		private Dictionary<string, object> objectRepository;
 
-		private ICoreContext ctx;
+		private ICodingStyle codingStyle;
 		private IObjectService objectService;
 		private Rapplication rapp;
 
@@ -52,46 +52,38 @@ namespace Routine.Test.Performance
 		public void SetUp()
 		{
 			objectRepository = new Dictionary<string, object>();
-
-			if(container == null)
-			{
-				container = new WindsorContainer()
-					//routine uses web cache by default, override it to dictionarycache
-					.Register(Component.For<ICache>().ImplementedBy<DictionaryCache>())
-					.InstallMvcApplication(
-						BuildRoutine.MvcConfig().FromBasic(),
-						BuildRoutine.CodingStyle()
-						.FromBasic()				
-						.DomainTypeRootNamespacesAre("Routine.Test.Performance.Domain")
-						.Use(p => p.NullPattern("_null"))
-						.Use(p => p.ParseableValueTypePattern(":"))
-						.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
+			
+			var apiCtx = BuildRoutine.Context()
+				.UsingCache(new DictionaryCache())
+				.AsClientApplication(
+					codingStyle = BuildRoutine.CodingStyle()
+					.FromBasic()				
+					.DomainTypeRootNamespacesAre("Routine.Test.Performance.Domain")
+					.Use(p => p.NullPattern("_null"))
+					.Use(p => p.ParseableValueTypePattern(":"))
+					.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 						
-						.Member.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
-						.Operation.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
+					.Member.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
+					.Operation.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
 						
-						.Id.Done(e => e.ByProperty(p => p.Returns<int>("Id")).ReturnAsString())
-						.Locator.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
+					.Id.Done(e => e.ByProperty(p => p.Returns<int>("Id")).ReturnAsString())
+					.Locator.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
 						
-						.DisplayValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
-					);
-
-				factory = container.Resolve<IFactory>();
+					.DisplayValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
+				);
 				
-				ctx = container.Resolve<ICoreContext>();
-				objectService = container.Resolve<IObjectService>();
-				rapp = container.Resolve<Rapplication>();
-			}
+			objectService = apiCtx.ObjectService;
+			rapp = apiCtx.Rapplication;
 		}
 
 		#region Helpers
 
 		protected void AddToRepository(BusinessPerformance obj)
 		{
-			objectRepository.Add(ctx.CodingStyle.IdExtractor.Extract(obj), obj);
+			objectRepository.Add(codingStyle.IdExtractor.Extract(obj), obj);
 			foreach(var sub in obj.Items)
 			{
-				objectRepository.Add(ctx.CodingStyle.IdExtractor.Extract(sub), sub);
+				objectRepository.Add(codingStyle.IdExtractor.Extract(sub), sub);
 			}
 		}
 

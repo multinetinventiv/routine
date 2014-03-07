@@ -13,7 +13,7 @@ namespace Routine.Test.Performance
 		[SetUp]
 		public void SetUp()
 		{			
-			soaClientContext = BuildRoutine.SoaClient(BuildRoutine.SoaClientConfig().FromBasic().ServiceUrlBaseIs("http://127.0.0.1:2222/Soa"));
+			soaClientContext = BuildRoutine.Context().AsSoaClient(BuildRoutine.SoaClientConfig().FromBasic().ServiceUrlBaseIs("http://127.0.0.1:2222/Soa"));
 
 			rapp = soaClientContext.Rapplication;
 		}

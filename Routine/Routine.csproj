@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
+    <Compile Include="ContextBuilder.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
