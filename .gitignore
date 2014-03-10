@@ -4,3 +4,4 @@
 **/routine.test.db
 **/*.suo
 **/*.csproj.user
+**/TestResults/**/*

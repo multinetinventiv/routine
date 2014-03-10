@@ -9,6 +9,7 @@ using Routine.Test.Common;
 using Routine.Core.Service;
 using Moq;
 using Routine.Api;
+using System.IO;
 
 namespace Routine.Test.Api.Generator
 {
@@ -36,7 +37,7 @@ namespace Routine.Test.Api.Generator
 			return Activator.CreateInstance(BuildAndGetClientClass(name), Robj(id, name));
 		}
 
-		[Test] [Ignore]
+		[Test]
 		public void GeneratesAssemblyWithGivenDefaultNamespaceWhenInMemoryIsFalse()
 		{
 			testing.InMemory = false;
@@ -112,9 +113,9 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void ValueTypesAreNotRenderedButTheirAssembliesShouldBeReferenced()
 		{
-			ModelsAre(Model(":System.String").IsValue());
+			ModelsAre(Model(":Routine.Test.Common.Price").IsValue());
 
-			testing.Using<string>(":System.String");
+			testing.Using<Price>(":Routine.Test.Common.Price");
 
 			var actual = testing.Build().GetTypes().Length;
 
@@ -159,7 +160,7 @@ namespace Routine.Test.Api.Generator
 		public void MembersAreRenderedAsReadOnlyProperties()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", ":System.String"));
-
+			
 			testing.Using<string>(":System.String");
 
 			var properties = BuildAndGetClientClass("TestClass").GetProperties();
@@ -284,6 +285,7 @@ namespace Routine.Test.Api.Generator
 				Model("Excluded-TestClass2").Module("Excluded").Name("TestClass2"));
 
 			testing.Using<string>(":System.String");
+
 			testing.Modules.Include("Included.*");
 			var types = testing.Build().GetTypes();
 
@@ -410,7 +412,6 @@ namespace Routine.Test.Api.Generator
 					p[0].Value.References[0].Id == expectedGuid.ToString())
 				.Returns(Result(Id(expectedInt.ToString(), ":System.Int32")));
 
-			testing.AddReference(typeof(int).Assembly);
 			testing.Using(
 				t => t.CanParse(),
 				t => ":" + t.FullName,
@@ -489,18 +490,18 @@ namespace Routine.Test.Api.Generator
 
 			var otherApiGenerator = new ClientApiGenerator(objectServiceMock.Object);
 
-			otherApiGenerator.DefaultNamespace = "Routine.Test.ApiGen.Client.Module2";
+			otherApiGenerator.DefaultNamespace = "RoutineTest.ApiGen.Client.Module2";
 			otherApiGenerator.InMemory = false;
 			otherApiGenerator.Modules.Include("Module2");
 			var otherApi = otherApiGenerator.Build();
 			var testClass2 = otherApi.GetTypes().Single(t => t.Name == "TestClass2");
 
-			testing.DefaultNamespace = "Routine.Test.ApiGen.Client.Module1";
+			testing.DefaultNamespace = "RoutineTest.ApiGen.Client.Module1";
 			testing.Modules.Include("Module1");
 			testing.AddReference(otherApi);
 			testing.Using(
 				t => true, 
-				t => t.FullName.After("Routine.Test.ApiGen.Client.").Replace(".", "-"),
+				t => t.FullName.After("RoutineTest.ApiGen.Client.").Replace(".", "-"),
 				true);
 
 			var testingApi = testing.Build();
@@ -559,7 +560,6 @@ namespace Routine.Test.Api.Generator
 					p[0].Value.References[1].Id == "name2")
 				.Returns(Result(Id("name3", ":System.String"), Id("name4", ":System.String")));
 
-			testing.AddSystemReference();
 			testing.UsingParseableValueTypes(":");
 
 			var types = testing.Build().GetTypes();
@@ -610,7 +610,6 @@ namespace Routine.Test.Api.Generator
 				.Member("Name", Null(":System.String"))
 			);
 				
-			testing.AddSystemReference();
 			testing.UsingParseableValueTypes(":");
 
 			var types = testing.Build().GetTypes();
@@ -640,7 +639,6 @@ namespace Routine.Test.Api.Generator
 					p[0].Value.References[0].IsNull)
 				.Returns(Result(Id("resultForNull", ":System.String")));
 
-			testing.AddSystemReference();
 			testing.UsingParseableValueTypes(":");
 
 			var types = testing.Build().GetTypes();
@@ -669,7 +667,6 @@ namespace Routine.Test.Api.Generator
 				.Performs("Operation")
 				.Returns(Result(Null(":System.String")));
 
-			testing.AddSystemReference();
 			testing.UsingParseableValueTypes(":");
 
 			var types = testing.Build().GetTypes();
@@ -733,7 +730,6 @@ namespace Routine.Test.Api.Generator
 				.Member("Name", Id("name", ":System.String"))
 			);
 
-			testing.AddSystemReference();
 			testing.UsingParseableValueTypes(":");
 
 			var types = testing.Build().GetTypes();
@@ -781,26 +777,68 @@ namespace Routine.Test.Api.Generator
 			Assert.IsFalse(apiClass.GetMethods().Any(m => m.ReturnType == testClass2));
 
 			var apiObj = Activator.CreateInstance(apiClass, testingRapplication);
-			var expectedInstance1 = Activator.CreateInstance(testClass1, Robj("instance1", "TestClass1"));
-			var expectedInstance2 = Activator.CreateInstance(testClass1, Robj("instance2", "TestClass1"));
 
-			var actualInstance1 = apiClass.GetMethod("GetTestClass1Instance1", new Type[0]).Invoke(apiObj, new object[0]);
-			var actualInstance2 = apiClass.GetMethod("GetTestClass1Instance2", new Type[0]).Invoke(apiObj, new object[0]);
+			var instance1 = apiClass.GetMethod("GetTestClass1Instance1", new Type[0]).Invoke(apiObj, new object[0]);
+			var instance2 = apiClass.GetMethod("GetTestClass1Instance2", new Type[0]).Invoke(apiObj, new object[0]);
 
-			Assert.AreEqual(expectedInstance1, actualInstance1);
-			Assert.AreEqual(expectedInstance2, actualInstance2);
+			Assert.AreEqual("instance1_value", instance1.ToString());
+			Assert.AreEqual("instance2_value", instance2.ToString());
 		}
 
 		[Test]
-		public void SystemReferenceAddedAutomatically()
+		public void WhenApiIsGeneratedRobjectPropertyAndConstructorRenderedAsInternal()
 		{
-			Assert.Fail("not implemented");
+			ModelsAre(
+				Model("TestClass1").Name("TestClass1")
+			);
+
+			ObjectsAre(
+				Object(Id("instance1", "TestClass1")).Value("instance1_value")
+			);
+
+			testing.ApiName = "TestApi";
+			testing.AddSingleton(t => t.Id.EndsWith("Class1"), "instance");
+
+			var testApi = testing.Build();
+
+			var testClass1 = testApi.GetTypes().Single(t => t.Name == "TestClass1");
+
+			Assert.AreEqual(0, testClass1.GetConstructors().Length);
+			Assert.IsNull(testClass1.GetProperty("Robject"));
 		}
 
 		[Test]
-		public void InternalSupport()
+		public void ClientAssembliesCanBeMarkedAsFriendToEnabledInterClientAssemblyDependency()
 		{
-			Assert.Fail("to be refactored");
+			ModelsAre(
+				Model("Module2-TestClass2").Module("Module2").Name("TestClass2"),
+				Model("Module1-TestClass1").Module("Module1").Name("TestClass1")
+				.Member("Sub", "Module2-TestClass2")
+			);
+
+			var otherApiGenerator = new ClientApiGenerator(objectServiceMock.Object);
+
+			otherApiGenerator.DefaultNamespace = "Routine.Test.ApiGen.Client.Module2";
+			otherApiGenerator.InMemory = false;
+			otherApiGenerator.ApiName = "Module2Api";
+			otherApiGenerator.AddFriendAssembly("Routine.Test.ApiGen.Client.Module1");
+			otherApiGenerator.Modules.Include("Module2");
+			var otherApi = otherApiGenerator.Build();
+
+			testing.DefaultNamespace = "Routine.Test.ApiGen.Client.Module1";
+			testing.Modules.Include("Module1");
+			testing.InMemory = false;
+			testing.ApiName = "Module1Api";
+			testing.AddReference(otherApi);
+			testing.Using(
+				t => true,
+				t => t.FullName.After("Routine.Test.ApiGen.Client.").Replace(".", "-"),
+				true);
+
+			var api = testing.Build();
+
+			Assert.IsTrue(File.Exists(otherApi.Location));
+			Assert.IsTrue(File.Exists(api.Location));
 		}
 
 		[Test][Ignore]

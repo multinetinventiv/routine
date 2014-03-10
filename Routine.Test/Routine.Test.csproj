@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Generator\rapigenTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Extractor\BaseOptionalExtractorTest.cs" />
     <Compile Include="Core\Extractor\ConverterExtractorTest.cs" />

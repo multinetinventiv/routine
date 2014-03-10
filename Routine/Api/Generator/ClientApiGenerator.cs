@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CSharp;
 using Routine.Core.Service;
@@ -65,6 +66,7 @@ namespace Routine.Api.Generator
 			
 		private readonly IObjectService service;
 		private readonly Dictionary<string, TypeRegistration> typeRegistrations;
+		private readonly List<string> friendAssemblyNames;
 		private readonly List<Assembly> references;
 		private ApplicationModel applicationModel;
 		private readonly List<SingletonConfiguration> singletonConfigurations;
@@ -73,17 +75,26 @@ namespace Routine.Api.Generator
 		{
 			this.service = service;
 			this.typeRegistrations = new Dictionary<string, TypeRegistration>();
+			this.friendAssemblyNames = new List<string>();
 			this.references = new List<Assembly>();
 			this.Modules = new ModuleFilter();
 			this.singletonConfigurations = new List<SingletonConfiguration>();
+
+			AddSystemReference();
 		}
 
-		public ModuleFilter Modules{ get; private set;}
+		public ModuleFilter Modules { get; private set; }
 		public string DefaultNamespace{get;set;}
 		public bool InMemory {get;set;}
-		public string ApiName {get; set;}
+		public string ApiName { get; set; }
+		private bool ApiExists { get { return !string.IsNullOrEmpty(ApiName); } }
 
-		public void AddSystemReference() { AddReference(typeof(int).Assembly); }
+		public void AddFriendAssembly(string assemblyName)
+		{
+			friendAssemblyNames.Add(assemblyName);
+		}
+
+		private void AddSystemReference() { AddReference(typeof(int).Assembly); }
 		public void AddReference(Assembly assembly)
 		{
 			if(references.Contains(assembly))
@@ -96,8 +107,6 @@ namespace Routine.Api.Generator
 
 		public void Using<T>(string modelId)
 		{
-			AddReference(typeof(T).Assembly);
-
 			typeRegistrations.Add(modelId, new TypeRegistration(typeof(T), modelId, false));
 		}
 
@@ -118,7 +127,6 @@ namespace Routine.Api.Generator
 
 		private void Using(Func<TypeInfo, bool> predicate, Func<TypeInfo, string> modelIdExtractor, Func<Type, string, TypeRegistration> typeRegistrar)
 		{
-			//TODO loop types at build time
 			foreach(var reference in references)
 			{
 				foreach(var type in reference.GetTypes())
@@ -174,6 +182,7 @@ namespace Routine.Api.Generator
 		{
 			var result = new CompilerParameters();
 			result.GenerateExecutable = false;
+
 			if(InMemory)
 			{
 				result.GenerateInMemory = InMemory;
@@ -182,10 +191,12 @@ namespace Routine.Api.Generator
 			{
 				result.OutputAssembly = DefaultNamespace + ".dll";
 			}
+
 			foreach(var reference in references)
 			{
 				result.ReferencedAssemblies.Add(reference.GetName().Name + ".dll");
 			}
+
             if (!result.ReferencedAssemblies.Contains("Routine.dll")) { result.ReferencedAssemblies.Add("Routine.dll"); }
             if (!result.ReferencedAssemblies.Contains("System.Core.dll")) { result.ReferencedAssemblies.Add("System.Core.dll"); }
 
@@ -198,6 +209,7 @@ namespace Routine.Api.Generator
 
 			result.AppendLine("using System.Linq;\n");
 
+			result.AppendLine(GenerateAttributeProperties());
 			result.AppendLine(GenerateApiClassCode());
 
 			foreach(var model in applicationModel.Models)
@@ -211,9 +223,20 @@ namespace Routine.Api.Generator
 			return result.ToString();
 		}
 
+		private string GenerateAttributeProperties()
+		{
+			var result = new StringBuilder();
+			foreach (var assemblyName in friendAssemblyNames)
+			{
+				result.AppendFormat("[assembly:{0}(\"{1}\")]\n", typeof(InternalsVisibleToAttribute).FullName, assemblyName);
+			}
+
+			return result.ToString();
+		}
+
 		private string GenerateApiClassCode()
 		{
-			if(string.IsNullOrEmpty(ApiName))
+			if (!ApiExists)
 			{
 				return "";
 			}
@@ -224,11 +247,10 @@ namespace Routine.Api.Generator
 			result.Append(			"{\n");
 			result.AppendFormat(	"\tpublic class {0}\n", ApiName);
 			result.Append(			"\t{\n");
-			result.AppendFormat(	"\t\tpublic {0} Rapplication", typeof(Rapplication).FullName);
-			result.Append(			"{get;private set;}\n");
+			result.AppendFormat(	"\t\tprivate {0} rapplication;\n", typeof(Rapplication).FullName);
 			result.AppendFormat(	"\t\tpublic {0}({1} rapplication)\n", ApiName, typeof(Rapplication).FullName);
 			result.Append(			"\t\t{\n");
-			result.Append(			"\t\t\tRapplication = rapplication;\n");
+			result.Append(			"\t\t\tthis.rapplication = rapplication;\n");
 			result.Append(			"\t\t}\n");
 			foreach(var model in applicationModel.Models)
 			{
@@ -236,7 +258,7 @@ namespace Routine.Api.Generator
 				{
 					result.AppendFormat("\t\tpublic {0} Get{1}{2}()\n", GenerateTypeName(model.Id), model.Name, singletonId.ToUpperInitial());
 					result.Append(		"\t\t{\n");
-					result.AppendFormat("\t\t\treturn new {0}(Rapplication.Get(\"{1}\", \"{2}\"));\n", GenerateTypeName(model.Id), singletonId, model.Id);
+					result.AppendFormat("\t\t\treturn new {0}(rapplication.Get(\"{1}\", \"{2}\"));\n", GenerateTypeName(model.Id), singletonId, model.Id);
 					result.Append(		"\t\t}\n");
 				}
 			}
@@ -265,8 +287,8 @@ namespace Routine.Api.Generator
 				"{\n" +
 				"\tpublic class " + model.Name + "\n" + 
 				"\t{\n" +
-				"\t\tpublic " + typeof(Robject).FullName + " Robject{get; private set;}\n" +
-				"\t\tpublic " + model.Name + "(" + typeof(Robject).FullName + " robject){Robject = robject;}\n" +
+				GenerateRobjectProperty() +
+				GenerateConstructor(model) +
 				"\n" +
 				GenerateClientPropertyCode(model) + "\n" + 
 				GenerateClientMethodCode(model) + "\n" + 
@@ -287,6 +309,16 @@ namespace Routine.Api.Generator
 				result += "." + model.Module;
 			}
 			return result;
+		}
+
+		private string GenerateRobjectProperty()
+		{
+			return string.Format("\t\t{0} {1} Robject{{get; private set;}}\n", ApiExists?"internal":"public", typeof(Robject).FullName);
+		}
+
+		private string GenerateConstructor(ObjectModel model)
+		{
+			return string.Format("\t\t{0} {1}({2} robject){{Robject = robject;}}\n", ApiExists?"internal":"public", model.Name, typeof(Robject).FullName);
 		}
 
 		private string GenerateClientPropertyCode(ObjectModel model)

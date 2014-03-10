@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common", "Rout
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common.Domain", "Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj", "{F9A92862-60E2-4C10-A74A-1B3FEE558035}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.ApiGen", "Routine.ApiGen\Routine.ApiGen.csproj", "{0F3F13F0-5BBD-48F5-937A-A660F819A63B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement", "Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj", "{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}"
 EndProject
 Global
@@ -71,10 +69,6 @@ Global
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F3F13F0-5BBD-48F5-937A-A660F819A63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F3F13F0-5BBD-48F5-937A-A660F819A63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F3F13F0-5BBD-48F5-937A-A660F819A63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F3F13F0-5BBD-48F5-937A-A660F819A63B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
