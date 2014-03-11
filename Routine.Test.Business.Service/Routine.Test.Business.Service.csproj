@@ -111,6 +111,10 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
+      <Project>{c6a4e7a1-6552-4d3c-a04d-385c869bb5f2}</Project>
+      <Name>Routine.Test.Module.ProjectManagement</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>

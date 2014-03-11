@@ -45,7 +45,7 @@ namespace Routine.Test.Common.Configuration
 							.Conventions.Add(ConventionBuilder.Class.Always(x => x.Table("t_" + x.EntityType.Name)))
 						)
 					)
-					.ExposeConfiguration(c => c.SetInterceptor(new NHibernateIFactoryInterceptor(domainContext)))
+					.ExposeConfiguration(c => c.SetInterceptor(new NHibernateIDomainContextInterceptor(domainContext)))
 					#if DEBUG
 					.ExposeConfiguration(c => new SchemaUpdate(c).Execute(true, true))
 					#endif
@@ -82,10 +82,10 @@ namespace Routine.Test.Common.Configuration
 			return (member.IsProperty || member.IsAutoProperty) && (member.MemberInfo as System.Reflection.PropertyInfo).CanWrite;
 		}
 
-		private class NHibernateIFactoryInterceptor : EmptyInterceptor
+		private class NHibernateIDomainContextInterceptor : EmptyInterceptor
 		{
 			private readonly IDomainContext domainContext;
-			public NHibernateIFactoryInterceptor(IDomainContext domainContext) { this.domainContext = domainContext; }
+			public NHibernateIDomainContextInterceptor(IDomainContext domainContext) { this.domainContext = domainContext; }
 
 			private ISession session;
 			public override void SetSession(ISession session) { this.session = session; }

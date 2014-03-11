@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Soa Client</title>
+    <style>
+        body {
+            font-family: Arial;
+            font-size:12px;
+            background-color:#f2efe8;
+        }
+        a {
+            text-decoration:none;
+            color:black;
+        }
+        a:hover {
+            text-decoration:underline;
+        }
+        .template {
+            display: none;
+        }
+        .module, .model, .operation {
+            border: solid 1px gray;
+            padding:5px;
+            margin:5px;
+            cursor:pointer;
+            cursor:hand;
+        }
+        .module {
+            background-color: #dbe5f6;
+        }
+        .model {
+            background-color: #ffffff;
+        }
+        .operation {
+            background-color: #fae8e8;
+            cursor:initial;
+        }
+        .operation a {
+            float: right;
+        }
+        .form {
+            border: solid 1px gray;
+            margin: 5px;
+            padding: 5px;
+            width: 100%;
+            height:100%;
+            background-color: #ffffff;
+
+        }
+        h1, h2, h3 {
+            font-size:12px;
+            margin: 0px;
+        }
+        #service-tree {
+            float:left;
+            width:200px;
+        }
+        #form-container {
+            float:left;
+        }
+        #tab-container {
+            float: left;
+            margin: 5px;
+            padding-top: 6px;
+            margin-bottom: 0px;
+        }
+        .label {
+            width: 150px;
+            display: inline-block;
+        }
+        .tab {
+            border:solid 1px gray;
+            padding:5px;
+            margin-right:2px;
+            background-color:#f8f6f0;
+            font-size:10px;
+            cursor:hand;
+            cursor:pointer;
+        }
+        .tab a {
+            margin-left:5px;
+        }
+        .selected {
+            border-width:2px;
+            background-color:#ffffff;
+            font-weight:bold;
+            font-size:11px;
+        }
+    </style>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript">
+        var models, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter;
+        $(function () {
+
+            $("#tab-container").width($(window).width() - 250);
+            $("#form-container").width($(window).width() - 250).height($(window).height() - 100);
+            $(window).resize(function () {
+                $("#tab-container").width($(window).width() - 250);
+                $("#form-container").width($(window).width() - 250).height($(window).height() - 100);
+            });
+
+            tmp_module = $("#module").clone().wrap("<p>").parent().html();
+            tmp_model = $("#model").clone().wrap("<p>").parent().html();
+            tmp_operation = $("#operation").clone().wrap("<p>").parent().html();
+            tmp_tab = $("#tab").clone().wrap("<p>").parent().html();
+            tmp_form = $("#form").clone().wrap("<p>").parent().html();
+            tmp_parameter = $("#parameter").clone().wrap("<p>").parent().html();
+            $.get("/Soa/GetApplicationModel", function (data) {
+                models = data.Models;
+                for (var i = 0; i < models.length; i++) {
+                    var model = models[i];
+
+                    if (model.Operations.length <= 0) {
+                        continue;
+                    }
+                    var moduleDiv = getModuleDiv(model.Module);
+
+                    var modelDiv =
+                        $(tmp_model.replace(/@id/g, model.Id).replace(/@name/g, model.Name))
+                        .removeAttr("id").removeClass("template").addClass("model")
+                        .appendTo(moduleDiv)
+                        .children(":first-child").click(function () {
+                            $(this).siblings("div").each(function () { $(this).toggle() });
+                        })
+                        .parent();
+
+                    for (var j = 0; j < model.Operations.length; j++) {
+                        var operation = model.Operations[j];
+
+                        $(tmp_operation
+                            .replace(/@id/g, operation.Id)
+                            .replace(/@modelId/g, model.Id))
+                            .removeAttr("id").removeClass("template").addClass("operation")
+                            .appendTo(modelDiv);
+                    }
+
+                    modelDiv.children(":first-child").click();
+                }
+
+                $(".module").each(function () {
+                    $(this).children(":first-child").click();
+                });
+
+            }, "json");
+
+            function getModuleDiv(moduleName) {
+                var result = $("div[data-module=" + moduleName + "]");
+                if (result.length == 0) {
+                    return $(tmp_module.replace(/@name/g, moduleName))
+                        .removeAttr("id").removeClass("template").addClass("module")
+                        .appendTo($("#service-tree"))
+                        .children(":first-child").click(function () {
+                            $(this).siblings("div").each(function () { $(this).toggle() });
+                        })
+                        .parent();
+                }
+
+                return result;
+            }
+        });
+
+        function createForm(modelId, operationId) {
+            var model = getModel(modelId);
+            var operation = getOperation(model, operationId);
+
+            var operationTab = $(tmp_tab
+                .replace(/@id/g, operation.Id))
+                .removeAttr("id").removeClass("template").addClass("tab")
+                .appendTo($("#tab-container"))
+                .click(function () {
+                    $("#form-container").children("form").hide();
+                    $("#tab-container").children(".tab").removeClass("selected");
+
+                    $($("#form-container").children("form").get($(this).index())).show();
+                    $(this).addClass("selected");
+                });
+
+            var operationForm = $(tmp_form
+                .replace(/@id/g, operation.Id)
+                .replace(/@actualModelId/g, model.Id)
+                .replace(/@viewModelId/g, model.Id)
+                .replace(/@modelName/g, model.Name))
+                .removeAttr("id").removeClass("template").addClass("form")
+                .appendTo($("#form-container"));
+
+
+            for (var i = 0; i < operation.Parameters.length; i++) {
+                var parameter = operation.Parameters[i];
+
+                var parameterDiv = $(tmp_parameter
+                    .replace(/@id/g, parameter.Id)
+                    .replace(/@index/g, i)
+                    .replace(/@actualModelId/g, parameter.ViewModelId)
+                    .replace(/@viewModelId/g, parameter.ViewModelId))
+                    .removeAttr("id").removeClass("template").addClass("parameter")
+                    .appendTo(operationForm);
+            }
+
+            operationTab.click();
+        }
+
+        function closeForm(tab) {
+            var selected = tab.hasClass("selected");
+
+            var form = $($("#form-container").children("form").get(tab.index()));
+
+            form.remove();
+            tab.remove();
+
+            if (selected) {
+                $("#tab-container").children(":first-child").click();
+            }
+        }
+
+        function getModel(modelId) {
+            for (var i = 0; i < models.length; i++) {
+                if (models[i].Id == modelId) {
+                    return models[i];
+                }
+            }
+        }
+
+        function getOperation(model, operationId) {
+            for (var i = 0; i < model.Operations.length; i++) {
+                if (model.Operations[i].Id == operationId) {
+                    return model.Operations[i];
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="service-tree"></div>
+    <div id="tab-container"></div>
+    <div id="form-container"></div>
+    <div id="module" class="template" data-module="@name"><h1>@name</h1></div>
+    <div id="model" class="template"><h2>@name</h2></div>
+    <div id="operation" class="template"><h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3></div>
+    <span id="tab" class="template">@id<a href="javascript:void();" onclick="javascript:closeForm($(this).parent());">&#10005;</a></span>
+    <form id="form" class="template" action="/Soa/PerformOperation" method="post">
+        <h1>@id</h1>
+        <input type="submit" value="Call"/>
+        <div><span class="label">@modelNameId:</span><input type="text" name="targetReference.Id" /></div>
+        <input type="hidden" name="targetReference.ActualModelId" value="@actualModelId"/>
+        <input type="hidden" name="targetReference.ViewModelId" value="@viewModelId"/>
+        <input type="hidden" name="operationModelId" value="@id" />
+    </form>
+    <div id="parameter" class="template">
+        <input type="hidden" name="parameterValues[@index].ParameterModelId" value="@id" />
+        <input type="hidden" name="parameterValues[@index].Value.References[0].ActualModelId" value="@actualModelId"/>
+        <input type="hidden" name="parameterValues[@index].Value.References[0].ViewModelId" value="@viewModelId"/>
+        <div><span class="label">@id:</span><input type="text" name="parameterValues[@index].Value.References[0].Id" /></div>
+    </div>
+</body>
+</html>

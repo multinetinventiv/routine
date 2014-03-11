@@ -74,6 +74,8 @@ namespace Routine.Test.Common.Configuration
 						.Use(p => p.CommonDomainTypeRootNamespacePattern("Routine.Test.Module"))
 						.Use(p => p.SingletonPattern(container, "Instance"))
 
+						.Module.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
+										   .When(t => t.IsDomainType))
 						.Member.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>())
 										   .When(t => t.IsDomainType))
 

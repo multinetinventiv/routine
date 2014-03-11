@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Web.Mvc;
 using Routine.Core.Service;
 
@@ -11,6 +12,18 @@ namespace Routine.Soa
 		public SoaController(ISoaContext context)
         {
             this.context = context;
+		}
+
+		protected override void OnException(ExceptionContext filterContext)
+		{
+			base.OnException(filterContext);
+
+			
+		}
+
+		public ActionResult Index()
+		{
+			return File(GetType().Assembly.GetManifestResourceStream("Routine.Soa.View.SoaTestPage.html"), "text/html");
 		}
 
 		public JsonResult GetApplicationModel()
