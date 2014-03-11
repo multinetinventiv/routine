@@ -63,6 +63,7 @@ namespace Routine.Soa
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
 		{
+			if (parameterValues == null) { parameterValues = new List<ParameterValueData>(); }
 			return Json(context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues));
 		}
 	}

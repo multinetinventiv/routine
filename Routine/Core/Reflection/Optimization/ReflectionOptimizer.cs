@@ -184,14 +184,19 @@ namespace Routine.Core.Reflection.Optimization
 
 		private static void AddTypeReference(Type type, CompilerParameters compilerParameters)
 		{
+			if (type == null) { return; }
 			SafeAddReference(type.Assembly.Location, compilerParameters);
+
+			AddTypeReference(type.BaseType, compilerParameters);
+
 			if (type.IsGenericType)
 			{
 				foreach (var genericArg in type.GetGenericArguments())
 				{
-					SafeAddReference(genericArg.Assembly.Location, compilerParameters);
+					AddTypeReference(genericArg, compilerParameters);
 				}
 			}
+
 		}
 
 		private static void SafeAddReference(string assembly, CompilerParameters compilerParameters)
