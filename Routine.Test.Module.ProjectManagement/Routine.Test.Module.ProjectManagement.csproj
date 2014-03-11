@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,15 +43,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
-      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
+      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
       <Name>Routine.Test.Common.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
-      <Project>{0a8536e8-84a1-4d0d-8af3-34785725e56b}</Project>
+      <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj">
-      <Project>{d9e33b5d-a0f4-4398-b6dd-094b14968901}</Project>
+      <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
       <Name>Routine.Test.Module.Todo</Name>
     </ProjectReference>
   </ItemGroup>

@@ -75,6 +75,7 @@
         .label {
             width: 150px;
             display: inline-block;
+            font-weight:bold;
         }
         .tab {
             border:solid 1px gray;
@@ -114,6 +115,11 @@
         .response .label {
             width:100px;
         }
+		.response .result {
+            margin-left:5px;
+            clear:both;
+            display:block;
+		}
         .object {
             border: solid 1px gray;
             margin:5px;
@@ -245,6 +251,9 @@
 
             operationForm.ajaxForm({
                 dataType: 'json',
+                beforeSubmit: function(arr, $form, options) {
+                	$form.children(".response").empty();
+                },
                 success: showResponse
             });
 
@@ -288,8 +297,9 @@
             var model = getModel($form.attr("data-model-id"));
             var operation = getOperation(model, $form.attr("data-operation-id"));
 
+            responseDiv.append("<span class='result'>" + statusText + "</span>");
+
             if (operation.Result.IsVoid) {
-                responseDiv.append("OK");
                 return;
             }
 

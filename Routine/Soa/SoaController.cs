@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Web.Mvc;
 using Routine.Core.Service;
 
@@ -23,7 +23,10 @@ namespace Routine.Soa
 
 		public ActionResult Index()
 		{
-			return File(GetType().Assembly.GetManifestResourceStream("Routine.Soa.View.SoaTestPage.html"), "text/html");
+			return File(
+				GetType().Assembly.GetManifestResourceStream(
+					GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith("SoaTestPage.html"))), 
+				"text/html");
 		}
 
 		public JsonResult GetApplicationModel()

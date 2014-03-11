@@ -166,10 +166,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Api\Generator\Client\ApiCodeModel.cs.template" />
     <EmbeddedResource Include="Api\Generator\Client\ObjectCodeModel.cs.template" />
+    <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
   </ItemGroup>
 </Project>
