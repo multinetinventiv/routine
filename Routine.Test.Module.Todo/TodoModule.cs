@@ -36,6 +36,14 @@ namespace Routine.Test.Module.Todo
 			}
 		}
 
+		public void NewNamedTodoList(List<string> todos, DateTime startDate, int periodInDays)
+		{
+			for (int i = 0; i < todos.Count; i++)
+			{
+				NewTodo(todos[i], startDate.AddDays(i * periodInDays));
+			}
+		}
+
 		public bool CanPurgeDoneItems () { return DoneItemCount > 0; }
 		public void PurgeDoneItems() 
 		{
