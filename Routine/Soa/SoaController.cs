@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web.Mvc;
 using Routine.Core.Service;
 
@@ -18,15 +20,24 @@ namespace Routine.Soa
 		{
 			base.OnException(filterContext);
 
-			
+			filterContext.ExceptionHandled = true;
+			filterContext.Result = Json(context.SoaConfiguration.ExceptionResultExtractor.Extract(filterContext.Exception));
 		}
 
 		public ActionResult Index()
 		{
-			return File(
-				GetType().Assembly.GetManifestResourceStream(
-					GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith("SoaTestPage.html"))), 
-				"text/html");
+			var stream = GetType().Assembly.GetManifestResourceStream(
+					GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith("SoaTestPage.html")));
+
+			var sr = new StreamReader(stream);
+
+			var fileContent = sr.ReadToEnd();
+			sr.Close();
+			stream.Close();
+
+			fileContent = fileContent.Replace("@urlBase", Url.Action("Index"));
+
+			return File(Encoding.UTF8.GetBytes(fileContent), "text/html");
 		}
 
 		public JsonResult GetApplicationModel()

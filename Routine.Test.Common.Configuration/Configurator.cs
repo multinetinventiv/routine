@@ -111,6 +111,7 @@ namespace Routine.Test.Common.Configuration
 			{
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
+						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
 						;
 			}
 

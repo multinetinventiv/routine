@@ -249,9 +249,17 @@ namespace Routine
 		{
 			return source.Merge(pattern(BuildRoutine.CodingStylePattern()));
 		}
+		public static GenericSoaConfiguration Use(this GenericSoaConfiguration source, Func<PatternBuilder<GenericSoaConfiguration>, GenericSoaConfiguration> pattern)
+		{
+			return source.Merge(pattern(BuildRoutine.SoaPattern()));
+		}
 		public static GenericMvcConfiguration Use(this GenericMvcConfiguration source, Func<PatternBuilder<GenericMvcConfiguration>, GenericMvcConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.MvcPattern()));
+		}
+		public static GenericSoaClientConfiguration Use(this GenericSoaClientConfiguration source, Func<PatternBuilder<GenericSoaClientConfiguration>, GenericSoaClientConfiguration> pattern)
+		{
+			return source.Merge(pattern(BuildRoutine.SoaClientPattern()));
 		}
 		#endregion
 	}

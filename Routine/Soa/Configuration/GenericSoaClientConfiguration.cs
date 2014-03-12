@@ -9,6 +9,11 @@
 		{
 		}
 
+		public GenericSoaClientConfiguration Merge(GenericSoaClientConfiguration other)
+		{
+			return this;
+		}
+
 		#region ISoaClientConfiguration implementation
 		string ISoaClientConfiguration.ServiceUrlBase {get{return ServiceUrlBase;}}
 		#endregion

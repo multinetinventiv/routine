@@ -79,8 +79,10 @@
     <Compile Include="Core\DomainObject.cs" />
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="SoaPatterns.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />
+    <Compile Include="Soa\SoaExceptionResult.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Api\Rapplication.cs" />
     <Compile Include="Core\IObjectItem.cs" />

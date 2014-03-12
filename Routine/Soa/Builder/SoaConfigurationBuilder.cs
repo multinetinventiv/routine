@@ -12,7 +12,8 @@ namespace Routine.Soa.Builder
 
 		public GenericSoaConfiguration FromBasic()
 		{
-			return FromScratch();
+			return FromScratch()
+				.ExceptionResult.OnFailReturn(new SoaExceptionResult());
 		}
 	}
 }

@@ -40,9 +40,10 @@ namespace Routine.Mvc.Configuration
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> SimpleMemberOrder{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> TableMemberOrder{ get; private set;}
 
-		public GenericMvcConfiguration() : this(DEFAULT_OBJECT_ID) {}
-
-		public GenericMvcConfiguration(string defaultObjectId)
+		public GenericMvcConfiguration() : this(true) {}
+		public GenericMvcConfiguration(string defaultObjectId) : this(true, defaultObjectId) { }
+		internal GenericMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
+		internal GenericMvcConfiguration(bool rootConfig, string defaultObjectId)
 		{
 			IndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
 			MenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
@@ -63,7 +64,10 @@ namespace Routine.Mvc.Configuration
 			SimpleMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "SimpleMemberOrder");
 			TableMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "TableMemberOrder");
 
-			RegisterRoutes(defaultObjectId);
+			if(rootConfig)
+			{
+				RegisterRoutes(defaultObjectId);
+			}
 		}
 
 		public GenericMvcConfiguration Merge(GenericMvcConfiguration other)
