@@ -16,7 +16,7 @@
         a:hover {
             text-decoration:underline;
         }
-        .template {
+        .template, .options {
             display: none;
         }
         .module, .model, .operation {
@@ -113,6 +113,11 @@
             display:inline-block;
             margin-left:-3px;
         }
+        .parameter-item select {
+            width: 153px;
+            height: 22px;
+            margin: 2px;
+        }
         .parameter-item-added  {
             margin-left:150px;
         }
@@ -135,6 +140,12 @@
             border: solid 1px gray;
             margin:5px;
             padding:5px;
+        }
+        .member {
+            margin-left:10px;
+        }
+        .member-item {
+            display:inline-block;
         }
     </style>
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -243,25 +254,24 @@
             var operationForm = $(tmp_form
                 .replace(/@id/g, operation.Id)
                 .replace(/@modelId/g, model.Id)
-                .replace(/@modelName/g, model.Name))
+                .replace(/@modelName/g, model.Name)
+                .replace(/@targetOptions/g, getOptions(model.Id)))
                 .removeAttr("id").removeClass("template").addClass("form")
                 .appendTo($("#form-container"));
 
-
             for (var i = 0; i < operation.Parameters.length; i++) {
                 var parameter = operation.Parameters[i];
-
+                
                 var parameterDiv = $(tmp_parameter
                     .replace(/@id/g, parameter.Id)
                     .replace(/@index/g, i)
                     .replace(/@modelId/g, parameter.ViewModelId)
-                    .replace(/@isList/g, parameter.IsList))
+                    .replace(/@isList/g, parameter.IsList)
+                    .replace(/@options/g, getOptions(parameter.ViewModelId)))
                     .removeAttr("id").removeClass("template").addClass("parameter")
                     .appendTo(operationForm.children(".request:first-child"));
 
-                if(!parameter.IsList) {
-                    parameterDiv.children("input[type=button]").click();
-                }
+                parameterDiv.children("input.add").click();
             }
 
             operationForm.ajaxForm({
@@ -272,22 +282,74 @@
                 success: showResponse
             });
 
+            renderOptions();
             operationTab.click();
+        }
+
+        function getOptions(modelId) {
+            var options;
+            $.ajax({ url: '/Soa/GetAvailableObjects', 
+                async: false,
+                dataType: 'json',
+                data:{objectModelId:modelId},
+                success: function(data) {
+                    options = data;
+                }
+            });
+
+            var result = "";
+            for(var j = 0; j<options.length; j++) {
+                var option = options[j];
+
+                result += option.Reference.Id + "|";
+            }
+            if(result.length > 0) {
+                result = result.substr(0, result.length - 1);
+            }
+
+            return result;
+        }
+
+        function renderOptions() {
+            $("input[type=text]").each(function() {
+                if(!hasAttr($(this), "data-options")) {
+                    return;
+                }
+
+                var options = $(this).attr("data-options");
+                if(options == null || options == "") {
+                    return;
+                }
+
+                var item = "<select name='"+$(this).attr("name") + "'>";
+                var optionArray = options.split("|");
+                for(var i = 0; i<optionArray.length; i++) {
+                    item += "<option value='" + optionArray[i] + "'>" + optionArray[i] + "</option>";
+                }
+                item +="</select>";
+                $(this).before(item);
+                $(this).remove();
+            });
+        }
+
+        function hasAttr(element, key) {
+            return !(typeof element.attr(key) === 'undefined');
         }
 
         function addParameter(addButton, paramIndex, modelId, isList) {
             addButton = $(addButton);
             var index = -1;
-            if(!(typeof addButton.prev().attr("data-index") === 'undefined')) {
+            if(hasAttr(addButton.prev(), "data-index")) {
                 index = parseInt(addButton.prev().attr("data-index"));
             }
 
             index++;
-
+            var options = addButton.next().next().html();
             var parameterItemDiv = $(tmp_parameter_item
                     .replace(/@paramIndex/g, paramIndex)
                     .replace(/@modelId/g, modelId)
-                    .replace(/@index/g, index))
+                    .replace(/@index/g, index)
+                    .replace(/@options/g, options))
                     .removeAttr("id").removeClass("template").addClass("parameter-item");
 
             if(index > 0) {
@@ -300,13 +362,15 @@
                 addButton.next().remove();
                 addButton.remove();
             }
+
+            renderOptions();
         }
 
         function removeParameter(removeButton) {
             removeButton = $(removeButton);
             
             var index = -1;
-            if(!(typeof removeButton.prev().prev().attr("data-index") === 'undefined')) {
+            if(hasAttr(removeButton.prev().prev(), "data-index")){
                 index = parseInt(removeButton.prev().prev().attr("data-index"));
             }
 
@@ -335,6 +399,8 @@
                     return models[i];
                 }
             }
+
+            return null;
         }
 
         function getOperation(model, operationId) {
@@ -360,12 +426,52 @@
 
             for (var i = 0; i < data.Value.Values.length; i++) {
                 var obj = data.Value.Values[i];
-                var parameterDiv = $(tmp_object
+                var objectDiv = $(tmp_object
                     .replace(/@id/g, obj.Reference.Id)
+                    .replace(/@actualModelId/g, obj.Reference.ActualModelId)
+                    .replace(/@viewModelId/g, obj.Reference.ViewModelId)
                     .replace(/@value/g, obj.Value))
                     .removeAttr("id").removeClass("template").addClass("object")
                     .appendTo(responseDiv);
+                if(model.IsValueModel) {
+                    objectDiv.children("input[type=button]").remove();
+                }
             }
+        }
+        function showDetails(showButton, id, actualModelId, viewModelId) {
+            showButton = $(showButton);
+            $.get("/Soa/Get", {
+                "reference.id":id, 
+                "reference.actualModelId":actualModelId, 
+                "reference.viewModelId":viewModelId
+            }, function (data) {
+                for(var i = 0; i<data.Members.length; i++) {
+                    var member = data.Members[i];
+                    var memberDiv = $(tmp_member
+                        .replace(/@name/g, member.ModelId))
+                        .removeAttr("id").removeClass("template").addClass("member")
+                        .appendTo(showButton.parent());
+
+                    for(var j = 0; j<member.Value.Values.length; j++) {
+                        var value = member.Value.Values[j];
+
+                        var memberItemDiv = $(tmp_member_item
+                            .replace(/@id/g, value.Reference.Id)
+                            .replace(/@value/g, value.Value))
+                            .removeAttr("id").removeClass("template").addClass("member-item")
+                            .appendTo(memberDiv);
+
+                        
+                        if(value.Reference.IsNull) {
+                            memberItemDiv.html("[null]");
+                        } else if(getModel(value.Reference.ActualModelId) == null) {
+                            memberItemDiv.html(value.Reference.Id);
+                        }
+                    }
+                }
+
+                showButton.remove();
+            });
         }
     </script>
 </head>
@@ -385,9 +491,14 @@
                 @id
                 <input type="submit" value="Call &#9658;"/>
             </h1>
-            <div><span class="label">@modelNameId:</span><input type="text" name="targetReference.Id" /></div>
-            <input type="hidden" name="targetReference.ActualModelId" value="@modelId"/>
-            <input type="hidden" name="targetReference.ViewModelId" value="@modelId"/>
+            <div class="parameter">
+                <span class="label">@modelNameId:</span>
+                <div class="parameter-item">
+                    <input type="hidden" name="targetReference.ActualModelId" value="@modelId"/>
+                    <input type="hidden" name="targetReference.ViewModelId" value="@modelId"/>
+                    <input type="text" name="targetReference.Id" data-options="@targetOptions"/>
+                </div>
+            </div>
             <input type="hidden" name="operationModelId" value="@id" />
         </div>
         <div class="response"></div>
@@ -395,23 +506,23 @@
     <div id="parameter" class="template">
         <span class="label">@id:</span>
         <input type="hidden" name="parameterValues[@index].ParameterModelId" value="@id" />
-        <input type="button" value="+" onclick="javascript:addParameter(this, @index, '@modelId', @isList)" />
-        <input type="button" value="-" onclick="javascript:removeParameter(this)" />
+        <input class="add" type="button" value="+" onclick="javascript:addParameter(this, @index, '@modelId', @isList)" />
+        <input class="remove" type="button" value="-" onclick="javascript:removeParameter(this)" />
+        <span class="options">@options</span>
     </div>
     <div id="parameter-item" class="template" data-index="@index">
         <input type="hidden" name="parameterValues[@paramIndex].Value.References[@index].ActualModelId" value="@modelId"/>
         <input type="hidden" name="parameterValues[@paramIndex].Value.References[@index].ViewModelId" value="@modelId"/>
-        <input type="text" name="parameterValues[@paramIndex].Value.References[@index].Id" />
+        <input type="text" name="parameterValues[@paramIndex].Value.References[@index].Id" data-options="@options"/>
     </div>
     <div id="object" class="template">
         <p><span class="label">id:</span>@id</p>
         <p><span class="label">value:</span>@value</p>
-        <p><span class="label">details:</span><input type="button" value="Show" onclick="javascript: showDetails(this, '@id', '@actualModelId', '@viewModelId')" /></p>
+        <p><span class="label">details:</span><input type="button" value="Show" onclick="javascript:showDetails(this, '@id', '@actualModelId', '@viewModelId')" /></p>
     </div>
-    <div id="member" class="template"><h3>@name</h3></div>
+    <p id="member" class="template"><span class="label">@name:</span></p>
     <div id="member-item" class="template">
-        <p>@id</p>
-        <p>@value</p>
+        [@id, @value]
     </div>
 </body>
 </html>

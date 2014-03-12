@@ -34,6 +34,8 @@ namespace Routine
 
 					.ModelIsValue.Done(e => e.Always(true).When(t => t.CanBe<string>() || t.CanParse()))
 
+					.AvailableIds.Done(e => e.Always(true.ToString(), false.ToString()).When(t => t.CanBe<bool>()))
+
 					.Id.Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
 
 					.Locator.Add(l => l.Directly().WhenTypeCanBe<string>())
