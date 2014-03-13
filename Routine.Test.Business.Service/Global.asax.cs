@@ -5,17 +5,16 @@ using Routine.Test.Common.Configuration;
 
 namespace Routine.Test.Business.Service
 {
-	public class MvcApplication : HttpApplication
+	public class SoaApplication : HttpApplication
 	{
 		protected void Application_Start()
 		{
-			//mvc stuff
 			AreaRegistration.RegisterAllAreas();
 
 			GlobalFilters.Filters.Add(new HandleErrorAttribute());
 			RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-			Configurator.ConfigureSoaApplication();
+			Configurer.ConfigureSoaApplication();
 		}
 	}
 }

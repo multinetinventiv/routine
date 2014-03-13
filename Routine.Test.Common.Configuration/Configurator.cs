@@ -19,7 +19,7 @@ using Routine.Test.Common.Domain.Windsor;
 
 namespace Routine.Test.Common.Configuration
 {
-	public static class Configurator
+	public static class Configurer
 	{
 		public static void ConfigureMvcApplication() { new Configuration().MvcApplication(); }
 		public static void ConfigureSoaApplication() { new Configuration().SoaApplication(); }

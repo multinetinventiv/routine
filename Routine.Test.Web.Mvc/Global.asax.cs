@@ -15,7 +15,7 @@ namespace Routine.Test.Web.Mvc
 			GlobalFilters.Filters.Add(new HandleErrorAttribute());
 			RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-			Configurator.ConfigureMvcApplication();
+			Configurer.ConfigureMvcApplication();
 		}
 	}
 }
