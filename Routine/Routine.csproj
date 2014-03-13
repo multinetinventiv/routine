@@ -172,4 +172,7 @@
     <EmbeddedResource Include="Api\Generator\Client\ObjectCodeModel.cs.template" />
     <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Routine.nuspec" />
+  </ItemGroup>
 </Project>

@@ -26,14 +26,10 @@ namespace Routine.Test.Common.Configuration
 		public ISessionFactory BuildSessionFactory(IDomainContext domainContext, IEnumerable<System.Reflection.Assembly> assemblies)
 		{
 			return Fluently.Configure()
-					#if DEBUG
 					.Database(SQLiteConfiguration.Standard
 						.UsingCrossPlatformDriver()
 						.UsingFile("routine.test.db")
 						.ShowSql())
-					#else
-					//production connection
-					#endif
 					.Mappings(m => 
 						m.AutoMappings.Add(
 							AutoMap.Assemblies(this, assemblies)
@@ -46,9 +42,7 @@ namespace Routine.Test.Common.Configuration
 						)
 					)
 					.ExposeConfiguration(c => c.SetInterceptor(new NHibernateIDomainContextInterceptor(domainContext)))
-					#if DEBUG
 					.ExposeConfiguration(c => new SchemaUpdate(c).Execute(true, true))
-					#endif
 					.BuildSessionFactory();
 		}
 

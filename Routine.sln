@@ -23,6 +23,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common.Domain"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement", "Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj", "{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A9E4ABC4-268C-48D4-9123-D6568FC67096}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet\NuGet.exe = NuGet\NuGet.exe
+		NuGet\package.bat = NuGet\package.bat
+		NuGet\publish.config = NuGet\publish.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
