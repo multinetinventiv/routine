@@ -46,7 +46,7 @@ namespace Routine.Test.Common.Configuration
 			{
 				container.Register(
 					Component.For<IMvcContext>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle())).LifestyleSingleton(),
-					Component.For<MvcController>().UsingFactoryMethod(k => new MvcController(k.Resolve<IMvcContext>().Application)).LifestylePerWebRequest()
+					Component.For<MvcController>().ImplementedBy<MvcController>().LifestylePerWebRequest()
 				);
 				
 				Modules();
@@ -57,7 +57,7 @@ namespace Routine.Test.Common.Configuration
 			{
 				container.Register(
 					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(SoaConfiguration(), CodingStyle())).LifestyleSingleton(),
-					Component.For<SoaController>().UsingFactoryMethod(k => new SoaController(k.Resolve<ISoaContext>())).LifestylePerWebRequest()
+					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
 				);
 				
 				Modules();

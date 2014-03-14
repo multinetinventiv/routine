@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configurator.cs" />
+    <Compile Include="Configurer.cs" />
     <Compile Include="WindsorControllerFactory.cs" />
     <Compile Include="OrmConfiguration.cs" />
     <Compile Include="WindsorPatterns.cs" />

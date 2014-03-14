@@ -5,10 +5,10 @@ namespace @model.Namespace
 	[ServiceContract]
 	public interface I@model.Name
 	{
-		public ServiceResult<@operation.ReturnType> @operation.Name(AuthenticationToken token, @operation.RenderParameters);
+		public ServiceResult<@operation.ReturnType> @operation.Name(string appToken, string languageCode, @operation.RenderParameters);
 	}
 
-	public class @model.Name : I@model.Name
+	public class @model.NameData : I@model.Name
 	{
 		public @typeof(Robject).FullName Robject{get; private set;}
 	}

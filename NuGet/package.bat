@@ -4,12 +4,12 @@ nuget push Publish\*.nupkg -source http://nuget.multinet.com.tr/ -ConfigFile pub
 IF EXIST Publish GOTO PublishExists
 MD Publish
 
-PublishExists:
+:PublishExists
 
 IF EXIST PublishBackUp GOTO PublishBackUpExists
 MD PublishBackUp
 
-PublishBackUpExists:
+:PublishBackUpExists
 
 xcopy /y Publish\*.nupkg PublishBackUp\
 del Publish\*.nupkg
