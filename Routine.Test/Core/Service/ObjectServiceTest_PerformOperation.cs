@@ -50,9 +50,9 @@ namespace Routine.Test.Core.Service
 			base.SetUp();
 
 			codingStyle
-				.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 
-				.DisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
+				.ExtractDisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 				;
 
 			businessMock = new Mock<IBusinessOperation>();
@@ -162,6 +162,16 @@ namespace Routine.Test.Core.Service
 			Assert.AreEqual(":System.String", result.Value.Values[0].Reference.ViewModelId);
 
 			Assert.AreEqual("b", result.Value.Values[1].Reference.Id);
+		}
+
+		[Test]
+		public void WhenParameterValuesIsNullAsIfItIsAnEmptyList()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "Void", null);
+
+			businessMock.Verify(o => o.Void(), Times.Once());
 		}
 
 		[Test]

@@ -42,6 +42,7 @@
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
+    <Compile Include="SoaClientPatterns.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,8 +60,8 @@
     <Compile Include="Core\Locator\BaseOptionalLocator.cs" />
     <Compile Include="Core\Locator\DelegateLocator.cs" />
     <Compile Include="Core\Locator\MultipleLocator.cs" />
-    <Compile Include="Core\Operation\MethodOperation.cs" />
-    <Compile Include="Core\Operation\MethodParameter.cs" />
+    <Compile Include="Core\DomainApi\MethodOperation.cs" />
+    <Compile Include="Core\DomainApi\MethodParameter.cs" />
     <Compile Include="Core\Selector\BaseOptionalSelector.cs" />
     <Compile Include="Core\Selector\DelegateSelector.cs" />
     <Compile Include="Core\Selector\Excluder.cs" />
@@ -72,8 +73,6 @@
     <Compile Include="Core\ICodingStyle.cs" />
     <Compile Include="Core\IExtractor.cs" />
     <Compile Include="Core\ILocator.cs" />
-    <Compile Include="Core\IOperation.cs" />
-    <Compile Include="Core\IParameter.cs" />
     <Compile Include="Core\ISelector.cs" />
     <Compile Include="Core\ISerializer.cs" />
     <Compile Include="Core\DomainObject.cs" />
@@ -85,15 +84,14 @@
     <Compile Include="Soa\SoaExceptionResult.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Api\Rapplication.cs" />
-    <Compile Include="Core\IObjectItem.cs" />
-    <Compile Include="Core\IMember.cs" />
+    <Compile Include="Core\IDomainApi.cs" />
     <Compile Include="Api\Robject.cs" />
     <Compile Include="Api\Rmember.cs" />
     <Compile Include="Api\Roperation.cs" />
     <Compile Include="Api\Rparameter.cs" />
     <Compile Include="Api\Rvariable.cs" />
-    <Compile Include="Core\Member\MethodMember.cs" />
-    <Compile Include="Core\Member\PropertyMember.cs" />
+    <Compile Include="Core\DomainApi\MethodMember.cs" />
+    <Compile Include="Core\DomainApi\PropertyMember.cs" />
     <Compile Include="Mvc\ApplicationViewModel.cs" />
     <Compile Include="Mvc\ObjectViewModel.cs" />
     <Compile Include="Mvc\VariableViewModel.cs" />

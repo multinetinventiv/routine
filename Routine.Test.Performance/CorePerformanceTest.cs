@@ -61,15 +61,15 @@ namespace Routine.Test.Performance
 					.DomainTypeRootNamespacesAre("Routine.Test.Performance.Domain")
 					.Use(p => p.NullPattern("_null"))
 					.Use(p => p.ParseableValueTypePattern(":"))
-					.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
+					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 						
-					.Member.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
-					.Operation.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
+					.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
+					.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
 						
-					.Id.Done(e => e.ByProperty(p => p.Returns<int>("Id")).ReturnAsString())
-					.Locator.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
+					.ExtractId.Done(e => e.ByProperty(p => p.Returns<int>("Id")).ReturnAsString())
+					.Locate.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
 						
-					.DisplayValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
+					.ExtractDisplayValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
 				);
 				
 			objectService = apiCtx.ObjectService;

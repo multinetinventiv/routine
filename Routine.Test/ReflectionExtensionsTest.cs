@@ -22,7 +22,7 @@ namespace Routine.Test
 		{
 			var result = new Mock<IParameter>();
 
-			result.Setup(o => o.Type).Returns(parameter);
+			result.Setup(o => o.ParameterType).Returns(parameter);
 
 			return result.Object;
 		}
@@ -43,7 +43,7 @@ namespace Routine.Test
 
 			var parameters = parameterTypes.Select(p => Parameter(p)).ToList();
 			result.Setup(o => o.Parameters).Returns(parameters);
-			result.Setup(o => o.Type).Returns(returnType);
+			result.Setup(o => o.ReturnType).Returns(returnType);
 			result.Setup(o => o.Name).Returns(name);
 
 			return result.Object;
@@ -71,7 +71,7 @@ namespace Routine.Test
 		}
 
 		[Test]
-		public void Test_IMember_Returns()
+		public void Test_IReturnItem_Returns()
 		{
 			Assert.IsTrue(Operation(type.of<string>()).Returns(type.of<object>()));
 			Assert.IsFalse(Operation(type.of<int>()).Returns(type.of<string>()));

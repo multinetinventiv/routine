@@ -4,7 +4,8 @@ namespace Routine.Core.Service
 {
 	public class ApplicationModel
 	{
-		public List<ObjectModel> Models{ get; set;}
+		public List<ObjectModel> Models { get; set; }
+		public List<string> Marks { get; set; }
 
 		public ApplicationModel(){Models = new List<ObjectModel>();}
 

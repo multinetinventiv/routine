@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Api;
@@ -486,6 +487,60 @@ namespace Routine.Test.Api
 			Assert.AreEqual("value", value2);
 			objectServiceMock.Verify(o => o.GetValue(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
 			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
+		}
+
+		[Test]
+		public void RobjectCanCheckIfItsModelIsMarkedAsGivenMark()
+		{
+			ModelsAre(
+				Model("model").Mark("mark"));
+
+			ObjectsAre(
+				Object(Id("id1", "model")));
+
+			var testingRobject = Robj("id", "model");
+
+			Assert.IsTrue(testingRobject.MarkedAs("mark"));
+			Assert.IsFalse(testingRobject.MarkedAs("nonexistingmark"));
+		}
+
+		[Test]
+		public void RmemberCanCheckIfItsModelIsMarkedAsGivenMark()
+		{
+			ModelsAre(
+				Model("model")
+				.Member("member")
+				.MarkMember("member", "mark"));
+
+			ObjectsAre(
+				Object(Id("id")));
+
+			ObjectsAre(
+				Object(Id("id1", "model"))
+				.Member("member", Id("id")));
+
+			var testingRmember = Robj("id", "model")["member"];
+
+			Assert.IsTrue(testingRmember.MarkedAs("mark"));
+			Assert.IsFalse(testingRmember.MarkedAs("nonexistingmark"));
+		}
+
+		[Test]
+		public void RoperationCanCheckIfItsModelIsMarkedAsGivenMark()
+		{
+			ModelsAre(
+				Model("model")
+				.Operation("operation")
+				.MarkOperation("operation", "mark"));
+
+			ObjectsAre(
+				Object(Id("id1", "model"))
+				.Operation("operation"));
+
+			var testingRoperation = Robj("id", "model").Operations.Single(o => o.Id == "operation");
+
+			Assert.IsTrue(testingRoperation.MarkedAs("mark"));
+			Assert.IsFalse(testingRoperation.MarkedAs("nonexistingmark"));
 		}
 
 		[Test]

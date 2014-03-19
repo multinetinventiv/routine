@@ -68,7 +68,8 @@ namespace Routine.Test.Core.Service
 		public void MemberModel()
 		{
 			var prototype = new TestDataPrototype<MemberModel>(() => new MemberModel {
-				Id = "id", 
+				Id = "id",
+				Marks = new List<string> { "mark1", "mark2" }, 
 				IsHeavy = true, 
 				IsList = false, 
 				ViewModelId = "view_model_id"
@@ -80,6 +81,7 @@ namespace Routine.Test.Core.Service
 			AssertToStringHasTypeName(testing);
 
 			AssertToStringHasPropertyAndItsValue(testing, "Id", testing.Id);
+			AssertToStringHasPropertyAndItsValue(testing, "Marks", testing.Marks.ToItemString());
 			AssertToStringHasPropertyAndItsValue(testing, "IsHeavy", testing.IsHeavy);
 			AssertToStringHasPropertyAndItsValue(testing, "IsList", testing.IsList);
 			AssertToStringHasPropertyAndItsValue(testing, "ViewModelId", testing.ViewModelId);
@@ -88,6 +90,7 @@ namespace Routine.Test.Core.Service
 			AssertEqualsAndHasSameHashCode(testing, prototype.Create());
 
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Id = "different"));
+			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Marks.Add("different")));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsHeavy = false));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsList = true));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.ViewModelId = "different"));
@@ -97,8 +100,9 @@ namespace Routine.Test.Core.Service
 		public void ParameterModel()
 		{
 			var prototype = new TestDataPrototype<ParameterModel>(() => new ParameterModel {
-				Id = "id", 
-				IsList = true, 
+				Id = "id",
+				Marks = new List<string> { "mark1", "mark2" }, 
+				IsList = true,
 				ViewModelId = "view_model_id"
 			});
 
@@ -108,6 +112,7 @@ namespace Routine.Test.Core.Service
 			AssertToStringHasTypeName(testing);
 
 			AssertToStringHasPropertyAndItsValue(testing, "Id", testing.Id);
+			AssertToStringHasPropertyAndItsValue(testing, "Marks", testing.Marks.ToItemString());
 			AssertToStringHasPropertyAndItsValue(testing, "IsList", testing.IsList);
 			AssertToStringHasPropertyAndItsValue(testing, "ViewModelId", testing.ViewModelId);
 
@@ -115,6 +120,7 @@ namespace Routine.Test.Core.Service
 			AssertEqualsAndHasSameHashCode(testing, prototype.Create());
 
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Id = "different"));
+			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Marks.Add("different")));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsList = false));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.ViewModelId = "different"));
 		}
@@ -149,10 +155,11 @@ namespace Routine.Test.Core.Service
 		public void OperationModel()
 		{
 			var prototype = new TestDataPrototype<OperationModel>(() => new OperationModel {
-				Id = "operation", 
+				Id = "operation",
+				Marks = new List<string> { "mark1", "mark2" }, 
 				IsHeavy = true, 
 				Parameters = new List<ParameterModel>{new ParameterModel{Id = "parameter"}},
-				Result = new ResultModel{ViewModelId = "view_model_id"}
+				Result = new ResultModel { ViewModelId = "view_model_id" }
 			});
 
 			var testing = prototype.Create();
@@ -161,6 +168,7 @@ namespace Routine.Test.Core.Service
 			AssertToStringHasTypeName(testing);
 
 			AssertToStringHasPropertyAndItsValue(testing, "Id", testing.Id);
+			AssertToStringHasPropertyAndItsValue(testing, "Marks", testing.Marks.ToItemString());
 			AssertToStringHasPropertyAndItsValue(testing, "IsHeavy", testing.IsHeavy);
 
 			AssertToStringHasProperty(testing, "Parameters");
@@ -173,6 +181,7 @@ namespace Routine.Test.Core.Service
 			AssertEqualsAndHasSameHashCode(testing, prototype.Create());
 
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Id = "different"));
+			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Marks.Add("different")));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsHeavy = false));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Parameters[0].Id = "different"));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Result.ViewModelId = "different"));
@@ -183,6 +192,7 @@ namespace Routine.Test.Core.Service
 		{
 			var prototype = new TestDataPrototype<ObjectModel>(() => new ObjectModel {
 				Id = "object",
+				Marks = new List<string> { "mark1", "mark2" }, 
 				Name = "object",
 				Module = "system",
 				IsValueModel = true,
@@ -197,6 +207,7 @@ namespace Routine.Test.Core.Service
 			AssertToStringHasTypeName(testing);
 
 			AssertToStringHasPropertyAndItsValue(testing, "Id", testing.Id);
+			AssertToStringHasPropertyAndItsValue(testing, "Marks", testing.Marks.ToItemString());
 			AssertToStringHasPropertyAndItsValue(testing, "Name", testing.Name);
 			AssertToStringHasPropertyAndItsValue(testing, "Module", testing.Module);
 			AssertToStringHasPropertyAndItsValue(testing, "IsValueModel", testing.IsValueModel);
@@ -212,6 +223,7 @@ namespace Routine.Test.Core.Service
 			AssertEqualsAndHasSameHashCode(testing, prototype.Create());
 
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Id = "different"));
+			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Marks.Add("different")));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Name = "different"));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Module = "different"));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsValueModel = false));

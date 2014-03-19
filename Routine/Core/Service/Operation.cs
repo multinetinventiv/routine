@@ -3,8 +3,10 @@ using System.Collections.Generic;
 namespace Routine.Core.Service
 {
 	public class OperationModel
-	{	
-		public string Id{get;set;}
+	{
+		public string Id { get; set; }
+		public List<string> Marks { get; set; }
+
 		public bool IsHeavy{get;set;}
 
 		public List<ParameterModel> Parameters{get;set;}
@@ -12,6 +14,7 @@ namespace Routine.Core.Service
 
 		public OperationModel() 
 		{
+			Marks = new List<string>();
 			Parameters = new List<ParameterModel>(); 
 			Result = new ResultModel();
 		}
@@ -19,7 +22,7 @@ namespace Routine.Core.Service
 		#region ToString & Equality
 		public override string ToString()
 		{
-			return string.Format("[OperationModel: Id={0}, IsHeavy={1}, Parameters={2}, Result={3}]", Id, IsHeavy, Parameters.ToItemString(), Result);
+			return string.Format("[OperationModel: Id={0}, Marks={1}, IsHeavy={2}, Parameters={3}, Result={4}]", Id, Marks.ToItemString(), IsHeavy, Parameters.ToItemString(), Result);
 		}
 
 		public override bool Equals(object obj)
@@ -31,14 +34,14 @@ namespace Routine.Core.Service
 			if(obj.GetType() != typeof(OperationModel))
 				return false;
 			OperationModel other = (OperationModel)obj;
-			return Id == other.Id && IsHeavy == other.IsHeavy && Parameters.ItemEquals(other.Parameters) && object.Equals(Result, other.Result);
+			return Id == other.Id && Marks.ItemEquals(other.Marks) && IsHeavy == other.IsHeavy && Parameters.ItemEquals(other.Parameters) && object.Equals(Result, other.Result);
 		}
 		
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Id != null ?Id.GetHashCode():0) ^ IsHeavy.GetHashCode() ^ (Parameters != null ?Parameters.GetItemHashCode():0) ^ (Result != null ?Result.GetHashCode():0);
+				return (Id != null ? Id.GetHashCode() : 0) ^ (Marks != null ? Marks.GetItemHashCode() : 0) ^ IsHeavy.GetHashCode() ^ (Parameters != null ? Parameters.GetItemHashCode() : 0) ^ (Result != null ? Result.GetHashCode() : 0);
 			}
 		}
 		

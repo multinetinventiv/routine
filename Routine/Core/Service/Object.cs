@@ -4,7 +4,9 @@ namespace Routine.Core.Service
 {
 	public class ObjectModel
 	{
-		public string Id{get;set;}
+		public string Id { get; set; }
+		public List<string> Marks { get; set; }
+
 		public string Name{get;set;}
 		public string Module{get;set;}
 		public bool IsValueModel{get;set;}
@@ -15,6 +17,7 @@ namespace Routine.Core.Service
 
 		public ObjectModel() 
 		{
+			Marks = new List<string>();
 			Members = new List<MemberModel>(); 
 			Operations = new List<OperationModel>(); 
 		}
@@ -23,7 +26,7 @@ namespace Routine.Core.Service
 
 		public override string ToString()
 		{
-			return string.Format("[ObjectModel: Id={0}, Name={1}, Module={2}, IsValueModel={3}, IsViewModel={4}, Members={5}, Operations={6}]", Id, Name, Module, IsValueModel, IsViewModel, Members.ToItemString(), Operations.ToItemString());
+			return string.Format("[ObjectModel: Id={0}, Marks={1}, Name={2}, Module={3}, IsValueModel={4}, IsViewModel={5}, Members={6}, Operations={7}]", Id, Marks.ToItemString(), Name, Module, IsValueModel, IsViewModel, Members.ToItemString(), Operations.ToItemString());
 		}
 
 		public override bool Equals(object obj)
@@ -35,14 +38,14 @@ namespace Routine.Core.Service
 			if(obj.GetType() != typeof(ObjectModel))
 				return false;
 			ObjectModel other = (ObjectModel)obj;
-			return Id == other.Id && Name == other.Name && Module == other.Module && IsValueModel == other.IsValueModel && IsViewModel == other.IsViewModel && Members.ItemEquals(other.Members) && Operations.ItemEquals(other.Operations);
+			return Id == other.Id && Marks.ItemEquals(other.Marks) && Name == other.Name && Module == other.Module && IsValueModel == other.IsValueModel && IsViewModel == other.IsViewModel && Members.ItemEquals(other.Members) && Operations.ItemEquals(other.Operations);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Id != null ?Id.GetHashCode():0) ^ (Name != null ?Name.GetHashCode():0) ^ (Module != null ?Module.GetHashCode():0) ^ IsValueModel.GetHashCode() ^ IsViewModel.GetHashCode() ^ (Members != null ?Members.GetItemHashCode():0) ^ (Operations != null ?Operations.GetItemHashCode():0);
+				return (Id != null ?Id.GetHashCode():0) ^ (Marks != null?Marks.GetItemHashCode():0) ^ (Name != null ?Name.GetHashCode():0) ^ (Module != null ?Module.GetHashCode():0) ^ IsValueModel.GetHashCode() ^ IsViewModel.GetHashCode() ^ (Members != null ?Members.GetItemHashCode():0) ^ (Operations != null ?Operations.GetItemHashCode():0);
 			}
 		}
 		

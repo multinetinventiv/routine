@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Routine.Core.Service;
 
 namespace Routine.Core
@@ -13,9 +14,10 @@ namespace Routine.Core
 
 		private DomainOperation domainOperation;
 		private IParameter parameter;
-		public TypeInfo Type{get{return parameter.Type;}}
+		public TypeInfo Type{get{return parameter.ParameterType;}}
 
-		public string Id{get;private set;}
+		public string Id { get; private set; }
+		public List<string> Marks { get; private set; }
 		public bool IsList{get;private set;}
 		public string ViewModelId{get;private set;}
 		public int Index{get{return parameter.Index;}}
@@ -24,10 +26,12 @@ namespace Routine.Core
 		{
 			this.domainOperation = domainOperation;
 			this.parameter = parameter;
+			Marks = new List<string>();
 
 			Id = parameter.Name;
-			IsList = parameter.Type.CanBeCollection();
-			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ?parameter.Type.GetItemType():parameter.Type);
+			Marks.AddRange(ctx.CodingStyle.ParameterMarkSelector.Select(parameter));
+			IsList = parameter.ParameterType.CanBeCollection();
+			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType);
 
 			return this;
 		}
@@ -36,6 +40,7 @@ namespace Routine.Core
 		{
 			return new ParameterModel {
 				Id = Id,
+				Marks = new List<string>(Marks),
 				IsList = IsList,
 				ViewModelId = ViewModelId
 			};

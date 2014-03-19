@@ -13,10 +13,11 @@ namespace Routine.Core.Operation
 			this.method = method; 
 		}
 
+		public TypeInfo Type { get { return method.ReflectedType; } }
 		public string Name{ get { return method.Name;}}
-		public TypeInfo Type { get { return method.ReturnType;}}
+		public TypeInfo ReturnType { get { return method.ReturnType;}}
 
-		public List<IParameter> Parameters { get { return method.GetParameters().Select(p => new MethodParameter(p) as IParameter).ToList();}}
+		public List<IParameter> Parameters { get { return method.GetParameters().Select(p => new MethodParameter(this, p) as IParameter).ToList();}}
 
 		public object PerformOn(object target, params object[] parameters) 
 		{

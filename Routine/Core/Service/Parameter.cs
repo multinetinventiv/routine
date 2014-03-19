@@ -1,17 +1,22 @@
+using System.Collections.Generic;
+
 namespace Routine.Core.Service
 {
 	public class ParameterModel
 	{
-		public string Id{get;set;}
+		public string Id { get; set; }
+		public List<string> Marks { get; set; }
 
 		public string ViewModelId{get;set;}
 		public bool IsList{get;set;}
+
+		public ParameterModel() { Marks = new List<string>(); }
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterModel: Id={0}, ViewModelId={1}, IsList={2}]", Id, ViewModelId, IsList);
+			return string.Format("[ParameterModel: Id={0}, Marks={1}, ViewModelId={2}, IsList={3}]", Id, Marks.ToItemString(), ViewModelId, IsList);
 		}
 
 		public override bool Equals(object obj)
@@ -23,14 +28,14 @@ namespace Routine.Core.Service
 			if(obj.GetType() != typeof(ParameterModel))
 				return false;
 			ParameterModel other = (ParameterModel)obj;
-			return Id == other.Id && ViewModelId == other.ViewModelId && IsList == other.IsList;
+			return Id == other.Id && Marks.ItemEquals(other.Marks) && ViewModelId == other.ViewModelId && IsList == other.IsList;
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Id != null ?Id.GetHashCode():0) ^ (ViewModelId != null ?ViewModelId.GetHashCode():0) ^ IsList.GetHashCode();
+				return (Id != null ?Id.GetHashCode():0) ^ (Marks != null?Marks.GetItemHashCode():0) ^ (ViewModelId != null ?ViewModelId.GetHashCode():0) ^ IsList.GetHashCode();
 			}
 		}
 		

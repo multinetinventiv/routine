@@ -12,8 +12,9 @@ namespace Routine.Core.Member
 			this.property = property;
 		}
 
+		public TypeInfo Type { get { return property.ReflectedType; } }
 		public string Name { get { return property.Name; } }
-		public TypeInfo Type { get { return property.PropertyType; } }
+		public TypeInfo ReturnType { get { return property.PropertyType; } }
 
 		public bool CanFetchFrom(object target) { return !property.IsIndexer; }
 		public object FetchFrom(object target) 

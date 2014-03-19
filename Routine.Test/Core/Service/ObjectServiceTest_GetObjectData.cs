@@ -68,12 +68,12 @@ namespace Routine.Test.Core.Service
 			base.SetUp();
 
 			codingStyle
-				.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 
-				.DisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
+				.ExtractDisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 
-				.MemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
-				.OperationIsHeavy.Done(e => e.ByConverting(o => o.ReturnsCollection()))
+				.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
+				.ExtractOperationIsHeavy.Done(e => e.ByConverting(o => o.ReturnsCollection()))
 				;
 		}
 

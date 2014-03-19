@@ -43,6 +43,8 @@ namespace Routine.Test.Core.Service
 	public class ObjectServiceTest_GetObjectModel : ObjectServiceTestBase
 	{
 		private const string TESTED_OM_ID = "Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-BusinessModel";
+		private const string TESTED_VAM_ID = ":Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel.BusinessValueModel";
+		private const string TESTED_VIM_ID = "Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-IBusinessModel";
 
 		protected override string DefaultModelId{get{return TESTED_OM_ID;}}
 		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel"};}}
@@ -53,14 +55,19 @@ namespace Routine.Test.Core.Service
 			base.SetUp();
 
 			codingStyle
-				.ModelId.Done(s => s.SerializeBy(t => t.FullName.Replace(".", "-"))
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.Replace(".", "-"))
 									.SerializeWhen(t => !t.Namespace.Contains("Ignored") && t.IsDomainType)
 									.DeserializeBy(id => id.Replace("-", ".").ToType())
 									.DeserializeWhen(id => id.Contains("-")))
-				.Module.Done(e => e.Always("Test"))
+				.ExtractModelModule.Done(e => e.Always("Test"))
+				.SelectModelMarks.Done(s => s.Always("value").When(t => t.CanParse()))
+				.SelectModelMarks.Done(s => s.Always("all"))
+				.SelectMemberMarks.Done(s => s.Always("heavy").When(m => m.ReturnsCollection()))
+				.SelectOperationMarks.Done(s => s.Always("heavy").When(o => o.Parameters.Any(p => p.ParameterType.CanBeCollection())))
+				.SelectParameterMarks.Done(s => s.Always("list").When(p => p.ParameterType.CanBeCollection()))
 
-				.MemberIsHeavy.Done(e => e.Always(true).When(m => m.ReturnsCollection()))
-				.OperationIsHeavy.Done(e => e.Always(true).When(o => o.Parameters.Any(p => p.Type.CanBeCollection())))
+				.ExtractMemberIsHeavy.Done(e => e.Always(true).When(m => m.ReturnsCollection()))
+				.ExtractOperationIsHeavy.Done(e => e.Always(true).When(o => o.Parameters.Any(p => p.ParameterType.CanBeCollection())))
 				;
 		}
 
@@ -70,6 +77,19 @@ namespace Routine.Test.Core.Service
 			var actual = testing.GetObjectModel(TESTED_OM_ID);
 
 			Assert.AreEqual("Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-BusinessModel", actual.Id);
+		}
+
+		[Test]
+		public void ObjectModelIsMarkedWithGivenSelectors()
+		{
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+			var vam = testing.GetObjectModel(TESTED_VAM_ID);
+
+			Assert.IsFalse(om.Marks.Any(m => m == "value"));
+			Assert.IsTrue(vam.Marks.Any(m => m == "value"));
+
+			Assert.IsTrue(om.Marks.Any(m => m == "all"));
+			Assert.IsTrue(vam.Marks.Any(m => m == "all"));
 		}
 
 		[Test]
@@ -83,7 +103,7 @@ namespace Routine.Test.Core.Service
 		[Test]
 		public void ValueModelDoesNotHaveMemberOrOperation()
 		{
-			var actual = testing.GetObjectModel(":Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel.BusinessValueModel");
+			var actual = testing.GetObjectModel(TESTED_VAM_ID);
 
 			Assert.AreEqual(0, actual.Members.Count);
 			Assert.AreEqual(0, actual.Operations.Count);
@@ -92,7 +112,7 @@ namespace Routine.Test.Core.Service
 		[Test]
 		public void ObjectModelIsViewModelIfCorrespondingExtractorSaysSo()
 		{
-			var actual = testing.GetObjectModel("Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-IBusinessModel");
+			var actual = testing.GetObjectModel(TESTED_VIM_ID);
 
 			Assert.IsTrue(actual.IsViewModel);
 		}
@@ -123,6 +143,15 @@ namespace Routine.Test.Core.Service
 			Assert.AreEqual(":System.Int32", actual.Members[0].ViewModelId);
 			Assert.AreEqual("List", actual.Members[1].Id);
 			Assert.AreEqual(":System.String", actual.Members[1].ViewModelId);
+		}
+
+		[Test]
+		public void AMemberIsMarkedWithGivenSelectors()
+		{
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+			
+			Assert.IsFalse(om.Members[0].Marks.Any(m => m == "heavy"));
+			Assert.IsTrue(om.Members[1].Marks.Any(m => m == "heavy"));
 		}
 
 		[Test]
@@ -178,6 +207,16 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
+		public void AnOperationIsMarkedWithGivenSelectors()
+		{
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsFalse(om.Operations[0].Marks.Any(m => m == "heavy"));
+			Assert.IsTrue(om.Operations[1].Marks.Any(m => m == "heavy"));
+			Assert.IsFalse(om.Operations[2].Marks.Any(m => m == "heavy"));
+		}
+
+		[Test]
 		public void AnOperationIsMarkedAsHeavyIfCorrespondingExtractorSaysSo()
 		{			
 			var actual = testing.GetObjectModel(TESTED_OM_ID);
@@ -208,6 +247,15 @@ namespace Routine.Test.Core.Service
 
 			Assert.IsTrue(actual.Operations[1].Parameters[0].IsList);
 			Assert.IsFalse(actual.Operations[2].Parameters[0].IsList);		
+		}
+
+		[Test]
+		public void AParameterIsMarkedWithGivenSelectors()
+		{
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsTrue(om.Operations[1].Parameters[0].Marks.Any(m => m == "list"));
+			Assert.IsFalse(om.Operations[2].Parameters[0].Marks.Any(m => m == "list"));
 		}
 
 		[Test]

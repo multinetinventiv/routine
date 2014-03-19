@@ -12,9 +12,9 @@ namespace Routine.Test.Common.Configuration
 		{
 			return source
 					.FromEmpty()
-					.Id.Done(e => e.Always(singletonId).WhenType(t => container.TypeIsSingleton(t)))
-					.Locator.Done(l => l.Singleton(t => container.Resolve(t)).AcceptNullResult(false).WhenType(t => container.TypeIsSingleton(t)))
-					.AvailableIds.Done(e => e.Always(singletonId).When(t => container.TypeIsSingleton(t)))
+					.ExtractId.Done(e => e.Always(singletonId).WhenType(t => container.TypeIsSingleton(t)))
+					.Locate.Done(l => l.Singleton(t => container.Resolve(t)).AcceptNullResult(false).WhenType(t => container.TypeIsSingleton(t)))
+					.ExtractAvailableIds.Done(e => e.Always(singletonId).When(t => container.TypeIsSingleton(t)))
 					;
 		}
 

@@ -11,100 +11,112 @@ namespace Routine.Core.Configuration
 	{
 		public const string VOID_MODEL_ID = "_void";
 
-		public GenericCodingStyle DomainTypeRootNamespacesAre(params string[] rootNamespaces){TypeInfo.AddDomainTypeRootNamespace(rootNamespaces);return this;}
+		public GenericCodingStyle DomainTypeRootNamespacesAre(params string[] rootNamespaces) { TypeInfo.AddDomainTypeRootNamespace(rootNamespaces); return this; }
 
-		public MultipleSerializer<GenericCodingStyle, TypeInfo> ModelId { get; private set;}
+		public MultipleSerializer<GenericCodingStyle, TypeInfo> SerializeModelId { get; private set;}
 
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, string> Module{ get; private set;}
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ModelIsValue{ get; private set;}
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ModelIsView{ get; private set;}
+		public MultipleSelector<GenericCodingStyle, TypeInfo, string> SelectModelMarks { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, string> ExtractModelModule{ get; private set;}
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsValue{ get; private set;}
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsView{ get; private set;}
 
-		public MultipleSelector<GenericCodingStyle, TypeInfo, IMember> Member { get; private set; }
-		public MultipleSelector<GenericCodingStyle, TypeInfo, IOperation> Operation { get; private set; }
+		public MultipleSelector<GenericCodingStyle, TypeInfo, IMember> SelectMembers { get; private set; }
+		public MultipleSelector<GenericCodingStyle, IMember, string> SelectMemberMarks { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, IMember, bool> ExtractMemberIsHeavy { get; private set; }
 
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> AvailableIds { get; private set;}
+		public MultipleSelector<GenericCodingStyle, TypeInfo, IOperation> SelectOperations { get; private set; }
+		public MultipleSelector<GenericCodingStyle, IOperation, string> SelectOperationMarks { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, IOperation, bool> ExtractOperationIsHeavy { get; private set; }
+		public MultipleSelector<GenericCodingStyle, IParameter, string> SelectParameterMarks { get; private set; }
 
-		public MultipleExtractor<GenericCodingStyle, object, string> Id { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> ExtractAvailableIds { get; private set;}
 
-		public MultipleExtractor<GenericCodingStyle, IMember, bool> MemberIsHeavy {get; private set;}
-		public MultipleExtractor<GenericCodingStyle, IOperation, bool> OperationIsHeavy {get; private set;}
+		public MultipleExtractor<GenericCodingStyle, object, string> ExtractId { get; private set; }
+		public MultipleLocator<GenericCodingStyle> Locate { get; private set; }
 
-		public MultipleLocator<GenericCodingStyle> Locator { get; private set; }
-
-		public MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool> OperationIsAvailable { get; private set; }
-		public MultipleExtractor<GenericCodingStyle, object, string> DisplayValue { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, object, string> ExtractDisplayValue { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool> ExtractOperationIsAvailable { get; private set; }
 
 		public GenericCodingStyle()
 		{
-			ModelId = new MultipleSerializer<GenericCodingStyle, TypeInfo>(this);
+			SerializeModelId = new MultipleSerializer<GenericCodingStyle, TypeInfo>(this);
 
-			Module = new MultipleExtractor<GenericCodingStyle, TypeInfo, string>(this, "Module");
-			ModelIsValue = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsValue");
-			ModelIsView = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsView");
+			SelectModelMarks = new MultipleSelector<GenericCodingStyle, TypeInfo, string>(this);
+			ExtractModelModule = new MultipleExtractor<GenericCodingStyle, TypeInfo, string>(this, "ModelModule");
+			ExtractModelIsValue = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsValue");
+			ExtractModelIsView = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsView");
 
-			Member = new MultipleSelector<GenericCodingStyle, TypeInfo, IMember>(this);
-			Operation = new MultipleSelector<GenericCodingStyle, TypeInfo, IOperation>(this);
+			SelectMembers = new MultipleSelector<GenericCodingStyle, TypeInfo, IMember>(this);
+			SelectMemberMarks = new MultipleSelector<GenericCodingStyle, IMember, string>(this);
+			ExtractMemberIsHeavy = new MultipleExtractor<GenericCodingStyle, IMember, bool>(this, "MemberIsHeavy");
 
-			AvailableIds = new MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>>(this, "AvailableIds");
+			SelectOperations = new MultipleSelector<GenericCodingStyle, TypeInfo, IOperation>(this);
+			SelectOperationMarks = new MultipleSelector<GenericCodingStyle, IOperation, string>(this);
+			ExtractOperationIsHeavy = new MultipleExtractor<GenericCodingStyle, IOperation, bool>(this, "OperationIsHeavy");
+			SelectParameterMarks = new MultipleSelector<GenericCodingStyle, IParameter, string>(this);
 
-			Id = new MultipleExtractor<GenericCodingStyle, object, string>(this, "Id");
+			ExtractAvailableIds = new MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>>(this, "AvailableIds");
 
-			MemberIsHeavy = new MultipleExtractor<GenericCodingStyle, IMember, bool>(this, "MemberIsHeavy");
-			OperationIsHeavy = new MultipleExtractor<GenericCodingStyle, IOperation, bool>(this, "OperationIsHeavy");
+			ExtractId = new MultipleExtractor<GenericCodingStyle, object, string>(this, "Id");
+			Locate = new MultipleLocator<GenericCodingStyle>(this);
 
-			Locator = new MultipleLocator<GenericCodingStyle>(this);
-
-			OperationIsAvailable = new MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool>(this, "OperationIsAvailable");
-			DisplayValue = new MultipleExtractor<GenericCodingStyle, object, string>(this, "DisplayValue");
+			ExtractDisplayValue = new MultipleExtractor<GenericCodingStyle, object, string>(this, "DisplayValue");
+			ExtractOperationIsAvailable = new MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool>(this, "OperationIsAvailable");
 		}
 
 		public GenericCodingStyle Merge(GenericCodingStyle other)
 		{
-			ModelId.Merge(other.ModelId);
+			SerializeModelId.Merge(other.SerializeModelId);
 
-			Module.Merge(other.Module);
-			ModelIsValue.Merge(other.ModelIsValue);
-			ModelIsView.Merge(other.ModelIsView);
+			SelectModelMarks.Merge(other.SelectModelMarks);
+			ExtractModelModule.Merge(other.ExtractModelModule);
+			ExtractModelIsValue.Merge(other.ExtractModelIsValue);
+			ExtractModelIsView.Merge(other.ExtractModelIsView);
 
-			Member.Merge(other.Member);
-			Operation.Merge(other.Operation);
+			SelectMembers.Merge(other.SelectMembers);
+			SelectMemberMarks.Merge(other.SelectMemberMarks);
+			ExtractMemberIsHeavy.Merge(other.ExtractMemberIsHeavy);
+			
+			SelectOperations.Merge(other.SelectOperations);
+			SelectOperationMarks.Merge(other.SelectOperationMarks);
+			ExtractOperationIsHeavy.Merge(other.ExtractOperationIsHeavy);
+			SelectParameterMarks.Merge(other.SelectParameterMarks);
 
-			AvailableIds.Merge(other.AvailableIds);
+			ExtractAvailableIds.Merge(other.ExtractAvailableIds);
 
-			Id.Merge(other.Id);
+			ExtractId.Merge(other.ExtractId);
+			Locate.Merge(other.Locate);
 
-			MemberIsHeavy.Merge(other.MemberIsHeavy);
-			OperationIsHeavy.Merge(other.OperationIsHeavy);
-
-			Locator.Merge(other.Locator);
-
-			OperationIsAvailable.Merge(other.OperationIsAvailable);
-			DisplayValue.Merge(other.DisplayValue);
+			ExtractDisplayValue.Merge(other.ExtractDisplayValue);
+			ExtractOperationIsAvailable.Merge(other.ExtractOperationIsAvailable);
 
 			return this;
 		}
 
 		#region ICodingStyle implementation
-		ISerializer<TypeInfo> ICodingStyle.ModelIdSerializer {get{return ModelId;}}
+		ISerializer<TypeInfo> ICodingStyle.ModelIdSerializer { get { return SerializeModelId; } }
 
-		IExtractor<TypeInfo, string> ICodingStyle.ModuleExtractor{get{return Module;}}
-		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsValueExtractor{get{return ModelIsValue;}}
-		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsViewExtractor{get{return ModelIsView;}}
+		ISelector<TypeInfo, string> ICodingStyle.ModelMarkSelector { get { return SelectModelMarks; } }
+		IExtractor<TypeInfo, string> ICodingStyle.ModelModuleExtractor { get { return ExtractModelModule; } }
+		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsValueExtractor { get { return ExtractModelIsValue; } }
+		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsViewExtractor { get { return ExtractModelIsView; } }
 
-		ISelector<TypeInfo, IMember> ICodingStyle.MemberSelector { get { return Member; } }
-		ISelector<TypeInfo, IOperation> ICodingStyle.OperationSelector { get { return Operation; } }
+		ISelector<TypeInfo, IMember> ICodingStyle.MemberSelector { get { return SelectMembers; } }
+		ISelector<IMember, string> ICodingStyle.MemberMarkSelector { get { return SelectMemberMarks; } }
+		IExtractor<IMember, bool> ICodingStyle.MemberIsHeavyExtractor { get { return ExtractMemberIsHeavy; } }
 
-		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor {get{return AvailableIds;}}
+		ISelector<TypeInfo, IOperation> ICodingStyle.OperationSelector { get { return SelectOperations; } }
+		ISelector<IOperation, string> ICodingStyle.OperationMarkSelector { get { return SelectOperationMarks; } }
+		IExtractor<IOperation, bool> ICodingStyle.OperationIsHeavyExtractor { get { return ExtractOperationIsHeavy; } }
+		ISelector<IParameter, string> ICodingStyle.ParameterMarkSelector { get { return SelectParameterMarks; } }
 
-		IExtractor<object, string> ICodingStyle.IdExtractor { get { return Id; } }
+		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor {get{return ExtractAvailableIds;}}
 
-		IExtractor<IMember, bool> ICodingStyle.MemberIsHeavyExtractor {get{return MemberIsHeavy;}}
-		IExtractor<IOperation, bool> ICodingStyle.OperationIsHeavyExtractor {get{return OperationIsHeavy;}}
+		IExtractor<object, string> ICodingStyle.IdExtractor { get { return ExtractId; } }
+		ILocator ICodingStyle.Locator { get { return Locate; } }
 
-		ILocator ICodingStyle.Locator { get { return Locator; } }
-
-		IExtractor<Tuple<object, IOperation>, bool> ICodingStyle.OperationIsAvailableExtractor { get { return OperationIsAvailable; } }
-		IExtractor<object, string> ICodingStyle.DisplayValueExtractor { get { return DisplayValue; } }
+		IExtractor<object, string> ICodingStyle.DisplayValueExtractor { get { return ExtractDisplayValue; } }
+		IExtractor<Tuple<object, IOperation>, bool> ICodingStyle.OperationIsAvailableExtractor { get { return ExtractOperationIsAvailable; } }
 		#endregion
 	}
 }

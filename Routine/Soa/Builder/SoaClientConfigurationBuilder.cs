@@ -1,4 +1,5 @@
-﻿using Routine.Soa.Configuration;
+﻿using System;
+using Routine.Soa.Configuration;
 
 namespace Routine.Soa.Builder
 {
@@ -11,7 +12,8 @@ namespace Routine.Soa.Builder
 
 		public GenericSoaClientConfiguration FromBasic()
 		{
-			return FromScratch();
+			return FromScratch()
+				.ExtractException.OnFailReturn(new Exception());
 		}
 	}
 }

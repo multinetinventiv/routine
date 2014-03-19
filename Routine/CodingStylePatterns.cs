@@ -13,36 +13,36 @@ namespace Routine
 		{
 			return source
 					.FromEmpty()
-					.ModelId.Done(s => s.SerializeBy(t => nullId).SerializeWhen(t => t == null)
+					.SerializeModelId.Done(s => s.SerializeBy(t => nullId).SerializeWhen(t => t == null)
 										.DeserializeBy(id => (TypeInfo)null).DeserializeWhen(id => id == nullId))
 
-					.Id.Done(e => e.Always(nullId).WhenNull())
+					.ExtractId.Done(e => e.Always(nullId).WhenNull())
 
-					.Locator.Done(l => l.Always(null).WhenId(id => id == nullId))
+					.Locate.Done(l => l.Always(null).WhenId(id => id == nullId))
 
-					.DisplayValue.Done(e => e.Always(string.Empty).WhenNull());
+					.ExtractDisplayValue.Done(e => e.Always(string.Empty).WhenNull());
 		}
 
 		public static GenericCodingStyle ParseableValueTypePattern(this PatternBuilder<GenericCodingStyle> source, string valueTypePrefix)
 		{
 			return source
 					.FromEmpty()
-					.ModelId.Done(s => s.SerializeBy(t => t.FullName.Prepend(valueTypePrefix))
+					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.Prepend(valueTypePrefix))
 										.SerializeWhen(t => t.CanBe<string>() || t.CanParse())
 										.DeserializeBy(id => id.After(valueTypePrefix).ToType())
 										.DeserializeWhen(id => id.StartsWith(valueTypePrefix)))
 
-					.ModelIsValue.Done(e => e.Always(true).When(t => t.CanBe<string>() || t.CanParse()))
+					.ExtractModelIsValue.Done(e => e.Always(true).When(t => t.CanBe<string>() || t.CanParse()))
 
-					.AvailableIds.Done(e => e.Always(true.ToString(), false.ToString()).When(t => t.CanBe<bool>()))
+					.ExtractAvailableIds.Done(e => e.Always(true.ToString(), false.ToString()).When(t => t.CanBe<bool>()))
 
-					.Id.Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
+					.ExtractId.Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
 
-					.Locator.Add(l => l.Directly().WhenTypeCanBe<string>())
+					.Locate.Add(l => l.Directly().WhenTypeCanBe<string>())
 							.Done(l => l.By((t, id) => t.Parse(id)).WhenType(t => t.CanParse()))
 
-					.Member.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
-					.Operation.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
+					.SelectMembers.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
+					.SelectOperations.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
 					;
 		}	
 
@@ -50,12 +50,12 @@ namespace Routine
 		{
 			return source
 					.FromEmpty()
-					.ModelIsValue.Done(e => e.Always(true).When(t => t.IsEnum))
-					.AvailableIds.Done(e => e.ByConverting(t => Enum.GetNames(t.GetActualType()).ToList()).When(t => t.IsEnum))
-					.Id.Done(e => e.ByConverting(o => o.ToString()).WhenType(t => t.IsEnum))
-					.Locator.Done(l => l.By((t, id) => Enum.Parse(t.GetActualType(), id)).AcceptNullResult(false).WhenType(t => t.IsEnum))
-					.Member.Done(s => s.None().When(t => t.IsEnum))
-					.Operation.Done(s => s.None().When(t => t.IsEnum))
+					.ExtractModelIsValue.Done(e => e.Always(true).When(t => t.IsEnum))
+					.ExtractAvailableIds.Done(e => e.ByConverting(t => Enum.GetNames(t.GetActualType()).ToList()).When(t => t.IsEnum))
+					.ExtractId.Done(e => e.ByConverting(o => o.ToString()).WhenType(t => t.IsEnum))
+					.Locate.Done(l => l.By((t, id) => Enum.Parse(t.GetActualType(), id)).AcceptNullResult(false).WhenType(t => t.IsEnum))
+					.SelectMembers.Done(s => s.None().When(t => t.IsEnum))
+					.SelectOperations.Done(s => s.None().When(t => t.IsEnum))
 					;
 		}
 
@@ -70,7 +70,7 @@ namespace Routine
 			return source
 					.FromEmpty()
 					.DomainTypeRootNamespacesAre(rootNamespace)
-					.ModelId.Done(s => s.SerializeBy(t => t.FullName.After(prefix).Replace(".", separator))
+					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.After(prefix).Replace(".", separator))
 						.SerializeWhen(t => t.FullName.StartsWith(prefix) && t.IsPublic)
 						.DeserializeBy(str => str.Replace(separator, ".").Prepend(prefix).ToType())
 						.DeserializeWhen(str => str.Contains(separator)));

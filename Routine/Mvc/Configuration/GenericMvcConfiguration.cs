@@ -21,48 +21,48 @@ namespace Routine.Mvc.Configuration
 		public GenericMvcConfiguration SeparateViewNamesBy(char viewNameSeparator) { ViewNameSeparator = viewNameSeparator; return this; }
 		public GenericMvcConfiguration SeparateListValuesBy(char listValueSeparator) { ListValueSeparator = listValueSeparator; return this; }
 
-		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, string> IndexId{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>> MenuIds{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, string> ExtractIndexId{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>> ExtractMenuIds{ get; private set;}
 
-		public MultipleExtractor<GenericMvcConfiguration, Rparameter, Rvariable> ParameterDefault{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, Rparameter, List<Robject>> ParameterOptions{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, Rparameter, Rvariable> ExtractParameterDefault{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, Rparameter, List<Robject>> ExtractParameterOptions{ get; private set;}
 
-		public MultipleExtractor<GenericMvcConfiguration, ViewModelBase, string> ViewName{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, string, string> DisplayName{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ViewModelBase, string> ExtractViewName{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, string, string> ExtractDisplayName{ get; private set;}
 
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string> ViewRouteName{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string> PerformRouteName{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string> ExtractViewRouteName{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string> ExtractPerformRouteName{ get; private set;}
 
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>> OperationOrder{ get; private set;}
-		public MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>> OperationGroup{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>> ExtractOperationOrder{ get; private set;}
+		public MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>> SelectOperationGroupFunctions{ get; private set;}
 
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> MemberOrder{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> SimpleMemberOrder{ get; private set;}
-		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> TableMemberOrder{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractMemberOrder{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractSimpleMemberOrder{ get; private set;}
+		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractTableMemberOrder{ get; private set;}
 
 		public GenericMvcConfiguration() : this(true) {}
 		public GenericMvcConfiguration(string defaultObjectId) : this(true, defaultObjectId) { }
 		internal GenericMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
 		internal GenericMvcConfiguration(bool rootConfig, string defaultObjectId)
 		{
-			IndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
-			MenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
+			ExtractIndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
+			ExtractMenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
 
-			ParameterDefault = new MultipleExtractor<GenericMvcConfiguration, Rparameter, Rvariable>(this, "ParameterDefault");
-			ParameterOptions = new MultipleExtractor<GenericMvcConfiguration, Rparameter, List<Robject>>(this, "ParameterOptions");
+			ExtractParameterDefault = new MultipleExtractor<GenericMvcConfiguration, Rparameter, Rvariable>(this, "ParameterDefault");
+			ExtractParameterOptions = new MultipleExtractor<GenericMvcConfiguration, Rparameter, List<Robject>>(this, "ParameterOptions");
 
-			ViewName = new MultipleExtractor<GenericMvcConfiguration, ViewModelBase, string>(this, "ViewName");
-			DisplayName = new MultipleExtractor<GenericMvcConfiguration, string, string>(this, "DisplayName");
+			ExtractViewName = new MultipleExtractor<GenericMvcConfiguration, ViewModelBase, string>(this, "ViewName");
+			ExtractDisplayName = new MultipleExtractor<GenericMvcConfiguration, string, string>(this, "DisplayName");
 
-			ViewRouteName = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string>(this, "ViewRouteName");
-			PerformRouteName = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
+			ExtractViewRouteName = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string>(this, "ViewRouteName");
+			ExtractPerformRouteName = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
 
-			OperationOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>>(this, "OperationOrder");
-			OperationGroup = new MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>>(this);
+			ExtractOperationOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>>(this, "OperationOrder");
+			SelectOperationGroupFunctions = new MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>>(this);
 
-			MemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "MemberOrder");
-			SimpleMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "SimpleMemberOrder");
-			TableMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "TableMemberOrder");
+			ExtractMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "MemberOrder");
+			ExtractSimpleMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "SimpleMemberOrder");
+			ExtractTableMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "TableMemberOrder");
 
 			if(rootConfig)
 			{
@@ -72,24 +72,24 @@ namespace Routine.Mvc.Configuration
 
 		public GenericMvcConfiguration Merge(GenericMvcConfiguration other)
 		{
-			IndexId.Merge(other.IndexId);
-			MenuIds.Merge(other.MenuIds);
+			ExtractIndexId.Merge(other.ExtractIndexId);
+			ExtractMenuIds.Merge(other.ExtractMenuIds);
 
-			ParameterDefault.Merge(other.ParameterDefault);
-			ParameterOptions.Merge(other.ParameterOptions);
+			ExtractParameterDefault.Merge(other.ExtractParameterDefault);
+			ExtractParameterOptions.Merge(other.ExtractParameterOptions);
 
-			ViewName.Merge(other.ViewName);
-			DisplayName.Merge(other.DisplayName);
+			ExtractViewName.Merge(other.ExtractViewName);
+			ExtractDisplayName.Merge(other.ExtractDisplayName);
 
-			ViewRouteName.Merge(other.ViewRouteName);
-			PerformRouteName.Merge(other.PerformRouteName);
+			ExtractViewRouteName.Merge(other.ExtractViewRouteName);
+			ExtractPerformRouteName.Merge(other.ExtractPerformRouteName);
 
-			OperationOrder.Merge(other.OperationOrder);
-			OperationGroup.Merge(other.OperationGroup);
+			ExtractOperationOrder.Merge(other.ExtractOperationOrder);
+			SelectOperationGroupFunctions.Merge(other.SelectOperationGroupFunctions);
 
-			MemberOrder.Merge(other.MemberOrder);
-			SimpleMemberOrder.Merge(other.SimpleMemberOrder);
-			TableMemberOrder.Merge(other.TableMemberOrder);
+			ExtractMemberOrder.Merge(other.ExtractMemberOrder);
+			ExtractSimpleMemberOrder.Merge(other.ExtractSimpleMemberOrder);
+			ExtractTableMemberOrder.Merge(other.ExtractTableMemberOrder);
 
 			return this;
 		}
@@ -133,24 +133,24 @@ namespace Routine.Mvc.Configuration
 		char IMvcConfiguration.ViewNameSeparator{get{return ViewNameSeparator;}}
 		char IMvcConfiguration.ListValueSeparator{get{return ListValueSeparator;}}
 
-		IExtractor<ObjectModel, string> IMvcConfiguration.IndexIdExtractor{get{return IndexId;}}
-		IExtractor<ObjectModel, List<string>> IMvcConfiguration.MenuIdsExtractor{get{return MenuIds;}}
+		IExtractor<ObjectModel, string> IMvcConfiguration.IndexIdExtractor{get{return ExtractIndexId;}}
+		IExtractor<ObjectModel, List<string>> IMvcConfiguration.MenuIdsExtractor{get{return ExtractMenuIds;}}
 
-		IExtractor<Rparameter, Rvariable> IMvcConfiguration.ParameterDefaultExtractor{get{return ParameterDefault;}}
-		IExtractor<Rparameter, List<Robject>> IMvcConfiguration.ParameterOptionsExtractor{get{return ParameterOptions;}}
+		IExtractor<Rparameter, Rvariable> IMvcConfiguration.ParameterDefaultExtractor{get{return ExtractParameterDefault;}}
+		IExtractor<Rparameter, List<Robject>> IMvcConfiguration.ParameterOptionsExtractor{get{return ExtractParameterOptions;}}
 
-		IExtractor<ViewModelBase, string> IMvcConfiguration.ViewNameExtractor{get{return ViewName;}}
-		IExtractor<string, string> IMvcConfiguration.DisplayNameExtractor{get{return DisplayName;}}
+		IExtractor<ViewModelBase, string> IMvcConfiguration.ViewNameExtractor{get{return ExtractViewName;}}
+		IExtractor<string, string> IMvcConfiguration.DisplayNameExtractor{get{return ExtractDisplayName;}}
 
-		IExtractor<ObjectViewModel, string> IMvcConfiguration.ViewRouteNameExtractor{get{return ViewRouteName;}}
-		IExtractor<ObjectViewModel, string> IMvcConfiguration.PerformRouteNameExtractor{get{return PerformRouteName;}}
+		IExtractor<ObjectViewModel, string> IMvcConfiguration.ViewRouteNameExtractor{get{return ExtractViewRouteName;}}
+		IExtractor<ObjectViewModel, string> IMvcConfiguration.PerformRouteNameExtractor{get{return ExtractPerformRouteName;}}
 
-		IExtractor<ObjectViewModel, Func<OperationViewModel, int>> IMvcConfiguration.OperationOrderExtractor{get{return OperationOrder;}}
-		ISelector<ObjectViewModel, Func<OperationViewModel, bool>> IMvcConfiguration.OperationGroupSelector{get{return OperationGroup;}}
+		IExtractor<ObjectViewModel, Func<OperationViewModel, int>> IMvcConfiguration.OperationOrderExtractor{get{return ExtractOperationOrder;}}
+		ISelector<ObjectViewModel, Func<OperationViewModel, bool>> IMvcConfiguration.OperationGroupSelector{get{return SelectOperationGroupFunctions;}}
 
-		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.MemberOrderExtractor{get{return MemberOrder;}}
-		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.SimpleMemberOrderExtractor{get{return SimpleMemberOrder;}}
-		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.TableMemberOrderExtractor{get{return TableMemberOrder;}}
+		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.MemberOrderExtractor{get{return ExtractMemberOrder;}}
+		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.SimpleMemberOrderExtractor{get{return ExtractSimpleMemberOrder;}}
+		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.TableMemberOrderExtractor{get{return ExtractTableMemberOrder;}}
 
 		#endregion
 	}

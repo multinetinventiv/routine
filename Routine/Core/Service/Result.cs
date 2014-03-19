@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Routine.Core.Service
 {
 	public class ResultModel

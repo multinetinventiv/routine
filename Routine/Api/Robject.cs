@@ -111,6 +111,11 @@ namespace Routine.Api
 		public Rmember this[string memberModelId] { get { LoadMembersAndOperationsIfNecessary(); return members[memberModelId]; } }
 		public List<Roperation> Operations{get{LoadMembersAndOperationsIfNecessary(); return operations.Values.ToList();}}
 
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Any(m => m == mark);
+		}
+
 		public Rvariable Perform(string operationModelId, params Rvariable[] parameters) { return Perform(operationModelId, parameters.ToList()); }
 		public Rvariable Perform(string operationModelId, List<Rvariable> parameters)
 		{

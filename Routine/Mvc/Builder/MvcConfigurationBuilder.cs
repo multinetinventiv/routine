@@ -20,21 +20,21 @@ namespace Routine.Mvc.Builder
 					.SeparateViewNamesBy('-')
 					.SeparateListValuesBy(',')
 
-					.MenuIds.OnFailReturn(new List<string>())
+					.ExtractMenuIds.OnFailReturn(new List<string>())
 
-					.ParameterDefault.OnFailReturn(null)
-					.ParameterOptions.OnFailReturn(new List<Robject>())
+					.ExtractParameterDefault.OnFailReturn(null)
+					.ExtractParameterOptions.OnFailReturn(new List<Robject>())
 
-					.ViewName.OnFailReturn(string.Empty)
+					.ExtractViewName.OnFailReturn(string.Empty)
 
-					.ViewRouteName.OnFailReturn("Get")
-					.PerformRouteName.OnFailReturn("Perform")
+					.ExtractViewRouteName.OnFailReturn("Get")
+					.ExtractPerformRouteName.OnFailReturn("Perform")
 
-					.OperationOrder.OnFailReturn(o => 0)
+					.ExtractOperationOrder.OnFailReturn(o => 0)
 
-					.MemberOrder.OnFailReturn(m => 0)
-					.SimpleMemberOrder.OnFailReturn(m => 0)
-					.TableMemberOrder.OnFailReturn(m => 0)
+					.ExtractMemberOrder.OnFailReturn(m => 0)
+					.ExtractSimpleMemberOrder.OnFailReturn(m => 0)
+					.ExtractTableMemberOrder.OnFailReturn(m => 0)
 					;
 		}
 	}

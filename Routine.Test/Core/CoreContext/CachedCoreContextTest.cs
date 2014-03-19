@@ -24,8 +24,8 @@ namespace Routine.Test.Core.CoreContext
 		{
 			ICodingStyle codingStyle = 
 				BuildRoutine.CodingStyle().FromBasic()
-					.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
-					.Id.Done(e => e.ByPublicProperty(p => p.Returns<string>("Id")));
+					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
+					.ExtractId.Done(e => e.ByPublicProperty(p => p.Returns<string>("Id")));
 
 			var testing = new CachedCoreContext(codingStyle, new DictionaryCache());
 

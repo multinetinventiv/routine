@@ -25,7 +25,7 @@ namespace Routine.Test.Core.Service
 			base.SetUp();
 
 			codingStyle
-				.ModelId.Done(s => s.SerializeBy(t => t.FullName)
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName)
 									.SerializeWhen(t => t.IsDomainType)
 									.DeserializeBy(id => id.ToType()))
 				;

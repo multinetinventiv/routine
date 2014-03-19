@@ -8,13 +8,15 @@ namespace Routine.Soa.Configuration
 {
 	public class GenericSoaConfiguration : ISoaConfiguration
 	{
-		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExceptionResult { get; private set; }
+		private const string ACTION = "action";
+
+		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExtractExceptionResult { get; private set; }
 
 		public GenericSoaConfiguration() : this(true) { }
 
 		internal GenericSoaConfiguration(bool rootConfig)
 		{
-			ExceptionResult = new MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult>(this, "ExceptionResult");
+			ExtractExceptionResult = new MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult>(this, "ExceptionResult");
 
 			if (rootConfig)
 			{
@@ -24,7 +26,7 @@ namespace Routine.Soa.Configuration
 
 		public GenericSoaConfiguration Merge(GenericSoaConfiguration other)
 		{
-			ExceptionResult.Merge(other.ExceptionResult);
+			ExtractExceptionResult.Merge(other.ExtractExceptionResult);
 
 			return this;
 		}
@@ -33,14 +35,15 @@ namespace Routine.Soa.Configuration
 		{
 			RouteTable.Routes.MapRoute(
 				"Soa",
-				"Soa/{action}/{id}",
+				"Soa/{"+ACTION+"}/{id}",
 				new {controller="Soa", action="Index", id=""}
 			);
 		}
 
 		#region ISoaConfiguration implementation
 
-		IExtractor<Exception, SoaExceptionResult> ISoaConfiguration.ExceptionResultExtractor { get { return ExceptionResult; } }
+		IExtractor<Exception, SoaExceptionResult> ISoaConfiguration.ExceptionResultExtractor { get { return ExtractExceptionResult; } }
+		string ISoaConfiguration.ActionRouteName { get { return ACTION; } }
 
 		#endregion
 	}

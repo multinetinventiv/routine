@@ -104,6 +104,13 @@ namespace Routine.Test.Api
 			}
 
 			public ObjectModelBuilder Id(string id) {result.Id = id; return this;}
+
+
+			public ObjectModelBuilder Mark(params string[] marks) { result.Marks.AddRange(marks); return this; }
+			public ObjectModelBuilder MarkMember(string memberId, params string[] marks) { result.Members.Single(m => m.Id == memberId).Marks.AddRange(marks); return this; }
+			public ObjectModelBuilder MarkOperation(string operationId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Marks.AddRange(marks); return this; }
+			public ObjectModelBuilder MarkParameter(string operationId, string parameterId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Parameters.Single(p => p.Id == parameterId).Marks.AddRange(marks); return this; }
+
 			public ObjectModelBuilder IsValue() {result.IsValueModel = true; return this;}
 			public ObjectModelBuilder IsView() {result.IsViewModel = true; return this;}
 			public ObjectModelBuilder Name(string name){result.Name = name; return this;}

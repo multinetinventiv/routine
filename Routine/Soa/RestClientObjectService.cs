@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using Routine.Core.Rest;
@@ -10,16 +9,24 @@ namespace Routine.Soa
 	{
 		private readonly ISoaClientConfiguration soaClientConfiguration;
 		private readonly IRestClient client;
+		private readonly JavaScriptSerializer serializer;
 
 		public RestClientObjectService(ISoaClientConfiguration soaClientConfiguration, IRestClient client)
 		{
 			this.soaClientConfiguration = soaClientConfiguration;
 			this.client = client;
+			this.serializer = new JavaScriptSerializer();
 		}
 
 		private T As<T>(string jsonString)
 		{
-			return new JavaScriptSerializer().Deserialize<T>(jsonString);
+			if (jsonString.Contains("IsException:True"))
+			{
+				var exceptionResult = serializer.Deserialize<SoaExceptionResult>(jsonString);
+
+				throw soaClientConfiguration.ExceptionExtractor.Extract(exceptionResult);
+			}
+			return serializer.Deserialize<T>(jsonString);
 		}
 
 		private string Url(string serviceName)
@@ -94,7 +101,30 @@ namespace Routine.Soa
 
 		public ResultData PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
 		{
-			throw new NotImplementedException();
+			var paramList = new List<RestParameter>();
+			
+			paramList.Add(Param("targetReference.Id", targetReference.Id));
+			paramList.Add(Param("targetReference.ActualModelId", targetReference.ActualModelId));
+			paramList.Add(Param("targetReference.ViewModelId", targetReference.ViewModelId));
+			paramList.Add(Param("targetReference.IsNull", targetReference.IsNull.ToString()));
+			
+			paramList.Add(Param("operationModelId", operationModelId));
+
+			for (int i = 0; i < parameterValues.Count; i++)
+			{
+				paramList.Add(Param("parameterValues[" + i + "].ParameterModelId", parameterValues[i].ParameterModelId));
+				paramList.Add(Param("parameterValues[" + i + "].Value.IsList", parameterValues[i].Value.IsList.ToString()));
+
+				for (int j = 0; j < parameterValues[i].Value.References.Count; j++)
+				{
+					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].Id", parameterValues[i].Value.References[j].Id));
+					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ActualModelId", parameterValues[i].Value.References[j].ActualModelId));
+					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ViewModelId", parameterValues[i].Value.References[j].ViewModelId));
+					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].IsNull", parameterValues[i].Value.References[j].IsNull.ToString()));
+				}
+			}
+
+			return As<ResultData>(client.Get(Url("PerformOperation"), paramList.ToArray()));
 		}
 	}
 }

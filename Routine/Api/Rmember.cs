@@ -1,3 +1,4 @@
+using System.Linq;
 using Routine.Core.Service;
 
 namespace Routine.Api
@@ -53,6 +54,11 @@ namespace Routine.Api
 		public bool IsHeavy {get{return model.IsHeavy;}}
 
 		public Rvariable GetValue() { return Value; }
+
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Any(m => m == mark);
+		}
 
 		internal void Invalidate()
 		{

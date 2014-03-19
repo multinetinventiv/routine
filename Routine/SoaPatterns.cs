@@ -15,7 +15,7 @@ namespace Routine
 		public static GenericSoaConfiguration ExceptionsWrappedAsUnhandledPattern(this PatternBuilder<GenericSoaConfiguration> source)
 		{
 			return source.FromEmpty()
-				.ExceptionResult.Done(e => e.ByConverting(ex => new SoaExceptionResult(ex.GetType().FullName, ex.Message, false)));
+				.ExtractExceptionResult.Done(e => e.ByConverting(ex => new SoaExceptionResult(ex.GetType().FullName, ex.Message, false)));
 		}
 	}
 }

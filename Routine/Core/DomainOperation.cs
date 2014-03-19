@@ -21,7 +21,8 @@ namespace Routine.Core
 		public Dictionary<string, DomainParameter> Parameter{ get; private set;}
 		public ICollection<DomainParameter> Parameters{get{return Parameter.Values;}}
 
-		public string Id{ get; private set;}
+		public string Id { get; private set; }
+		public List<string> Marks { get; private set; }
 		public bool ResultIsVoid{ get; private set;}
 		public bool ResultIsList{ get; private set;}
 		public string ResultViewModelId{ get; private set;}
@@ -31,12 +32,14 @@ namespace Routine.Core
 		{
 			this.domainType = domainType;
 			this.operation = operation;
+			Marks = new List<string>();
 			Parameter = new Dictionary<string, DomainParameter>();
 
 			Id = operation.Name;
-			ResultIsVoid = operation.Type.IsVoid;
-			ResultIsList = operation.Type.CanBeCollection();
-			ResultViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(ResultIsList ?operation.Type.GetItemType():operation.Type);
+			Marks.AddRange(ctx.CodingStyle.OperationMarkSelector.Select(operation));
+			ResultIsVoid = operation.ReturnType.IsVoid;
+			ResultIsList = operation.ReturnType.CanBeCollection();
+			ResultViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(ResultIsList ?operation.ReturnType.GetItemType():operation.ReturnType);
 			IsHeavy = ctx.CodingStyle.OperationIsHeavyExtractor.Extract(operation);
 
 			foreach(var parameter in operation.Parameters)
@@ -51,6 +54,7 @@ namespace Routine.Core
 		{
 			return new OperationModel {
 				Id = Id,
+				Marks = new List<string>(Marks),
 				IsHeavy = IsHeavy,
 				Result = new ResultModel {
 					IsList = ResultIsList,
@@ -72,6 +76,8 @@ namespace Routine.Core
 
 		public ResultData Perform(object target, List<ParameterValueData> parameterValues)
 		{
+			if (parameterValues == null) { parameterValues = new List<ParameterValueData>(); }
+
 			var parameters = new object[Parameter.Count];
 			foreach(var parameterData in parameterValues)
 			{

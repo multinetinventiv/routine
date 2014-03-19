@@ -16,6 +16,16 @@ namespace Routine.Soa
             this.context = context;
 		}
 
+		protected override void OnActionExecuting(ActionExecutingContext filterContext)
+		{
+			base.OnActionExecuting(filterContext);
+		}
+
+		protected override void OnActionExecuted(ActionExecutedContext filterContext)
+		{
+			base.OnActionExecuted(filterContext);
+		}
+
 		protected override void OnException(ExceptionContext filterContext)
 		{
 			base.OnException(filterContext);
@@ -77,7 +87,6 @@ namespace Routine.Soa
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
 		{
-			if (parameterValues == null) { parameterValues = new List<ParameterValueData>(); }
 			return Json(context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues));
 		}
 	}

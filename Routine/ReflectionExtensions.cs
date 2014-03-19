@@ -72,7 +72,7 @@ namespace Routine
 
 			for(int i = 0; i < operation.Parameters.Count; i++)
 			{
-				if(!parameterTypes[i].CanBe(operation.Parameters[i].Type)) 
+				if (!parameterTypes[i].CanBe(operation.Parameters[i].ParameterType)) 
 				{
 					return false; 
 				}
@@ -83,35 +83,35 @@ namespace Routine
 
 		public static bool ReturnsVoid(this IOperation operation)
 		{
-			return operation.Type.IsVoid;
+			return operation.ReturnType.IsVoid;
 		}
 		#endregion
 
 		#region IMember
-		public static bool Returns<T>(this IObjectItem member) { return member.Returns(type.of<T>()); }
-		public static bool Returns(this IObjectItem member, TypeInfo returnType)
+		public static bool Returns<T>(this IReturnItem returnItem) { return returnItem.Returns(type.of<T>()); }
+		public static bool Returns(this IReturnItem returnItem, TypeInfo returnType)
 		{
-			return member.Type.CanBe(returnType);
+			return returnItem.ReturnType.CanBe(returnType);
 		}
 
-		public static bool Returns<T>(this IObjectItem member, string name) { return member.Returns(type.of<T>(), name); }
-		public static bool Returns(this IObjectItem member, TypeInfo returnType, string name)
+		public static bool Returns<T>(this IReturnItem returnItem, string name) { return returnItem.Returns(type.of<T>(), name); }
+		public static bool Returns(this IReturnItem returnItem, TypeInfo returnType, string name)
 		{
-			return member.Returns(returnType) && member.Name == name;
+			return returnItem.Returns(returnType) && returnItem.Name == name;
 		}
 
-		public static bool ReturnsCollection(this IObjectItem member) { return member.ReturnsCollection<object>(); }
-		public static bool ReturnsCollection<T>(this IObjectItem member) { return member.ReturnsCollection(type.of<T>()); }
-		public static bool ReturnsCollection(this IObjectItem member, TypeInfo itemType)
+		public static bool ReturnsCollection(this IReturnItem returnItem) { return returnItem.ReturnsCollection<object>(); }
+		public static bool ReturnsCollection<T>(this IReturnItem returnItem) { return returnItem.ReturnsCollection(type.of<T>()); }
+		public static bool ReturnsCollection(this IReturnItem returnItem, TypeInfo itemType)
 		{
-			return member.Type.CanBeCollection(itemType);
+			return returnItem.ReturnType.CanBeCollection(itemType);
 		}
 
-		public static bool ReturnsCollection(this IObjectItem member, string name) { return member.ReturnsCollection<object>(name); }
-		public static bool ReturnsCollection<T>(this IObjectItem member, string name) { return member.ReturnsCollection(type.of<T>(), name); }
-		public static bool ReturnsCollection(this IObjectItem member, TypeInfo itemType, string name)
+		public static bool ReturnsCollection(this IReturnItem returnItem, string name) { return returnItem.ReturnsCollection<object>(name); }
+		public static bool ReturnsCollection<T>(this IReturnItem returnItem, string name) { return returnItem.ReturnsCollection(type.of<T>(), name); }
+		public static bool ReturnsCollection(this IReturnItem returnItem, TypeInfo itemType, string name)
 		{
-			return member.ReturnsCollection(itemType) && member.Name == name;
+			return returnItem.ReturnsCollection(itemType) && returnItem.Name == name;
 		}
 		#endregion
 	}

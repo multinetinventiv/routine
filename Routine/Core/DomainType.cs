@@ -23,6 +23,7 @@ namespace Routine.Core
 		public ICollection<DomainOperation> Operations {get{return Operation.Values;}}
 
 		public string Id{get;private set;}
+		public List<string> Marks { get; private set; }
 		public string Name{get;private set;}
 		public string Module{get;private set;}
 		public bool IsValueModel{get;private set;}
@@ -31,12 +32,14 @@ namespace Routine.Core
 		internal DomainType For(string objectModelId)
 		{			
 			Type = ctx.CodingStyle.ModelIdSerializer.Deserialize(objectModelId);
+			Marks = new List<string>();
 			Member = new Dictionary<string, DomainMember>();
 			Operation = new Dictionary<string, DomainOperation>();
 
 			Id = objectModelId;
+			Marks.AddRange(ctx.CodingStyle.ModelMarkSelector.Select(Type));
 			Name = Type.Name;
-			Module = ctx.CodingStyle.ModuleExtractor.Extract(Type);
+			Module = ctx.CodingStyle.ModelModuleExtractor.Extract(Type);
 			IsValueModel = ctx.CodingStyle.ModelIsValueExtractor.Extract(Type);
 			IsViewModel = ctx.CodingStyle.ModelIsViewExtractor.Extract(Type);
 
@@ -73,6 +76,7 @@ namespace Routine.Core
 		{
 			return new ObjectModel {
 				Id = Id,
+				Marks = new List<string>(Marks),
 				Name = Name,
 				Module = Module,
 				IsViewModel = IsViewModel,

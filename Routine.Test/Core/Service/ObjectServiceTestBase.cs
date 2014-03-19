@@ -30,11 +30,11 @@ namespace Routine.Test.Core.Service
 			codingStyle = BuildRoutine.CodingStyle().FromBasic()
 				.Use(p => p.NullPattern("_null"))
 				.Use(p => p.ParseableValueTypePattern(":"))
-				.Member.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
-				.Operation.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
+				.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
+				.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
 
-				.Id.Done(e => e.ByProperty(p => p.Returns<string>("Id")))
-				.Locator.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
+				.ExtractId.Done(e => e.ByProperty(p => p.Returns<string>("Id")))
+				.Locate.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
 				;
 
 			var cache = new DictionaryCache();

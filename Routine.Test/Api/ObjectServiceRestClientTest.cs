@@ -3,8 +3,14 @@ using NUnit.Framework;
 namespace Routine.Test.Api
 {
 	[TestFixture]
-	public class ObjectServiceRestClientTest
+	public class RestClientObjectServiceTest
 	{
+		[Test][Ignore]
+		public void CreatesThrowsExceptionUsingExtractorWhenRestServiceResultIsException()
+		{
+			Assert.Fail("not implemented");
+		}
+
 		[Test][Ignore]
 		public void CachesApplicationModelAndObjectModels()
 		{

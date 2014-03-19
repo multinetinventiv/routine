@@ -74,36 +74,38 @@ namespace Routine.Test.Common.Configuration
 						.Use(p => p.CommonDomainTypeRootNamespacePattern("Routine.Test.Module"))
 						.Use(p => p.SingletonPattern(container, "Instance"))
 
-						.Module.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
-										   .When(t => t.IsDomainType))
-						.Member.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>())
-										   .When(t => t.IsDomainType))
+						.SelectModelMarks.Done(s => s.Always("Transactional").When(t => !t.Name.EndsWith("Search")))
 
-						.Operation.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true))
-											  .When(t => t.IsDomainType))
+						.ExtractModelModule.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
+												  .When(t => t.IsDomainType))
+						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>())
+												  .When(t => t.IsDomainType))
 
-						.MemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
-						.OperationIsHeavy.Done(e => e.ByConverting(o => o.HasParameters()))
-						.DisplayValue.Add(e => e.ByPublicProperty(p => p.Returns<string>("Title")))
-									 .Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
-									 .Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
-												.WhenType(t => container.TypeIsSingleton(t)))
-									 .Done(e => e.ByConverting(o => string.Format("{0}", o)))
+						.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true))
+													 .When(t => t.IsDomainType))
 
-						.Use(p => p.FromEmpty()
-							.Id.Done(e => e.ByProperty(pr => Orm.IsId(pr))
-										   .WhenType(t => Orm.ShouldMap(t))
-										   .ReturnAsString())
-							.Locator.Done(l => l.By((t, id) => container.Resolve<ISession>().Get(t.GetActualType(), Guid.Parse(id)))
-												.AcceptNullResult(false)
-												.WhenType(t => Orm.ShouldMap(t))))
+						.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
+						.ExtractOperationIsHeavy.Done(e => e.ByConverting(o => o.HasParameters()))
+						.ExtractDisplayValue.Add(e => e.ByPublicProperty(p => p.Returns<string>("Title")))
+											.Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
+											.Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
+													   .WhenType(t => container.TypeIsSingleton(t)))
+											.Done(e => e.ByConverting(o => string.Format("{0}", o)))
 
 						.Use(p => p.FromEmpty()
-							.OperationIsAvailable.Done(e => e.ByPublicMethod((obj, op) => m => m.HasNoParameters() && m.Returns<bool>("Can" + op.Name)))
-							.Operation.Exclude.Done(o => o.HasNoParameters() && o.Returns<bool>() && o.Name.StartsWith("Can")))
+							.ExtractId.Done(e => e.ByProperty(pr => Orm.IsId(pr))
+												  .WhenType(t => Orm.ShouldMap(t))
+												  .ReturnAsString())
+							.Locate.Done(l => l.By((t, id) => container.Resolve<ISession>().Get(t.GetActualType(), Guid.Parse(id)))
+											   .AcceptNullResult(false)
+											   .WhenType(t => Orm.ShouldMap(t))))
 
-						.OperationIsAvailable.Done(e => e.ByPublicProperty(p => p.Returns<bool>("Active"))
-														 .When((obj, op) => op.Name != "Activate"))
+						.Use(p => p.FromEmpty()
+							.ExtractOperationIsAvailable.Done(e => e.ByPublicMethod((obj, op) => m => m.HasNoParameters() && m.Returns<bool>("Can" + op.Name)))
+							.SelectOperations.Exclude.Done(o => o.HasNoParameters() && o.Returns<bool>() && o.Name.StartsWith("Can")))
+
+						.ExtractOperationIsAvailable.Done(e => e.ByPublicProperty(p => p.Returns<bool>("Active"))
+																.When((obj, op) => op.Name != "Activate"))
 						;
 			}
 
@@ -112,6 +114,19 @@ namespace Routine.Test.Common.Configuration
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
+						//.InterceptPerformOperation.Done(i => i.SimpleDecorate()
+						//	.Before(() => container.Resolve<ISession>().BeginTransaction())
+						//	.After(t => t.Commit())
+						//	.Exception(t => t.Rollback())
+						////	.Before(ctx => container.Resolve<ISession>().BeginTransaction())
+						////	.After((ctx, t) => t.Commit())
+						////	.Exception((ctx, t) => t.Rollback())
+						//	.When(ctx => ctx.TargetObjetModel.Marks.Any(t => t == "Transactional") || ctx.TargetOperationModel.Marks.Any(t => t == "Transactional")))
+
+						//.InterceptPerformOperation.Done(i => i.OnlyBefore((ctx) => /*things to do before*/))
+						//.InterceptPerformOperation.Done(i => i.OnlyAfter((ctx) => /*things to do after*/))
+						//.InterceptPerformOperation.Done(i => i.OnlyException((ctx) => /*things to do after*/))
+						
 						;
 			}
 
@@ -119,24 +134,24 @@ namespace Routine.Test.Common.Configuration
 			{
 				return BuildRoutine.MvcConfig()
 						.FromBasic("Instance")
-						.IndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
-						.MenuIds.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
+						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
+						.ExtractMenuIds.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
 
-						.ViewName.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
+						.ExtractViewName.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
 
-						.OperationGroup.Done(s => s.Always(o => !o.HasParameter))
+						.SelectOperationGroupFunctions.Done(s => s.Always(o => !o.HasParameter))
 
-						.ParameterDefault.Done(e => e.ByConverting(p => p.Operation.Object[p.Id.ToUpperInitial()].GetValue())
+						.ExtractParameterDefault.Done(e => e.ByConverting(p => p.Operation.Object[p.Id.ToUpperInitial()].GetValue())
 													 .When(p => p.Operation.Id.Matches("Update.*") && p.Operation.Object.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
-						.OperationGroup.Done(s => s.Always(o => o.Text.Matches("Update.*")))
+						.SelectOperationGroupFunctions.Done(s => s.Always(o => o.Text.Matches("Update.*")))
 
-						.ParameterOptions
+						.ExtractParameterOptions
 							.Add(e => e.ByConverting(p => p.Operation.Object.Application.Get("Instance", p.ViewModelId + "Search").Perform("All").List)
 									   .When(p => p.Operation.Object.Application.ObjectModels.Any(m => m.Id == p.ViewModelId + "Search")))
 							.Done(e => e.ByConverting(p => p.Operation.Object.Application.GetAvailableObjects(p.ViewModelId)))
 
-						.DisplayName.Done(e => e.ByConverting(s => s.SplitCamelCase().ToUpperInitial()))
-						.OperationOrder.Done(e => e.Always(ovm => ovm.HasParameter ?0:1))
+						.ExtractDisplayName.Done(e => e.ByConverting(s => s.SplitCamelCase().ToUpperInitial()))
+						.ExtractOperationOrder.Done(e => e.Always(ovm => ovm.HasParameter ?0:1))
 						;
 			}
 

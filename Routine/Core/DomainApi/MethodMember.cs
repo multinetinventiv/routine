@@ -12,8 +12,9 @@ namespace Routine.Core.Member
 			this.method = method; 
 		}
 
+		public TypeInfo Type { get { return method.ReflectedType; } }
 		public string Name { get { return method.Name; } }
-		public TypeInfo Type{ get { return method.ReturnType; } }
+		public TypeInfo ReturnType{ get { return method.ReturnType; } }
 
 		public bool CanFetchFrom(object target) { return method.HasNoParameters() && !method.ReturnsVoid(); }
 		public object FetchFrom(object target)

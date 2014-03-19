@@ -26,7 +26,7 @@ namespace Routine.Test.Core.Service
 			codingStyle
 				.Use(p => p.EnumPattern())
 
-				.ModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()));
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()));
 
 		}
 

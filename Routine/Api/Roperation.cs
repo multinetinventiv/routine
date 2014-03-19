@@ -68,7 +68,12 @@ namespace Routine.Api
 		public bool ResultIsVoid{get{return model.Result.IsVoid;}}
 		public bool ResultIsList{get{return model.Result.IsList;}}
 
-		public bool IsAvailable(){return Available;}
+		public bool IsAvailable() { return Available; }
+
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Any(m => m == mark);
+		}
 
 		public Rvariable Perform(List<Rvariable> parameterVariables)
 		{
@@ -99,5 +104,4 @@ namespace Routine.Api
 			}
 		}
 	}
-	
 }
