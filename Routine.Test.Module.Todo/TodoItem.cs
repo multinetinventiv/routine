@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Test.Common.Domain;
+using Routine.Test.Module.Todo.Api;
 
 namespace Routine.Test.Module.Todo
 {
@@ -12,7 +13,7 @@ namespace Routine.Test.Module.Todo
 		High,
 	}
 
-	public class TodoItem
+	public class TodoItem : ITodoItem
 	{
 		#region Construction
 		private readonly IDomainContext ctx;

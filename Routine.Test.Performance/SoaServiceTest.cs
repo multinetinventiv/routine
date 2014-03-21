@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Routine.Api;
@@ -37,6 +38,13 @@ namespace Routine.Test.Performance
 					Console.WriteLine("\t\tValue: " + item.Value);
 				}
 			}
+		}
+
+		[Test]
+		public void ManuelTestField()
+		{
+			Console.WriteLine(typeof(IList<string>).GetMethod("IndexOf").ContainsGenericParameters);
+			Console.WriteLine(typeof(IList<>).GetMethod("IndexOf").ContainsGenericParameters);
 		}
 	}
 }

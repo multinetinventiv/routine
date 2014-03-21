@@ -40,6 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Interceptor\InterceptionTest.cs" />
+    <Compile Include="Core\Interceptor\InterceptorTestBase.cs" />
+    <Compile Include="Core\Interceptor\MultipleInterceptorTest.cs" />
+    <Compile Include="Core\Reflection\Optimization\ReflectionMethodInvokerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Extractor\BaseOptionalExtractorTest.cs" />
     <Compile Include="Core\Extractor\ConverterExtractorTest.cs" />

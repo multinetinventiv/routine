@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -142,6 +143,7 @@ namespace Routine.Core.Reflection.Optimization
 		public IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
 		{
 			if(method == null){throw new ArgumentNullException("method");}
+			if(method.ContainsGenericParameters) { throw new ArgumentException(MissingGenericParametersMessage(method), "method"); }
 			if(!method.IsPublic){return new ReflectionMethodInvoker(method);}
 			if(!method.ReflectedType.IsPublic && !method.ReflectedType.IsNestedPublic){return new ReflectionMethodInvoker(method);}
 
@@ -152,20 +154,26 @@ namespace Routine.Core.Reflection.Optimization
 			compilerParameters.ReferencedAssemblies.Add(typeof(IMethodInvoker).Assembly.Location);
 			AddTypeReference(method.ReflectedType, compilerParameters);
 			AddTypeReference(method.DeclaringType, compilerParameters);
+
+			if (method is System.Reflection.MethodInfo)
+			{
+				AddTypeReference(((System.Reflection.MethodInfo)method).ReturnType, compilerParameters);
+			}
+
 			foreach (var parameter in method.GetParameters())
 			{
 				AddTypeReference(parameter.ParameterType, compilerParameters);
 			}
 
-			string typeName = method.ReflectedType.Namespace + "." + TypeName(method.ReflectedType) + "_" +  MethodName(method) + "Invoker";
+			string typeName = method.ReflectedType.Namespace + "." + TypeName(method.ReflectedType) + "_" + MethodName(method) + "Invoker";
 
 			string code = Method(method);
 
 			var results = provider.CompileAssemblyFromSource(compilerParameters, code);
-			if(results.Errors.HasErrors)
+			if (results.Errors.HasErrors)
 			{
 				var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
-				foreach(CompilerError error in results.Errors)
+				foreach (CompilerError error in results.Errors)
 				{
 					errors.AppendFormat("Line {0},{1}\t: {2}", error.Line, error.Column, error.ErrorText);
 					errors.AppendLine();
@@ -182,19 +190,34 @@ namespace Routine.Core.Reflection.Optimization
 			return result;
 		}
 
-		private static void AddTypeReference(Type type, CompilerParameters compilerParameters)
+		private static string MissingGenericParametersMessage(System.Reflection.MethodBase method)
+		{
+			return string.Format("Missing generic parameters: {0}, {1}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)", method, method.ReflectedType);
+		}
+
+		private static void AddTypeReference(Type type, CompilerParameters compilerParameters) { AddTypeReference(type, compilerParameters, new Dictionary<Type, bool>()); }
+		private static void AddTypeReference(Type type, CompilerParameters compilerParameters, Dictionary<Type, bool> visits)
 		{
 			if (type == null) { return; }
-			SafeAddReference(type.Assembly.Location, compilerParameters);
+			if (visits.ContainsKey(type)) { return; }
 
-			AddTypeReference(type.BaseType, compilerParameters);
+			visits.Add(type, true);
+
+			SafeAddReference(type.Assembly.Location, compilerParameters);
 
 			if (type.IsGenericType)
 			{
 				foreach (var genericArg in type.GetGenericArguments())
 				{
-					AddTypeReference(genericArg, compilerParameters);
+					AddTypeReference(genericArg, compilerParameters, visits);
 				}
+			}
+
+			AddTypeReference(type.BaseType, compilerParameters, visits);
+
+			foreach (var interfaceType in type.GetInterfaces())
+			{
+				AddTypeReference(interfaceType, compilerParameters, visits);
 			}
 
 		}

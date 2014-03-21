@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Routine.Test.Common.Domain;
+using Routine.Test.Module.Todo.Api;
 
 namespace Routine.Test.Module.Todo
 {
-	public class TodoModule
+	public class TodoModule : ITodoModule
 	{
 		private readonly IDomainContext ctx;
 

@@ -42,6 +42,9 @@
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
+    <Compile Include="Core\IInterceptor.cs" />
+    <Compile Include="Core\Interceptor\Interception.cs" />
+    <Compile Include="Core\Interceptor\MultipleInterceptor.cs" />
     <Compile Include="SoaClientPatterns.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />

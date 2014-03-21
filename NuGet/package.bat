@@ -11,5 +11,5 @@ MD PublishBackUp
 
 :PublishBackUpExists
 
-xcopy /y Publish\*.nupkg PublishBackUp\
+xcopy /y Publish\*.nupkg PublishBackUp
 del Publish\*.nupkg

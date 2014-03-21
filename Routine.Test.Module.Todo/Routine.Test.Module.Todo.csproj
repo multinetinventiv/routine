@@ -50,5 +50,9 @@
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj">
+      <Project>{300b819c-ee59-4879-8a97-fb2c317e38d2}</Project>
+      <Name>Routine.Test.Module.Todo.Api</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

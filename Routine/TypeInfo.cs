@@ -175,11 +175,15 @@ namespace Routine
 						{
 							result = new EnumTypeInfo(type);
 						}
-						else if(ShouldBeDomainType(type))
+						else if (type.ContainsGenericParameters)
+						{
+							result = new ReflectedTypeInfo(type);
+						}
+						else if (ShouldBeDomainType(type))
 						{
 							result = new DomainTypeInfo(type);
 						}
-						else 
+						else
 						{
 							result = new ReflectedTypeInfo(type);
 						}

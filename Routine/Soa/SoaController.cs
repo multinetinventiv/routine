@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,23 +16,13 @@ namespace Routine.Soa
         {
             this.context = context;
 		}
-
-		protected override void OnActionExecuting(ActionExecutingContext filterContext)
-		{
-			base.OnActionExecuting(filterContext);
-		}
-
-		protected override void OnActionExecuted(ActionExecutedContext filterContext)
-		{
-			base.OnActionExecuted(filterContext);
-		}
-
+		
 		protected override void OnException(ExceptionContext filterContext)
 		{
 			base.OnException(filterContext);
 
 			filterContext.ExceptionHandled = true;
-			filterContext.Result = Json(context.SoaConfiguration.ExceptionResultExtractor.Extract(filterContext.Exception));
+			filterContext.Result = Json(context.SoaConfiguration.ExceptionResultExtractor.Extract(filterContext.Exception), JsonRequestBehavior.AllowGet);
 		}
 
 		public ActionResult Index()
@@ -87,6 +78,13 @@ namespace Routine.Soa
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
 		{
+			//return Json(
+			//	new Interception(
+			//		context.SoaConfiguration.PerformOperationInterceptor, 
+			//		targetReference, operationModelId, parameterValues)
+			//	.Do(ctx => context.ObjectService.PerformOperation(ctx.TargetReference, ctx.OperationModelId, ctx.ParameterValues))
+			//);
+
 			return Json(context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues));
 		}
 	}

@@ -3,39 +3,39 @@ using System.Collections.Generic;
 
 namespace Routine.Core.Locator
 {
-	public class MultipleLocator<TConfigurator> : ILocator
+	public class MultipleLocator<TConfiguration> : ILocator
 	{
-		private readonly TConfigurator configurator;
+		private readonly TConfiguration configuration;
 		private readonly List<IOptionalLocator> locators;
 
 		private bool defaultIsSet;
 		private object defaultResult;
 		private Func<TypeInfo, string, CannotLocateException> exceptionDelegate;
 
-		public MultipleLocator(TConfigurator configurator)
+		public MultipleLocator(TConfiguration configuration)
 		{
-			this.configurator = configurator;
+			this.configuration = configuration;
 			this.locators = new List<IOptionalLocator>();
 
 			OnFailThrow((t, id) => new CannotLocateException(t, id));
 		}
 
-		public TConfigurator OnFailReturn(object defaultResult) { defaultIsSet = true; this.defaultResult = defaultResult; return configurator; }
+		public TConfiguration OnFailReturn(object defaultResult) { defaultIsSet = true; this.defaultResult = defaultResult; return configuration; }
 
-		public TConfigurator OnFailThrow(CannotLocateException exception) { return OnFailThrow((t, id) => exception); }
-		public TConfigurator OnFailThrow(Func<TypeInfo, string, CannotLocateException> exceptionDelegate) { defaultIsSet = false; this.exceptionDelegate = exceptionDelegate; return configurator; }
+		public TConfiguration OnFailThrow(CannotLocateException exception) { return OnFailThrow((t, id) => exception); }
+		public TConfiguration OnFailThrow(Func<TypeInfo, string, CannotLocateException> exceptionDelegate) { defaultIsSet = false; this.exceptionDelegate = exceptionDelegate; return configuration; }
 
-		public TConfigurator Done() { return configurator; }
-		public TConfigurator Done(IOptionalLocator locator) { Add(locator); return configurator; }
+		public TConfiguration Done() { return configuration; }
+		public TConfiguration Done(IOptionalLocator locator) { Add(locator); return configuration; }
 
-		public MultipleLocator<TConfigurator> Add(IOptionalLocator locator)
+		public MultipleLocator<TConfiguration> Add(IOptionalLocator locator)
 		{
 			this.locators.Add(locator);
 
 			return this;
 		}
 
-		public MultipleLocator<TConfigurator> Merge(MultipleLocator<TConfigurator> other)
+		public MultipleLocator<TConfiguration> Merge(MultipleLocator<TConfiguration> other)
 		{
 			locators.AddRange(other.locators);
 

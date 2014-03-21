@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A9E4ABC4
 		NuGet\publish.config = NuGet\publish.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo.Api", "Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj", "{300B819C-EE59-4879-8A97-FB2C317E38D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{300B819C-EE59-4879-8A97-FB2C317E38D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{300B819C-EE59-4879-8A97-FB2C317E38D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{300B819C-EE59-4879-8A97-FB2C317E38D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{300B819C-EE59-4879-8A97-FB2C317E38D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
