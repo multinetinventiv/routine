@@ -6,6 +6,7 @@ using System.Text;
 namespace Routine.Core.Interceptor
 {
 	public class MultipleInterceptor<TConfiguration, TContext> : IInterceptor<TContext>
+		where TContext : InterceptionContext
 	{
 		private readonly TConfiguration configuration;
 		private readonly List<IInterceptor<TContext>> interceptors;

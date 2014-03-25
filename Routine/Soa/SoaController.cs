@@ -1,10 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using Routine.Core.Interceptor;
 using Routine.Core.Service;
+using Routine.Soa.Context;
 
 namespace Routine.Soa
 {
@@ -78,14 +79,9 @@ namespace Routine.Soa
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
 		{
-			//return Json(
-			//	new Interception(
-			//		context.SoaConfiguration.PerformOperationInterceptor, 
-			//		targetReference, operationModelId, parameterValues)
-			//	.Do(ctx => context.ObjectService.PerformOperation(ctx.TargetReference, ctx.OperationModelId, ctx.ParameterValues))
-			//);
-
-			return Json(context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues));
+			var interception = context.SoaConfiguration.PerformOperationInterceptor.Intercept(context.CreatePerformOperationInterceptionContext(targetReference, operationModelId, parameterValues));
+			
+			return Json(interception.Do(() => context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues)));
 		}
 	}
 }

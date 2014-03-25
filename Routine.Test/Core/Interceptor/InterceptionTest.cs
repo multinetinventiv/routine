@@ -22,7 +22,7 @@ namespace Routine.Test.Core.Interceptor
 		}
 
 		[Test]
-		public void CanCancelActualInvocationBeforeInvocation()
+		public void CanCancelActualInvocationAndReturnResultBeforeInvocation()
 		{
 			Assert.Fail("not implemented");
 		}
@@ -53,6 +53,12 @@ namespace Routine.Test.Core.Interceptor
 
 		[Test]
 		public void CanAlterExceptionWhenInvocationThrowsException()
+		{
+			Assert.Fail("not implemented");
+		}
+
+		[Test]
+		public void ProvidesWithTheAbilityToExtendInterceptionContext()
 		{
 			Assert.Fail("not implemented");
 		}

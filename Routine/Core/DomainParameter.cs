@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Routine.Core.Service;
 
 namespace Routine.Core
@@ -34,6 +35,11 @@ namespace Routine.Core
 			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType);
 
 			return this;
+		}
+
+		public bool MarkedAs(string mark)
+		{
+			return Marks.Any(m => m == mark);
 		}
 
 		public ParameterModel GetModel()

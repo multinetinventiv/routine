@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Interceptor\BaseSingleInterceptorTest.cs" />
+    <Compile Include="Core\Interceptor\DecoratorInterceptorTest.cs" />
+    <Compile Include="Core\Interceptor\GenericInterceptorTest.cs" />
     <Compile Include="Core\Interceptor\InterceptionTest.cs" />
     <Compile Include="Core\Interceptor\InterceptorTestBase.cs" />
     <Compile Include="Core\Interceptor\MultipleInterceptorTest.cs" />

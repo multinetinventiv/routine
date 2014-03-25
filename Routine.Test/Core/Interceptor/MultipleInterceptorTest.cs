@@ -21,7 +21,7 @@ namespace Routine.Test.Core.Interceptor
 		private MultipleInterceptor<TestConfiguration, TestContext<string>> testingOther;
 
 		[SetUp]
-		public void SetUp()
+		public override void SetUp()
 		{
 			interceptor1Mock = new Mock<IInterceptor<TestContext<string>>>();
 			interceptor2Mock = new Mock<IInterceptor<TestContext<string>>>();

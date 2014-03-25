@@ -1,47 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Routine.Core.Interceptor
 {
-	public class Interception<TContext, TResult>
+	public class Interception : Interception<InterceptionContext> 
 	{
-		private IInterceptor<Interception<TContext, TResult>> interceptor;
+		public Interception(IInterceptor<InterceptionContext> interceptor, InterceptionContext context)
+			: base(interceptor, context) { }
+	}
 
-		public Interception(IInterceptor<Interception<TContext, TResult>> interceptor, TContext context)
+	public class Interception<TContext>
+		where TContext : InterceptionContext
+	{
+		private readonly IInterceptor<TContext> interceptor;
+		private readonly TContext context;
+
+		public Interception(IInterceptor<TContext> interceptor, TContext context)
 		{
 			this.interceptor = interceptor;
-
-			Context = context;
+			this.context = context;
 		}
 
-		public TContext Context { get; set; }
-		public TResult Result { get; set; }
-		public Exception Exception { get; set; }
-		public bool ExceptionHandled { get; set; }
-
-		internal TResult Do(Func<Interception<TContext, TResult>, TResult> operation)
+		public object Do(Func<object> invocation)
 		{
 			try
 			{
-				interceptor.OnBefore(this);
+				interceptor.OnBefore(context);
 
-				Result = operation(this);
+				if (context.Canceled)
+				{
+					return context.Result;
+				}
 
-				interceptor.OnAfter(this);
+				context.Result = invocation();
+
+				interceptor.OnAfter(context);
 			}
 			catch (Exception ex)
 			{
-				Exception = ex;
-				interceptor.OnError(this);
-				if (!ExceptionHandled)
+				context.Exception = ex;
+				interceptor.OnError(context);
+				if (!context.ExceptionHandled)
 				{
-					throw Exception;
+					throw context.Exception;
 				}
 			}
 
-			return Result;
+			return context.Result;
 		}
 	}
 }

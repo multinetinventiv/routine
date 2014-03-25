@@ -50,6 +50,11 @@ namespace Routine.Core
 			return this;
 		}
 
+		public bool MarkedAs(string mark)
+		{
+			return Marks.Any(m => m == mark);
+		}
+
 		public OperationModel GetModel()
 		{
 			return new OperationModel {

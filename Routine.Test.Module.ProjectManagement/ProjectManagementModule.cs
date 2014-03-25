@@ -23,6 +23,7 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public void TestError()
 		{
+			ctx.New<Project>().With("should be rolled back");
 			throw new Exception("test exception");
 		}
 

@@ -42,9 +42,14 @@
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
+    <Compile Include="Core\Builder\InterceptorBuilder.cs" />
     <Compile Include="Core\IInterceptor.cs" />
+    <Compile Include="Core\Interceptor\BaseSingleInterceptor.cs" />
+    <Compile Include="Core\Interceptor\GenericInterceptor.cs" />
     <Compile Include="Core\Interceptor\Interception.cs" />
+    <Compile Include="Core\Interceptor\InterceptionFactory.cs" />
     <Compile Include="Core\Interceptor\MultipleInterceptor.cs" />
+    <Compile Include="Core\Interceptor\DecoratorInterceptor.cs" />
     <Compile Include="SoaClientPatterns.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />
@@ -82,6 +87,7 @@
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="SoaPatterns.cs" />
+    <Compile Include="Soa\Context\PerformOperationInterceptionContext.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />
     <Compile Include="Soa\SoaExceptionResult.cs" />

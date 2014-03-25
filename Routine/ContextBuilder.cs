@@ -37,7 +37,7 @@ namespace Routine
 
 		public ISoaContext AsSoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
 		{
-			return SoaContext(soaConfiguration, ObjectService(codingStyle));
+			return SoaContext(soaConfiguration, codingStyle);
 		}
 
 		private IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)
@@ -58,9 +58,9 @@ namespace Routine
 			return result;
 		}
 
-		private ISoaContext SoaContext(ISoaConfiguration soaConfiguration, IObjectService objectService)
+		private ISoaContext SoaContext(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
 		{
-			return new DefaultSoaContext(soaConfiguration, objectService);
+			return new DefaultSoaContext(CoreContext(codingStyle), soaConfiguration, ObjectService(codingStyle));
 		}
 
 		private IObjectService ObjectService(ICodingStyle codingStyle)
@@ -73,9 +73,15 @@ namespace Routine
 			return new RestClientObjectService(soaClientConfiguration, RestClient());
 		}
 
+		private ICoreContext coreContext;
 		private ICoreContext CoreContext(ICodingStyle codingStyle)
 		{
-			return new CachedCoreContext(codingStyle, Cache());
+			if (coreContext == null)
+			{
+				coreContext = new CachedCoreContext(codingStyle, Cache());
+			}
+
+			return coreContext;
 		}
 
 		private IRestClient restClient = new WebRequestRestClient();

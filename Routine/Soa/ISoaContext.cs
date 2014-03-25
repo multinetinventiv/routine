@@ -1,4 +1,6 @@
-﻿using Routine.Core.Service;
+﻿using System.Collections.Generic;
+using Routine.Core.Service;
+using Routine.Soa.Context;
 
 namespace Routine.Soa
 {
@@ -6,5 +8,7 @@ namespace Routine.Soa
 	{
 		ISoaConfiguration SoaConfiguration { get; }
 		IObjectService ObjectService { get; }
+
+		PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues);
 	}
 }

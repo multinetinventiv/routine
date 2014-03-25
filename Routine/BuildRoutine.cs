@@ -10,6 +10,7 @@ using Routine.Core.Cache;
 using Routine.Core.Configuration;
 using Routine.Core.Context;
 using Routine.Core.Extractor;
+using Routine.Core.Interceptor;
 using Routine.Core.Locator;
 using Routine.Core.Member;
 using Routine.Core.Operation;
@@ -95,6 +96,12 @@ namespace Routine
 		public static SerializerBuilder<T> Serializer<T>()
 		{
 			return new SerializerBuilder<T>();
+		}
+
+		public static InterceptorBuilder<TContext> Interceptor<TContext>()
+			where TContext : InterceptionContext
+		{
+			return new InterceptorBuilder<TContext>();
 		}
 	}
 	
@@ -241,6 +248,24 @@ namespace Routine
 			Func<SerializerBuilder<TSerializable>, IOptionalSerializer<TSerializable>> serializerDelegate)
 		{
 			return source.Done(serializerDelegate(BuildRoutine.Serializer<TSerializable>()));
+		}
+		#endregion
+
+		#region Interceptor
+		public static MultipleInterceptor<TConfiguration, TContext> Add<TConfiguration, TContext>(
+			this MultipleInterceptor<TConfiguration, TContext> source,
+			Func<InterceptorBuilder<TContext>, IInterceptor<TContext>> interceptorDelegate)
+			where TContext : InterceptionContext
+		{
+			return source.Add(interceptorDelegate(BuildRoutine.Interceptor<TContext>()));
+		}
+
+		public static TConfiguration Done<TConfiguration, TContext>(
+			this MultipleInterceptor<TConfiguration, TContext> source,
+			Func<InterceptorBuilder<TContext>, IInterceptor<TContext>> interceptorDelegate)
+			where TContext : InterceptionContext
+		{
+			return source.Done(interceptorDelegate(BuildRoutine.Interceptor<TContext>()));
 		}
 		#endregion
 

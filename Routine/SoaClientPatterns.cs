@@ -15,7 +15,7 @@ namespace Routine
 		public static GenericSoaClientConfiguration FormattedExceptionPattern(this PatternBuilder<GenericSoaClientConfiguration> source, string format)
 		{
 			return source.FromEmpty()
-				.ExtractException.Done(e => e.ByConverting(ex => new Exception(string.Format(format,ex.Message, ex.Type, ex.IsHandled))))
+				.ExtractException.Done(e => e.ByConverting(ex => new Exception(string.Format(format, ex.Message, ex.Type, ex.IsHandled))))
 			;
 		}
 	}

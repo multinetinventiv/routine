@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Routine.Core;
 using Routine.Test.Core.Interceptor.Domain;
 
 namespace Routine.Test.Core.Interceptor.Domain
 {
-	public class TestContext<T>
+	public class TestContext<T> : InterceptionContext
 	{
 		public T Value { get; set; }
 	}

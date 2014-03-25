@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web.Mvc;
 using Castle.Core.Internal;
@@ -114,19 +115,16 @@ namespace Routine.Test.Common.Configuration
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
-						//.InterceptPerformOperation.Done(i => i.ByDecorating()
-						//	.Before(() => container.Resolve<ISession>().BeginTransaction())
-						//	.After(t => t.Commit())
-						//	.Exception(t => t.Rollback())
-						////	.Before(ctx => container.Resolve<ISession>().BeginTransaction())
-						////	.After((ctx, t) => t.Commit())
-						////	.Exception((ctx, t) => t.Rollback())
-						//	.When(ctx => ctx.TargetObjectModel.Marks.Any(t => t == "Transactional") || ctx.TargetOperationModel.Marks.Any(t => t == "Transactional")))
+						.InterceptPerformOperation
+												  .Add(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
+														   .After(t => t.Commit())
+														   .Error(t => t.Rollback())
+														   .When(ctx => ctx.TargetType.MarkedAs("Transactional") ||
+																		ctx.TargetOperation.MarkedAs("Transactional")))
 
-						//.InterceptPerformOperation.Done(i => i.OnlyBefore((ctx) => /*things to do before*/))
-						//.InterceptPerformOperation.Done(i => i.OnlyAfter((ctx) => /*things to do after*/))
-						//.InterceptPerformOperation.Done(i => i.OnlyException((ctx) => /*things to do after*/))
-						
+												  .Add(i => i.Before(ctx => Debug.WriteLine("before -> " + ctx.OperationModelId)))
+												  .Add(i => i.After(ctx => Debug.WriteLine("after -> " + ctx.OperationModelId)))
+												  .Done(i => i.Error(ctx => Debug.WriteLine("error -> " + ctx.OperationModelId)))
 						;
 			}
 
@@ -158,7 +156,7 @@ namespace Routine.Test.Common.Configuration
 			private void Modules()
 			{
 				container.Register(
-					Component.For<IDomainContext>()			.ImplementedBy<WindsorDomainContext>()			.LifestyleSingleton(),
+					Component.For<IDomainContext>().ImplementedBy<WindsorDomainContext>().LifestyleSingleton(),
 					Classes
 						.FromAssemblyInDirectory(ModuleDirectory)
 						.AllowMultipleMatches()
