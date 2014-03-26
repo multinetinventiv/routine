@@ -50,6 +50,7 @@
     <Compile Include="Core\Interceptor\InterceptionFactory.cs" />
     <Compile Include="Core\Interceptor\MultipleInterceptor.cs" />
     <Compile Include="Core\Interceptor\DecoratorInterceptor.cs" />
+    <Compile Include="Core\Marks.cs" />
     <Compile Include="SoaClientPatterns.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />

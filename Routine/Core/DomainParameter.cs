@@ -18,7 +18,7 @@ namespace Routine.Core
 		public TypeInfo Type{get{return parameter.ParameterType;}}
 
 		public string Id { get; private set; }
-		public List<string> Marks { get; private set; }
+		public Marks Marks { get; private set; }
 		public bool IsList{get;private set;}
 		public string ViewModelId{get;private set;}
 		public int Index{get{return parameter.Index;}}
@@ -27,10 +27,9 @@ namespace Routine.Core
 		{
 			this.domainOperation = domainOperation;
 			this.parameter = parameter;
-			Marks = new List<string>();
 
 			Id = parameter.Name;
-			Marks.AddRange(ctx.CodingStyle.ParameterMarkSelector.Select(parameter));
+			Marks = new Marks(ctx.CodingStyle.ParameterMarkSelector.Select(parameter));
 			IsList = parameter.ParameterType.CanBeCollection();
 			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType);
 
@@ -39,14 +38,14 @@ namespace Routine.Core
 
 		public bool MarkedAs(string mark)
 		{
-			return Marks.Any(m => m == mark);
+			return Marks.Has(mark);
 		}
 
 		public ParameterModel GetModel()
 		{
 			return new ParameterModel {
 				Id = Id,
-				Marks = new List<string>(Marks),
+				Marks = Marks.List,
 				IsList = IsList,
 				ViewModelId = ViewModelId
 			};

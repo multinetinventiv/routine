@@ -26,12 +26,10 @@ namespace Routine.Core.Interceptor
 			{
 				interceptor.OnBefore(context);
 
-				if (context.Canceled)
+				if (!context.Canceled)
 				{
-					return context.Result;
+					context.Result = invocation();
 				}
-
-				context.Result = invocation();
 
 				interceptor.OnAfter(context);
 			}

@@ -20,7 +20,19 @@ namespace Routine.Core
 			data = new Dictionary<string, object>();
 		}
 
-		public virtual object this[string key] { get { return data[key]; } set { data[key] = value; } }
+		public virtual object this[string key] 
+		{
+			get
+			{
+				object result; 
+				data.TryGetValue(key, out result); 
+				return result; 
+			} 
+			set 
+			{ 
+				data[key] = value; 
+			} 
+		}
 
 		public virtual object Result { get; set; }
 		public virtual bool Canceled { get; set; }

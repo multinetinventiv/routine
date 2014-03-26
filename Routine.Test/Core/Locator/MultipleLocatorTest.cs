@@ -58,7 +58,7 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_AltLocatorlardanIlkUygunOlanKullanilarakLocateYapilir()
+		public void WhenLocatingItUsesFirstAppropriateLocator()
 		{
 			LocatorMockReturns(locatorMock2, "locator2");
 
@@ -66,7 +66,7 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_HicbirAltLocatorUygunDegilseHataFirlatilir()
+		public void ThrowsCannotLocateExceptionWhenNoAppropriateLocatorIsFound()
 		{
 			try
 			{
@@ -80,7 +80,7 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_BasarisizLocatingIcinDefaultDegerSetEdilebilir()
+		public void CanSetADefaultResultToBeReturnedOnAnUnsuccessfulLocate()
 		{
 			testing.OnFailReturn("default");
 
@@ -88,7 +88,7 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_BasarisizLocatingIcinFirlatilacakHataDegistirilebilir()
+		public void CanAlterFailException()
 		{
 			var expected = new CannotLocateException(type.of<string>(), "expected");
 			testing.OnFailThrow(expected);
@@ -105,7 +105,7 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_BasarisizLocatingIcinFirlatilacakHataNesneKullanilarakOlusturulabilir()
+		public void CanUseGivenTypeAndIdWhenCreatingFailException()
 		{
 			testing.OnFailThrow((t, id) => new CannotLocateException(t, "id is -> " + id));
 
@@ -121,26 +121,9 @@ namespace Routine.Test.Core.Locator
 		}
 
 		[Test]
-		public void Locate_UygunOlanBirLocatorHataFirlatirsaHataPaketlenerekTekrarFirlatilir()
+		public void DoesNotWrapExceptionWhenAnAppropriateLocatorThrowsException()
 		{
-			LocatorMockThrows(locatorMock1, new Exception("inner exception"));
-
-			try
-			{
-				testingInterface.Locate(type.of<string>(), "dummy");
-				Assert.Fail("exception not thrown");
-			}
-			catch(CannotLocateException ex)
-			{
-				Assert.AreEqual("inner exception", ex.InnerException.Message);
-			}
-		}
-
-		[Test]
-		public void Locate_UygunOlanBirLocateCannotLocateHatasiFirlatirsaHataPaketlenmedenTekrarFirlatilir()
-		{
-			var expected = new CannotLocateException(type.of<string>(), "expected");
-
+			var expected = new Exception("inner exception");
 			LocatorMockThrows(locatorMock1, expected);
 
 			try
@@ -148,14 +131,14 @@ namespace Routine.Test.Core.Locator
 				testingInterface.Locate(type.of<string>(), "dummy");
 				Assert.Fail("exception not thrown");
 			}
-			catch(CannotLocateException ex)
+			catch(Exception actual)
 			{
-				Assert.AreSame(expected, ex);
+				Assert.AreSame(expected, actual);
 			}
 		}
 
 		[Test]
-		public void Merge_BaskaBirMultipleLocatorIcerisindekiLocatorlarGelisSirasinaGoreSonaEklenir()
+		public void AppendsLocatorsOfOtherMultipleLocatorToItsOwnLocatorListWithGivenOrder()
 		{
 			LocatorMockReturns(locatorMock3, "locator3");
 

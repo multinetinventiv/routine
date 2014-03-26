@@ -11,14 +11,22 @@ namespace Routine.Core.Reflection.Optimization
 
 		public object Invoke(object target, params object[] args)
 		{
-			if(method.IsConstructor)
+			try
 			{
-				var ctor = method as System.Reflection.ConstructorInfo;
 
-				return ctor.Invoke(args);
+				if (method.IsConstructor)
+				{
+					var ctor = method as System.Reflection.ConstructorInfo;
+
+					return ctor.Invoke(args);
+				}
+
+				return method.Invoke(target, args);
 			}
-
-			return method.Invoke(target, args);
+			catch (System.Reflection.TargetInvocationException ex)
+			{
+				throw ex.InnerException;
+			}
 		}
 	}
 }

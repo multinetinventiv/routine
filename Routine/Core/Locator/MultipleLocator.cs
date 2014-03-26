@@ -44,19 +44,14 @@ namespace Routine.Core.Locator
 
 		protected virtual object Locate(TypeInfo type, string id)
 		{
-			try
+			foreach(var locator in locators) 
 			{
-				foreach(var locator in locators) 
+				object result;
+				if(locator.TryLocate(type, id, out result))
 				{
-					object result;
-					if(locator.TryLocate(type, id, out result))
-					{
-						return result;
-					}
+					return result;
 				}
 			}
-			catch(CannotLocateException) {throw;}
-			catch(Exception ex) { throw new CannotLocateException(type, id, ex); }
 
 			if(defaultIsSet)
 			{

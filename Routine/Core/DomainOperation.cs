@@ -22,7 +22,7 @@ namespace Routine.Core
 		public ICollection<DomainParameter> Parameters{get{return Parameter.Values;}}
 
 		public string Id { get; private set; }
-		public List<string> Marks { get; private set; }
+		public Marks Marks { get; private set; }
 		public bool ResultIsVoid{ get; private set;}
 		public bool ResultIsList{ get; private set;}
 		public string ResultViewModelId{ get; private set;}
@@ -32,11 +32,10 @@ namespace Routine.Core
 		{
 			this.domainType = domainType;
 			this.operation = operation;
-			Marks = new List<string>();
 			Parameter = new Dictionary<string, DomainParameter>();
 
 			Id = operation.Name;
-			Marks.AddRange(ctx.CodingStyle.OperationMarkSelector.Select(operation));
+			Marks = new Marks(ctx.CodingStyle.OperationMarkSelector.Select(operation));
 			ResultIsVoid = operation.ReturnType.IsVoid;
 			ResultIsList = operation.ReturnType.CanBeCollection();
 			ResultViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(ResultIsList ?operation.ReturnType.GetItemType():operation.ReturnType);
@@ -52,14 +51,14 @@ namespace Routine.Core
 
 		public bool MarkedAs(string mark)
 		{
-			return Marks.Any(m => m == mark);
+			return Marks.Has(mark);
 		}
 
 		public OperationModel GetModel()
 		{
 			return new OperationModel {
 				Id = Id,
-				Marks = new List<string>(Marks),
+				Marks = Marks.List,
 				IsHeavy = IsHeavy,
 				Result = new ResultModel {
 					IsList = ResultIsList,
