@@ -112,17 +112,9 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
-    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
-      <Project>{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}</Project>
-      <Name>Routine.Test.Module.ProjectManagement</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj">
-      <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
-      <Name>Routine.Test.Module.Todo</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
       <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
@@ -135,6 +127,14 @@
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj">
+      <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
+      <Name>Routine.Test.Module.Todo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
+      <Project>{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}</Project>
+      <Name>Routine.Test.Module.ProjectManagement</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

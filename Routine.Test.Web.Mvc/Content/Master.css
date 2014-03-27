@@ -49,8 +49,8 @@ form.operation-form fieldset input[type=submit] {float:right;margin-bottom:0px;}
 dl.parameter-list{width:240px;padding-right:10px;}
 dl {clear:both;width:100%;}
 
-fieldset.object-data{width:980px;display:inline-block;height:auto;border:0px;padding:0px;}
-legend.object-data{border:0px;border-radius:0px;font-weight:bold;font-size:15px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #BBBBBB;width:100%;}
+fieldset.object-data,fieldset.search-data{width:980px;display:inline-block;height:auto;border:0px;padding:0px;}
+legend.object-data,legend.search-data{border:0px;border-radius:0px;font-weight:bold;font-size:15px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #BBBBBB;width:100%;}
 dl.data-list{margin-top:0px;border-top:1px solid #BBBBBB;padding-top:10px;}
 dl.data-list.no-operation{border-top:0px;}
 dl.data-list dt{font-size:12px;width:100px;margin-right:10px;}
@@ -66,3 +66,9 @@ div.operation-list-placeholder{margin-bottom:34px;}
 fieldset.collapsible div.content{z-index:2;position:absolute;border:1px solid #BBBBBB;background-color:#FAFAFA;padding:10px;margin:-10px;margin-top:-8px;padding-right:2px;box-shadow:5px 5px 5px #BBBBBB;}
 span.member-value-data{}
 span.operation-separator{display:inline;float:left;margin-right:5px;margin-top:5px;}
+
+.menu{height:53px;}
+.menu .parent{float:left;padding-right:4px;}
+.menu .children{position: absolute;padding-top:8px;padding-bottom:8px;}
+.menu .children-after-first{margin-left:10px}
+.menu a.search-link{}

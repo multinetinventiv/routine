@@ -121,5 +121,10 @@ namespace Routine.Api
 
 			return converter(robject);
 		}
+
+		public override string ToString()
+		{
+			return List.ToItemString();
+		}
 	}
 }

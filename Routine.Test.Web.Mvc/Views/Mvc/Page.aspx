@@ -23,7 +23,6 @@
 	</header>
 	<div class="segment menu">
 		<div class="wrapper">
-			<% model.Application.Index.RenderAs(Html, "Link", "text", "Home"); %>
 			<% model.Application.Menu.Render(Html); %>
 		</div>
 	</div>

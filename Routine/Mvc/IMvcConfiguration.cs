@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Routine.Api;
 using Routine.Core;
 using Routine.Core.Service;
+using Routine.Mvc.Context;
 
 namespace Routine.Mvc
 {
@@ -11,6 +12,8 @@ namespace Routine.Mvc
 		string NullDisplayValue{get;}
 		char ViewNameSeparator {get;}
 		char ListValueSeparator {get;}
+
+		IInterceptor<PerformInterceptionContext> PerformInterceptor{get;}
 
 		IExtractor<ObjectModel, string> IndexIdExtractor{get;}
 		IExtractor<ObjectModel, List<string>> MenuIdsExtractor{ get;}

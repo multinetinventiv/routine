@@ -7,6 +7,8 @@ using Routine.Core;
 using Routine.Core.Extractor;
 using Routine.Core.Selector;
 using Routine.Core.Service;
+using Routine.Mvc.Context;
+using Routine.Core.Interceptor;
 
 namespace Routine.Mvc.Configuration
 {
@@ -20,6 +22,8 @@ namespace Routine.Mvc.Configuration
 		public GenericMvcConfiguration DisplayValueForNullIs(string nullDisplayValue) {NullDisplayValue = nullDisplayValue; return this; }
 		public GenericMvcConfiguration SeparateViewNamesBy(char viewNameSeparator) { ViewNameSeparator = viewNameSeparator; return this; }
 		public GenericMvcConfiguration SeparateListValuesBy(char listValueSeparator) { ListValueSeparator = listValueSeparator; return this; }
+
+		public MultipleInterceptor<GenericMvcConfiguration, PerformInterceptionContext> InterceptPerform{ get; private set;}
 
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, string> ExtractIndexId{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>> ExtractMenuIds{ get; private set;}
@@ -45,6 +49,8 @@ namespace Routine.Mvc.Configuration
 		internal GenericMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
 		internal GenericMvcConfiguration(bool rootConfig, string defaultObjectId)
 		{
+			InterceptPerform = new MultipleInterceptor<GenericMvcConfiguration, PerformInterceptionContext>(this);
+
 			ExtractIndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
 			ExtractMenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
 
@@ -132,6 +138,8 @@ namespace Routine.Mvc.Configuration
 		string IMvcConfiguration.NullDisplayValue{get{return NullDisplayValue;}}
 		char IMvcConfiguration.ViewNameSeparator{get{return ViewNameSeparator;}}
 		char IMvcConfiguration.ListValueSeparator{get{return ListValueSeparator;}}
+
+		IInterceptor<PerformInterceptionContext> IMvcConfiguration.PerformInterceptor{get{return InterceptPerform;}}
 
 		IExtractor<ObjectModel, string> IMvcConfiguration.IndexIdExtractor{get{return ExtractIndexId;}}
 		IExtractor<ObjectModel, List<string>> IMvcConfiguration.MenuIdsExtractor{get{return ExtractMenuIds;}}

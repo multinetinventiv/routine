@@ -50,7 +50,6 @@
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Services" />
@@ -67,6 +66,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="Views\Mvc\Search.ascx" />
+    <Content Include="Views\Mvc\Search-Link.ascx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -182,6 +183,10 @@
     <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
       <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
       <Name>Routine.Test.Common.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
+      <Project>{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}</Project>
+      <Name>Routine.Test.Module.ProjectManagement</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

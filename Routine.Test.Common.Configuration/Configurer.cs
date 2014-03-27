@@ -46,7 +46,7 @@ namespace Routine.Test.Common.Configuration
 			public void MvcApplication()
 			{
 				container.Register(
-					Component.For<IMvcContext>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<ApplicationViewModel>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle()).Application).LifestyleSingleton(),
 					Component.For<MvcController>().ImplementedBy<MvcController>().LifestylePerWebRequest()
 				);
 				
@@ -82,7 +82,7 @@ namespace Routine.Test.Common.Configuration
 						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>())
 												  .When(t => t.IsDomainType))
 
-						.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true))
+						.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true) && m.GetParameters().All(p => p.ParameterType != type.of<Guid>()))
 													 .When(t => t.IsDomainType))
 
 						.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
@@ -132,10 +132,24 @@ namespace Routine.Test.Common.Configuration
 			{
 				return BuildRoutine.MvcConfig()
 						.FromBasic("Instance")
-						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
-						.ExtractMenuIds.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
 
-						.ExtractViewName.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
+						.InterceptPerform.Add(i => i.Do()
+													 .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+													 .After(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+													 .Error(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception))))
+										 .Done(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
+													 .After(t => t.Commit())
+													 .Error(t => t.Rollback())
+										 			 .When(ctx => ctx.Target.MarkedAs("Transactional")))
+
+						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
+						.ExtractMenuIds
+							.Add(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Search")))
+							.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
+
+						.ExtractViewName.Add(e => e.Always("Search")
+												   .When(vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).ViewModelId.EndsWith("Search")))
+										.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
 
 						.SelectOperationGroupFunctions.Done(s => s.Always(o => !o.HasParameter))
 

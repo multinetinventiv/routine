@@ -32,6 +32,7 @@ namespace Routine.Mvc
 		public bool IsAvailable {get{return rop.IsAvailable();}}
 		public string Text{get{return MvcConfig.DisplayNameExtractor.Extract(rop.Id);}}
 		public bool HasParameter{get{return rop.Parameters.Any();}}
+		public bool ReturnsList{get{return rop.ResultIsList;}}
 		public bool IsSeparator{get{return separator;}}
 
 		public List<ParameterViewModel> Parameters

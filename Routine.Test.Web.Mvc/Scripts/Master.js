@@ -37,6 +37,16 @@ jQuery.fn.collapse = function(options) {
 
 
 $(function(){
+	$(".menu .children").hide();
+	$(".menu .parent").each(function() {
+		if(document.URL.indexOf("/" + $(this).children("a:first").attr("data-module") + "-") > -1) {
+			$(this).children(".children").show();
+		}
+	});
+	$(".menu .parent").mouseenter(function() {
+		$(".menu .children").hide();
+		$(this).children(".children").show();
+	});
 	$("form.operation-form fieldset").collapse({closed:true});
 	$("td.action a.reference-link").button();
 	$("table").each(function (){

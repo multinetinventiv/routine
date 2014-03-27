@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Routine.Mvc.Context
 {
-    public class DefaultMvcContext : IMvcContext
+	public class DefaultMvcContext : IMvcContext
     {
         public IMvcConfiguration MvcConfiguration { get; private set; }
 
@@ -45,5 +45,10 @@ namespace Routine.Mvc.Context
         {
             return new VariableViewModel(this);
         }
+
+		public PerformInterceptionContext CreatePerformInterceptionContext(Routine.Api.Robject target, string operationModelId, List<Routine.Api.Rvariable> parameters)
+		{
+			return new PerformInterceptionContext(target, operationModelId, parameters);
+		}
     }
 }

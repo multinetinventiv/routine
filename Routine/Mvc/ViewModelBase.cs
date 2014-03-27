@@ -1,6 +1,8 @@
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using Routine.Api;
+using Routine.Mvc.Context;
+using System.Collections.Generic;
 
 namespace Routine.Mvc
 {
@@ -22,6 +24,10 @@ namespace Routine.Mvc
         protected OperationViewModel CreateOperation() { return context.CreateOperation(); }
         protected ParameterViewModel CreateParameter() { return context.CreateParameter(); }
         protected VariableViewModel CreateVariable() { return context.CreateVariable(); }
+		protected PerformInterceptionContext CreatePerformInterceptionContext(Robject target, string operationModelId, List<Rvariable> parameters)
+		{
+			return context.CreatePerformInterceptionContext(target, operationModelId, parameters);
+		}
 
 		public void Render(HtmlHelper html, params object[] viewData) { RenderAs(html, null, viewData); }
 		public void RenderAs(HtmlHelper html, string type, params object[] viewData)

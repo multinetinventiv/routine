@@ -50,7 +50,7 @@ namespace Routine.Test.Api
 		[Test]
 		public void ClientGetsObjectIdAndValueAndModelInformationViaRobject()
 		{
-			ModelsAre(Model("actualModel"), Model("viewModel"));
+			ModelsAre(Model("actualModel").Module("actualModule"), Model("viewModel").Module("viewModule"));
 			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
 			
 			var testingRobject = Robj("id", "actualModel", "viewModel");
@@ -59,6 +59,7 @@ namespace Routine.Test.Api
 			Assert.AreEqual("actualModel", testingRobject.ActualModelId);
 			Assert.AreEqual("value", testingRobject.Value);
 			Assert.AreEqual("viewModel", testingRobject.ViewModelId);
+			Assert.AreEqual("viewModule", testingRobject.Module);
 		}
 		
 		[Test]

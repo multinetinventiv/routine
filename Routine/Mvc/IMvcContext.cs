@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using Routine.Api;
+using Routine.Mvc.Context;
 
 namespace Routine.Mvc
 {
@@ -17,5 +16,7 @@ namespace Routine.Mvc
         OperationViewModel CreateOperation();
         ParameterViewModel CreateParameter();
         VariableViewModel CreateVariable();
+
+		PerformInterceptionContext CreatePerformInterceptionContext(Robject target, string operationModelId, List<Rvariable> parameters);
     }
 }

@@ -18,11 +18,11 @@ namespace Routine.Core.Interceptor
 		}
 
 		public TConfiguration Done() { return configuration; }
-		public TConfiguration Done(IInterceptor<TContext> selector) { Add(selector); return configuration; }
+		public TConfiguration Done(IInterceptor<TContext> interceptor) { Add(interceptor); return configuration; }
 
-		public MultipleInterceptor<TConfiguration, TContext> Add(IInterceptor<TContext> selector)
+		public MultipleInterceptor<TConfiguration, TContext> Add(IInterceptor<TContext> interceptor)
 		{
-			this.interceptors.Add(selector);
+			this.interceptors.Add(interceptor);
 
 			return this;
 		}

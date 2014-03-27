@@ -3,6 +3,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Api;
+using Routine.Core.Interceptor;
 
 namespace Routine.Mvc
 {
@@ -21,6 +22,7 @@ namespace Routine.Mvc
 		}
 
 		public string ViewModelId {get{return robj.ViewModelId;}}
+		public string Module{get{return robj.Module;}}
 
 		public string Title { get { return robj.IsNull?MvcConfig.NullDisplayValue:robj.Value; } }
 		public bool HasDetail { get { return !robj.IsNull && robj.IsDomain && (robj.Members.Any() || robj.Operations.Any()); } }
@@ -72,12 +74,7 @@ namespace Routine.Mvc
 		{
 			get
 			{
-				if(robj.IsNaked)
-				{
-					return new RouteValueDictionary(new {id = robj.Id, modelId = robj.ActualModelId});
-				}
-
-				return new RouteValueDictionary(new {id = robj.Id, actualModelId = robj.ActualModelId, viewModelId = robj.ViewModelId});
+				return new RouteValueDictionary(new {id = robj.Id, modelId = robj.ActualModelId});
 			}
 		}
 
@@ -166,7 +163,12 @@ namespace Routine.Mvc
 
 				parameters.Add(rparam.CreateVariable(robjs.ToArray()));
 			}
-			return CreateVariable().With(robj.Perform(operationModelId, parameters));
+
+			var result = MvcConfig.PerformInterceptor
+				.Intercept(CreatePerformInterceptionContext(robj, operationModelId, parameters))
+				.Do(() => robj.Perform(operationModelId, parameters)) as Rvariable;
+
+			return CreateVariable().With(result);
 		}
 	}
 

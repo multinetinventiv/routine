@@ -105,6 +105,7 @@ namespace Routine.Api
 		public bool IsNull {get{return objectReferenceData.IsNull;}}
 		public bool IsNaked {get{return ActualModelId == ViewModelId;}}
 		public bool IsDomain {get{return !model.IsValueModel;}}
+		public string Module{get{return model.Module;}}
 
 		public string Value {get{FetchValueIfNecessary(); return value;}}
 		public List<Rmember> Members{get{LoadMembersAndOperationsIfNecessary(); return members.Values.ToList();}}
