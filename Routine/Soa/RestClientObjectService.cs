@@ -20,7 +20,7 @@ namespace Routine.Soa
 
 		private T As<T>(string jsonString)
 		{
-			if (jsonString.Contains("IsException:True"))
+			if (jsonString.Contains("\"IsException\":true"))
 			{
 				var exceptionResult = serializer.Deserialize<SoaExceptionResult>(jsonString);
 
@@ -124,7 +124,7 @@ namespace Routine.Soa
 				}
 			}
 
-			return As<ResultData>(client.Get(Url("PerformOperation"), paramList.ToArray()));
+			return As<ResultData>(client.Post(Url("PerformOperation"), paramList.ToArray()));
 		}
 	}
 }
