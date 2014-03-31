@@ -13,8 +13,9 @@ namespace Routine.Test.Core.Interceptor
 		private class TestInterceptor : BaseSingleInterceptor<TestInterceptor, TestContext<string>>
 		{
 			protected override void OnBefore(TestContext<string> context) { context["before"] = true; }
+			protected override void OnSuccess(TestContext<string> context) { context["success"] = true; }
+			protected override void OnFail(TestContext<string> context) { context["fail"] = true; }
 			protected override void OnAfter(TestContext<string> context) { context["after"] = true; }
-			protected override void OnError(TestContext<string> context) { context["error"] = true; }
 
 			protected override bool CanIntercept(TestContext<string> context)
 			{
@@ -49,22 +50,26 @@ namespace Routine.Test.Core.Interceptor
 			testing.When(ctx => false);
 
 			testingInterface.OnBefore(context);
+			testingInterface.OnSuccess(context);
+			testingInterface.OnFail(context);
 			testingInterface.OnAfter(context);
-			testingInterface.OnError(context);
 
 			Assert.IsNull(context["before"]);
+			Assert.IsNull(context["success"]);
+			Assert.IsNull(context["fail"]);
 			Assert.IsNull(context["after"]);
-			Assert.IsNull(context["error"]);
 
 			testing.When(ctx => true);
 
 			testingInterface.OnBefore(context);
+			testingInterface.OnSuccess(context);
+			testingInterface.OnFail(context);
 			testingInterface.OnAfter(context);
-			testingInterface.OnError(context);
 
 			Assert.IsTrue((bool)context["before"]);
+			Assert.IsTrue((bool)context["success"]);
+			Assert.IsTrue((bool)context["fail"]);
 			Assert.IsTrue((bool)context["after"]);
-			Assert.IsTrue((bool)context["error"]);
 		}
 
 		[Test]
@@ -73,12 +78,14 @@ namespace Routine.Test.Core.Interceptor
 			var context = Ctx<string>();
 
 			testingInterface.OnBefore(context);
+			testingInterface.OnSuccess(context);
+			testingInterface.OnFail(context);
 			testingInterface.OnAfter(context);
-			testingInterface.OnError(context);
 
 			Assert.IsTrue((bool)context["before"]);
+			Assert.IsTrue((bool)context["success"]);
+			Assert.IsTrue((bool)context["fail"]);
 			Assert.IsTrue((bool)context["after"]);
-			Assert.IsTrue((bool)context["error"]);
 		}
 
 		[Test]
@@ -91,12 +98,14 @@ namespace Routine.Test.Core.Interceptor
 			testing.When(ctx => false).WhenContextHas("override-base");
 
 			testingInterface.OnBefore(context);
+			testingInterface.OnSuccess(context);
+			testingInterface.OnFail(context);
 			testingInterface.OnAfter(context);
-			testingInterface.OnError(context);
 
 			Assert.IsTrue((bool)context["before"]);
+			Assert.IsTrue((bool)context["success"]);
+			Assert.IsTrue((bool)context["fail"]);
 			Assert.IsTrue((bool)context["after"]);
-			Assert.IsTrue((bool)context["error"]);
 
 			testing.When(ctx => true);
 		}

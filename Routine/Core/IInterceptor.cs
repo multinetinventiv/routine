@@ -7,8 +7,9 @@ namespace Routine.Core
 		where TContext : InterceptionContext
 	{
 		void OnBefore(TContext context);
+		void OnSuccess(TContext context);
+		void OnFail(TContext context);
 		void OnAfter(TContext context);
-		void OnError(TContext context);
 	}
 
 	public class InterceptionContext

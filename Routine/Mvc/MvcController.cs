@@ -7,26 +7,26 @@ namespace Routine.Mvc
 {
 	public class MvcController : Controller
     {
-		private readonly ApplicationViewModel avm;
+		private readonly IMvcContext context;
 
-		public MvcController(ApplicationViewModel avm) 
-		{ 
-			this.avm = avm; 
+		public MvcController(IMvcContext context) 
+		{
+			this.context = context; 
 		}
 
 		protected ActionResult Page(ObjectViewModel ovm) { return View("Page", ovm); }
 
 		protected ActionResult RedirectToPage(ObjectViewModel ovm) { return RedirectToRoute(ovm.ViewRouteName, ovm.RouteValues); }
 
-		public ActionResult Index () { return RedirectToPage(avm.Index); }
+		public ActionResult Index() { return RedirectToPage(context.Application.Index); }
 
 		public ActionResult Perform(string id, string modelId, string operationModelId, Dictionary<string, string> parameters)  
 		{ 
-			return Perform_Inner(avm.Get(id, modelId), operationModelId, parameters); 
+			return Perform_Inner(context.Application.Get(id, modelId), operationModelId, parameters); 
 		}
 		public ActionResult PerformAs(string id, string actualModelId, string viewModelId, string operationModelId, Dictionary<string, string> parameters) 
 		{
-			return Perform_Inner(avm.Get(id, actualModelId, viewModelId), operationModelId, parameters); 
+			return Perform_Inner(context.Application.Get(id, actualModelId, viewModelId), operationModelId, parameters); 
 		}
 		private ActionResult Perform_Inner(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters)
 		{
@@ -45,8 +45,8 @@ namespace Routine.Mvc
 			return RedirectToPage(result.Object);
 		}
 
-		public ActionResult Get(string id, string modelId) { return Page(avm.Get(id, modelId)); }
-		public ActionResult GetAs(string id, string actualModelId, string viewModelId) { return Page(avm.Get(id, actualModelId, viewModelId)); }
+		public ActionResult Get(string id, string modelId) { return Page(context.Application.Get(id, modelId)); }
+		public ActionResult GetAs(string id, string actualModelId, string viewModelId) { return Page(context.Application.Get(id, actualModelId, viewModelId)); }
 
 		//TODO JSON actions
 		//do	--> client redirects if there is a single non-value type object

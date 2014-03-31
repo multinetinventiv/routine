@@ -8,6 +8,7 @@ using Castle.Core.Logging;
 using Castle.Facilities.FactorySupport;
 using Castle.Facilities.Logging;
 using Castle.MicroKernel;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using NHibernate;
@@ -56,8 +57,9 @@ namespace Routine.Test.Common.Configuration
 
 			public void SoaApplication()
 			{
+				var config = SoaConfiguration();
 				container.Register(
-					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(SoaConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(config, CodingStyle())).LifestyleSingleton(),
 					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
 				);
 				
@@ -115,16 +117,18 @@ namespace Routine.Test.Common.Configuration
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
+						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
 						.InterceptPerformOperation
-												  .Add(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
-														   .After(t => t.Commit())
-														   .Error(t => t.Rollback())
-														   .When(ctx => ctx.TargetType.MarkedAs("Transactional") ||
-																		ctx.TargetOperation.MarkedAs("Transactional")))
-
-												  .Add(i => i.Before(ctx => Debug.WriteLine("before -> " + ctx.OperationModelId)))
-												  .Add(i => i.After(ctx => Debug.WriteLine("after -> " + ctx.OperationModelId)))
-												  .Done(i => i.Error(ctx => Debug.WriteLine("error -> " + ctx.OperationModelId)))
+							.Add(i => i.Do()
+									.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+									.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+									.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+									.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
+							.Done(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
+									.Success(t => t.Commit())
+									.Fail(t => t.Rollback())
+									.When(ctx => ctx.TargetType.MarkedAs("Transactional") ||
+												ctx.TargetOperation.MarkedAs("Transactional")))
 						;
 			}
 
@@ -135,11 +139,12 @@ namespace Routine.Test.Common.Configuration
 
 						.InterceptPerform.Add(i => i.Do()
 													 .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
-													 .After(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-													 .Error(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception))))
+													 .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+													 .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+													 .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
 										 .Done(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
-													 .After(t => t.Commit())
-													 .Error(t => t.Rollback())
+													 .Success(t => t.Commit())
+													 .Fail(t => t.Rollback())
 										 			 .When(ctx => ctx.Target.MarkedAs("Transactional")))
 
 						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
@@ -202,9 +207,9 @@ namespace Routine.Test.Common.Configuration
 			{
 				container.Register(
 					Component.For<ISessionFactory>()		.Instance(BuildSessionFactory())				.LifestyleSingleton(),
-					Component.For<ISession>()				.UsingFactoryMethod(OpenSession)				.LifestylePerWebRequest(),
-					Component.For(typeof(IRepository<>))	.ImplementedBy(typeof(NHibernateRepository<>))	.LifestylePerWebRequest(),
-					Component.For(typeof(ILookup<>))		.ImplementedBy(typeof(NHibernateLookup<>))		.LifestylePerWebRequest());
+					Component.For<ISession>()				.UsingFactoryMethod(OpenSession)				.LifestyleScoped(),
+					Component.For(typeof(IRepository<>))	.ImplementedBy(typeof(NHibernateRepository<>))	.LifestyleScoped(),
+					Component.For(typeof(ILookup<>))		.ImplementedBy(typeof(NHibernateLookup<>))		.LifestyleScoped());
 			}
 			
 			private OrmConfiguration Orm { get { return OrmConfiguration.Instance; } }

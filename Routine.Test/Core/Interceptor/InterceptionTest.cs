@@ -28,7 +28,7 @@ namespace Routine.Test.Core.Interceptor
 		}
 
 		[Test]
-		public void BeforeInvocationCallsOnBefore()
+		public void BeforeInvocationOnBeforeIsCalled()
 		{
 			testing.Do(() => null);
 
@@ -52,23 +52,23 @@ namespace Routine.Test.Core.Interceptor
 
 			Assert.AreEqual("actual", actual);
 			Assert.IsFalse(called);
-			interceptorMock.Verify(obj => obj.OnAfter(context), Times.Once());
+			interceptorMock.Verify(obj => obj.OnSuccess(context), Times.Once());
 		}
 
 		[Test]
-		public void AfterInvocationCallsOnAfter()
+		public void AfterASuccessfulInvocationOnSuccessIsCalled()
 		{
 			testing.Do(() => null);
 
-			interceptorMock.Verify(obj => obj.OnAfter(context), Times.Once());
-			interceptorMock.Verify(obj => obj.OnError(It.IsAny<TestContext<string>>()), Times.Never());
+			interceptorMock.Verify(obj => obj.OnSuccess(context), Times.Once());
+			interceptorMock.Verify(obj => obj.OnFail(It.IsAny<TestContext<string>>()), Times.Never());
 		}
 
 		[Test]
-		public void CanAlterActualInvocationResultAfterInvocation()
+		public void CanAlterActualInvocationResultAfterASuccessfulInvocation()
 		{
 			interceptorMock
-				.Setup(obj => obj.OnAfter(context))
+				.Setup(obj => obj.OnSuccess(context))
 				.Callback((TestContext<string> ctx) => {
 					ctx.Result = "actual";
 				});
@@ -81,7 +81,7 @@ namespace Routine.Test.Core.Interceptor
 		private object Throw(Exception exception) { throw exception; }
 
 		[Test]
-		public void WhenInvocationThrowsExceptionCallsOnError()
+		public void WhenInvocationThrowsExceptionOnFailIsCalled()
 		{
 			var exception = new Exception();
 			try
@@ -91,8 +91,8 @@ namespace Routine.Test.Core.Interceptor
 			}
 			catch (Exception){}
 
-			interceptorMock.Verify(obj => obj.OnAfter(It.IsAny<TestContext<string>>()), Times.Never());
-			interceptorMock.Verify(obj => obj.OnError(context), Times.Once());
+			interceptorMock.Verify(obj => obj.OnSuccess(It.IsAny<TestContext<string>>()), Times.Never());
+			interceptorMock.Verify(obj => obj.OnFail(context), Times.Once());
 			Assert.AreEqual(exception, context.Exception);
 		}
 
@@ -100,7 +100,7 @@ namespace Routine.Test.Core.Interceptor
 		public void CanHideTheExceptionAndReturnResult()
 		{
 			interceptorMock
-				.Setup(obj => obj.OnError(context))
+				.Setup(obj => obj.OnFail(context))
 				.Callback((TestContext<string> ctx) => {
 					ctx.ExceptionHandled = true;
 					ctx.Result = "result";
@@ -118,7 +118,7 @@ namespace Routine.Test.Core.Interceptor
 			var alteredException = new Exception();
 
 			interceptorMock
-				.Setup(obj => obj.OnError(context))
+				.Setup(obj => obj.OnFail(context))
 				.Callback((TestContext<string> ctx) =>
 				{
 					ctx.Exception = alteredException;
@@ -136,7 +136,7 @@ namespace Routine.Test.Core.Interceptor
 		}
 
 		[Test]
-		public void OnErrorIsCalledWhenAnExceptionIsThrownOnBefore()
+		public void OnFailIsCalledWhenAnExceptionIsThrownOnBefore()
 		{
 			interceptorMock
 				.Setup(obj => obj.OnBefore(context))
@@ -152,14 +152,14 @@ namespace Routine.Test.Core.Interceptor
 			}
 			catch (Exception) { }
 
-			interceptorMock.Verify(obj => obj.OnError(context), Times.Once());
+			interceptorMock.Verify(obj => obj.OnFail(context), Times.Once());
 		}
 
 		[Test]
-		public void OnErrorIsCalledWhenAnExceptionIsThrownOnAfter()
+		public void OnFailIsCalledWhenAnExceptionIsThrownOnSuccess()
 		{
 			interceptorMock
-				.Setup(obj => obj.OnAfter(context))
+				.Setup(obj => obj.OnSuccess(context))
 				.Callback((TestContext<string> ctx) =>
 				{
 					throw new Exception();
@@ -172,7 +172,23 @@ namespace Routine.Test.Core.Interceptor
 			}
 			catch (Exception) { }
 
-			interceptorMock.Verify(obj => obj.OnError(context), Times.Once());
+			interceptorMock.Verify(obj => obj.OnFail(context), Times.Once());
+		}
+
+		[Test]
+		public void AfterAnyInvocationOnAfterIsCalled()
+		{
+			var exception = new Exception();
+			try
+			{
+				testing.Do(() => Throw(exception));
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception) { }
+
+			testing.Do(() => null);
+
+			interceptorMock.Verify(obj => obj.OnAfter(context), Times.Exactly(2));
 		}
 	}
 }

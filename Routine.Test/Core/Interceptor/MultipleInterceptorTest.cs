@@ -45,10 +45,13 @@ namespace Routine.Test.Core.Interceptor
 				.Setup(o => o.OnBefore(It.IsAny<TestContext<string>>()))
 				.Callback((TestContext<string> ctx) => { ctx.Value = contextValue; });
 			interceptorMock
-				.Setup(o => o.OnAfter(It.IsAny<TestContext<string>>()))
+				.Setup(o => o.OnSuccess(It.IsAny<TestContext<string>>()))
 				.Callback((TestContext<string> ctx) => { ctx.Value = contextValue; });
 			interceptorMock
-				.Setup(o => o.OnError(It.IsAny<TestContext<string>>()))
+				.Setup(o => o.OnFail(It.IsAny<TestContext<string>>()))
+				.Callback((TestContext<string> ctx) => { ctx.Value = contextValue; });
+			interceptorMock
+				.Setup(o => o.OnAfter(It.IsAny<TestContext<string>>()))
 				.Callback((TestContext<string> ctx) => { ctx.Value = contextValue; });
 		}
 
@@ -66,6 +69,32 @@ namespace Routine.Test.Core.Interceptor
 		}
 
 		[Test]
+		public void OnSuccessCallsChildInterceptorsInTheReverseOrder()
+		{
+			var ctx = String();
+
+			testingInterface.OnSuccess(ctx);
+
+			Assert.AreEqual("first", ctx.Value);
+
+			interceptor1Mock.Verify(o => o.OnSuccess(ctx), Times.Once());
+			interceptor2Mock.Verify(o => o.OnSuccess(ctx), Times.Once());
+		}
+
+		[Test]
+		public void OnFailCallsChildInterceptorsInTheReverseOrder()
+		{
+			var ctx = String();
+
+			testingInterface.OnFail(ctx);
+
+			Assert.AreEqual("first", ctx.Value);
+
+			interceptor1Mock.Verify(o => o.OnFail(ctx), Times.Once());
+			interceptor2Mock.Verify(o => o.OnFail(ctx), Times.Once());
+		}
+
+		[Test]
 		public void OnAfterCallsChildInterceptorsInTheReverseOrder()
 		{
 			var ctx = String();
@@ -76,19 +105,6 @@ namespace Routine.Test.Core.Interceptor
 
 			interceptor1Mock.Verify(o => o.OnAfter(ctx), Times.Once());
 			interceptor2Mock.Verify(o => o.OnAfter(ctx), Times.Once());
-		}
-
-		[Test]
-		public void OnErrorCallsChildInterceptorsInTheReverseOrder()
-		{
-			var ctx = String();
-
-			testingInterface.OnError(ctx);
-
-			Assert.AreEqual("first", ctx.Value);
-
-			interceptor1Mock.Verify(o => o.OnError(ctx), Times.Once());
-			interceptor2Mock.Verify(o => o.OnError(ctx), Times.Once());
 		}
 
 		[Test]

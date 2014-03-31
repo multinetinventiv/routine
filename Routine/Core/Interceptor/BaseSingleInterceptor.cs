@@ -29,6 +29,24 @@ namespace Routine.Core.Interceptor
 
 		protected abstract void OnBefore(TContext context); 
 
+		private void OptionalOnSuccess(TContext context)
+		{
+			if (!CanIntercept(context)) { return; }
+
+			OnSuccess(context);
+		}
+
+		protected abstract void OnSuccess(TContext context); 
+
+		private void OptionalOnFail(TContext context)
+		{
+			if (!CanIntercept(context)) { return; }
+
+			OnFail(context);
+		}
+
+		protected abstract void OnFail(TContext context);
+
 		private void OptionalOnAfter(TContext context)
 		{
 			if (!CanIntercept(context)) { return; }
@@ -37,15 +55,6 @@ namespace Routine.Core.Interceptor
 		}
 
 		protected abstract void OnAfter(TContext context); 
-
-		private void OptionalOnError(TContext context)
-		{
-			if (!CanIntercept(context)) { return; }
-
-			OnError(context);
-		}
-
-		protected abstract void OnError(TContext context); 
 		
 		#region IInterceptor implementation
 
@@ -54,14 +63,19 @@ namespace Routine.Core.Interceptor
 			OptionalOnBefore(context);
 		}
 
+		void IInterceptor<TContext>.OnSuccess(TContext context)
+		{
+			OptionalOnSuccess(context);
+		}
+
+		void IInterceptor<TContext>.OnFail(TContext context)
+		{
+			OptionalOnFail(context);
+		}
+
 		void IInterceptor<TContext>.OnAfter(TContext context)
 		{
 			OptionalOnAfter(context);
-		}
-
-		void IInterceptor<TContext>.OnError(TContext context)
-		{
-			OptionalOnError(context);
 		} 
 
 		#endregion

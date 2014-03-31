@@ -42,6 +42,22 @@ namespace Routine.Core.Interceptor
 			}
 		}
 
+		protected void OnSuccess(TContext context)
+		{
+			for (int i = interceptors.Count - 1; i >= 0; i--)
+			{
+				interceptors[i].OnSuccess(context);
+			}
+		}
+
+		protected void OnFail(TContext context)
+		{
+			for (int i = interceptors.Count - 1; i >= 0; i--)
+			{
+				interceptors[i].OnFail(context);
+			}
+		}
+
 		protected void OnAfter(TContext context)
 		{
 			for (int i = interceptors.Count - 1; i >= 0; i--)
@@ -50,19 +66,12 @@ namespace Routine.Core.Interceptor
 			}
 		}
 
-		protected void OnError(TContext context)
-		{
-			for (int i = interceptors.Count - 1; i >= 0; i--)
-			{
-				interceptors[i].OnError(context);
-			}
-		}
-
 		#region IInterceptor<TContext> implementation
 
 		void IInterceptor<TContext>.OnBefore(TContext context) { OnBefore(context); }
+		void IInterceptor<TContext>.OnSuccess(TContext context) { OnSuccess(context); }
+		void IInterceptor<TContext>.OnFail(TContext context) { OnFail(context); }
 		void IInterceptor<TContext>.OnAfter(TContext context) { OnAfter(context); }
-		void IInterceptor<TContext>.OnError(TContext context) { OnError(context); }
  
 		#endregion	
 	}

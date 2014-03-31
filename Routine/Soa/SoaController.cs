@@ -17,7 +17,7 @@ namespace Routine.Soa
         {
             this.context = context;
 		}
-		
+
 		protected override void OnException(ExceptionContext filterContext)
 		{
 			base.OnException(filterContext);
@@ -44,37 +44,51 @@ namespace Routine.Soa
 
 		public JsonResult GetApplicationModel()
 		{
-			return Json(context.ObjectService.GetApplicationModel(), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetApplicationModelInterceptor.Intercept(context.CreateInterceptionContext());
+
+			return Json(interception.Do(() => context.ObjectService.GetApplicationModel()), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetObjectModel(string objectModelId)
 		{
-			return Json(context.ObjectService.GetObjectModel(objectModelId), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetObjectModelInterceptor.Intercept(context.CreateObjectModelInterceptionContext(objectModelId));
+
+			return Json(interception.Do(() => context.ObjectService.GetObjectModel(objectModelId)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetAvailableObjects(string objectModelId)
 		{
-			return Json(context.ObjectService.GetAvailableObjects(objectModelId), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetAvailableObjectsInterceptor.Intercept(context.CreateObjectModelInterceptionContext(objectModelId));
+
+			return Json(interception.Do(() => context.ObjectService.GetAvailableObjects(objectModelId)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetValue(ObjectReferenceData reference)
 		{
-			return Json(context.ObjectService.GetValue(reference), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetValueInterceptor.Intercept(context.CreateObjectReferenceInterceptionContext(reference));
+
+			return Json(interception.Do(() => context.ObjectService.GetValue(reference)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult Get(ObjectReferenceData reference)
 		{
-			return Json(context.ObjectService.Get(reference), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetInterceptor.Intercept(context.CreateObjectReferenceInterceptionContext(reference));
+
+			return Json(interception.Do(() => context.ObjectService.Get(reference)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetMember(ObjectReferenceData reference, string memberModelId)
 		{
-			return Json(context.ObjectService.GetMember(reference, memberModelId), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetMemberInterceptor.Intercept(context.CreateMemberInterceptionContext(reference, memberModelId));
+
+			return Json(interception.Do(() => context.ObjectService.GetMember(reference, memberModelId)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetOperation(ObjectReferenceData reference, string operationModelId)
 		{
-			return Json(context.ObjectService.GetMember(reference, operationModelId), JsonRequestBehavior.AllowGet);
+			var interception = context.SoaConfiguration.GetOperationInterceptor.Intercept(context.CreateOperationInterceptionContext(reference, operationModelId));
+
+			return Json(interception.Do(() => context.ObjectService.GetMember(reference, operationModelId)), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)

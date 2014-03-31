@@ -20,37 +20,64 @@ namespace Routine.Core.Interceptor
 
 		private readonly string variableName;
 		private readonly Func<TContext, TVariableType> beforeDelegate;
+		private Action<TContext, TVariableType> successDelegate;
+		private Action<TContext, TVariableType> failDelegate;
 		private Action<TContext, TVariableType> afterDelegate;
-		private Action<TContext, TVariableType> errorDelegate;
 
 		public DecoratorInterceptor(Func<TContext, TVariableType> beforeDelegate)
 		{
 			this.variableName = NextVariableName();
 			this.beforeDelegate = beforeDelegate;
 
+			Success(obj => { });
+			Fail(obj => { });
 			After(obj => { });
-			Error(obj => { });
 		}
+
+		public DecoratorInterceptor<TContext, TVariableType> Success(Action<TVariableType> successDelegate) { return Success((ctx, obj) => successDelegate(obj)); }
+		public DecoratorInterceptor<TContext, TVariableType> Success(Action<TContext, TVariableType> successDelegate) { this.successDelegate = successDelegate; return this; }
+
+		public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TVariableType> failDelegate) { return Fail((ctx, obj) => failDelegate(obj)); }
+		public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TContext, TVariableType> failDelegate) { this.failDelegate = failDelegate; return this; }
 
 		public DecoratorInterceptor<TContext, TVariableType> After(Action<TVariableType> afterDelegate) { return After((ctx, obj) => afterDelegate(obj)); }
 		public DecoratorInterceptor<TContext, TVariableType> After(Action<TContext, TVariableType> afterDelegate) { this.afterDelegate = afterDelegate; return this; }
 
-		public DecoratorInterceptor<TContext, TVariableType> Error(Action<TVariableType> errorDelegate) { return Error((ctx, obj) => errorDelegate(obj)); }
-		public DecoratorInterceptor<TContext, TVariableType> Error(Action<TContext, TVariableType> errorDelegate) { this.errorDelegate = errorDelegate; return this; }
+		private string ExceptionVariableName { get { return variableName + "_exception"; } }
+		private bool ExceptionOccuredOnBefore(TContext context) { return context[ExceptionVariableName] != null; }
 
 		protected override void OnBefore(TContext context)
 		{
-			context[variableName] = beforeDelegate(context);
+			try
+			{
+				context[variableName] = beforeDelegate(context);
+			}
+			catch (Exception ex)
+			{
+				context[ExceptionVariableName] = ex;
+				throw ex;
+			}
+		}
+
+		protected override void OnSuccess(TContext context)
+		{
+			if (ExceptionOccuredOnBefore(context)) { return; }
+
+			successDelegate(context, (TVariableType)context[variableName]);
+		}
+
+		protected override void OnFail(TContext context)
+		{
+			if (ExceptionOccuredOnBefore(context)) { return; }
+
+			failDelegate(context, (TVariableType)context[variableName]);
 		}
 
 		protected override void OnAfter(TContext context)
 		{
-			afterDelegate(context, (TVariableType)context[variableName]);
-		}
+			if (ExceptionOccuredOnBefore(context)) { return; }
 
-		protected override void OnError(TContext context)
-		{
-			errorDelegate(context, (TVariableType)context[variableName]);
+			afterDelegate(context, (TVariableType)context[variableName]);
 		}
 	}
 }

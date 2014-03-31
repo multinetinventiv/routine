@@ -4,24 +4,14 @@ using Routine.Core.Service;
 
 namespace Routine.Soa.Context
 {
-	public class PerformOperationInterceptionContext : InterceptionContext
+	public class PerformOperationInterceptionContext : OperationInterceptionContext
 	{
-		private readonly ICoreContext coreContext;
-
 		public PerformOperationInterceptionContext(ICoreContext coreContext, ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
+			: base(coreContext, targetReference, operationModelId)
 		{
-			this.coreContext = coreContext;
-
-			TargetReference = targetReference;
-			OperationModelId = operationModelId;
 			ParameterValues = parameterValues;
 		}
 
-		public ObjectReferenceData TargetReference { get; private set; }
-		public string OperationModelId { get; private set; }
 		public List<ParameterValueData> ParameterValues { get; private set; }
-
-		public DomainType TargetType { get { return coreContext.GetDomainType(TargetReference.ViewModelId); } }
-		public DomainOperation TargetOperation { get { return TargetType.Operation[OperationModelId]; } }
 	}
 }

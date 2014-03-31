@@ -88,6 +88,10 @@
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="SoaPatterns.cs" />
+    <Compile Include="Soa\Context\MemberInterceptionContext.cs" />
+    <Compile Include="Soa\Context\ObjectModelInterceptionContext.cs" />
+    <Compile Include="Soa\Context\ObjectReferenceInterceptionContext.cs" />
+    <Compile Include="Soa\Context\OperationInterceptionContext.cs" />
     <Compile Include="Soa\Context\PerformOperationInterceptionContext.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />

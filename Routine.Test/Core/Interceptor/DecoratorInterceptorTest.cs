@@ -22,14 +22,16 @@ namespace Routine.Test.Core.Interceptor
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "test string")
-				.After(actual => Assert.AreEqual("test string", actual))
-				.Error(actual => Assert.AreEqual("test string", actual));
+				.Success(actual => Assert.AreEqual("test string", actual))
+				.Fail(actual => Assert.AreEqual("test string", actual))
+				.After(actual => Assert.AreEqual("test string", actual));
 
 			var context = String();
 
 			testing.OnBefore(context);
+			testing.OnSuccess(context);
+			testing.OnFail(context);
 			testing.OnAfter(context);
-			testing.OnError(context);
 		}
 
 		[Test]
@@ -37,28 +39,30 @@ namespace Routine.Test.Core.Interceptor
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "interceptor1")
-				.After(actual => Assert.AreEqual("interceptor1", actual))
-				.Error(actual => Assert.AreEqual("interceptor1", actual));
+				.Success(actual => Assert.AreEqual("interceptor1", actual))
+				.Fail(actual => Assert.AreEqual("interceptor1", actual))
+				.After(actual => Assert.AreEqual("interceptor1", actual));
 
 			testingOther = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "interceptor2")
-				.After(actual => Assert.AreEqual("interceptor2", actual))
-				.Error(actual => Assert.AreEqual("interceptor2", actual));
+				.Success(actual => Assert.AreEqual("interceptor2", actual))
+				.Fail(actual => Assert.AreEqual("interceptor2", actual))
+				.After(actual => Assert.AreEqual("interceptor2", actual));
 
 			var context = String();
 
 			testing.OnBefore(context);
 			testingOther.OnBefore(context);
 
-			testingOther.OnAfter(context);
-			testing.OnAfter(context);
+			testingOther.OnSuccess(context);
+			testing.OnSuccess(context);
 
-			testingOther.OnError(context);
-			testing.OnError(context);
+			testingOther.OnFail(context);
+			testing.OnFail(context);
 		}
 
 		[Test]
-		public void ByDefaultNothingHappensOnAfterAndOnError()
+		public void ByDefaultNothingHappensOnSuccessAndOnFail()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "dummy");
@@ -66,8 +70,9 @@ namespace Routine.Test.Core.Interceptor
 			var context = String();
 
 			testing.OnBefore(context);
+			testing.OnSuccess(context);
+			testing.OnFail(context);
 			testing.OnAfter(context);
-			testing.OnError(context);
 		}
 
 		[Test]
@@ -75,15 +80,41 @@ namespace Routine.Test.Core.Interceptor
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(ctx => ctx["value"] as string)
-				.After((ctx, actual) => Assert.AreSame(ctx["value"], actual))
-				.Error((ctx, actual) => Assert.AreSame(ctx["value"], actual));
+				.Success((ctx, actual) => Assert.AreSame(ctx["value"], actual))
+				.Fail((ctx, actual) => Assert.AreSame(ctx["value"], actual))
+				.After((ctx, actual) => Assert.AreSame(ctx["value"], actual));
 
 			var context = String();
 			context["value"] = "dummy";
 
 			testing.OnBefore(context);
+			testing.OnSuccess(context);
+			testing.OnFail(context);
 			testing.OnAfter(context);
-			testing.OnError(context);
+		}
+
+		private T Throws<T>(Exception ex)
+		{
+			throw ex;
+		}
+
+		[Test]
+		public void FailAndAfterAreNotCalledWhenVariableCouldNotBeRetrievedDuringBeforeDelegate()
+		{
+			testing = BuildRoutine.Interceptor<TestContext<string>>()
+				.ByDecorating(() => Throws<string>(new Exception()))
+				.Success(actual => Assert.Fail("should not be called"))
+				.Fail(actual => Assert.Fail("should not be called"))
+				.After(actual => Assert.Fail("should not be called"));
+
+			var context = String();
+			context["value"] = "dummy";
+
+			try { testing.OnBefore(context); } catch (Exception){}
+
+			testing.OnSuccess(context);
+			testing.OnFail(context);
+			testing.OnAfter(context);
 		}
 	}
 }

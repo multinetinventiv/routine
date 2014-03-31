@@ -31,7 +31,7 @@ namespace Routine.Core
 			});
 		}
 
-		public static object Locate(this ICoreContext source, ObjectReferenceData aReference)
+		internal static object Locate(this ICoreContext source, ObjectReferenceData aReference)
 		{
 			if(aReference.IsNull)
 			{
@@ -42,7 +42,7 @@ namespace Routine.Core
 			return source.CodingStyle.Locator.Locate(source.CodingStyle.ModelIdSerializer.Deserialize(aReference.ActualModelId), aReference.Id);
 		}
 
-		public static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, string viewModelId)
+		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, string viewModelId)
 		{			
 			var result = new ValueData();
 			result.IsList = isList;
@@ -61,24 +61,19 @@ namespace Routine.Core
 			return result;
 		}
 
-		public static SingleValueData CreateSingleValueData(this ICoreContext source, object anObject, string viewModelId)
+		internal static SingleValueData CreateSingleValueData(this ICoreContext source, object anObject, string viewModelId)
 		{
 			var result = new SingleValueData();
 
-			var type = (anObject == null) ?null:anObject.GetTypeInfo();
-			var actualModelId = source.CodingStyle.ModelIdSerializer.Serialize(type);
 			var resultDomainType = source.GetDomainType(viewModelId);
 
-			result.Reference.IsNull = anObject == null;
-			result.Reference.ActualModelId = actualModelId;
-			result.Reference.ViewModelId = viewModelId;
-			result.Reference.Id = source.CodingStyle.IdExtractor.Extract(anObject);
+			result.Reference = source.CreateReferenceData(anObject, viewModelId);
 			result.Value = source.GetValue(anObject, resultDomainType, result.Reference.Id);
 
 			return result;
 		}
 
-		public static string GetValue(this ICoreContext source, object anObject, DomainType itsDomainType, string itsReferenceId)
+		internal static string GetValue(this ICoreContext source, object anObject, DomainType itsDomainType, string itsReferenceId)
 		{
 			if(itsDomainType.IsValueModel)
 			{
@@ -86,6 +81,23 @@ namespace Routine.Core
 			}
 
 			return source.CodingStyle.DisplayValueExtractor.Extract(anObject);
+		}
+
+		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(anObject, null); }
+		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject, string viewModelId)
+		{
+			var result = new ObjectReferenceData();
+
+			var type = (anObject == null) ? null : anObject.GetTypeInfo();
+			var actualModelId = source.CodingStyle.ModelIdSerializer.Serialize(type);
+			var resultDomainType = source.GetDomainType(viewModelId);
+
+			result.IsNull = anObject == null;
+			result.ActualModelId = actualModelId;
+			result.ViewModelId = viewModelId??actualModelId;
+			result.Id = source.CodingStyle.IdExtractor.Extract(anObject);
+
+			return result;
 		}
 	}
 }

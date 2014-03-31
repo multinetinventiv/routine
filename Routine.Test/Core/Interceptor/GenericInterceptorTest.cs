@@ -13,23 +13,27 @@ namespace Routine.Test.Core.Interceptor
 		private IInterceptor<TestContext<string>> testing;
 
 		[Test]
-		public void BeforeAfterErrorActionsCanBeDefinedByDelegates()
+		public void BeforeSuccessFailActionsCanBeDefinedByDelegates()
 		{
 			var context = String();
 
 			testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
 				.Before(() => context.Value = "before")
-				.After(() => context.Value = "after")
-				.Error(() => context.Value = "error");
+				.Success(() => context.Value = "success")
+				.Fail(() => context.Value = "fail")
+				.After(() => context.Value = "after");
 
 			testing.OnBefore(context);
 			Assert.AreEqual("before", context.Value);
 
+			testing.OnSuccess(context);
+			Assert.AreEqual("success", context.Value);
+
+			testing.OnFail(context);
+			Assert.AreEqual("fail", context.Value);
+
 			testing.OnAfter(context);
 			Assert.AreEqual("after", context.Value);
-
-			testing.OnError(context);
-			Assert.AreEqual("error", context.Value);
 		}
 
 		[Test]
@@ -40,8 +44,9 @@ namespace Routine.Test.Core.Interceptor
 			var context = String();
 
 			testing.OnBefore(context);
+			testing.OnSuccess(context);
+			testing.OnFail(context);
 			testing.OnAfter(context);
-			testing.OnError(context);
 		}
 
 		[Test]
@@ -49,19 +54,23 @@ namespace Routine.Test.Core.Interceptor
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
 				.Before(ctx => ctx.Value = "before")
-				.After(ctx => ctx.Value = "after")
-				.Error(ctx => ctx.Value = "error");
+				.Success(ctx => ctx.Value = "success")
+				.Fail(ctx => ctx.Value = "fail")
+				.After(ctx => ctx.Value = "after");
 
 			var context = String();
 
 			testing.OnBefore(context);
 			Assert.AreEqual("before", context.Value);
 
+			testing.OnSuccess(context);
+			Assert.AreEqual("success", context.Value);
+
+			testing.OnFail(context);
+			Assert.AreEqual("fail", context.Value);
+
 			testing.OnAfter(context);
 			Assert.AreEqual("after", context.Value);
-
-			testing.OnError(context);
-			Assert.AreEqual("error", context.Value);
 		}
 
 		[Test]
@@ -77,6 +86,30 @@ namespace Routine.Test.Core.Interceptor
 		}
 
 		[Test]
+		public void Facade_Success()
+		{
+			testing = BuildRoutine.Interceptor<TestContext<string>>().Success(ctx => ctx.Value = "success");
+
+			var context = String();
+
+			testing.OnSuccess(context);
+
+			Assert.AreEqual("success", context.Value);
+		}
+
+		[Test]
+		public void Facade_Fail()
+		{
+			testing = BuildRoutine.Interceptor<TestContext<string>>().Fail(ctx => ctx.Value = "fail");
+
+			var context = String();
+
+			testing.OnFail(context);
+
+			Assert.AreEqual("fail", context.Value);
+		}
+
+		[Test]
 		public void Facade_After()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>().After(ctx => ctx.Value = "after");
@@ -86,18 +119,6 @@ namespace Routine.Test.Core.Interceptor
 			testing.OnAfter(context);
 
 			Assert.AreEqual("after", context.Value);
-		}
-
-		[Test]
-		public void Facade_Error()
-		{
-			testing = BuildRoutine.Interceptor<TestContext<string>>().Error(ctx => ctx.Value = "error");
-
-			var context = String();
-
-			testing.OnError(context);
-
-			Assert.AreEqual("error", context.Value);
 		}
 	}
 }

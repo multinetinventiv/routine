@@ -31,16 +31,20 @@ namespace Routine.Core.Interceptor
 					context.Result = invocation();
 				}
 
-				interceptor.OnAfter(context);
+				interceptor.OnSuccess(context);
 			}
 			catch (Exception ex)
 			{
 				context.Exception = ex;
-				interceptor.OnError(context);
+				interceptor.OnFail(context);
 				if (!context.ExceptionHandled)
 				{
 					throw context.Exception;
 				}
+			}
+			finally
+			{
+				interceptor.OnAfter(context);
 			}
 
 			return context.Result;
