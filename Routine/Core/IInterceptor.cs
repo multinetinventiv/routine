@@ -6,10 +6,7 @@ namespace Routine.Core
 	public interface IInterceptor<TContext>
 		where TContext : InterceptionContext
 	{
-		void OnBefore(TContext context);
-		void OnSuccess(TContext context);
-		void OnFail(TContext context);
-		void OnAfter(TContext context);
+		object Intercept(TContext context, Func<object> invocation);
 	}
 
 	public class InterceptionContext

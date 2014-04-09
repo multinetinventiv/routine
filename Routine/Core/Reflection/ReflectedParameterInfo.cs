@@ -10,6 +10,7 @@ namespace Routine.Core.Reflection
 		public override string Name {get{return parameterInfo.Name;}}
 		public override TypeInfo ParameterType {get{return TypeInfo.Get(parameterInfo.ParameterType);}}
 		public override int Position{get{return parameterInfo.Position;}}
+		public override object[] GetCustomAttributes(){return parameterInfo.GetCustomAttributes(true);}
 	}
 	
 }

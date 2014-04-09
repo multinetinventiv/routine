@@ -23,5 +23,10 @@ namespace Routine.Core.Operation
 		{
 			return method.Invoke(target, parameters);
 		}
+
+		public object[] GetCustomAttributes()
+		{
+			return method.GetCustomAttributes();
+		}
 	}
 }

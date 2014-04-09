@@ -23,7 +23,7 @@ namespace Routine.Mvc.Configuration
 		public GenericMvcConfiguration SeparateViewNamesBy(char viewNameSeparator) { ViewNameSeparator = viewNameSeparator; return this; }
 		public GenericMvcConfiguration SeparateListValuesBy(char listValueSeparator) { ListValueSeparator = listValueSeparator; return this; }
 
-		public MultipleInterceptor<GenericMvcConfiguration, PerformInterceptionContext> InterceptPerform{ get; private set;}
+		public ChainInterceptor<GenericMvcConfiguration, PerformInterceptionContext> InterceptPerform { get; private set; }
 
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, string> ExtractIndexId{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>> ExtractMenuIds{ get; private set;}
@@ -49,7 +49,7 @@ namespace Routine.Mvc.Configuration
 		internal GenericMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
 		internal GenericMvcConfiguration(bool rootConfig, string defaultObjectId)
 		{
-			InterceptPerform = new MultipleInterceptor<GenericMvcConfiguration, PerformInterceptionContext>(this);
+			InterceptPerform = new ChainInterceptor<GenericMvcConfiguration, PerformInterceptionContext>(this);
 
 			ExtractIndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
 			ExtractMenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
@@ -78,6 +78,8 @@ namespace Routine.Mvc.Configuration
 
 		public GenericMvcConfiguration Merge(GenericMvcConfiguration other)
 		{
+			InterceptPerform.Merge(other.InterceptPerform);
+
 			ExtractIndexId.Merge(other.ExtractIndexId);
 			ExtractMenuIds.Merge(other.ExtractMenuIds);
 

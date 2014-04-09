@@ -74,6 +74,11 @@ namespace Routine.Test.Module.Todo
 			repository.Update(this);
 		}
 
+		public void Release()
+		{
+			AssigneeUid = default(Guid);
+		}
+
 		public bool CanBringForward(){return DueDate > DateTime.Now;}
 		public void BringForward(int days)
 		{

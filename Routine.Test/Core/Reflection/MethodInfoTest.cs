@@ -21,7 +21,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void SystemMethodInfoIsWrappedByRoutineMethodInfo()
+		public void System_MethodInfo_is_wrapped_by_Routine_MethodInfo()
 		{
 			Assert.AreSame(methodInfo.Name, testing.Name);
 			Assert.AreSame(methodInfo.DeclaringType, testing.DeclaringType.GetActualType());
@@ -30,7 +30,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void SystemMethodInfoGetParametersIsWrappedByRoutineMethodInfo()
+		public void System_MethodInfo_GetParameters_is_wrapped_by_Routine_MethodInfo()
 		{
 			methodInfo = typeof(TestClass_Members).GetMethod("FiveParameterMethod");
 			testing = type.of<TestClass_Members>().GetMethod("FiveParameterMethod");
@@ -50,17 +50,18 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutineMethodInfoCachesWrappedProperties()
+		public void Routine_MethodInfo_caches_wrapped_properties()
 		{
 			Assert.AreSame(testing.Name, testing.Name);
 			Assert.AreSame(testing.DeclaringType, testing.DeclaringType);
 			Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
 			Assert.AreSame(testing.ReturnType, testing.ReturnType);
 			Assert.AreSame(testing.GetParameters(), testing.GetParameters());
+			Assert.AreSame(Attribute_Method("Class").GetCustomAttributes(), Attribute_Method("Class").GetCustomAttributes());
 		}
 
 		[Test]
-		public void RoutineMethodInfoCanInvokeStaticMethods()
+		public void Routine_MethodInfo_can_invoke_static_methods()
 		{
 			testing = OOP_StaticMethod("PublicStaticPingMethod");
 
@@ -68,13 +69,57 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutineMethodInfoCanInvokeInstanceMethods()
+		public void Routine_MethodInfo_can_invoke_instance_methods()
 		{
 			testing = OOP_Method("PublicPingMethod");
 
 			var obj = new TestClass_OOP();
 
 			Assert.AreEqual("instance test", testing.Invoke(obj, "test"));
+		}
+
+		[Test]
+		public void Routine_MethodInfo_lists_custom_attributes_with_inherit_behaviour()
+		{
+			testing = Attribute_Method("Class");
+
+			var actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+
+			testing = Attribute_Method("Base");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
+
+			testing = Attribute_Method("Overridden");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(2, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+			Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
+
+			testing = Attribute_InterfaceMethod("Interface");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
+		}
+
+		[Test]
+		public void Routine_MethodInfo_lists_return_type_custom_attributes_with_inherit_behaviour()
+		{
+			testing = Attribute_Method("Class");
+
+			var actual = testing.GetReturnTypeCustomAttributes();
+			
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
 		}
 
 		[Test]
@@ -141,6 +186,20 @@ namespace Routine.Test.Core.Reflection
 			//with name parameter
 			Assert.IsFalse(Members_Method("String").Returns(type.of<string>(), "Wrong"));
 			Assert.IsFalse(Members_Method("StringList").ReturnsCollection(type.of<string>(), "Wrong"));
+		}
+
+		[Test]
+		public void Extension_Has()
+		{
+			Assert.IsTrue(Attribute_Method("Class").Has<TestClassAttribute>());
+			Assert.IsTrue(Attribute_Method("Class").Has(type.of<TestClassAttribute>()));
+		}
+
+		[Test]
+		public void Extension_ReturnTypeHas()
+		{
+			Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas<TestClassAttribute>());
+			Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas(type.of<TestClassAttribute>()));
 		}
 	}
 }

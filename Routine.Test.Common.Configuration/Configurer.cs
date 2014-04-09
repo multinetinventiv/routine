@@ -47,7 +47,7 @@ namespace Routine.Test.Common.Configuration
 			public void MvcApplication()
 			{
 				container.Register(
-					Component.For<ApplicationViewModel>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle()).Application).LifestyleSingleton(),
+					Component.For<IMvcContext>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle())).LifestyleSingleton(),
 					Component.For<MvcController>().ImplementedBy<MvcController>().LifestylePerWebRequest()
 				);
 				
@@ -57,9 +57,8 @@ namespace Routine.Test.Common.Configuration
 
 			public void SoaApplication()
 			{
-				var config = SoaConfiguration();
 				container.Register(
-					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(config, CodingStyle())).LifestyleSingleton(),
+					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(SoaConfiguration(), CodingStyle())).LifestyleSingleton(),
 					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
 				);
 				
@@ -76,6 +75,7 @@ namespace Routine.Test.Common.Configuration
 						.Use(p => p.EnumPattern())
 						.Use(p => p.CommonDomainTypeRootNamespacePattern("Routine.Test.Module"))
 						.Use(p => p.SingletonPattern(container, "Instance"))
+						.Use(p => p.AutoMarkWithAttributesPattern())
 
 						.SelectModelMarks.Done(s => s.Always("Transactional").When(t => !t.Name.EndsWith("Search")))
 
@@ -124,6 +124,8 @@ namespace Routine.Test.Common.Configuration
 									.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
 									.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
 									.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
+							.Add(i => i.Before(() => { throw new Exception("Cannot call hidden service"); })
+									   .When(ctx => ctx.TargetOperation.MarkedAs("Hidden")))
 							.Done(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
 									.Success(t => t.Commit())
 									.Fail(t => t.Rollback())
@@ -137,24 +139,26 @@ namespace Routine.Test.Common.Configuration
 				return BuildRoutine.MvcConfig()
 						.FromBasic("Instance")
 
-						.InterceptPerform.Add(i => i.Do()
-													 .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
-													 .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-													 .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-													 .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
-										 .Done(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
-													 .Success(t => t.Commit())
-													 .Fail(t => t.Rollback())
-										 			 .When(ctx => ctx.Target.MarkedAs("Transactional")))
+						.InterceptPerform
+							.Add(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose()))
+							.Add(i => i.Do()
+											.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+											.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+											.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+											.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
+							.Done(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
+										.Success(t => t.Commit())
+										.Fail(t => t.Rollback())
+										.When(ctx => ctx.Target.MarkedAs("Transactional")))
 
 						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
 						.ExtractMenuIds
 							.Add(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Search")))
 							.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Id.EndsWith("Module")))
 
-						.ExtractViewName.Add(e => e.Always("Search")
-												   .When(vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).ViewModelId.EndsWith("Search")))
-										.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
+						.ExtractViewName
+							.Add(e => e.Always("Search").When(vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).ViewModelId.EndsWith("Search")))
+							.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
 
 						.SelectOperationGroupFunctions.Done(s => s.Always(o => !o.HasParameter))
 

@@ -234,6 +234,7 @@ namespace Routine
 		public abstract PropertyInfo[] GetAllStaticProperties();
 		public abstract MethodInfo[] GetAllMethods();
 		public abstract MethodInfo[] GetAllStaticMethods();
+		public abstract object[] GetCustomAttributes();
 		protected abstract TypeInfo[] GetGenericArguments();
 		protected abstract TypeInfo GetElementType();
 		protected abstract TypeInfo[] GetInterfaces();
@@ -341,6 +342,12 @@ namespace Routine
 
 		public virtual bool CanParse() { return GetParseMethod() != null; }
 		public virtual object Parse(string value) { return GetParseMethod().InvokeStatic(value); }
+
+		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(TypeInfo.Get<TAttribute>()); }
+		public bool Has(TypeInfo attributeType)
+		{
+			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
+		}
 
 		public override string ToString()
 		{

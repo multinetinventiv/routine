@@ -11,6 +11,8 @@ namespace Routine.Core.Reflection
 		protected override MethodInfo Load(){return this;}
 
 		public override ParameterInfo[] GetParameters(){return methodInfo.GetParameters().Select(p => ParameterInfo.Reflected(p)).ToArray();}
+		public override object[] GetCustomAttributes(){return methodInfo.GetCustomAttributes(true);}
+		public override object[] GetReturnTypeCustomAttributes() { return methodInfo.ReturnTypeCustomAttributes.GetCustomAttributes(true); }
 
 		public override TypeInfo GetFirstDeclaringType()
 		{

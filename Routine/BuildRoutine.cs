@@ -252,8 +252,8 @@ namespace Routine
 		#endregion
 
 		#region Interceptor
-		public static MultipleInterceptor<TConfiguration, TContext> Add<TConfiguration, TContext>(
-			this MultipleInterceptor<TConfiguration, TContext> source,
+		public static ChainInterceptor<TConfiguration, TContext> Add<TConfiguration, TContext>(
+			this ChainInterceptor<TConfiguration, TContext> source,
 			Func<InterceptorBuilder<TContext>, IInterceptor<TContext>> interceptorDelegate)
 			where TContext : InterceptionContext
 		{
@@ -261,7 +261,7 @@ namespace Routine
 		}
 
 		public static TConfiguration Done<TConfiguration, TContext>(
-			this MultipleInterceptor<TConfiguration, TContext> source,
+			this ChainInterceptor<TConfiguration, TContext> source,
 			Func<InterceptorBuilder<TContext>, IInterceptor<TContext>> interceptorDelegate)
 			where TContext : InterceptionContext
 		{
@@ -286,6 +286,18 @@ namespace Routine
 		{
 			return source.Merge(pattern(BuildRoutine.SoaClientPattern()));
 		}
+		#endregion
+
+		#region InterceptorBuilder
+
+		public static AdapterInterceptor<TContext, TAdaptedContext> Adapt<TContext, TAdaptedContext>(
+			this InterceptorBuilder<TContext> source, IInterceptor<TAdaptedContext> childInterceptor)
+			where TContext : TAdaptedContext
+			where TAdaptedContext : InterceptionContext
+		{
+			return new AdapterInterceptor<TContext, TAdaptedContext>(childInterceptor);
+		}
+
 		#endregion
 	}
 
@@ -506,5 +518,4 @@ namespace Routine
 		}
 		#endregion
 	}
-
 }

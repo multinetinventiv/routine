@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Routine.Core.Reflection
 {
@@ -39,6 +40,8 @@ namespace Routine.Core.Reflection
 		public abstract object GetStaticValue(params object[] index);
 		public abstract void SetValue(object target, object value, params object[] index);
 		public abstract void SetStaticValue(object value, params object[] index);
+
+		public abstract object[] GetCustomAttributes();
 
 		public bool IsPubliclyReadable
 		{
@@ -104,6 +107,12 @@ namespace Routine.Core.Reflection
 		public bool ReturnsCollection(TypeInfo itemType, string name)
 		{
 			return ReturnsCollection(itemType) && Name == name;
+		}
+
+		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }
+		public bool Has(TypeInfo attributeType)
+		{
+			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 		}
 	}
 }

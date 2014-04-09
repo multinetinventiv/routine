@@ -90,11 +90,13 @@ namespace Routine.Core
 
 			var type = (anObject == null) ? null : anObject.GetTypeInfo();
 			var actualModelId = source.CodingStyle.ModelIdSerializer.Serialize(type);
+			viewModelId = viewModelId ?? actualModelId;
+
 			var resultDomainType = source.GetDomainType(viewModelId);
 
 			result.IsNull = anObject == null;
 			result.ActualModelId = actualModelId;
-			result.ViewModelId = viewModelId??actualModelId;
+			result.ViewModelId = viewModelId;
 			result.Id = source.CodingStyle.IdExtractor.Extract(anObject);
 
 			return result;

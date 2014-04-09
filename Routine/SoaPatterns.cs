@@ -26,17 +26,18 @@ namespace Routine
 		{
 			return source.CommonInterceptorPattern(interceptorBuilder(BuildRoutine.Interceptor<InterceptionContext>()));
 		}
-		public static GenericSoaConfiguration CommonInterceptorPattern( this PatternBuilder<GenericSoaConfiguration> source,  IInterceptor<InterceptionContext> interceptor)
+
+		public static GenericSoaConfiguration CommonInterceptorPattern(this PatternBuilder<GenericSoaConfiguration> source,  IInterceptor<InterceptionContext> interceptor)
 		{
 			return source.FromEmpty()
-				.InterceptGetApplicationModel.Done(i => i.Wrap(interceptor))
-				.InterceptGetObjectModel.Done(i => i.Wrap(interceptor))
-				.InterceptGetAvailableObjects.Done(i => i.Wrap(interceptor))
-				.InterceptGet.Done(i => i.Wrap(interceptor))
-				.InterceptGetValue.Done(i => i.Wrap(interceptor))
-				.InterceptGetMember.Done(i => i.Wrap(interceptor))
-				.InterceptGetOperation.Done(i => i.Wrap(interceptor))
-				.InterceptPerformOperation.Done(i => i.Wrap(interceptor))
+				.InterceptGetApplicationModel.Done(i => i.Adapt(interceptor))
+				.InterceptGetObjectModel.Done(i => i.Adapt(interceptor))
+				.InterceptGetAvailableObjects.Done(i => i.Adapt(interceptor))
+				.InterceptGet.Done(i => i.Adapt(interceptor))
+				.InterceptGetValue.Done(i => i.Adapt(interceptor))
+				.InterceptGetMember.Done(i => i.Adapt(interceptor))
+				.InterceptGetOperation.Done(i => i.Adapt(interceptor))
+				.InterceptPerformOperation.Done(i => i.Adapt(interceptor))
 			;
 		}
 	}

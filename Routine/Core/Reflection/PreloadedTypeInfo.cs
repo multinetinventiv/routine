@@ -13,6 +13,7 @@ namespace Routine.Core.Reflection
 		private TypeInfo[] genericArguments;
 		private TypeInfo[] interfaces;
 		private TypeInfo[] canBeList;
+		private object[] customAttributes;
 
 		public override string Name { get{return name;} }
 		public override string FullName { get{return fullName;} }
@@ -32,6 +33,8 @@ namespace Routine.Core.Reflection
 			genericArguments = type.GetGenericArguments().Select(t => Get(t)).ToArray();
 			interfaces = type.GetInterfaces().Select(t => Get(t)).ToArray();
 			canBeList = LoadCanBeList();
+
+			customAttributes = type.GetCustomAttributes(true);
 		}
 
 		private TypeInfo[] LoadCanBeList()
@@ -72,6 +75,7 @@ namespace Routine.Core.Reflection
 		public override PropertyInfo[] GetAllStaticProperties() { return new PropertyInfo[0]; }
 		public override MethodInfo[] GetAllMethods() { return new MethodInfo[0]; }
 		public override MethodInfo[] GetAllStaticMethods() { return new MethodInfo[0]; }
+		public override object[] GetCustomAttributes() { return customAttributes; }
 
 		protected override MethodInfo GetParseMethod() { return null; }
 

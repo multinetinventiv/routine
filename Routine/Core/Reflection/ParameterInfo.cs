@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+
 namespace Routine.Core.Reflection
 {
 	public abstract class ParameterInfo
@@ -24,7 +27,13 @@ namespace Routine.Core.Reflection
 		public abstract string Name{ get; }
 		public abstract TypeInfo ParameterType{ get; }
 		public abstract int Position{get;}
+		public abstract object[] GetCustomAttributes();
 
+		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }
+		public bool Has(TypeInfo attributeType)
+		{
+			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
+		}
 	}
 }
 

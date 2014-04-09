@@ -1,23 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Routine.Core.Interceptor
 {
-	public class DecoratorInterceptor<TContext, TVariableType> : BaseSingleInterceptor<DecoratorInterceptor<TContext, TVariableType>, TContext>
-		where TContext : InterceptionContext
+	internal class DecoratorInterceptorVariableNameFactory
 	{
 		private static object variableNameLock = new object();
 		private static int instanceCount = 0;
-		private static string NextVariableName()
+		internal static string NextVariableName()
 		{
 			lock (variableNameLock)
 			{
 				return "__decoratorVariable_" + (instanceCount++);
 			}
 		}
+	}
 
+	public class DecoratorInterceptor<TContext, TVariableType> : BaseAroundInterceptor<DecoratorInterceptor<TContext, TVariableType>, TContext>
+		where TContext : InterceptionContext
+	{
 		private readonly string variableName;
 		private readonly Func<TContext, TVariableType> beforeDelegate;
 		private Action<TContext, TVariableType> successDelegate;
@@ -26,7 +26,7 @@ namespace Routine.Core.Interceptor
 
 		public DecoratorInterceptor(Func<TContext, TVariableType> beforeDelegate)
 		{
-			this.variableName = NextVariableName();
+			this.variableName = DecoratorInterceptorVariableNameFactory.NextVariableName();
 			this.beforeDelegate = beforeDelegate;
 
 			Success(obj => { });

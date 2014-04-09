@@ -5,6 +5,7 @@ namespace Routine.Core
 	public interface IObjectItem
 	{
 		string Name { get; }
+		object[] GetCustomAttributes();
 	}
 
 	public interface IReturnItem : IObjectItem

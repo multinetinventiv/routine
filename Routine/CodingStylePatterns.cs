@@ -75,6 +75,17 @@ namespace Routine
 						.DeserializeBy(str => str.Replace(separator, ".").Prepend(prefix).ToType())
 						.DeserializeWhen(str => str.Contains(separator)));
 		}
+
+		public static GenericCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<GenericCodingStyle> source)
+		{
+			return source
+				.FromEmpty()
+				.SelectModelMarks.Done(s => s.By(t => t.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.SelectOperationMarks.Done(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.SelectMemberMarks.Done(s => s.By(m => m.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.SelectParameterMarks.Done(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				;
+		}
 	}
 }
 

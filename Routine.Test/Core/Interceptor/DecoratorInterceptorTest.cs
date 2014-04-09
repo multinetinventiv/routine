@@ -12,13 +12,11 @@ namespace Routine.Test.Core.Interceptor
 	[TestFixture]
 	public class DecoratorInterceptorTest : InterceptorTestBase
 	{
-		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.Interceptor.Domain" }; } }
-
 		private IInterceptor<TestContext<string>> testing;
 		private IInterceptor<TestContext<string>> testingOther;
 
 		[Test]
-		public void DecoratesAnInvocationWithAVariableOfGivenTypeWhichIsCreatedOnBefore()
+		public void Decorates_an_invocation_with_a_variable_of_given_type_that_is_created_OnBefore()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "test string")
@@ -28,14 +26,15 @@ namespace Routine.Test.Core.Interceptor
 
 			var context = String();
 
-			testing.OnBefore(context);
-			testing.OnSuccess(context);
-			testing.OnFail(context);
-			testing.OnAfter(context);
+			testing.Intercept(context, invocation);
+
+			InvocationFailsWith(new Exception());
+
+			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
 		}
 
 		[Test]
-		public void VariablesDoesNotConflictWhenMultipleInstancesInterceptSameContext()
+		public void When_multiple_instances_intercept_using_same_context__variables_does_not_conflict()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "interceptor1")
@@ -44,39 +43,34 @@ namespace Routine.Test.Core.Interceptor
 				.After(actual => Assert.AreEqual("interceptor1", actual));
 
 			testingOther = BuildRoutine.Interceptor<TestContext<string>>()
-				.ByDecorating(() => "interceptor2")
-				.Success(actual => Assert.AreEqual("interceptor2", actual))
-				.Fail(actual => Assert.AreEqual("interceptor2", actual))
-				.After(actual => Assert.AreEqual("interceptor2", actual));
+				.ByDecorating(() => 2)
+				.Success(actual => Assert.AreEqual(2, actual))
+				.Fail(actual => Assert.AreEqual(2, actual))
+				.After(actual => Assert.AreEqual(2, actual));
 
 			var context = String();
 
-			testing.OnBefore(context);
-			testingOther.OnBefore(context);
-
-			testingOther.OnSuccess(context);
-			testing.OnSuccess(context);
-
-			testingOther.OnFail(context);
-			testing.OnFail(context);
+			testing.Intercept(context, invocation);
+			testingOther.Intercept(context, invocation);
 		}
 
 		[Test]
-		public void ByDefaultNothingHappensOnSuccessAndOnFail()
+		public void By_default_nothing_happens_OnSuccess__OnFail_and_OnAfter()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => "dummy");
 
 			var context = String();
 
-			testing.OnBefore(context);
-			testing.OnSuccess(context);
-			testing.OnFail(context);
-			testing.OnAfter(context);
+			testing.Intercept(context, invocation);
+
+			InvocationFailsWith(new Exception());
+
+			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
 		}
 
 		[Test]
-		public void ContextCanBeUsedDuringInterception()
+		public void Context_can_be_used_during_interception()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(ctx => ctx["value"] as string)
@@ -87,34 +81,26 @@ namespace Routine.Test.Core.Interceptor
 			var context = String();
 			context["value"] = "dummy";
 
-			testing.OnBefore(context);
-			testing.OnSuccess(context);
-			testing.OnFail(context);
-			testing.OnAfter(context);
-		}
+			testing.Intercept(context, invocation);
 
-		private T Throws<T>(Exception ex)
-		{
-			throw ex;
+			InvocationFailsWith(new Exception());
+
+			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
 		}
 
 		[Test]
-		public void FailAndAfterAreNotCalledWhenVariableCouldNotBeRetrievedDuringBeforeDelegate()
+		public void When_variable_could_not_be_retrieved_during_before_delegate__fail_and_after_are_skipped()
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
-				.ByDecorating(() => Throws<string>(new Exception()))
+				.ByDecorating(() => Throw<string>(new Exception()))
 				.Success(actual => Assert.Fail("should not be called"))
-				.Fail(actual => Assert.Fail("should not be called"))
-				.After(actual => Assert.Fail("should not be called"));
+				.Fail(actual => Assert.Fail("should be skipped"))
+				.After(actual => Assert.Fail("should be skipped"));
 
 			var context = String();
 			context["value"] = "dummy";
-
-			try { testing.OnBefore(context); } catch (Exception){}
-
-			testing.OnSuccess(context);
-			testing.OnFail(context);
-			testing.OnAfter(context);
+			
+			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
 		}
 	}
 }

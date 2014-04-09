@@ -14,14 +14,14 @@ namespace Routine.Soa.Configuration
 
 		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExtractExceptionResult { get; private set; }
 
-		public MultipleInterceptor<GenericSoaConfiguration, InterceptionContext> InterceptGetApplicationModel { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetObjectModel { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetAvailableObjects { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGetValue { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGet { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, MemberInterceptionContext> InterceptGetMember { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, OperationInterceptionContext> InterceptGetOperation { get; private set; }
-		public MultipleInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext> InterceptPerformOperation { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, InterceptionContext> InterceptGetApplicationModel { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetObjectModel { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetAvailableObjects { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGetValue { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGet { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, MemberInterceptionContext> InterceptGetMember { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, OperationInterceptionContext> InterceptGetOperation { get; private set; }
+		public ChainInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext> InterceptPerformOperation { get; private set; }
 
 		public GenericSoaConfiguration() : this(true) { }
 
@@ -29,14 +29,14 @@ namespace Routine.Soa.Configuration
 		{
 			ExtractExceptionResult = new MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult>(this, "ExceptionResult");
 
-			InterceptGetApplicationModel = new MultipleInterceptor<GenericSoaConfiguration, InterceptionContext>(this);
-			InterceptGetObjectModel = new MultipleInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
-			InterceptGetAvailableObjects = new MultipleInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
-			InterceptGetValue = new MultipleInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
-			InterceptGet = new MultipleInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
-			InterceptGetMember = new MultipleInterceptor<GenericSoaConfiguration, MemberInterceptionContext>(this);
-			InterceptGetOperation = new MultipleInterceptor<GenericSoaConfiguration, OperationInterceptionContext>(this);
-			InterceptPerformOperation = new MultipleInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext>(this);
+			InterceptGetApplicationModel = new ChainInterceptor<GenericSoaConfiguration, InterceptionContext>(this);
+			InterceptGetObjectModel = new ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
+			InterceptGetAvailableObjects = new ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
+			InterceptGetValue = new ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
+			InterceptGet = new ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
+			InterceptGetMember = new ChainInterceptor<GenericSoaConfiguration, MemberInterceptionContext>(this);
+			InterceptGetOperation = new ChainInterceptor<GenericSoaConfiguration, OperationInterceptionContext>(this);
+			InterceptPerformOperation = new ChainInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext>(this);
 
 			if (rootConfig)
 			{

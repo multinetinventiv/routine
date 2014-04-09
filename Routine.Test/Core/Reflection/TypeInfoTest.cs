@@ -23,7 +23,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void TypeIsWrappedByTypeInfo()
+		public void Type_is_wrapped_by_TypeInfo()
 		{
 			Assert.AreEqual(systemType.Name, testing.Name);
 			Assert.AreEqual(systemType.FullName, testing.FullName);
@@ -36,13 +36,13 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreEqual(systemType.IsArray, testing.IsArray);
 			Assert.AreEqual(systemType.IsEnum, testing.IsEnum);
 			Assert.AreEqual(systemType.IsPublic, testing.IsPublic);
-
+			
 			Assert.AreEqual(systemType.GetMethod("ToString").Name, TypeInfo.Get(typeof(TestClass_OOP)).GetMethod("ToString").Name);
 			Assert.AreEqual(systemType.GetProperty("PublicProperty").Name, TypeInfo.Get(typeof(TestClass_OOP)).GetProperty("PublicProperty").Name);
 		}
 
 		[Test]
-		public void RoutineTypeInfoWrapsSystemTypeToStringEqualsAndGetHashCodeMethods()
+		public void TypeInfo_has_the_same_behaviour_on_ToString__Equals_and_GetHashCode_methods()
 		{
 			Assert.AreEqual(typeof(string).ToString(), TypeInfo.Get(typeof(string)).ToString());
 			Assert.IsTrue(TypeInfo.Get(typeof(string)).Equals(typeof(string)));
@@ -50,7 +50,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void TypeGetPropertiesIsWrappedByTypeInfo()
+		public void Type_GetProperties_is_wrapped_by_TypeInfo()
 		{
 			var actual = type.of<TestClass_OOP>().GetAllProperties().ToList();
 
@@ -72,7 +72,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void TypeGetMethodsIsWrappedByTypeInfo()
+		public void Type_GetMethods_is_wrapped_by_TypeInfo()
 		{
 			var actual = type.of<TestClass_OOP>().GetAllMethods().ToList();
 
@@ -95,7 +95,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void TypeInfoCachesWrappedProperties()
+		public void TypeInfo_caches_wrapped_properties()
 		{
 			Assert.AreSame(testing.Name, testing.Name);
 			Assert.AreSame(testing.FullName, testing.FullName);
@@ -105,16 +105,17 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreSame(testing.GetAllMethods(), testing.GetAllMethods());
 			Assert.AreSame(testing.GetAllStaticProperties(), testing.GetAllStaticProperties());
 			Assert.AreSame(testing.GetAllStaticMethods(), testing.GetAllStaticMethods());
+			Assert.AreSame(TypeInfo.Get(typeof(TestClass_Attribute)).GetCustomAttributes(), TypeInfo.Get(typeof(TestClass_Attribute)).GetCustomAttributes());
 		}
 
 		[Test]
-		public void TypeInfoHasOneInstanceForEachType()
+		public void TypeInfo_has_one_instance_for_each_Type()
 		{
 			Assert.AreSame(testing, TypeInfo.Get(typeof(TestClass_OOP)));
 		}
 
 		[Test]
-		public void TypeInfoCreatesInstanceUsingDefaultConstructor()
+		public void TypeInfo_creates_instance_using_default_constructor()
 		{
 			int actual = (int)TypeInfo.Get(typeof(int)).CreateInstance();
 
@@ -126,7 +127,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void TypeInfoThrowsExceptionWhenObjectDoesNotHaveDefaultConstructor()
+		public void When_creating_instance_TypeInfo_throws_MissingMethodException_when_object_does_not_have_default_constructor()
 		{
 			try
 			{
@@ -134,6 +135,26 @@ namespace Routine.Test.Core.Reflection
 				Assert.Fail("exception not thrown");
 			}
 			catch(MissingMethodException){}
+		}
+
+		[Test]
+		public void TypeInfo_lists_custom_attributes_with_inherit_behaviour()
+		{
+			var systemType = typeof(TestClass_Attribute);
+			var testing = TypeInfo.Get(systemType);
+
+			var actual = testing.GetCustomAttributes();
+			Assert.AreEqual(2, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+			Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
+
+			systemType = typeof(TestInterface_Attribute);
+			testing = TypeInfo.Get(systemType);
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
 		}
 
 		[Test]
@@ -265,8 +286,6 @@ namespace Routine.Test.Core.Reflection
 			Assert.IsFalse(type.of<IList>().CanBeCollection());
 			Assert.IsFalse(type.of<IList>().CanBeCollection(type.of<string>()));
 
-
-
 			//generics
 			Assert.IsTrue(type.of<string[]>().CanBeCollection<string>());
 		}
@@ -303,6 +322,13 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreEqual(1.0f, type.of<float>().Parse("1.0"));
             Assert.AreEqual(new DateTime(2013, 7, 15, 11, 2, 10), type.of<DateTime>().Parse(new DateTime(2013, 7, 15, 11, 2, 10).ToString()));
 			Assert.AreEqual(TestClass_Parseable.ParsedResult, type.of<TestClass_Parseable>().Parse("dummy"));
+		}
+
+		[Test]
+		public void Extension_Has()
+		{
+			Assert.IsTrue(type.of<TestClass_Attribute>().Has<TestClassAttribute>());
+			Assert.IsTrue(type.of<TestClass_Attribute>().Has(type.of<TestClassAttribute>()));
 		}
 	}
 }

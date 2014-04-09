@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace Routine.Core.Reflection
@@ -63,5 +64,7 @@ namespace Routine.Core.Reflection
 		public override TypeInfo DeclaringType{get{return TypeInfo.Get(propertyInfo.DeclaringType);}}
 		public override TypeInfo ReflectedType{get{return TypeInfo.Get(propertyInfo.ReflectedType);}}
 		public override TypeInfo PropertyType{get{return TypeInfo.Get(propertyInfo.PropertyType);}}
+
+		public override object[] GetCustomAttributes(){return Attribute.GetCustomAttributes(propertyInfo, true);}
 	}
 }

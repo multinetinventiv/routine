@@ -164,9 +164,10 @@ namespace Routine.Mvc
 				parameters.Add(rparam.CreateVariable(robjs.ToArray()));
 			}
 
-			var result = MvcConfig.PerformInterceptor
-				.Intercept(CreatePerformInterceptionContext(robj, operationModelId, parameters))
-				.Do(() => robj.Perform(operationModelId, parameters)) as Rvariable;
+			var result = MvcConfig.PerformInterceptor.Intercept(
+					CreatePerformInterceptionContext(robj, operationModelId, parameters), 
+					() => robj.Perform(operationModelId, parameters)
+				) as Rvariable;
 
 			return CreateVariable().With(result);
 		}

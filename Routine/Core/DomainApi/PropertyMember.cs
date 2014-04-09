@@ -21,5 +21,10 @@ namespace Routine.Core.Member
 		{
 			return property.GetValue(target); 
 		}
+
+		public object[] GetCustomAttributes()
+		{
+			return property.GetCustomAttributes();
+		}
 	}
 }

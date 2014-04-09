@@ -16,6 +16,8 @@ namespace Routine.Core.Reflection
 		private ParameterInfo[] indexParameters;
 		private TypeInfo firstDeclaringType;
 
+		private object[] customAttributes;
+
 		internal PreloadedPropertyInfo(System.Reflection.PropertyInfo propertyInfo) 
 			: base(propertyInfo) {}
 
@@ -46,6 +48,8 @@ namespace Routine.Core.Reflection
 			{
 				firstDeclaringType = DeclaringType;
 			}
+
+			customAttributes = Attribute.GetCustomAttributes(propertyInfo, true);
 
 			return this;
 		}
@@ -92,5 +96,7 @@ namespace Routine.Core.Reflection
 			}
 			setMethod.Invoke(null, value, index);
 		}
+
+		public override object[] GetCustomAttributes(){return customAttributes;}
 	}
 }

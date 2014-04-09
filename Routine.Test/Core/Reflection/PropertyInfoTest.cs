@@ -22,7 +22,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void SystemPropertyInfoIsWrappedByRoutinePropertyInfo()
+		public void System_PropertyInfo_is_wrapped_by_Routine_PropertyInfo()
 		{
 			Assert.AreEqual(propertyInfo.Name, testing.Name);
 			Assert.AreEqual(propertyInfo.GetGetMethod().Name, testing.GetGetMethod().Name);
@@ -33,7 +33,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void SystemPropertyInfoGetIndexParametersIsWrappedByRoutinePropertyInfo()
+		public void System_PropertyInfo_GetIndexParameters_is_wrapped_by_Routine_PropertyInfo()
 		{
 			propertyInfo = typeof(TestClass_OOP).GetProperty("Item");
 			testing = type.of<TestClass_OOP>().GetProperty("Item");
@@ -53,7 +53,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutinePropertyInfoCachesWrappedProperties()
+		public void Routine_PropertyInfo_caches_wrapped_properties()
 		{
 			Assert.AreSame(testing.Name, testing.Name);
 			Assert.AreSame(testing.GetGetMethod(), testing.GetGetMethod());
@@ -62,10 +62,11 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
 			Assert.AreSame(testing.PropertyType, testing.PropertyType);
 			Assert.AreSame(testing.GetIndexParameters(), testing.GetIndexParameters());
+			Assert.AreSame(Attribute_Property("Class").GetCustomAttributes(), Attribute_Property("Class").GetCustomAttributes());
 		}
 
 		[Test]
-		public void RoutinePropertyInfoCanGetValue()
+		public void Routine_PropertyInfo_can_get_value()
 		{
 			var obj = new TestClass_OOP {
 				PublicProperty = "expected_get"
@@ -75,7 +76,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutinePropertyInfoCanGetStaticValue()
+		public void Routine_PropertyInfo_can_get_static_value()
 		{
 			testing = OOP_StaticProperty("PublicStaticProperty");
 
@@ -85,7 +86,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutinePropertyInfoCanSetValue()
+		public void Routine_PropertyInfo_can_set_value()
 		{
 			var obj = new TestClass_OOP();
 
@@ -95,13 +96,46 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutinePropertyInfoCanSetStaticValue()
+		public void Routine_PropertyInfo_can_set_static_value()
 		{
 			testing = OOP_StaticProperty("PublicStaticProperty");
 
 			testing.SetStaticValue("expected_set");
 
 			Assert.AreEqual("expected_set", TestClass_OOP.PublicStaticProperty);
+		}
+
+		[Test]
+		public void Routine_PropertyInfo_lists_custom_attributes_with_inherit_behaviour()
+		{
+			testing = Attribute_Property("Class");
+
+			var actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+
+			testing = Attribute_Property("Base");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
+
+			testing = Attribute_Property("Overridden");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(2, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+			Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
+
+			testing = Attribute_InterfaceProperty("Interface");
+
+			actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
 		}
 
 		[Test]
@@ -170,6 +204,13 @@ namespace Routine.Test.Core.Reflection
 			//with name parameter
 			Assert.IsFalse(Members_Property("String").Returns(type.of<string>(), "Wrong.*"));
 			Assert.IsFalse(Members_Property("StringList").ReturnsCollection(type.of<string>(), "Wrong.*"));		
+		}
+
+		[Test]
+		public void Extension_Has()
+		{
+			Assert.IsTrue(Attribute_Property("Class").Has<TestClassAttribute>());
+			Assert.IsTrue(Attribute_Property("Class").Has(type.of<TestClassAttribute>()));
 		}
 	}
 }

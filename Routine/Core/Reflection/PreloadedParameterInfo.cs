@@ -5,6 +5,7 @@ namespace Routine.Core.Reflection
 		private string name;
 		private TypeInfo parameterType;
 		private int position;
+		private object[] customAttributes;
 
 		internal PreloadedParameterInfo(System.Reflection.ParameterInfo parameterInfo)
 			: base(parameterInfo) {}
@@ -14,6 +15,7 @@ namespace Routine.Core.Reflection
 			name = parameterInfo.Name;
 			parameterType = TypeInfo.Get(parameterInfo.ParameterType);
 			position = parameterInfo.Position;
+			customAttributes = parameterInfo.GetCustomAttributes(true);
 
 			return this;
 		}
@@ -21,5 +23,6 @@ namespace Routine.Core.Reflection
 		public override string Name{ get{return name;} }
 		public override TypeInfo ParameterType{ get{return parameterType;} }
 		public override int Position{get{return position;}}
+		public override object[] GetCustomAttributes(){return customAttributes;}
 	}
 }

@@ -52,6 +52,15 @@ namespace Routine.Test.Module.Todo
 			repository.Update(this);
 		}
 
+		[Hidden]
+		public void ReleaseAllItems()
+		{
+			foreach (var item in ItemsToBeDone)
+			{
+				item.Release();
+			}
+		}
+
 		public void AddPhone(string name, string areaCode, string number)
 		{
 			ctx.New<PhoneContactInfo>().With(this, name, areaCode, number);

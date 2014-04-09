@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Routine.Core.Reflection
 {
@@ -36,6 +37,8 @@ namespace Routine.Core.Reflection
 
 		public abstract ParameterInfo[] GetParameters();
 		public abstract TypeInfo GetFirstDeclaringType();
+		public abstract object[] GetCustomAttributes();
+		public abstract object[] GetReturnTypeCustomAttributes();
 
 		public abstract object Invoke(object target, params object[] parameters);
 		public abstract object InvokeStatic(params object[] parameters);
@@ -142,6 +145,18 @@ namespace Routine.Core.Reflection
 		public bool ReturnsCollection(TypeInfo itemType, string name)
 		{
 			return ReturnsCollection(itemType) && Name == name;
+		}
+
+		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }
+		public bool Has(TypeInfo attributeType)
+		{
+			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
+		}
+
+		public bool ReturnTypeHas<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }
+		public bool ReturnTypeHas(TypeInfo attributeType)
+		{
+			return GetReturnTypeCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 		}
 	}
 }

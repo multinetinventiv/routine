@@ -1,22 +1,29 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Core;
+using Routine.Test.Core;
 
 namespace Routine.Test
 {
 	[TestFixture]
-	public class ReflectionExtensionsTest
+	public class ReflectionExtensionsTest : CoreTestBase
 	{
-		[SetUp]
-		public void SetUp()
-		{
-			TypeInfo.AddDomainTypeRootNamespace("Routine.Test");
-		}
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test" }; } }
 
 		#region Helpers
+
+		private IObjectItem ObjectItem(params object[] customAttributes)
+		{
+			var result = new Mock<IObjectItem>();
+
+			result.Setup(o => o.GetCustomAttributes()).Returns(customAttributes);
+
+			return result.Object;
+		}
 
 		private IParameter Parameter(TypeInfo parameter)
 		{
@@ -87,6 +94,16 @@ namespace Routine.Test
 			//with name parameter
 			Assert.IsFalse(Operation("Right", type.of<string>()).Returns(type.of<string>(), "Wrong"));
 			Assert.IsFalse(Operation("Right", type.of<List<string>>()).ReturnsCollection(type.of<string>(), "Wrong"));
+		}
+
+		[Test]
+		public void Test_IObjectItem_Has()
+		{
+			Assert.IsTrue(ObjectItem(new AttributeUsageAttribute(AttributeTargets.Method)).Has<AttributeUsageAttribute>());
+			Assert.IsTrue(ObjectItem(new AttributeUsageAttribute(AttributeTargets.Method)).Has(type.of<AttributeUsageAttribute>()));
+
+			Assert.IsFalse(ObjectItem().Has<AttributeUsageAttribute>());
+			Assert.IsFalse(ObjectItem().Has(type.of<AttributeUsageAttribute>()));
 		}
 	}
 }

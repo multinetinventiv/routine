@@ -13,6 +13,8 @@ namespace Routine.Core.Reflection
 		private TypeInfo returnType;
 		private ParameterInfo[] parameters;
 		private TypeInfo firstDeclaringType;
+		private object[] customAttributes;
+		private object[] returnTypeCustomAttributes;
 
 		internal PreloadedMethodInfo(System.Reflection.MethodInfo methodInfo)
 			: base(methodInfo) {}
@@ -26,7 +28,8 @@ namespace Routine.Core.Reflection
 			returnType = TypeInfo.Get(methodInfo.ReturnType);
 			parameters = methodInfo.GetParameters().Select(p => ParameterInfo.Preloaded(p)).ToArray();
 			firstDeclaringType = SearchFirstDeclaringType();
-
+			customAttributes = methodInfo.GetCustomAttributes(true);
+			returnTypeCustomAttributes = methodInfo.ReturnTypeCustomAttributes.GetCustomAttributes(true);
 
 			return this;
 		}
@@ -38,6 +41,8 @@ namespace Routine.Core.Reflection
 		public override TypeInfo ReturnType { get { return returnType; } }
 
 		public override ParameterInfo[] GetParameters() {return parameters;}
+		public override object[] GetCustomAttributes() { return customAttributes; }
+		public override object[] GetReturnTypeCustomAttributes() { return returnTypeCustomAttributes; }
 
 		private readonly object invokerLock = new object();
 		private IMethodInvoker _invoker;

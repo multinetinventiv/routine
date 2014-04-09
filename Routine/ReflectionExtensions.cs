@@ -60,7 +60,16 @@ namespace Routine
 		}
 		#endregion
 
-		#region IOperation		
+		#region IObjectItem
+		public static bool Has<TAttribute>(this IObjectItem source) where TAttribute : Attribute { return source.Has(type.of<TAttribute>()); }
+		public static bool Has(this IObjectItem source, TypeInfo attributeType)
+		{
+			return source.GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
+		}
+
+		#endregion
+
+		#region IOperation
 		public static bool HasNoParameters(this IOperation operation) { return operation.HasParameters(); }
 		public static bool HasParameters<T>(this IOperation operation) { return operation.HasParameters(type.of<T>()); }
 		public static bool HasParameters<T1, T2>(this IOperation operation) { return operation.HasParameters(type.of<T1>(), type.of<T2>()); }

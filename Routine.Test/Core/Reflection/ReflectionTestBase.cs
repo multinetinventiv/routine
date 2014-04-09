@@ -3,6 +3,7 @@ using RoutineTest.OuterNamespace;
 using System.Collections.Generic;
 using System.Collections;
 using Routine.Test.Core.Reflection.Domain;
+using System;
 
 #region Outer Namespace Model
 namespace RoutineTest.OuterNamespace
@@ -130,6 +131,63 @@ namespace Routine.Test.Core.Reflection.Domain
 		public void FiveParameterMethod(string p1, int p2, double p3, decimal p4, float p5){}
 	}
 	#endregion
+
+	#region Attribute Model
+	public class TestInterfaceAttribute: Attribute { }
+
+	[TestInterface]
+	public interface TestInterface_Attribute
+	{
+		[TestInterface]
+		string InterfaceProperty { get; set; }
+
+		[TestInterface]
+		void InterfaceMethod();
+	}
+
+	public class TestBaseAttribute: Attribute { }
+
+	[TestBase]
+	public abstract class TestBase_Attribute
+	{
+		[TestBase]
+		public string BaseProperty { get; set; }
+
+		[TestBase]
+		public virtual string OverriddenProperty { get; set; }
+
+		[TestBase]
+		public void BaseMethod() { }
+
+		[TestBase]
+		public virtual void OverriddenMethod() { }
+	}
+
+	public class TestClassAttribute : Attribute { }
+
+	[TestClass]
+	public class TestClass_Attribute : TestBase_Attribute, TestInterface_Attribute
+	{
+		[TestClass]
+		public string ClassProperty { get; set; }
+
+		[TestClass]
+		public override string OverriddenProperty { get; set; }
+
+		[TestClass]
+		public string InterfaceProperty { get; set; }
+
+		[TestClass]
+		[return: TestClass]
+		public string ClassMethod([TestClass] string parameter) { return null; }
+
+		[TestClass]
+		public override void OverriddenMethod() { base.OverriddenMethod(); }
+
+		[TestClass]
+		public void InterfaceMethod() { }
+	}
+	#endregion
 }
 
 namespace Routine.Test.Core.Reflection
@@ -172,6 +230,30 @@ namespace Routine.Test.Core.Reflection
 		{
 			return	type.of<TestClass_Members>().GetProperty(prefixOrFullName + "Property") ??
 				type.of<TestClass_Members>().GetProperty(prefixOrFullName);
+		}
+
+		protected MethodInfo Attribute_Method(string prefixOrFullName)
+		{
+			return type.of<TestClass_Attribute>().GetMethod(prefixOrFullName + "Method") ??
+				type.of<TestClass_Attribute>().GetMethod(prefixOrFullName);
+		}
+
+		protected PropertyInfo Attribute_Property(string prefixOrFullName)
+		{
+			return type.of<TestClass_Attribute>().GetProperty(prefixOrFullName + "Property") ??
+				type.of<TestClass_Attribute>().GetProperty(prefixOrFullName);
+		}
+
+		protected MethodInfo Attribute_InterfaceMethod(string prefixOrFullName)
+		{
+			return type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName + "Method") ??
+				type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName);
+		}
+
+		protected PropertyInfo Attribute_InterfaceProperty(string prefixOrFullName)
+		{
+			return type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName + "Property") ??
+				type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
 		}
 	}
 }

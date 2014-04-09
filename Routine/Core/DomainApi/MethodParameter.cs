@@ -17,5 +17,10 @@ namespace Routine.Core.Operation
 		public string Name { get{return parameter.Name;}}
 		public TypeInfo ParameterType {get{return parameter.ParameterType;}}
 		public int Index{get{return parameter.Position;}}
+
+		public object[] GetCustomAttributes()
+		{
+			return parameter.GetCustomAttributes();
+		}
 	}
 }

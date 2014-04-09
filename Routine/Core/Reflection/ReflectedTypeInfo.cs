@@ -28,6 +28,11 @@ namespace Routine.Core.Reflection
 			return type.GetMethods(ALL_STATIC).Where(m => !m.IsSpecialName).Select(m => MethodInfo.Reflected(m)).ToArray();
 		}
 
+		public override object[] GetCustomAttributes()
+		{
+			return type.GetCustomAttributes(true);
+		}
+
 		protected override TypeInfo[] GetGenericArguments()
 		{
 			return type.GetGenericArguments().Select(t => Get(t)).ToArray();

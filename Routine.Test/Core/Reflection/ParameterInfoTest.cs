@@ -7,7 +7,7 @@ namespace Routine.Test.Core.Reflection.Domain
 {
 	public class ReflectedParameter
 	{
-		public void AMethod(string theParameter){}
+		public void AMethod([TestClass] string theParameter){}
 	}
 }
 namespace Routine.Test.Core.Reflection
@@ -30,7 +30,7 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void SystemParameterInfoIsWrappedByRoutineParameterInfo()
+		public void System_ParameterInfo_is_wrapped_by_Routine_ParameterInfo()
 		{
 			Assert.AreEqual(parameterInfo.Name, testing.Name);
 			Assert.AreSame(parameterInfo.ParameterType, testing.ParameterType.GetActualType());
@@ -38,10 +38,27 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
-		public void RoutineParameterInfoCachesWrappedProperties()
+		public void Routine_ParameterInfo_caches_wrapped_properties()
 		{
 			Assert.AreSame(testing.Name, testing.Name);
 			Assert.AreSame(testing.ParameterType, testing.ParameterType);
+			Assert.AreSame(testing.GetCustomAttributes(), testing.GetCustomAttributes());
+		}
+
+		[Test]
+		public void Routine_ParameterInfo_lists_custom_attributes_with_inherit_behaviour()
+		{
+			var actual = testing.GetCustomAttributes();
+
+			Assert.AreEqual(1, actual.Length);
+			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+		}
+
+		[Test]
+		public void Extension_Has()
+		{
+			Assert.IsTrue(testing.Has<TestClassAttribute>());
+			Assert.IsTrue(testing.Has(type.of<TestClassAttribute>()));
 		}
 	}
 }
