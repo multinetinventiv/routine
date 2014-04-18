@@ -395,6 +395,11 @@ namespace Routine
 
 			return TypeInfo.Get(source.GetType());
 		}
+
+		public static TypeInfo ToTypeInfo(this Type source)
+		{
+			return TypeInfo.Get(source);
+		}
 	}
 
 }
