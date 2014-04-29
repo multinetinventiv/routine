@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Routine.Test.Common.Domain;
+using Routine.Test.Common;
+using Routine.Test.Domain;
 
 namespace Routine.Test.Module.Todo
 {
@@ -34,7 +35,7 @@ namespace Routine.Test.Module.Todo
 			return this;
 		}
 
-		public Assignee Owner{get{return ctx.Get<AssigneeSearch>().Get(OwnerAssigneeUid);}}
+		public Assignee Owner { get { return ctx.Query<Assignees>().ByUid(OwnerAssigneeUid); } }
 
 		private void SendDefaultEmail()
 		{
@@ -43,16 +44,16 @@ namespace Routine.Test.Module.Todo
 
 		#region IContactInfo implementation
 		string IContactInfo.Name {get{return Name;}}
-		string IContactInfo.Info {get{return Address;}}
+		string IContactInfo.Info {get{return (string)Address;}}
 		DateTime IContactInfo.DateCreated{get{return DateCreated;}}
 
 		void IContactInfo.Poke(){SendDefaultEmail();}
 		#endregion
 	}
 
-	public class EmailContactInfoSearch : Search<EmailContactInfo>
+	public class EmailContactInfos : Query<EmailContactInfo>
 	{
-		public EmailContactInfoSearch(IDomainContext context) : base(context){}
+		public EmailContactInfos(IDomainContext context) : base(context){}
 
 		public List<EmailContactInfo> ByOwnerAssigneeUid(Guid ownerAssigneeUid)
 		{

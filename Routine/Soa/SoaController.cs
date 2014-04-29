@@ -62,11 +62,12 @@ namespace Routine.Soa
 
 		public JsonResult GetAvailableObjects(string objectModelId)
 		{
-			return Json(
+			List<ObjectData> result =
 				context.SoaConfiguration.GetAvailableObjectsInterceptor.Intercept(
 					context.CreateObjectModelInterceptionContext(objectModelId), 
-					() => context.ObjectService.GetAvailableObjects(objectModelId)), 
-				JsonRequestBehavior.AllowGet);
+					() => context.ObjectService.GetAvailableObjects(objectModelId)) as List<ObjectData>;
+
+			return Json(result.Select(o => o.ToSerializable()).ToList(), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetValue(ObjectReferenceData reference)
@@ -80,37 +81,32 @@ namespace Routine.Soa
 
 		public JsonResult Get(ObjectReferenceData reference)
 		{
-			return Json(
+			ObjectData result = 
 				context.SoaConfiguration.GetInterceptor.Intercept(
 					context.CreateObjectReferenceInterceptionContext(reference),
-					() => context.ObjectService.Get(reference))
-				, JsonRequestBehavior.AllowGet);
+					() => context.ObjectService.Get(reference)) as ObjectData;
+
+			return Json(result.ToSerializable(), JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetMember(ObjectReferenceData reference, string memberModelId)
 		{
-			return Json(
+			ValueData result = 
 				context.SoaConfiguration.GetMemberInterceptor.Intercept(
 					context.CreateMemberInterceptionContext(reference, memberModelId), 
-					() => context.ObjectService.GetMember(reference, memberModelId)), 
-				JsonRequestBehavior.AllowGet);
+					() => context.ObjectService.GetMember(reference, memberModelId)) as ValueData;
+
+			return Json(result.ToSerializable(), JsonRequestBehavior.AllowGet);
 		}
 
-		public JsonResult GetOperation(ObjectReferenceData reference, string operationModelId)
+		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
 		{
-			return Json(
-				context.SoaConfiguration.GetOperationInterceptor.Intercept(
-					context.CreateOperationInterceptionContext(reference, operationModelId), 
-					() => context.ObjectService.GetMember(reference, operationModelId)), 
-				JsonRequestBehavior.AllowGet);
-		}
-
-		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
-		{
-			return Json(
+			ValueData result =
 				context.SoaConfiguration.PerformOperationInterceptor.Intercept(
 					context.CreatePerformOperationInterceptionContext(targetReference, operationModelId, parameterValues),
-					() => context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues)));
+					() => context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues)) as ValueData;
+
+			return Json(result.ToSerializable());
 		}
 	}
 }

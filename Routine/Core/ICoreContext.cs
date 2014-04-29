@@ -11,6 +11,7 @@ namespace Routine.Core
 		DomainMember CreateDomainMember(DomainType domainType, IMember member);
 		DomainOperation CreateDomainOperation(DomainType domainType, IOperation operation);
 		DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter);
+		DomainObject CreateDomainObject(object @object, string viewModelId);
 
 		DomainObject GetDomainObject(ObjectReferenceData objectReference);
 	}
@@ -33,7 +34,7 @@ namespace Routine.Core
 
 		internal static object Locate(this ICoreContext source, ObjectReferenceData aReference)
 		{
-			if(aReference.IsNull)
+			if (aReference.IsNull)
 			{
 				aReference.ActualModelId = source.CodingStyle.ModelIdSerializer.Serialize(null);
 				aReference.Id = source.CodingStyle.IdExtractor.Extract(null);
@@ -42,7 +43,7 @@ namespace Routine.Core
 			return source.CodingStyle.Locator.Locate(source.CodingStyle.ModelIdSerializer.Deserialize(aReference.ActualModelId), aReference.Id);
 		}
 
-		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, string viewModelId)
+		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, string viewModelId, bool eager)
 		{			
 			var result = new ValueData();
 			result.IsList = isList;
@@ -51,19 +52,33 @@ namespace Routine.Core
 				var list = anObject as ICollection;
 				foreach(var item in list)
 				{
-					result.Values.Add(source.CreateSingleValueData(item, viewModelId));
+					if (eager)
+					{
+						result.Values.Add(source.CreateDomainObject(item, viewModelId).GetObject());
+					}
+					else
+					{
+						result.Values.Add(source.CreateSingleValueData(item, viewModelId));
+					}
 				}
 			}
 			else
 			{
-				result.Values.Add(source.CreateSingleValueData(anObject, viewModelId));
+				if (eager)
+				{
+					result.Values.Add(source.CreateDomainObject(anObject, viewModelId).GetObject());
+				}
+				else
+				{
+					result.Values.Add(source.CreateSingleValueData(anObject, viewModelId));
+				}
 			}
 			return result;
 		}
 
-		internal static SingleValueData CreateSingleValueData(this ICoreContext source, object anObject, string viewModelId)
+		internal static ObjectData CreateSingleValueData(this ICoreContext source, object anObject, string viewModelId)
 		{
-			var result = new SingleValueData();
+			var result = new ObjectData();
 
 			var resultDomainType = source.GetDomainType(viewModelId);
 
@@ -83,20 +98,17 @@ namespace Routine.Core
 			return source.CodingStyle.DisplayValueExtractor.Extract(anObject);
 		}
 
-		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(anObject, null); }
+		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(null); }
 		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject, string viewModelId)
 		{
 			var result = new ObjectReferenceData();
 
 			var type = (anObject == null) ? null : anObject.GetTypeInfo();
 			var actualModelId = source.CodingStyle.ModelIdSerializer.Serialize(type);
-			viewModelId = viewModelId ?? actualModelId;
-
-			var resultDomainType = source.GetDomainType(viewModelId);
 
 			result.IsNull = anObject == null;
 			result.ActualModelId = actualModelId;
-			result.ViewModelId = viewModelId;
+			result.ViewModelId = viewModelId ?? actualModelId;
 			result.Id = source.CodingStyle.IdExtractor.Extract(anObject);
 
 			return result;

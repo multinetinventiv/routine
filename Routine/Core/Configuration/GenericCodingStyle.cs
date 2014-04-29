@@ -35,7 +35,6 @@ namespace Routine.Core.Configuration
 		public MultipleLocator<GenericCodingStyle> Locate { get; private set; }
 
 		public MultipleExtractor<GenericCodingStyle, object, string> ExtractDisplayValue { get; private set; }
-		public MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool> ExtractOperationIsAvailable { get; private set; }
 
 		public GenericCodingStyle()
 		{
@@ -61,7 +60,6 @@ namespace Routine.Core.Configuration
 			Locate = new MultipleLocator<GenericCodingStyle>(this);
 
 			ExtractDisplayValue = new MultipleExtractor<GenericCodingStyle, object, string>(this, "DisplayValue");
-			ExtractOperationIsAvailable = new MultipleExtractor<GenericCodingStyle, Tuple<object, IOperation>, bool>(this, "OperationIsAvailable");
 		}
 
 		public GenericCodingStyle Merge(GenericCodingStyle other)
@@ -88,7 +86,6 @@ namespace Routine.Core.Configuration
 			Locate.Merge(other.Locate);
 
 			ExtractDisplayValue.Merge(other.ExtractDisplayValue);
-			ExtractOperationIsAvailable.Merge(other.ExtractOperationIsAvailable);
 
 			return this;
 		}
@@ -116,7 +113,6 @@ namespace Routine.Core.Configuration
 		ILocator ICodingStyle.Locator { get { return Locate; } }
 
 		IExtractor<object, string> ICodingStyle.DisplayValueExtractor { get { return ExtractDisplayValue; } }
-		IExtractor<Tuple<object, IOperation>, bool> ICodingStyle.OperationIsAvailableExtractor { get { return ExtractOperationIsAvailable; } }
 		#endregion
 	}
 }

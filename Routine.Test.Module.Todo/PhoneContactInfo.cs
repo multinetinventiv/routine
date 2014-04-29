@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Routine.Test.Common.Domain;
+using Routine.Test.Domain;
 
 namespace Routine.Test.Module.Todo
 {
@@ -36,7 +36,7 @@ namespace Routine.Test.Module.Todo
 			return this;
 		}
 
-		public Assignee Owner{get{return ctx.Get<AssigneeSearch>().Get(OwnerAssigneeUid);}}
+		public Assignee Owner { get { return ctx.Query<Assignees>().ByUid(OwnerAssigneeUid); } }
 
 		private void SendDefaultSms()
 		{
@@ -52,9 +52,9 @@ namespace Routine.Test.Module.Todo
 		#endregion
 	}
 
-	public class PhoneContactInfoSearch : Search<PhoneContactInfo>
+	public class PhoneContactInfos : Query<PhoneContactInfo>
 	{
-		public PhoneContactInfoSearch(IDomainContext context) : base(context){}
+		public PhoneContactInfos(IDomainContext context) : base(context){}
 
 		public List<PhoneContactInfo> ByOwnerAssigneeUid(Guid ownerAssigneeUid)
 		{

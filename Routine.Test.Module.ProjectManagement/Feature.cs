@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Routine.Test.Common;
-using Routine.Test.Common.Domain;
+using Routine.Test.Domain;
+using Routine.Test.Module.ProjectManagement.Api;
 
 namespace Routine.Test.Module.ProjectManagement
 {
-	public class Feature
+	public class Feature : IFeature
 	{
 		private IDomainContext ctx;
 		private IRepository<Feature> repository;
@@ -34,12 +35,18 @@ namespace Routine.Test.Module.ProjectManagement
 			return this;
 		}
 
-		public Project Project { get { return ctx.Get<ProjectSearch>().Get(ProjectUid); } }
+		public Project Project { get { return ctx.Query<Projects>().ByUid(ProjectUid); } }
+		public List<ITask> Tasks { get { return ctx.Query<FeatureTasks>().ByFeature(this).Select(f => f.Task).ToList(); } }
+
+		public void AddTask(ITask task)
+		{
+			ctx.New<FeatureTask>().With(this, task);
+		}
 	}
 
-	public class FeatureSearch : Search<Feature>
+	public class Features : Query<Feature>
 	{
-		public FeatureSearch(IDomainContext ctx) : base(ctx) { }
+		public Features(IDomainContext ctx) : base(ctx) { }
 
 		public List<Feature> ByProject(Project project)
 		{

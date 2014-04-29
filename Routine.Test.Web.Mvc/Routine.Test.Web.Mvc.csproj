@@ -164,6 +164,22 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
+    <ProjectReference Include="..\Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj">
+      <Project>{0de7385d-c945-4166-b60f-54ad8c1534f1}</Project>
+      <Name>Routine.Test.Domain.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
+      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
+      <Name>Routine.Test.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj">
+      <Project>{75480479-b00b-4919-85e7-199706a6d923}</Project>
+      <Name>Routine.Test.Module.ProjectManagement.Api</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj">
+      <Project>{300b819c-ee59-4879-8a97-fb2c317e38d2}</Project>
+      <Name>Routine.Test.Module.Todo.Api</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
@@ -172,17 +188,9 @@
       <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
       <Name>Routine.Test.Module.Todo</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Common.Configuration\Routine.Test.Common.Configuration.csproj">
-      <Project>{0DE7385D-C945-4166-B60F-54AD8C1534F1}</Project>
-      <Name>Routine.Test.Common.Configuration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
-      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
-      <Name>Routine.Test.Common.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
       <Project>{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}</Project>

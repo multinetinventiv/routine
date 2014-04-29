@@ -69,24 +69,16 @@ namespace Routine.Core
 			};
 		}
 
-		public OperationData CreateData(object target)
+		public ValueData Perform(object target, Dictionary<string, ReferenceData> parameterValues)
 		{
-			return new OperationData {
-				ModelId = Id,
-				IsAvailable = ctx.CodingStyle.OperationIsAvailableExtractor.Extract(target, operation),
-				Parameters = Parameters.Select(p => p.CreateData(target)).ToList()
-			};
-		}
-
-		public ResultData Perform(object target, List<ParameterValueData> parameterValues)
-		{
-			if (parameterValues == null) { parameterValues = new List<ParameterValueData>(); }
+			if (parameterValues == null) { parameterValues = new Dictionary<string, ReferenceData>(); }
 
 			var parameters = new object[Parameter.Count];
-			foreach(var parameterData in parameterValues)
+			foreach(var parameterModelId in parameterValues.Keys)
 			{
+				var parameterData = parameterValues[parameterModelId];
 				DomainParameter parameter;
-				if(!Parameter.TryGetValue(parameterData.ParameterModelId, out parameter))
+				if (!Parameter.TryGetValue(parameterModelId, out parameter))
 				{
 					continue;
 				}
@@ -94,27 +86,26 @@ namespace Routine.Core
 				if(parameter.IsList)
 				{
 					var parameterValue = parameter.Type.CreateInstance() as IList;
-					foreach (var parameterReference in parameterData.Value.References)
+					foreach (var parameterReference in parameterData.References)
 					{
 						parameterValue.Add(ctx.Locate(parameterReference));
 					}
 					parameters[parameter.Index] = parameterValue;
 				}
-				else if(parameterData.Value.References.Any())
+				else if(parameterData.References.Any())
 				{
-					parameters[parameter.Index] = ctx.Locate(parameterData.Value.References[0]);
+					parameters[parameter.Index] = ctx.Locate(parameterData.References[0]);
 				}
 			}
 
 			var resultValue = operation.PerformOn(target, parameters);
 
-			var result = new ResultData();
-			if(!ResultIsVoid)
+			if(ResultIsVoid)
 			{
-				result.Value = ctx.CreateValueData(resultValue, ResultIsList, ResultViewModelId);
+				return new ValueData();
 			}
 
-			return result;
+			return ctx.CreateValueData(resultValue, ResultIsList, ResultViewModelId, true);
 		}
 	}
 }

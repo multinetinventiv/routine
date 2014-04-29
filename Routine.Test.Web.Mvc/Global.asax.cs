@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Routine.Test.Common.Configuration;
+using Routine.Test.Domain.Configuration;
 
 namespace Routine.Test.Web.Mvc
 {
@@ -9,7 +9,6 @@ namespace Routine.Test.Web.Mvc
 	{
 		protected void Application_Start()
 		{
-			//mvc stuff
 			AreaRegistration.RegisterAllAreas();
 
 			GlobalFilters.Filters.Add(new HandleErrorAttribute());

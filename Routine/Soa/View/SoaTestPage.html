@@ -39,9 +39,16 @@
         .response .success {color:#18d003;}
 		.response .error {color:red;}
 		.response .value{font-weight:normal;}
+        .response-types{padding: 5px; padding-bottom: 11px;}
+        .object-response{display:none;}
+        .object-response .empty, .object-response .show-all{margin-left:5px;}
         .object {border: solid 1px gray;margin:5px;padding:5px;}
-        .member {margin-left:10px;}
+        .member {margin-left:10px;display:none;}
         .member-item {display:inline-block;}
+        .table { width: 99%; border-left: solid 1px; border-top: solid 1px; margin-left: 5px; }
+        .table th, .table td{ border-right: solid 1px; border-bottom: solid 1px; padding:3px;}
+        .table td.alternate{background-color:#eeecec}
+        .table th { text-align: left;}
     </style>
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script type="text/javascript">
@@ -55,7 +62,9 @@
     </script>
     <script type="text/javascript">
         var urlBase = "@urlBase";
-        var models, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, tmp_object, tmp_member, tmp_member_item;
+        var models, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
+            tmp_response_types, tmp_object_response, tmp_object, tmp_member, tmp_member_item, tmp_table_response;
+
         $(function () {
 
             $("#tab-container").width($(window).width() - 300);
@@ -74,9 +83,13 @@
             tmp_form = $("#form").clone().wrap("<p>").parent().html();
             tmp_parameter = $("#parameter").clone().wrap("<p>").parent().html();
             tmp_parameter_item = $("#parameter-item").clone().wrap("<p>").parent().html();
+            tmp_response_types = $("#response-types").clone().wrap("<p>").parent().html();
+            tmp_object_response = $("#object-response").clone().wrap("<p>").parent().html();
             tmp_object = $("#object").clone().wrap("<p>").parent().html();
             tmp_member = $("#member").clone().wrap("<p>").parent().html();
             tmp_member_item = $("#member-item").clone().wrap("<p>").parent().html();
+            tmp_table_response = $("#table-response").clone().wrap("<p>").parent().html();
+
             $.get(urlBase + "/GetApplicationModel", function (data) {
                 models = data.Models;
                 for (var i = 0; i < models.length; i++) {
@@ -106,12 +119,12 @@
                             .appendTo(modelDiv);
                     }
 
-                   // modelDiv.children(":first-child").click();
+                   modelDiv.children(":first-child").click();
                 }
 
-                //$(".module").each(function () {
-                //    $(this).children(":first-child").click();
-                //});
+                $(".module").each(function () {
+                    $(this).children(":first-child").click();
+                });
 
             }, "json");
 
@@ -175,7 +188,12 @@
                 beforeSubmit: function(arr, $form, options) {
                 	$form.children(".response").empty();
                 },
-                success: showResponse
+                success: showResponse,
+                error: function(req, status, error, $form){ 
+                    if(req.status == 200) {
+                        showResponse({}, "success", req, $form);
+                    }
+                }
             });
 
             renderOptions();
@@ -195,7 +213,7 @@
 
             var result = "";
             for(var j = 0; j<options.length; j++) {
-                var option = options[j];
+                var option = normalizeObject(options[j]);
 
                 result += option.Reference.Id + "|";
             }
@@ -296,7 +314,7 @@
                 }
             }
 
-            return null;
+            return {Id:modelId,Marks:[],Name:modelId,Module:"",IsValueModel:true,IsViewModel:false,Members:[],Operations:[]};
         }
 
         function getOperation(model, operationId) {
@@ -311,14 +329,8 @@
             var responseDiv = $form.children(".response");
             responseDiv.empty();
             
-            if(data.IsException)
-            {
-                responseDiv.append(
-                    "<span class='result error'>" + 
-                        "exception: <span class='value'>" + data.Message + "</span><br/>" +
-                        "type: <span class='value'>" + data.Type + "</span><br/>" +
-                        "handled: <span class='value'>" + data.IsHandled + "</span>" +
-                    "</span>");
+            if(data.IsException) {
+                showError(responseDiv, data);
                 return;
             }
 
@@ -326,60 +338,229 @@
 
             var model = getModel($form.attr("data-model-id"));
             var operation = getOperation(model, $form.attr("data-operation-id"));
-
+            var resultModel = getModel(operation.Result.ViewModelId);
 
             if (operation.Result.IsVoid) {
                 return;
             }
+            
+            var data = normalizeValue(data);
+            
+            var responseTypesDiv = $(tmp_response_types)
+                .removeAttr("id").removeClass("template").addClass("response-types")
+                .appendTo(responseDiv);
 
-            for (var i = 0; i < data.Value.Values.length; i++) {
-                var obj = data.Value.Values[i];
+            showTableResponse(responseDiv, data, resultModel);
+            showObjectResponse(responseDiv, data, resultModel);
+
+            if(!data.IsList) {
+                responseTypesDiv.children("input.object-type").click();
+            }
+        }
+
+        function showError(domObj, data) {
+            domObj.append(
+                "<span class='result error'>" + 
+                    "exception: <span class='value'>" + data.Message + "</span><br/>" +
+                    "type: <span class='value'>" + data.Type + "</span><br/>" +
+                    "handled: <span class='value'>" + data.IsHandled + "</span>" +
+                "</span>");
+        }
+
+        function showTableResponse(responseDiv, data, model) {
+            var tableResponseDiv = $(tmp_table_response)
+                .removeAttr("id").removeClass("template").addClass("table-response")
+                .appendTo(responseDiv);
+
+            var table = tableResponseDiv.children("table:first-child");
+
+            if(data.Values.length <= 0) {
+                table.append("<tr><th>Empty</th></tr>");
+                return;
+            }
+
+            var row = $("<tr>");
+            row.append("<th>Id</th>");
+            for (var memberModelId in data.Values[0].Members) {
+                row.append("<th>" + memberModelId + "</th>");
+            }
+            row.appendTo(table);
+
+            for(var i = 0; i<data.Values.length; i++) {
+                var obj = data.Values[i];
+                row = $("<tr>");
+                
+                var cell = $("<td>"+obj.Reference.Id+"</td>");
+                if(i%2==0){cell.addClass("alternate");}
+                cell.appendTo(row);
+                
+                for (var memberModelId in obj.Members) {
+                    cell = $("<td>");
+                    showMember(cell, obj.Members[memberModelId]);
+                    if(i%2==0){cell.addClass("alternate");}
+                    cell.appendTo(row);
+                }
+                row.appendTo(table);
+            }
+        }
+
+        function showObjectResponse(responseDiv, data, model) {
+            var objectResponseDiv = $(tmp_object_response)
+                .removeAttr("id").removeClass("template").addClass("object-response")
+                .appendTo(responseDiv);
+
+            if(data.Values.length<=0) {
+                objectResponseDiv.append("<b class='empty'>Empty</b>");
+                return;
+            }
+
+            if(data.Values.length > 1) {
+                objectResponseDiv.append("<input type='button' class='show-all' value='Show All' onclick='javascript:showAll(this)' />");
+            }
+
+            for (var i = 0; i < data.Values.length; i++) {
+                var obj = data.Values[i];
                 var objectDiv = $(tmp_object
                     .replace(/@id/g, obj.Reference.Id)
                     .replace(/@actualModelId/g, obj.Reference.ActualModelId)
                     .replace(/@viewModelId/g, obj.Reference.ViewModelId)
                     .replace(/@value/g, obj.Value))
                     .removeAttr("id").removeClass("template").addClass("object")
-                    .appendTo(responseDiv);
+                    .appendTo(objectResponseDiv);
                 if(model.IsValueModel) {
-                    objectDiv.children("input[type=button]").remove();
+                    objectDiv.children("p.details").remove();
+                } else {
+                    for(var memberModelId in obj.Members) {
+                        var member = obj.Members[memberModelId];
+                        var memberDiv = $(tmp_member
+                            .replace(/@name/g, memberModelId))
+                            .removeAttr("id").removeClass("template").addClass("member")
+                            .appendTo(objectDiv);
+
+                        showMember(memberDiv, member);
+                    }
                 }
             }
         }
-        function showDetails(showButton, id, actualModelId, viewModelId) {
-            showButton = $(showButton);
-            $.get(urlBase + "/Get", {
-                "reference.id":id, 
-                "reference.actualModelId":actualModelId, 
-                "reference.viewModelId":viewModelId
-            }, function (data) {
-                for(var i = 0; i<data.Members.length; i++) {
-                    var member = data.Members[i];
-                    var memberDiv = $(tmp_member
-                        .replace(/@name/g, member.ModelId))
-                        .removeAttr("id").removeClass("template").addClass("member")
-                        .appendTo(showButton.parent());
 
-                    for(var j = 0; j<member.Value.Values.length; j++) {
-                        var value = member.Value.Values[j];
+        function showMember(memberDiv, data) {
+            for(var j = 0; j<data.Values.length; j++) {
+                var value = data.Values[j];
 
-                        var memberItemDiv = $(tmp_member_item
-                            .replace(/@id/g, value.Reference.Id)
-                            .replace(/@value/g, value.Value))
-                            .removeAttr("id").removeClass("template").addClass("member-item")
-                            .appendTo(memberDiv);
-
+                var memberItemDiv = $(tmp_member_item
+                    .replace(/@id/g, value.Reference.Id)
+                    .replace(/@value/g, value.Value))
+                    .removeAttr("id").removeClass("template").addClass("member-item")
+                    .appendTo(memberDiv);
                         
-                        if(value.Reference.IsNull) {
-                            memberItemDiv.html("[null]");
-                        } else if(getModel(value.Reference.ActualModelId) == null) {
-                            memberItemDiv.html(value.Reference.Id);
-                        }
-                    }
+                if(value.Reference.IsNull) {
+                    memberItemDiv.html("[null]");
+                } else if(getModel(value.Reference.ActualModelId) == null) {
+                    memberItemDiv.html(value.Reference.Id);
                 }
+            }
+        }
 
-                showButton.remove();
-            });
+        function showResponseType(radio) {
+            radio = $(radio);
+            if(radio.val() == "object") {
+                radio.parent().parent().children(".object-response").show();
+                radio.parent().parent().children(".table-response").hide();
+            } else if(radio.val() == "table") {
+                radio.parent().parent().children(".table-response").show();
+                radio.parent().parent().children(".object-response").hide();
+            }
+        }
+
+        function normalizeValue(data) {
+            var result = new Object();
+            result.Values = new Array();
+            if(data instanceof Array) {
+                result.IsList = true;
+                for(var i = 0; i<data.length; i++) {
+                    result.Values[i] = data[i];
+                }
+            } else {
+                result.IsList = false;
+                result.Values[0] = data;
+            }
+            
+            for (var i = 0; i < result.Values.length; i++) {
+                result.Values[i] = normalizeObject(result.Values[i]);
+            }
+            return result;
+        }
+
+        function normalizeObject(data) {
+            if(data == null) {
+                data = new Object();
+                data.Reference = new Object();
+                data.Reference.IsNull = true;
+                return data;
+            }
+
+            if(data.Ref == undefined) {
+                var temp = new Object();
+                temp.Ref = data;
+                data = temp;
+            }
+
+            data.Reference = normalizeReference(data.Ref);
+            if(data.Value == undefined) {
+                data.Value = data.Reference.Id;
+            }
+            if(data.Members == undefined) {
+                data.Members = new Array();
+            }
+
+            for(var memberModelId in data.Members) {
+                data.Members[memberModelId] = normalizeValue(data.Members[memberModelId]);
+            }
+
+            return data;
+        }
+
+        function normalizeReference(referenceString)
+        {
+            var result = new Object();
+            result.Id = referenceString.substring(0, referenceString.indexOf("#"));
+            referenceString = referenceString.substring(referenceString.indexOf("#") + 1, referenceString.length);
+            if(referenceString.indexOf("#") >= 0)
+            {
+                result.ActualModelId = referenceString.substring(0, referenceString.indexOf("#"));
+                result.ViewModelId = referenceString.substring(referenceString.indexOf("#"), referenceString.length);
+            }
+            else
+            {
+                result.ActualModelId = referenceString;
+                result.ViewModelId = referenceString;
+            }
+
+            return result;
+        }
+
+        function showDetails(showButton) {
+            showButton = $(showButton);
+            if(showButton.val() == "Show") {
+                showButton.parent().parent().children(".member").show();
+                showButton.val("Hide");
+            } else {
+                showButton.parent().parent().children(".member").hide();
+                showButton.val("Show");
+            }
+        }
+
+        function showAll(showButton) {
+            showButton = $(showButton);
+            if(showButton.val() == "Show All") {
+                showButton.parent().children(".object").children(".member").show();
+                showButton.parent().children(".object").children("p").children("input[type=button]").val("Hide");
+                showButton.val("Hide All");
+            } else {
+                showButton.parent().children(".object").children(".member").hide();
+                showButton.parent().children(".object").children("p").children("input[type=button]").val("Show");
+                showButton.val("Show All");
+            }
         }
     </script>
 </head>
@@ -413,7 +594,7 @@
     </form>
     <div id="parameter" class="template">
         <span class="label">@id:</span>
-        <input type="hidden" name="parameterValues[@index].ParameterModelId" value="@id" />
+        <input type="hidden" name="parameterValues[@index].Key" value="@id" />
         <input class="add" type="button" value="+" onclick="javascript:addParameter(this, @index, '@modelId', @isList)" />
         <input class="remove" type="button" value="-" onclick="javascript:removeParameter(this)" />
         <span class="options">@options</span>
@@ -423,14 +604,20 @@
         <input type="hidden" name="parameterValues[@paramIndex].Value.References[@index].ViewModelId" value="@modelId"/>
         <input type="text" name="parameterValues[@paramIndex].Value.References[@index].Id" data-options="@options"/>
     </div>
+    <div id="response-types" class="template">
+        <input type="radio" class="table-type" name="response-type" value="table" checked="checked" onclick="javascript:showResponseType(this)"/><label for="table">Table</label>
+        <input type="radio" class="object-type" name="response-type" value="object" onclick="javascript:showResponseType(this)"/><label for="object">Object</label>
+    </div>
+    <div id="object-response" class="template"></div>
     <div id="object" class="template">
         <p><span class="label">id:</span>@id</p>
-        <p><span class="label">value:</span>@value</p>
-        <p><span class="label">details:</span><input type="button" value="Show" onclick="javascript:showDetails(this, '@id', '@actualModelId', '@viewModelId')" /></p>
+        <p class="details"><span class="label">value:</span>@value</p>
+        <p class="details"><span class="label">details:</span><input type="button" value="Show" onclick="javascript:showDetails(this)" /></p>
     </div>
     <p id="member" class="template"><span class="label">@name:</span></p>
     <div id="member-item" class="template">
         [@id, @value]
     </div>
+    <div id="table-response" class="template"><table class="table" cellspacing="0" cellpadding="0"></table></div>
 </body>
 </html>

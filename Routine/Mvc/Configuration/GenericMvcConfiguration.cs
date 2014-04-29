@@ -24,6 +24,8 @@ namespace Routine.Mvc.Configuration
 		public GenericMvcConfiguration SeparateListValuesBy(char listValueSeparator) { ListValueSeparator = listValueSeparator; return this; }
 
 		public ChainInterceptor<GenericMvcConfiguration, PerformInterceptionContext> InterceptPerform { get; private set; }
+		public ChainInterceptor<GenericMvcConfiguration, GetInterceptionContext> InterceptGet{ get; private set; }
+		public ChainInterceptor<GenericMvcConfiguration, GetAsInterceptionContext> InterceptGetAs{ get; private set; }
 
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, string> ExtractIndexId{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>> ExtractMenuIds{ get; private set;}
@@ -44,12 +46,16 @@ namespace Routine.Mvc.Configuration
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractSimpleMemberOrder{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractTableMemberOrder{ get; private set;}
 
+		public MultipleExtractor<GenericMvcConfiguration, OperationViewModel, bool> ExtractOperationIsAvailable { get; private set; }
+
 		public GenericMvcConfiguration() : this(true) {}
 		public GenericMvcConfiguration(string defaultObjectId) : this(true, defaultObjectId) { }
 		internal GenericMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
 		internal GenericMvcConfiguration(bool rootConfig, string defaultObjectId)
 		{
 			InterceptPerform = new ChainInterceptor<GenericMvcConfiguration, PerformInterceptionContext>(this);
+			InterceptGet = new ChainInterceptor<GenericMvcConfiguration, GetInterceptionContext>(this);
+			InterceptGetAs = new ChainInterceptor<GenericMvcConfiguration, GetAsInterceptionContext>(this);
 
 			ExtractIndexId = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, string>(this, "IndexId");
 			ExtractMenuIds = new MultipleExtractor<GenericMvcConfiguration, ObjectModel, List<string>>(this, "MenuIds");
@@ -70,6 +76,8 @@ namespace Routine.Mvc.Configuration
 			ExtractSimpleMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "SimpleMemberOrder");
 			ExtractTableMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "TableMemberOrder");
 
+			ExtractOperationIsAvailable = new MultipleExtractor<GenericMvcConfiguration, OperationViewModel, bool>(this, "OperationIsAvailable");
+
 			if(rootConfig)
 			{
 				RegisterRoutes(defaultObjectId);
@@ -79,6 +87,8 @@ namespace Routine.Mvc.Configuration
 		public GenericMvcConfiguration Merge(GenericMvcConfiguration other)
 		{
 			InterceptPerform.Merge(other.InterceptPerform);
+			InterceptGet.Merge(other.InterceptGet);
+			InterceptGetAs.Merge(other.InterceptGetAs);
 
 			ExtractIndexId.Merge(other.ExtractIndexId);
 			ExtractMenuIds.Merge(other.ExtractMenuIds);
@@ -98,6 +108,8 @@ namespace Routine.Mvc.Configuration
 			ExtractMemberOrder.Merge(other.ExtractMemberOrder);
 			ExtractSimpleMemberOrder.Merge(other.ExtractSimpleMemberOrder);
 			ExtractTableMemberOrder.Merge(other.ExtractTableMemberOrder);
+
+			ExtractOperationIsAvailable.Merge(other.ExtractOperationIsAvailable);
 
 			return this;
 		}
@@ -141,7 +153,9 @@ namespace Routine.Mvc.Configuration
 		char IMvcConfiguration.ViewNameSeparator{get{return ViewNameSeparator;}}
 		char IMvcConfiguration.ListValueSeparator{get{return ListValueSeparator;}}
 
-		IInterceptor<PerformInterceptionContext> IMvcConfiguration.PerformInterceptor{get{return InterceptPerform;}}
+		IInterceptor<PerformInterceptionContext> IMvcConfiguration.PerformInterceptor { get { return InterceptPerform; } }
+		IInterceptor<GetInterceptionContext> IMvcConfiguration.GetInterceptor { get { return InterceptGet; } }
+		IInterceptor<GetAsInterceptionContext> IMvcConfiguration.GetAsInterceptor { get { return InterceptGetAs; } }
 
 		IExtractor<ObjectModel, string> IMvcConfiguration.IndexIdExtractor{get{return ExtractIndexId;}}
 		IExtractor<ObjectModel, List<string>> IMvcConfiguration.MenuIdsExtractor{get{return ExtractMenuIds;}}
@@ -161,6 +175,8 @@ namespace Routine.Mvc.Configuration
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.MemberOrderExtractor{get{return ExtractMemberOrder;}}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.SimpleMemberOrderExtractor{get{return ExtractSimpleMemberOrder;}}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.TableMemberOrderExtractor{get{return ExtractTableMemberOrder;}}
+
+		IExtractor<OperationViewModel, bool> IMvcConfiguration.OperationIsAvailableExtractor { get { return ExtractOperationIsAvailable; } }
 
 		#endregion
 	}

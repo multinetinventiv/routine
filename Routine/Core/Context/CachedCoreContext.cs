@@ -46,6 +46,11 @@ namespace Routine.Core.Context
 			return new DomainParameter(this).For(domainOperation, parameter);
 		}
 
+		public DomainObject CreateDomainObject(object @object, string viewModelId)
+		{
+			return new DomainObject(this).For(@object, viewModelId);
+		}
+
 		public DomainObject GetDomainObject(ObjectReferenceData reference)
 		{
 			return new DomainObject(this).For(reference);

@@ -42,13 +42,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
-      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
-      <Name>Routine.Test.Common.Domain</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
+      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
+      <Name>Routine.Test.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj">
+      <Project>{75480479-b00b-4919-85e7-199706a6d923}</Project>
+      <Name>Routine.Test.Module.ProjectManagement.Api</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj">
       <Project>{300B819C-EE59-4879-8A97-FB2C317E38D2}</Project>

@@ -23,20 +23,6 @@ namespace Routine.Api
 			return this;
 		}
 
-		private ParameterData data;
-		internal void SetData(ParameterData data)
-		{
-			this.data = data;
-		}
-
-		private void FetchDataIfNecessary()
-		{
-			if(data == null)
-			{
-				parentOperation.LoadOperation();
-			}
-		}
-
 		public Roperation Operation{get{return parentOperation;}}
 		public string ViewModelId {get{return model.ViewModelId;}}
 		public string Id {get{return model.Id;}}
@@ -55,37 +41,21 @@ namespace Routine.Api
 			return result;
 		}
 
-		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) {return CreateParameterValueData(robjs.ToList());}
-		internal ParameterValueData CreateParameterValueData(List<Robject> robjs)
+		internal ReferenceData CreateReferenceData(params Robject[] robjs) { return CreateReferenceData(robjs.ToList());}
+		internal ReferenceData CreateReferenceData(List<Robject> robjs)
 		{
-			var result = new ParameterValueData();
-
-			result.ParameterModelId = Id;
-			result.Value = CreateReferenceData(robjs);
-
-			return result;
-		}
-
-		private ReferenceData CreateReferenceData(params Robject[] robjs) { return CreateReferenceData(robjs.ToList());}
-		private ReferenceData CreateReferenceData(List<Robject> robjs)
-		{
-			var result = new ReferenceData();
-			result.IsList = IsList;
-			foreach(var robj in robjs)
+			return new ReferenceData
 			{
-				result.References.Add(new ObjectReferenceData {
-					Id = robj.Id,
-					ActualModelId = robj.ActualModelId,
-					ViewModelId = model.ViewModelId,
-					IsNull = robj.IsNull
-				});
-			}
-			return result;
-		}
-
-		internal void Invalidate()
-		{
-			data = null;
+				IsList = IsList,
+				References = robjs.Select(robj =>
+					new ObjectReferenceData
+						{
+							Id = robj.ObjectReferenceData.Id,
+							ActualModelId = robj.ObjectReferenceData.ActualModelId,
+							ViewModelId = ViewModelId,
+							IsNull = robj.ObjectReferenceData.IsNull
+						}).ToList()
+			};
 		}
 	}
 }

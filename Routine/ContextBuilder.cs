@@ -1,4 +1,5 @@
 ﻿
+using System.Web.Script.Serialization;
 using Routine.Api;
 using Routine.Api.Context;
 using Routine.Core;
@@ -70,7 +71,7 @@ namespace Routine
 
 		private IObjectService ObjectServiceClient(ISoaClientConfiguration soaClientConfiguration)
 		{
-			return new RestClientObjectService(soaClientConfiguration, RestClient());
+			return new RestClientObjectService(soaClientConfiguration, RestClient(), Serializer());
 		}
 
 		private ICoreContext coreContext;
@@ -87,6 +88,10 @@ namespace Routine
 		private IRestClient restClient = new WebRequestRestClient();
 		public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
 		private IRestClient RestClient() { return restClient; }
+
+		private IRestSerializer serializer = new JsonRestSerializer();
+		public ContextBuilder UsingSerializer(IRestSerializer serializer) { this.serializer = serializer; return this; }
+		private IRestSerializer Serializer() { return serializer; }
 
 		private ICache cache = new WebCache();
 		public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }

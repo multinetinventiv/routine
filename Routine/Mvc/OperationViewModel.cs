@@ -29,7 +29,7 @@ namespace Routine.Mvc
 		}
 
 		private ObjectViewModel Target{get{return CreateObject().With(rop.Object);}}
-		public bool IsAvailable {get{return rop.IsAvailable();}}
+		public bool IsAvailable { get { return MvcConfig.OperationIsAvailableExtractor.Extract(this); } }
 		public string Text{get{return MvcConfig.DisplayNameExtractor.Extract(rop.Id);}}
 		public bool HasParameter{get{return rop.Parameters.Any();}}
 		public bool ReturnsList{get{return rop.ResultIsList;}}

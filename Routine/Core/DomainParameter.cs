@@ -50,12 +50,5 @@ namespace Routine.Core
 				ViewModelId = ViewModelId
 			};
 		}
-
-		public ParameterData CreateData(object target)
-		{
-			return new ParameterData {
-				ModelId = Id
-			};
-		}
 	}
 }

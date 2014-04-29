@@ -112,17 +112,17 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
+    <ProjectReference Include="..\Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj">
+      <Project>{0de7385d-c945-4166-b60f-54ad8c1534f1}</Project>
+      <Name>Routine.Test.Domain.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
+      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
+      <Name>Routine.Test.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj">
-      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
-      <Name>Routine.Test.Common.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Common.Configuration\Routine.Test.Common.Configuration.csproj">
-      <Project>{0DE7385D-C945-4166-B60F-54AD8C1534F1}</Project>
-      <Name>Routine.Test.Common.Configuration</Name>
     </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>

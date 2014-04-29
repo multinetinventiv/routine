@@ -14,7 +14,7 @@ namespace Routine.Mvc
 			this.context = context; 
 		}
 
-		protected ActionResult Page(ObjectViewModel ovm) { return View("Page", ovm); }
+		protected ActionResult Page(ObjectViewModel ovm) { View("Page", ovm).ExecuteResult(ControllerContext); return new EmptyResult(); }
 
 		protected ActionResult RedirectToPage(ObjectViewModel ovm) { return RedirectToRoute(ovm.ViewRouteName, ovm.RouteValues); }
 
@@ -30,7 +30,9 @@ namespace Routine.Mvc
 		}
 		private ActionResult Perform_Inner(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters)
 		{
-			var result = target.Perform(operationModelId, parameters);
+			var result = context.MvcConfiguration.PerformInterceptor.Intercept(
+					context.CreatePerformInterceptionContext(target, operationModelId, parameters), 
+					() => target.Perform(operationModelId, parameters)) as VariableViewModel;
 
 			if(result.IsVoid)
 			{
@@ -45,8 +47,19 @@ namespace Routine.Mvc
 			return RedirectToPage(result.Object);
 		}
 
-		public ActionResult Get(string id, string modelId) { return Page(context.Application.Get(id, modelId)); }
-		public ActionResult GetAs(string id, string actualModelId, string viewModelId) { return Page(context.Application.Get(id, actualModelId, viewModelId)); }
+		public ActionResult Get(string id, string modelId) 
+		{
+			return context.MvcConfiguration.GetInterceptor.Intercept(
+				context.CreateGetInterceptionContext(id, modelId),
+				() => Page(context.Application.Get(id, modelId))) as ActionResult;
+		}
+
+		public ActionResult GetAs(string id, string actualModelId, string viewModelId)
+		{
+			return context.MvcConfiguration.GetAsInterceptor.Intercept(
+				context.CreateGetAsInterceptionContext(id, actualModelId, viewModelId),
+				() => Page(context.Application.Get(id, actualModelId, viewModelId))) as ActionResult;
+		}
 
 		//TODO JSON actions
 		//do	--> client redirects if there is a single non-value type object

@@ -59,6 +59,10 @@ namespace Routine.Test.Core.Service
 									.SerializeWhen(t => !t.Namespace.Contains("Ignored") && t.IsDomainType)
 									.DeserializeBy(id => id.Replace("-", ".").ToType())
 									.DeserializeWhen(id => id.Contains("-")))
+				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.Prepend(":"))
+									.SerializeWhen(t => !t.Namespace.Contains("Ignored") && !t.IsDomainType)
+									.DeserializeBy(id => id.After(":").ToType())
+									.DeserializeWhen(id => id.StartsWith(":")))
 				.ExtractModelModule.Done(e => e.Always("Test"))
 				.SelectModelMarks.Done(s => s.Always("value").When(t => t.CanParse()))
 				.SelectModelMarks.Done(s => s.Always("all"))
@@ -140,9 +144,9 @@ namespace Routine.Test.Core.Service
 
 			Assert.AreEqual(2, actual.Members.Count);
 			Assert.AreEqual("Id", actual.Members[0].Id);
-			Assert.AreEqual(":System.Int32", actual.Members[0].ViewModelId);
+			Assert.AreEqual("s-int-32", actual.Members[0].ViewModelId);
 			Assert.AreEqual("List", actual.Members[1].Id);
-			Assert.AreEqual(":System.String", actual.Members[1].ViewModelId);
+			Assert.AreEqual("s-string", actual.Members[1].ViewModelId);
 		}
 
 		[Test]
@@ -181,9 +185,9 @@ namespace Routine.Test.Core.Service
 			Assert.AreEqual("VoidOp", actual.Operations[0].Id);
 			Assert.AreEqual(GenericCodingStyle.VOID_MODEL_ID, actual.Operations[0].Result.ViewModelId);
 			Assert.AreEqual("StringOp", actual.Operations[1].Id);
-			Assert.AreEqual(":System.String", actual.Operations[1].Result.ViewModelId);
+			Assert.AreEqual("s-string", actual.Operations[1].Result.ViewModelId);
 			Assert.AreEqual("ListOp", actual.Operations[2].Id);
-			Assert.AreEqual(":System.String", actual.Operations[2].Result.ViewModelId);
+			Assert.AreEqual("s-string", actual.Operations[2].Result.ViewModelId);
 		}
 
 		[Test]
@@ -234,10 +238,10 @@ namespace Routine.Test.Core.Service
 			Assert.AreEqual(0, actual.Operations[0].Parameters.Count);
 			Assert.AreEqual(1, actual.Operations[1].Parameters.Count);
 			Assert.AreEqual("list", actual.Operations[1].Parameters[0].Id);
-			Assert.AreEqual(":System.String", actual.Operations[1].Parameters[0].ViewModelId);
+			Assert.AreEqual("s-string", actual.Operations[1].Parameters[0].ViewModelId);
 			Assert.AreEqual(1, actual.Operations[2].Parameters.Count);
 			Assert.AreEqual("boolParam", actual.Operations[2].Parameters[0].Id);
-			Assert.AreEqual(":System.Boolean", actual.Operations[2].Parameters[0].ViewModelId);
+			Assert.AreEqual("s-boolean", actual.Operations[2].Parameters[0].ViewModelId);
 		}
 
 		[Test]

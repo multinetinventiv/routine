@@ -13,7 +13,9 @@ namespace Routine.Mvc
 		char ViewNameSeparator {get;}
 		char ListValueSeparator {get;}
 
-		IInterceptor<PerformInterceptionContext> PerformInterceptor{get;}
+		IInterceptor<PerformInterceptionContext> PerformInterceptor { get; }
+		IInterceptor<GetInterceptionContext> GetInterceptor { get; }
+		IInterceptor<GetAsInterceptionContext> GetAsInterceptor { get; }
 
 		IExtractor<ObjectModel, string> IndexIdExtractor{get;}
 		IExtractor<ObjectModel, List<string>> MenuIdsExtractor{ get;}
@@ -33,5 +35,7 @@ namespace Routine.Mvc
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> MemberOrderExtractor{get;}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> SimpleMemberOrderExtractor{get;}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> TableMemberOrderExtractor{get;}
+
+		IExtractor<OperationViewModel, bool> OperationIsAvailableExtractor{get;}
 	}
 }

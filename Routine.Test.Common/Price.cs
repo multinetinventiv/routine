@@ -2,6 +2,7 @@
 
 namespace Routine.Test.Common
 {
+	[Serializable]
 	public class Price
 	{
 		public static Price Parse(string value)
@@ -30,6 +31,34 @@ namespace Routine.Test.Common
 		public override string ToString()
 		{
 			return price + currency;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null)
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != typeof(Price))
+				return false;
+
+			return Equals((Price)obj);
+		}
+
+		public bool Equals(Price other)
+		{
+			if (other == null)
+				return false;
+
+			return price == other.price && currency == other.currency;
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return price.GetHashCode() ^ (currency != null ? currency.GetHashCode() : 0);
+			}
 		}
 	}
 }

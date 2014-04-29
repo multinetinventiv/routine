@@ -1,19 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Test.Common.Domain;
+using Routine.Test.Domain;
+using Routine.Test.Module.ProjectManagement.Api;
 using Routine.Test.Module.Todo.Api;
 
 namespace Routine.Test.Module.Todo
 {
-	public enum TodoItemPriority
-	{
-		Low,
-		Normal,
-		High,
-	}
-
-	public class TodoItem : ITodoItem
+	public class TodoItem : ITodoItem, ITask
 	{
 		#region Construction
 		private readonly IDomainContext ctx;
@@ -47,7 +41,7 @@ namespace Routine.Test.Module.Todo
 		public TodoItemPriority Priority {get;private set;}
 		#endregion
 
-		public Assignee AssignedTo {get{return ctx.Get<AssigneeSearch>().Get(AssigneeUid);}}
+		public Assignee AssignedTo { get { return ctx.Query<Assignees>().ByUid(AssigneeUid); } }
 		public bool Passed {get{return DueDate <= DateTime.Now;}}
 		public bool Active{get{return !Passed && !Done;}}
 
@@ -72,6 +66,11 @@ namespace Routine.Test.Module.Todo
 			AssigneeUid = to.Uid;
 
 			repository.Update(this);
+		}
+
+		public void BindToFeature(IFeature feature)
+		{
+			feature.AddTask(this);
 		}
 
 		public void Release()
@@ -126,11 +125,17 @@ namespace Routine.Test.Module.Todo
 		{
 			return Text + " (in " + (int)DueDate.Subtract(DateTime.Now).TotalDays + " days)";
 		}
+
+		#region ITask implementation
+
+		string ITask.State { get { return Done ? "Done" : "Todo"; } }
+
+		#endregion
 	}
 
-	public class TodoItemSearch : Search<TodoItem>
+	public class TodoItems : Query<TodoItem>
 	{
-		public TodoItemSearch(IDomainContext context)
+		public TodoItems(IDomainContext context)
 			: base(context) {}
 
 		public List<TodoItem> DoneItems() 

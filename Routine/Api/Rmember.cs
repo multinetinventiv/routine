@@ -24,11 +24,11 @@ namespace Routine.Api
 		}
 
 		private Rvariable value;
-		private MemberData data;
-		internal void SetData(MemberData data)
+		private ValueData data;
+		internal void SetData(ValueData data)
 		{
 			this.data = data;
-			this.value = context.CreateRvariable().With(data.Value);
+			this.value = context.CreateRvariable().With(data);
 		}
 
 		private Rvariable Value {get{FetchDataIfNecessary(); return value;}}

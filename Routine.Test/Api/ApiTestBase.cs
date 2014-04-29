@@ -45,10 +45,8 @@ namespace Routine.Test.Api
 			objectServiceMock.Setup(o => o.GetValue(It.IsAny<ObjectReferenceData>()))
 				.Returns((ObjectReferenceData ord) => objectDictionary[ord].Value);
 			objectServiceMock.Setup(o => o.GetMember(It.IsAny<ObjectReferenceData>(), It.IsAny<string>()))
-				.Returns((ObjectReferenceData ord, string mid) => objectDictionary[ord].Members.Single(m => m.ModelId == mid));
-			objectServiceMock.Setup(o => o.GetOperation(It.IsAny<ObjectReferenceData>(), It.IsAny<string>()))
-				.Returns((ObjectReferenceData ord, string oid) => objectDictionary[ord].Operations.Single(o => o.ModelId == oid));
-			objectServiceMock.Setup(o => o.PerformOperation(It.IsAny<ObjectReferenceData>(), It.IsAny<string>(), It.IsAny<List<ParameterValueData>>()))
+				.Returns((ObjectReferenceData ord, string mid) => objectDictionary[ord].Members[mid]);
+			objectServiceMock.Setup(o => o.PerformOperation(It.IsAny<ObjectReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ReferenceData>>()))
 				.Returns(Void());
 		}
 
@@ -59,14 +57,14 @@ namespace Routine.Test.Api
 		{
 			var result = new ObjectData { Reference = full.Reference };
 			result.Value = full.Value;
-			result.Members.AddRange(
-				full.Members
-				.Where(m => objectModelDictionary[full.Reference.ViewModelId]
-					.Members.SingleOrDefault(mm => !mm.IsHeavy && mm.Id == m.ModelId) != null));
-			result.Operations.AddRange(
-				full.Operations
-				.Where(o => objectModelDictionary[full.Reference.ViewModelId]
-					.Operations.SingleOrDefault(om => !om.IsHeavy && om.Id == o.ModelId) != null));
+
+			foreach (var mm in objectModelDictionary[full.Reference.ViewModelId].Members.Where(m => !m.IsHeavy))
+			{
+				if (full.Members.ContainsKey(mm.Id))
+				{
+					result.Members.Add(mm.Id, full.Members[mm.Id]);
+				}
+			}
 
 			return result;
 		}
@@ -171,9 +169,8 @@ namespace Routine.Test.Api
 							ViewModelId = omid,
 							Id = id,
 						};
-						return new SingleValueData {
-							Reference = ord,
-							Value = objectServiceMock.Object.GetValue(ord)
+						return new ObjectData {
+							Reference = ord
 						};
 					}).ToList());
 
@@ -261,22 +258,7 @@ namespace Routine.Test.Api
 
 				foreach(var memberModel in model.Members)
 				{
-					result.Members.Add(new MemberData {
-						ModelId = memberModel.Id, 
-						Value = new ValueData {
-							IsList = memberModel.IsList,
-						}
-					});
-				}
-
-				foreach(var operationModel in model.Operations)
-				{
-					result.Operations.Add(new OperationData {
-						ModelId = operationModel.Id,
-						Parameters = operationModel.Parameters.Select(p => new ParameterData {
-							ModelId = p.Id
-						}).ToList()
-					});
+					result.Members.Add(memberModel.Id, new ValueData { IsList = memberModel.IsList });
 				}
 
 				return this;
@@ -291,17 +273,8 @@ namespace Routine.Test.Api
 
 			public ObjectBuilder Member(string memberModelId, params ObjectReferenceData[] memberData)
 			{
-				result.Members
-					.Single(m => m.ModelId == memberModelId)
-					.Value.Values.AddRange(memberData.Select(m => new SingleValueData{Reference = m}));
-
-				return this;
-			}
-
-			public ObjectBuilder Operation(string operationModelId, params ParameterData[] parameters) {return Operation(operationModelId, true, parameters);}
-			public ObjectBuilder Operation(string operationModelId, bool isAvailable, params ParameterData[] parameters) { 
-				var operation = result.Operations.Single(o => o.ModelId == operationModelId);
-				operation.IsAvailable = isAvailable;
+				result.Members[memberModelId]
+					.Values.AddRange(memberData.Select(m => new ObjectData{Reference = m}));
 
 				return this;
 			}
@@ -326,14 +299,6 @@ namespace Routine.Test.Api
 			}
 		}
 
-		protected ParameterData PData(string parameterModelId)
-		{
-			return new ParameterData {
-				ModelId = parameterModelId,
-
-			};
-		}	
-
 		private string ValueOf(ObjectReferenceData ord)
 		{
 			if(ord.IsNull) {return "";}
@@ -345,21 +310,21 @@ namespace Routine.Test.Api
 			return objectDictionary[ord].Value;
 		}
 
-		protected ResultData Result(params ObjectReferenceData[] ords)
+		protected ValueData Result(params ObjectReferenceData[] ords)
 		{
-			var result = new ResultData();
+			var result = new ValueData();
 
-			result.Value.Values.AddRange(
-				ords.Select(ord => new SingleValueData{
+			result.Values.AddRange(
+				ords.Select(ord => new ObjectData{
 					Reference = ord, 
 					Value = ValueOf(ord)}).ToList());
 
 			return result;
 		}
 
-		protected ResultData Void()
+		protected ValueData Void()
 		{
-			return new ResultData();
+			return new ValueData();
 		}
 
 		#endregion
@@ -382,14 +347,14 @@ namespace Routine.Test.Api
 				this.objectReferenceData = objectReferenceData;
 			}
 
-			public ISetup<IObjectService, ResultData> Performs(string operationModelId) { return Performs(operationModelId, (p => true)); }
-			public ISetup<IObjectService, ResultData> Performs(string operationModelId, Expression<Func<List<ParameterValueData>, bool>> parameterMatcher)
+			public ISetup<IObjectService, ValueData> Performs(string operationModelId) { return Performs(operationModelId, (p => true)); }
+			public ISetup<IObjectService, ValueData> Performs(string operationModelId, Expression<Func<Dictionary<string, ReferenceData>, bool>> parameterMatcher)
 			{
 				return test.objectServiceMock
 						.Setup(o => o.PerformOperation(
 							objectReferenceData, 
 							operationModelId, 
-							It.Is<List<ParameterValueData>>(parameterMatcher)));
+							It.Is<Dictionary<string, ReferenceData>>(parameterMatcher)));
 			}
 		}
 

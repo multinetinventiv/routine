@@ -1,17 +1,15 @@
-﻿namespace Routine.Api.Generator
+﻿using System;
+
+namespace Routine.Api.Generator
 {
 	public static class ClientApiPatterns
 	{
-		public static void UsingParseableValueTypes(this ClientApiGenerator source, string valueTypePrefix)
+		public static void UsingParseableValueTypes(this ClientApiGenerator source, string actualPrefix, string shortPrefix) { source.UsingParseableValueTypes(t => t.FullName.StartsWith(actualPrefix), t => t.FullName.ShortenModelId(actualPrefix, shortPrefix)); }
+		public static void UsingParseableValueTypes(this ClientApiGenerator source, Func<TypeInfo, string> modelIdExtractor) { source.UsingParseableValueTypes(t => true, modelIdExtractor); }
+		public static void UsingParseableValueTypes(this ClientApiGenerator source, Func<TypeInfo, bool> predicate, Func<TypeInfo, string> modelIdExtractor)
 		{
-			source.Using(t => t.CanBe<string>(), t => t.FullName.Prepend(valueTypePrefix));
-			source.Using(t => t.CanParse(), t => t.FullName.Prepend(valueTypePrefix), "{value}.ToString()", "{type}.Parse({valueString})");
-		}
-
-		public static void UsingClientClassesUnderCommonNamespace(this ClientApiGenerator source) {source.UsingClientClassesUnderCommonNamespace("-");}
-		public static void UsingClientClassesUnderCommonNamespace(this ClientApiGenerator source, string separator)
-		{
-			source.Using(t => t.Namespace.StartsWith("Routine.Test.ApiGen.Client"), t => t.FullName.After("Routine.Test.ApiGen.Client").Replace(".", separator), true);
+			source.Using(t => t.CanBe<string>() && predicate(t), modelIdExtractor);
+			source.Using(t => t.CanParse() && predicate(t), modelIdExtractor, "{value}.ToString()", "{type}.Parse({valueString})");
 		}
 	}
 }

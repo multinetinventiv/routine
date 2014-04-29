@@ -48,6 +48,7 @@
     <Compile Include="Core\Interceptor\InterceptorTestBase.cs" />
     <Compile Include="Core\Interceptor\ChainInterceptorTest.cs" />
     <Compile Include="Core\Reflection\Optimization\ReflectionMethodInvokerTest.cs" />
+    <Compile Include="Core\Service\SerializationExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Extractor\BaseOptionalExtractorTest.cs" />
     <Compile Include="Core\Extractor\ConverterExtractorTest.cs" />
@@ -66,9 +67,10 @@
     <Compile Include="Api\ApiTest.cs" />
     <Compile Include="Api\ApiTestBase.cs" />
     <Compile Include="Core\CoreContext\CachedCoreContextTest.cs" />
+    <Compile Include="Soa\RestClientObjectServiceTest.cs" />
     <Compile Include="StringExtensionsTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
-    <Compile Include="Soa\ObjectServiceControllerTest.cs" />
+    <Compile Include="Soa\SoaControllerTest.cs" />
     <Compile Include="Core\Selector\NoneSelectorTest.cs" />
     <Compile Include="Core\Service\ObjectServiceTest.cs" />
     <Compile Include="Core\Service\ObjectServiceTest_DataToStringAndEquals.cs" />

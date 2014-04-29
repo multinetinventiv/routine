@@ -113,9 +113,9 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void ValueTypesAreNotRenderedButTheirAssembliesShouldBeReferenced()
 		{
-			ModelsAre(Model(":Routine.Test.Common.Price").IsValue());
+			ModelsAre(Model("Routine.Test.Common.Price").IsValue());
 
-			testing.Using<Price>(":Routine.Test.Common.Price");
+			testing.Using<Price>("Routine.Test.Common.Price");
 
 			var actual = testing.Build().GetTypes().Length;
 
@@ -127,12 +127,12 @@ namespace Routine.Test.Api.Generator
 		{
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
-				.Member("Price", ":Routine.Test.Common.Price")
-				.Member("Address", ":Routine.Test.Common.FatString")
+				.Member("Price", "c-price")
+				.Member("Address", "c-fat-string")
 			);
 
 			testing.AddReference(typeof(FatString).Assembly);
-			testing.Using(t => t.CanParse(), t => ":" + t.FullName, "{value}.ToString()", "{type}.Parse({valueString})");
+			testing.UsingParseableValueTypes("Routine.Test.Common", "c");
 
 			var testClass = BuildAndGetClientClass("TestClass");
 
@@ -146,22 +146,22 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void WhenAnObjectModelIsNotFoundInApplicationModelAndTypeReferenceIsNotFoundAnExceptionIsThrown()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", ":System.String"));
+			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "System.String"));
 
 			try {
 				testing.Build();
 				Assert.Fail("exception not thrown");
 			} catch (InvalidOperationException ex) {
-				Assert.IsTrue(ex.Message.Contains(":System.String"), "Exception message does not contain :System.String");
+				Assert.IsTrue(ex.Message.Contains("System.String"), "Exception message does not contain System.String");
 			}
 		}
 
 		[Test]
 		public void MembersAreRenderedAsReadOnlyProperties()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", ":System.String"));
+			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "System.String"));
 			
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var properties = BuildAndGetClientClass("TestClass").GetProperties();
 
@@ -177,9 +177,9 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void Test_ListMember()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", ":System.String", false, true));
+			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "System.String", false, true));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var properties = BuildAndGetClientClass("TestClass").GetProperties();
 
@@ -206,9 +206,9 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void OperationResultsAreMethodReturnTypes()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", false, ":System.String"));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", false, "System.String"));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var methods = BuildAndGetClientClass("TestClass").GetMethods();
 
@@ -220,9 +220,9 @@ namespace Routine.Test.Api.Generator
 		[Test]
 		public void Test_ListResult()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringListMethod", false, ":System.String", true));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringListMethod", false, "System.String", true));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var methods = BuildAndGetClientClass("TestClass").GetMethods();
 
@@ -235,9 +235,9 @@ namespace Routine.Test.Api.Generator
 		public void OperationsParametersAreMethodParameters()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("ParameterMethod", false, true, PModel("arg1", ":System.String"), PModel("arg2", ":System.String", true)));
+				.Operation("ParameterMethod", false, true, PModel("arg1", "System.String"), PModel("arg2", "System.String", true)));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var methods = BuildAndGetClientClass("TestClass").GetMethods();
 
@@ -278,13 +278,13 @@ namespace Routine.Test.Api.Generator
 			ModelsAre(
 				Model("Included-TestClass1").Module("Included").Name("TestClass1")
 				.Member("PropertyExcluded", "Excluded-TestClass2")
-				.Member("PropertyIncluded", ":System.String")
+				.Member("PropertyIncluded", "System.String")
 				.Operation("MethodExcludedBecauseOfReturnType", "Excluded-TestClass2")
-				.Operation("MethodExcludedBecauseOfParameter", ":System.String", PModel("excludeReason", "Excluded-TestClass2"))
-				.Operation("MethodIncluded", ":System.String"),
+				.Operation("MethodExcludedBecauseOfParameter", "System.String", PModel("excludeReason", "Excluded-TestClass2"))
+				.Operation("MethodIncluded", "System.String"),
 				Model("Excluded-TestClass2").Module("Excluded").Name("TestClass2"));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			testing.Modules.Include("Included.*");
 			var types = testing.Build().GetTypes();
@@ -345,16 +345,16 @@ namespace Routine.Test.Api.Generator
 		public void PropertyValuesAreFetchedViaClientApi()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("System.String").IsValue(),
 				Model("TestClass").Name("TestClass")
-				.Member("Name", ":System.String"));
+				.Member("Name", "System.String"));
 
 			ObjectsAre(
 				Object(Id("test_id", "TestClass"))
 				.Value("test_value")
-				.Member("Name", Id("test_name", ":System.String")));
+				.Member("Name", Id("test_name", "System.String")));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var testObj = BuildAndGetClientInstance("test_id", "TestClass");
 
@@ -366,9 +366,9 @@ namespace Routine.Test.Api.Generator
 		public void MethodsAreCalledViaClientApi()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("System.String").IsValue(),
 				Model("TestClass").Name("TestClass")
-				.Operation("Operation", ":System.String", PModel("arg1", ":System.String"), PModel("arg2", ":System.String")));
+				.Operation("Operation", "System.String", PModel("arg1", "System.String"), PModel("arg2", "System.String")));
 
 			ObjectsAre(
 				Object(Id("test_id", "TestClass"))
@@ -376,11 +376,11 @@ namespace Routine.Test.Api.Generator
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p => 
-					p[0].Value.References[0].Id == "arg1_test" && 
-					p[1].Value.References[0].Id == "arg2_test")
-				.Returns(Result(Id("result_test", ":System.String")));
+					p["arg1"].References[0].Id == "arg1_test" && 
+					p["arg2"].References[0].Id == "arg2_test")
+				.Returns(Result(Id("result_test", "System.String")));
 
-			testing.Using<string>(":System.String");
+			testing.Using<string>("System.String");
 
 			var testObj = BuildAndGetClientInstance("test_id", "TestClass");
 
@@ -396,25 +396,25 @@ namespace Routine.Test.Api.Generator
 			const int expectedInt = 12;
 
 			ModelsAre(
-				Model(":System.Int32").IsValue(),
-				Model(":System.Guid").IsValue(),
+				Model("System.Int32").IsValue(),
+				Model("System.Guid").IsValue(),
 				Model("TestClass").Name("TestClass")
-				.Member("Uid", ":System.Guid")
-				.Operation("Operation", ":System.Int32", PModel("arg1", ":System.Guid")));
+				.Member("Uid", "System.Guid")
+				.Operation("Operation", "System.Int32", PModel("arg1", "System.Guid")));
 
 			ObjectsAre(
 				Object(Id("test_id", "TestClass"))
 				.Value("test_value")
-				.Member("Uid", Id(expectedGuid.ToString(), ":System.Guid")));
+				.Member("Uid", Id(expectedGuid.ToString(), "System.Guid")));
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p => 
-					p[0].Value.References[0].Id == expectedGuid.ToString())
-				.Returns(Result(Id(expectedInt.ToString(), ":System.Int32")));
+					p["arg1"].References[0].Id == expectedGuid.ToString())
+				.Returns(Result(Id(expectedInt.ToString(), "System.Int32")));
 
 			testing.Using(
 				t => t.CanParse(),
-				t => ":" + t.FullName,
+				t => t.FullName,
 				"{value}.ToString()",
 				"{type}.Parse({valueString})");
 
@@ -444,9 +444,9 @@ namespace Routine.Test.Api.Generator
 				.Member("Sub", Id("test2", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
-				.Performs("Operation", p => 
-					p[0].Value.References[0].ActualModelId == "TestClass2" &&
-					p[0].Value.References[0].Id == "test2")
+				.Performs("Operation", p =>
+					p["arg1"].References[0].ActualModelId == "TestClass2" &&
+					p["arg1"].References[0].Id == "test2")
 				.Returns(Result(Id("test2", "TestClass2")));
 
 			var types = testing.Build().GetTypes();
@@ -483,9 +483,9 @@ namespace Routine.Test.Api.Generator
 				.Member("Sub", Id("test2", "Module2-TestClass2")));
 
 			When(Id("test1", "Module1-TestClass1"))
-				.Performs("Operation", p => 
-					p[0].Value.References[0].ActualModelId == "Module2-TestClass2" &&
-					p[0].Value.References[0].Id == "test2")
+				.Performs("Operation", p =>
+					p["arg1"].References[0].ActualModelId == "Module2-TestClass2" &&
+					p["arg1"].References[0].Id == "test2")
 				.Returns(Result(Id("test2", "Module2-TestClass2")));
 
 			var otherApiGenerator = new ClientApiGenerator(objectServiceMock.Object);
@@ -524,13 +524,13 @@ namespace Routine.Test.Api.Generator
 		public void Test_ListMemberParameterAndOperationResult()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("s-string").IsValue(),
 				Model("TestClass2").Name("TestClass2"),
 				Model("TestClass1").Name("TestClass1")
 				.Member("Subs", "TestClass2", false, true)
-				.Member("Names", ":System.String", false, true)
+				.Member("Names", "s-string", false, true)
 				.Operation("SubListOperation", "TestClass2", true, PModel("arg1", "TestClass2", true))
-				.Operation("NameListOperation", ":System.String", true, PModel("arg1", ":System.String", true))
+				.Operation("NameListOperation", "s-string", true, PModel("arg1", "s-string", true))
 			);
 
 			ObjectsAre(
@@ -541,26 +541,26 @@ namespace Routine.Test.Api.Generator
 				Object(Id("test1", "TestClass1"))
 				.Value("test1_value")
 				.Member("Subs", Id("test2.1", "TestClass2"), Id("test2.2", "TestClass2"))
-				.Member("Names", Id("name1", ":System.String"), Id("name2", ":System.String"))
+				.Member("Names", Id("name1", "s-string"), Id("name2", "s-string"))
 			);
 
 			When(Id("test1", "TestClass1"))
 				.Performs("SubListOperation", p => 
-					p[0].Value.References[0].ActualModelId == "TestClass2" &&
-					p[0].Value.References[0].Id == "test2.1" &&
-					p[0].Value.References[1].ActualModelId == "TestClass2" &&
-					p[0].Value.References[1].Id == "test2.2")
+					p["arg1"].References[0].ActualModelId == "TestClass2" &&
+					p["arg1"].References[0].Id == "test2.1" &&
+					p["arg1"].References[1].ActualModelId == "TestClass2" &&
+					p["arg1"].References[1].Id == "test2.2")
 				.Returns(Result(Id("test2.3", "TestClass2"), Id("test2.4", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
-				.Performs("NameListOperation", p => 
-					p[0].Value.References[0].ActualModelId == ":System.String" &&
-					p[0].Value.References[0].Id == "name1" &&
-					p[0].Value.References[1].ActualModelId == ":System.String" &&
-					p[0].Value.References[1].Id == "name2")
-				.Returns(Result(Id("name3", ":System.String"), Id("name4", ":System.String")));
+				.Performs("NameListOperation", p =>
+					p["arg1"].References[0].ActualModelId == "s-string" &&
+					p["arg1"].References[0].Id == "name1" &&
+					p["arg1"].References[1].ActualModelId == "s-string" &&
+					p["arg1"].References[1].Id == "name2")
+				.Returns(Result(Id("name3", "s-string"), Id("name4", "s-string")));
 
-			testing.UsingParseableValueTypes(":");
+			testing.UsingParseableValueTypes("System", "s");
 
 			var types = testing.Build().GetTypes();
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
@@ -599,18 +599,18 @@ namespace Routine.Test.Api.Generator
 		public void Test_NullMemberValue()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Name", ":System.String")
+				.Member("Name", "s-string")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "TestClass1"))
 				.Value("test1_value")
-				.Member("Name", Null(":System.String"))
+				.Member("Name", Null("s-string"))
 			);
-				
-			testing.UsingParseableValueTypes(":");
+
+			testing.UsingParseableValueTypes("System", "s");
 
 			var types = testing.Build().GetTypes();
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
@@ -627,19 +627,19 @@ namespace Routine.Test.Api.Generator
 		public void Test_NullParameterValue()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Operation("Operation", ":System.String", PModel("arg1", ":System.String"))
+				.Operation("Operation", "s-string", PModel("arg1", "s-string"))
 			);
 
 			ObjectsAre(Object(Id("test1", "TestClass1")).Value("test1_value"));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p => 
-					p[0].Value.References[0].IsNull)
-				.Returns(Result(Id("resultForNull", ":System.String")));
+					p["arg1"].References[0].IsNull)
+				.Returns(Result(Id("resultForNull", "s-string")));
 
-			testing.UsingParseableValueTypes(":");
+			testing.UsingParseableValueTypes("System", "s");
 
 			var types = testing.Build().GetTypes();
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
@@ -656,18 +656,18 @@ namespace Routine.Test.Api.Generator
 		public void Test_NullOperationResult()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Operation("Operation", ":System.String")
+				.Operation("Operation", "s-string")
 			);
 
 			ObjectsAre(Object(Id("test1", "TestClass1")).Value("test1_value"));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation")
-				.Returns(Result(Null(":System.String")));
+				.Returns(Result(Null("s-string")));
 
-			testing.UsingParseableValueTypes(":");
+			testing.UsingParseableValueTypes("System", "s");
 
 			var types = testing.Build().GetTypes();
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
@@ -719,18 +719,18 @@ namespace Routine.Test.Api.Generator
 		public void ClientObjectsHaveInvalidateMethodThatInvalidatesMemberValues()
 		{
 			ModelsAre(
-				Model(":System.String").IsValue(),
+				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Name", ":System.String")
+				.Member("Name", "s-string")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "TestClass1"))
 				.Value("test1_value")
-				.Member("Name", Id("name", ":System.String"))
+				.Member("Name", Id("name", "s-string"))
 			);
 
-			testing.UsingParseableValueTypes(":");
+			testing.UsingParseableValueTypes("System", "s");
 
 			var types = testing.Build().GetTypes();
 			var testClass1 = types.Single(t => t.Name == "TestClass1");

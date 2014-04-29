@@ -20,11 +20,11 @@ namespace Routine.Api
 
 		internal Rvariable With(ValueData data) 
 		{
-            return With(ANONYMOUS, data.Values.Select(svd => context.CreateRobject().With(svd.Reference, svd.Value)), data.IsList, false);
+			return With(ANONYMOUS, data.Values.Select(od => context.CreateRobject().With(od)), data.IsList, false);
 		}
 		internal Rvariable With(ReferenceData data) 
 		{
-            return With(ANONYMOUS, data.References.Select(ord => context.CreateRobject().With(ord)), data.IsList, false);
+			return With(ANONYMOUS, data.References.Select(ord => context.CreateRobject().With(ord)), data.IsList, false);
 		}
 		internal Rvariable Void() { return With(ANONYMOUS, new List<Robject>(), false, true); }
 
@@ -46,7 +46,7 @@ namespace Routine.Api
 		{
 			return new ValueData {
 				IsList = list, 
-				Values = value.Select(robj => new SingleValueData {
+				Values = value.Select(robj => new ObjectData {
 					Reference = robj.ObjectReferenceData, 
 					Value = robj.Value
 				}).ToList()
@@ -55,7 +55,8 @@ namespace Routine.Api
 
 		internal ReferenceData GetReferenceData()
 		{
-			return new ReferenceData {
+			return new ReferenceData
+			{
 				IsList = list,
 				References = value.Select(robj => robj.ObjectReferenceData).ToList()
 			};

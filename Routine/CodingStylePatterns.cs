@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Routine.Core;
 using Routine.Core.Builder;
 using Routine.Core.Configuration;
 
@@ -23,14 +24,10 @@ namespace Routine
 					.ExtractDisplayValue.Done(e => e.Always(string.Empty).WhenNull());
 		}
 
-		public static GenericCodingStyle ParseableValueTypePattern(this PatternBuilder<GenericCodingStyle> source, string valueTypePrefix)
+		public static GenericCodingStyle ParseableValueTypePattern(this PatternBuilder<GenericCodingStyle> source)
 		{
 			return source
 					.FromEmpty()
-					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.Prepend(valueTypePrefix))
-										.SerializeWhen(t => t.CanBe<string>() || t.CanParse())
-										.DeserializeBy(id => id.After(valueTypePrefix).ToType())
-										.DeserializeWhen(id => id.StartsWith(valueTypePrefix)))
 
 					.ExtractModelIsValue.Done(e => e.Always(true).When(t => t.CanBe<string>() || t.CanParse()))
 
@@ -59,21 +56,31 @@ namespace Routine
 					;
 		}
 
-		public static GenericCodingStyle CommonDomainTypeRootNamespacePattern(this PatternBuilder<GenericCodingStyle> source, string rootNamespace)
+		public static GenericCodingStyle ShortModelIdPattern(this PatternBuilder<GenericCodingStyle> source, string prefix, string shortPrefix)
 		{
-			return source.CommonDomainTypeRootNamespacePattern(rootNamespace, "-"); 
-		}
-
-		public static GenericCodingStyle CommonDomainTypeRootNamespacePattern(this PatternBuilder<GenericCodingStyle> source, string rootNamespace, string separator)
-		{
-			var prefix = rootNamespace + ".";
 			return source
 					.FromEmpty()
-					.DomainTypeRootNamespacesAre(rootNamespace)
-					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName.After(prefix).Replace(".", separator))
-						.SerializeWhen(t => t.FullName.StartsWith(prefix) && t.IsPublic)
-						.DeserializeBy(str => str.Replace(separator, ".").Prepend(prefix).ToType())
-						.DeserializeWhen(str => str.Contains(separator)));
+					.SerializeModelId.Done(s => s
+						.SerializeBy(t => t.FullName.ShortenModelId(prefix, shortPrefix))
+						.SerializeWhen(t => t.FullName.StartsWith(prefix + ".") && t.IsPublic)
+						.DeserializeBy(str => str.NormalizeModelId(prefix, shortPrefix).ToType())
+						.DeserializeWhen(str => str.StartsWith(shortPrefix + "-")));
+		}
+
+		public static string ShortenModelId(this string source, string actualPrefix, string shortPrefix)
+		{
+			shortPrefix = shortPrefix.Append("-");
+			actualPrefix = actualPrefix.Append(".");
+
+			return shortPrefix.Append(source.After(actualPrefix).SplitCamelCase('-').Replace("-.-", "--").ToLowerInvariant());
+		}
+
+		public static string NormalizeModelId(this string source, string actualPrefix, string shortPrefix)
+		{
+			shortPrefix = shortPrefix.Append("-");
+			actualPrefix = actualPrefix.Append(".");
+
+			return actualPrefix.Append(source.After(shortPrefix).Replace("--", "-.-").SnakeCaseToCamelCase('-').ToUpperInitial());
 		}
 
 		public static GenericCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<GenericCodingStyle> source)

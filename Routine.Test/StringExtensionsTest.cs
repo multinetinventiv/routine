@@ -10,7 +10,10 @@ namespace Routine.Test
 		public void Test_String_ToUpperInitial()
 		{
 			Assert.AreEqual("Lower", "lower".ToUpperInitial());
-			Assert.AreEqual("Upper", "Upper".SplitCamelCase());
+			Assert.AreEqual("Upper", "Upper".ToUpperInitial());
+			Assert.AreEqual("Invariant", "invariant".ToUpperInitial());
+			Assert.AreEqual("I", "i".ToUpperInitial());
+			Assert.AreEqual("", "".ToUpperInitial());
 		}
 
 		[Test]
@@ -20,6 +23,11 @@ namespace Routine.Test
 			Assert.AreEqual("Pascal Case", "PascalCase".SplitCamelCase());
 			Assert.AreEqual("PASCAL Case", "PASCALCase".SplitCamelCase());
 			Assert.AreEqual("Number 00 Case", "Number00Case".SplitCamelCase());
+
+			Assert.AreEqual("camel-Case", "camelCase".SplitCamelCase('-'));
+			Assert.AreEqual("Pascal-Case", "PascalCase".SplitCamelCase('-'));
+			Assert.AreEqual("PASCAL-Case", "PASCALCase".SplitCamelCase('-'));
+			Assert.AreEqual("Number-00-Case", "Number00Case".SplitCamelCase('-'));
 		}
 
 		[Test]
@@ -31,6 +39,13 @@ namespace Routine.Test
 			Assert.AreEqual("camelCase", "camelCase".SnakeCaseToCamelCase());
 			Assert.AreEqual("SNAKECase", "SNAKE_case".SnakeCaseToCamelCase());
 			Assert.AreEqual("snake00Case", "snake_00_case".SnakeCaseToCamelCase());
+
+			Assert.AreEqual("snakeCase", "snake-case".SnakeCaseToCamelCase('-'));
+			Assert.AreEqual("snakeCase", "snake-Case".SnakeCaseToCamelCase('-'));
+			Assert.AreEqual("SnakeCase", "Snake-Case".SnakeCaseToCamelCase('-'));
+			Assert.AreEqual("camelCase", "camelCase".SnakeCaseToCamelCase('-'));
+			Assert.AreEqual("SNAKECase", "SNAKE-case".SnakeCaseToCamelCase('-'));
+			Assert.AreEqual("snake00Case", "snake-00-case".SnakeCaseToCamelCase('-'));
 		}
 
 		[Test]

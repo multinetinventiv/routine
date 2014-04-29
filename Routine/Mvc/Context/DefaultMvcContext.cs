@@ -46,9 +46,19 @@ namespace Routine.Mvc.Context
             return new VariableViewModel(this);
         }
 
-		public PerformInterceptionContext CreatePerformInterceptionContext(Routine.Api.Robject target, string operationModelId, List<Routine.Api.Rvariable> parameters)
+		public PerformInterceptionContext CreatePerformInterceptionContext(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters)
 		{
 			return new PerformInterceptionContext(target, operationModelId, parameters);
 		}
-    }
+
+		public GetInterceptionContext CreateGetInterceptionContext(string id, string actualModelId)
+		{
+			return new GetInterceptionContext(id, actualModelId);
+		}
+
+		public GetAsInterceptionContext CreateGetAsInterceptionContext(string id, string actualModelId, string viewModelId)
+		{
+			return new GetAsInterceptionContext(id, actualModelId, viewModelId);
+		}
+	}
 }

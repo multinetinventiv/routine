@@ -23,35 +23,48 @@ namespace Routine.Api
 		public Robject With(string id, string modelId) {return With(id, modelId, modelId);}
 		public Robject With(string id, string actualModelId, string viewModelId) {return With(new ObjectReferenceData{Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId});}
 		internal Robject With(ObjectReferenceData objectReferenceData){return With(objectReferenceData, null);}
-		internal Robject With(ObjectReferenceData objectReferenceData, string value)
+		internal Robject With(ObjectReferenceData objectReferenceData, string value) { return With(new ObjectData { Reference = objectReferenceData, Value = value }); }
+		internal Robject With(ObjectData objectData)
 		{
-			this.objectReferenceData = objectReferenceData;
-			this.value = value;
+			this.objectReferenceData = objectData.Reference;
 			this.members = new Dictionary<string, Rmember>();
 			this.operations = new Dictionary<string, Roperation>();
 
 			if(!IsNull)
 			{
 				this.model = Application.ObjectModel[objectReferenceData.ViewModelId];
+
+				FillObject(objectData);
 			}
 			
 			return this;
 		}
 
-		private bool ModelIsLoaded { get{ return members.Any() || operations.Any(); } }
+		private void FillObject(ObjectData data)
+		{
+			value = data.Value;
+
+			if (data.Members.Count <= 0) { return; }
+
+			LoadMembersAndOperationsIfNecessary();
+			foreach (var memberModelId in data.Members.Keys)
+			{
+				members[memberModelId].SetData(data.Members[memberModelId]);
+			}
+		}
 
 		private void LoadMembersAndOperationsIfNecessary()
 		{
-			if(ModelIsLoaded) { return; }
-			if(IsNull) { return; } 
-			if(!IsDomain) { return; }
+			if (ModelIsLoaded) { return; }
+			if (IsNull) { return; }
+			if (!IsDomain) { return; }
 
-			foreach(var member in model.Members)
+			foreach (var member in model.Members)
 			{
 				members.Add(member.Id, context.CreateRmember().With(this, member));
 			}
 
-			foreach(var operation in model.Operations)
+			foreach (var operation in model.Operations)
 			{
 				operations.Add(operation.Id, context.CreateRoperation().With(this, operation));
 			}
@@ -78,24 +91,13 @@ namespace Routine.Api
 
 		internal void LoadObject() 
 		{
-			if(IsNull) { return; }
+			if (IsNull) { return; }
+			if (!IsDomain) { return; }
 
-			LoadMembersAndOperationsIfNecessary();
-
-            var data = context.ObjectService.Get(objectReferenceData);
-			value = data.Value;
-
-			foreach(var member in data.Members)
-			{
-				members[member.ModelId].SetData(member);
-			}
-
-			foreach(var operation in data.Operations)
-			{
-				operations[operation.ModelId].SetData(operation);
-			}
+			FillObject(context.ObjectService.Get(objectReferenceData));
 		}
 
+		private bool ModelIsLoaded { get { return members.Any() || operations.Any(); } }
 		internal ObjectReferenceData ObjectReferenceData {get{return objectReferenceData;}}
 
 		public Rapplication Application{get{return context.Rapplication;}}
@@ -114,6 +116,8 @@ namespace Routine.Api
 
 		public bool MarkedAs(string mark)
 		{
+			if (IsNull) { return false; }
+
 			return model.Marks.Any(m => m == mark);
 		}
 
@@ -142,10 +146,6 @@ namespace Routine.Api
 			foreach(var member in members.Values)
 			{
 				member.Invalidate();
-			}
-			foreach(var operation in operations.Values)
-			{
-				operation.Invalidate();
 			}
 		}
 

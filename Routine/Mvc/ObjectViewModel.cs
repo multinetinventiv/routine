@@ -139,6 +139,11 @@ namespace Routine.Mvc
 			}
 		}
 
+		public bool MarkedAs(string mark)
+		{
+			return robj.MarkedAs(mark);
+		}
+
 		public VariableViewModel Perform(string operationModelId, Dictionary<string, string> parameterDictionary)
 		{
 			if(parameterDictionary == null) {parameterDictionary = new Dictionary<string, string>();}
@@ -164,10 +169,7 @@ namespace Routine.Mvc
 				parameters.Add(rparam.CreateVariable(robjs.ToArray()));
 			}
 
-			var result = MvcConfig.PerformInterceptor.Intercept(
-					CreatePerformInterceptionContext(robj, operationModelId, parameters), 
-					() => robj.Perform(operationModelId, parameters)
-				) as Rvariable;
+			var result = robj.Perform(operationModelId, parameters);
 
 			return CreateVariable().With(result);
 		}

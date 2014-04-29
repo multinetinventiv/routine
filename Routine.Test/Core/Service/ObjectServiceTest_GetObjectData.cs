@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Core.Service;
-using System.Linq;
 using Routine.Core.Service.Impl;
 using Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData;
 
@@ -57,7 +55,7 @@ namespace Routine.Test.Core.Service
 	{
 		private const string ACTUAL_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.BusinessData";
 		private const string VIEW_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
-		private const string VALUE_OMID = ":Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
+		private const string VALUE_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
 		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData"};}}
@@ -78,7 +76,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void ObjectIsLocatedViaConfiguredLocatorAndItsIdIsExtractedUsingCorrespondingExtractor()
+		public void Object_is_located_via_configured_locator_and_its_id_is_extracted_using_corresponding_extractor()
 		{
 			AddToRepository(new BusinessData { Id = "obj" });
 
@@ -88,7 +86,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void DisplayValueIsExtractedUsingCorrespondingExtractor()
+		public void Display_value_is_extracted_using_corresponding_extractor()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
@@ -98,7 +96,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void DisplayValueIsIdWhenModelIsValueType()
+		public void Display_value_is_id_when_model_is_value_type()
 		{
 			var actual = testing.Get(Id("sample", VALUE_OMID));
 
@@ -107,62 +105,62 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void MembersAreFetchedUsingGivenViewModelId()
+		public void Members_are_fetched_using_given_view_model_id()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.IsTrue(actual.Members.Any(m => m.ModelId == "SubData"));
+			Assert.IsTrue(actual.Members.ContainsKey("SubData"));
 		}
 
 		[Test]
-		public void MemberDisplayValuesAreFetchedAlongWithTheirIds()
+		public void Member_display_values_are_fetched_along_with_their_ids()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
-			var actualMember = actual.Members.Single(m => m.ModelId == "SubData");
+			var actualMember = actual.Members["SubData"];
 
-			Assert.AreEqual("sub_obj", actualMember.Value.Values[0].Reference.Id);
-			Assert.AreEqual("Sub Obj Title", actualMember.Value.Values[0].Value);
+			Assert.AreEqual("sub_obj", actualMember.Values[0].Reference.Id);
+			Assert.AreEqual("Sub Obj Title", actualMember.Values[0].Value);
 		}
 
 		[Test]
-		public void ObjectIsMarkedAsNullIfItIsNull()
+		public void Object_is_marked_as_null_if_it_is_null()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = null});
 
 			var actual = testing.Get(Id("obj"));
-			var actualMember = actual.Members.Single(m => m.ModelId == "Title");
+			var actualMember = actual.Members["Title"];
 
-			Assert.IsTrue(actualMember.Value.Values[0].Reference.IsNull);
+			Assert.IsTrue(actualMember.Values[0].Reference.IsNull);
 		}
 
 		[Test]
-		public void WhenGettingObjectOnlyLightMembersAreFetched()
+		public void When_getting_object__only_light_members_are_fetched()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
 
 			var actual = testing.Get(Id("obj"));
 
-			Assert.IsFalse(actual.Members.Any(m => m.ModelId == "Items"));
+			Assert.IsFalse(actual.Members.ContainsKey("Items"));
 		}
 
 		[Test]
-		public void HeavyMembersCanBeFetchedSeparately()
+		public void Heavy_members_can_be_fetched_separately()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
 
 			var actual = testing.GetMember(Id("obj"), "Items");
 
-			Assert.IsTrue(actual.Value.IsList);
-			Assert.AreEqual("obj_item1", actual.Value.Values[0].Reference.Id);
-			Assert.AreEqual("obj_item2", actual.Value.Values[1].Reference.Id);
+			Assert.IsTrue(actual.IsList);
+			Assert.AreEqual("obj_item1", actual.Values[0].Reference.Id);
+			Assert.AreEqual("obj_item2", actual.Values[1].Reference.Id);
 		}
 
 		[Test]
-		public void WhenWantedMemberDoesNotExistMemberDoesNotExistExceptionIsThrown()
+		public void When_wanted_member_does_not_exist__exception_is_thrown()
 		{
 			AddToRepository(new BusinessData { Id = "obj" });
 
@@ -175,55 +173,15 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void OperationsAreFetchedUsingGivenViewModelId()
+		public void By_default_get_member_returns_eager_result()
 		{
-			AddToRepository(new BusinessData { Id = "obj"});
+			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-			var actual = testing.Get(Id("obj"));
-			var actualOperation = actual.Operations.SingleOrDefault(o => o.ModelId == "Operation");
+			var actual = testing.GetMember(Id("obj", ACTUAL_OMID, VIEW_OMID), "SubData");
 
-			Assert.IsNotNull(actualOperation);
-			Assert.AreEqual(0, actualOperation.Parameters.Count);
-		}
-
-		[Test]
-		public void WhenGettingObjectOnlyLightOperationsAreFetched()
-		{
-			AddToRepository(new BusinessData { Id = "obj"});
-
-			var actual = testing.Get(Id("obj"));
-
-			Assert.IsFalse(actual.Operations.Any(o => o.ModelId == "HeavyOperation"));
-		}
-
-		[Test]
-		public void HeavyOperationsCanBeFetchedSeparately()
-		{
-			AddToRepository(new BusinessData { Id = "obj"});
-
-			var actual = testing.GetOperation(Id("obj"), "HeavyOperation");
-
-			Assert.AreEqual("HeavyOperation", actual.ModelId);
-			Assert.AreEqual(0, actual.Parameters.Count);
-		}
-
-		[Test]
-		public void WhenWantedOperationDoesNotExistOperationDoesNotExistExceptionIsThrown()
-		{
-			AddToRepository(new BusinessData { Id = "obj" });
-
-			try
-			{
-				testing.GetOperation(Id("obj"), "NonExistingOperation");
-				Assert.Fail("exception not thrown");
-			}
-			catch(OperationDoesNotExistException){}
-		}
-
-		[Test] [Ignore]
-		public void GetMemberAsTableFeature()
-		{
-			Assert.Fail("not implemented");
+			Assert.IsTrue(actual.Values[0].Members.ContainsKey("SubData"));
+			Assert.AreEqual("sub_sub_obj", actual.Values[0].Members["SubData"].Values[0].Reference.Id);
+			Assert.AreEqual("Sub Sub Obj Title", actual.Values[0].Members["SubData"].Values[0].Value);
 		}
 	}
 }

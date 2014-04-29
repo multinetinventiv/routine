@@ -11,27 +11,29 @@ namespace Routine
 		{
 			if(source == null) { return null; }
 			if(source.Length == 0) { return source; }
-			if(source.Length == 1) { return source.ToUpper(); }
+			if(source.Length == 1) { return source.ToUpperInvariant(); }
 
-			return char.ToUpper(source[0], new CultureInfo("en-US")) + source.Substring(1);
+			return char.ToUpperInvariant(source[0]) + source.Substring(1);
 		}
 
-		public static string SplitCamelCase(this string source)
+		public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
+		public static string SplitCamelCase(this string source, char splitter)
 		{
 			var pattern = string.Format("{0}|{1}|{2}",
 			                            "(?<=[A-Z])(?=[A-Z][a-z])",
 			                            "(?<=[^A-Z])(?=[A-Z])",
 			                            "(?<=[A-Za-z])(?=[^A-Za-z])");
 
-			return Regex.Replace(source, pattern, " ");
+			return Regex.Replace(source, pattern, splitter.ToString());
 		}
 
-		public static string SnakeCaseToCamelCase(this string source)
+		public static string SnakeCaseToCamelCase(this string source) { return source.SnakeCaseToCamelCase('_'); }
+		public static string SnakeCaseToCamelCase(this string source, char splitter)
 		{
 			if(source == null) {return null;}
-			if(!source.Contains("_")) {return source;}
+			if (!source.Contains(splitter.ToString())) { return source; }
 
-			var words = source.Split('_');
+			var words = source.Split(splitter);
 
 			var result = words[0];
 			for(int i = 1; i < words.Length; i++)

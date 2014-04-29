@@ -63,7 +63,7 @@ namespace Routine.Test.Api
 		}
 		
 		[Test]
-		public void RobjectsFetchMemberAndOperationDataOnlyWhenAsked()
+		public void RobjectsFetchMemberDataOnlyWhenAsked()
 		{
 			ModelsAre(
 				Model("model")
@@ -78,31 +78,17 @@ namespace Routine.Test.Api
 			ObjectsAre(
 				Object(Id("id", "model"))
 				.Member("member1", Id("id1"))
-				.Member("member2", Id("id2"))
-				.Operation("operation1", PData("param1"))
-				.Operation("operation2", false, PData("param2")));
+				.Member("member2", Id("id2")));
 
 			var testingRobject = Robj("id", "model");
 			var members = testingRobject.Members;
-			var operations = testingRobject.Operations;
+			members = testingRobject.Members;
 
 			Assert.AreEqual("member1", members[0].Id);
 			Assert.AreEqual("id1", members[0].GetValue().Object.Id);
 
 			Assert.AreEqual("member2", members[1].Id);
 			Assert.AreEqual("id2", members[1].GetValue().Object.Id);
-
-			Assert.AreEqual("operation1", operations[0].Id);
-			Assert.IsTrue(operations[0].IsAvailable());
-
-			var parameters = operations[0].Parameters;
-			Assert.AreEqual("param1", parameters[0].Id);
-
-			Assert.AreEqual("operation2", operations[1].Id);
-			Assert.IsFalse(operations[1].IsAvailable());
-
-			parameters = operations[1].Parameters;
-			Assert.AreEqual("param2", parameters[0].Id);
 
 			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Once());
 		}
@@ -154,35 +140,6 @@ namespace Routine.Test.Api
 
 			objectServiceMock.Verify(o => o.GetMember(It.IsAny<ObjectReferenceData>(), "lightMember"), Times.Never());
 			objectServiceMock.Verify(o => o.GetMember(It.IsAny<ObjectReferenceData>(), "heavyMember"), Times.Once());
-		}
-
-		[Test]
-		public void RoperationsFetchDataOnlyWhenAskedIfTheyAreHeavy()
-		{
-			ModelsAre(
-				Model("model")
-				.Operation("lightOperation", PModel("param1"))
-				.Operation("heavyOperation", true, PModel("param2")));
-
-			ObjectsAre(
-				Object(Id("id1")),
-				Object(Id("id2")));
-
-			ObjectsAre(
-				Object(Id("id", "model"))
-				.Operation("lightOperation", PData("param1"))
-				.Operation("heavyOperation", PData("param2")));
-
-			var testingRobject = Robj("id", "model");
-
-			var operations = testingRobject.Operations;
-
-			Assert.AreEqual("lightOperation", operations[0].Id);
-			Assert.AreEqual("heavyOperation", operations[1].Id);
-			operations[1].IsAvailable();
-
-			objectServiceMock.Verify(o => o.GetOperation(It.IsAny<ObjectReferenceData>(), "lightOperation"), Times.Never());
-			objectServiceMock.Verify(o => o.GetOperation(It.IsAny<ObjectReferenceData>(), "heavyOperation"), Times.Once());
 		}
 
 		[Test]
@@ -264,6 +221,7 @@ namespace Routine.Test.Api
 			Assert.AreEqual(0, testingRobject.Members.Count);
 			Assert.AreEqual(0, testingRobject.Operations.Count);
 			Assert.IsTrue(testingRobject.Perform("some non existing operation").IsNull);
+			Assert.IsFalse(testingRobject.MarkedAs("dummy"));
 		}
 
 		[Test]
@@ -282,11 +240,8 @@ namespace Routine.Test.Api
 
 			When(Id("id", "actual_model", "view_model"))
 				.Performs("operation", p => 				
-					p[0].ParameterModelId == "param1" &&
-					p[0].Value.References[0].Id == "id_param1" &&
-
-					p[1].ParameterModelId == "param2" &&
-					p[1].Value.References[0].Id == "id_param2")
+					p["param1"].References[0].Id == "id_param1" &&
+					p["param2"].References[0].Id == "id_param2")
 				.Returns(Result(Id("id_result")));
 
 			var testingRobject = Robj("id", "actual_model", "view_model");
@@ -314,8 +269,8 @@ namespace Routine.Test.Api
 
 			When(Id("id", "model"))
 				.Performs("operation", p => 				
-					p[0].Value.References[0].ActualModelId == "param_given_model" &&
-					p[0].Value.References[0].ViewModelId == "param_model")
+					p["param"].References[0].ActualModelId == "param_given_model" &&
+					p["param"].References[0].ViewModelId == "param_model")
 				.Returns(Result(Id("id_result")));
 
 			var testingRobject = Robj("id", "model");
@@ -535,8 +490,7 @@ namespace Routine.Test.Api
 				.MarkOperation("operation", "mark"));
 
 			ObjectsAre(
-				Object(Id("id1", "model"))
-				.Operation("operation"));
+				Object(Id("id1", "model")));
 
 			var testingRoperation = Robj("id", "model").Operations.Single(o => o.Id == "operation");
 

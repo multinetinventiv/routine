@@ -66,13 +66,13 @@ $(function(){
 	    tbl.css("display", "none");
 	});
 	$(".tabs").tabs();
-	$('input[data-type=":System.Boolean"][type="checkbox"]').change(function() {
+	$('input[data-type="s-boolean"][type="checkbox"]').change(function() {
 		$('input[name="' + $(this).attr("name") + '"][type="hidden"]').attr("disabled", $(this).is(":checked"));
 	});
-	$('input[data-type=":System.DateTime"]').datepicker();
-	$('input[data-type=":System.Decimal"]').numeric({decimal:".",negative:false});
-	$('input[data-type=":System.Double"]').numeric({decimal:"."});
-	$('input[data-type=":System.Int32"]').numeric({decimal:" "});
+	$('input[data-type="s-date-time"]').datepicker();
+	$('input[data-type="s-decimal"]').numeric({decimal:".",negative:false});
+	$('input[data-type="s-double"]').numeric({decimal:"."});
+	$('input[data-type="s-int-32"]').numeric({decimal:" "});
 	$('input[type=submit].needs-confirm').each(function(){
 		$(this).on({click:function(){
 			confirmDialog("Are you sure?", $(this).val(), $(this).parents("form:first"));

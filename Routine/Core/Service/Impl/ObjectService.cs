@@ -58,7 +58,7 @@ namespace Routine.Core.Service.Impl
 			return ctx.GetDomainType(objectModelId).GetModel();
 		}
 
-		public List<SingleValueData> GetAvailableObjects(string objectModelId)
+		public List<ObjectData> GetAvailableObjects(string objectModelId)
 		{
 			return ctx.GetDomainType(objectModelId)
 					  .GetAvailableObjects()
@@ -78,19 +78,13 @@ namespace Routine.Core.Service.Impl
 					  .GetObject();
 		}
 
-		public MemberData GetMember(ObjectReferenceData reference, string memberModelId)
+		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
 		{
 			return ctx.GetDomainObject(reference)
 					  .GetMember(memberModelId);
 		}
 
-		public OperationData GetOperation(ObjectReferenceData reference, string operationModelId)
-		{
-			return ctx.GetDomainObject(reference)
-					  .GetOperation(operationModelId);
-		}
-
-		public ResultData PerformOperation(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameters)
+		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameters)
 		{
 			return ctx.GetDomainObject(targetReference)
 					  .Perform(operationModelId, parameters);

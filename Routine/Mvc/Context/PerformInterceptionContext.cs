@@ -6,15 +6,15 @@ namespace Routine.Mvc.Context
 {
 	public class PerformInterceptionContext : InterceptionContext
 	{
-		public PerformInterceptionContext(Robject target, string operationModelId, List<Rvariable> parameters)
+		public PerformInterceptionContext(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters)
 		{
 			Target = target;
 			OperationModelId = operationModelId;
 			Parameters = parameters;
 		}
 
-		public Robject Target { get; private set; }
+		public ObjectViewModel Target { get; private set; }
 		public string OperationModelId { get; private set; }
-		public List<Rvariable> Parameters { get; private set; }
+		public Dictionary<string, string> Parameters { get; private set; }
 	}
 }

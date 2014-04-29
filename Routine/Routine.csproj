@@ -42,6 +42,9 @@
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
+    <Compile Include="Core\Rest\IRestSerializer.cs" />
+    <Compile Include="Core\Service\SerializationExtensions.cs" />
+    <Compile Include="IDictionaryExtensions.cs" />
     <Compile Include="Core\Builder\InterceptorBuilder.cs" />
     <Compile Include="Core\IInterceptor.cs" />
     <Compile Include="Core\Interceptor\BaseAroundInterceptor.cs" />
@@ -53,6 +56,7 @@
     <Compile Include="Core\Interceptor\DecoratorInterceptor.cs" />
     <Compile Include="Core\Interceptor\AdapterInterceptor.cs" />
     <Compile Include="Core\Marks.cs" />
+    <Compile Include="Mvc\Context\GetInterceptionContext.cs" />
     <Compile Include="SoaClientPatterns.cs" />
     <Compile Include="Mvc\IMvcContext.cs" />
     <Compile Include="Mvc\Context\DefaultMvcContext.cs" />
@@ -130,16 +134,10 @@
     <Compile Include="CodingStylePatterns.cs" />
     <Compile Include="MvcPatterns.cs" />
     <Compile Include="Core\Selector\NoneSelector.cs" />
-    <Compile Include="Core\Service\Application.cs" />
     <Compile Include="Core\Service\Impl\ObjectService.cs" />
     <Compile Include="Core\Service\IObjectService.cs" />
-    <Compile Include="Core\Service\Member.cs" />
-    <Compile Include="Core\Service\Object.cs" />
-    <Compile Include="Core\Service\ObjectReference.cs" />
-    <Compile Include="Core\Service\Operation.cs" />
-    <Compile Include="Core\Service\Parameter.cs" />
-    <Compile Include="Core\Service\Result.cs" />
-    <Compile Include="Core\Service\Value.cs" />
+    <Compile Include="Core\Service\Model.cs" />
+    <Compile Include="Core\Service\Data.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="Core\Reflection\MethodInfo.cs" />
     <Compile Include="Core\Reflection\PropertyInfo.cs" />

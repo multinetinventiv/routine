@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Routine.Test.Common.Configuration;
+using Routine.Test.Domain.Configuration;
 
 namespace Routine.Test.Business.Service
 {

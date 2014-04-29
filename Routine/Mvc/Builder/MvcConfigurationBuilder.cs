@@ -35,6 +35,8 @@ namespace Routine.Mvc.Builder
 					.ExtractMemberOrder.OnFailReturn(m => 0)
 					.ExtractSimpleMemberOrder.OnFailReturn(m => 0)
 					.ExtractTableMemberOrder.OnFailReturn(m => 0)
+
+					.ExtractOperationIsAvailable.OnFailReturn(true);
 					;
 		}
 	}

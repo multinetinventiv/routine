@@ -28,6 +28,16 @@ namespace Routine.Core
 			return this;
 		}
 
+		internal DomainObject For(object target, string viewModelId)
+		{
+			this.target = target;
+
+			domainType = ctx.GetDomainType(viewModelId);
+			reference = ctx.CreateReferenceData(target, viewModelId);
+
+			return this;
+		}
+
 		public ObjectReferenceData GetReference()
 		{
 			return reference;
@@ -38,9 +48,9 @@ namespace Routine.Core
 			return ctx.GetValue(target, domainType, reference.Id);
 		}
 
-		public SingleValueData GetSingleValue()
+		public ObjectData GetSingleValue()
 		{
-			return new SingleValueData {
+			return new ObjectData {
 				Reference = GetReference(),
 				Value = GetValue()
 			};
@@ -48,15 +58,22 @@ namespace Routine.Core
 
 		public ObjectData GetObject()
 		{
-			return new ObjectData {
-				Reference = reference,
-				Value = GetValue(),
-				Members = domainType.LightMembers.Select(m => m.CreateData(target)).ToList(),
-				Operations = domainType.LightOperations.Select(o => o.CreateData(target)).ToList()
-			};
+			var result = GetSingleValue();
+
+			if (target == null)
+			{
+				return result;
+			}
+
+			foreach (var member in domainType.LightMembers)
+			{
+				result.Members.Add(member.Id, member.CreateData(target));
+			}
+
+			return result;
 		}
 	
-		public MemberData GetMember(string memberModelId)
+		public ValueData GetMember(string memberModelId)
 		{
 			DomainMember member;
 			if(!domainType.Member.TryGetValue(memberModelId, out member))
@@ -64,21 +81,10 @@ namespace Routine.Core
 				throw new MemberDoesNotExistException(domainType.Id, memberModelId);
 			}
 
-			return member.CreateData(target);
+			return member.CreateData(target, true);
 		}
 
-		public OperationData GetOperation(string operationModelId)
-		{
-			DomainOperation operation;
-			if(!domainType.Operation.TryGetValue(operationModelId, out operation))
-			{
-				throw new OperationDoesNotExistException(domainType.Id, operationModelId);
-			}
-
-			return operation.CreateData(target);
-		}
-
-		public ResultData Perform(string operationModelId, List<ParameterValueData> parameterValues)
+		public ValueData Perform(string operationModelId, Dictionary<string, ReferenceData> parameterValues)
 		{
 			DomainOperation operation;
 			if(!domainType.Operation.TryGetValue(operationModelId, out operation))

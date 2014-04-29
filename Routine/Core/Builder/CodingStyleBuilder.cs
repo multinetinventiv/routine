@@ -23,8 +23,6 @@ namespace Routine.Core.Builder
 
 					.ExtractMemberIsHeavy.OnFailReturn(false)
 					.ExtractOperationIsHeavy.OnFailReturn(false)
-
-					.ExtractOperationIsAvailable.OnFailReturn(true)
 					;
 		}
 	}

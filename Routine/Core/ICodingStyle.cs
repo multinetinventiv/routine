@@ -28,6 +28,5 @@ namespace Routine.Core
 
 		//TODO move to mvcconfig
 		IExtractor<object, string> DisplayValueExtractor { get; }
-		IExtractor<Tuple<object, IOperation>, bool> OperationIsAvailableExtractor { get; }
 	}
 }

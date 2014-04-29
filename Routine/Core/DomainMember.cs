@@ -30,7 +30,7 @@ namespace Routine.Core
 			Id = member.Name;
 			Marks = new Marks(ctx.CodingStyle.MemberMarkSelector.Select(member));
 			IsList = member.ReturnType.CanBeCollection();
-			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ?member.ReturnType.GetItemType():member.ReturnType);
+			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ? member.ReturnType.GetItemType() : member.ReturnType);
 			IsHeavy = ctx.CodingStyle.MemberIsHeavyExtractor.Extract(member);
 
 			return this;
@@ -52,14 +52,10 @@ namespace Routine.Core
 			};
 		}
 
-		public MemberData CreateData(object target)
+		public ValueData CreateData(object target) { return CreateData(target, false); }
+		public ValueData CreateData(object target, bool eager)
 		{
-			var result = new MemberData();
-
-			result.ModelId = Id;
-			result.Value = ctx.CreateValueData(member.FetchFrom(target), IsList, ViewModelId);
-
-			return result;
+			return ctx.CreateValueData(member.FetchFrom(target), IsList, ViewModelId, eager);
 		}
 	}
 }

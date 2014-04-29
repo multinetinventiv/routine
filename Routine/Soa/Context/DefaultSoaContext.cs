@@ -1,4 +1,5 @@
-﻿using Routine.Core;
+﻿using System.Collections.Generic;
+using Routine.Core;
 using Routine.Core.Service;
 
 namespace Routine.Soa.Context
@@ -43,7 +44,7 @@ namespace Routine.Soa.Context
 			return new OperationInterceptionContext(coreContext, targetReference, operationModelId);
 		}
 
-		public PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, System.Collections.Generic.List<ParameterValueData> parameterValues)
+		public PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
 		{
 			return new PerformOperationInterceptionContext(coreContext, targetReference, operationModelId, parameterValues);
 		}
@@ -53,9 +54,9 @@ namespace Routine.Soa.Context
 			return coreContext.CreateReferenceData(@object);
 		}
 
-		public object GetObject(ObjectReferenceData objectReferenceData)
+		public object GetObject(ObjectReferenceData reference)
 		{
-			return coreContext.Locate(objectReferenceData);
+			return coreContext.Locate(reference);
 		}
 	}
 }

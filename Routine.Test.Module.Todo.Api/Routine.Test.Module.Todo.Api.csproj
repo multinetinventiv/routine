@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAssignee.cs" />
     <Compile Include="ITodoItem.cs" />
     <Compile Include="ITodoModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

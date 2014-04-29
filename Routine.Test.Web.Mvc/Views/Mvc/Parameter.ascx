@@ -4,7 +4,7 @@
 <% var index = ViewData["index"]; %>
 <input type="hidden" name="parameters[<%= index %>].key" value="<%= model.Id %>" />
 <% if(!model.HasOptions) { %>
-	<% if(model.DataType == ":System.Boolean") { %>
+	<% if(model.DataType == "s-boolean") { %>
 		<input type="checkbox" name="parameters[<%= index %>].value" 
 			   data-type="<%= model.DataType %>" value="True"  />
 		<input type="hidden" name="parameters[<%= index %>].value"
@@ -16,7 +16,7 @@
 <% } else { %>
 	<select name="parameters[<%= index %>].value">
 		<% foreach(var option in model.Options) { %>
-			<option value="<%= option.Id %>" selected="<%= option.Value==model.DefaultValue?"selected":"no" %>" ><%= option.Value %></option>
+			<option value="<%= option.Id %>" <%= option.Value==model.DefaultValue?"selected=\"selected\"":"" %> ><%= option.Value %></option>
 		<% } %>
 	</select>
 <% } %>

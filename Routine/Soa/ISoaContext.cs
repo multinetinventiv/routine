@@ -15,9 +15,9 @@ namespace Routine.Soa
 		ObjectReferenceInterceptionContext CreateObjectReferenceInterceptionContext(ObjectReferenceData targetReference);
 		MemberInterceptionContext CreateMemberInterceptionContext(ObjectReferenceData targetReference, string memberModelId);
 		OperationInterceptionContext CreateOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId);
-		PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues);
+		PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues);
 
 		ObjectReferenceData GetObjectReference(object @object);
-		object GetObject(ObjectReferenceData objectReferenceData);
+		object GetObject(ObjectReferenceData reference);
 	}
 }

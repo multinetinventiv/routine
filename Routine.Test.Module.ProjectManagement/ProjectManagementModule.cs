@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Routine.Test.Common.Domain;
+using Routine.Test.Domain;
 
 namespace Routine.Test.Module.ProjectManagement
 {
@@ -31,6 +31,15 @@ namespace Routine.Test.Module.ProjectManagement
 		{
 			NewProject("Routine").NewFeature("UI");
 			NewProject("Multinet.Framework").NewFeature("Dependency Injection");
+		}
+
+		public string TestRequestCache(Project project, string name)
+		{
+			var otherProject = ctx.Query<Projects>().All().Single(p => p.Uid == project.Uid);
+
+			otherProject.Rename(name);
+
+			return project.Name;
 		}
 	}
 }

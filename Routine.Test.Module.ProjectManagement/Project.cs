@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Routine.Test.Common.Domain;
+using Routine.Test.Domain;
 
 namespace Routine.Test.Module.ProjectManagement
 {
@@ -31,16 +31,23 @@ namespace Routine.Test.Module.ProjectManagement
 			return this;
 		}
 
+		public void Rename(string name)
+		{
+			Name = name;
+
+			repository.Update(this);
+		}
+
 		public void NewFeature(string name)
 		{
 			ctx.New<Feature>().With(name, this);
 		}
 
-		public List<Feature> Features { get { return ctx.Get<FeatureSearch>().ByProject(this); } }
+		public List<Feature> Features { get { return ctx.Query<Features>().ByProject(this); } }
 	}
 
-	public class ProjectSearch : Search<Project>
+	public class Projects : Query<Project>
 	{
-		public ProjectSearch(IDomainContext ctx) : base(ctx) { }
+		public Projects(IDomainContext ctx) : base(ctx) { }
 	}
 }

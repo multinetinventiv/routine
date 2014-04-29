@@ -6,12 +6,12 @@ namespace Routine.Soa.Context
 {
 	public class PerformOperationInterceptionContext : OperationInterceptionContext
 	{
-		public PerformOperationInterceptionContext(ICoreContext coreContext, ObjectReferenceData targetReference, string operationModelId, List<ParameterValueData> parameterValues)
+		public PerformOperationInterceptionContext(ICoreContext coreContext, ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
 			: base(coreContext, targetReference, operationModelId)
 		{
 			ParameterValues = parameterValues;
 		}
 
-		public List<ParameterValueData> ParameterValues { get; private set; }
+		public Dictionary<string, ReferenceData> ParameterValues { get; private set; }
 	}
 }

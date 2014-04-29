@@ -1,17 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Test.Common.Domain;
+using Routine.Test.Common;
+using Routine.Test.Domain;
+using Routine.Test.Module.Todo.Api;
 
 namespace Routine.Test.Module.Todo
 {
-	public class Assignee
+	[Cached]
+	public class Assignee : IAssignee
 	{
 		private readonly IDomainContext ctx;
 		private readonly IRepository<Assignee> repository;
 
 		public Guid Uid{get; private set;}
 		public string Name{get; private set;}
+		public FatString Address { get; private set; }
 
 		private Assignee() {}
 		public Assignee(IDomainContext ctx, IRepository<Assignee> repository)
@@ -20,25 +24,26 @@ namespace Routine.Test.Module.Todo
 			this.repository = repository;
 		}
 
-		internal Assignee With(string name)
+		internal Assignee With(string name, FatString address)
 		{
 			Name = name;
+			Address = address;
 
 			Uid = repository.Insert<Guid>(this);
 
 			return this;
 		}
 
-		public List<TodoItem> ItemsToBeDone{get{return ctx.Get<TodoItemSearch>().ByAssigneeUidAndDone(Uid, false);}}
+		public List<TodoItem> ItemsToBeDone { get { return ctx.Query<TodoItems>().ByAssigneeUidAndDone(Uid, false); } }
 
 		public List<IContactInfo> ContactInfos
 		{
 			get
 			{
-				return ctx.Get<EmailContactInfoSearch>().ByOwnerAssigneeUid(Uid)
+				return ctx.Query<EmailContactInfos>().ByOwnerAssigneeUid(Uid)
 						  .Cast<IContactInfo>()
 						  .Union(
-							ctx.Get<PhoneContactInfoSearch>().ByOwnerAssigneeUid(Uid)
+							ctx.Query<PhoneContactInfos>().ByOwnerAssigneeUid(Uid)
 						  	   .Cast<IContactInfo>())
 						  .OrderByDescending(c => c.DateCreated)
 						  .ToList();
@@ -70,11 +75,18 @@ namespace Routine.Test.Module.Todo
 		{
 			ctx.New<EmailContactInfo>().With(this, name, address);
 		}
+
+		#region IAssignee implementation
+		List<ITodoItem> IAssignee.ItemsToBeDone
+		{
+			get { return ItemsToBeDone.Cast<ITodoItem>().ToList(); }
+		} 
+		#endregion
 	}
 
-	public class AssigneeSearch : Search<Assignee>
+	public class Assignees : Query<Assignee>
 	{
-		public AssigneeSearch(IDomainContext context)
+		public Assignees(IDomainContext context)
 			: base(context) {}
 
 		public Assignee SingleByName(string name)

@@ -11,7 +11,7 @@ using Routine.Core.Cache;
 
 namespace Routine.Test.Core.Service
 {
-	public abstract class ObjectServiceTestBase  :CoreTestBase
+	public abstract class ObjectServiceTestBase : CoreTestBase
 	{
 		protected Dictionary<string, object> objectRepository;
 
@@ -29,7 +29,8 @@ namespace Routine.Test.Core.Service
 
 			codingStyle = BuildRoutine.CodingStyle().FromBasic()
 				.Use(p => p.NullPattern("_null"))
-				.Use(p => p.ParseableValueTypePattern(":"))
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())
 				.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
 				.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
 
@@ -57,21 +58,22 @@ namespace Routine.Test.Core.Service
 			return new ObjectReferenceData{ Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId, IsNull = isNull };
 		}
 
-		protected List<ParameterValueData> Params(params ParameterValueData[] parameters)
+		protected Dictionary<string, ReferenceData> Params(params KeyValuePair<string, ReferenceData>[] parameters)
 		{
-			return parameters.ToList();
+			var result = new Dictionary<string, ReferenceData>();
+
+			foreach (var parameter in parameters)
+			{
+				result.Add(parameter.Key, parameter.Value);
+			}
+
+			return result;
 		}
 
-		protected ParameterValueData Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length == 1, references);}
-		protected ParameterValueData Param(string modelId, bool isList, params ObjectReferenceData[] references)
+		protected KeyValuePair<string, ReferenceData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length == 1, references); }
+		protected KeyValuePair<string, ReferenceData> Param(string modelId, bool isList, params ObjectReferenceData[] references)
 		{
-			return new ParameterValueData {
-				ParameterModelId = modelId,
-				Value = new ReferenceData {
-					IsList = isList,
-					References = references.ToList()
-				}
-			};
+			return new KeyValuePair<string, ReferenceData>(modelId, new ReferenceData { IsList = isList, References = references.ToList() });
 		}
 
 		protected abstract string DefaultModelId{get;}

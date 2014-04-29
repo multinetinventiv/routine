@@ -60,7 +60,8 @@ namespace Routine.Test.Performance
 					.FromBasic()				
 					.DomainTypeRootNamespacesAre("Routine.Test.Performance.Domain")
 					.Use(p => p.NullPattern("_null"))
-					.Use(p => p.ParseableValueTypePattern(":"))
+					.Use(p => p.ShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern())
 					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 						
 					.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
@@ -241,12 +242,10 @@ namespace Routine.Test.Performance
 							ViewModelId = ord.ViewModelId,
 							Id = foundObj.Id.ToString(),
 						},
-						Members = new List<MemberData>{
-							new MemberData {
-								ModelId = "Items",
-								Value = new ValueData {
+						Members = new Dictionary<string, ValueData>{
+							{"Items", new ValueData {
 									IsList = true,
-									Values = foundObj.Items.Select(sub => new SingleValueData {
+									Values = foundObj.Items.Select(sub => new ObjectData{
 										Reference = new ObjectReferenceData {
 											ActualModelId = sub_type,
 											ViewModelId = sub_type,
@@ -256,8 +255,7 @@ namespace Routine.Test.Performance
 									}).ToList()
 								}
 							}
-						},
-						Operations = new List<OperationData>()
+						}
 					};
 				}, load);
 
@@ -303,17 +301,15 @@ namespace Routine.Test.Performance
 				BusinessPerformance foundObj = objectRepository[ord.Id] as BusinessPerformance;
 
 				var result = foundObj.GetSub(int.Parse("0"));
-				var returnResult = new ResultData {
-					Value = new ValueData {
-						IsList = false,
-						Values = new List<SingleValueData> {
-							new SingleValueData {
-								Value = result.ToString(),
-								Reference = new ObjectReferenceData {
-									ActualModelId = sub_type,
-									ViewModelId = sub_type,
-									Id = result.Id.ToString()
-								}
+				var returnResult = new ValueData {
+					IsList = false,
+					Values = new List<ObjectData> {
+						new ObjectData {
+							Value = result.ToString(),
+							Reference = new ObjectReferenceData {
+								ActualModelId = sub_type,
+								ViewModelId = sub_type,
+								Id = result.Id.ToString()
 							}
 						}
 					}
@@ -327,15 +323,12 @@ namespace Routine.Test.Performance
 					ViewModelId = obj_type,
 					Id = obj_id.ToString()
 				};
-				var returnResult = objectService.PerformOperation(ord, "GetSub", new List<ParameterValueData>{
-					new ParameterValueData {
-						ParameterModelId = "index",
-						Value = new ReferenceData {
+				var returnResult = objectService.PerformOperation(ord, "GetSub", new Dictionary<string, ReferenceData>{
+					{"index", new ReferenceData {
 							IsList = false,
 							References = new List<ObjectReferenceData> {
 								new ObjectReferenceData {
-									ActualModelId = ":System.Int32",
-									ViewModelId = ":System.Int32",
+									ActualModelId= "s-int32",
 									Id = "0"
 								}
 							}
@@ -346,7 +339,7 @@ namespace Routine.Test.Performance
 
 			Run("Routine Client Api Access", () =>
 			{
-				var rvar = rapp.NewVar("index", rapp.Get("0", ":System.Int32"));
+				var rvar = rapp.NewVar("index", rapp.Get("0", "s-int32"));
 				var returnResult = rapp.Get(obj_id.ToString(), obj_type).Perform("GetSub", rvar);
 			}, load);
 		}

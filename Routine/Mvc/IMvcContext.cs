@@ -17,6 +17,9 @@ namespace Routine.Mvc
         ParameterViewModel CreateParameter();
         VariableViewModel CreateVariable();
 
-		PerformInterceptionContext CreatePerformInterceptionContext(Robject target, string operationModelId, List<Rvariable> parameters);
+		PerformInterceptionContext CreatePerformInterceptionContext(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters);
+		GetInterceptionContext CreateGetInterceptionContext(string id, string actualModelId);
+		GetAsInterceptionContext CreateGetAsInterceptionContext(string id, string actualModelId, string viewModelId);
+
     }
 }
