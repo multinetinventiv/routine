@@ -1,4 +1,4 @@
-﻿using Routine.Api.Generator.Configuration;
+﻿using Routine.Api.Configuration;
 using Routine.Core.Builder;
 
 namespace Routine

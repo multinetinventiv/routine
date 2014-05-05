@@ -64,9 +64,9 @@
     <Compile Include="Core\Serializer\BaseOptionalSerializerTest.cs" />
     <Compile Include="Core\Serializer\DelegateSerializerTest.cs" />
     <Compile Include="Core\Serializer\MultipleSerializerTest.cs" />
-    <Compile Include="Api\ApiTest.cs" />
-    <Compile Include="Api\ApiTestBase.cs" />
-    <Compile Include="Core\CoreContext\CachedCoreContextTest.cs" />
+    <Compile Include="Core\Api\ApiTest.cs" />
+    <Compile Include="Core\Api\ApiTestBase.cs" />
+    <Compile Include="Core\Context\CachedCoreContextTest.cs" />
     <Compile Include="Soa\RestClientObjectServiceTest.cs" />
     <Compile Include="StringExtensionsTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
@@ -87,8 +87,8 @@
     <Compile Include="ReflectionExtensionsTest.cs" />
     <Compile Include="Core\CoreTestBase.cs" />
     <Compile Include="Core\Reflection\Optimization\ReflectionOptimizerTest.cs" />
-    <Compile Include="Api\Generator\ApiGeneratorTest.cs" />
-    <Compile Include="Api\Generator\ModuleFilterTest.cs" />
+    <Compile Include="Api\ApiGeneratorTest.cs" />
+    <Compile Include="Api\ModuleFilterTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

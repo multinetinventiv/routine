@@ -1,8 +1,7 @@
 ﻿using Routine.Api;
 using Routine.Api.Context;
-using Routine.Api.Generator;
-using Routine.Api.Generator.Context;
 using Routine.Core;
+using Routine.Core.Api;
 using Routine.Core.Cache;
 using Routine.Core.Context;
 using Routine.Core.Rest;

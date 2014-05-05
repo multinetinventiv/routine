@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Api;
+using Routine.Core;
+using Routine.Core.Api;
 
 namespace Routine.Test.Performance
 {

@@ -39,26 +39,26 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Context\DefaultApiContext.cs" />
-    <Compile Include="Api\Generator\Builder\ApiGenerationConfigurationBuilder.cs" />
-    <Compile Include="Api\Generator\Configuration\GenericApiGenerationConfiguration.cs" />
-    <Compile Include="Api\Generator\Context\DefaultApiGenerationContext.cs" />
-    <Compile Include="Api\Generator\CodeModelBase.cs" />
-    <Compile Include="Api\Generator\ApplicationCodeModel.cs" />
-    <Compile Include="Api\Generator\ParameterCodeModel.cs" />
-    <Compile Include="Api\Generator\OperationCodeModel.cs" />
-    <Compile Include="Api\Generator\MemberCodeModel.cs" />
-    <Compile Include="Api\Generator\ObjectCodeModel.cs" />
-    <Compile Include="Api\Generator\IApiGenerationConfiguration.cs" />
-    <Compile Include="Api\Generator\IApiGenerationContext.cs" />
-    <Compile Include="Api\Generator\IApiTemplate.cs" />
-    <Compile Include="Api\Generator\Template\T4\ClientApi.cs">
+    <Compile Include="Core\Context\DefaultApiContext.cs" />
+    <Compile Include="Api\Builder\ApiGenerationConfigurationBuilder.cs" />
+    <Compile Include="Api\Configuration\GenericApiGenerationConfiguration.cs" />
+    <Compile Include="Api\Context\DefaultApiGenerationContext.cs" />
+    <Compile Include="Api\CodeModelBase.cs" />
+    <Compile Include="Api\ApplicationCodeModel.cs" />
+    <Compile Include="Api\ParameterCodeModel.cs" />
+    <Compile Include="Api\OperationCodeModel.cs" />
+    <Compile Include="Api\MemberCodeModel.cs" />
+    <Compile Include="Api\ObjectCodeModel.cs" />
+    <Compile Include="Api\IApiGenerationConfiguration.cs" />
+    <Compile Include="Api\IApiGenerationContext.cs" />
+    <Compile Include="Api\IApiTemplate.cs" />
+    <Compile Include="Api\Template\T4\ClientApi.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ClientApi.tt</DependentUpon>
     </Compile>
-    <Compile Include="Api\Generator\Template\T4\ClientApi_Partial.cs" />
-    <Compile Include="Api\IApiContext.cs" />
+    <Compile Include="Api\Template\T4\ClientApi_Partial.cs" />
+    <Compile Include="Core\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
     <Compile Include="ApiGenerationPatterns.cs" />
     <Compile Include="Core\Rest\IRestSerializer.cs" />
@@ -122,13 +122,13 @@
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />
     <Compile Include="Soa\SoaExceptionResult.cs" />
     <Compile Include="StringExtensions.cs" />
-    <Compile Include="Api\Rapplication.cs" />
+    <Compile Include="Core\Api\Rapplication.cs" />
     <Compile Include="Core\IDomainApi.cs" />
-    <Compile Include="Api\Robject.cs" />
-    <Compile Include="Api\Rmember.cs" />
-    <Compile Include="Api\Roperation.cs" />
-    <Compile Include="Api\Rparameter.cs" />
-    <Compile Include="Api\Rvariable.cs" />
+    <Compile Include="Core\Api\Robject.cs" />
+    <Compile Include="Core\Api\Rmember.cs" />
+    <Compile Include="Core\Api\Roperation.cs" />
+    <Compile Include="Core\Api\Rparameter.cs" />
+    <Compile Include="Core\Api\Rvariable.cs" />
     <Compile Include="Core\DomainApi\MethodMember.cs" />
     <Compile Include="Core\DomainApi\PropertyMember.cs" />
     <Compile Include="Mvc\ApplicationViewModel.cs" />
@@ -193,8 +193,8 @@
     <Compile Include="Soa\Configuration\GenericSoaClientConfiguration.cs" />
     <Compile Include="Soa\Builder\SoaClientConfigurationBuilder.cs" />
     <Compile Include="Core\Rest\WebRequestRestClient.cs" />
-    <Compile Include="Api\Generator\ApiGenerator.cs" />
-    <Compile Include="Api\Generator\ModuleFilter.cs" />
+    <Compile Include="Api\ApiGenerator.cs" />
+    <Compile Include="Api\ModuleFilter.cs" />
     <Compile Include="Mvc\Context\PerformInterceptionContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -202,7 +202,7 @@
     <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Api\Generator\Template\T4\ClientApi.tt">
+    <None Include="Api\Template\T4\ClientApi.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ClientApi.cs</LastGenOutput>
     </None>

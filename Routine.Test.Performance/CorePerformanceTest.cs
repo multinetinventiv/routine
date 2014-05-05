@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using Fasterflect;
 using NUnit.Framework;
-using Routine.Api;
 using Routine.Core;
+using Routine.Core.Api;
 using Routine.Core.Cache;
 using Routine.Test.Performance.Domain;
 

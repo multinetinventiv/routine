@@ -1,8 +1,6 @@
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
-using Routine.Api;
-using Routine.Mvc.Context;
-using System.Collections.Generic;
+using Routine.Core.Api;
 
 namespace Routine.Mvc
 {
