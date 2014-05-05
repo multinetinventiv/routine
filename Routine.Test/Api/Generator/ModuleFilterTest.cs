@@ -16,59 +16,59 @@ namespace Routine.Test.Api.Generator
 		}
 
 		[Test]
-		public void IncludesWhenNoFilterWasGiven()
+		public void Includes_when_no_filter_was_given()
 		{
-			Assert.IsTrue(testing.Check("dummy"));
+			Assert.IsTrue(testing.IsModuleIncluded("dummy"));
 		}
 
 		[Test]
-		public void IncludesWhenGivenStringConformsToGivenIncludeFilter()
+		public void Includes_when_given_string_conforms_to_given_include_filter()
 		{
 			testing.Include("i.*");
-			Assert.IsTrue(testing.Check("included"));
-			Assert.IsFalse(testing.Check("excluded"));
+			Assert.IsTrue(testing.IsModuleIncluded("included"));
+			Assert.IsFalse(testing.IsModuleIncluded("excluded"));
 		}
 
 		[Test]
-		public void ExcludesWhenGivenStringConformsToGivenExcludeFilter()
+		public void Excludes_when_given_string_conforms_to_given_exclude_filter()
 		{
 			testing.Exclude("e.*");
-			Assert.IsTrue(testing.Check("included"));
-			Assert.IsFalse(testing.Check("excluded"));
+			Assert.IsTrue(testing.IsModuleIncluded("included"));
+			Assert.IsFalse(testing.IsModuleIncluded("excluded"));
 		}
 
 		[Test]
-		public void IncludesWhenAnyOfIncludeFiltersIsOk()
+		public void Includes_when_any_of_include_filters_is_ok()
 		{
 			testing.Include("i.*");
 			testing.Include("c.*");
-			Assert.IsTrue(testing.Check("included"));
-			Assert.IsTrue(testing.Check("checkswell"));
-			Assert.IsFalse(testing.Check("excluded"));
+			Assert.IsTrue(testing.IsModuleIncluded("included"));
+			Assert.IsTrue(testing.IsModuleIncluded("checkswell"));
+			Assert.IsFalse(testing.IsModuleIncluded("excluded"));
 		}
 
 		[Test]
-		public void ExcludesWhenAnyOfExcludeFiltersIsOk()
+		public void Excludes_when_any_of_exclude_filters_is_ok()
 		{
 			testing.Exclude("e.*");
 			testing.Exclude("c.*");
-			Assert.IsFalse(testing.Check("excluded"));
-			Assert.IsFalse(testing.Check("checksbad"));
-			Assert.IsTrue(testing.Check("included"));
+			Assert.IsFalse(testing.IsModuleIncluded("excluded"));
+			Assert.IsFalse(testing.IsModuleIncluded("checksbad"));
+			Assert.IsTrue(testing.IsModuleIncluded("included"));
 		}
 
 		[Test]
-		public void IncludesWhenAnyOfIncludeFiltersIsOkAndNoneOfExcludeFiltersIsOk()
+		public void Includes_when_any_of_include_filters_is_ok_and_none_of_exclude_filters_is_ok()
 		{
 			testing.Include(".*well");
 			testing.Include("i.*");
 			testing.Exclude(".*e");
 			testing.Exclude("does.*");
-			Assert.IsTrue(testing.Check("included"));
-			Assert.IsTrue(testing.Check("checkswell"));
-			Assert.IsFalse(testing.Check("exclude"));
-			Assert.IsFalse(testing.Check("notincludednotexcluded"));
-			Assert.IsFalse(testing.Check("doesthisdowell"));
+			Assert.IsTrue(testing.IsModuleIncluded("included"));
+			Assert.IsTrue(testing.IsModuleIncluded("checkswell"));
+			Assert.IsFalse(testing.IsModuleIncluded("exclude"));
+			Assert.IsFalse(testing.IsModuleIncluded("notincludednotexcluded"));
+			Assert.IsFalse(testing.IsModuleIncluded("doesthisdowell"));
 		}
 	}
 }

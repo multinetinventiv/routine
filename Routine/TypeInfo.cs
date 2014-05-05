@@ -54,13 +54,13 @@ namespace Routine
 			}
 			foreach(var assembly in assemblies)
 			{
-				result.AddRange(GetReferencesAssemblies(assembly, state));
+				result.AddRange(GetReferencedAssemblies(assembly, state));
 			}
 
 			return result;
 		}
 
-		private static List<System.Reflection.Assembly> GetReferencesAssemblies(System.Reflection.Assembly assembly, Dictionary<string, bool> state)
+		private static List<System.Reflection.Assembly> GetReferencedAssemblies(System.Reflection.Assembly assembly, Dictionary<string, bool> state)
 		{
 			var result = new List<System.Reflection.Assembly> {assembly};
 
@@ -84,7 +84,7 @@ namespace Routine
 
 				if(referenceAssembly != null)
 				{
-					result.AddRange(GetReferencesAssemblies(referenceAssembly, state));
+					result.AddRange(GetReferencedAssemblies(referenceAssembly, state));
 				}
 			}
 

@@ -5,10 +5,9 @@ using System.Web.Routing;
 using Routine.Api;
 using Routine.Core;
 using Routine.Core.Extractor;
-using Routine.Core.Selector;
-using Routine.Core.Service;
-using Routine.Mvc.Context;
 using Routine.Core.Interceptor;
+using Routine.Core.Selector;
+using Routine.Mvc.Context;
 
 namespace Routine.Mvc.Configuration
 {
@@ -16,11 +15,13 @@ namespace Routine.Mvc.Configuration
 	{
 		public const string DEFAULT_OBJECT_ID = "default";
 
-		private string NullDisplayValue {get;set;}
-		private char ViewNameSeparator {get;set;}
-		private char ListValueSeparator{get;set;}
-		public GenericMvcConfiguration DisplayValueForNullIs(string nullDisplayValue) {NullDisplayValue = nullDisplayValue; return this; }
+		private string NullDisplayValue { get; set; }
+		public GenericMvcConfiguration DisplayValueForNullIs(string nullDisplayValue) { NullDisplayValue = nullDisplayValue; return this; }
+
+		private char ViewNameSeparator { get; set; }
 		public GenericMvcConfiguration SeparateViewNamesBy(char viewNameSeparator) { ViewNameSeparator = viewNameSeparator; return this; }
+
+		private char ListValueSeparator{get;set;}
 		public GenericMvcConfiguration SeparateListValuesBy(char listValueSeparator) { ListValueSeparator = listValueSeparator; return this; }
 
 		public ChainInterceptor<GenericMvcConfiguration, PerformInterceptionContext> InterceptPerform { get; private set; }

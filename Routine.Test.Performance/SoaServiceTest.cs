@@ -19,7 +19,7 @@ namespace Routine.Test.Performance
 			rapp = soaClientContext.Rapplication;
 		}
 
-		[Test]
+		[Test][Ignore]
 		public void ServiceClientTest()
 		{
 			var todoModule = rapp.Get("Instance", "m-todo--todo-module");

@@ -3,9 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
-using Routine.Core.Interceptor;
-using Routine.Core.Service;
-using Routine.Soa.Context;
+using Routine.Core;
 
 namespace Routine.Soa
 {

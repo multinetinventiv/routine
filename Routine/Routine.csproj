@@ -40,10 +40,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\Context\DefaultApiContext.cs" />
+    <Compile Include="Api\Generator\Builder\ApiGenerationConfigurationBuilder.cs" />
+    <Compile Include="Api\Generator\Configuration\GenericApiGenerationConfiguration.cs" />
+    <Compile Include="Api\Generator\Context\DefaultApiGenerationContext.cs" />
+    <Compile Include="Api\Generator\CodeModelBase.cs" />
+    <Compile Include="Api\Generator\ApplicationCodeModel.cs" />
+    <Compile Include="Api\Generator\ParameterCodeModel.cs" />
+    <Compile Include="Api\Generator\OperationCodeModel.cs" />
+    <Compile Include="Api\Generator\MemberCodeModel.cs" />
+    <Compile Include="Api\Generator\ObjectCodeModel.cs" />
+    <Compile Include="Api\Generator\IApiGenerationConfiguration.cs" />
+    <Compile Include="Api\Generator\IApiGenerationContext.cs" />
+    <Compile Include="Api\Generator\IApiTemplate.cs" />
+    <Compile Include="Api\Generator\Template\T4\ClientApi.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ClientApi.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Api\Generator\Template\T4\ClientApi_Partial.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
+    <Compile Include="ApiGenerationPatterns.cs" />
     <Compile Include="Core\Rest\IRestSerializer.cs" />
-    <Compile Include="Core\Service\SerializationExtensions.cs" />
+    <Compile Include="Soa\SerializationExtensions.cs" />
     <Compile Include="IDictionaryExtensions.cs" />
     <Compile Include="Core\Builder\InterceptorBuilder.cs" />
     <Compile Include="Core\IInterceptor.cs" />
@@ -134,10 +153,10 @@
     <Compile Include="CodingStylePatterns.cs" />
     <Compile Include="MvcPatterns.cs" />
     <Compile Include="Core\Selector\NoneSelector.cs" />
-    <Compile Include="Core\Service\Impl\ObjectService.cs" />
-    <Compile Include="Core\Service\IObjectService.cs" />
-    <Compile Include="Core\Service\Model.cs" />
-    <Compile Include="Core\Service\Data.cs" />
+    <Compile Include="Core\ObjectService.cs" />
+    <Compile Include="Core\IObjectService.cs" />
+    <Compile Include="Core\Model.cs" />
+    <Compile Include="Core\Data.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="Core\Reflection\MethodInfo.cs" />
     <Compile Include="Core\Reflection\PropertyInfo.cs" />
@@ -174,18 +193,23 @@
     <Compile Include="Soa\Configuration\GenericSoaClientConfiguration.cs" />
     <Compile Include="Soa\Builder\SoaClientConfigurationBuilder.cs" />
     <Compile Include="Core\Rest\WebRequestRestClient.cs" />
-    <Compile Include="Api\Generator\ClientApiGenerator.cs" />
+    <Compile Include="Api\Generator\ApiGenerator.cs" />
     <Compile Include="Api\Generator\ModuleFilter.cs" />
-    <Compile Include="Api\Generator\ClientApiPatterns.cs" />
     <Compile Include="Mvc\Context\PerformInterceptionContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <EmbeddedResource Include="Api\Generator\Client\ApiCodeModel.cs.template" />
-    <EmbeddedResource Include="Api\Generator\Client\ObjectCodeModel.cs.template" />
     <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Api\Generator\Template\T4\ClientApi.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ClientApi.cs</LastGenOutput>
+    </None>
     <None Include="Routine.nuspec" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup />
 </Project>

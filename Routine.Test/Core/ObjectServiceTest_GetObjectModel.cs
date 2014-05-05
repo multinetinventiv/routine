@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Core.Configuration;
-using Routine.Test.Core.Service.Ignored;
+using Routine.Test.Core.Ignored;
 
-namespace Routine.Test.Core.Service.Ignored
+namespace Routine.Test.Core.Ignored
 {
 	public class IgnoredModel {}
 }
 
-namespace Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel
+namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectModel
 {
 	public class BusinessModel
 	{
@@ -42,12 +42,12 @@ namespace Routine.Test.Core.Service
 	[TestFixture]
 	public class ObjectServiceTest_GetObjectModel : ObjectServiceTestBase
 	{
-		private const string TESTED_OM_ID = "Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-BusinessModel";
-		private const string TESTED_VAM_ID = ":Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel.BusinessValueModel";
-		private const string TESTED_VIM_ID = "Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-IBusinessModel";
+		private const string TESTED_OM_ID = "Routine-Test-Core-Domain-ObjectServiceTest_GetObjectModel-BusinessModel";
+		private const string TESTED_VAM_ID = ":Routine.Test.Core.Domain.ObjectServiceTest_GetObjectModel.BusinessValueModel";
+		private const string TESTED_VIM_ID = "Routine-Test-Core-Domain-ObjectServiceTest_GetObjectModel-IBusinessModel";
 
 		protected override string DefaultModelId{get{return TESTED_OM_ID;}}
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectModel"};}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest_GetObjectModel"};}}
 
 		[SetUp]
 		public override void SetUp()
@@ -80,7 +80,7 @@ namespace Routine.Test.Core.Service
 		{
 			var actual = testing.GetObjectModel(TESTED_OM_ID);
 
-			Assert.AreEqual("Routine-Test-Core-Service-Domain-ObjectServiceTest_GetObjectModel-BusinessModel", actual.Id);
+			Assert.AreEqual("Routine-Test-Core-Domain-ObjectServiceTest_GetObjectModel-BusinessModel", actual.Id);
 		}
 
 		[Test]

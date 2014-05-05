@@ -7,7 +7,6 @@ using NUnit.Framework;
 using Routine.Api;
 using Routine.Core;
 using Routine.Core.Cache;
-using Routine.Core.Service;
 using Routine.Test.Performance.Domain;
 
 namespace Routine.Test.Performance.Domain
@@ -177,13 +176,13 @@ namespace Routine.Test.Performance
 				{
 					var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
 				}, load);
-			Run("System.Reflection Access", () =>
-				{
-					var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
-				}, load);
 			Run("Fasterflect Access", () =>
 				{
 					var name = obj.GetType().Property("Id").Get(obj);
+				}, load);
+			Run("System.Reflection Access", () =>
+				{
+					var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
 				}, load);
 
 			Console.WriteLine("-------");

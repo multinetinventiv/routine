@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Routine.Core;
 
-namespace Routine.Core.Service
+namespace Routine.Soa
 {
 	public static class SerializationExtensions
 	{

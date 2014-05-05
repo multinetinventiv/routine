@@ -2,32 +2,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Api;
-using Routine.Api.Context;
+using Routine.Api.Generator.Builder;
+using Routine.Api.Generator.Configuration;
 using Routine.Core;
 using Routine.Core.Builder;
-using Routine.Core.Cache;
 using Routine.Core.Configuration;
-using Routine.Core.Context;
 using Routine.Core.Extractor;
 using Routine.Core.Interceptor;
 using Routine.Core.Locator;
 using Routine.Core.Member;
 using Routine.Core.Operation;
 using Routine.Core.Reflection;
-using Routine.Core.Rest;
 using Routine.Core.Selector;
 using Routine.Core.Serializer;
-using Routine.Core.Service;
-using Routine.Core.Service.Impl;
-using Routine.Mvc;
 using Routine.Mvc.Builder;
 using Routine.Mvc.Configuration;
-using Routine.Mvc.Context;
-using Routine.Soa;
 using Routine.Soa.Builder;
 using Routine.Soa.Configuration;
-using Routine.Soa.Context;
 
 namespace Routine
 {
@@ -46,6 +37,16 @@ namespace Routine
 		internal static PatternBuilder<GenericCodingStyle> CodingStylePattern()
 		{
 			return new PatternBuilder<GenericCodingStyle>();
+		}
+
+		public static ApiGenerationConfigurationBuilder ApiGenerationConfig()
+		{
+			return new ApiGenerationConfigurationBuilder();
+		}
+
+		internal static PatternBuilder<GenericApiGenerationConfiguration> ApiGenerationPattern()
+		{
+			return new PatternBuilder<GenericApiGenerationConfiguration>();
 		}
 
 		public static MvcConfigurationBuilder MvcConfig()
@@ -277,6 +278,10 @@ namespace Routine
 		public static GenericSoaConfiguration Use(this GenericSoaConfiguration source, Func<PatternBuilder<GenericSoaConfiguration>, GenericSoaConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.SoaPattern()));
+		}
+		public static GenericApiGenerationConfiguration Use(this GenericApiGenerationConfiguration source, Func<PatternBuilder<GenericApiGenerationConfiguration>, GenericApiGenerationConfiguration> pattern)
+		{
+			return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
 		}
 		public static GenericMvcConfiguration Use(this GenericMvcConfiguration source, Func<PatternBuilder<GenericMvcConfiguration>, GenericMvcConfiguration> pattern)
 		{

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Core.Service.Impl;
-using Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData;
+using Routine.Core;
+using Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData;
 
-namespace Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData
+namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 {
 	public interface IBusinessData
 	{
@@ -53,12 +53,12 @@ namespace Routine.Test.Core.Service
 	[TestFixture]
 	public class ObjectServiceTest_GetObjectData : ObjectServiceTestBase
 	{
-		private const string ACTUAL_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.BusinessData";
-		private const string VIEW_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
-		private const string VALUE_OMID = "Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
+		private const string ACTUAL_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessData";
+		private const string VIEW_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
+		private const string VALUE_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest_GetObjectData"};}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData"};}}
 
 		[SetUp]
 		public override void SetUp()

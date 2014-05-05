@@ -6,8 +6,8 @@ using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
 using Routine.Api;
-using Routine.Core.Service;
 using Routine.Api.Context;
+using Routine.Core;
 
 namespace Routine.Test.Api
 {

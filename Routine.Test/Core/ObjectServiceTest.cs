@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Routine.Test.Core.Service.Domain.ObjectServiceTest
+namespace Routine.Test.Core.Domain.ObjectServiceTest
 {
 	public enum BusinessEnum
 	{
@@ -15,8 +15,8 @@ namespace Routine.Test.Core.Service
 	[TestFixture]
 	public class ObjectServiceTest : ObjectServiceTestBase
 	{
-		protected override string DefaultModelId {get{return "Routine.Test.Core.Service.Domain.ObjectServiceTest.BusinessEnum";}}
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest"};}}
+		protected override string DefaultModelId {get{return "Routine.Test.Core.Domain.ObjectServiceTest.BusinessEnum";}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest"};}}
 
 		[SetUp]
 		public override void SetUp()

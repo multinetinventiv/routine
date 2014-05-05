@@ -1,21 +1,30 @@
-﻿
-using System.Web.Script.Serialization;
-using Routine.Api;
+﻿using Routine.Api;
 using Routine.Api.Context;
+using Routine.Api.Generator;
+using Routine.Api.Generator.Context;
 using Routine.Core;
 using Routine.Core.Cache;
 using Routine.Core.Context;
 using Routine.Core.Rest;
-using Routine.Core.Service;
-using Routine.Core.Service.Impl;
 using Routine.Mvc;
 using Routine.Mvc.Context;
 using Routine.Soa;
 using Routine.Soa.Context;
+
 namespace Routine
 {
 	public class ContextBuilder
 	{
+		public IApiGenerationContext AsApiGenerationLocal(IApiGenerationConfiguration apiGenerationConfiguration, ICodingStyle codingStyle)
+		{
+			return ApiGenerationContext(apiGenerationConfiguration, ApiContext(ObjectService(codingStyle)));
+		}
+
+		public IApiGenerationContext AsApiGenerationRemote(IApiGenerationConfiguration apiGenerationConfiguration, ISoaClientConfiguration soaClientConfiguration)
+		{
+			return ApiGenerationContext(apiGenerationConfiguration, ApiContext(ObjectServiceClient(soaClientConfiguration)));
+		}
+
 		public IMvcContext AsMvcApplication(IMvcConfiguration mvcConfiguration, ICodingStyle codingStyle)
 		{
 			return MvcContext(mvcConfiguration, ApiContext(ObjectService(codingStyle)));
@@ -39,6 +48,15 @@ namespace Routine
 		public ISoaContext AsSoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
 		{
 			return SoaContext(soaConfiguration, codingStyle);
+		}
+
+		private IApiGenerationContext ApiGenerationContext(IApiGenerationConfiguration apiGenerationConfiguration, IApiContext apiContext)
+		{
+			var result = new DefaultApiGenerationContext(apiGenerationConfiguration);
+
+			result.Application = new ApplicationCodeModel(apiContext.Rapplication, result);
+
+			return result;
 		}
 
 		private IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)

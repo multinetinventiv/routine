@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
-using Routine.Core.Service;
-using Routine.Core.Service.Impl;
+using Routine.Core;
 
-namespace Routine.Test.Core.Service
+namespace Routine.Test.Core
 {
 	public interface IBusinessOperation
 	{
@@ -37,11 +36,11 @@ namespace Routine.Test.Core.Service
 	[TestFixture]
 	public class ObjectServiceTest_PerformOperation : ObjectServiceTestBase
 	{
-		private const string ACTUAL_OMID = "Routine.Test.Core.Service.BusinessOperation";
-		private const string VIEW_OMID = "Routine.Test.Core.Service.IBusinessOperation";
+		private const string ACTUAL_OMID = "Routine.Test.Core.BusinessOperation";
+		private const string VIEW_OMID = "Routine.Test.Core.IBusinessOperation";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service"};}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core"};}}
 
 		private Mock<IBusinessOperation> businessMock;
 		private BusinessOperation businessObj;

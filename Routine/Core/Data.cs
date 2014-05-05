@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Routine.Core.Service
+namespace Routine.Core
 {
 	public class ObjectData
 	{

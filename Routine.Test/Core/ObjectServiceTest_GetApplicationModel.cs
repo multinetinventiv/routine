@@ -1,8 +1,8 @@
 using NUnit.Framework;
-using Routine.Test.Core.Service.Domain.ObjectServiceTest_GetApplicationModel;
+using Routine.Test.Core.Domain.ObjectServiceTest_GetApplicationModel;
 using System.Linq;
 
-namespace Routine.Test.Core.Service.Domain.ObjectServiceTest_GetApplicationModel
+namespace Routine.Test.Core.Domain.ObjectServiceTest_GetApplicationModel
 {
 	public class BusinessModel1 {
 		private class BusinessModel3 {}
@@ -17,7 +17,7 @@ namespace Routine.Test.Core.Service
 	public class ObjectServiceTest_GetApplicationModel : ObjectServiceTestBase
 	{
 		protected override string DefaultModelId {get{return typeof(BusinessModel1).FullName;}}
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service.Domain.ObjectServiceTest_GetApplicationModel"};}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest_GetApplicationModel"};}}
 
 		[SetUp]
 		public override void SetUp()

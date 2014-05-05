@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Routine.Core.Service;
+using Routine.Core;
+using Routine.Soa;
 
-namespace Routine.Test.Core.Service
+namespace Routine.Test.Soa
 {
 	[TestFixture]
 	public class SerializationExtensionsTest

@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Core.Service;
+using Routine.Core;
 
-namespace Routine.Test.Core.Service
+namespace Routine.Test.Core
 {
 	[TestFixture]
 	public class ObjectServiceTest_ToStringAndEqualsOfModelAndDataClasses : CoreTestBase
 	{
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Service"};}}
+		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core"};}}
 
 		#region Helpers
 		private class TestDataPrototype<T>

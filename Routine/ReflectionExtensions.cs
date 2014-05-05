@@ -30,7 +30,25 @@ namespace Routine
 
 				try
 				{
-					result = TypeInfo.Get(Type.GetType(typeName));
+					var type = Type.GetType(typeName);
+					if (type == null)
+					{
+						foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+						{
+							type = assembly.GetTypes().SingleOrDefault(t => t.FullName == typeName);
+							if (type != null)
+							{
+								break;
+							}
+						}
+
+						if (type == null)
+						{
+							throw new NullReferenceException();
+						}
+					}
+
+					result = TypeInfo.Get(type);
 					toTypeCache[typeName] = result;
 					return result;
 				}

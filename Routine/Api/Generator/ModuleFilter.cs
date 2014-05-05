@@ -23,7 +23,7 @@ namespace Routine.Api.Generator
 			excludeFilters.Add(excludeFilter);
 		}
 
-		public bool Check(string moduleName)
+		public bool IsModuleIncluded(string moduleName)
 		{
 			bool wasIncluded = includeFilters.Count == 0;
 			foreach(var includeFilter in includeFilters)
@@ -46,6 +46,12 @@ namespace Routine.Api.Generator
 			}
 
 			return true;
+		}
+
+		public void Merge(ModuleFilter moduleFilter)
+		{
+			includeFilters.AddRange(moduleFilter.includeFilters);
+			excludeFilters.AddRange(moduleFilter.excludeFilters);
 		}
 	}
 }

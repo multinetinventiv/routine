@@ -3,7 +3,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Api;
-using Routine.Core.Service;
+using Routine.Core;
 
 namespace Routine.Test.Api
 {

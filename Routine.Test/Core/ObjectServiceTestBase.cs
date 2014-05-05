@@ -1,15 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Moq;
 using NUnit.Framework;
-using Routine.Core.Service;
-using Routine.Core.Service.Impl;
 using Routine.Core;
+using Routine.Core.Cache;
 using Routine.Core.Configuration;
 using Routine.Core.Context;
-using Routine.Core.Cache;
 
-namespace Routine.Test.Core.Service
+namespace Routine.Test.Core
 {
 	public abstract class ObjectServiceTestBase : CoreTestBase
 	{
