@@ -18,5 +18,10 @@ namespace Routine.Api
 
 		public string Id { get { return model.Id; } }
 		public ObjectCodeModel Model { get { return CreateObject().With(model.ViewModelId, model.IsList); } }
+
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Contains(mark);
+		}
 	}
 }

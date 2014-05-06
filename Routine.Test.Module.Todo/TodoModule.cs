@@ -45,7 +45,6 @@ namespace Routine.Test.Module.Todo
 			}
 		}
 
-		public bool CanPurgeDoneItems () { return DoneItemCount > 0; }
 		public void PurgeDoneItems() 
 		{
 			foreach (var item in ctx.Query<TodoItems>().DoneItems())

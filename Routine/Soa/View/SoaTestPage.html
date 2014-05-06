@@ -455,7 +455,7 @@
                         
                 if(value.Reference.IsNull) {
                     memberItemDiv.html("[null]");
-                } else if(getModel(value.Reference.ActualModelId) == null) {
+                } else if(getModel(value.Reference.ActualModelId).IsValueModel) {
                     memberItemDiv.html(value.Reference.Id);
                 }
             }

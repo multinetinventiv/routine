@@ -150,5 +150,10 @@ namespace Routine.Api
 			return ApiGenConfig.ValueToStringCodeTemplateExtractor.Extract(type)
 					.Replace("{value}", objectVariableName);
 		}
+
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Contains(mark);
+		}
 	}
 }

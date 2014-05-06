@@ -33,5 +33,10 @@ namespace Routine.Api
 		}
 
 		public List<ParameterCodeModel> Parameters { get { return model.Parameters.Select(p => CreateParameter().With(p)).ToList(); } }
+
+		public bool MarkedAs(string mark)
+		{
+			return model.Marks.Contains(mark);
+		}
 	}
 }

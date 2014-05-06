@@ -45,7 +45,6 @@ namespace Routine.Test.Module.Todo
 		public bool Passed {get{return DueDate <= DateTime.Now;}}
 		public bool Active{get{return !Passed && !Done;}}
 
-		public bool CanMarkAsDone() { return !Done; }
 		public void MarkAsDone() 
 		{
 			Done = true;
@@ -60,7 +59,6 @@ namespace Routine.Test.Module.Todo
 			repository.Update(this);
 		}
 
-		public bool CanAssign() { return AssigneeUid == default(Guid);}
 		public void Assign(Assignee to)
 		{
 			AssigneeUid = to.Uid;
@@ -78,7 +76,6 @@ namespace Routine.Test.Module.Todo
 			AssigneeUid = default(Guid);
 		}
 
-		public bool CanBringForward(){return DueDate > DateTime.Now;}
 		public void BringForward(int days)
 		{
 			DueDate = DueDate.AddDays(-days);
