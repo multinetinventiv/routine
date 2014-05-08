@@ -16,6 +16,15 @@ namespace Routine
 			return char.ToUpperInvariant(source[0]) + source.Substring(1);
 		}
 
+		public static string ToLowerInitial(this string source)
+		{
+			if (source == null) { return null; }
+			if (source.Length == 0) { return source; }
+			if (source.Length == 1) { return source.ToLowerInvariant(); }
+
+			return char.ToLowerInvariant(source[0]) + source.Substring(1);
+		}
+
 		public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
 		public static string SplitCamelCase(this string source, char splitter)
 		{

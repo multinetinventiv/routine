@@ -42,6 +42,11 @@ namespace Routine.Api
 				};
 
 				@namespace = type.Namespace;
+
+				if (model.IsValueModel && ApiGenConfig.ValueTypeIsNotConvertedExtractor.Extract(type))
+				{
+					type = TypeInfo.Get<string>();
+				}
 				
 				return this;
 			}
@@ -76,6 +81,9 @@ namespace Routine.Api
 		public string Id { get { return model.Id; } }
 		public string Namespace { get { return @namespace; } }
 		public string Name { get { return model.Name; } }
+		public bool IsValueModel { get { return model.IsValueModel; } }
+		public bool IsViewModel { get { return model.IsViewModel; } }
+		public string Module { get { return model.Module; } }
 		public string FullName 
 		{ 
 			get 
@@ -95,13 +103,13 @@ namespace Routine.Api
 		{
 			get
 			{
+				if (type != null) { return type.FullName; }
+
 				if (string.IsNullOrEmpty(Namespace)) { return Name; }
 
 				return Namespace + "." + Name;
 			}
 		}
-
-		public bool IsValueModel { get { return model.IsValueModel; } }
 
 		public List<string> SingletonIds { get { return ApiGenConfig.SingletonIdSelector.Select(this); } }
 

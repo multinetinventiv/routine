@@ -45,6 +45,7 @@ namespace Routine.Api
 			CompilerParameters compilerparams = CreateCompilerParameters();
 
 			string sourceCode = template.Render(context);
+
 			var results = provider.CompileAssemblyFromSource(compilerparams, sourceCode);
 			if (results.Errors.HasErrors)
 			{
@@ -81,10 +82,10 @@ namespace Routine.Api
 
 			foreach(var reference in references)
 			{
-				result.ReferencedAssemblies.Add(reference.GetName().Name + ".dll");
+				result.ReferencedAssemblies.Add(reference.Location);
 			}
 
-            if (!result.ReferencedAssemblies.Contains("Routine.dll")) { result.ReferencedAssemblies.Add("Routine.dll"); }
+			if (!result.ReferencedAssemblies.Contains(GetType().Assembly.Location)) { result.ReferencedAssemblies.Add(GetType().Assembly.Location); }
             if (!result.ReferencedAssemblies.Contains("System.Core.dll")) { result.ReferencedAssemblies.Add("System.Core.dll"); }
 
 			return result;
@@ -94,11 +95,20 @@ namespace Routine.Api
 
 //		public interface ITodoItemService
 //		{
-//			ServiceResultData<TodoItemData> Update(ClientData client, Guid uid, string name);
+//			ServiceResultData<TodoItemData> Update(string appToken, string languageCode, Guid uid, string name, List<string> orderIds, int otherId, List<int> otherIds);
+//			ServiceResultData<List<TodoItemData>> GetAll(string appToken, string languageCode);
 //		}
 //
 //		public class TodoItemData
 //		{
+//			public TodoItemData() { }
+//			public TodoItemData(Robject robj)
+//			{
+//				Id = System.Int32.Parse(robj.Id);
+//				Uid = robj["Uid"].GetValue().As(robj => System.Guid.Parse(robj.Value));
+//				Name = robj["Name"].GetValue().As(robj => robj.Value);
+//			}
+//
 //			public string Id{get;set;}
 //			public Guid Uid{get;set;}
 //			public string Name{get;set;}
@@ -106,26 +116,26 @@ namespace Routine.Api
 //
 //		public class TodoItemService : ITodoItemService
 //		{
-//			private Rapplication rapplication;
-//			public TodoItemService(Rapplication rapplication){this.rapplication = rapplication;}
+//			private Rapplication rapp;
+//			public TodoItemService(Rapplication rapp){this.rapp = rapp;}
 //
-//			public ServiceResultData<TodoItemData> Update(ClientData client, string id, string name, List<Guid> orderIds, TodoItemData other, List<TodoItemData> others)
+//			public ServiceResultData<TodoItemData> Update(string appToken, string languageCode, int todoItemId, string name, List<string> orderIds, int otherId, List<int> otherIds)
 //			{
-//				var target = rapp.Get(id, "Multinet.Todo.TodoItem");
+//				var target = rapp.Get(todoItemId, "m-todo--todo-item");
 //
 //				var Update_result = target.Perform("Update"
-//					, rapplication.NewVar("name", name, o => o, ":System.String"))
-//					, rapplication.NewVarList("orderIds", orderIds, o => o.ToString(), ":System.Guid"))
-//					, rapplication.NewVar("other", rapplication.Get(other.Id, "Multinet.Todo.TodoItem"))
-//					, rapplication.NewVarList("others", others.Select(o => rapplication.Get(o.Id, "Multinet.Todo.TodoItem")))
+//					, rapp.NewVar("name", name, o => o, "s-string"))
+//					, rapp.NewVarList("orderIds", orderIds, o => o, ":s-guid"))
+//					, rapp.NewVar("other", rapp.Get(otherId.ToString(), "m-todo--todo-item"))
+//					, rapp.NewVarList("others", otherIds.Select(o => rapplication.Get(o.ToString(), "m-todo--todo-item")))
 //				);
 //
-//				var Update_resultData = new TodoItemData {
-//					Id = Update_result.Object.Id,
-//					Uid = Update_result.Object["Uid"].GetValue().As(robj => Guid.Parse(robj.Value)),
-//					Name = Update_result.Object["Name"].GetValue().As(robj => robj.Value)
-//				};
+//				var Update_resultData = Update_result.As(robj => new TodoItemData(robj));
 //
 //				return new ServiceResultData<TodoItemData>(Update_resultData);
+//			}
+//
+//			public ServiceResultData<List<TodoItemData>> GetAll(string appToken, string languageCode)
+//			{
 //			}
 //		}

@@ -13,6 +13,7 @@ namespace Routine.Api.Builder
 		{
 			return FromScratch()
 					.ExtractReferencedTypeIsClientType.OnFailReturn(false)
+					.ExtractValueTypeIsNotConverted.OnFailReturn(false);
 			;
 		}
 	}

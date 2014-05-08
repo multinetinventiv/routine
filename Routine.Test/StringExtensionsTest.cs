@@ -17,6 +17,16 @@ namespace Routine.Test
 		}
 
 		[Test]
+		public void Test_String_ToLowerInitial()
+		{
+			Assert.AreEqual("lower", "lower".ToLowerInitial());
+			Assert.AreEqual("upper", "Upper".ToLowerInitial());
+			Assert.AreEqual("invariant", "Invariant".ToLowerInitial());
+			Assert.AreEqual("i", "I".ToLowerInitial());
+			Assert.AreEqual("", "".ToLowerInitial());
+		}
+
+		[Test]
 		public void Test_String_SplitCamelCase()
 		{
 			Assert.AreEqual("camel Case", "camelCase".SplitCamelCase());

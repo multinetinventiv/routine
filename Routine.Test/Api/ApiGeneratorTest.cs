@@ -349,7 +349,9 @@ namespace Routine.Test.Api
 				.Member("DependentProperty", "Module1-TestClass1"));
 
 			var otherApiGenerator = Generator(c => c
-				.DefaultNamespaceIs("Routine.Test.ApiGen.Client.Module1")
+				//RoutineTest is used instead of Routine.Test, 
+				//this is because when running all tests together, it conflicts with another test
+				.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module1")
 				.GenerateInMemory(false)
 				.IncludeModule("Module1"));
 
@@ -358,13 +360,13 @@ namespace Routine.Test.Api
 			var testClass1 = otherApi.GetTypes().Single(t => t.Name == "TestClass1");
 
 			var testing = Generator(c => c
-					.DefaultNamespaceIs("Routine.Test.ApiGen.Client.Module2")
+					.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module2")
 					.IncludeModule("Module2")
 					.SerializeReferencedModelId.Done(s => s
-						.DeserializeBy(str => str.Replace("-", ".").Prepend("Routine.Test.ApiGen.Client.").ToType())
+						.DeserializeBy(str => str.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToType())
 						.DeserializeWhen(str => str.StartsWith("Module1")))
 					.ExtractReferencedTypeIsClientType.Done(e => e
-						.Always(true).When(t => t.FullName.StartsWith("Routine.Test.ApiGen.Client."))))
+						.Always(true).When(t => t.FullName.StartsWith("RoutineTest.ApiGen.Client."))))
 				.AddReference(otherApi);
 
 			var testClass2 = GenerateAndGetClientClass(testing, "TestClass2");
@@ -472,6 +474,41 @@ namespace Routine.Test.Api
 
 			var actualInt = (int)testObj.GetType().GetMethod("Operation").Invoke(testObj, new object[] { expectedGuid });
 			Assert.AreEqual(expectedInt, actualInt);
+		}
+
+		[Test]
+		public void Value_types_can_be_rendered_directly_as_string()
+		{
+			const string expectedIntString = "12";
+
+			ModelsAre(
+				Model("s-int-32").IsValue(),
+				Model("TestClass").Name("TestClass")
+				.Member("Id", "s-int-32")
+				.Operation("Operation", "s-int-32", PModel("arg1", "s-int-32")));
+
+			ObjectsAre(
+				Object(Id("test_id", "TestClass"))
+				.Value("test_value")
+				.Member("Id", Id(expectedIntString, "s-int-32")));
+
+			When(Id("test_id", "TestClass"))
+				.Performs("Operation", p =>
+					p["arg1"].References[0].Id == expectedIntString)
+				.Returns(Result(Id(expectedIntString, "s-int-32")));
+
+			var testing = Generator(c => c
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())
+				.ExtractValueTypeIsNotConverted.Done(e => e.Always(true).When(t => t == type.of<int>())));
+
+			var testObj = GenerateAndGetClientInstance(testing, "test_id", "TestClass");
+
+			var actualIntString = (string)testObj.GetType().GetProperty("Id").GetValue(testObj, new object[0]);
+			Assert.AreEqual(expectedIntString, actualIntString);
+
+			actualIntString = (string)testObj.GetType().GetMethod("Operation").Invoke(testObj, new object[] { expectedIntString });
+			Assert.AreEqual(expectedIntString, actualIntString);
 		}
 
 		[Test]

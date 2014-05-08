@@ -28,6 +28,7 @@ namespace Routine.Api.Configuration
 		public MultipleSerializer<GenericApiGenerationConfiguration, TypeInfo> SerializeReferencedModelId { get; private set; }
 
 		public MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, bool> ExtractReferencedTypeIsClientType { get; private set; }
+		public MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, bool> ExtractValueTypeIsNotConverted { get; private set; }
 		public MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, string> ExtractStringToValueCodeTemplate { get; private set; }
 		public MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, string> ExtractValueToStringCodeTemplate { get; private set; }
 
@@ -41,6 +42,7 @@ namespace Routine.Api.Configuration
 			SerializeReferencedModelId = new MultipleSerializer<GenericApiGenerationConfiguration, TypeInfo>(this);
 
 			ExtractReferencedTypeIsClientType = new MultipleExtractor<GenericApiGenerationConfiguration,TypeInfo,bool>(this, "ReferencedTypeIsClientType");
+			ExtractValueTypeIsNotConverted = new MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, bool>(this, "ValueTypeIsNotConverted");
 			ExtractStringToValueCodeTemplate = new MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, string>(this, "StringToValueCodeTemplate");
 			ExtractValueToStringCodeTemplate = new MultipleExtractor<GenericApiGenerationConfiguration, TypeInfo, string>(this, "ValueToStringCodeTemplate");
 
@@ -55,6 +57,7 @@ namespace Routine.Api.Configuration
 			SerializeReferencedModelId.Merge(other.SerializeReferencedModelId);
 
 			ExtractReferencedTypeIsClientType.Merge(other.ExtractReferencedTypeIsClientType);
+			ExtractValueTypeIsNotConverted.Merge(other.ExtractValueTypeIsNotConverted);
 			ExtractStringToValueCodeTemplate.Merge(other.ExtractStringToValueCodeTemplate);
 			ExtractValueToStringCodeTemplate.Merge(other.ExtractValueToStringCodeTemplate);
 
@@ -74,6 +77,7 @@ namespace Routine.Api.Configuration
 		ISerializer<TypeInfo> IApiGenerationConfiguration.ReferencedModelIdSerializer { get { return SerializeReferencedModelId; } }
 
 		IExtractor<TypeInfo, bool> IApiGenerationConfiguration.ReferencedTypeIsClientTypeExtractor { get { return ExtractReferencedTypeIsClientType; } }
+		IExtractor<TypeInfo, bool> IApiGenerationConfiguration.ValueTypeIsNotConvertedExtractor { get { return ExtractValueTypeIsNotConverted; } }
 		IExtractor<TypeInfo, string> IApiGenerationConfiguration.StringToValueCodeTemplateExtractor { get { return ExtractStringToValueCodeTemplate; } }
 		IExtractor<TypeInfo, string> IApiGenerationConfiguration.ValueToStringCodeTemplateExtractor { get { return ExtractValueToStringCodeTemplate; } }
 

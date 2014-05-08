@@ -13,6 +13,7 @@ namespace Routine.Api
 
 		ISerializer<TypeInfo> ReferencedModelIdSerializer { get; }
 		IExtractor<TypeInfo, bool> ReferencedTypeIsClientTypeExtractor { get; }
+		IExtractor<TypeInfo, bool> ValueTypeIsNotConvertedExtractor { get; }
 		IExtractor<TypeInfo, string> StringToValueCodeTemplateExtractor { get; }
 		IExtractor<TypeInfo, string> ValueToStringCodeTemplateExtractor { get; }
 

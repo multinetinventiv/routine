@@ -149,7 +149,8 @@
             var operation = getOperation(model, operationId);
 
             var operationTab = $(tmp_tab
-                .replace(/@id/g, operation.Id))
+                .replace(/@id/g, operation.Id)
+                .replace(/@modelName/g, model.Name))
                 .removeAttr("id").removeClass("template").addClass("tab")
                 .appendTo($("#tab-container"))
                 .click(function () {
@@ -573,11 +574,11 @@
     <div id="module" class="template" data-module="@name"><h1>@name</h1></div>
     <div id="model" class="template"><h2>@name</h2></div>
     <div id="operation" class="template"><h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3></div>
-    <span id="tab" class="template">@id<a href="javascript:void(0)" onclick="javascript:closeForm(this)">&#10005;</a></span>
+    <span id="tab" class="template">@modelName - @id<a href="javascript:void(0)" onclick="javascript:closeForm(this)">&#10005;</a></span>
     <form id="form" class="template" action="/Soa/PerformOperation" method="post" data-model-id="@modelId" data-operation-id="@id">
         <div class="request">
             <h1>
-                @id
+                @modelName - @id
                 <input type="submit" value="Call &#9658;"/>
             </h1>
             <div class="parameter">

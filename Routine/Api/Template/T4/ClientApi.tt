@@ -210,7 +210,6 @@ protected void ModelToRvariable(ParameterCodeModel parameter)
 
 		<#+ } #>
 	<#+ } #>
-
 <#+
 
 }
