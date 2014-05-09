@@ -40,11 +40,11 @@ namespace Routine.Soa
 
 				return serializer.Deserialize<T>(responseString);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
 				SoaExceptionResult exceptionResult = null;
 
-				try { exceptionResult = serializer.Deserialize<SoaExceptionResult>(responseString); } //assume it is a soa exception
+				try { exceptionResult = new SoaExceptionResult(serializer.Deserialize<SoaExceptionResultData>(responseString)); } //assume it is a soa exception
 				catch (Exception) { throw ex; } //assumption was wrong, throw first exception
 
 				throw soaClientConfiguration.ExceptionExtractor.Extract(exceptionResult);

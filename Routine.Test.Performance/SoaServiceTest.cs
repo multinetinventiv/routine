@@ -14,13 +14,19 @@ namespace Routine.Test.Performance
 
 		[SetUp]
 		public void SetUp()
-		{			
-			soaClientContext = BuildRoutine.Context().AsSoaClient(BuildRoutine.SoaClientConfig().FromBasic().ServiceUrlBaseIs("http://127.0.0.1:6848/Soa"));
+		{
+			soaClientContext = BuildRoutine.Context()
+				.AsSoaClient(BuildRoutine.SoaClientConfig()
+					.FromBasic()
+					.ServiceUrlBaseIs("http://127.0.0.1:6848/Soa")
+					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
+				);
+				
 
 			rapp = soaClientContext.Rapplication;
 		}
 
-		[Test][Ignore]
+		[Test]
 		public void ServiceClientTest()
 		{
 			var todoModule = rapp.Get("Instance", "m-todo--todo-module");
@@ -67,6 +73,17 @@ namespace Routine.Test.Performance
 			Console.WriteLine("\tUpdating object...");
 			var updateResult = testAssignee.Object.Perform("Update", rapp.NewVar<string>("name", "test", "s-string"));
 			Console.WriteLine("\tUpdate result is void: " + updateResult.IsVoid);
+
+			Console.WriteLine("----------");
+			var projectManagementModule = rapp.Get("Instance", "m-project-management--project-management-module");
+			try
+			{
+				projectManagementModule.Perform("TestError");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
 		}
 
 		[Test]
