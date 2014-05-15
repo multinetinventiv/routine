@@ -18,6 +18,7 @@ namespace Routine.Api
 
 		public string Id { get { return model.Id; } }
 		public bool IsHeavy { get { return model.IsHeavy; } }
+		public bool IsList { get { return model.IsList; } }
 		public ObjectCodeModel ReturnModel { get { return CreateObject().With(model.ViewModelId, model.IsList); } }
 
 		public bool MarkedAs(string mark)

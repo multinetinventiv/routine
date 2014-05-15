@@ -168,14 +168,14 @@ namespace Routine
 
 			TypeInfo result = null;
 			
-			if (proxyMatcher(type)) { type = actualTypeGetter(type); }
-
 			if(!typeCache.TryGetValue(type, out result))
 			{
 				lock(typeCache)
 				{
 					if(!typeCache.TryGetValue(type, out result))
 					{
+						if (proxyMatcher(type)) { type = actualTypeGetter(type); }
+
 						if(type == typeof(void))
 						{
 							result = new VoidTypeInfo();
