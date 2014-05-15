@@ -102,9 +102,14 @@ namespace Routine
 		private static readonly Dictionary<Type, TypeInfo> typeCache = new Dictionary<Type, TypeInfo>();
 		private static readonly List<string> domainTypeRootNamespaces;
 
+		private static Func<Type, bool> proxyMatcher;
+		private static Func<Type, Type> actualTypeGetter;
+
 		static TypeInfo()
 		{
 			domainTypeRootNamespaces = new List<string>();
+			proxyMatcher = t => false;
+			actualTypeGetter = t => t;
 		}
 
 		public static void AddDomainTypeRootNamespace(params string[] rootNamespaces)
@@ -125,6 +130,15 @@ namespace Routine
 				typeCache.Remove(type.type);
 				TypeInfo.Get(type.type);
 			}
+		}
+
+		public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
+		{
+			if (proxyMatcher == null) { throw new ArgumentNullException("matcher"); }
+			if (actualTypeGetter == null) { throw new ArgumentNullException("actualTypeGetter"); }
+
+			TypeInfo.proxyMatcher = proxyMatcher;
+			TypeInfo.actualTypeGetter = actualTypeGetter;
 		}
 
 		private static bool ShouldBeDomainType(Type type)
@@ -153,6 +167,9 @@ namespace Routine
 			}
 
 			TypeInfo result = null;
+			
+			if (proxyMatcher(type)) { type = actualTypeGetter(type); }
+
 			if(!typeCache.TryGetValue(type, out result))
 			{
 				lock(typeCache)

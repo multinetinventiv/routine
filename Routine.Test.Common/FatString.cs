@@ -2,7 +2,7 @@
 namespace Routine.Test.Common
 {
 	[Serializable]
-	public class FatString : IEquatable<FatString>
+	public struct FatString : IEquatable<FatString>
 	{
 		public static FatString Parse(string value)
 		{
@@ -23,6 +23,8 @@ namespace Routine.Test.Common
 			return value;
 		}
 
+		public static bool operator ==(FatString l, FatString r) { return object.Equals(l, r); }
+		public static bool operator !=(FatString l, FatString r) { return !(l == r); }
 		public static implicit operator FatString(string normalString) { return new FatString(normalString); }
 		public static explicit operator string(FatString fatString) { return fatString.value; }
 
@@ -40,9 +42,6 @@ namespace Routine.Test.Common
 
 		public bool Equals(FatString other)
 		{
-			if (other == null)
-				return false;
-
 			return value == other.value;
 		}
 

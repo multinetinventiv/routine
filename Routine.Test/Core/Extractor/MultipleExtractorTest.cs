@@ -58,7 +58,7 @@ namespace Routine.Test.Core.Extractor
 		}
 
 		[Test]
-		public void Extract_AltExtractorlardanIlkUygunOlanKullanilarakExtractYapilir()
+		public void Extracts_using_first_appropriate_sub_extractor()
 		{
 			ExtractorMockReturns(extractorMock2, "extractor2");
 
@@ -66,7 +66,7 @@ namespace Routine.Test.Core.Extractor
 		}
 
 		[Test]
-		public void Extract_HicbirAltExtractorUygunDegilseHataFirlatilir()
+		public void Throws_CannotExtractException_when_none_of_the_sub_extractors_can_extract_given_input()
 		{
 			try
 			{
@@ -80,15 +80,7 @@ namespace Routine.Test.Core.Extractor
 		}
 
 		[Test]
-		public void Extract_BasarisizExtractionIcinDefaultDegerSetEdilebilir()
-		{
-			testing.OnFailReturn("default");
-
-			Assert.AreEqual("default", testingInterface.Extract("dummy"));
-		}
-
-		[Test]
-		public void Extract_BasarisizExtractionIcinFirlatilacakHataDegistirilebilir()
+		public void Fail_exception_can_be_overridden()
 		{
 			var expected = new CannotExtractException();
 			testing.OnFailThrow(expected);
@@ -98,14 +90,14 @@ namespace Routine.Test.Core.Extractor
 				testingInterface.Extract("dummy");
 				Assert.Fail("exception not thrown");
 			}
-			catch(CannotExtractException actual)
+			catch (CannotExtractException actual)
 			{
 				Assert.AreSame(expected, actual);
 			}
 		}
 
 		[Test]
-		public void Extract_BasarisizExtractionIcinFirlatilacakHataNesneKullanilarakOlusturulabilir()
+		public void Overridden_fail_exception_can_be_built_using_given_input()
 		{
 			testing.OnFailThrow(o => new CannotExtractException("!!test fail!!", o));
 
@@ -114,48 +106,22 @@ namespace Routine.Test.Core.Extractor
 				testingInterface.Extract("dummy");
 				Assert.Fail("exception not thrown");
 			}
-			catch(CannotExtractException ex)
+			catch (CannotExtractException ex)
 			{
 				Assert.IsTrue(ex.Message.Contains("!!test fail!!"), ex.Message);
 			}
 		}
 
 		[Test]
-		public void Extract_UygunOlanBirExtractorHataFirlatirsaHataPaketlenerekTekrarFirlatilir()
+		public void A_default_fail_result_can_be_set_to_be_returned_when_extraction_fails()
 		{
-			ExtractorMockThrows(extractorMock1, new Exception("inner exception"));
+			testing.OnFailReturn("default");
 
-			try
-			{
-				testingInterface.Extract("dummy");
-				Assert.Fail("exception not thrown");
-			}
-			catch(CannotExtractException ex)
-			{
-				Assert.AreEqual("inner exception", ex.InnerException.Message);
-			}
+			Assert.AreEqual("default", testingInterface.Extract("dummy"));
 		}
 
 		[Test]
-		public void Extract_UygunOlanBirExtractorCannotExtractHatasiFirlatirsaHataPaketlenmedenTekrarFirlatilir()
-		{
-			var expected = new CannotExtractException();
-
-			ExtractorMockThrows(extractorMock1, expected);
-
-			try
-			{
-				testingInterface.Extract("dummy");
-				Assert.Fail("exception not thrown");
-			}
-			catch(CannotExtractException ex)
-			{
-				Assert.AreSame(expected, ex);
-			}
-		}
-
-		[Test]
-		public void Merge_BaskaBirMultipleExtractorIcerisindekiExtractorlariGelisSirasinaGoreSonaEkler()
+		public void Merges_with_other_MultipleExtractor_adding_other_s_extractors_to_the_end()
 		{
 			ExtractorMockReturns(extractorMock3, "extractor3");
 

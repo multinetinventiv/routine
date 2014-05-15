@@ -85,6 +85,8 @@ namespace Routine.Test.Core.Reflection.Domain
 		public static string PublicStaticPingMethod(string message){return "static " + message;}
 		public string PublicPingMethod(string message){return "instance " + message;}
 	}
+
+	public class TestProxyClass_OOP : TestClass_OOP { }
 	#endregion
 
 	#region Parseable Model

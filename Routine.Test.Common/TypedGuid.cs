@@ -6,7 +6,7 @@ using System.Text;
 namespace Routine.Test.Common
 {
 	[Serializable]
-	public class TypedGuid
+	public struct TypedGuid : IEquatable<TypedGuid>
 	{
 		public static TypedGuid Parse(string valueString)
 		{
@@ -36,6 +36,9 @@ namespace Routine.Test.Common
 			return uid.ToString() + "|" + type.FullName;
 		}
 
+		public static bool operator ==(TypedGuid l, TypedGuid r) { return object.Equals(l, r); }
+		public static bool operator !=(TypedGuid l, TypedGuid r) { return !(l == r); }
+
 		public override bool Equals(object obj)
 		{
 			if (obj == null)
@@ -50,9 +53,6 @@ namespace Routine.Test.Common
 
 		public bool Equals(TypedGuid other)
 		{
-			if (other == null)
-				return false;
-
 			return uid == other.uid && type == other.type;
 		}
 

@@ -48,19 +48,14 @@ namespace Routine.Core.Extractor
 
 		protected virtual TResult Extract(TFrom obj)
 		{
-			try
+			foreach(var extractor in extractors) 
 			{
-				foreach(var extractor in extractors) 
+				TResult result;
+				if(extractor.TryExtract(obj, out result))
 				{
-					TResult result;
-					if(extractor.TryExtract(obj, out result))
-					{
-						return result;
-					}
+					return result;
 				}
 			}
-			catch(CannotExtractException) { throw; }
-			catch(Exception ex) { throw new CannotExtractException(valueToExtract, obj, ex); }
 
 			if(defaultIsSet)
 			{

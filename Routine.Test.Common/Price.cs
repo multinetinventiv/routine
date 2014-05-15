@@ -3,7 +3,7 @@
 namespace Routine.Test.Common
 {
 	[Serializable]
-	public class Price
+	public struct Price : IEquatable<Price>
 	{
 		public static Price Parse(string value)
 		{
@@ -33,6 +33,9 @@ namespace Routine.Test.Common
 			return price + currency;
 		}
 
+		public static bool operator ==(Price l, Price r) { return object.Equals(l, r); }
+		public static bool operator !=(Price l, Price r) { return !(l == r); }
+
 		public override bool Equals(object obj)
 		{
 			if (obj == null)
@@ -47,9 +50,6 @@ namespace Routine.Test.Common
 
 		public bool Equals(Price other)
 		{
-			if (other == null)
-				return false;
-
 			return price == other.price && currency == other.currency;
 		}
 

@@ -12,6 +12,7 @@ namespace Routine.Core.Configuration
 		public const string VOID_MODEL_ID = "_void";
 
 		public GenericCodingStyle DomainTypeRootNamespacesAre(params string[] rootNamespaces) { TypeInfo.AddDomainTypeRootNamespace(rootNamespaces); return this; }
+		public GenericCodingStyle RecognizeProxyTypesBy(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter) { TypeInfo.SetProxyMatcher(proxyMatcher, actualTypeGetter); return this; }
 
 		public MultipleSerializer<GenericCodingStyle, TypeInfo> SerializeModelId { get; private set;}
 

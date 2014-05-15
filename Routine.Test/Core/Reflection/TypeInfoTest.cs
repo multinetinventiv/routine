@@ -158,6 +158,13 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
+		public void TypeInfo_can_ignore_proxy_classes()
+		{
+			TypeInfo.SetProxyMatcher(t => t.Name.Contains("Proxy"), t => t.BaseType);
+			Assert.AreEqual(TypeInfo.Get(typeof(TestClass_OOP)), TypeInfo.Get(typeof(TestProxyClass_OOP)));
+		}
+
+		[Test]
 		public void Facade_type_of()
 		{
 			Assert.AreSame(TypeInfo.Get<string>(), type.of<string>());
