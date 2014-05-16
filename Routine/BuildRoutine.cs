@@ -39,6 +39,16 @@ namespace Routine
 			return new PatternBuilder<GenericCodingStyle>();
 		}
 
+		public static InterceptionConfigurationBuilder InterceptionConfig()
+		{
+			return new InterceptionConfigurationBuilder();
+		}
+
+		internal static PatternBuilder<GenericInterceptionConfiguration> InterceptionPattern()
+		{
+			return new PatternBuilder<GenericInterceptionConfiguration>();
+		}
+
 		public static ApiGenerationConfigurationBuilder ApiGenerationConfig()
 		{
 			return new ApiGenerationConfigurationBuilder();
@@ -109,6 +119,7 @@ namespace Routine
 	public static class BuildRoutineExtensions
 	{
 		#region Extractor
+
 		public static MultipleExtractor<TConfigurator, TFrom, TResult> Add<TConfigurator, TFrom, TResult>(
 			this MultipleExtractor<TConfigurator, TFrom, TResult> source, 
 			Func<ExtractorBuilder<TFrom, TResult>, IOptionalExtractor<TFrom, TResult>> extractorDelegate)
@@ -162,6 +173,7 @@ namespace Routine
 		#endregion
 
 		#region Locator
+
 		public static MultipleLocator<TConfigurator> Add<TConfigurator>(
 			this MultipleLocator<TConfigurator> source, 
 			Func<LocatorBuilder, IOptionalLocator> locatorDelegate)
@@ -175,9 +187,11 @@ namespace Routine
 		{
 			return source.Done(locatorDelegate(BuildRoutine.Locator()));
 		}
+
 		#endregion
 
 		#region Selector
+
 		public static MultipleSelector<TConfigurator, TFrom, TItem> Add<TConfigurator, TFrom, TItem>(
 			this MultipleSelector<TConfigurator, TFrom, TItem> source, 
 			Func<SelectorBuilder<TFrom, TItem>, IOptionalSelector<TFrom, TItem>> selectorDelegate)
@@ -234,9 +248,11 @@ namespace Routine
 				.Where(memberFilter)
 				.Select(m => new MethodOperation(m) as IOperation));
 		}
+
 		#endregion
 
 		#region Serializer
+
 		public static MultipleSerializer<TConfigurator, TSerializable> Add<TConfigurator, TSerializable>(
 			this MultipleSerializer<TConfigurator, TSerializable> source, 
 			Func<SerializerBuilder<TSerializable>, IOptionalSerializer<TSerializable>> serializerDelegate)
@@ -250,9 +266,11 @@ namespace Routine
 		{
 			return source.Done(serializerDelegate(BuildRoutine.Serializer<TSerializable>()));
 		}
+
 		#endregion
 
 		#region Interceptor
+
 		public static ChainInterceptor<TConfiguration, TContext> Add<TConfiguration, TContext>(
 			this ChainInterceptor<TConfiguration, TContext> source,
 			Func<InterceptorBuilder<TContext>, IInterceptor<TContext>> interceptorDelegate)
@@ -268,29 +286,41 @@ namespace Routine
 		{
 			return source.Done(interceptorDelegate(BuildRoutine.Interceptor<TContext>()));
 		}
+
 		#endregion
 
 		#region PatternBuilder
+
 		public static GenericCodingStyle Use(this GenericCodingStyle source, Func<PatternBuilder<GenericCodingStyle>, GenericCodingStyle> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.CodingStylePattern()));
 		}
+
+		public static GenericInterceptionConfiguration Use(this GenericInterceptionConfiguration source, Func<PatternBuilder<GenericInterceptionConfiguration>, GenericInterceptionConfiguration> pattern)
+		{
+			return source.Merge(pattern(BuildRoutine.InterceptionPattern()));
+		}
+
 		public static GenericSoaConfiguration Use(this GenericSoaConfiguration source, Func<PatternBuilder<GenericSoaConfiguration>, GenericSoaConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.SoaPattern()));
 		}
+
 		public static GenericApiGenerationConfiguration Use(this GenericApiGenerationConfiguration source, Func<PatternBuilder<GenericApiGenerationConfiguration>, GenericApiGenerationConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
 		}
+
 		public static GenericMvcConfiguration Use(this GenericMvcConfiguration source, Func<PatternBuilder<GenericMvcConfiguration>, GenericMvcConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.MvcPattern()));
 		}
+
 		public static GenericSoaClientConfiguration Use(this GenericSoaClientConfiguration source, Func<PatternBuilder<GenericSoaClientConfiguration>, GenericSoaClientConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.SoaClientPattern()));
 		}
+
 		#endregion
 
 		#region InterceptorBuilder
@@ -309,15 +339,18 @@ namespace Routine
 	public static class ExtractorBuilderExtensions
 	{
 		#region TFrom => list Extensions
+
 		public static StaticExtractor<TFrom, List<TResultItem>> Always<TFrom, TResultItem>(
 			this ExtractorBuilder<TFrom, List<TResultItem>> source,
 			params TResultItem[] items)
 		{
 			return source.Always(items.ToList());
 		}
+
 		#endregion
 
 		#region TFrom => object Extensions
+
 		public static ReferenceValueExtractor<object, TData> ByPublicProperty<TData>(
 			this ExtractorBuilder<object, TData> source, 
 			Func<object, Func<PropertyInfo, bool>> propertyFilter)
@@ -373,9 +406,11 @@ namespace Routine
 		{
 			return source.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache());
 		}
+
 		#endregion
 
-		#region TFrom => Tuple<object, TFrom> Extensions		
+		#region TFrom => Tuple<object, TFrom> Extensions	
+	
 		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByPublicProperty<TFrom, TData>(
 			this ExtractorBuilder<Tuple<object, TFrom>, TData> source, 
 			Func<object, TFrom, Func<PropertyInfo, bool>> propertyFilter)
@@ -447,9 +482,11 @@ namespace Routine
 					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache())
 					.Using(o => o.Item1);
 		}
+
 		#endregion
 
-		#region TFrom => Tuple<object, TFrom1, TFrom2> Extensions		
+		#region TFrom => Tuple<object, TFrom1, TFrom2> Extensions	
+	
 		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByPublicProperty<TFrom1, TFrom2, TData>(
 			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source, 
 			Func<object, TFrom1, TFrom2, Func<PropertyInfo, bool>> propertyFilter)
@@ -521,6 +558,7 @@ namespace Routine
 					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache())
 					.Using(o => o.Item1);
 		}
+
 		#endregion
 	}
 }

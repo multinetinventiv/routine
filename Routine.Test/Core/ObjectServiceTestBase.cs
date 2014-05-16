@@ -36,7 +36,7 @@ namespace Routine.Test.Core
 				;
 
 			var cache = new DictionaryCache();
-			ctx = new CachedCoreContext(codingStyle, cache);
+			ctx = new DefaultCoreContext(codingStyle, cache);
 
 			testing = new ObjectService(ctx, cache);
 		}

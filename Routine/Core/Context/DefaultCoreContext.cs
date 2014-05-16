@@ -1,11 +1,11 @@
 namespace Routine.Core.Context
 {
-	public class CachedCoreContext : ICoreContext
+	public class DefaultCoreContext : ICoreContext
 	{
 		private readonly ICodingStyle codingStyle;
 		private readonly ICache cache;
 
-		public CachedCoreContext(ICodingStyle codingStyle, ICache cache)
+		public DefaultCoreContext(ICodingStyle codingStyle, ICache cache)
 		{
 			this.codingStyle = codingStyle;
 			this.cache = cache;

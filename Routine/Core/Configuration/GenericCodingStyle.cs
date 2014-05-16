@@ -92,6 +92,7 @@ namespace Routine.Core.Configuration
 		}
 
 		#region ICodingStyle implementation
+
 		ISerializer<TypeInfo> ICodingStyle.ModelIdSerializer { get { return SerializeModelId; } }
 
 		ISelector<TypeInfo, string> ICodingStyle.ModelMarkSelector { get { return SelectModelMarks; } }
@@ -114,6 +115,7 @@ namespace Routine.Core.Configuration
 		ILocator ICodingStyle.Locator { get { return Locate; } }
 
 		IExtractor<object, string> ICodingStyle.DisplayValueExtractor { get { return ExtractDisplayValue; } }
+
 		#endregion
 	}
 }

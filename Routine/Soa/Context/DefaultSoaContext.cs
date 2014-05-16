@@ -18,36 +18,6 @@ namespace Routine.Soa.Context
 			ObjectService = objectService;
 		}
 
-		public InterceptionContext CreateInterceptionContext()
-		{
-			return new InterceptionContext();
-		}
-
-		public ObjectModelInterceptionContext CreateObjectModelInterceptionContext(string objectModelId)
-		{
-			return new ObjectModelInterceptionContext(coreContext, objectModelId);
-		}
-
-		public ObjectReferenceInterceptionContext CreateObjectReferenceInterceptionContext(ObjectReferenceData targetReference)
-		{
-			return new ObjectReferenceInterceptionContext(coreContext, targetReference);
-		}
-
-		public MemberInterceptionContext CreateMemberInterceptionContext(ObjectReferenceData targetReference, string memberModelId)
-		{
-			return new MemberInterceptionContext(coreContext, targetReference, memberModelId);
-		}
-
-		public OperationInterceptionContext CreateOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId)
-		{
-			return new OperationInterceptionContext(coreContext, targetReference, operationModelId);
-		}
-
-		public PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
-		{
-			return new PerformOperationInterceptionContext(coreContext, targetReference, operationModelId, parameterValues);
-		}
-
 		public ObjectReferenceData GetObjectReference(object @object)
 		{
 			return coreContext.CreateReferenceData(@object);

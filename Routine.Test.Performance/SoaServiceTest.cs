@@ -16,9 +16,18 @@ namespace Routine.Test.Performance
 		public void SetUp()
 		{
 			soaClientContext = BuildRoutine.Context()
+				.UsingInterception(BuildRoutine.InterceptionConfig()
+					.FromBasic()
+					.InterceptPerformOperation.Done(i => i.Do()
+						.Before(ctx => Console.WriteLine("before - " + ctx.OperationModelId))
+						.Success(ctx => Console.WriteLine("success - " + ctx.Result))
+						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
+						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
 					.ServiceUrlBaseIs("http://127.0.0.1:6848/Soa")
+					.DefaultParametersAre("language_code")
+					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When(s => s == "language_code"))
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
 				);
 				
@@ -84,6 +93,9 @@ namespace Routine.Test.Performance
 			{
 				Console.WriteLine(ex.ToString());
 			}
+
+			var languageCodeFromServer = projectManagementModule.Perform("TestLanguageCode");
+			Console.WriteLine(languageCodeFromServer.Object.Id);
 		}
 
 		[Test]

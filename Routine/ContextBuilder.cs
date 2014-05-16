@@ -83,12 +83,24 @@ namespace Routine
 
 		private IObjectService ObjectService(ICodingStyle codingStyle)
 		{
-			return new ObjectService(CoreContext(codingStyle), Cache());
+			return InterceptIfConfigured(new ObjectService(CoreContext(codingStyle), Cache()));
 		}
 
 		private IObjectService ObjectServiceClient(ISoaClientConfiguration soaClientConfiguration)
 		{
-			return new RestClientObjectService(soaClientConfiguration, RestClient(), Serializer());
+			return InterceptIfConfigured(new RestClientObjectService(soaClientConfiguration, RestClient(), Serializer()));
+		}
+
+		private IObjectService InterceptIfConfigured(IObjectService real)
+		{
+			if (InterceptionConfiguration() == null) { return real; }
+
+			return new InterceptedObjectService(InterceptionContext(real));
+		}
+
+		private IInterceptionContext InterceptionContext(IObjectService real)
+		{
+			return new DefaultInterceptionContext(InterceptionConfiguration(), real);
 		}
 
 		private ICoreContext coreContext;
@@ -96,7 +108,7 @@ namespace Routine
 		{
 			if (coreContext == null)
 			{
-				coreContext = new CachedCoreContext(codingStyle, Cache());
+				coreContext = new DefaultCoreContext(codingStyle, Cache());
 			}
 
 			return coreContext;
@@ -113,5 +125,10 @@ namespace Routine
 		private ICache cache = new WebCache();
 		public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }
 		private ICache Cache() { return cache; }
+
+		private IInterceptionConfiguration interceptionConfiguration = null;
+		public ContextBuilder UsingInterception(IInterceptionConfiguration interceptionConfiguration) { this.interceptionConfiguration = interceptionConfiguration; return this; }
+		public ContextBuilder UsingNoInterception() { this.interceptionConfiguration = null; return this; }
+		private IInterceptionConfiguration InterceptionConfiguration() { return interceptionConfiguration; }
 	}
 }

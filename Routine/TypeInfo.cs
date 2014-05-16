@@ -116,26 +116,32 @@ namespace Routine
 		{
 			domainTypeRootNamespaces.AddRange(rootNamespaces);
 
-			var invalidationList = new List<TypeInfo>();
-			foreach(var type in typeCache.Values)
+			var invalidationList = new List<Type>();
+			foreach(var typeKey in typeCache.Keys)
 			{
-				if(!type.IsDomainType && ShouldBeDomainType(type.type))
+				var type = typeCache[typeKey];
+
+				if(!type.IsDomainType && (
+						(!proxyMatcher(typeKey) && ShouldBeDomainType(typeKey)) || 
+						(proxyMatcher(typeKey) && ShouldBeDomainType(actualTypeGetter(typeKey)))
+					)
+				)
 				{
-					invalidationList.Add(type);
+					invalidationList.Add(typeKey);
 				}
 			}
 
 			foreach(var type in invalidationList)
 			{
-				typeCache.Remove(type.type);
-				TypeInfo.Get(type.type);
+				typeCache.Remove(type);
+				TypeInfo.Get(type);
 			}
 		}
 
 		public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
 		{
-			if (proxyMatcher == null) { throw new ArgumentNullException("matcher"); }
-			if (actualTypeGetter == null) { throw new ArgumentNullException("actualTypeGetter"); }
+			if (proxyMatcher == null) { proxyMatcher = t => false; }
+			if (actualTypeGetter == null) { actualTypeGetter = t => t; }
 
 			TypeInfo.proxyMatcher = proxyMatcher;
 			TypeInfo.actualTypeGetter = actualTypeGetter;
@@ -174,42 +180,67 @@ namespace Routine
 				{
 					if(!typeCache.TryGetValue(type, out result))
 					{
-						if (proxyMatcher(type)) { type = actualTypeGetter(type); }
+						if (proxyMatcher(type))
+						{
+							var actualType = actualTypeGetter(type);
 
-						if(type == typeof(void))
-						{
-							result = new VoidTypeInfo();
-						}
-						else if(type.GetMethod("Parse", new []{typeof(string)}) != null && type.GetMethod("Parse", new []{typeof(string)}).ReturnType == type)
-						{
-							result = new ParseableTypeInfo(type);
-						}
-						else if(type.IsArray)
-						{
-							result = new ArrayTypeInfo(type);
-						}
-						else if(type.IsEnum)
-						{
-							result = new EnumTypeInfo(type);
-						}
-						else if (type.ContainsGenericParameters)
-						{
-							result = new ReflectedTypeInfo(type);
-						}
-						else if (ShouldBeDomainType(type))
-						{
-							result = new DomainTypeInfo(type);
+							if (!typeCache.TryGetValue(actualType, out result))
+							{
+								result = CreateTypeInfo(actualType);
+
+								typeCache.Add(actualType, result);
+
+								result.Load();
+							}
+
+							typeCache.Add(type, result);
 						}
 						else
 						{
-							result = new ReflectedTypeInfo(type);
+							result = CreateTypeInfo(type);
+
+							typeCache.Add(type, result);
+
+							result.Load();
 						}
-
-						typeCache.Add(type, result);
-
-						result.Load();
 					}
 				}
+			}
+
+			return result;
+		}
+
+		private static TypeInfo CreateTypeInfo(Type type)
+		{
+			TypeInfo result = null;
+
+			if (type == typeof(void))
+			{
+				result = new VoidTypeInfo();
+			}
+			else if (type.GetMethod("Parse", new[] { typeof(string) }) != null && type.GetMethod("Parse", new[] { typeof(string) }).ReturnType == type)
+			{
+				result = new ParseableTypeInfo(type);
+			}
+			else if (type.IsArray)
+			{
+				result = new ArrayTypeInfo(type);
+			}
+			else if (type.IsEnum)
+			{
+				result = new EnumTypeInfo(type);
+			}
+			else if (type.ContainsGenericParameters)
+			{
+				result = new ReflectedTypeInfo(type);
+			}
+			else if (ShouldBeDomainType(type))
+			{
+				result = new DomainTypeInfo(type);
+			}
+			else
+			{
+				result = new ReflectedTypeInfo(type);
 			}
 
 			return result;

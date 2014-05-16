@@ -160,8 +160,9 @@ namespace Routine.Test.Core.Reflection
 		[Test]
 		public void TypeInfo_can_ignore_proxy_classes()
 		{
-			TypeInfo.SetProxyMatcher(t => t.Name.Contains("Proxy"), t => t.BaseType);
-			Assert.AreEqual(TypeInfo.Get(typeof(TestClass_OOP)), TypeInfo.Get(typeof(TestProxyClass_OOP)));
+			Assert.AreEqual(TypeInfo.Get(typeof(TestClass_OOP)), TypeInfo.Get(typeof(TestProxyClass_OOP)),
+				TypeInfo.Get(typeof(TestClass_OOP)).ToString() + "(" + TypeInfo.Get(typeof(TestClass_OOP)).GetType() + "), " +
+				TypeInfo.Get(typeof(TestProxyClass_OOP)).ToString() + "(" + TypeInfo.Get(typeof(TestProxyClass_OOP)).GetType() + "), ");
 		}
 
 		[Test]

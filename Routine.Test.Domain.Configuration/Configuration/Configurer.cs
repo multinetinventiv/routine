@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Web;
 using System.Web.Mvc;
 using Castle.Core.Internal;
 using Castle.Core.Logging;
@@ -52,7 +55,11 @@ namespace Routine.Test.Domain.Configuration
 			public void MvcApplication()
 			{
 				container.Register(
-					Component.For<IMvcContext>().Instance(BuildRoutine.Context().AsMvcApplication(MvcConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<IMvcContext>()
+						.Instance(BuildRoutine.Context()
+							.AsMvcApplication(MvcConfiguration(), CodingStyle()))
+						.LifestyleSingleton(),
+
 					Component.For<MvcController>().ImplementedBy<MvcController>().LifestylePerWebRequest()
 				);
 
@@ -64,7 +71,12 @@ namespace Routine.Test.Domain.Configuration
 			public void SoaApplication()
 			{
 				container.Register(
-					Component.For<ISoaContext>().Instance(BuildRoutine.Context().AsSoaApplication(SoaConfiguration(), CodingStyle())).LifestyleSingleton(),
+					Component.For<ISoaContext>()
+						.Instance(BuildRoutine.Context()
+							.UsingInterception(ServerInterceptionConfiguration())
+							.AsSoaApplication(SoaConfiguration(), CodingStyle()))
+						.LifestyleSingleton(),
+
 					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
 				);
 
@@ -165,13 +177,6 @@ namespace Routine.Test.Domain.Configuration
 							.Locate.Done(l => l.By((t, id) => container.Resolve<ISession>().Get(t.GetActualType(), Guid.Parse(id)))
 											   .AcceptNullResult(false)
 											   .WhenType(t => Orm.ShouldMap(t))))
-
-						//.Use(p => p.FromEmpty()
-						//	.ExtractOperationIsAvailable.Done(e => e.ByPublicMethod((obj, op) => m => m.HasNoParameters() && m.Returns<bool>("Can" + op.Name)))
-						//	.SelectOperations.Exclude.Done(o => o.HasNoParameters() && o.Returns<bool>() && o.Name.StartsWith("Can")))
-
-						//.ExtractOperationIsAvailable.Done(e => e.ByPublicProperty(p => p.Returns<bool>("Active"))
-						//										.When((obj, op) => op.Name != "Activate"))
 						;
 			}
 
@@ -179,7 +184,16 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
+						.DefaultParametersAre("language_code")
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
+						;
+			}
+
+			private IInterceptionConfiguration ServerInterceptionConfiguration()
+			{
+				return BuildRoutine.InterceptionConfig()
+						.FromBasic()
+						.Use(p => p.CommonInterceptorPattern(i => i.Before(() => Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(HttpContext.Current.Request["language_code"] ?? "en-US"))))
 						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
 
 						.InterceptPerformOperation
@@ -189,7 +203,7 @@ namespace Routine.Test.Domain.Configuration
 									.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
 									.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
 							.Done(i => i.Before(() => { throw new Exception("Cannot call hidden service"); })
-									   .When(ctx => ctx.TargetOperation.MarkedAs("Hidden")))
+									   .When(ctx => ctx.GetOperationModel().Marks.Contains("Hidden")))
 
 						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())

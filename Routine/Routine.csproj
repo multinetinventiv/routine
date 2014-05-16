@@ -39,6 +39,8 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InterceptionPatterns.cs" />
+    <Compile Include="Core\Builder\InterceptionConfigurationBuilder.cs" />
     <Compile Include="Core\Context\DefaultApiContext.cs" />
     <Compile Include="Api\Builder\ApiGenerationConfigurationBuilder.cs" />
     <Compile Include="Api\Configuration\GenericApiGenerationConfiguration.cs" />
@@ -61,6 +63,11 @@
     <Compile Include="Core\IApiContext.cs" />
     <Compile Include="ContextBuilder.cs" />
     <Compile Include="ApiGenerationPatterns.cs" />
+    <Compile Include="Core\Configuration\GenericInterceptionConfiguration.cs" />
+    <Compile Include="Core\Context\DefaultInterceptionContext.cs" />
+    <Compile Include="Core\IObjectServiceConfiguration.cs" />
+    <Compile Include="Core\IObjectServiceContext.cs" />
+    <Compile Include="Core\InterceptedObjectService.cs" />
     <Compile Include="Core\Rest\IRestSerializer.cs" />
     <Compile Include="Soa\SerializationExtensions.cs" />
     <Compile Include="IDictionaryExtensions.cs" />
@@ -113,11 +120,11 @@
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="SoaPatterns.cs" />
-    <Compile Include="Soa\Context\MemberInterceptionContext.cs" />
-    <Compile Include="Soa\Context\ObjectModelInterceptionContext.cs" />
-    <Compile Include="Soa\Context\ObjectReferenceInterceptionContext.cs" />
-    <Compile Include="Soa\Context\OperationInterceptionContext.cs" />
-    <Compile Include="Soa\Context\PerformOperationInterceptionContext.cs" />
+    <Compile Include="Core\Context\MemberInterceptionContext.cs" />
+    <Compile Include="Core\Context\ObjectModelInterceptionContext.cs" />
+    <Compile Include="Core\Context\ObjectReferenceInterceptionContext.cs" />
+    <Compile Include="Core\Context\OperationInterceptionContext.cs" />
+    <Compile Include="Core\Context\PerformOperationInterceptionContext.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />
     <Compile Include="Soa\SoaExceptionResult.cs" />
@@ -144,7 +151,7 @@
     <Compile Include="Mvc\Builder\MvcConfigurationBuilder.cs" />
     <Compile Include="BuildRoutine.cs" />
     <Compile Include="Core\ICoreContext.cs" />
-    <Compile Include="Core\Context\CachedCoreContext.cs" />
+    <Compile Include="Core\Context\DefaultCoreContext.cs" />
     <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Core\ICache.cs" />
     <Compile Include="Core\Cache\WebCache.cs" />

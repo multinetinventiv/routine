@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Routine.Test.Domain;
 
@@ -25,6 +26,11 @@ namespace Routine.Test.Module.ProjectManagement
 		{
 			ctx.New<Project>().With("should be rolled back");
 			throw new Exception("test exception");
+		}
+
+		public string TestLanguageCode()
+		{
+			return Thread.CurrentThread.CurrentCulture.Name;
 		}
 
 		public void CreateTestData()

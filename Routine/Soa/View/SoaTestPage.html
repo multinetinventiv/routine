@@ -18,7 +18,11 @@
         h1 {font-size:13px;}
         h2 {font-size:12px;}
         h3 {font-size:11px;}
-        #service-tree {float:left;width:250px;}
+        #left-pane{float:left;}
+        #service-tree {width:250px;}
+        #default-params{border: solid 1px gray; padding: 5px; margin: 5px; width: 228px; font-size: 11px; background-color: #dbe5f6;}
+        #default-params span{width: 100px; display: inline-block;}
+        #default-params input{width: 122px;}
         #right-pane {position:fixed;left: 260px;margin-top: -1px;}
         #form-container {float:left;}
         #tab-container {float: left;margin: 5px;padding-top: 6px;margin-bottom: 0px;}
@@ -62,11 +66,12 @@
     </script>
     <script type="text/javascript">
         var urlBase = "@urlBase";
-        var models, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
+        var defaultParams = [@defaultParams];
+
+        var models, tmp_default_param, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
             tmp_response_types, tmp_object_response, tmp_object, tmp_member, tmp_member_item, tmp_table_response;
 
         $(function () {
-
             $("#tab-container").width($(window).width() - 300);
             $("#form-container").width($(window).width() - 300).height($(window).height() - 70);
             $(".response").width($("#form-container").width() - 420);
@@ -76,6 +81,7 @@
                 $(".response").width($("#form-container").width() - 420);
             });
 
+            tmp_default_param= $("#default-param").clone().wrap("<p>").parent().html();
             tmp_module = $("#module").clone().wrap("<p>").parent().html();
             tmp_model = $("#model").clone().wrap("<p>").parent().html();
             tmp_operation = $("#operation").clone().wrap("<p>").parent().html();
@@ -89,6 +95,19 @@
             tmp_member = $("#member").clone().wrap("<p>").parent().html();
             tmp_member_item = $("#member-item").clone().wrap("<p>").parent().html();
             tmp_table_response = $("#table-response").clone().wrap("<p>").parent().html();
+
+            var defaultParamsDiv = $("#default-params");
+            if(defaultParams.length <= 0) {defaultParamsDiv.hide();}
+
+            for(var i = 0; i<defaultParams.length; i++) {
+                var defaultParam = defaultParams[i];
+
+                $(tmp_default_param
+                            .replace(/@paramName/g, defaultParam)
+                            .replace(/@paramKey/g, defaultParam))
+                            .removeAttr("id").removeClass("template").addClass("default-param")
+                            .appendTo(defaultParamsDiv);
+            }
 
             $.get(urlBase + "/GetApplicationModel", function (data) {
                 models = data.Models;
@@ -187,7 +206,7 @@
             operationForm.ajaxForm({
                 dataType: 'json',
                 beforeSubmit: function(arr, $form, options) {
-                	$form.children(".response").empty();
+                    $form.children(".response").empty();
                 },
                 success: showResponse,
                 error: function(req, status, error, $form){ 
@@ -324,6 +343,20 @@
                     return model.Operations[i];
                 }
             }
+        }
+
+        function buildActionUrl(submitButton) {
+            var url = $(submitButton).closest("form").attr("data-action");
+            var defaultParams = $("#default-params input[type=text]");
+
+            for(var i = 0; i<defaultParams.length; i++) {
+                if(i == 0) {url += "?"} else {url += "&"}
+                
+                var input = $(defaultParams.get(i));
+                url += input.attr("name") + "=" + input.val();
+            }
+
+            $(submitButton).closest("form").attr("action", url);
         }
 
         function showResponse(data, statusText, xhr, $form) {
@@ -566,20 +599,24 @@
     </script>
 </head>
 <body>
-    <div id="service-tree"></div>
+    <div id="left-pane">
+        <div id="default-params"></div>
+        <div id="service-tree"></div>
+    </div>
     <div id="right-pane">
         <div id="tab-container"></div>
         <div id="form-container"></div>
     </div>
+    <div id="default-param" class="template"><span>@paramName</span><input type="text" name="@paramKey"/></div>
     <div id="module" class="template" data-module="@name"><h1>@name</h1></div>
     <div id="model" class="template"><h2>@name</h2></div>
     <div id="operation" class="template"><h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3></div>
     <span id="tab" class="template">@modelName - @id<a href="javascript:void(0)" onclick="javascript:closeForm(this)">&#10005;</a></span>
-    <form id="form" class="template" action="/Soa/PerformOperation" method="post" data-model-id="@modelId" data-operation-id="@id">
+    <form id="form" class="template" data-action="@urlBase/PerformOperation" method="post" data-model-id="@modelId" data-operation-id="@id">
         <div class="request">
             <h1>
                 @modelName - @id
-                <input type="submit" value="Call &#9658;"/>
+                <input type="submit" value="Call &#9658;" onclick='buildActionUrl(this);'/>
             </h1>
             <div class="parameter">
                 <span class="label">@modelNameId:</span>

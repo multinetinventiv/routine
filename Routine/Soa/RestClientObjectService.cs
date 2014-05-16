@@ -61,26 +61,50 @@ namespace Routine.Soa
 			return new RestParameter(name, value);
 		}
 
+		private RestParameter[] BuildParameters(RestParameter[] parameters)
+		{
+			var result = new List<RestParameter>();
+
+			foreach (var parameter in soaClientConfiguration.DefaultParameters)
+			{
+				result.Add(Param(parameter, soaClientConfiguration.DefaultParameterValueExtractor.Extract(parameter)));
+			}
+
+			result.AddRange(parameters);
+
+			return result.ToArray();
+		}
+
+		private string Post(string serviceName, params RestParameter[] parameters)
+		{
+			return client.Post(Url(serviceName), BuildParameters(parameters));
+		}
+
+		private string Get(string serviceName, params RestParameter[] parameters)
+		{
+			return client.Get(Url(serviceName), BuildParameters(parameters));
+		}
+
 		public ApplicationModel GetApplicationModel()
 		{
-			return As<ApplicationModel>(client.Get(Url("GetApplicationModel")));
+			return As<ApplicationModel>(Get("GetApplicationModel"));
 		}
 
 		public ObjectModel GetObjectModel(string objectModelId)
 		{
-			return As<ObjectModel>(client.Get(Url("GetObjectModel"), 
+			return As<ObjectModel>(Get("GetObjectModel", 
 				Param("objectModelId", objectModelId)));
 		}
 
 		public List<ObjectData> GetAvailableObjects(string objectModelId)
 		{
-			return As<ValueData>(client.Get(Url("GetAvailableObjects"), 
+			return As<ValueData>(Get("GetAvailableObjects", 
 				Param("objectModelId", objectModelId))).Values;
 		}
 
 		public string GetValue(ObjectReferenceData reference)
 		{
-			return client.Get(Url("GetValue"), 
+			return Get("GetValue", 
 				Param("reference.Id", reference.Id), 
 				Param("reference.ActualModelId", reference.ActualModelId), 
 				Param("reference.ViewModelId", reference.ViewModelId), 
@@ -89,7 +113,7 @@ namespace Routine.Soa
 
 		public ObjectData Get(ObjectReferenceData reference)
 		{
-			return As<ObjectData>(client.Get(Url("Get"), 
+			return As<ObjectData>(Get("Get", 
 				Param("reference.Id", reference.Id), 
 				Param("reference.ActualModelId", reference.ActualModelId), 
 				Param("reference.ViewModelId", reference.ViewModelId), 
@@ -98,7 +122,7 @@ namespace Routine.Soa
 
 		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
 		{
-			return As<ValueData>(client.Get(Url("GetMember"), 
+			return As<ValueData>(Get("GetMember", 
 				Param("reference.Id", reference.Id), 
 				Param("reference.ActualModelId", reference.ActualModelId), 
 				Param("reference.ViewModelId", reference.ViewModelId), 
@@ -134,7 +158,7 @@ namespace Routine.Soa
 				i++;
 			}
 
-			return As<ValueData>(client.Post(Url("PerformOperation"), paramList.ToArray()));
+			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
 		}
 	}
 }

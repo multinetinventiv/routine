@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Core;
@@ -12,32 +13,19 @@ namespace Routine.Soa.Configuration
 	{
 		private const string ACTION = "action";
 
-		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExtractExceptionResult { get; private set; }
+		private List<string> DefaultParameters { get; set; }
+		public GenericSoaConfiguration DefaultParametersAre(params string[] parameters) { DefaultParameters.AddRange(parameters); return this; }
 
-		public ChainInterceptor<GenericSoaConfiguration, InterceptionContext> InterceptGetApplicationModel { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetObjectModel { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext> InterceptGetAvailableObjects { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGetValue { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext> InterceptGet { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, MemberInterceptionContext> InterceptGetMember { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, OperationInterceptionContext> InterceptGetOperation { get; private set; }
-		public ChainInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext> InterceptPerformOperation { get; private set; }
+		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExtractExceptionResult { get; private set; }
 
 		public GenericSoaConfiguration() : this(true) { }
 
 		internal GenericSoaConfiguration(bool rootConfig)
 		{
+			DefaultParameters = new List<string>();
+
 			ExtractExceptionResult = new MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult>(this, "ExceptionResult");
-
-			InterceptGetApplicationModel = new ChainInterceptor<GenericSoaConfiguration, InterceptionContext>(this);
-			InterceptGetObjectModel = new ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
-			InterceptGetAvailableObjects = new ChainInterceptor<GenericSoaConfiguration, ObjectModelInterceptionContext>(this);
-			InterceptGetValue = new ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
-			InterceptGet = new ChainInterceptor<GenericSoaConfiguration, ObjectReferenceInterceptionContext>(this);
-			InterceptGetMember = new ChainInterceptor<GenericSoaConfiguration, MemberInterceptionContext>(this);
-			InterceptGetOperation = new ChainInterceptor<GenericSoaConfiguration, OperationInterceptionContext>(this);
-			InterceptPerformOperation = new ChainInterceptor<GenericSoaConfiguration, PerformOperationInterceptionContext>(this);
-
+			
 			if (rootConfig)
 			{
 				RegisterRoutes();
@@ -46,16 +34,9 @@ namespace Routine.Soa.Configuration
 
 		public GenericSoaConfiguration Merge(GenericSoaConfiguration other)
 		{
-			ExtractExceptionResult.Merge(other.ExtractExceptionResult);
+			DefaultParameters.AddRange(other.DefaultParameters);
 
-			InterceptGetApplicationModel.Merge(other.InterceptGetApplicationModel);
-			InterceptGetObjectModel.Merge(other.InterceptGetObjectModel);
-			InterceptGetAvailableObjects.Merge(other.InterceptGetAvailableObjects);
-			InterceptGetValue.Merge(other.InterceptGetValue);
-			InterceptGet.Merge(other.InterceptGet);
-			InterceptGetMember.Merge(other.InterceptGetMember);
-			InterceptGetOperation.Merge(other.InterceptGetOperation);
-			InterceptPerformOperation.Merge(other.InterceptPerformOperation);
+			ExtractExceptionResult.Merge(other.ExtractExceptionResult);
 
 			return this;
 		}
@@ -72,17 +53,9 @@ namespace Routine.Soa.Configuration
 		#region ISoaConfiguration implementation
 
 		string ISoaConfiguration.ActionRouteName { get { return ACTION; } }
+		List<string> ISoaConfiguration.DefaultParameters { get { return DefaultParameters; } }
 
 		IExtractor<Exception, SoaExceptionResult> ISoaConfiguration.ExceptionResultExtractor { get { return ExtractExceptionResult; } }
-
-		IInterceptor<InterceptionContext> ISoaConfiguration.GetApplicationModelInterceptor { get { return InterceptGetApplicationModel; } }
-		IInterceptor<ObjectModelInterceptionContext> ISoaConfiguration.GetObjectModelInterceptor { get { return InterceptGetObjectModel; } }
-		IInterceptor<ObjectModelInterceptionContext> ISoaConfiguration.GetAvailableObjectsInterceptor { get { return InterceptGetAvailableObjects; } }
-		IInterceptor<ObjectReferenceInterceptionContext> ISoaConfiguration.GetValueInterceptor { get { return InterceptGetValue; } }
-		IInterceptor<ObjectReferenceInterceptionContext> ISoaConfiguration.GetInterceptor { get { return InterceptGet; } }
-		IInterceptor<MemberInterceptionContext> ISoaConfiguration.GetMemberInterceptor { get { return InterceptGetMember; } }
-		IInterceptor<OperationInterceptionContext> ISoaConfiguration.GetOperationInterceptor { get { return InterceptGetOperation; } }
-		IInterceptor<PerformOperationInterceptionContext> ISoaConfiguration.PerformOperationInterceptor { get { return InterceptPerformOperation; } }
 
 		#endregion
 	}

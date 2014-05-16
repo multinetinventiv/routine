@@ -27,7 +27,7 @@ namespace Routine.Test.Core.Context
 					.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 					.ExtractId.Done(e => e.ByPublicProperty(p => p.Returns<string>("Id")));
 
-			var testing = new CachedCoreContext(codingStyle, new DictionaryCache());
+			var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
 
 			var modelId = "Routine.Test.Core.Context.Domain.CachedBusiness";
 
