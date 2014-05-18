@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test", "Routine.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common", "Routine.Test.Common\Routine.Test.Common.csproj", "{0A8536E8-84A1-4D0D-8AF3-34785725E56B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common.Domain", "Routine.Test.Common.Domain\Routine.Test.Common.Domain.csproj", "{F9A92862-60E2-4C10-A74A-1B3FEE558035}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common.Configuration", "Routine.Test.Common.Configuration\Routine.Test.Common.Configuration.csproj", "{0DE7385D-C945-4166-B60F-54AD8C1534F1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Business.Service", "Routine.Test.Business.Service\Routine.Test.Business.Service.csproj", "{17AE134B-F860-47F0-B571-88095EF423AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo.Api", "Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj", "{300B819C-EE59-4879-8A97-FB2C317E38D2}"
@@ -23,7 +19,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Performance", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Web.Mvc", "Routine.Test.Web.Mvc\Routine.Test.Web.Mvc.csproj", "{48748FDB-2721-4E3A-B54F-611C9E57F017}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Web.Service", "Routine.Test.Web.Service\Routine.Test.Web.Service.csproj", "{619DFB9E-D6D7-412D-A573-6D6374379F6A}"
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Routine.Test.Web.Service", "Routine.Test.Web.Service\Routine.Test.Web.Service.csproj", "{619DFB9E-D6D7-412D-A573-6D6374379F6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain", "Routine.Test.Domain\Routine.Test.Domain.csproj", "{F9A92862-60E2-4C10-A74A-1B3FEE558035}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain.Configuration", "Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj", "{0DE7385D-C945-4166-B60F-54AD8C1534F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Api", "Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj", "{75480479-B00B-4919-85E7-199706A6D923}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{619DFB9E-D6D7-412D-A573-6D6374379F6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{619DFB9E-D6D7-412D-A573-6D6374379F6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{619DFB9E-D6D7-412D-A573-6D6374379F6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75480479-B00B-4919-85E7-199706A6D923}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75480479-B00B-4919-85E7-199706A6D923}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75480479-B00B-4919-85E7-199706A6D923}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75480479-B00B-4919-85E7-199706A6D923}.Release|Any CPU.Build.0 = Release|Any CPU
 		{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}.Release|Any CPU.ActiveCfg = Release|Any CPU

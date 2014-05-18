@@ -14,6 +14,7 @@ namespace Routine.Mvc
 			this.context = context; 
 		}
 
+		protected ActionResult ListPage(VariableViewModel vvm) { View("ListPage", vvm).ExecuteResult(ControllerContext); return new EmptyResult(); }
 		protected ActionResult Page(ObjectViewModel ovm) { View("Page", ovm).ExecuteResult(ControllerContext); return new EmptyResult(); }
 
 		protected ActionResult RedirectToPage(ObjectViewModel ovm) { return RedirectToRoute(ovm.ViewRouteName, ovm.RouteValues); }
@@ -41,7 +42,7 @@ namespace Routine.Mvc
 
 			if(result.IsList)
 			{
-				throw new NotImplementedException();
+				return ListPage(result);
 			}
 
 			return RedirectToPage(result.Object);

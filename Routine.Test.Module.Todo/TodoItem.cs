@@ -153,6 +153,13 @@ namespace Routine.Test.Module.Todo
 		{
 			return By(i => i.AssigneeUid == assigneeUid && i.Done == done);
 		}
+
+		public List<TodoItem> ByAssigneeName(string assigneeName)
+		{
+			var assignees = Context.Query<Assignees>().ByName(assigneeName).Select(a => a.Uid).ToList();
+
+			return By(i => assignees.Contains(i.AssigneeUid));
+		}
 	}
 }
 

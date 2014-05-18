@@ -30,6 +30,7 @@ namespace Routine.Mvc
 
 		private ObjectViewModel Target{get{return CreateObject().With(rop.Object);}}
 		public bool IsAvailable { get { return MvcConfig.OperationIsAvailableExtractor.Extract(this); } }
+		public string Id{get{return rop.Id;}}
 		public string Text{get{return MvcConfig.DisplayNameExtractor.Extract(rop.Id);}}
 		public bool HasParameter{get{return rop.Parameters.Any();}}
 		public bool ReturnsList{get{return rop.ResultIsList;}}
@@ -48,7 +49,7 @@ namespace Routine.Mvc
 		{
 			get
 			{
-				var result = Target.RouteValues;
+				var result = Target.RouteValuesIncludingViewModelId;
 				result.Add("operationModelId", rop.Id);
 				return result;
 			}

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Routine.Test.Common\Routine.Test.Common.csproj">
-      <Project>{0a8536e8-84a1-4d0d-8af3-34785725e56b}</Project>
+      <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
     </ProjectReference>
   </ItemGroup>

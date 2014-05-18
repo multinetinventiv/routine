@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{17AE134B-F860-47F0-B571-88095EF423AA}</ProjectGuid>
     <ProjectTypeGuids>{E53F8FEA-EAE0-44A6-8774-FFD645390401};{349C5851-65DF-11DA-9384-00065B846F21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -112,14 +112,6 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
-    <ProjectReference Include="..\Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj">
-      <Project>{0de7385d-c945-4166-b60f-54ad8c1534f1}</Project>
-      <Name>Routine.Test.Domain.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
-      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
-      <Name>Routine.Test.Domain</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
@@ -135,6 +127,14 @@
     <ProjectReference Include="..\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj">
       <Project>{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}</Project>
       <Name>Routine.Test.Module.ProjectManagement</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
+      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
+      <Name>Routine.Test.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj">
+      <Project>{0DE7385D-C945-4166-B60F-54AD8C1534F1}</Project>
+      <Name>Routine.Test.Domain.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

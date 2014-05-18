@@ -11,14 +11,14 @@
 		<% link.RenderAs(Html, "Link"); %>
 		<div class="children<%= first?"":" children-after-first"%>">
 			<% var firstChild = true; %>
-			<% foreach(var sublink in model.Links.Where(l => l.MarkedAs("Search"))) { %>
+			<% foreach(var sublink in model.Links.Where(l => l.MarkedAs("Search") && l.OperationMenu.Any(o => !o.IsSeparator && o.ReturnsList && o.HasParameter))) { %>
 				<% if(sublink.Module == link.Module) { %>
 					<% if(firstChild) { %>
 						<% firstChild = false; %>
 					<% } else { %>
 						<span class="menu-separator">&bull;</span>
 					<% } %>
-					<% sublink.RenderAs(Html, "Link"); %>
+					<% sublink.RenderAs(Html, "Link", "text", "Find " + sublink.Title); %>
 				<% } %>
 			<% } %>
 		</div>

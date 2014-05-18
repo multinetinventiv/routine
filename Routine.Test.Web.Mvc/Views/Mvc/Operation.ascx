@@ -1,30 +1,39 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
 
 <% var model = Model as OperationViewModel; %>
+<% var mode = ViewData["mode"] as string??"menu"; %>
+<% var text = ViewData["text"] as string??"OK"; %>
+<% var cancel = ViewData["cancel"] as string??"true"; %>
 
 <% if(model.IsSeparator) { %>
 	<span class="operation-separator">|</span>
 <% } else if(model.IsAvailable) { %>
 	<form action="<%= Url.Route(model) %>" class="operation-form" method="post">
-	<% if(!model.HasParameter) { %>
-		<input type="submit" value="<%= model.Text %>" class="needs-confirm"/>
-	<% } else { %>
+	<% if(mode == "menu")  { %>
 		<fieldset>
-			<legend><%= model.Text %></legend>
 			<div class="content">
+		<% if(!model.HasParameter) { %>
+				<div class="confirm">Are you sure?</div>
+		<% } else { %>
 				<dl class="parameter-list">
-				<% int i = 0; %>
-				<% foreach(var parameter in model.Parameters) { %>
+			<% int i = 0; %>
+			<% foreach(var parameter in model.Parameters) { %>
 					<dt><%= parameter.Text %></dt>
 					<dd>
 						<% parameter.Render(Html, "index", i); %>
 					</dd>
 					<% i++; %>
-				<% } %>
+			<% } %>
 				</dl>
-				<input type="submit" value="<%= model.Text %>"/>
+		<% } %>
+			<% if(cancel == "true") { %>
+				<input type="button" value="Cancel"/>
+			<% } %>
+				<input type="submit" value="<%= text %>"/>
 			</div>
 		</fieldset>
+	<% } else if(mode == "table"){ %>
+		<input type="submit" value="<%= model.Text %>"/>
 	<% } %>
 	</form>
 <% } else if(!model.IsAvailable) { %>

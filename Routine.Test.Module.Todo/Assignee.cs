@@ -93,6 +93,11 @@ namespace Routine.Test.Module.Todo
 		{
 			return SingleBy(a => a.Name == name);
 		}
+
+		public List<Assignee> ByName(string name)
+		{
+			return By(a => a.Name.Contains(name));
+		}
 	}
 }
 

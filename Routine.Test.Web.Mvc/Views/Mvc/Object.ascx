@@ -4,10 +4,16 @@
 <fieldset class="object-data">
 	<legend class="object-data"><%= model.Title %></legend>
 	<% if(model.HasOperation) { %>
-		<% foreach(var operation in model.OperationMenu) { %>
-			<% operation.Render(Html); %>
-		<% } %>
-		<div class="operation-list-placeholder"></div>
+		<div class="operation-tabs<%= model.HasSimpleMember || model.HasTableMember?" collapsible-tabs":"" %>">
+			<ul>
+				<% foreach(var operation in model.OperationMenu.Where(m => !m.IsSeparator)) { %>
+					<li><%= operation.Text %></li>
+				<% } %>
+			</ul>
+			<% foreach(var operation in model.OperationMenu.Where(m => !m.IsSeparator)) { %>
+				<div><% operation.Render(Html); %></div>
+			<% } %>	
+		</div>
 	<% } %>
 	<% if(model.HasSimpleMember) { %>
 		<dl class="data-list<%= model.HasOperation?"":" no-operation"%>">
@@ -23,11 +29,11 @@
 		<div class="data-tabs tabs">
 			<ul>
 				<% foreach(var member in model.TableMembers) { %>
-					<li><a href="#<%= member.Id %>"><%= member.Text %></a></li>
+					<li><%= member.Text %></li>
 				<% } %>
 			</ul>
 			<% foreach(var member in model.TableMembers) { %>
-				<div id="<%= member.Id %>"><% member.RenderAs(Html, "Table"); %></div>
+				<div><% member.RenderAs(Html, "Table"); %></div>
 			<% } %>	
 		</div>
 	<% } %>	

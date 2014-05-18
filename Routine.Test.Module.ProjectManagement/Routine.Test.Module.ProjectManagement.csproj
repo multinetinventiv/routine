@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <ProductVersion>12.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -47,17 +47,17 @@
       <Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
       <Name>Routine.Test.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
-      <Project>{f9a92862-60e2-4c10-a74a-1b3fee558035}</Project>
-      <Name>Routine.Test.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj">
-      <Project>{75480479-b00b-4919-85e7-199706a6d923}</Project>
-      <Name>Routine.Test.Module.ProjectManagement.Api</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj">
       <Project>{D9E33B5D-A0F4-4398-B6DD-094B14968901}</Project>
       <Name>Routine.Test.Module.Todo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Domain\Routine.Test.Domain.csproj">
+      <Project>{F9A92862-60E2-4C10-A74A-1B3FEE558035}</Project>
+      <Name>Routine.Test.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj">
+      <Project>{75480479-B00B-4919-85E7-199706A6D923}</Project>
+      <Name>Routine.Test.Module.ProjectManagement.Api</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

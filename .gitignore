@@ -7,3 +7,4 @@
 **/TestResults/**/*
 **/*.nupkg
 **/Thumbs.db
+Routine.Test.Web.Mvc/Scripts/jqwidgets/.DS_Store

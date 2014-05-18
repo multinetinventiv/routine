@@ -1,4 +1,6 @@
+using System.Linq;
 using Routine.Core.Api;
+using System.Collections.Generic;
 
 namespace Routine.Mvc
 {
@@ -20,5 +22,6 @@ namespace Routine.Mvc
 		public bool IsList{get{return rvar.IsList;}}
 
 		public ObjectViewModel Object{get{return CreateObject().With(rvar.Object);}}
+		public List<ObjectViewModel> List{get{return rvar.List.Select(o => CreateObject().With(o)).ToList();}}
 	}
 }

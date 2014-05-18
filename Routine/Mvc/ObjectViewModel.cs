@@ -3,6 +3,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Core.Api;
+using System.Diagnostics;
 
 namespace Routine.Mvc
 {
@@ -27,10 +28,28 @@ namespace Routine.Mvc
 		public bool HasDetail { get { return !robj.IsNull && robj.IsDomain && (robj.Members.Any() || robj.Operations.Any()); } }
 
 		private string ViewRouteNameBase{get{return MvcConfig.ViewRouteNameExtractor.Extract(this);}}
-		public string ViewRouteName { get {return robj.IsNaked?ViewRouteNameBase:ViewRouteNameBase+"As";} }
+		public string ViewRouteName { get {return ViewRouteNameBase;} }
 
 		private string PerformRouteNameBase{get{return MvcConfig.PerformRouteNameExtractor.Extract(this);}}
 		public string PerformRouteName { get {return robj.IsNaked?PerformRouteNameBase:PerformRouteNameBase+"As";} }
+
+		public RouteValueDictionary RouteValues
+		{
+			get
+			{
+				return new RouteValueDictionary(new {id = robj.Id, modelId = robj.ActualModelId});
+			}
+		}
+
+		public RouteValueDictionary RouteValuesIncludingViewModelId
+		{
+			get
+			{
+				if(robj.IsNaked) {return RouteValues;}
+
+				return new RouteValueDictionary(new {id = robj.Id, actualModelId = robj.ActualModelId, viewModelId = robj.ViewModelId});
+			}
+		}
 
 		public bool HasOperation{get{return robj.Operations.Any();}}
 		public bool HasSimpleMember{get{return robj.Members.Any(m => !m.IsList);}}
@@ -66,14 +85,6 @@ namespace Routine.Mvc
 					//TODO to mvcconfig
 						.Where(m => m.IsList)
 						.ToList();
-			}
-		}
-
-		public RouteValueDictionary RouteValues
-		{
-			get
-			{
-				return new RouteValueDictionary(new {id = robj.Id, modelId = robj.ActualModelId});
 			}
 		}
 
