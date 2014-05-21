@@ -13,7 +13,6 @@ namespace Routine.Core
 		ObjectModelInterceptionContext CreateObjectModelInterceptionContext(string objectModelId);
 		ObjectReferenceInterceptionContext CreateObjectReferenceInterceptionContext(ObjectReferenceData targetReference);
 		MemberInterceptionContext CreateMemberInterceptionContext(ObjectReferenceData targetReference, string memberModelId);
-		OperationInterceptionContext CreateOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId);
 		PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues);
 	}
 }

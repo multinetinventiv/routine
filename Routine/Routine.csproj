@@ -123,7 +123,6 @@
     <Compile Include="Core\Context\MemberInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectModelInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectReferenceInterceptionContext.cs" />
-    <Compile Include="Core\Context\OperationInterceptionContext.cs" />
     <Compile Include="Core\Context\PerformOperationInterceptionContext.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />

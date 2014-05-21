@@ -30,7 +30,6 @@ namespace Routine
 				.InterceptGet.Done(i => i.Adapt(interceptor))
 				.InterceptGetValue.Done(i => i.Adapt(interceptor))
 				.InterceptGetMember.Done(i => i.Adapt(interceptor))
-				.InterceptGetOperation.Done(i => i.Adapt(interceptor))
 				.InterceptPerformOperation.Done(i => i.Adapt(interceptor))
 			;
 		}

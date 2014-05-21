@@ -24,7 +24,6 @@ namespace Routine.Mvc.Context
 			ViewModelId = viewModelId;
 		}
 
-		public string Id { get; private set; }
 		public string ViewModelId { get; private set; }
 	}
 }

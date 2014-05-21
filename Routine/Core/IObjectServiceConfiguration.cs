@@ -10,7 +10,6 @@ namespace Routine.Core
 		IInterceptor<ObjectReferenceInterceptionContext> GetValueInterceptor { get; }
 		IInterceptor<ObjectReferenceInterceptionContext> GetInterceptor { get; }
 		IInterceptor<MemberInterceptionContext> GetMemberInterceptor { get; }
-		IInterceptor<OperationInterceptionContext> GetOperationInterceptor { get; }
 		IInterceptor<PerformOperationInterceptionContext> PerformOperationInterceptor { get; }
 	}
 }
