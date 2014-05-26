@@ -71,7 +71,8 @@ namespace Routine.Core.Api
 
 		private Robject Get<T>(T value, Func<T, string> idExtractor, string modelId)
 		{
-			if(object.Equals(value, default(T)))
+			object boxedValue = value;
+			if(boxedValue == null)
 			{
                 return context.CreateRobject().Null();
 			}

@@ -579,7 +579,8 @@ namespace Routine.Test.Core.Api
 			Assert.IsTrue(actual.IsNull);
 
 			actual = testingRapplication.NewVar("name", 0, ":System.Int32");
-			Assert.IsTrue(actual.IsNull);
+			Assert.IsTrue(!actual.IsNull);
+			Assert.AreEqual("0", actual.Object.Id);
 		}
 
 		[Test]
@@ -621,7 +622,8 @@ namespace Routine.Test.Core.Api
 			Assert.IsTrue(actual.List[0].IsNull);
 
 			actual = testingRapplication.NewVarList("name", new List<int>{0}, ":System.Int32");
-			Assert.IsTrue(actual.List[0].IsNull);
+			Assert.IsTrue(!actual.List[0].IsNull);
+			Assert.AreEqual("0", actual.List[0].Id);
 		}
 
 		[Test] [Ignore]
