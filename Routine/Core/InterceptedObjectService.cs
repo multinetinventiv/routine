@@ -46,14 +46,7 @@ namespace Routine.Core
 					() => context.ObjectService.Get(reference)) as ObjectData;
 		}
 
-		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
-		{
-			return context.InterceptionConfiguration.GetMemberInterceptor.Intercept(
-					context.CreateMemberInterceptionContext(reference, memberModelId),
-					() => context.ObjectService.GetMember(reference, memberModelId)) as ValueData;
-		}
-
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			return context.InterceptionConfiguration.PerformOperationInterceptor.Intercept(
 					context.CreatePerformOperationInterceptionContext(targetReference, operationModelId, parameterValues),

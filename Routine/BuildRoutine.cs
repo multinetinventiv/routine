@@ -10,8 +10,7 @@ using Routine.Core.Configuration;
 using Routine.Core.Extractor;
 using Routine.Core.Interceptor;
 using Routine.Core.Locator;
-using Routine.Core.Member;
-using Routine.Core.Operation;
+using Routine.Core.DomainApi;
 using Routine.Core.Reflection;
 using Routine.Core.Selector;
 using Routine.Core.Serializer;
@@ -134,14 +133,14 @@ namespace Routine
 			return source.Done(extractorDelegate(BuildRoutine.Extractor<TFrom, TResult>()));
 		}
 
-		public static ReferenceValueExtractor<TFrom, List<TResultItem>> ReturnCastedList<TFrom, TResultItem>(
-			this ReferenceValueExtractor<TFrom, List<TResultItem>> source)
+		public static MemberValueExtractor<TFrom, List<TResultItem>> ReturnCastedList<TFrom, TResultItem>(
+			this MemberValueExtractor<TFrom, List<TResultItem>> source)
 		{
 			return source.Return(o => ((ICollection)o).Cast<TResultItem>().ToList());
 		}
 
-		public static ReferenceValueExtractor<TFrom, string> ReturnAsString<TFrom>(
-			this ReferenceValueExtractor<TFrom, string> source)
+		public static MemberValueExtractor<TFrom, string> ReturnAsString<TFrom>(
+			this MemberValueExtractor<TFrom, string> source)
 		{
 			return source.Return(o => o.ToString());
 		}
@@ -211,42 +210,66 @@ namespace Routine
 		{
 			return source.By(t => t.GetAllProperties()
 								   .Where(propertyFilter)
-								   .Select(p => new PropertyMember(p) as IMember));
+								   .Select(p => p.ToMember()));
 		}
 
 		public static DelegateSelector<TypeInfo, IMember> ByPublicProperties(this SelectorBuilder<TypeInfo, IMember> source, Func<PropertyInfo, bool> propertyFilter)
 		{
 			return source.By(t => t.GetPublicProperties()
 								   .Where(propertyFilter)
-								   .Select(p => new PropertyMember(p) as IMember));
+								   .Select(p => p.ToMember()));
 		}
 
 		public static DelegateSelector<TypeInfo, IMember> ByMethods(this SelectorBuilder<TypeInfo, IMember> source, Func<MethodInfo, bool> memberFilter)
 		{
 			return source.By(t => t.GetAllMethods()
 				.Where(memberFilter)
-				.Select(m => new MethodMember(m) as IMember));
+				.Select(m => m.ToMember()));
 		}
 
 		public static DelegateSelector<TypeInfo, IMember> ByPublicMethods(this SelectorBuilder<TypeInfo, IMember> source, Func<MethodInfo, bool> memberFilter)
 		{
 			return source.By(t => t.GetPublicMethods()
 				.Where(memberFilter)
-				.Select(m => new MethodMember(m) as IMember));
+				.Select(m => m.ToMember()));
 		}
 
 		public static DelegateSelector<TypeInfo, IOperation> ByMethods(this SelectorBuilder<TypeInfo, IOperation> source, Func<MethodInfo, bool> memberFilter)
 		{
 			return source.By(t => t.GetAllMethods()
 				.Where(memberFilter)
-				.Select(m => new MethodOperation(m) as IOperation));
+				.Select(m => m.ToOperation()));
 		}
 
 		public static DelegateSelector<TypeInfo, IOperation> ByPublicMethods(this SelectorBuilder<TypeInfo, IOperation> source, Func<MethodInfo, bool> memberFilter)
 		{
 			return source.By(t => t.GetPublicMethods()
 				.Where(memberFilter)
-				.Select(m => new MethodOperation(m) as IOperation));
+				.Select(m => m.ToOperation()));
+		}
+
+		public static DelegateSelector<TypeInfo, IOperation> ByProperties(this SelectorBuilder<TypeInfo, IOperation> source, Func<PropertyInfo, bool> memberFilter) 
+		{
+			return source.ByProperties(Constants.PROPERTY_OPERATION_DEFAULT_PREFIX, memberFilter);
+		}
+
+		public static DelegateSelector<TypeInfo, IOperation> ByProperties(this SelectorBuilder<TypeInfo, IOperation> source, string operationNamePrefix, Func<PropertyInfo, bool> memberFilter)
+		{
+			return source.By(t => t.GetAllProperties()
+				.Where(memberFilter)
+				.Select(p => p.ToOperation(operationNamePrefix)));
+		}
+
+		public static DelegateSelector<TypeInfo, IOperation> ByPublicProperties(this SelectorBuilder<TypeInfo, IOperation> source, Func<PropertyInfo, bool> memberFilter)
+		{
+			return source.ByPublicProperties(Constants.PROPERTY_OPERATION_DEFAULT_PREFIX, memberFilter);
+		}
+
+		public static DelegateSelector<TypeInfo, IOperation> ByPublicProperties(this SelectorBuilder<TypeInfo, IOperation> source, string operationNamePrefix, Func<PropertyInfo, bool> memberFilter)
+		{
+			return source.By(t => t.GetPublicProperties()
+				.Where(memberFilter)
+				.Select(m => m.ToOperation(operationNamePrefix)));
 		}
 
 		#endregion
@@ -349,215 +372,38 @@ namespace Routine
 
 		#endregion
 
-		#region TFrom => object Extensions
+		#region MemberValueExtractor Extensions
 
-		public static ReferenceValueExtractor<object, TData> ByPublicProperty<TData>(
-			this ExtractorBuilder<object, TData> source, 
-			Func<object, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter(o)));
-		}
-
-		public static ReferenceValueExtractor<object, TData> ByPublicProperty<TData>(
-			this ExtractorBuilder<object, TData> source,
+		public static MemberValueExtractor<TFrom, TData> ByPublicProperty<TFrom, TData>(
+			this ExtractorBuilder<TFrom, TData> source,
 			Func<PropertyInfo, bool> propertyFilter)
 		{
-			return source.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter).UseCache());
+			return source.ByMember(o => o.GetTypeInfo().GetPublicProperties().FirstOrDefault(Wrap(propertyFilter)).ToMember());
 		}
 
-		public static ReferenceValueExtractor<object, TData> ByProperty<TData>(
-			this ExtractorBuilder<object, TData> source,
-			Func<object, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter(o)));
-		}
-
-		public static ReferenceValueExtractor<object, TData> ByProperty<TData>(
-			this ExtractorBuilder<object, TData> source,
+		public static MemberValueExtractor<TFrom, TData> ByProperty<TFrom, TData>(
+			this ExtractorBuilder<TFrom, TData> source,
 			Func<PropertyInfo, bool> propertyFilter)
 		{
-			return source.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter).UseCache());
+			return source.ByMember(o => o.GetTypeInfo().GetAllProperties().FirstOrDefault(Wrap(propertyFilter)).ToMember());
 		}
 
-		public static ReferenceValueExtractor<object, TData> ByPublicMethod<TData>(
-			this ExtractorBuilder<object, TData> source,
-			Func<object, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter(o)));
-		}
-
-		public static ReferenceValueExtractor<object, TData> ByPublicMethod<TData>(
-			this ExtractorBuilder<object, TData> source,
+		public static MemberValueExtractor<TFrom, TData> ByPublicMethod<TFrom, TData>(
+			this ExtractorBuilder<TFrom, TData> source,
 			Func<MethodInfo, bool> methodFilter)
 		{
-			return source.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter).UseCache());
+			return source.ByMember(o => o.GetTypeInfo().GetPublicMethods().FirstOrDefault(Wrap(methodFilter)).ToMember());
 		}
 
-		public static ReferenceValueExtractor<object, TData> ByMethod<TData>(
-			this ExtractorBuilder<object, TData> source,
-			Func<object, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter(o)));
-		}
-
-		public static ReferenceValueExtractor<object, TData> ByMethod<TData>(
-			this ExtractorBuilder<object, TData> source,
+		public static MemberValueExtractor<TFrom, TData> ByMethod<TFrom, TData>(
+			this ExtractorBuilder<TFrom, TData> source,
 			Func<MethodInfo, bool> methodFilter)
 		{
-			return source.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache());
+			return source.ByMember(o => o.GetTypeInfo().GetAllMethods().FirstOrDefault(Wrap(methodFilter)).ToMember());
 		}
 
-		#endregion
-
-		#region TFrom => Tuple<object, TFrom> Extensions	
-	
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByPublicProperty<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source, 
-			Func<object, TFrom, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter(o.Item1, o.Item2)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByPublicProperty<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<PropertyInfo, bool> propertyFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByProperty<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<object, TFrom, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter(o.Item1, o.Item2)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByProperty<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<PropertyInfo, bool> propertyFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByPublicMethod<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<object, TFrom, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter(o.Item1, o.Item2)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByPublicMethod<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<MethodInfo, bool> methodFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByMethod<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<object, TFrom, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter(o.Item1, o.Item2)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom>, TData> ByMethod<TFrom, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom>, TData> source,
-			Func<MethodInfo, bool> methodFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		#endregion
-
-		#region TFrom => Tuple<object, TFrom1, TFrom2> Extensions	
-	
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByPublicProperty<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source, 
-			Func<object, TFrom1, TFrom2, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter(o.Item1, o.Item2, o.Item3)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByPublicProperty<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<PropertyInfo, bool> propertyFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicProperties(propertyFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByProperty<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<object, TFrom1, TFrom2, Func<PropertyInfo, bool>> propertyFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter(o.Item1, o.Item2, o.Item3)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByProperty<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<PropertyInfo, bool> propertyFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByProperties(propertyFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByPublicMethod<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<object, TFrom1, TFrom2, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter(o.Item1, o.Item2, o.Item3)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByPublicMethod<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<MethodInfo, bool> methodFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByPublicMethods(methodFilter).UseCache())
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByMethod<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<object, TFrom1, TFrom2, Func<MethodInfo, bool>> methodFilter)
-		{
-			return source
-					.ByReference(o => BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter(o.Item1, o.Item2, o.Item3)))
-					.Using(o => o.Item1);
-		}
-
-		public static ReferenceValueExtractor<Tuple<object, TFrom1, TFrom2>, TData> ByMethod<TFrom1, TFrom2, TData>(
-			this ExtractorBuilder<Tuple<object, TFrom1, TFrom2>, TData> source,
-			Func<MethodInfo, bool> methodFilter)
-		{
-			return source
-					.ByReference(BuildRoutine.Selector<TypeInfo, IMember>().ByMethods(methodFilter).UseCache())
-					.Using(o => o.Item1);
-		}
+		private static Func<MethodInfo, bool> Wrap(Func<MethodInfo, bool> original) { return m => m.HasNoParameters() && !m.ReturnsVoid() && original(m); }
+		private static Func<PropertyInfo, bool> Wrap(Func<PropertyInfo, bool> original) { return p => !p.IsIndexer && original(p); }
 
 		#endregion
 	}

@@ -8,6 +8,8 @@ using System.Linq;
 
 namespace Routine.Test.Core.Reflection.Optimization
 {
+	#region Test Model
+
 	public interface IOptimizedInterface<T>
 	{
 		void VoidMethod();
@@ -23,9 +25,9 @@ namespace Routine.Test.Core.Reflection.Optimization
 		void ListListParameterVoidMethod(List<List<string>> listList);
 		void DictionaryParameterVoidMethod(Dictionary<string, object> dict);
 
-		string StringProperty{ get; set;}
+		string StringProperty { get; set; }
 
-		string this[string key, int index]{ get; set;}
+		string this[string key, int index] { get; set; }
 
 		void GenericParameterMethod(T param);
 		T GenericReturnMethod();
@@ -37,46 +39,50 @@ namespace Routine.Test.Core.Reflection.Optimization
 	{
 		public class InnerClass
 		{
-			public static InnerClass New(){return new InnerClass();}
-			private InnerClass(){}
-			public void VoidMethod(){}
+			public static InnerClass New() { return new InnerClass(); }
+			private InnerClass() { }
+			public void VoidMethod() { }
 		}
 
-		public static void StaticVoidMethod(){}
+		public static void StaticVoidMethod() { }
 
 		private readonly IOptimizedInterface<string> real;
-		public OptimizedClass(IOptimizedInterface<string> real){this.real = real;}
+		public OptimizedClass(IOptimizedInterface<string> real) { this.real = real; }
 
-		public void VoidMethod(){real.VoidMethod();}
+		public void VoidMethod() { real.VoidMethod(); }
 
-		void IOptimizedInterface<string>.ExplicitVoidMethod(){real.ExplicitVoidMethod();}
+		void IOptimizedInterface<string>.ExplicitVoidMethod() { real.ExplicitVoidMethod(); }
 
-		public string StringMethod(){return real.StringMethod();}
-		public void OneParameterVoidMethod(string str){real.OneParameterVoidMethod(str);}
-		public void TwoParameterVoidMethod(string str, int i){real.TwoParameterVoidMethod(str, i);}
-		public string ThreeParameterStringMethod(string str, int i, decimal d){return real.ThreeParameterStringMethod(str, i, d);}
+		public string StringMethod() { return real.StringMethod(); }
+		public void OneParameterVoidMethod(string str) { real.OneParameterVoidMethod(str); }
+		public void TwoParameterVoidMethod(string str, int i) { real.TwoParameterVoidMethod(str, i); }
+		public string ThreeParameterStringMethod(string str, int i, decimal d) { return real.ThreeParameterStringMethod(str, i, d); }
 
-		public List<string> ListMethod(){return real.ListMethod();}
-		public void ListParameterVoidMethod(List<string> list){real.ListParameterVoidMethod(list);}
-		public void ListListParameterVoidMethod(List<List<string>> listList){real.ListListParameterVoidMethod(listList);}
-		public void DictionaryParameterVoidMethod(Dictionary<string, object> dict){real.DictionaryParameterVoidMethod(dict);}
+		public List<string> ListMethod() { return real.ListMethod(); }
+		public void ListParameterVoidMethod(List<string> list) { real.ListParameterVoidMethod(list); }
+		public void ListListParameterVoidMethod(List<List<string>> listList) { real.ListListParameterVoidMethod(listList); }
+		public void DictionaryParameterVoidMethod(Dictionary<string, object> dict) { real.DictionaryParameterVoidMethod(dict); }
 
-		private void NonPublicVoidMethod(){}
+		private void NonPublicVoidMethod() { }
 
-		public string StringProperty{ get{return real.StringProperty;}set{real.StringProperty = value;}}
-		public string this[string key, int index]{ get{return real[key, index];} set{real[key, index] = value;}}
+		public string StringProperty { get { return real.StringProperty; } set { real.StringProperty = value; } }
+		public string this[string key, int index] { get { return real[key, index]; } set { real[key, index] = value; } }
 
-		public void GenericParameterMethod(string param){real.GenericParameterMethod(param);}
-		public string GenericReturnMethod(){return real.GenericReturnMethod();}
+		public void GenericParameterMethod(string param) { real.GenericParameterMethod(param); }
+		public string GenericReturnMethod() { return real.GenericReturnMethod(); }
 
-		private void PrivateVoidMethod(){real.PrivateVoidMethod();}
-		void IOptimizedInterface<string>.PrivateVoidMethod(){PrivateVoidMethod();}
-	}
+		private void PrivateVoidMethod() { real.PrivateVoidMethod(); }
+		void IOptimizedInterface<string>.PrivateVoidMethod() { PrivateVoidMethod(); }
+	} 
+
+	#endregion
 
 	[TestFixture]
 	public class ReflectionOptimizerTest : CoreTestBase
 	{
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Reflection.Optimization"};}}
+		#region Setup & Helpers
+
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.Reflection.Optimization" }; } }
 
 		private Mock<IOptimizedInterface<string>> mock;
 		private OptimizedClass target;
@@ -95,30 +101,32 @@ namespace Routine.Test.Core.Reflection.Optimization
 
 		private IMethodInvoker InvokerFor<T>(string methodName)
 		{
-			if(methodName.StartsWith("get:"))
+			if (methodName.StartsWith("get:"))
 			{
 				return testing
 							.CreateInvoker(typeof(T).GetProperty(methodName.After("get:"), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
 							.GetGetMethod());
 			}
 
-			if(methodName.StartsWith("set:"))
+			if (methodName.StartsWith("set:"))
 			{
 				return testing
 							.CreateInvoker(typeof(T).GetProperty(methodName.After("set:"), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
 							.GetSetMethod());
 			}
 
-			if(methodName == "new")
+			if (methodName == "new")
 			{
 				return testing.CreateInvoker(typeof(T).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault());
 			}
 
 			return testing.CreateInvoker(typeof(T).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static));
-		}
+		} 
+
+		#endregion
 
 		[Test]
-		public void ReflectionOptimizerGeneratesAndCompilesCodeToInvokeGivenMethodViaInvokerInterface()
+		public void ReflectionOptimizer_generates_and_compiles_code_to_invoke_given_method_via_invoker_interface()
 		{
 			InvokerFor<IOptimizedInterface<string>>("VoidMethod").Invoke(target);
 			InvokerFor<OptimizedClass>("VoidMethod").Invoke(target);
@@ -129,7 +137,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void CreateInvokerThrowsArgumentExceptionWhenNullIsGiven()
+		public void CreateInvoker_throws_ArgumentException_when_null_is_given()
 		{
 			try
 			{
@@ -143,7 +151,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_VoidMethod()
+		public void Test_void_method()
 		{
 			var actual = InvokerFor<IOptimizedInterface<string>>("VoidMethod").Invoke(target);
 
@@ -152,7 +160,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_ReturnValue()
+		public void Test_return_value()
 		{
 			mock.Setup(o => o.StringMethod()).Returns("result");
 
@@ -162,13 +170,13 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_GenericTypeReturn()
+		public void Test_generic_type_return()
 		{
 			InvokerFor<OptimizedClass>("ListMethod").Invoke(target);
 		}
 
 		[Test]
-		public void Test_Parameter()
+		public void Test_parameter()
 		{
 			InvokerFor<OptimizedClass>("OneParameterVoidMethod").Invoke(target, "test");
 			InvokerFor<OptimizedClass>("TwoParameterVoidMethod").Invoke(target, "test1", 1);
@@ -180,7 +188,15 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void MethodInvokerDoesNotCheckParameterCompatibilityAndLetIndexOutOfRangeOrCastExceptionsToBeThrown()
+		public void When_null_is_given_for_a_value_type_parameter__default_value_of_that_type_is_used()
+		{
+			InvokerFor<OptimizedClass>("TwoParameterVoidMethod").Invoke(target, "dummy", null);
+
+			mock.Verify(o => o.TwoParameterVoidMethod(It.IsAny<string>(), 0), Times.Once());
+		}
+
+		[Test]
+		public void Method_invoker_does_not_check_parameter_compatibility_and_let_IndexOutOfRangeException_or_InvalidCastException_to_be_thrown()
 		{
 			try
 			{
@@ -198,14 +214,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void ForNonPublicMethodsReflectionInvokerIsCreated()
-		{
-			Assert.IsInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("NonPublicVoidMethod"));
-			Assert.IsNotInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("VoidMethod"));
-		}
-
-		[Test]
-		public void Test_GenericTypeParameter()
+		public void Test_generic_type_parameter()
 		{
 			InvokerFor<OptimizedClass>("ListParameterVoidMethod").Invoke(target, new List<string>());
 			InvokerFor<OptimizedClass>("ListListParameterVoidMethod").Invoke(target, new List<List<string>>());
@@ -213,7 +222,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_GenericMethod()
+		public void Test_generic_method()
 		{
 			InvokerFor<IOptimizedInterface<string>>("GenericParameterMethod").Invoke(target, "param");
 
@@ -227,19 +236,19 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_StaticMethod()
+		public void Test_static_method()
 		{
 			InvokerFor<OptimizedClass>("StaticVoidMethod").Invoke(null);
 		}
 
 		[Test]
-		public void Test_InnerClass()
+		public void Test_inner_class()
 		{
 			InvokerFor<OptimizedClass.InnerClass>("VoidMethod").Invoke(OptimizedClass.InnerClass.New());
 		}
 
 		[Test]
-		public void Test_PropertyGet()
+		public void Test_property_get()
 		{
 			mock.Setup(o => o.StringProperty).Returns("result");
 
@@ -249,7 +258,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_PropertySet()
+		public void Test_property_set()
 		{
 			InvokerFor<OptimizedClass>("set:StringProperty").Invoke(target, "result");
 
@@ -257,7 +266,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_PropertyGetByIndex()
+		public void Test_property_get_by_index()
 		{
 			mock.Setup(o => o["key", 0]).Returns("result");
 
@@ -267,7 +276,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_PropertySetByIndex()
+		public void Test_property_set_by_index()
 		{
 			InvokerFor<OptimizedClass>("set:Item").Invoke(target, "key", 0, "result");
 
@@ -275,14 +284,21 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void Test_CreateObject()
+		public void Test_create_object()
 		{
 			var actual = InvokerFor<OptimizedClass>("new").Invoke(null, mock.Object);
 			Assert.IsInstanceOf<OptimizedClass>(actual);
 		}
 
 		[Test]
-		public void ReflectionOptimizerUsesReflectionWhenGivenMethodIsNotPublic()
+		public void For_non_public_methods_ReflectionInvoker_is_created()
+		{
+			Assert.IsInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("NonPublicVoidMethod"));
+			Assert.IsNotInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("VoidMethod"));
+		}
+
+		[Test]
+		public void ReflectionOptimizer_uses_reflection_when_given_method_is_not_public()
 		{
 			InvokerFor<OptimizedClass>("PrivateVoidMethod").Invoke(target);
 
@@ -292,7 +308,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test] [Ignore]
-		public void GenericMethodInvokerInterfaceSupport()
+		public void Generic_method_invoker_interface_support()
 		{
 			Assert.Fail("not implemented");
 		}

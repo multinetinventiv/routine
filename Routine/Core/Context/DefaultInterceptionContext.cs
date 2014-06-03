@@ -28,12 +28,7 @@ namespace Routine.Core.Context
 			return new ObjectReferenceInterceptionContext(ObjectService, targetReference);
 		}
 
-		public MemberInterceptionContext CreateMemberInterceptionContext(ObjectReferenceData targetReference, string memberModelId)
-		{
-			return new MemberInterceptionContext(ObjectService, targetReference, memberModelId);
-		}
-
-		public PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public PerformOperationInterceptionContext CreatePerformOperationInterceptionContext(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			return new PerformOperationInterceptionContext(ObjectService, targetReference, operationModelId, parameterValues);
 		}

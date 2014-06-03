@@ -185,28 +185,9 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void Heavy_members_are_rendered_as_methods()
-		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "s-string", true));
-
-			var testing = Generator(c => c
-				.Use(p => p.ShortModelIdPattern("System", "s"))
-				.Use(p => p.ParseableValueTypePattern()));
-
-			var methods = GenerateAndGetClientClass(testing, "TestClass").GetMethods();
-
-			Assert.IsTrue(methods.Any(p => p.Name == "GetName"), "GetName method was not found");
-
-			var nameMethod = methods.Single(p => p.Name == "GetName");
-
-			Assert.AreEqual(typeof(string), nameMethod.ReturnType);
-			Assert.AreEqual(0, nameMethod.GetParameters().Length);
-		}
-
-		[Test]
 		public void List_member_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", false, true));
+			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", true));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -222,7 +203,7 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operations_are_rendered_as_methods()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("VoidMethod", false, true));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("VoidMethod", true));
 
 			var methods = GenerateAndGetClientClass(Generator(), "TestClass").GetMethods();
 
@@ -237,7 +218,7 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operation_results_are_method_return_types()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", false, "s-string"));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", "s-string"));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -253,7 +234,8 @@ namespace Routine.Test.Api
 		[Test]
 		public void List_operation_result_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringListMethod", false, "s-string", true));
+			ModelsAre(Model("TestClass").Name("TestClass")
+				.Operation("StringListMethod", "s-string", true));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -270,7 +252,7 @@ namespace Routine.Test.Api
 		public void Operation_parameters_are_method_parameters()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("ParameterMethod", false, true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)));
+				.Operation("ParameterMethod", true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -425,8 +407,8 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == "arg1_test" &&
-					p["arg2"].References[0].Id == "arg2_test")
+					p["arg1"].Values[0].ReferenceId == "arg1_test" &&
+					p["arg2"].Values[0].ReferenceId == "arg2_test")
 				.Returns(Result(Id("result_test", "s-string")));
 
 			var testing = Generator(c => c
@@ -460,7 +442,7 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == expectedGuid.ToString())
+					p["arg1"].Values[0].ReferenceId == expectedGuid.ToString())
 				.Returns(Result(Id(expectedInt.ToString(), "s-int-32")));
 
 			var testing = Generator(c => c
@@ -494,7 +476,7 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == expectedIntString)
+					p["arg1"].Values[0].ReferenceId == expectedIntString)
 				.Returns(Result(Id(expectedIntString, "s-int-32")));
 
 			var testing = Generator(c => c
@@ -529,8 +511,8 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].ActualModelId == "TestClass2" &&
-					p["arg1"].References[0].Id == "test2")
+					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2")
 				.Returns(Result(Id("test2", "TestClass2")));
 
 			var types = Generator().GenerateClientApi().GetTypes();
@@ -568,8 +550,8 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "Module1-TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].ActualModelId == "Module2-TestClass2" &&
-					p["arg1"].References[0].Id == "test2")
+					p["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2")
 				.Returns(Result(Id("test2", "Module2-TestClass2")));
 
 			var otherApiGenerator = Generator(c => c
@@ -617,8 +599,8 @@ namespace Routine.Test.Api
 				Model("s-string").IsValue(),
 				Model("TestClass2").Name("TestClass2"),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Subs", "TestClass2", false, true)
-				.Member("Names", "s-string", false, true)
+				.Member("Subs", "TestClass2", true)
+				.Member("Names", "s-string", true)
 				.Operation("SubListOperation", "TestClass2", true, PModel("arg1", "TestClass2", true))
 				.Operation("NameListOperation", "s-string", true, PModel("arg1", "s-string", true))
 			);
@@ -636,18 +618,18 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("SubListOperation", p =>
-					p["arg1"].References[0].ActualModelId == "TestClass2" &&
-					p["arg1"].References[0].Id == "test2.1" &&
-					p["arg1"].References[1].ActualModelId == "TestClass2" &&
-					p["arg1"].References[1].Id == "test2.2")
+					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2.1" &&
+					p["arg1"].Values[1].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[1].ReferenceId == "test2.2")
 				.Returns(Result(Id("test2.3", "TestClass2"), Id("test2.4", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("NameListOperation", p =>
-					p["arg1"].References[0].ActualModelId == "s-string" &&
-					p["arg1"].References[0].Id == "name1" &&
-					p["arg1"].References[1].ActualModelId == "s-string" &&
-					p["arg1"].References[1].Id == "name2")
+					p["arg1"].Values[0].ObjectModelId == "s-string" &&
+					p["arg1"].Values[0].ReferenceId == "name1" &&
+					p["arg1"].Values[1].ObjectModelId == "s-string" &&
+					p["arg1"].Values[1].ReferenceId == "name2")
 				.Returns(Result(Id("name3", "s-string"), Id("name4", "s-string")));
 
 			var testing = Generator(c => c
@@ -730,7 +712,7 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].IsNull)
+					p["arg1"].Values[0].IsNull)
 				.Returns(Result(Id("resultForNull", "s-string")));
 
 			var testing = Generator(c => c

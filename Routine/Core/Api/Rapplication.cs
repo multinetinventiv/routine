@@ -35,8 +35,8 @@ namespace Routine.Core.Api
 				}
 			}
 		}
-		public ApplicationModel Model{get{FetchModelIfNecessary(); return model;}}
-		public ObjectModelIndex ObjectModel{get{FetchModelIfNecessary(); return modelIndex;}}
+		public ApplicationModel Model { get { FetchModelIfNecessary(); return model; } }
+		public ObjectModelIndex ObjectModel { get { FetchModelIfNecessary(); return modelIndex; } }
 		public List<ObjectModel> ObjectModels { get { return Model.Models; } }
 
 		public Rvariable NewVar<T>(string name, T value, string modelId)

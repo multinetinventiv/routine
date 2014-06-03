@@ -62,16 +62,7 @@ namespace <#= model.Namespace #>
 			Robject = robject;
 		}
 
-	<# foreach(var member in model.Members) { #>		
-        <# if(member.IsHeavy) { #>
-
-		public <#= member.ReturnModel.FullName #> Get<#= member.Id #>()
-		{
-			return Robject["<#= member.Id #>"].GetValue().<# RobjectToModel(member.ReturnModel); #>;
-		}
-        
-        <# } else { #>
-
+	<# foreach(var member in model.Members) { #>
 		public <#= member.ReturnModel.FullName #> <#= member.Id #>
 		{
 			get
@@ -79,8 +70,6 @@ namespace <#= model.Namespace #>
 				return Robject["<#= member.Id #>"].GetValue().<# RobjectToModel(member.ReturnModel); #>;
 			}
 		}
-
-        <# } #>
 	<# } #>
 
 	<# foreach(var operation in model.Operations) { #>

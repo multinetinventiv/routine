@@ -20,5 +20,11 @@ namespace Routine.Core.Builder
 		{
 			return new NoneSelector<TFrom, TItem>();
 		}
+
+		//second level facade
+		public DelegateSelector<TFrom, TItem> By(Func<TFrom, TItem> itemDelegate)
+		{
+			return By(f => new List<TItem> { itemDelegate(f) });
+		}
 	}
 }

@@ -29,7 +29,7 @@ namespace Routine.Test.Module.Todo
 			Name = name;
 			Address = address;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}
@@ -88,6 +88,11 @@ namespace Routine.Test.Module.Todo
 	{
 		public Assignees(IDomainContext context)
 			: base(context) {}
+
+		public new List<Assignee> All()
+		{
+			return base.All();
+		}
 
 		public Assignee SingleByName(string name)
 		{

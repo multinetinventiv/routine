@@ -4,12 +4,12 @@ namespace Routine.Core
 {
 	public interface ICoreContext
 	{
-		ICodingStyle CodingStyle{get;}
+		ICodingStyle CodingStyle { get; }
 		DomainType GetDomainType(string objectModelId);
 
 		DomainMember CreateDomainMember(DomainType domainType, IMember member);
 		DomainOperation CreateDomainOperation(DomainType domainType, IOperation operation);
-		DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter);
+		DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter, int initialGroupIndex);
 		DomainObject CreateDomainObject(object @object, string viewModelId);
 
 		DomainObject GetDomainObject(ObjectReferenceData objectReference);
@@ -49,6 +49,9 @@ namespace Routine.Core
 			if(isList)
 			{
 				var list = anObject as ICollection;
+
+				if (list == null) { return result; }
+
 				foreach(var item in list)
 				{
 					if (eager)
@@ -94,7 +97,7 @@ namespace Routine.Core
 				return itsReferenceId;
 			}
 
-			return source.CodingStyle.DisplayValueExtractor.Extract(anObject);
+			return source.CodingStyle.ValueExtractor.Extract(anObject);
 		}
 
 		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(null); }

@@ -17,7 +17,6 @@ namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 		public List<string> Items{get;set;}
 
 		public void Operation() {}
-		public List<string> HeavyOperation() {return null;}
 
 		IBusinessData IBusinessData.SubData
 		{
@@ -68,10 +67,7 @@ namespace Routine.Test.Core.Service
 			codingStyle
 				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 
-				.ExtractDisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
-
-				.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
-				.ExtractOperationIsHeavy.Done(e => e.ByConverting(o => o.ReturnsCollection()))
+				.ExtractValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 				;
 		}
 
@@ -86,7 +82,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void Display_value_is_extracted_using_corresponding_extractor()
+		public void Value_is_extracted_using_corresponding_extractor()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
@@ -96,7 +92,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void Display_value_is_id_when_model_is_value_type()
+		public void Value_is_id_when_model_is_value_type()
 		{
 			var actual = testing.Get(Id("sample", VALUE_OMID));
 
@@ -135,53 +131,6 @@ namespace Routine.Test.Core.Service
 			var actualMember = actual.Members["Title"];
 
 			Assert.IsTrue(actualMember.Values[0].Reference.IsNull);
-		}
-
-		[Test]
-		public void When_getting_object__only_light_members_are_fetched()
-		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
-
-			var actual = testing.Get(Id("obj"));
-
-			Assert.IsFalse(actual.Members.ContainsKey("Items"));
-		}
-
-		[Test]
-		public void Heavy_members_can_be_fetched_separately()
-		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
-
-			var actual = testing.GetMember(Id("obj"), "Items");
-
-			Assert.IsTrue(actual.IsList);
-			Assert.AreEqual("obj_item1", actual.Values[0].Reference.Id);
-			Assert.AreEqual("obj_item2", actual.Values[1].Reference.Id);
-		}
-
-		[Test]
-		public void When_wanted_member_does_not_exist__exception_is_thrown()
-		{
-			AddToRepository(new BusinessData { Id = "obj" });
-
-			try
-			{
-				testing.GetMember(Id("obj"), "NonExistingMember");
-				Assert.Fail("exception not thrown");
-			}
-			catch(MemberDoesNotExistException){}
-		}
-
-		[Test]
-		public void By_default_get_member_returns_eager_result()
-		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
-
-			var actual = testing.GetMember(Id("obj", ACTUAL_OMID, VIEW_OMID), "SubData");
-
-			Assert.IsTrue(actual.Values[0].Members.ContainsKey("SubData"));
-			Assert.AreEqual("sub_sub_obj", actual.Values[0].Members["SubData"].Values[0].Reference.Id);
-			Assert.AreEqual("Sub Sub Obj Title", actual.Values[0].Members["SubData"].Values[0].Value);
 		}
 	}
 }

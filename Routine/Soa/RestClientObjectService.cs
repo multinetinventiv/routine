@@ -120,17 +120,7 @@ namespace Routine.Soa
 				Param("reference.IsNull", reference.IsNull.ToString())));
 		}
 
-		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
-		{
-			return As<ValueData>(Get("GetMember", 
-				Param("reference.Id", reference.Id), 
-				Param("reference.ActualModelId", reference.ActualModelId), 
-				Param("reference.ViewModelId", reference.ViewModelId), 
-				Param("reference.IsNull", reference.IsNull.ToString()),
-				Param("memberModelId", memberModelId)));
-		}
-
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			var paramList = new List<RestParameter>();
 			
@@ -147,12 +137,11 @@ namespace Routine.Soa
 				paramList.Add(Param("parameterValues[" + i + "].Key", key));
 				paramList.Add(Param("parameterValues[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
 
-				for (int j = 0; j < parameterValues[key].References.Count; j++)
+				for (int j = 0; j < parameterValues[key].Values.Count; j++)
 				{
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].Id", parameterValues[key].References[j].Id));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ActualModelId", parameterValues[key].References[j].ActualModelId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ViewModelId", parameterValues[key].References[j].ViewModelId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].IsNull", parameterValues[key].References[j].IsNull.ToString()));
+					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].ReferenceId", parameterValues[key].Values[j].ReferenceId));
+					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].ObjectModelId", parameterValues[key].Values[j].ObjectModelId));
+					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].IsNull", parameterValues[key].Values[j].IsNull.ToString()));
 				}
 
 				i++;

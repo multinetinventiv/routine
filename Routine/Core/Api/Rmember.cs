@@ -31,27 +31,19 @@ namespace Routine.Core.Api
 			this.value = context.CreateRvariable().With(data);
 		}
 
-		private Rvariable Value {get{FetchDataIfNecessary(); return value;}}
+		private Rvariable Value { get { FetchDataIfNecessary(); return value; } }
 
 		private void FetchDataIfNecessary()
 		{
 			if(data == null)
 			{
-				if(model.IsHeavy)
-				{
-					SetData(context.ObjectService.GetMember(parentObject.ObjectReferenceData, model.Id));
-				}
-				else
-				{
-					parentObject.LoadObject();
-				}
+				parentObject.LoadObject();
 			}
 		}
 
-		public Robject ParentObject{get{return parentObject;}}
-		public string Id {get{return model.Id;}}
-		public bool IsList {get{return model.IsList;}}
-		public bool IsHeavy {get{return model.IsHeavy;}}
+		public Robject ParentObject { get { return parentObject; } }
+		public string Id { get { return model.Id; } }
+		public bool IsList { get { return model.IsList; } }
 
 		public Rvariable GetValue() { return Value; }
 

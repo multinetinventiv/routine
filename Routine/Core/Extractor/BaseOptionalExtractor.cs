@@ -12,7 +12,8 @@ namespace Routine.Core.Extractor
 			When(o => true);
 		}
 
-		public TConcrete WhenNull() { return When(o => o == null); }
+		public TConcrete WhenDefault() { return When(default(TFrom)); }
+		public TConcrete When(TFrom expected) { return When(o => Equals(o, expected)); }
 		public TConcrete When(Func<TFrom, bool> whenDelegate) {this.whenDelegate = whenDelegate; return (TConcrete)this;}
 
 		protected virtual bool CanExtract(TFrom obj) 

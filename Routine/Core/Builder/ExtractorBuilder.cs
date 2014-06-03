@@ -5,14 +5,9 @@ namespace Routine.Core.Builder
 {
 	public class ExtractorBuilder<TFrom, TData> 
 	{
-		internal ReferenceValueExtractor<TFrom, TData> ByReference(Func<TFrom, ISelector<TypeInfo, IMember>> selectorDelegate)
+		internal MemberValueExtractor<TFrom, TData> ByMember(Func<object, IMember> memberDelegate)
 		{
-			return new ReferenceValueExtractor<TFrom, TData>(selectorDelegate);
-		}
-
-		internal ReferenceValueExtractor<TFrom, TData> ByReference(ISelector<TypeInfo, IMember> selector)
-		{
-			return new ReferenceValueExtractor<TFrom, TData>(selector);
+			return new MemberValueExtractor<TFrom, TData>(memberDelegate);
 		}
 
 		internal ConverterExtractor<TFrom, TData> ByConverting()

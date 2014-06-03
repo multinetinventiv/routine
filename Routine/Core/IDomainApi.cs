@@ -16,7 +16,6 @@ namespace Routine.Core
 	
 	public interface IMember : IReturnItem
 	{
-		bool CanFetchFrom(object target);
 		object FetchFrom(object target);
 	}
 	

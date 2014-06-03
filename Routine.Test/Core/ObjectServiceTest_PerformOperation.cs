@@ -5,9 +5,11 @@ using Routine.Core;
 
 namespace Routine.Test.Core
 {
+	#region Test Model
+
 	public interface IBusinessOperation
 	{
-		string Title{get;}
+		string Title { get; }
 
 		void Void();
 		IBusinessOperation GetResult();
@@ -15,6 +17,12 @@ namespace Routine.Test.Core
 		void DoOperationWithList(List<string> list);
 		List<string> GetListResult();
 		string[] GetArrayResult();
+
+		void OverloadOp();
+		void OverloadOp(string s);
+		void OverloadOp(int i);
+		void OverloadOp(string s, int i);
+		void OverloadOp(string s1, string s, int i1);
 	}
 
 	public class BusinessOperation : IBusinessOperation
@@ -22,8 +30,8 @@ namespace Routine.Test.Core
 		private readonly IBusinessOperation mock;
 		internal BusinessOperation(IBusinessOperation mock) { this.mock = mock; }
 
-		public string Id{get;set;}
-		public string Title{get;set;}
+		public string Id { get; set; }
+		public string Title { get; set; }
 
 		void IBusinessOperation.Void() { mock.Void(); }
 		IBusinessOperation IBusinessOperation.GetResult() { return mock.GetResult(); }
@@ -31,16 +39,26 @@ namespace Routine.Test.Core
 		void IBusinessOperation.DoOperationWithList(List<string> list) { mock.DoOperationWithList(list); }
 		List<string> IBusinessOperation.GetListResult() { return mock.GetListResult(); }
 		string[] IBusinessOperation.GetArrayResult() { return mock.GetArrayResult(); }
+
+		void IBusinessOperation.OverloadOp() { mock.OverloadOp(); }
+		void IBusinessOperation.OverloadOp(string s) { mock.OverloadOp(s); }
+		void IBusinessOperation.OverloadOp(int i) { mock.OverloadOp(i); }
+		void IBusinessOperation.OverloadOp(string s, int i) { mock.OverloadOp(s, i); }
+		void IBusinessOperation.OverloadOp(string s1, string s, int i1) { mock.OverloadOp(s1, s, i1); }
 	}
+
+	#endregion
 
 	[TestFixture]
 	public class ObjectServiceTest_PerformOperation : ObjectServiceTestBase
 	{
+		#region Setup & Helpers
+
 		private const string ACTUAL_OMID = "Routine.Test.Core.BusinessOperation";
 		private const string VIEW_OMID = "Routine.Test.Core.IBusinessOperation";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core"};}}
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core" }; } }
 
 		private Mock<IBusinessOperation> businessMock;
 		private BusinessOperation businessObj;
@@ -52,15 +70,14 @@ namespace Routine.Test.Core
 
 			codingStyle
 				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
-
-				.ExtractDisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
+				.ExtractValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 				;
 
 			businessMock = new Mock<IBusinessOperation>();
 			businessObj = new BusinessOperation(businessMock.Object);
 		}
 
-		private void SetUpObject(string id) {SetUpObject(id, id);}
+		private void SetUpObject(string id) { SetUpObject(id, id); }
 		private void SetUpObject(string id, string title)
 		{
 			businessObj.Id = id;
@@ -72,7 +89,9 @@ namespace Routine.Test.Core
 		protected override ObjectReferenceData Id(string id)
 		{
 			return Id(id, ACTUAL_OMID, VIEW_OMID);
-		}
+		} 
+
+		#endregion
 
 		[Test]
 		public void Locates_target_object_and_performs_given_operation_via_view_model()
@@ -166,7 +185,7 @@ namespace Routine.Test.Core
 		}
 
 		[Test]
-		public void When_parameter_values_is_null__it_is_treated_as_if_it_is_an_empty_list()
+		public void When_parameterValues_is_null__it_is_treated_as_if_it_is_an_empty_dictionary()
 		{
 			SetUpObject("id");
 
@@ -182,7 +201,7 @@ namespace Routine.Test.Core
 
 			testing.PerformOperation(Id("id"), "DoParameterizedOperation", 
 				Params(
-					Param("str", Id("str_value", "System.String")),
+					Param("str", Id("str_value", "s-string")),
 					Param("obj", Id("id"))
 				));
 
@@ -207,7 +226,7 @@ namespace Routine.Test.Core
 			testing.PerformOperation(Id("id"), "DoParameterizedOperation", 
 				Params(
 					Param("nonExistingParameter", Id("id")),
-					Param("str", Id("str_value", "System.String")),
+					Param("str", Id("str_value", "s-string")),
 					Param("obj", Id("id"))
 				));
 
@@ -235,7 +254,7 @@ namespace Routine.Test.Core
 
 			testing.PerformOperation(Id("id"), "DoOperationWithList", 
 				Params(
-					Param("list", Id("a", "System.String"), Id("b", "System.String"))
+					Param("list", Id("a", "s-string"), Id("b", "s-string"))
 				));
 
 			businessMock.Verify(o => o.DoOperationWithList(new List<string>{"a", "b"}));
@@ -254,28 +273,91 @@ namespace Routine.Test.Core
 			Assert.AreEqual("title", result.Values[0].Members["Title"].Values[0].Reference.Id);
 		}
 
-		[Test] [Ignore]
-		public void Validates_given_parameters_against_parameter_model()
+		[Test]
+		public void Target_operation_can_have_more_than_one_parameter_group_so_that_domain_object_can_expose_overloaded_methods_as_one_service()
 		{
-			Assert.Fail("not implemented");
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("i", Id("1", "s-int-32"))
+				)
+			);
+			businessMock.Verify(o => o.OverloadOp(1), Times.Once());
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("s", Id("s_value", "s-string"))
+				)
+			);
+			businessMock.Verify(o => o.OverloadOp("s_value"), Times.Once());
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("s", Id("s_value2", "s-string")),
+					Param("i", Id("2", "s-int-32"))
+				)
+			);
+			businessMock.Verify(o => o.OverloadOp("s_value2", 2), Times.Once());
 		}
 
-		[Test] [Ignore]
-		public void Array_parameter_support()
+		[Test]
+		public void When_given_parameters_do_not_match_exactly_with_any_operations__uses_the_group_with_most_matched_parameters()
 		{
-			Assert.Fail("not implemented");
-		}
-		
-		[Test] [Ignore]
-		public void Params_support()
-		{
-			Assert.Fail("not implemented");
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("s", Id("s_value", "s-string")),
+					Param("s1", Id("s_value1", "s-string"))
+				)
+			);
+
+			//group 0 -> match 0
+			//group 1 -> match 1 (s)
+			//group 2 -> match 0
+			//group 3 -> match 1 (s)
+			//group 4 -> match 2 (s1, s) --> WINS!
+			businessMock.Verify(o => o.OverloadOp("s_value1", "s_value", 0), Times.Once());
 		}
 
-		[Test] [Ignore]
-		public void Method_overload_support()
+		[Test]
+		public void When_there_are_more_than_one_group_having_the_same_number_of_most_matched_parameters__uses_the_group_with_least_non_matched_parameters()
 		{
-			//TODO resolve optional parameters with overloading
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("s", Id("s_value", "s-string")),
+					Param("i", Id("1", "s-int-32")),
+					Param("s1", Id("s_value1", "s-string"))
+				)
+			);
+
+			//group 0 -> match 0
+			//group 1 -> match 1 (s)
+			//group 2 -> match 1 (i)
+			//group 3 -> match 2 (s, i) --> non-match 0 --> WINS!
+			//group 3 -> match 2 (s1, s) --> non-match 1 (i1)
+			businessMock.Verify(o => o.OverloadOp("s_value", 1), Times.Once());
+
+			testing.PerformOperation(Id("id"), "OverloadOp",
+				Params(
+					Param("a", Id("dummy", "s-string"))
+				)
+			);
+
+			//group 0 -> match 0 --> non-match 0 --> WINS!
+			//group 1 -> match 0 --> non-match 1 (s)
+			//group 2 -> match 0 --> non-match 1 (i)
+			//group 3 -> match 0 --> non-match 2 (s, i)
+			//group 3 -> match 0 --> non-match 3 (s1, s, i1)
+			businessMock.Verify(o => o.OverloadOp(), Times.Once());
+		}
+
+		[Test]
+		public void Array_and_params_parameter_support()
+		{
 			Assert.Fail("not implemented");
 		}
 		

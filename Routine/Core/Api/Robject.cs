@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
@@ -6,35 +7,56 @@ namespace Routine.Core.Api
 {
 	public class Robject
 	{
+		#region Data Adapter Methods
+
+		private static ObjectReferenceData ORD(string id, string amid, string vmid) { return new ObjectReferenceData { Id = id, ActualModelId = amid, ViewModelId = vmid }; }
+		private static ObjectReferenceData ORD(ParameterData pd) { return new ObjectReferenceData { Id = pd.ReferenceId, ActualModelId = pd.ObjectModelId, ViewModelId = pd.ObjectModelId, IsNull = pd.IsNull }; }
+
+		private static ObjectData OD(ObjectReferenceData ord) { return OD(ord, null); }
+		private static ObjectData OD(ObjectReferenceData ord, string value) { return new ObjectData { Reference = ord, Value = value }; }
+
+		private static ParameterData PD(ObjectReferenceData ord) { return new ParameterData { ReferenceId = ord.Id, ObjectModelId = ord.ActualModelId, IsNull = ord.IsNull }; }
+
+		#endregion
+
 		private readonly IApiContext context;
 
         public Robject(IApiContext context)
 		{
             this.context = context;
 		}
-
+		
 		private ObjectReferenceData objectReferenceData;
 		private string value;
 		private ObjectModel model;
 		private Dictionary<string, Rmember> members;
 		private Dictionary<string, Roperation> operations;
 
+		private string initializationModelId;
+		private Dictionary<string, Rvariable> initializationParameters;
+
 		public Robject Null(){return With(new ObjectReferenceData{IsNull = true});}
-		public Robject With(string id, string modelId) {return With(id, modelId, modelId);}
-		public Robject With(string id, string actualModelId, string viewModelId) {return With(new ObjectReferenceData{Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId});}
-		internal Robject With(ObjectReferenceData objectReferenceData){return With(objectReferenceData, null);}
-		internal Robject With(ObjectReferenceData objectReferenceData, string value) { return With(new ObjectData { Reference = objectReferenceData, Value = value }); }
-		internal Robject With(ObjectData objectData)
+		public Robject With(string id, string modelId) { return With(id, modelId, modelId); }
+		public Robject With(string id, string actualModelId, string viewModelId) { return With(ORD(id, actualModelId, viewModelId)); }
+		internal Robject With(ObjectReferenceData objectReferenceData) { return With(OD(objectReferenceData)); }
+		internal Robject With(ObjectReferenceData objectReferenceData, string value) { return With(OD(objectReferenceData, value)); }
+		internal Robject With(ObjectData objectData) { return With(objectData, PD(objectData.Reference)); }
+		internal Robject With(ParameterData parameterData) { return With(OD(ORD(parameterData)), parameterData); }
+		internal Robject With(ObjectData objectData, ParameterData parameterData)
 		{
 			this.objectReferenceData = objectData.Reference;
 			this.members = new Dictionary<string, Rmember>();
 			this.operations = new Dictionary<string, Roperation>();
+
+			this.initializationModelId = parameterData.InitializationModelId;
+			this.initializationParameters = new Dictionary<string, Rvariable>();
 
 			if(!IsNull)
 			{
 				this.model = Application.ObjectModel[objectReferenceData.ViewModelId];
 
 				FillObject(objectData);
+				//FillInitialization(parameterData);
 			}
 			
 			return this;
@@ -70,6 +92,11 @@ namespace Routine.Core.Api
 			}
 		}
 
+		private void FillInitialization(ParameterData data)
+		{
+			throw new NotImplementedException();
+		}
+
 		private void FetchValueIfNecessary()
 		{
 			if(value != null) {return;}
@@ -99,6 +126,7 @@ namespace Routine.Core.Api
 
 		private bool ModelIsLoaded { get { return members.Any() || operations.Any(); } }
 		internal ObjectReferenceData ObjectReferenceData {get{return objectReferenceData;}}
+		internal ParameterData ParameterData { get { return PD(ObjectReferenceData); } }
 
 		public Rapplication Application{get{return context.Rapplication;}}
 		public string ActualModelId{get{return objectReferenceData.ActualModelId;}}

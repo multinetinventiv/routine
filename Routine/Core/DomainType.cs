@@ -58,9 +58,26 @@ namespace Routine.Core
 			{
 				try
 				{
-					Operation.Add(operation.Name, ctx.CreateDomainOperation(this, operation));
+					if (Operation.ContainsKey(operation.Name))
+					{
+						Operation[operation.Name].AddGroup(operation);
+					}
+					else
+					{
+						Operation.Add(operation.Name, ctx.CreateDomainOperation(this, operation));
+					}
 				}
-				catch(CannotSerializeDeserializeException ex)
+				catch (CannotSerializeDeserializeException ex)
+				{
+					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
+					continue;
+				}
+				catch (ReturnTypesDoNotMatchException ex)
+				{
+					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
+					continue;
+				}
+				catch (ParameterTypesDoNotMatchException ex)
 				{
 					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
 					continue;
@@ -95,9 +112,6 @@ namespace Routine.Core
 
 			return result.Select(id => ctx.GetDomainObject(id, Id)).ToList();
 		}
-
-		public List<DomainMember> LightMembers {get{return Members.Where(m => !m.IsHeavy).ToList();}}
-		public List<DomainOperation> LightOperations {get{return Operations.Where(o => !o.IsHeavy).ToList();}}
 	}
 }
 

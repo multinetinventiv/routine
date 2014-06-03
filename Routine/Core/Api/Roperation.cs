@@ -43,11 +43,11 @@ namespace Routine.Core.Api
 
 		public Rvariable Perform(List<Rvariable> parameterVariables)
 		{
-			var parameterValues = new Dictionary<string, ReferenceData>();
+			var parameterValues = new Dictionary<string, ParameterValueData>();
 			foreach(var parameterVariable in parameterVariables)
 			{
 				var rparam = parameters[parameterVariable.Name];
-				var parameterValue = rparam.CreateReferenceData(parameterVariable.List);
+				var parameterValue = rparam.CreateParameterValueData(parameterVariable.List);
 				parameterValues.Add(rparam.Id, parameterValue);
 			}
 

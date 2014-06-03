@@ -25,9 +25,9 @@ namespace Routine.Test.Performance
 						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
-					.ServiceUrlBaseIs("http://127.0.0.1:6848/Soa")
+					.ServiceUrlBaseIs("http://127.0.0.1:3597/Soa")
 					.DefaultParametersAre("language_code")
-					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When(s => s == "language_code"))
+					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When("language_code"))
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
 				);
 				

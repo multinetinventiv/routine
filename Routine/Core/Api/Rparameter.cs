@@ -41,20 +41,13 @@ namespace Routine.Core.Api
 			return result;
 		}
 
-		internal ReferenceData CreateReferenceData(params Robject[] robjs) { return CreateReferenceData(robjs.ToList());}
-		internal ReferenceData CreateReferenceData(List<Robject> robjs)
+		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) { return CreateParameterValueData(robjs.ToList()); }
+		internal ParameterValueData CreateParameterValueData(List<Robject> robjs)
 		{
-			return new ReferenceData
+			return new ParameterValueData
 			{
 				IsList = IsList,
-				References = robjs.Select(robj =>
-					new ObjectReferenceData
-						{
-							Id = robj.ObjectReferenceData.Id,
-							ActualModelId = robj.ObjectReferenceData.ActualModelId,
-							ViewModelId = ViewModelId,
-							IsNull = robj.ObjectReferenceData.IsNull
-						}).ToList()
+				Values = robjs.Select(robj => robj.ParameterData).ToList()
 			};
 		}
 	}

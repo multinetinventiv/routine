@@ -17,7 +17,7 @@ namespace Routine.Core.Reflection
 
 			if(parseMethod.ReturnType != this)
 			{
-				throw new InvalidOperationException(type + " was loaded as Parseable but has no appropriate Parse method");
+				throw new InvalidOperationException(type + " was loaded as Parseable but its static Parse method does not return " + type);
 			}
 		}
 

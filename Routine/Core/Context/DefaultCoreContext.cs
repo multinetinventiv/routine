@@ -39,9 +39,9 @@ namespace Routine.Core.Context
 			return new DomainOperation(this).For(domainType, operation);
 		}
 
-		public DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter)
+		public DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter, int initialGroupIndex)
 		{
-			return new DomainParameter(this).For(domainOperation, parameter);
+			return new DomainParameter(this).For(domainOperation, parameter, initialGroupIndex);
 		}
 
 		public DomainObject CreateDomainObject(object @object, string viewModelId)

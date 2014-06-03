@@ -9,7 +9,6 @@ namespace Routine.Test.Module.Todo
 {
 	public class TodoItem : ITodoItem, ITask
 	{
-		#region Construction
 		private readonly IDomainContext ctx;
 		private readonly IRepository<TodoItem> repository;
 
@@ -20,26 +19,23 @@ namespace Routine.Test.Module.Todo
 			this.repository = repository;
 		}
 
+		public Guid Uid { get; private set; }
+		public string Text { get; private set; }
+		public bool Done { get; private set; }
+		public DateTime DueDate { get; private set; }
+		public Guid AssigneeUid { get; private set; }
+		public TodoItemPriority Priority { get; private set; }
+
 		internal TodoItem With(string text, DateTime dueDate)
 		{
 			Text = text;
 			DueDate = dueDate;
 			Priority = TodoItemPriority.Normal;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}
-		#endregion
-
-		#region Data
-		public Guid Uid{get; private set;}
-		public string Text { get; private set; }
-		public bool Done { get; private set; }
-		public DateTime DueDate {get; private set;}
-		public Guid AssigneeUid {get; private set;}
-		public TodoItemPriority Priority {get;private set;}
-		#endregion
 
 		public Assignee AssignedTo { get { return ctx.Query<Assignees>().ByUid(AssigneeUid); } }
 		public bool Passed {get{return DueDate <= DateTime.Now;}}

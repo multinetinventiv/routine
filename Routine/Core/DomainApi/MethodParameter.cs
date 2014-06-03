@@ -1,19 +1,20 @@
 using System;
 using Routine.Core.Reflection;
 
-namespace Routine.Core.Operation
+namespace Routine.Core.DomainApi
 {
 	public class MethodParameter : IParameter
 	{
-		private readonly MethodOperation method;
+		private readonly IOperation operation;
 		private readonly ParameterInfo parameter;
-		public MethodParameter(MethodOperation method, ParameterInfo parameter) 
+
+		public MethodParameter(IOperation operation, ParameterInfo parameter) 
 		{
-			this.method = method;
+			this.operation = operation;
 			this.parameter = parameter;
 		}
 
-		public IOperation Operation { get { return method; } }
+		public IOperation Operation { get { return operation; } }
 		public string Name { get{return parameter.Name;}}
 		public TypeInfo ParameterType {get{return parameter.ParameterType;}}
 		public int Index{get{return parameter.Position;}}

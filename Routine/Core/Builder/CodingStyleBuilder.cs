@@ -10,8 +10,8 @@ namespace Routine.Core.Builder
 		public GenericCodingStyle FromBasic()
 		{
 			return FromScratch()
-					.SerializeModelId.Done(s => s.SerializeBy(t => GenericCodingStyle.VOID_MODEL_ID).SerializeWhen(t => t != null && t.IsVoid)
-										.DeserializeBy(id => TypeInfo.Void()).DeserializeWhen(id => id == GenericCodingStyle.VOID_MODEL_ID))
+					.SerializeModelId.Done(s => s.SerializeBy(t => Constants.VOID_MODEL_ID).SerializeWhen(t => t != null && t.IsVoid)
+										.DeserializeBy(id => TypeInfo.Void()).DeserializeWhen(id => id == Constants.VOID_MODEL_ID))
 
 					.ExtractModelModule.OnFailReturn(string.Empty)
 					.ExtractModelIsValue.Add(e => e.Always(true).When(t => t.IsVoid))
@@ -20,9 +20,6 @@ namespace Routine.Core.Builder
 								.OnFailReturn(false)
 
 					.ExtractAvailableIds.OnFailReturn(new List<string>())
-
-					.ExtractMemberIsHeavy.OnFailReturn(false)
-					.ExtractOperationIsHeavy.OnFailReturn(false)
 					;
 		}
 	}

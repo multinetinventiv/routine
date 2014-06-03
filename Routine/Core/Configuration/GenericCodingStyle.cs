@@ -9,8 +9,6 @@ namespace Routine.Core.Configuration
 {
 	public class GenericCodingStyle : ICodingStyle
 	{
-		public const string VOID_MODEL_ID = "_void";
-
 		public GenericCodingStyle DomainTypeRootNamespacesAre(params string[] rootNamespaces) { TypeInfo.AddDomainTypeRootNamespace(rootNamespaces); return this; }
 		public GenericCodingStyle RecognizeProxyTypesBy(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter) { TypeInfo.SetProxyMatcher(proxyMatcher, actualTypeGetter); return this; }
 
@@ -23,11 +21,9 @@ namespace Routine.Core.Configuration
 
 		public MultipleSelector<GenericCodingStyle, TypeInfo, IMember> SelectMembers { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IMember, string> SelectMemberMarks { get; private set; }
-		public MultipleExtractor<GenericCodingStyle, IMember, bool> ExtractMemberIsHeavy { get; private set; }
 
 		public MultipleSelector<GenericCodingStyle, TypeInfo, IOperation> SelectOperations { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IOperation, string> SelectOperationMarks { get; private set; }
-		public MultipleExtractor<GenericCodingStyle, IOperation, bool> ExtractOperationIsHeavy { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IParameter, string> SelectParameterMarks { get; private set; }
 
 		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> ExtractAvailableIds { get; private set;}
@@ -35,7 +31,7 @@ namespace Routine.Core.Configuration
 		public MultipleExtractor<GenericCodingStyle, object, string> ExtractId { get; private set; }
 		public MultipleLocator<GenericCodingStyle> Locate { get; private set; }
 
-		public MultipleExtractor<GenericCodingStyle, object, string> ExtractDisplayValue { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, object, string> ExtractValue { get; private set; }
 
 		public GenericCodingStyle()
 		{
@@ -48,11 +44,9 @@ namespace Routine.Core.Configuration
 
 			SelectMembers = new MultipleSelector<GenericCodingStyle, TypeInfo, IMember>(this);
 			SelectMemberMarks = new MultipleSelector<GenericCodingStyle, IMember, string>(this);
-			ExtractMemberIsHeavy = new MultipleExtractor<GenericCodingStyle, IMember, bool>(this, "MemberIsHeavy");
 
 			SelectOperations = new MultipleSelector<GenericCodingStyle, TypeInfo, IOperation>(this);
 			SelectOperationMarks = new MultipleSelector<GenericCodingStyle, IOperation, string>(this);
-			ExtractOperationIsHeavy = new MultipleExtractor<GenericCodingStyle, IOperation, bool>(this, "OperationIsHeavy");
 			SelectParameterMarks = new MultipleSelector<GenericCodingStyle, IParameter, string>(this);
 
 			ExtractAvailableIds = new MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>>(this, "AvailableIds");
@@ -60,7 +54,7 @@ namespace Routine.Core.Configuration
 			ExtractId = new MultipleExtractor<GenericCodingStyle, object, string>(this, "Id");
 			Locate = new MultipleLocator<GenericCodingStyle>(this);
 
-			ExtractDisplayValue = new MultipleExtractor<GenericCodingStyle, object, string>(this, "DisplayValue");
+			ExtractValue = new MultipleExtractor<GenericCodingStyle, object, string>(this, "Value");
 		}
 
 		public GenericCodingStyle Merge(GenericCodingStyle other)
@@ -74,11 +68,9 @@ namespace Routine.Core.Configuration
 
 			SelectMembers.Merge(other.SelectMembers);
 			SelectMemberMarks.Merge(other.SelectMemberMarks);
-			ExtractMemberIsHeavy.Merge(other.ExtractMemberIsHeavy);
 			
 			SelectOperations.Merge(other.SelectOperations);
 			SelectOperationMarks.Merge(other.SelectOperationMarks);
-			ExtractOperationIsHeavy.Merge(other.ExtractOperationIsHeavy);
 			SelectParameterMarks.Merge(other.SelectParameterMarks);
 
 			ExtractAvailableIds.Merge(other.ExtractAvailableIds);
@@ -86,7 +78,7 @@ namespace Routine.Core.Configuration
 			ExtractId.Merge(other.ExtractId);
 			Locate.Merge(other.Locate);
 
-			ExtractDisplayValue.Merge(other.ExtractDisplayValue);
+			ExtractValue.Merge(other.ExtractValue);
 
 			return this;
 		}
@@ -102,11 +94,9 @@ namespace Routine.Core.Configuration
 
 		ISelector<TypeInfo, IMember> ICodingStyle.MemberSelector { get { return SelectMembers; } }
 		ISelector<IMember, string> ICodingStyle.MemberMarkSelector { get { return SelectMemberMarks; } }
-		IExtractor<IMember, bool> ICodingStyle.MemberIsHeavyExtractor { get { return ExtractMemberIsHeavy; } }
 
 		ISelector<TypeInfo, IOperation> ICodingStyle.OperationSelector { get { return SelectOperations; } }
 		ISelector<IOperation, string> ICodingStyle.OperationMarkSelector { get { return SelectOperationMarks; } }
-		IExtractor<IOperation, bool> ICodingStyle.OperationIsHeavyExtractor { get { return ExtractOperationIsHeavy; } }
 		ISelector<IParameter, string> ICodingStyle.ParameterMarkSelector { get { return SelectParameterMarks; } }
 
 		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor {get{return ExtractAvailableIds;}}
@@ -114,7 +104,7 @@ namespace Routine.Core.Configuration
 		IExtractor<object, string> ICodingStyle.IdExtractor { get { return ExtractId; } }
 		ILocator ICodingStyle.Locator { get { return Locate; } }
 
-		IExtractor<object, string> ICodingStyle.DisplayValueExtractor { get { return ExtractDisplayValue; } }
+		IExtractor<object, string> ICodingStyle.ValueExtractor { get { return ExtractValue; } }
 
 		#endregion
 	}

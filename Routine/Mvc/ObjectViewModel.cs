@@ -9,8 +9,8 @@ namespace Routine.Mvc
 {
 	public class ObjectViewModel : ViewModelBase
 	{
-        public ObjectViewModel(IMvcContext mvcContext)
-			: base(mvcContext) {}
+		public ObjectViewModel(IMvcContext mvcContext)
+			: base(mvcContext) { }
 
 		private Robject robj;
 
@@ -21,23 +21,23 @@ namespace Routine.Mvc
 			return this;
 		}
 
-		public string ViewModelId {get{return robj.ViewModelId;}}
-		public string Module{get{return robj.Module;}}
+		public string ViewModelId { get { return robj.ViewModelId; } }
+		public string Module { get { return robj.Module; } }
 
 		public string Title { get { return robj.IsNull?MvcConfig.NullDisplayValue:robj.Value; } }
 		public bool HasDetail { get { return !robj.IsNull && robj.IsDomain && (robj.Members.Any() || robj.Operations.Any()); } }
 
-		private string ViewRouteNameBase{get{return MvcConfig.ViewRouteNameExtractor.Extract(this);}}
-		public string ViewRouteName { get {return ViewRouteNameBase;} }
+		private string ViewRouteNameBase { get { return MvcConfig.ViewRouteNameExtractor.Extract(this); } }
+		public string ViewRouteName { get { return ViewRouteNameBase; } }
 
-		private string PerformRouteNameBase{get{return MvcConfig.PerformRouteNameExtractor.Extract(this);}}
-		public string PerformRouteName { get {return robj.IsNaked?PerformRouteNameBase:PerformRouteNameBase+"As";} }
+		private string PerformRouteNameBase { get { return MvcConfig.PerformRouteNameExtractor.Extract(this); } }
+		public string PerformRouteName { get { return robj.IsNaked ? PerformRouteNameBase : PerformRouteNameBase + "As"; } }
 
 		public RouteValueDictionary RouteValues
 		{
 			get
 			{
-				return new RouteValueDictionary(new {id = robj.Id, modelId = robj.ActualModelId});
+				return new RouteValueDictionary(new { id = robj.Id, modelId = robj.ActualModelId });
 			}
 		}
 
@@ -45,15 +45,15 @@ namespace Routine.Mvc
 		{
 			get
 			{
-				if(robj.IsNaked) {return RouteValues;}
+				if (robj.IsNaked) { return RouteValues; }
 
-				return new RouteValueDictionary(new {id = robj.Id, actualModelId = robj.ActualModelId, viewModelId = robj.ViewModelId});
+				return new RouteValueDictionary(new { id = robj.Id, actualModelId = robj.ActualModelId, viewModelId = robj.ViewModelId });
 			}
 		}
 
-		public bool HasOperation{get{return robj.Operations.Any();}}
-		public bool HasSimpleMember{get{return robj.Members.Any(m => !m.IsList);}}
-		public bool HasTableMember{get{return robj.Members.Any(m => m.IsList);}}
+		public bool HasOperation { get { return robj.Operations.Any(); } }
+		public bool HasSimpleMember { get { return robj.Members.Any(m => !m.IsList); } }
+		public bool HasTableMember { get { return robj.Members.Any(m => m.IsList); } }
 
 		private List<MemberViewModel> Members
 		{

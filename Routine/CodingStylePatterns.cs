@@ -17,11 +17,11 @@ namespace Routine
 					.SerializeModelId.Done(s => s.SerializeBy(t => nullId).SerializeWhen(t => t == null)
 										.DeserializeBy(id => (TypeInfo)null).DeserializeWhen(id => id == nullId))
 
-					.ExtractId.Done(e => e.Always(nullId).WhenNull())
+					.ExtractId.Done(e => e.Always(nullId).WhenDefault())
 
 					.Locate.Done(l => l.Always(null).WhenId(id => id == nullId))
 
-					.ExtractDisplayValue.Done(e => e.Always(string.Empty).WhenNull());
+					.ExtractValue.Done(e => e.Always(string.Empty).WhenDefault());
 		}
 
 		public static GenericCodingStyle ParseableValueTypePattern(this PatternBuilder<GenericCodingStyle> source)

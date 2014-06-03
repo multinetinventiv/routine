@@ -55,9 +55,9 @@ namespace Routine.Test.Core
 			return new ObjectReferenceData{ Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId, IsNull = isNull };
 		}
 
-		protected Dictionary<string, ReferenceData> Params(params KeyValuePair<string, ReferenceData>[] parameters)
+		protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters)
 		{
-			var result = new Dictionary<string, ReferenceData>();
+			var result = new Dictionary<string, ParameterValueData>();
 
 			foreach (var parameter in parameters)
 			{
@@ -67,10 +67,15 @@ namespace Routine.Test.Core
 			return result;
 		}
 
-		protected KeyValuePair<string, ReferenceData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length == 1, references); }
-		protected KeyValuePair<string, ReferenceData> Param(string modelId, bool isList, params ObjectReferenceData[] references)
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length == 1, references); }
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ObjectReferenceData[] references)
 		{
-			return new KeyValuePair<string, ReferenceData>(modelId, new ReferenceData { IsList = isList, References = references.ToList() });
+			return new KeyValuePair<string, ParameterValueData>(modelId, new ParameterValueData { IsList = isList, Values = references.Select(r => PD(r)).ToList() });
+		}
+
+		protected ParameterData PD(ObjectReferenceData reference)
+		{
+			return new ParameterData { ObjectModelId = reference.ActualModelId, IsNull = reference.IsNull, ReferenceId = reference.Id };
 		}
 
 		protected abstract string DefaultModelId{get;}

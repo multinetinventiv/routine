@@ -21,12 +21,29 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public Guid Uid { get; private set; }
 		public string Name { get; private set; }
+		public DateTime Deadline { get; private set; }
+		public Guid CustomerUid { get; private set; }
 
-		internal Project With(string name)
+		internal Project With(Customer customer, string name) { return With(customer, name, default(DateTime)); }
+		internal Project With(Customer customer, string name, DateTime deadline)
 		{
 			Name = name;
+			Deadline = deadline;
+			CustomerUid = customer.Uid;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
+
+			return this;
+		}
+
+		internal Project With(NewProject newProject) 
+		{ 
+			With(newProject.Customer, newProject.Name, newProject.Deadline);
+
+			foreach (var feature in newProject.Features)
+			{
+				NewFeature(feature.Name);
+			}
 
 			return this;
 		}
@@ -49,5 +66,29 @@ namespace Routine.Test.Module.ProjectManagement
 	public class Projects : Query<Project>
 	{
 		public Projects(IDomainContext ctx) : base(ctx) { }
+
+		public new List<Project> All()
+		{
+			return base.All();
+		}
+	}
+
+	public struct NewProject
+	{
+		public Customer Customer { get; private set; }
+		public string Name { get; private set; }
+		public List<NewFeature> Features { get; private set; }
+
+		public DateTime Deadline { get; set; }
+
+		public NewProject(Customer customer, string name) : this(customer, name, default(DateTime)) { }
+		public NewProject(Customer customer, string name, DateTime deadline) : this()
+		{
+			Customer = customer;
+			Name = name;
+			Features = new List<NewFeature>();
+
+			Deadline = deadline;
+		}
 	}
 }

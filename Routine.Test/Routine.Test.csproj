@@ -40,6 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\DomainApi\MethodOperationTest.cs" />
+    <Compile Include="Core\DomainApi\PropertyOperationTest.cs" />
+    <Compile Include="Core\DomainApi\PropertyMemberTest.cs" />
+    <Compile Include="Core\DomainApi\MethodMemberTest.cs" />
     <Compile Include="Core\InterceptedObjectServiceTest.cs" />
     <Compile Include="Core\Interceptor\AdapterInterceptorTest.cs" />
     <Compile Include="Core\Interceptor\BaseAroundInterceptorTest.cs" />
@@ -54,7 +58,7 @@
     <Compile Include="Core\Extractor\BaseOptionalExtractorTest.cs" />
     <Compile Include="Core\Extractor\ConverterExtractorTest.cs" />
     <Compile Include="Core\Extractor\MultipleExtractorTest.cs" />
-    <Compile Include="Core\Extractor\ReferenceValueExtractorTest.cs" />
+    <Compile Include="Core\Extractor\MemberValueExtractorTest.cs" />
     <Compile Include="Core\Extractor\StaticExtractorTest.cs" />
     <Compile Include="Core\Locator\BaseOptionalLocatorTest.cs" />
     <Compile Include="Core\Locator\DelegateLocatorTest.cs" />

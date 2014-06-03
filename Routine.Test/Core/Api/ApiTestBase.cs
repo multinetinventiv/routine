@@ -41,33 +41,15 @@ namespace Routine.Test.Core.Api
 			objectServiceMock.Setup(o => o.GetObjectModel(It.IsAny<string>()))
 				.Returns((string omid) => objectModelDictionary[omid]);
 			objectServiceMock.Setup(o => o.Get(It.IsAny<ObjectReferenceData>()))
-				.Returns((ObjectReferenceData ord) => FilterHeavy(objectDictionary[ord]));
+				.Returns((ObjectReferenceData ord) => objectDictionary[ord]);
 			objectServiceMock.Setup(o => o.GetValue(It.IsAny<ObjectReferenceData>()))
 				.Returns((ObjectReferenceData ord) => objectDictionary[ord].Value);
-			objectServiceMock.Setup(o => o.GetMember(It.IsAny<ObjectReferenceData>(), It.IsAny<string>()))
-				.Returns((ObjectReferenceData ord, string mid) => objectDictionary[ord].Members[mid]);
-			objectServiceMock.Setup(o => o.PerformOperation(It.IsAny<ObjectReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ReferenceData>>()))
+			objectServiceMock.Setup(o => o.PerformOperation(It.IsAny<ObjectReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
 				.Returns(Void());
 		}
 
 		[TearDown]
 		public virtual void TearDown() {}
-
-		private ObjectData FilterHeavy(ObjectData full)
-		{
-			var result = new ObjectData { Reference = full.Reference };
-			result.Value = full.Value;
-
-			foreach (var mm in objectModelDictionary[full.Reference.ViewModelId].Members.Where(m => !m.IsHeavy))
-			{
-				if (full.Members.ContainsKey(mm.Id))
-				{
-					result.Members.Add(mm.Id, full.Members[mm.Id]);
-				}
-			}
-
-			return result;
-		}
 
 		#region Model Builders
 		protected void ModelsAre(params ObjectModelBuilder[] objectModels)
@@ -113,16 +95,14 @@ namespace Routine.Test.Core.Api
 			public ObjectModelBuilder IsView() {result.IsViewModel = true; return this;}
 			public ObjectModelBuilder Name(string name){result.Name = name; return this;}
 			public ObjectModelBuilder Module(string module){result.Module = module; return this;}
+
 			public ObjectModelBuilder Member(string memberId) { return Member(memberId, defaultObjectModelId); }
-			public ObjectModelBuilder Member(string memberId, bool isHeavy) {return Member(memberId, defaultObjectModelId, isHeavy);}
 			public ObjectModelBuilder Member(string memberId, string viewModelId) {return Member(memberId, viewModelId, false);}
-			public ObjectModelBuilder Member(string memberId, string viewModelId, bool isHeavy) {return Member(memberId, viewModelId, isHeavy, false);}
-			public ObjectModelBuilder Member(string memberId, string viewModelId, bool isHeavy, bool isList)
+			public ObjectModelBuilder Member(string memberId, string viewModelId, bool isList)
 			{
 				result.Members.Add(new MemberModel{
 					Id = memberId,
 					ViewModelId = viewModelId,
-					IsHeavy = isHeavy,
 					IsList = isList,
 				}); 
 				
@@ -130,17 +110,13 @@ namespace Routine.Test.Core.Api
 			}
 
 			public ObjectModelBuilder Operation(string operationId, params ParameterModel[] parameters) {return Operation(operationId, false, parameters);}
-			public ObjectModelBuilder Operation(string operationId, bool isHeavy, params ParameterModel[] parameters) {return Operation(operationId, isHeavy, false, parameters);}
-			public ObjectModelBuilder Operation(string operationId, bool isHeavy, bool isVoid, params ParameterModel[] parameters){return Operation(operationId, isHeavy, isVoid?null:defaultObjectModelId, parameters);}
-			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, params ParameterModel[] parameters){return Operation(operationId, false, resultViewModelId, false, parameters);}
-			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, bool isList, params ParameterModel[] parameters){return Operation(operationId, false, resultViewModelId, isList, parameters);}
-			public ObjectModelBuilder Operation(string operationId, bool isHeavy, string resultViewModelId, params ParameterModel[] parameters){return Operation(operationId, isHeavy, resultViewModelId, false, parameters);}
-			public ObjectModelBuilder Operation(string operationId, bool isHeavy, string resultViewModelId, bool isList, params ParameterModel[] parameters)
+			public ObjectModelBuilder Operation(string operationId, bool isVoid, params ParameterModel[] parameters){return Operation(operationId, isVoid?null:defaultObjectModelId, parameters);}
+			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, params ParameterModel[] parameters){return Operation(operationId, resultViewModelId, false, parameters);}
+			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, bool isList, params ParameterModel[] parameters)
 			{
 				var operationModel = new OperationModel {
 					Id = operationId,
 					Parameters = parameters.ToList(),
-					IsHeavy = isHeavy,
 				};
 				operationModel.Result.IsVoid = resultViewModelId == null;
 				operationModel.Result.ViewModelId = resultViewModelId;
@@ -348,13 +324,13 @@ namespace Routine.Test.Core.Api
 			}
 
 			public ISetup<IObjectService, ValueData> Performs(string operationModelId) { return Performs(operationModelId, (p => true)); }
-			public ISetup<IObjectService, ValueData> Performs(string operationModelId, Expression<Func<Dictionary<string, ReferenceData>, bool>> parameterMatcher)
+			public ISetup<IObjectService, ValueData> Performs(string operationModelId, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher)
 			{
 				return test.objectServiceMock
 						.Setup(o => o.PerformOperation(
 							objectReferenceData, 
-							operationModelId, 
-							It.Is<Dictionary<string, ReferenceData>>(parameterMatcher)));
+							operationModelId,
+							It.Is<Dictionary<string, ParameterValueData>>(parameterMatcher)));
 			}
 		}
 

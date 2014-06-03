@@ -52,7 +52,7 @@ namespace Routine.Core.Reflection.Optimization
 			"\t\t\treturn new $ReflectedType$($Parameters$);\n";
 
 		private const string parameterTemplate = 
-			"($ParameterType$)args[$ParameterIndex$]";
+			"(($ParameterType$)(args[$ParameterIndex$]??default($ParameterType$)))";
 
 		private static string Parameter(System.Reflection.ParameterInfo parameterInfo)
 		{
@@ -183,7 +183,12 @@ namespace Routine.Core.Reflection.Optimization
 				Console.WriteLine(code);
 				throw new Exception(errors.ToString());
 			}
-
+#if DEBUG
+			else
+			{
+				Console.WriteLine(code);
+			}
+#endif
 			var type = results.CompiledAssembly.GetType(typeName);
 			var result = (IMethodInvoker)Activator.CreateInstance(type);
 

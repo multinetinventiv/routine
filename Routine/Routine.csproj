@@ -19,6 +19,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -39,6 +40,8 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
+    <Compile Include="Core\DomainApi\PropertyOperation.cs" />
     <Compile Include="InterceptionPatterns.cs" />
     <Compile Include="Core\Builder\InterceptionConfigurationBuilder.cs" />
     <Compile Include="Core\Context\DefaultApiContext.cs" />
@@ -96,7 +99,7 @@
     <Compile Include="Core\Extractor\BaseOptionalExtractor.cs" />
     <Compile Include="Core\Extractor\ConverterExtractor.cs" />
     <Compile Include="Core\Extractor\MultipleExtractor.cs" />
-    <Compile Include="Core\Extractor\ReferenceValueExtractor.cs" />
+    <Compile Include="Core\Extractor\MemberValueExtractor.cs" />
     <Compile Include="Core\Extractor\StaticExtractor.cs" />
     <Compile Include="Core\Locator\BaseOptionalLocator.cs" />
     <Compile Include="Core\Locator\DelegateLocator.cs" />
@@ -120,7 +123,6 @@
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="SoaPatterns.cs" />
-    <Compile Include="Core\Context\MemberInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectModelInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectReferenceInterceptionContext.cs" />
     <Compile Include="Core\Context\PerformOperationInterceptionContext.cs" />

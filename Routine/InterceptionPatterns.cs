@@ -29,7 +29,6 @@ namespace Routine
 				.InterceptGetAvailableObjects.Done(i => i.Adapt(interceptor))
 				.InterceptGet.Done(i => i.Adapt(interceptor))
 				.InterceptGetValue.Done(i => i.Adapt(interceptor))
-				.InterceptGetMember.Done(i => i.Adapt(interceptor))
 				.InterceptPerformOperation.Done(i => i.Adapt(interceptor))
 			;
 		}

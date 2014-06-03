@@ -7,8 +7,6 @@ namespace Routine.Core
 {
 	public class ObjectService : IObjectService
 	{
-		private const string APPLICATION_MODEL_KEY = "_application_model";
-
 		private readonly ICoreContext ctx;
 		private readonly ICache cache;
 
@@ -20,11 +18,11 @@ namespace Routine.Core
 
 		public ApplicationModel GetApplicationModel()
 		{
-			if(!cache.Contains(APPLICATION_MODEL_KEY))
+			if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
 			{
 				lock(cache)
 				{
-					if(!cache.Contains(APPLICATION_MODEL_KEY))
+					if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
 					{
 						var applicationModel = new ApplicationModel();
 
@@ -45,12 +43,12 @@ namespace Routine.Core
 							catch(CannotSerializeDeserializeException) { continue; }
 						}
 
-						cache.Add(APPLICATION_MODEL_KEY, applicationModel);
+						cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, applicationModel);
 					}
 				}
 			}
 
-			return cache[APPLICATION_MODEL_KEY] as ApplicationModel;
+			return cache[Constants.APPLICATION_MODEL_CACHE_KEY] as ApplicationModel;
 		}
 
 		public ObjectModel GetObjectModel(string objectModelId)
@@ -78,13 +76,7 @@ namespace Routine.Core
 					  .GetObject();
 		}
 
-		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
-		{
-			return ctx.GetDomainObject(reference)
-					  .GetMember(memberModelId);
-		}
-
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameters)
+		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameters)
 		{
 			return ctx.GetDomainObject(targetReference)
 					  .Perform(operationModelId, parameters);

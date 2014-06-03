@@ -36,6 +36,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Customer.cs" />
     <Compile Include="Feature.cs" />
     <Compile Include="FeatureTask.cs" />
     <Compile Include="Project.cs" />
