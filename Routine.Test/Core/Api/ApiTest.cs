@@ -566,6 +566,28 @@ namespace Routine.Test.Core.Api
 			Assert.AreEqual("0", actual.List[0].Id);
 		}
 
+		[Test]
+		public void Roperation_returns_group_parameters_when_asked()
+		{
+			ModelsAre(
+				Model("model")
+				.Operation("operation", PModel("param1", "param_model", 0, 1), PModel("param2", "param_model", 1, 2)),
+				Model("param_model"));
+
+			ObjectsAre(Object(Id("id_root", "model")));
+
+			var root = Robj("id_root", "model");
+			var rop = root.Operations[0];
+
+			var groups = rop.Groups;
+
+			Assert.AreEqual(3, groups.Count);
+			Assert.AreEqual("param1", groups[0][0].Id);
+			Assert.AreEqual("param1", groups[1][0].Id);
+			Assert.AreEqual("param2", groups[1][1].Id);
+			Assert.AreEqual("param2", groups[2][0].Id);
+		}
+
 		[Test] [Ignore]
 		public void Robject_performs_client_validation_given_parameters_against_operation_model()
 		{

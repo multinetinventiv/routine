@@ -183,12 +183,7 @@ namespace Routine.Core.Reflection.Optimization
 				Console.WriteLine(code);
 				throw new Exception(errors.ToString());
 			}
-#if DEBUG
-			else
-			{
-				Console.WriteLine(code);
-			}
-#endif
+
 			var type = results.CompiledAssembly.GetType(typeName);
 			var result = (IMethodInvoker)Activator.CreateInstance(type);
 

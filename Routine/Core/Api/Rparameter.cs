@@ -23,10 +23,12 @@ namespace Routine.Core.Api
 			return this;
 		}
 
-		public Roperation Operation{get{return parentOperation;}}
-		public string ViewModelId {get{return model.ViewModelId;}}
-		public string Id {get{return model.Id;}}
-		public bool IsList {get{return model.IsList;}}
+		public Roperation Operation { get { return parentOperation; } }
+		public string ViewModelId { get { return model.ViewModelId; } }
+		public string Id { get { return model.Id; } }
+		public bool IsList { get { return model.IsList; } }
+		
+		internal List<int> Groups { get { return model.Groups; } }
 
 		public Rvariable CreateVariable(params Robject[] robjs) {return CreateVariable(robjs.ToList());}
 		public Rvariable CreateVariable(List<Robject> robjs)

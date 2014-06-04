@@ -26,7 +26,8 @@ namespace Routine.Core.Configuration
 		public MultipleSelector<GenericCodingStyle, IOperation, string> SelectOperationMarks { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IParameter, string> SelectParameterMarks { get; private set; }
 
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> ExtractAvailableIds { get; private set;}
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> ExtractAvailableIds { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, IMember, bool> ExtractMemberFetchedEagerly { get; private set; }
 
 		public MultipleExtractor<GenericCodingStyle, object, string> ExtractId { get; private set; }
 		public MultipleLocator<GenericCodingStyle> Locate { get; private set; }
@@ -50,6 +51,7 @@ namespace Routine.Core.Configuration
 			SelectParameterMarks = new MultipleSelector<GenericCodingStyle, IParameter, string>(this);
 
 			ExtractAvailableIds = new MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>>(this, "AvailableIds");
+			ExtractMemberFetchedEagerly = new MultipleExtractor<GenericCodingStyle, IMember, bool>(this, "MemberFetchedEagerly");
 
 			ExtractId = new MultipleExtractor<GenericCodingStyle, object, string>(this, "Id");
 			Locate = new MultipleLocator<GenericCodingStyle>(this);
@@ -74,6 +76,7 @@ namespace Routine.Core.Configuration
 			SelectParameterMarks.Merge(other.SelectParameterMarks);
 
 			ExtractAvailableIds.Merge(other.ExtractAvailableIds);
+			ExtractMemberFetchedEagerly.Merge(other.ExtractMemberFetchedEagerly);
 
 			ExtractId.Merge(other.ExtractId);
 			Locate.Merge(other.Locate);
@@ -99,7 +102,8 @@ namespace Routine.Core.Configuration
 		ISelector<IOperation, string> ICodingStyle.OperationMarkSelector { get { return SelectOperationMarks; } }
 		ISelector<IParameter, string> ICodingStyle.ParameterMarkSelector { get { return SelectParameterMarks; } }
 
-		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor {get{return ExtractAvailableIds;}}
+		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor { get { return ExtractAvailableIds; } }
+		IExtractor<IMember, bool> ICodingStyle.MemberFetchedEagerlyExtractor { get { return ExtractMemberFetchedEagerly; } }
 
 		IExtractor<object, string> ICodingStyle.IdExtractor { get { return ExtractId; } }
 		ILocator ICodingStyle.Locator { get { return Locate; } }

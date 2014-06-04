@@ -33,6 +33,23 @@ namespace Routine.Api
 		}
 
 		public List<ParameterCodeModel> Parameters { get { return model.Parameters.Select(p => CreateParameter().With(p)).ToList(); } }
+		public List<List<ParameterCodeModel>> Groups
+		{
+			get
+			{
+				var result = Enumerable.Range(0, model.GroupCount).Select(i => new List<ParameterCodeModel>()).ToList();
+
+				foreach (var param in Parameters)
+				{
+					foreach (var group in param.Groups)
+					{
+						result[group].Add(param);
+					}
+				}
+
+				return result;
+			}
+		}
 
 		public bool MarkedAs(string mark)
 		{

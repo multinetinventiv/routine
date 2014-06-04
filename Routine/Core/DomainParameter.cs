@@ -69,22 +69,34 @@ namespace Routine.Core
 
 		internal object Locate(ParameterValueData parameterValueData)
 		{
-			object result = null;
 			if (IsList)
 			{
-				var parameterValue = type.CreateInstance() as IList;
-				foreach (var parameterData in parameterValueData.Values)
+				if (type.IsArray)
 				{
-					parameterValue.Add(ctx.Locate(ORD(parameterData)));
+					var parameterValue = Array.CreateInstance(type.GetItemType().GetActualType(), parameterValueData.Values.Count);
+					for (int i = 0; i<parameterValueData.Values.Count; i++)
+					{
+						var parameterData = parameterValueData.Values[i];
+						parameterValue.SetValue(ctx.Locate(ORD(parameterData)), i);
+					}
+					return parameterValue;
 				}
-				result = parameterValue;
+				else
+				{
+					var parameterValue = type.CreateInstance() as IList;
+					foreach (var parameterData in parameterValueData.Values)
+					{
+						parameterValue.Add(ctx.Locate(ORD(parameterData)));
+					}
+					return parameterValue;
+				}
 			}
 			else if (parameterValueData.Values.Any())
 			{
-				result = ctx.Locate(ORD(parameterValueData.Values[0]));
+				return ctx.Locate(ORD(parameterValueData.Values[0]));
 			}
 
-			return result;
+			return null;
 		}
 	}
 

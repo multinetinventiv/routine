@@ -20,6 +20,7 @@ namespace Routine.Core
 		ISelector<IParameter, string> ParameterMarkSelector { get; }
 
 		IExtractor<TypeInfo, List<string>> AvailableIdsExtractor { get; }
+		IExtractor<IMember, bool> MemberFetchedEagerlyExtractor { get; }
 
 		IExtractor<object, string> IdExtractor { get; }
 		IExtractor<object, string> ValueExtractor { get; }

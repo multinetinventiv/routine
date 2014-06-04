@@ -48,7 +48,7 @@ namespace Routine.Core
 			};
 		}
 
-		public ValueData CreateData(object target) { return CreateData(target, false); }
+		public ValueData CreateData(object target) { return CreateData(target, ctx.CodingStyle.MemberFetchedEagerlyExtractor.Extract(member)); }
 		public ValueData CreateData(object target, bool eager)
 		{
 			return ctx.CreateValueData(member.FetchFrom(target), IsList, ViewModelId, eager);

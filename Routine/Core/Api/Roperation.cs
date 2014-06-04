@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
@@ -16,15 +17,28 @@ namespace Routine.Core.Api
 		private Robject parentObject;
 		private OperationModel model;
 		private Dictionary<string, Rparameter> parameters;
+		private List<List<Rparameter>> groups;
 
 		internal Roperation With(Robject parentObject, OperationModel model)
 		{
 			this.parentObject = parentObject;
 			this.model = model;
 			this.parameters = new Dictionary<string, Rparameter>();
+			this.groups = Enumerable.Range(0, model.GroupCount).Select(i => new List<Rparameter>()).ToList();
+
 			foreach(var parameter in model.Parameters)
 			{
 				parameters[parameter.Id] = context.CreateRparameter().With(this, parameter);
+			}
+
+			foreach (var paramId in parameters.Keys)
+			{
+				var param = parameters[paramId];
+
+				foreach (var group in param.Groups)
+				{
+					groups[group].Add(param);
+				}
 			}
 
 			return this;
@@ -35,6 +49,8 @@ namespace Routine.Core.Api
 		public List<Rparameter> Parameters{get{return parameters.Values.ToList();}}
 		public bool ResultIsVoid{get{return model.Result.IsVoid;}}
 		public bool ResultIsList{get{return model.Result.IsList;}}
+
+		public List<List<Rparameter>> Groups { get { return groups; } }
 
 		public bool MarkedAs(string mark)
 		{

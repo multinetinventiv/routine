@@ -91,13 +91,13 @@ namespace Routine.Test.Core.Api
 			public ObjectModelBuilder MarkOperation(string operationId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Marks.AddRange(marks); return this; }
 			public ObjectModelBuilder MarkParameter(string operationId, string parameterId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Parameters.Single(p => p.Id == parameterId).Marks.AddRange(marks); return this; }
 
-			public ObjectModelBuilder IsValue() {result.IsValueModel = true; return this;}
-			public ObjectModelBuilder IsView() {result.IsViewModel = true; return this;}
-			public ObjectModelBuilder Name(string name){result.Name = name; return this;}
-			public ObjectModelBuilder Module(string module){result.Module = module; return this;}
+			public ObjectModelBuilder IsValue() { result.IsValueModel = true; return this; }
+			public ObjectModelBuilder IsView() { result.IsViewModel = true; return this; }
+			public ObjectModelBuilder Name(string name) { result.Name = name; return this; }
+			public ObjectModelBuilder Module(string module) { result.Module = module; return this; }
 
 			public ObjectModelBuilder Member(string memberId) { return Member(memberId, defaultObjectModelId); }
-			public ObjectModelBuilder Member(string memberId, string viewModelId) {return Member(memberId, viewModelId, false);}
+			public ObjectModelBuilder Member(string memberId, string viewModelId) { return Member(memberId, viewModelId, false); }
 			public ObjectModelBuilder Member(string memberId, string viewModelId, bool isList)
 			{
 				result.Members.Add(new MemberModel{
@@ -109,14 +109,15 @@ namespace Routine.Test.Core.Api
 				return this; 
 			}
 
-			public ObjectModelBuilder Operation(string operationId, params ParameterModel[] parameters) {return Operation(operationId, false, parameters);}
-			public ObjectModelBuilder Operation(string operationId, bool isVoid, params ParameterModel[] parameters){return Operation(operationId, isVoid?null:defaultObjectModelId, parameters);}
-			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, params ParameterModel[] parameters){return Operation(operationId, resultViewModelId, false, parameters);}
+			public ObjectModelBuilder Operation(string operationId, params ParameterModel[] parameters) { return Operation(operationId, false, parameters); }
+			public ObjectModelBuilder Operation(string operationId, bool isVoid, params ParameterModel[] parameters) { return Operation(operationId, isVoid ? null : defaultObjectModelId, parameters); }
+			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, params ParameterModel[] parameters) { return Operation(operationId, resultViewModelId, false, parameters); }
 			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, bool isList, params ParameterModel[] parameters)
 			{
 				var operationModel = new OperationModel {
 					Id = operationId,
 					Parameters = parameters.ToList(),
+					GroupCount = parameters.Any() ? parameters.Max(p => p.Groups.Max()) + 1 : 1
 				};
 				operationModel.Result.IsVoid = resultViewModelId == null;
 				operationModel.Result.ViewModelId = resultViewModelId;
@@ -155,15 +156,16 @@ namespace Routine.Test.Core.Api
 			}
 		}
 
-		protected ParameterModel PModel(string id) {return PModel(id, false);}
-		protected ParameterModel PModel(string id, string viewModelId) {return PModel(id, viewModelId, false);}
-		protected ParameterModel PModel(string id, bool isList) {return PModel(id, DefaultObjectModelId, isList);}
-		protected ParameterModel PModel(string id, string viewModelId, bool isList)
+		protected ParameterModel PModel(string id, params int[] groups) {return PModel(id, false, groups);}
+		protected ParameterModel PModel(string id, string viewModelId, params int[] groups) { return PModel(id, viewModelId, false, groups); }
+		protected ParameterModel PModel(string id, bool isList, params int[] groups) { return PModel(id, DefaultObjectModelId, isList, groups); }
+		protected ParameterModel PModel(string id, string viewModelId, bool isList, params int[] groups)
 		{
 			return new ParameterModel {
 				Id = id,
 				IsList = isList,
-				ViewModelId = viewModelId
+				ViewModelId = viewModelId,
+				Groups = groups.Any() ? groups.ToList() : new List<int> { 0 }
 			};
 		}
 

@@ -20,6 +20,7 @@ namespace Routine.Core.Builder
 								.OnFailReturn(false)
 
 					.ExtractAvailableIds.OnFailReturn(new List<string>())
+					.ExtractMemberFetchedEagerly.OnFailReturn(false)
 					;
 		}
 	}

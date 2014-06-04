@@ -15,6 +15,8 @@ namespace Routine.Test.Core
 		IBusinessOperation GetResult();
 		void DoParameterizedOperation(string str, IBusinessOperation obj);
 		void DoOperationWithList(List<string> list);
+		void DoOperationWithArray(string[] array);
+		void DoOperationWithParamsArray(params string[] paramsArray);
 		List<string> GetListResult();
 		string[] GetArrayResult();
 
@@ -37,6 +39,8 @@ namespace Routine.Test.Core
 		IBusinessOperation IBusinessOperation.GetResult() { return mock.GetResult(); }
 		void IBusinessOperation.DoParameterizedOperation(string str, IBusinessOperation obj) { mock.DoParameterizedOperation(str, obj); }
 		void IBusinessOperation.DoOperationWithList(List<string> list) { mock.DoOperationWithList(list); }
+		void IBusinessOperation.DoOperationWithArray(string[] array) { mock.DoOperationWithArray(array); }
+		void IBusinessOperation.DoOperationWithParamsArray(params string[] paramsArray) { mock.DoOperationWithParamsArray(paramsArray); }
 		List<string> IBusinessOperation.GetListResult() { return mock.GetListResult(); }
 		string[] IBusinessOperation.GetArrayResult() { return mock.GetArrayResult(); }
 
@@ -261,6 +265,32 @@ namespace Routine.Test.Core
 		}
 
 		[Test]
+		public void Array_parameter_support()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "DoOperationWithArray",
+				Params(
+					Param("array", Id("a", "s-string"), Id("b", "s-string"))
+				));
+
+			businessMock.Verify(o => o.DoOperationWithArray(new[] { "a", "b" }));
+		}
+
+		[Test]
+		public void Params_parameter_support()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "DoOperationWithParamsArray",
+				Params(
+					Param("paramsArray", Id("a", "s-string"), Id("b", "s-string"))
+				));
+
+			businessMock.Verify(o => o.DoOperationWithParamsArray(new[] { "a", "b" }));
+		}
+
+		[Test]
 		public void By_default_perform_operation_returns_eager_result()
 		{
 			SetUpObject("id", "title");
@@ -353,12 +383,6 @@ namespace Routine.Test.Core
 			//group 3 -> match 0 --> non-match 2 (s, i)
 			//group 3 -> match 0 --> non-match 3 (s1, s, i1)
 			businessMock.Verify(o => o.OverloadOp(), Times.Once());
-		}
-
-		[Test]
-		public void Array_and_params_parameter_support()
-		{
-			Assert.Fail("not implemented");
 		}
 		
 		[Test] [Ignore]

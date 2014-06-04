@@ -57,12 +57,7 @@ namespace Routine.Api
 				Console.WriteLine("Generated Source Code: \n\n" + sourceCode);
 				throw new Exception(errors.ToString());
 			}
-#if DEBUG
-			else
-			{
-				Console.WriteLine(sourceCode);
-			}
-#endif
+
 			return results.CompiledAssembly;
 		}
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Routine.Test.Common;
 using Routine.Test.Domain;
 using Routine.Test.Module.Todo.Api;
@@ -24,25 +25,22 @@ namespace Routine.Test.Module.Todo
 			ctx.New<Assignee>().With(name, address);
 		}
 
-		public void NewTodo(string todo, DateTime dueDate)
+		public void NewTodoList(DateTime firstDueDate, int periodInDays, string todoSuffix, int count)
 		{
-			ctx.New<TodoItem>().With(todo, dueDate);
+			NewTodoList(firstDueDate, periodInDays, Enumerable.Range(1, count).Select(i => i + ". " + todoSuffix).ToList());
 		}
 
-		public void NewTodoList(string todo, int count, DateTime startDate, int periodInDays)
-		{
-			for(int i=0; i<count; i++)
-			{
-				NewTodo((i+1) + ". " + todo, startDate.AddDays(i*periodInDays) );
-			}
-		}
-
-		public void NewNamedTodoList(List<string> todos, DateTime startDate, int periodInDays)
+		public void NewTodoList(DateTime firstDueDate, int periodInDays, List<string> todos)
 		{
 			for (int i = 0; i < todos.Count; i++)
 			{
-				NewTodo(todos[i], startDate.AddDays(i * periodInDays));
+				NewTodo(todos[i], firstDueDate.AddDays(i * periodInDays));
 			}
+		}
+
+		public void NewTodo(string todo, DateTime dueDate)
+		{
+			ctx.New<TodoItem>().With(todo, dueDate);
 		}
 
 		public void PurgeDoneItems() 
@@ -55,7 +53,7 @@ namespace Routine.Test.Module.Todo
 
 		public void CreateTestData()
 		{
-			NewTodoList("Toplanti", 10, DateTime.Now, 7);
+			NewTodoList(DateTime.Now, 7, "Toplanti", 10);
 			NewAssignee("Cihan Deniz", "Suadiye");
 			NewAssignee("Zafer Tokcanli", "Maslak");
 			NewAssignee("Caglayan Yildirim", "Maltepe");

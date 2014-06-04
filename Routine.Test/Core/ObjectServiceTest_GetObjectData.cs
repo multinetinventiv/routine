@@ -3,26 +3,29 @@ using NUnit.Framework;
 using Routine.Core;
 using Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData;
 
+#region Test Model
+
 namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 {
 	public interface IBusinessData
 	{
-		IBusinessData SubData{get;}
+		IBusinessData SubData { get; }
 	}
 
 	public class BusinessData : IBusinessData
 	{
-		public string Id {get;set;}
-		public string Title{get;set;}
-		public List<string> Items{get;set;}
+		public string Id { get; set; }
+		public string Title { get; set; }
+		public List<string> Items { get; set; }
+		public List<BusinessData> SubDatas { get; set; }
 
-		public void Operation() {}
+		public void Operation() { }
 
 		IBusinessData IBusinessData.SubData
 		{
 			get
 			{
-				return new BusinessData{Id = "sub_" + Id, Title = "Sub " + Title};
+				return new BusinessData { Id = "sub_" + Id, Title = "Sub " + Title };
 			}
 		}
 	}
@@ -45,19 +48,23 @@ namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 			return value;
 		}
 	}
-}
+} 
+
+#endregion
 
 namespace Routine.Test.Core.Service
 {
 	[TestFixture]
 	public class ObjectServiceTest_GetObjectData : ObjectServiceTestBase
 	{
+		#region Setup & Helpers
+
 		private const string ACTUAL_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessData";
 		private const string VIEW_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
 		private const string VALUE_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData"};}}
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData" }; } }
 
 		[SetUp]
 		public override void SetUp()
@@ -69,7 +76,9 @@ namespace Routine.Test.Core.Service
 
 				.ExtractValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 				;
-		}
+		} 
+
+		#endregion
 
 		[Test]
 		public void Object_is_located_via_configured_locator_and_its_id_is_extracted_using_corresponding_extractor()
@@ -131,6 +140,32 @@ namespace Routine.Test.Core.Service
 			var actualMember = actual.Members["Title"];
 
 			Assert.IsTrue(actualMember.Values[0].Reference.IsNull);
+		}
+
+		[Test]
+		public void Members_are_fetched_eagerly_when_corresponding_extractor_says_so()
+		{
+			codingStyle
+				.ExtractMemberFetchedEagerly.Done(e => e.Always(true).When(m => m.Name == "SubDatas"))
+			;
+
+			AddToRepository(new BusinessData { Id = "sub1", Items = new List<string> { "sub1_1", "sub1_2" } });
+			AddToRepository(new BusinessData { Id = "sub2", Items = new List<string> { "sub2_1", "sub2_2" } });
+			AddToRepository(new BusinessData { 
+				Id = "obj", 
+				SubDatas = new List<BusinessData> { 
+					objectRepository["sub1"] as BusinessData, 
+					objectRepository["sub2"] as BusinessData 
+				} 
+			});
+
+			var actual = testing.Get(Id("obj"));
+			var actualMember = actual.Members["SubDatas"];
+
+			Assert.AreEqual("sub1_1", actualMember.Values[0].Members["Items"].Values[0].Reference.Id);
+			Assert.AreEqual("sub1_2", actualMember.Values[0].Members["Items"].Values[1].Reference.Id);
+			Assert.AreEqual("sub2_1", actualMember.Values[1].Members["Items"].Values[0].Reference.Id);
+			Assert.AreEqual("sub2_2", actualMember.Values[1].Members["Items"].Values[1].Reference.Id);
 		}
 	}
 }

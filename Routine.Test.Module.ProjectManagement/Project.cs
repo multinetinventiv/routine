@@ -73,7 +73,7 @@ namespace Routine.Test.Module.ProjectManagement
 		}
 	}
 
-	public struct NewProject
+	internal struct NewProject
 	{
 		public Customer Customer { get; private set; }
 		public string Name { get; private set; }

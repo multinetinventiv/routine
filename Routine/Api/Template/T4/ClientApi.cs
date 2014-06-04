@@ -350,93 +350,107 @@ namespace Routine.Api.Template.T4
             
             #line default
             #line hidden
+            this.Write("\t\t");
+            
+            #line 76 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+ foreach(var group in operation.Groups) { 
+            
+            #line default
+            #line hidden
             this.Write("\r\n\t\tpublic ");
             
-            #line 77 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 78 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.FullName));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 77 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 78 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t(");
             
-            #line 78 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", operation.Parameters.Select(p => p.Model.FullName + " " + p.Id))));
+            #line 79 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.FullName + " " + p.Id))));
             
             #line default
             #line hidden
             this.Write(")\r\n\t\t{\r\n\t\t\tvar ");
             
-            #line 80 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 81 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
             
             #line default
             #line hidden
             this.Write("_result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
             
-            #line 82 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 83 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
             
             #line default
             #line hidden
-            this.Write("\"\r\n\t\t");
+            this.Write("\"\r\n\t\t\t");
             
-            #line 83 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
- foreach(var parameter in operation.Parameters) { 
+            #line 84 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+ foreach(var parameter in group) { 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t, ");
             
-            #line 84 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 85 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  ModelToRvariable(parameter); 
             
             #line default
             #line hidden
-            this.Write("\t\t");
+            this.Write("\t\t\t");
             
-            #line 85 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 86 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t)\r\n\t\t\t;\r\n\t\t\t\r\n\t\t");
             
-            #line 89 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 90 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  if(!operation.ReturnModel.IsVoid) { 
             
             #line default
             #line hidden
             this.Write("\t\t\treturn ");
             
-            #line 90 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 91 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
             
             #line default
             #line hidden
             this.Write("_result.");
             
-            #line 90 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 91 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  RobjectToModel(operation.ReturnModel); 
             
             #line default
             #line hidden
             this.Write(";\r\n\t\t");
             
-            #line 91 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 92 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("\t\t}\r\n\r\n\t");
+            this.Write("\t\t}\r\n\r\n\t\t");
             
-            #line 94 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 95 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+ } 
+            
+            #line default
+            #line hidden
+            this.Write("\t");
+            
+            #line 96 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
             
             #line default
@@ -463,14 +477,14 @@ namespace Routine.Api.Template.T4
 				return true;
 			if(obj.GetType() != typeof(");
             
-            #line 115 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 117 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.FullName));
             
             #line default
             #line hidden
             this.Write("))\r\n\t\t\t\treturn false;\r\n\r\n\t\t\tvar other = (");
             
-            #line 118 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 120 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.FullName));
             
             #line default
@@ -478,7 +492,7 @@ namespace Routine.Api.Template.T4
             this.Write(")obj;\r\n\t\t\t\r\n\t\t\treturn Robject.Equals(other.Robject);\r\n\t\t}\r\n\t\t\r\n\t\tpublic override " +
                     "int GetHashCode()\r\n\t\t{\r\n\t\t\treturn Robject.GetHashCode();\r\n\t\t}\r\n\t}\r\n}\r\n\r\n");
             
-            #line 130 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+            #line 132 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
             
             #line default
@@ -487,7 +501,7 @@ namespace Routine.Api.Template.T4
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 132 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 134 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  
 
 protected string Type<T>() { return typeof(T).FullName; }
@@ -500,167 +514,167 @@ protected void RobjectToModel(ObjectCodeModel model)
         #line default
         #line hidden
         
-        #line 139 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 141 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\tAsList(robj =>\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 143 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 145 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  if(model.IsValueModel) { 
         
         #line default
         #line hidden
         
-        #line 143 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 145 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 145 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 147 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.GetStringToValueCode("robj")));
 
         
         #line default
         #line hidden
         
-        #line 145 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 147 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 147 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 149 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 147 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 149 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tnew ");
 
         
         #line default
         #line hidden
         
-        #line 149 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 151 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.FullNameIgnoringList));
 
         
         #line default
         #line hidden
         
-        #line 149 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 151 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("(robj)\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 151 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 153 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
         
         #line default
         #line hidden
         
-        #line 151 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 153 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t)\r\n\r\n\t");
 
         
         #line default
         #line hidden
         
-        #line 155 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 157 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 155 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 157 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\tAs(robj =>\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 159 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 161 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  if(model.IsValueModel) { 
         
         #line default
         #line hidden
         
-        #line 159 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 161 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 161 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 163 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.GetStringToValueCode("robj")));
 
         
         #line default
         #line hidden
         
-        #line 161 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 163 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 163 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 165 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 163 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 165 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tnew ");
 
         
         #line default
         #line hidden
         
-        #line 165 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 167 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.FullNameIgnoringList));
 
         
         #line default
         #line hidden
         
-        #line 165 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 167 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("(robj)\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 167 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 169 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
         
         #line default
         #line hidden
         
-        #line 167 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 169 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t)\r\n\r\n\t");
 
         
         #line default
         #line hidden
         
-        #line 171 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 173 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
         
         #line default
         #line hidden
         
-        #line 173 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 175 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 
 
 }
@@ -674,279 +688,279 @@ protected void ModelToRvariable(ParameterCodeModel parameter)
         #line default
         #line hidden
         
-        #line 181 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 183 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\t\t");
 
         
         #line default
         #line hidden
         
-        #line 182 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  if(model.IsValueModel) { 
         
         #line default
         #line hidden
         
-        #line 182 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tRobject.Application.NewVarList(\"");
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\", ");
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(", o => ");
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.GetValueToStringCode("o")));
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(", \"");
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.Id));
 
         
         #line default
         #line hidden
         
-        #line 184 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\")\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 186 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tRobject.Application.NewVarList(\"");
 
         
         #line default
         #line hidden
         
-        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\", ");
 
         
         #line default
         #line hidden
         
-        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 188 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(".Select(o => o.Robject))\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 192 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
         
         #line default
         #line hidden
         
-        #line 190 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 192 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\t");
 
         
         #line default
         #line hidden
         
-        #line 191 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 193 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 191 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 193 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\t\t");
 
         
         #line default
         #line hidden
         
-        #line 192 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  if(model.IsValueModel) { 
         
         #line default
         #line hidden
         
-        #line 192 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tRobject.Application.NewVar(\"");
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\", ");
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(", o => ");
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.GetValueToStringCode("o")));
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(", \"");
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(model.Id));
 
         
         #line default
         #line hidden
         
-        #line 194 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\")\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } else { 
         
         #line default
         #line hidden
         
-        #line 196 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\r\n\t\t\tRobject.Application.NewVar(\"");
 
         
         #line default
         #line hidden
         
-        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write("\", ");
 
         
         #line default
         #line hidden
         
-        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
 
         
         #line default
         #line hidden
         
-        #line 198 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 this.Write(".Robject)\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
- } 
-        
-        #line default
-        #line hidden
-        
-        #line 200 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-this.Write("\t");
-
-        
-        #line default
-        #line hidden
-        
-        #line 201 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+        #line 202 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  } 
         
         #line default
         #line hidden
         
         #line 202 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+this.Write("\t");
+
+        
+        #line default
+        #line hidden
+        
+        #line 203 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
+ } 
+        
+        #line default
+        #line hidden
+        
+        #line 204 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
 
 
 }

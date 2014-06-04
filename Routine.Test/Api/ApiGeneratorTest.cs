@@ -269,6 +269,37 @@ namespace Routine.Test.Api
 			Assert.AreEqual(typeof(List<string>), parameterMethod.GetParameters()[1].ParameterType);
 		}
 
+		[Test]
+		public void Operation_groups_are_rendered_as_method_overloads()
+		{
+			ModelsAre(Model("TestClass").Name("TestClass")
+				.Operation("OverloadMethod", true, PModel("param1", "s-string", 0, 1), PModel("param2", "s-int-32", 1, 2)));
+
+			var testing = Generator(c => c
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern()));
+
+			var methods = GenerateAndGetClientClass(testing, "TestClass").GetMethods();
+
+			var overloadMethods = methods.Where(m => m.Name == "OverloadMethod").ToList();
+
+			Assert.AreEqual(3, overloadMethods.Count);
+
+			Assert.AreEqual(1, overloadMethods[0].GetParameters().Length);
+			Assert.AreEqual("param1", overloadMethods[0].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(string), overloadMethods[0].GetParameters()[0].ParameterType);
+
+			Assert.AreEqual(2, overloadMethods[1].GetParameters().Length);
+			Assert.AreEqual("param1", overloadMethods[1].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(string), overloadMethods[1].GetParameters()[0].ParameterType);
+			Assert.AreEqual("param2", overloadMethods[1].GetParameters()[1].Name);
+			Assert.AreEqual(typeof(int), overloadMethods[1].GetParameters()[1].ParameterType);
+
+			Assert.AreEqual(1, overloadMethods[2].GetParameters().Length);
+			Assert.AreEqual("param2", overloadMethods[2].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(int), overloadMethods[2].GetParameters()[0].ParameterType);
+		}
+
 		[Test][Ignore]
 		public void Naked_objects_have_a_conversion_method_for_each_of_their_view_model()
 		{

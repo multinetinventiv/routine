@@ -22,5 +22,10 @@ namespace Routine.Core.Reflection
 		{
 			return elementType;
 		}
+
+		public override object CreateInstance()
+		{
+			throw new MissingMethodException("Arrays cannot be initialized via CreateInstance!");
+		}
 	}
 }

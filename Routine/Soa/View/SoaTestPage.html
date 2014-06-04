@@ -313,6 +313,8 @@
             }
 
             renderOptions();
+
+            normalizeParamIndices(addButton);
         }
 
         function removeParameter(removeButton) {
@@ -326,13 +328,49 @@
             if(index >= 0) {
                 removeButton.prev().prev().remove();
             }
+
+            normalizeParamIndices(removeButton);
         }
 
         function toggleParameter(chkbx) {
             var paramDiv = $(chkbx).closest("div.parameter");
-            paramDiv.find("input").toggleDisabled();
-            paramDiv.find("select").toggleDisabled();
+            
+            paramDiv.find("input,select").toggleDisabled();
             paramDiv.find("input[type=checkbox]").toggleDisabled();
+
+            normalizeParamIndices(chkbx);
+        }
+
+        function normalizeParamIndices(obj) {
+            var allParams = $(obj).closest('div.parameter').parent().children("div.parameter");
+            for(var i = 1, ix = 0; i<allParams.length; i++) {
+                var param = $(allParams.get(i));
+
+                var check = param.find('input[type=checkbox]');
+                if(check.length > 0 && check.get(0).checked == false) {
+                    continue;
+                }
+
+                var inputs = param.find("input,select");
+
+                for(var j = 0; j<inputs.length; j++) {
+                    var input = $(inputs.get(j));
+
+                    if(input.attr('name') == undefined) {
+                        continue;
+                    }
+
+                    var name = input.attr('name');
+                    if(name.indexOf('parameterValues[') != 0) {
+                        continue;
+                    }
+                    name = 'parameterValues[' + ix + name.substring(name.indexOf(']'), name.length);
+
+                    input.attr('name', name);
+                }
+
+                ix++;
+            }
         }
 
         function closeForm(tab) {
