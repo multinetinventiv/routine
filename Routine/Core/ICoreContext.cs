@@ -7,9 +7,10 @@ namespace Routine.Core
 		ICodingStyle CodingStyle { get; }
 		DomainType GetDomainType(string objectModelId);
 
+		DomainObjectInitializer CreateDomainObjectInitializer(DomainType domainType, IInitializer initializer);
 		DomainMember CreateDomainMember(DomainType domainType, IMember member);
 		DomainOperation CreateDomainOperation(DomainType domainType, IOperation operation);
-		DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter, int initialGroupIndex);
+		DomainParameter CreateDomainParameter(IParameter parameter, int initialGroupIndex);
 		DomainObject CreateDomainObject(object @object, string viewModelId);
 
 		DomainObject GetDomainObject(ObjectReferenceData objectReference);
@@ -29,6 +30,21 @@ namespace Routine.Core
 				ActualModelId = actualModelId,
 				ViewModelId = viewModelId
 			});
+		}
+
+		internal static object Locate(this ICoreContext source, ParameterData parameterData)
+		{
+			if (parameterData.IsNull || !string.IsNullOrEmpty(parameterData.ReferenceId))
+			{
+				return source.Locate(new ObjectReferenceData {
+					Id = parameterData.ReferenceId,
+					ActualModelId = parameterData.ObjectModelId,
+					ViewModelId = parameterData.ObjectModelId,
+					IsNull = parameterData.IsNull
+				});
+			}
+
+			return source.GetDomainType(parameterData.ObjectModelId).Initialize(parameterData.InitializationParameters);
 		}
 
 		internal static object Locate(this ICoreContext source, ObjectReferenceData aReference)

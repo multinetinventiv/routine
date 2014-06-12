@@ -8,6 +8,11 @@ namespace Routine.Core.Reflection
 		internal ReflectedTypeInfo(Type type) 
 			: base(type) {}
 
+		public override ConstructorInfo[] GetAllConstructors()
+		{
+			return type.GetConstructors(ALL_INSTANCE).Select(c => ConstructorInfo.Reflected(c)).ToArray();
+		}
+
 		public override PropertyInfo[] GetAllProperties()
 		{
 			return type.GetProperties(ALL_INSTANCE).Select(p => PropertyInfo.Reflected(p)).ToArray();

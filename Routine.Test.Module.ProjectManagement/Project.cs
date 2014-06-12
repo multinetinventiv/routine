@@ -73,7 +73,7 @@ namespace Routine.Test.Module.ProjectManagement
 		}
 	}
 
-	internal struct NewProject
+	public struct NewProject
 	{
 		public Customer Customer { get; private set; }
 		public string Name { get; private set; }
@@ -81,14 +81,15 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public DateTime Deadline { get; set; }
 
-		public NewProject(Customer customer, string name) : this(customer, name, default(DateTime)) { }
-		public NewProject(Customer customer, string name, DateTime deadline) : this()
+		public NewProject(Customer customer, DateTime deadline, string name, params NewFeature[] features)
+			: this()
 		{
 			Customer = customer;
 			Name = name;
-			Features = new List<NewFeature>();
+			Features = new List<NewFeature>(features);
 
 			Deadline = deadline;
 		}
+		public NewProject(Customer customer, string name, bool someBool) : this(customer, default(DateTime), name) { }
 	}
 }

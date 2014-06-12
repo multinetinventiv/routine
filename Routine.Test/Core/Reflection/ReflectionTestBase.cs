@@ -48,6 +48,10 @@ namespace Routine.Test.Core.Reflection.Domain
 
 	public class TestClass_OOP : TestAbstractClass_OOP, TestInterface_OOP, TestOuterInterface_OOP
 	{
+		public TestClass_OOP() { }
+		public TestClass_OOP(string str) { }
+		private TestClass_OOP(int i) { }
+
 		public string this[int i, string str] {get{return null;}}
 
 		public string PublicProperty {get;set;}
@@ -107,8 +111,13 @@ namespace Routine.Test.Core.Reflection.Domain
 	#region Members Model
 	public class TestClass_Members
 	{
-		public int IntProperty{get{return 0;}}
-		public string StringProperty{get{return null;}}
+		public TestClass_Members() : this(null) { }
+		public TestClass_Members(string str) : this(str, 0) { }
+		public TestClass_Members(int i) : this(null, i) { }
+		public TestClass_Members(string str, int i) { IntProperty = i; StringProperty = str; }
+
+		public int IntProperty { get; set; }
+		public string StringProperty { get; set; }
 		public List<string> StringListProperty{get{return null;}}
 		public IList NonGenericListProperty{get{return null;}}
 		public string PublicAutoProperty{ get; set;}
@@ -171,6 +180,12 @@ namespace Routine.Test.Core.Reflection.Domain
 	public class TestClass_Attribute : TestBase_Attribute, TestInterface_Attribute
 	{
 		[TestClass]
+		public TestClass_Attribute() { }
+
+		[TestClass]
+		public TestClass_Attribute([TestClass] int i) { }
+
+		[TestClass]
 		public string ClassProperty { get; set; }
 
 		[TestClass]
@@ -196,42 +211,57 @@ namespace Routine.Test.Core.Reflection
 {
 	public abstract class ReflectionTestBase : CoreTestBase
 	{
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Reflection.Domain"};}}
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.Reflection.Domain" }; } }
+
+		protected ConstructorInfo OOP_Constructor(params TypeInfo[] typeInfos)
+		{
+			return type.of<TestClass_OOP>().GetConstructor(typeInfos);
+		}
 
 		protected MethodInfo OOP_Method(string prefixOrFullName)
 		{
-			return 	type.of<TestClass_OOP>().GetMethod(prefixOrFullName + "Method") ??
+			return type.of<TestClass_OOP>().GetMethod(prefixOrFullName + "Method") ??
 				type.of<TestClass_OOP>().GetMethod(prefixOrFullName);
 		}
 
 		protected MethodInfo OOP_StaticMethod(string prefixOrFullName)
 		{
-			return 	type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName + "Method") ??
+			return type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName + "Method") ??
 				type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo OOP_Property(string prefixOrFullName)
 		{
-			return 	type.of<TestClass_OOP>().GetProperty(prefixOrFullName + "Property") ??
+			return type.of<TestClass_OOP>().GetProperty(prefixOrFullName + "Property") ??
 				type.of<TestClass_OOP>().GetProperty(prefixOrFullName);
 		}
 
 		protected PropertyInfo OOP_StaticProperty(string prefixOrFullName)
 		{
-			return 	type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName + "Property") ??
+			return type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName + "Property") ??
 				type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName);
+		}
+
+		protected ConstructorInfo Members_Constructor(params TypeInfo[] typeInfos)
+		{
+			return type.of<TestClass_Members>().GetConstructor(typeInfos);
 		}
 
 		protected MethodInfo Members_Method(string prefixOrFullName)
 		{
-			return 	type.of<TestClass_Members>().GetMethod(prefixOrFullName + "Method") ??
+			return type.of<TestClass_Members>().GetMethod(prefixOrFullName + "Method") ??
 				type.of<TestClass_Members>().GetMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo Members_Property(string prefixOrFullName)
 		{
-			return	type.of<TestClass_Members>().GetProperty(prefixOrFullName + "Property") ??
+			return type.of<TestClass_Members>().GetProperty(prefixOrFullName + "Property") ??
 				type.of<TestClass_Members>().GetProperty(prefixOrFullName);
+		}
+
+		protected ConstructorInfo Attribute_Constructor(params TypeInfo[] typeInfos)
+		{
+			return type.of<TestClass_Attribute>().GetConstructor(typeInfos);
 		}
 
 		protected MethodInfo Attribute_Method(string prefixOrFullName)

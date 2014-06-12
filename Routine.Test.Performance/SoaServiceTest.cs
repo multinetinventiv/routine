@@ -25,7 +25,7 @@ namespace Routine.Test.Performance
 						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
-					.ServiceUrlBaseIs("http://127.0.0.1:3597/Soa")
+					.ServiceUrlBaseIs("http://127.0.0.1:5485/Soa")
 					.DefaultParametersAre("language_code")
 					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When("language_code"))
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
@@ -96,6 +96,51 @@ namespace Routine.Test.Performance
 
 			var languageCodeFromServer = projectManagementModule.Perform("TestLanguageCode");
 			Console.WriteLine(languageCodeFromServer.Object.Id);
+
+			Console.WriteLine("-----------");
+
+			Console.WriteLine("Performing singleton operation (Customers.All)");
+			var customers = rapp.Get("Instance", "m-project-management--customers").Perform("All");
+
+			Console.WriteLine("Sending data input... (ProjectManagementModule.CreateProjects)");
+			var bulkProjects = projectManagementModule.Perform("CreateProjects",
+				rapp.NewVar<DateTime>("defaultDeadline", DateTime.Now.AddDays(7), "s-date-time"),
+				rapp.NewVarList("projects",
+					rapp.Init("m-project-management--new-project",
+						rapp.NewVar("customer", customers.List[0]),
+						rapp.NewVar<DateTime>("deadline", DateTime.Now.AddDays(14), "s-date-time"),
+						rapp.NewVar<string>("name", "project 1", "s-string"),
+						rapp.NewVarList("features", 
+							rapp.Init("m-project-management--new-feature",
+								rapp.NewVar<string>("name", "project 1 - feature 1", "s-string"),
+								rapp.NewVar<bool>("someBool", true, "s-boolean")
+							),
+							rapp.Init("m-project-management--new-feature",
+								rapp.NewVar<string>("name", "project 1 - feature 2", "s-string"),
+								rapp.NewVar<bool>("someBool", false, "s-boolean")
+							)
+						)
+					),
+					rapp.Init("m-project-management--new-project",
+						rapp.NewVar("customer", customers.List[0]),
+						rapp.NewVar<DateTime>("deadline", DateTime.Now.AddDays(21), "s-date-time"),
+						rapp.NewVar<string>("name", "project 2", "s-string"),
+						rapp.NewVarList("features",
+							rapp.Init("m-project-management--new-feature",
+								rapp.NewVar<string>("name", "project 2 - feature 1", "s-string"),
+								rapp.NewVar<bool>("someBool", false, "s-boolean")
+							)
+						)
+					)
+				)
+			);
+			Console.WriteLine("bulk projects created;");
+			foreach (var bulkProject in bulkProjects.List)
+			{
+				Console.WriteLine("\tbulk project: {0} - {1}", bulkProject.Id, bulkProject.Value);
+			}
+			Console.WriteLine("------------");
+
 		}
 
 		[Test]

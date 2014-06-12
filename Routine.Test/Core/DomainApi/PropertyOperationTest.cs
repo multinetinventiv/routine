@@ -11,7 +11,7 @@ namespace Routine.Test.Core.DomainApi
 	{
 		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.DomainApi.Domain" }; } }
 
-		[Test]
+		[Test][Ignore]
 		public void Write_tests()
 		{
 			Assert.Fail();

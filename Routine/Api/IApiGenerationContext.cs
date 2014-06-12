@@ -7,6 +7,7 @@
 		ApplicationCodeModel Application { get; }
 
 		ObjectCodeModel CreateObject();
+		InitializerCodeModel CreateInitializer();
 		MemberCodeModel CreateMember();
 		OperationCodeModel CreateOperation();
 		ParameterCodeModel CreateParameter();

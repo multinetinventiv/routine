@@ -48,7 +48,7 @@ namespace Routine.Core
 		public bool IsViewModel { get; set; }
 
 		public List<string> ViewModelIds { get; set; }
-		public List<InitializationModel> Initializations { get; set; }
+		public InitializerModel Initializer { get; set; }
 		public List<MemberModel> Members { get; set; }
 		public List<OperationModel> Operations { get; set; }
 
@@ -56,7 +56,7 @@ namespace Routine.Core
 		{
 			Marks = new List<string>();
 			ViewModelIds = new List<string>();
-			Initializations = new List<InitializationModel>();
+			Initializer = new InitializerModel();
 			Members = new List<MemberModel>();
 			Operations = new List<OperationModel>();
 		}
@@ -65,8 +65,8 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ObjectModel: Id={0}, Marks={1}, Name={2}, Module={3}, IsValueModel={4}, IsViewModel={5}, ViewModelIds={6}, Initializations={7}, Members={8}, Operations={9}]",
-												Id, Marks.ToItemString(), Name, Module, IsValueModel, IsViewModel, ViewModelIds.ToItemString(), Initializations.ToItemString(), Members.ToItemString(), Operations.ToItemString());
+			return string.Format("[ObjectModel: Id={0}, Marks={1}, Name={2}, Module={3}, IsValueModel={4}, IsViewModel={5}, ViewModelIds={6}, Initializer={7}, Members={8}, Operations={9}]",
+												Id, Marks.ToItemString(), Name, Module, IsValueModel, IsViewModel, ViewModelIds.ToItemString(), Initializer, Members.ToItemString(), Operations.ToItemString());
 		}
 
 		public override bool Equals(object obj)
@@ -80,14 +80,14 @@ namespace Routine.Core
 			ObjectModel other = (ObjectModel)obj;
 			return 
 				Id == other.Id && Marks.ItemEquals(other.Marks) && Name == other.Name && Module == other.Module && IsValueModel == other.IsValueModel && IsViewModel == other.IsViewModel && 
-				ViewModelIds.ItemEquals(other.ViewModelIds) && Initializations.ItemEquals(other.Initializations) && Members.ItemEquals(other.Members) && Operations.ItemEquals(other.Operations);
+				ViewModelIds.ItemEquals(other.ViewModelIds) && Initializer.Equals(other.Initializer) && Members.ItemEquals(other.Members) && Operations.ItemEquals(other.Operations);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Id != null ? Id.GetHashCode() : 0) ^ (Marks != null ? Marks.GetItemHashCode() : 0) ^ (Name != null ? Name.GetHashCode() : 0) ^ (Module != null ? Module.GetHashCode() : 0) ^ IsValueModel.GetHashCode() ^ IsViewModel.GetHashCode() ^ (ViewModelIds != null ? ViewModelIds.GetItemHashCode() : 0) ^ (Initializations != null ? Initializations.GetItemHashCode() : 0) ^ (Members != null ? Members.GetItemHashCode() : 0) ^ (Operations != null ? Operations.GetItemHashCode() : 0);
+				return (Id != null ? Id.GetHashCode() : 0) ^ (Marks != null ? Marks.GetItemHashCode() : 0) ^ (Name != null ? Name.GetHashCode() : 0) ^ (Module != null ? Module.GetHashCode() : 0) ^ IsValueModel.GetHashCode() ^ IsViewModel.GetHashCode() ^ (ViewModelIds != null ? ViewModelIds.GetItemHashCode() : 0) ^ (Initializer != null ? Initializer.GetHashCode() : 0) ^ (Members != null ? Members.GetItemHashCode() : 0) ^ (Operations != null ? Operations.GetItemHashCode() : 0);
 			}
 		}
 
@@ -134,25 +134,23 @@ namespace Routine.Core
 		#endregion
 	}
 
-	public class InitializationModel
+	public class InitializerModel
 	{
-		public string Id { get; set; }
 		public List<string> Marks { get; set; }
 		public int GroupCount { get; set; }
 
 		public List<ParameterModel> Parameters { get; set; }
 
-		public InitializationModel()
+		public InitializerModel()
 		{
 			Marks = new List<string>();
 			Parameters = new List<ParameterModel>();
-			GroupCount = 1;
 		}
 
 		#region ToString & Equality
 		public override string ToString()
 		{
-			return string.Format("[InitializationModel: Id={0}, Marks={1}, GroupCount={2}, Parameters={3}]", Id, Marks.ToItemString(), GroupCount, Parameters.ToItemString());
+			return string.Format("[InitializerModel: Marks={0}, GroupCount={1}, Parameters={2}]", Marks.ToItemString(), GroupCount, Parameters.ToItemString());
 		}
 
 		public override bool Equals(object obj)
@@ -161,17 +159,17 @@ namespace Routine.Core
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			if (obj.GetType() != typeof(InitializationModel))
+			if (obj.GetType() != typeof(InitializerModel))
 				return false;
-			InitializationModel other = (InitializationModel)obj;
-			return Id == other.Id && Marks.ItemEquals(other.Marks) && GroupCount == other.GroupCount && Parameters.ItemEquals(other.Parameters);
+			InitializerModel other = (InitializerModel)obj;
+			return Marks.ItemEquals(other.Marks) && GroupCount == other.GroupCount && Parameters.ItemEquals(other.Parameters);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Id != null ? Id.GetHashCode() : 0) ^ (Marks != null ? Marks.GetItemHashCode() : 0) ^ GroupCount.GetHashCode() ^ (Parameters != null ? Parameters.GetItemHashCode() : 0);
+				return (Marks != null ? Marks.GetItemHashCode() : 0) ^ GroupCount.GetHashCode() ^ (Parameters != null ? Parameters.GetItemHashCode() : 0);
 			}
 		}
 
@@ -190,9 +188,9 @@ namespace Routine.Core
 		public OperationModel()
 		{
 			Marks = new List<string>();
+
 			Parameters = new List<ParameterModel>();
 			Result = new ResultModel();
-			GroupCount = 1;
 		}
 
 		#region ToString & Equality

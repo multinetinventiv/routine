@@ -22,10 +22,6 @@ namespace Routine.Core.Api
 		{
 			return With(ANONYMOUS, data.Values.Select(od => context.CreateRobject().With(od)), data.IsList, false);
 		}
-		internal Rvariable With(ParameterValueData data) 
-		{
-			return With(ANONYMOUS, data.Values.Select(pd => context.CreateRobject().With(pd)), data.IsList, false);
-		}
 		internal Rvariable Void() { return With(ANONYMOUS, new List<Robject>(), false, true); }
 
 		internal Rvariable Null() { return Null(ANONYMOUS); }
@@ -58,7 +54,7 @@ namespace Routine.Core.Api
 			return new ParameterValueData
 			{
 				IsList = list,
-				Values = value.Select(robj => robj.ParameterData).ToList()
+				Values = value.Select(robj => robj.GetParameterData()).ToList()
 			};
 		}
 

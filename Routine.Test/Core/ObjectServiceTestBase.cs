@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -28,6 +29,8 @@ namespace Routine.Test.Core
 				.Use(p => p.NullPattern("_null"))
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
+
+				.SelectInitializers.Done(s => s.ByPublicConstructors().When(t => t.IsValueType && t.IsDomainType))
 				.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsOnReflected() && !p.IsIndexer).When(t => t.IsDomainType))
 				.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsOnReflected()).When(t => t.IsDomainType))
 
@@ -67,7 +70,26 @@ namespace Routine.Test.Core
 			return result;
 		}
 
-		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length == 1, references); }
+		protected ParameterData Init(string objectModelId, Dictionary<string, ParameterValueData> initializationParameters)
+		{
+			return new ParameterData {
+				ObjectModelId = objectModelId,
+				InitializationParameters = initializationParameters
+			};
+		}
+
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ParameterData[] values) { return Param(modelId, values.Length > 1, values); }
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values) 
+		{
+			return new KeyValuePair<string, ParameterValueData>(modelId, 
+				new ParameterValueData {
+					IsList = isList,
+					Values = values.ToList()
+				}
+			);
+		}
+
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length > 1, references); }
 		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ObjectReferenceData[] references)
 		{
 			return new KeyValuePair<string, ParameterValueData>(modelId, new ParameterValueData { IsList = isList, Values = references.Select(r => PD(r)).ToList() });
@@ -78,7 +100,7 @@ namespace Routine.Test.Core
 			return new ParameterData { ObjectModelId = reference.ActualModelId, IsNull = reference.IsNull, ReferenceId = reference.Id };
 		}
 
-		protected abstract string DefaultModelId{get;}
+		protected abstract string DefaultModelId { get; }
 	}
 }
 

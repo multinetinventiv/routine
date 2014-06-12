@@ -9,6 +9,7 @@ namespace Routine.Core.Reflection
 	internal class DomainTypeInfo : PreloadedTypeInfo
 	{
 		private IMethodInvoker defaultConstructorInvoker;
+		private ConstructorInfo[] allConstructors;
 		private PropertyInfo[] allProperties;
 		private PropertyInfo[] allStaticProperties;
 		private MethodInfo[] allMethods;
@@ -30,10 +31,12 @@ namespace Routine.Core.Reflection
 			base.Load();
 
 			var constructor = type.GetConstructor(new Type[0]);
-			if(constructor != null)
+			if(constructor != null && !type.IsAbstract)
 			{
 				defaultConstructorInvoker = constructor.CreateInvoker();
 			}
+
+			allConstructors = type.GetConstructors(ALL_INSTANCE).Select(c => ConstructorInfo.Preloaded(c)).ToArray();
 
 			allProperties = type.GetProperties(ALL_INSTANCE).Select(p => PropertyInfo.Preloaded(p)).ToArray();
 			allPropertiesNameIndex = MemberIndex.Build(allProperties, p => p.Name);
@@ -50,11 +53,12 @@ namespace Routine.Core.Reflection
 			parseMethod = allStaticMethods.SingleOrDefault(m => m.HasParameters<string>() && m.Returns(this, "Parse"));
 		}
 
-		public override PropertyInfo[] GetAllProperties(){return allProperties;}
-		public override PropertyInfo[] GetAllStaticProperties(){return allStaticProperties;}
-		public override MethodInfo[] GetAllMethods(){return allMethods;}
-		public override MethodInfo[] GetAllStaticMethods(){return allStaticMethods;}
-		protected override MethodInfo GetParseMethod(){return parseMethod;}
+		public override ConstructorInfo[] GetAllConstructors() { return allConstructors; }
+		public override PropertyInfo[] GetAllProperties() { return allProperties; }
+		public override PropertyInfo[] GetAllStaticProperties() { return allStaticProperties; }
+		public override MethodInfo[] GetAllMethods() { return allMethods; }
+		public override MethodInfo[] GetAllStaticMethods() { return allStaticMethods; }
+		protected override MethodInfo GetParseMethod() { return parseMethod; }
 
 		public override PropertyInfo GetProperty(string name)
 		{

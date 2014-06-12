@@ -49,7 +49,7 @@ namespace Routine.Core.Api
 			return new ParameterValueData
 			{
 				IsList = IsList,
-				Values = robjs.Select(robj => robj.ParameterData).ToList()
+				Values = robjs.Select(robj => robj.GetParameterData()).ToList()
 			};
 		}
 	}

@@ -12,6 +12,9 @@ namespace Routine.Core
 		IExtractor<TypeInfo, bool> ModelIsValueExtractor { get; }
 		IExtractor<TypeInfo, bool> ModelIsViewExtractor { get; }
 
+		ISelector<TypeInfo, IInitializer> InitializerSelector { get; }
+		ISelector<IInitializer, string> InitializerMarkSelector { get; }
+
 		ISelector<TypeInfo, IMember> MemberSelector { get; }
 		ISelector<IMember, string> MemberMarkSelector { get; }
 

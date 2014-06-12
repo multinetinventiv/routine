@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Core;
@@ -25,6 +26,8 @@ namespace Routine.Test.Core
 		void OverloadOp(int i);
 		void OverloadOp(string s, int i);
 		void OverloadOp(string s1, string s, int i1);
+
+		void DataInput(BusinessMasterInputData input);
 	}
 
 	public class BusinessOperation : IBusinessOperation
@@ -49,6 +52,30 @@ namespace Routine.Test.Core
 		void IBusinessOperation.OverloadOp(int i) { mock.OverloadOp(i); }
 		void IBusinessOperation.OverloadOp(string s, int i) { mock.OverloadOp(s, i); }
 		void IBusinessOperation.OverloadOp(string s1, string s, int i1) { mock.OverloadOp(s1, s, i1); }
+
+		void IBusinessOperation.DataInput(BusinessMasterInputData input) { mock.DataInput(input); }
+	}
+
+	public struct BusinessInputData
+	{
+		public string Data { get; private set; }
+
+		public BusinessInputData(string data) 
+			: this()
+		{
+			Data = data;
+		}
+	}
+
+	public struct BusinessMasterInputData
+	{
+		public List<BusinessInputData> Datas { get; private set; }
+
+		public BusinessMasterInputData(List<BusinessInputData> datas)
+			: this()
+		{
+			Datas = datas;
+		}
 	}
 
 	#endregion
@@ -60,6 +87,8 @@ namespace Routine.Test.Core
 
 		private const string ACTUAL_OMID = "Routine.Test.Core.BusinessOperation";
 		private const string VIEW_OMID = "Routine.Test.Core.IBusinessOperation";
+		private const string DATA_OMID = "Routine.Test.Core.BusinessInputData";
+		private const string MASTER_DATA_OMID = "Routine.Test.Core.BusinessMasterInputData";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
 		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core" }; } }
@@ -291,6 +320,47 @@ namespace Routine.Test.Core
 		}
 
 		[Test]
+		public void Data_parameter_support()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "DataInput",
+				Params(
+					Param("input",
+						Init(MASTER_DATA_OMID,
+							Params(
+								Param("datas", 
+									Init(DATA_OMID,
+										Params(
+											Param("data", Id("test1", "s-string"))
+										)
+									),
+									Init(DATA_OMID,
+										Params(
+											Param("data", Id("test2", "s-string"))
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			);
+
+			businessMock.Verify(o => o.DataInput(It.Is<BusinessMasterInputData>(md => 
+
+				md.Datas.Any(d => d.Data == "test1") && md.Datas.Any(d => d.Data == "test2"))), 
+
+				Times.Once());
+		}
+
+		[Test] [Ignore]
+		public void Optional_parameter_support()
+		{
+			Assert.Fail("not implemented");
+		}
+
+		[Test]
 		public void By_default_perform_operation_returns_eager_result()
 		{
 			SetUpObject("id", "title");
@@ -383,12 +453,6 @@ namespace Routine.Test.Core
 			//group 3 -> match 0 --> non-match 2 (s, i)
 			//group 3 -> match 0 --> non-match 3 (s1, s, i1)
 			businessMock.Verify(o => o.OverloadOp(), Times.Once());
-		}
-		
-		[Test] [Ignore]
-		public void Optional_parameter_support()
-		{
-			Assert.Fail("not implemented");
 		}
 	}
 }

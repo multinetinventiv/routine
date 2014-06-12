@@ -52,6 +52,7 @@
     <Compile Include="Core\Interceptor\InterceptionContextTest.cs" />
     <Compile Include="Core\Interceptor\InterceptorTestBase.cs" />
     <Compile Include="Core\Interceptor\ChainInterceptorTest.cs" />
+    <Compile Include="Core\Reflection\ConstructorInfoTest.cs" />
     <Compile Include="Core\Reflection\Optimization\ReflectionMethodInvokerTest.cs" />
     <Compile Include="Soa\SerializationExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

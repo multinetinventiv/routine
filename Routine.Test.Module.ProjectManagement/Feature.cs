@@ -58,7 +58,7 @@ namespace Routine.Test.Module.ProjectManagement
 	{
 		public string Name { get; private set; }
 
-		public NewFeature(string name) : this()
+		public NewFeature(string name, bool someBool) : this()
 		{
 			Name = name;
 		}

@@ -21,7 +21,7 @@ namespace Routine.Core.DomainApi
 			get 
 			{
 				return propertyInfo.IsIndexer ?
-					propertyInfo.GetIndexParameters().Select(p => new MethodParameter(this, p) as IParameter).ToList() :
+					propertyInfo.GetIndexParameters().Select(p => new ParameterParameter(this, p) as IParameter).ToList() :
 					new List<IParameter>();
 			} 
 		}

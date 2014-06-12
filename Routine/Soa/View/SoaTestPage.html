@@ -30,13 +30,16 @@
         .tab {border:solid 1px gray;padding:5px;margin-right:2px;background-color:#f8f6f0;font-size:10px;cursor:hand;cursor:pointer;}
         .tab a {margin-left:5px;}
         .selected {background-color:#ffffff;font-weight:bold;font-size:11px;}
-        .request {float:left;width: 400px;border-right: solid 1px gray;height: 100%;}
+        .request {float:left;width: 400px;border-right: solid 1px gray;height: 100%;overflow-y:auto;}
         .request h1 {height:30px;}
         .request h1 input {float: right;margin-right: 10px;}
-        .parameter {}
+        .parameter {border: solid 1px #DDDDDD;border-top-width: 5px;padding-left: 6px;margin: 5px;padding-top: 3px;padding-bottom: 3px;}
+        .parameter .parameter{margin-left:7px;}
         .parameter-item {display:inline-block;margin-left:-3px;}
         .parameter-item select {width: 153px;height: 22px;margin: 2px;}
+        .parameter-item-group {display:block;}
         .parameter-item-added  {margin-left:150px;}
+        .parameter-item-added-group  {border-top:dashed 1px gray;}
         .response {float: left;overflow: auto;height: 100%;}
         .response .label {width:100px;}
 		.response .result {margin-left:5px;clear:both;display:block;font-size: 16px;font-weight: bold;}
@@ -80,7 +83,7 @@
         var defaultParams = [@defaultParams];
 
         var models, tmp_default_param, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
-            tmp_response_types, tmp_object_response, tmp_object, tmp_member, tmp_member_item, tmp_table_response;
+            tmp_simple_parameter, tmp_response_types, tmp_object_response, tmp_object, tmp_member, tmp_member_item, tmp_table_response;
 
         $(function () {
             $("#tab-container").width($(window).width() - 300);
@@ -100,6 +103,7 @@
             tmp_form = $("#form").clone().wrap("<p>").parent().html();
             tmp_parameter = $("#parameter").clone().wrap("<p>").parent().html();
             tmp_parameter_item = $("#parameter-item").clone().wrap("<p>").parent().html();
+            tmp_simple_parameter = $("#simple-parameter").clone().wrap("<p>").parent().html();
             tmp_response_types = $("#response-types").clone().wrap("<p>").parent().html();
             tmp_object_response = $("#object-response").clone().wrap("<p>").parent().html();
             tmp_object = $("#object").clone().wrap("<p>").parent().html();
@@ -199,24 +203,7 @@
                 .removeAttr("id").removeClass("template").addClass("form")
                 .appendTo($("#form-container"));
 
-            for (var i = 0; i < operation.Parameters.length; i++) {
-                var parameter = operation.Parameters[i];
-                
-                var parameterDiv = $(tmp_parameter
-                    .replace(/@id/g, parameter.Id)
-                    .replace(/@index/g, i)
-                    .replace(/@modelId/g, parameter.ViewModelId)
-                    .replace(/@isList/g, parameter.IsList)
-                    .replace(/@options/g, getOptions(parameter.ViewModelId)))
-                    .removeAttr("id").removeClass("template").addClass("parameter")
-                    .appendTo(operationForm.children(".request:first-child"));
-
-                if(parameter.Groups.length == operation.GroupCount) {
-                    parameterDiv.find("input[type=checkbox]").remove();
-                }
-
-                parameterDiv.children("input.add").click();
-            }
+            createParameters(operation, "parameterValues", operationForm.children(".request:first-child"));
 
             operationForm.ajaxForm({
                 dataType: 'json',
@@ -233,6 +220,111 @@
 
             renderOptions();
             operationTab.click();
+        }
+
+        function createParameters(parametric, prefix, container) {
+            for (var i = 0; i < parametric.Parameters.length; i++) {
+                var parameter = parametric.Parameters[i];
+                
+                var parameterDiv = $(tmp_parameter
+                    .replace(/@id/g, parameter.Id)
+                    .replace(/@prefix/g, prefix)
+                    .replace(/@index/g, i)
+                    .replace(/@modelId/g, parameter.ViewModelId)
+                    .replace(/@isList/g, parameter.IsList))
+                    .removeAttr("id").removeClass("template").addClass("parameter");
+
+                parameterDiv.appendTo(container);
+
+                if(parameter.Groups.length == parametric.GroupCount) {
+                    parameterDiv.find("input[type=checkbox]").remove();
+                }
+
+                parameterDiv.children("input.add").click();
+            }
+        }
+
+        function renderOptions() {
+            $("input[type=text]").each(function() {
+                if(!hasAttr($(this), "data-options")) {
+                    return;
+                }
+
+                if($(this).hasClass("template")) {
+                    return;
+                }
+
+                var options = $(this).attr("data-options");
+                if(options == null || options == "") {
+                    return;
+                }
+
+                var item = "<select name='"+$(this).attr("name") + "'>";
+                var optionArray = options.split("|");
+                for(var i = 0; i<optionArray.length; i++) {
+                    item += "<option value='" + optionArray[i] + "'>" + optionArray[i] + "</option>";
+                }
+                item +="</select>";
+                $(this).before(item);
+                $(this).remove();
+            });
+        }
+
+        function hasAttr(element, key) {
+            return !(typeof element.attr(key) === 'undefined');
+        }
+
+        function addParameter(addButton, prefix, paramIndex, modelId, isList) {
+            addButton = $(addButton);
+            var model = getModel(modelId);
+
+            var index = -1;
+            if(hasAttr(addButton.prev(), "data-index")) {
+                index = parseInt(addButton.prev().attr("data-index"));
+            }
+
+            index++;
+
+            var parameterItemDiv = $(tmp_parameter_item
+                .replace(/@prefix/g, prefix)
+                .replace(/@paramIndex/g, paramIndex)
+                .replace(/@modelId/g, modelId)
+                .replace(/@index/g, index))
+                .removeAttr("id").removeClass("template").addClass("parameter-item");
+
+
+            addButton.before(parameterItemDiv);
+
+            if(model.Initializer.GroupCount > 0) {
+                parameterItemDiv.addClass("parameter-item-group");
+                if(index > 0) {
+                    parameterItemDiv.addClass("parameter-item-added-group");
+                }
+                createParameters(
+                    model.Initializer, 
+                    prefix + "[" + paramIndex + "].Value.Values[" + index + "].InitializationParameters", 
+                    parameterItemDiv);
+            } else {
+                if(index > 0) {
+                    parameterItemDiv.addClass("parameter-item-added");
+                }
+                $(tmp_simple_parameter
+                    .replace(/@prefix/g, prefix)
+                    .replace(/@paramIndex/g, paramIndex)
+                    .replace(/@index/g, index)
+                    .replace(/@options/g, getOptions(modelId)))
+                    .removeAttr("id").removeClass("template").addClass("simple-parameter")
+                    .appendTo(parameterItemDiv);
+            }
+
+            if(!isList) {
+                addButton.next().remove();
+                addButton.remove();
+            }
+
+            renderOptions();
+
+            normalizeParamIndices(addButton, prefix);
         }
 
         function getOptions(modelId) {
@@ -259,64 +351,6 @@
             return result;
         }
 
-        function renderOptions() {
-            $("input[type=text]").each(function() {
-                if(!hasAttr($(this), "data-options")) {
-                    return;
-                }
-
-                var options = $(this).attr("data-options");
-                if(options == null || options == "") {
-                    return;
-                }
-
-                var item = "<select name='"+$(this).attr("name") + "'>";
-                var optionArray = options.split("|");
-                for(var i = 0; i<optionArray.length; i++) {
-                    item += "<option value='" + optionArray[i] + "'>" + optionArray[i] + "</option>";
-                }
-                item +="</select>";
-                $(this).before(item);
-                $(this).remove();
-            });
-        }
-
-        function hasAttr(element, key) {
-            return !(typeof element.attr(key) === 'undefined');
-        }
-
-        function addParameter(addButton, paramIndex, modelId, isList) {
-            addButton = $(addButton);
-            var index = -1;
-            if(hasAttr(addButton.prev(), "data-index")) {
-                index = parseInt(addButton.prev().attr("data-index"));
-            }
-
-            index++;
-            var options = addButton.next().next().html();
-            var parameterItemDiv = $(tmp_parameter_item
-                    .replace(/@paramIndex/g, paramIndex)
-                    .replace(/@modelId/g, modelId)
-                    .replace(/@index/g, index)
-                    .replace(/@options/g, options))
-                    .removeAttr("id").removeClass("template").addClass("parameter-item");
-
-            if(index > 0) {
-                parameterItemDiv.addClass("parameter-item-added");
-            }
-
-            addButton.before(parameterItemDiv);
-
-            if(!isList) {
-                addButton.next().remove();
-                addButton.remove();
-            }
-
-            renderOptions();
-
-            normalizeParamIndices(addButton);
-        }
-
         function removeParameter(removeButton) {
             removeButton = $(removeButton);
             
@@ -332,22 +366,28 @@
             normalizeParamIndices(removeButton);
         }
 
-        function toggleParameter(chkbx) {
+        function toggleParameter(chkbx, prefix) {
             var paramDiv = $(chkbx).closest("div.parameter");
             
             paramDiv.find("input,select").toggleDisabled();
             paramDiv.find("input[type=checkbox]").toggleDisabled();
 
-            normalizeParamIndices(chkbx);
+            normalizeParamIndices(chkbx, prefix);
         }
 
-        function normalizeParamIndices(obj) {
-            var allParams = $(obj).closest('div.parameter').parent().children("div.parameter");
-            for(var i = 1, ix = 0; i<allParams.length; i++) {
+        function normalizeParamIndices(obj, prefix) {
+            var parent = $(obj).closest('div.parameter').parent();
+            var allParams = parent.children("div.parameter");
+            var start = 1; //starts from 1, since first parameter is target id
+            if(parent.hasClass("parameter-item")) {
+                start = 0; //starts from 0, since there is no target id for complex parameters
+            }
+            for(var i = start, ix = 0; i<allParams.length; i++) {
                 var param = $(allParams.get(i));
 
                 var check = param.find('input[type=checkbox]');
                 if(check.length > 0 && check.get(0).checked == false) {
+                    //do not increment ix, since current param is disabled
                     continue;
                 }
 
@@ -361,10 +401,12 @@
                     }
 
                     var name = input.attr('name');
-                    if(name.indexOf('parameterValues[') != 0) {
+                    if(name.indexOf(prefix + '[') != 0) {
                         continue;
                     }
-                    name = 'parameterValues[' + ix + name.substring(name.indexOf(']'), name.length);
+
+                    name = name.substring(prefix.length + 1, name.length);
+                    name = prefix +'[' + ix + name.substring(name.indexOf(']'), name.length);
 
                     input.attr('name', name);
                 }
@@ -394,7 +436,7 @@
                 }
             }
 
-            return {Id:modelId,Marks:[],Name:modelId,Module:"",IsValueModel:true,IsViewModel:false,Members:[],Operations:[],Initializations:[]};
+            return {Id:modelId,Marks:[],Name:modelId,Module:"",IsValueModel:true,IsViewModel:false,Members:[],Operations:[],Initializer:{GroupCount:0,Marks:[],Parameters:[]}};
         }
 
         function getOperation(model, operationId) {
@@ -691,16 +733,15 @@
         <div class="response"></div>
     </form>
     <div id="parameter" class="template">
-        <span class="label">@id:<input type="checkbox" onchange="toggleParameter(this);" checked="checked"/></span>
-        <input type="hidden" name="parameterValues[@index].Key" value="@id" />
-        <input class="add" type="button" value="+" onclick="javascript:addParameter(this, @index, '@modelId', @isList)" />
+        <span class="label">@id:<input type="checkbox" onchange="toggleParameter(this, '@prefix');" checked="checked"/></span>
+        <input type="hidden" name="@prefix[@index].Key" value="@id" />
+        <input class="add" type="button" value="+" onclick="javascript:addParameter(this, '@prefix', @index, '@modelId', @isList)" />
         <input class="remove" type="button" value="-" onclick="javascript:removeParameter(this)" />
-        <span class="options">@options</span>
     </div>
     <div id="parameter-item" class="template" data-index="@index">
-        <input type="hidden" name="parameterValues[@paramIndex].Value.Values[@index].ObjectModelId" value="@modelId"/>
-        <input type="text" name="parameterValues[@paramIndex].Value.Values[@index].ReferenceId" data-options="@options"/>
+        <input type="hidden" name="@prefix[@paramIndex].Value.Values[@index].ObjectModelId" value="@modelId"/>
     </div>
+    <input id="simple-parameter" class="template" type="text" name="@prefix[@paramIndex].Value.Values[@index].ReferenceId" data-options="@options"/>
     <div id="response-types" class="template">
         <input type="radio" class="table-type" name="response-type" value="table" checked="checked" onclick="javascript:showResponseType(this)"/><label for="table">Table</label>
         <input type="radio" class="object-type" name="response-type" value="object" onclick="javascript:showResponseType(this)"/><label for="object">Object</label>

@@ -15,7 +15,7 @@ namespace Routine
 			return source
 					.FromEmpty()
 					.SerializeModelId.Done(s => s.SerializeBy(t => nullId).SerializeWhen(t => t == null)
-										.DeserializeBy(id => (TypeInfo)null).DeserializeWhen(id => id == nullId))
+												 .DeserializeBy(id => (TypeInfo)null).DeserializeWhen(id => id == nullId))
 
 					.ExtractId.Done(e => e.Always(nullId).WhenDefault())
 
@@ -36,7 +36,7 @@ namespace Routine
 					.ExtractId.Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
 
 					.Locate.Add(l => l.Directly().WhenTypeCanBe<string>())
-							.Done(l => l.By((t, id) => t.Parse(id)).WhenType(t => t.CanParse()))
+						   .Done(l => l.By((t, id) => t.Parse(id)).WhenType(t => t.CanParse()))
 
 					.SelectMembers.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
 					.SelectOperations.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
@@ -88,8 +88,9 @@ namespace Routine
 			return source
 				.FromEmpty()
 				.SelectModelMarks.Done(s => s.By(t => t.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
-				.SelectOperationMarks.Done(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.SelectInitializerMarks.Done(s => s.By(i => i.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
 				.SelectMemberMarks.Done(s => s.By(m => m.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.SelectOperationMarks.Done(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
 				.SelectParameterMarks.Done(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
 				;
 		}

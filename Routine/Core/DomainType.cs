@@ -15,6 +15,8 @@ namespace Routine.Core
 
 		public TypeInfo Type {get; private set;}
 
+		public DomainObjectInitializer Initializer { get; private set; }
+
 		public Dictionary<string, DomainMember> Member{ get; private set;}
 		public ICollection<DomainMember> Members {get{return Member.Values;}}
 
@@ -41,6 +43,36 @@ namespace Routine.Core
 			IsValueModel = ctx.CodingStyle.ModelIsValueExtractor.Extract(Type);
 			IsViewModel = ctx.CodingStyle.ModelIsViewExtractor.Extract(Type);
 
+			foreach (var initializer in ctx.CodingStyle.InitializerSelector.Select(Type))
+			{
+				try
+				{
+					if (Initializer == null)
+					{
+						Initializer = ctx.CreateDomainObjectInitializer(this, initializer);
+					}
+					else
+					{
+						Initializer.AddGroup(initializer);
+					}
+				}
+				catch (CannotSerializeDeserializeException ex)
+				{
+					Debug.WriteLine("Initializer is skipped. Message: " + ex.Message);
+					continue;
+				}
+				catch (InitializedTypeDoNotMatchException ex)
+				{
+					Debug.WriteLine("Initializer is skipped. Message: " + ex.Message);
+					continue;
+				}
+				catch (ParameterTypesDoNotMatchException ex)
+				{
+					Debug.WriteLine("Initializer is skipped. Message: " + ex.Message);
+					continue;
+				}
+			}
+
 			foreach(var member in ctx.CodingStyle.MemberSelector.Select(Type))
 			{
 				try
@@ -49,7 +81,7 @@ namespace Routine.Core
 				}
 				catch(CannotSerializeDeserializeException ex)
 				{
-					Debug.WriteLine(Type.Name + "." + member.Name + " member is skipped. Message:" + ex.Message);
+					Debug.WriteLine(Type.Name + "." + member.Name + " member is skipped. Message: " + ex.Message);
 					continue;
 				}
 			}
@@ -69,17 +101,17 @@ namespace Routine.Core
 				}
 				catch (CannotSerializeDeserializeException ex)
 				{
-					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
+					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message: " + ex.Message);
 					continue;
 				}
 				catch (ReturnTypesDoNotMatchException ex)
 				{
-					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
+					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message: " + ex.Message);
 					continue;
 				}
 				catch (ParameterTypesDoNotMatchException ex)
 				{
-					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message:" + ex.Message);
+					Debug.WriteLine(Type.Name + "." + operation.Name + " operation is skipped. Message: " + ex.Message);
 					continue;
 				}
 			}
@@ -101,6 +133,7 @@ namespace Routine.Core
 				Module = Module,
 				IsViewModel = IsViewModel,
 				IsValueModel = IsValueModel,
+				Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
 				Members = Members.Select(m => m.GetModel()).ToList(),
 				Operations = Operations.Select(o => o.GetModel()).ToList()
 			};
@@ -111,6 +144,16 @@ namespace Routine.Core
 			var result = ctx.CodingStyle.AvailableIdsExtractor.Extract(Type);
 
 			return result.Select(id => ctx.GetDomainObject(id, Id)).ToList();
+		}
+
+		public object Initialize(Dictionary<string, ParameterValueData> parameterValues)
+		{
+			if (Initializer == null)
+			{
+				throw new CannotLocateException(Type, parameterValues.ToKeyValueString());
+			}
+
+			return Initializer.Initialize(parameterValues);
 		}
 	}
 }

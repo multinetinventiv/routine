@@ -3,18 +3,19 @@ using Routine.Core.Reflection;
 
 namespace Routine.Core.DomainApi
 {
-	public class MethodParameter : IParameter
+	public class ParameterParameter : IParameter
 	{
-		private readonly IOperation operation;
+		private readonly IParametric owner;
 		private readonly ParameterInfo parameter;
 
-		public MethodParameter(IOperation operation, ParameterInfo parameter) 
+		public ParameterParameter(IParametric owner, ParameterInfo parameter) 
 		{
-			this.operation = operation;
+			this.owner = owner;
 			this.parameter = parameter;
 		}
 
-		public IOperation Operation { get { return operation; } }
+		public TypeInfo Type { get { return owner.Type; } }
+		public IParametric Owner { get { return owner; } }
 		public string Name { get{return parameter.Name;}}
 		public TypeInfo ParameterType {get{return parameter.ParameterType;}}
 		public int Index{get{return parameter.Position;}}

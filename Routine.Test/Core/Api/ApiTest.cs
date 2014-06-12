@@ -222,6 +222,105 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
+		public void Client_can_initialize_objects_via_Robject()
+		{
+			ModelsAre(
+				Model("sub_data_model")
+					.Initializer(PModel("param1")),
+				Model("data_model")
+					.Initializer(PModel("param1", "sub_data_model"), PModel("param2")),
+				Model("operational_model")
+					.Operation("data_input", PModel("data", "data_model"))
+			);
+
+			ObjectsAre(
+				Object(Id("id", "operational_model")),
+				Object(Id("id_sub_data_param1")),
+				Object(Id("id_data_param2")),
+				Object(Id("id_result"))
+			);
+
+			When(Id("id", "operational_model"))
+				.Performs("data_input", p =>
+					p["data"].Values[0].ObjectModelId == "data_model" &&
+					p["data"].Values[0].ReferenceId == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].ObjectModelId == "sub_data_model" &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == "id_sub_data_param1" &&
+					p["data"].Values[0].InitializationParameters["param2"].Values[0].ReferenceId == "id_data_param2")
+				.Returns(Result(Id("id_result")));
+
+			var testingRobject = Robj("id", "operational_model");
+
+			var result = testingRobject.Perform("data_input",
+				Rvar("data", 
+					Robj("data_model", 
+						Rvar("param1", 
+							Robj("sub_data_model",
+								Rvar("param1", Robj("id_sub_data_param1"))
+							)
+						),
+						Rvar("param2",
+							Robj("id_data_param2")
+						)
+					)
+				)
+			);
+
+			Assert.AreEqual("id_result", result.Object.Id);
+		}
+
+		[Test]
+		public void Initialized_robjects_throws_RobjectIsInitializedOnClientException_when_value_is_accessed()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.Throws<RobjectIsInitializedOnClientException>(() => { var val = robj.Value; }, "exception not thrown");
+		}
+
+		[Test]
+		public void Initialized_robjects_return_null_when_id_is_accessed()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.IsNull(robj.Id);
+		}
+
+		[Test]
+		public void Initialized_robjects_are_only_equal_to_themselves()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj1 = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			var robj2 = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.AreEqual(robj1, robj1);
+			Assert.AreNotEqual(robj1, robj2);
+		}
+
+		[Test]
 		public void Roperation_can_return_void_result()
 		{
 			ModelsAre(

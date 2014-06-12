@@ -15,15 +15,19 @@ namespace Routine.Core.Configuration
 		public MultipleSerializer<GenericCodingStyle, TypeInfo> SerializeModelId { get; private set;}
 
 		public MultipleSelector<GenericCodingStyle, TypeInfo, string> SelectModelMarks { get; private set; }
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, string> ExtractModelModule{ get; private set;}
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsValue{ get; private set;}
-		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsView{ get; private set;}
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, string> ExtractModelModule { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsValue { get; private set; }
+		public MultipleExtractor<GenericCodingStyle, TypeInfo, bool> ExtractModelIsView { get; private set; }
+
+		public MultipleSelector<GenericCodingStyle, TypeInfo, IInitializer> SelectInitializers { get; private set; }
+		public MultipleSelector<GenericCodingStyle, IInitializer, string> SelectInitializerMarks { get; private set; }
 
 		public MultipleSelector<GenericCodingStyle, TypeInfo, IMember> SelectMembers { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IMember, string> SelectMemberMarks { get; private set; }
 
 		public MultipleSelector<GenericCodingStyle, TypeInfo, IOperation> SelectOperations { get; private set; }
 		public MultipleSelector<GenericCodingStyle, IOperation, string> SelectOperationMarks { get; private set; }
+
 		public MultipleSelector<GenericCodingStyle, IParameter, string> SelectParameterMarks { get; private set; }
 
 		public MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>> ExtractAvailableIds { get; private set; }
@@ -43,11 +47,15 @@ namespace Routine.Core.Configuration
 			ExtractModelIsValue = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsValue");
 			ExtractModelIsView = new MultipleExtractor<GenericCodingStyle, TypeInfo, bool>(this, "ModelIsView");
 
+			SelectInitializers = new MultipleSelector<GenericCodingStyle, TypeInfo, IInitializer>(this);
+			SelectInitializerMarks = new MultipleSelector<GenericCodingStyle, IInitializer, string>(this);
+
 			SelectMembers = new MultipleSelector<GenericCodingStyle, TypeInfo, IMember>(this);
 			SelectMemberMarks = new MultipleSelector<GenericCodingStyle, IMember, string>(this);
 
 			SelectOperations = new MultipleSelector<GenericCodingStyle, TypeInfo, IOperation>(this);
 			SelectOperationMarks = new MultipleSelector<GenericCodingStyle, IOperation, string>(this);
+
 			SelectParameterMarks = new MultipleSelector<GenericCodingStyle, IParameter, string>(this);
 
 			ExtractAvailableIds = new MultipleExtractor<GenericCodingStyle, TypeInfo, List<string>>(this, "AvailableIds");
@@ -68,11 +76,15 @@ namespace Routine.Core.Configuration
 			ExtractModelIsValue.Merge(other.ExtractModelIsValue);
 			ExtractModelIsView.Merge(other.ExtractModelIsView);
 
+			SelectInitializers.Merge(other.SelectInitializers);
+			SelectInitializerMarks.Merge(other.SelectInitializerMarks);
+
 			SelectMembers.Merge(other.SelectMembers);
 			SelectMemberMarks.Merge(other.SelectMemberMarks);
 			
 			SelectOperations.Merge(other.SelectOperations);
 			SelectOperationMarks.Merge(other.SelectOperationMarks);
+
 			SelectParameterMarks.Merge(other.SelectParameterMarks);
 
 			ExtractAvailableIds.Merge(other.ExtractAvailableIds);
@@ -95,11 +107,15 @@ namespace Routine.Core.Configuration
 		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsValueExtractor { get { return ExtractModelIsValue; } }
 		IExtractor<TypeInfo, bool> ICodingStyle.ModelIsViewExtractor { get { return ExtractModelIsView; } }
 
+		ISelector<TypeInfo, IInitializer> ICodingStyle.InitializerSelector { get { return SelectInitializers; } }
+		ISelector<IInitializer, string> ICodingStyle.InitializerMarkSelector { get { return SelectInitializerMarks; } }
+
 		ISelector<TypeInfo, IMember> ICodingStyle.MemberSelector { get { return SelectMembers; } }
 		ISelector<IMember, string> ICodingStyle.MemberMarkSelector { get { return SelectMemberMarks; } }
 
 		ISelector<TypeInfo, IOperation> ICodingStyle.OperationSelector { get { return SelectOperations; } }
 		ISelector<IOperation, string> ICodingStyle.OperationMarkSelector { get { return SelectOperationMarks; } }
+
 		ISelector<IParameter, string> ICodingStyle.ParameterMarkSelector { get { return SelectParameterMarks; } }
 
 		IExtractor<TypeInfo, List<string>> ICodingStyle.AvailableIdsExtractor { get { return ExtractAvailableIds; } }

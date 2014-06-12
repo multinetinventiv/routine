@@ -165,6 +165,58 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Initializer_is_rendered_as_constructor()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+			);
+
+			var testing =
+				Generator(c => c
+					.Use(p => p.ShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern()));
+
+			var constructor = GenerateAndGetClientClass(testing, "TestClass")
+				.GetConstructors().Single(c => c.GetParameters().Any(p => p.ParameterType == typeof(string)));
+
+			Assert.AreEqual(2, constructor.GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructor.GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructor.GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructor.GetParameters()[1].Name);
+		}
+
+		[Test]
+		public void Initializer_groups_are_rendered_as_constructor_overloads()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+					.Initializer(PModel("name", "s-string",  0, 1), PModel("surname", "s-string", 1))
+			);
+
+			var testing =
+				Generator(c => c
+					.Use(p => p.ShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern()));
+
+			var constructors = GenerateAndGetClientClass(testing, "TestClass")
+				.GetConstructors().Where(c => c.GetParameters().Any(p => p.ParameterType == typeof(string))).ToList();
+
+			Assert.AreEqual(2, constructors.Count);
+
+			Assert.AreEqual(2, constructors[0].GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructors[0].GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructors[0].GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructors[0].GetParameters()[1].Name);
+
+			Assert.AreEqual(3, constructors[1].GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructors[1].GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructors[1].GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructors[1].GetParameters()[1].Name);
+			Assert.AreEqual(typeof(string), constructors[1].GetParameters()[2].ParameterType);
+			Assert.AreEqual("surname", constructors[1].GetParameters()[2].Name);
+		}
+
+		[Test]
 		public void Members_are_rendered_as_read_only_properties()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "s-string"));
@@ -902,6 +954,35 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Api_class_can_initialize_initializable_models()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+			);
+
+			var testing = Generator(c => c
+				.ApiNameIs("TestApi")
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern()));
+
+			var testApi = testing.GenerateClientApi();
+
+			var apiClass = testApi.GetTypes().Single(t => t.Name == "TestApi");
+			var testClass = testApi.GetTypes().Single(t => t.Name == "TestClass");
+
+			var initializationMethod = apiClass.GetMethod("NewTestClass");
+
+			Assert.IsNotNull(initializationMethod);
+			Assert.AreEqual(1, initializationMethod.GetParameters().Length);
+			Assert.AreEqual(typeof(string), initializationMethod.GetParameters()[0].ParameterType);
+			Assert.AreEqual("name", initializationMethod.GetParameters()[0].Name);
+
+			var apiObj = Activator.CreateInstance(apiClass, testingRapplication);
+
+			Assert.IsInstanceOf(testClass, initializationMethod.Invoke(apiObj, new object[] { "test" }));
+		}
+
+		[Test]
 		public void When_a_model_has_only_one_singleton_id__access_method_does_not_include_id_as_suffix()
 		{
 			ModelsAre(
@@ -973,10 +1054,10 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void When_api_class_is_generated__Robject_property_and_constructor_are_rendered_as_internal()
+		public void When_api_class_is_generated__Robject_property_and_constructors_are_rendered_as_internal()
 		{
 			ModelsAre(
-				Model("TestClass1").Name("TestClass1")
+				Model("TestClass1").Name("TestClass1").Initializer(PModel("name", "s-string"))
 			);
 
 			ObjectsAre(
@@ -985,6 +1066,8 @@ namespace Routine.Test.Api
 
 			var testing = Generator(c => c
 				.ApiNameIs("TestApi")
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())
 				.SelectSingletonId.Done(s => s
 					.Always("instance1")
 					.When(ocm => ocm.Id.EndsWith("Class1"))));

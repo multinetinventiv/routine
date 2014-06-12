@@ -153,22 +153,6 @@ namespace Routine
 			return source.When(o => o != null && whenDelegate(o.GetTypeInfo())); 
 		}
 
-		public static TConcrete When<TConcrete, TFrom1, TFrom2, TResult>(
-			this BaseOptionalExtractor<TConcrete, Tuple<TFrom1, TFrom2>, TResult> source,
-			Func<TFrom1, TFrom2, bool> whenDelegate)
-			where TConcrete : BaseOptionalExtractor<TConcrete, Tuple<TFrom1, TFrom2>, TResult>
-		{
-			return source.When(o => whenDelegate(o.Item1, o.Item2));
-		}
-
-		public static TConcrete When<TConcrete, TFrom1, TFrom2, TFrom3, TResult>(
-			this BaseOptionalExtractor<TConcrete, Tuple<TFrom1, TFrom2, TFrom3>, TResult> source,
-			Func<TFrom1, TFrom2, TFrom3, bool> whenDelegate)
-			where TConcrete : BaseOptionalExtractor<TConcrete, Tuple<TFrom1, TFrom2, TFrom3>, TResult>
-		{
-			return source.When(o => whenDelegate(o.Item1, o.Item2, o.Item3));
-		}
-
 		#endregion
 
 		#region Locator
@@ -205,6 +189,21 @@ namespace Routine
 			return source.Done(selectorDelegate(BuildRoutine.Selector<TFrom, TItem>()));
 		}
 
+		public static DelegateSelector<TypeInfo, IInitializer> ByConstructors(this SelectorBuilder<TypeInfo, IInitializer> source) { return source.ByConstructors(c => true); }
+		public static DelegateSelector<TypeInfo, IInitializer> ByConstructors(this SelectorBuilder<TypeInfo, IInitializer> source, Func<ConstructorInfo, bool> constructorFilter)
+		{
+			return source.By(t => t.GetAllConstructors()
+								   .Where(constructorFilter)
+								   .Select(c => c.ToInitializer()));
+		}
+
+		public static DelegateSelector<TypeInfo, IInitializer> ByPublicConstructors(this SelectorBuilder<TypeInfo, IInitializer> source) { return source.ByPublicConstructors(c => true); }
+		public static DelegateSelector<TypeInfo, IInitializer> ByPublicConstructors(this SelectorBuilder<TypeInfo, IInitializer> source, Func<ConstructorInfo, bool> constructorFilter)
+		{
+			return source.By(t => t.GetPublicConstructors()
+								   .Where(constructorFilter)
+								   .Select(c => c.ToInitializer()));
+		}
 
 		public static DelegateSelector<TypeInfo, IMember> ByProperties(this SelectorBuilder<TypeInfo, IMember> source, Func<PropertyInfo, bool> propertyFilter)
 		{

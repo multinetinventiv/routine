@@ -96,6 +96,16 @@ namespace Routine.Test.Core.Api
 			public ObjectModelBuilder Name(string name) { result.Name = name; return this; }
 			public ObjectModelBuilder Module(string module) { result.Module = module; return this; }
 
+			public ObjectModelBuilder Initializer(params ParameterModel[] parameters)
+			{
+				result.Initializer = new InitializerModel {
+					Parameters = parameters.ToList(),
+					GroupCount = parameters.Any() ? parameters.Max(p => p.Groups.Max()) + 1 : 1
+				};
+
+				return this;
+			}
+
 			public ObjectModelBuilder Member(string memberId) { return Member(memberId, defaultObjectModelId); }
 			public ObjectModelBuilder Member(string memberId, string viewModelId) { return Member(memberId, viewModelId, false); }
 			public ObjectModelBuilder Member(string memberId, string viewModelId, bool isList)
@@ -344,6 +354,11 @@ namespace Routine.Test.Core.Api
 		protected Robject Robj(string id, string actualModelId, string viewModelId)
 		{
 			return testingRapplication.Get(id, actualModelId, viewModelId);
+		}
+
+		protected Robject Robj(string modelId, params Rvariable[] initializationParameters)
+		{
+			return testingRapplication.Init(modelId, initializationParameters);
 		}
 
 		protected Rvariable Rvar(string name, Robject value)

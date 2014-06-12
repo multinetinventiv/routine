@@ -113,6 +113,20 @@ namespace Routine.Api
 
 		public List<string> SingletonIds { get { return ApiGenConfig.SingletonIdSelector.Select(this); } }
 
+		public bool CanInitialize { get { return model.Initializer.GroupCount > 0; } }
+		public InitializerCodeModel Initializer
+		{
+			get
+			{
+				if (!CanInitialize)
+				{
+					return null;
+				}
+
+				return CreateInitializer().With(model.Initializer);
+			}
+		}
+
 		public List<MemberCodeModel> Members 
 		{ 
 			get 

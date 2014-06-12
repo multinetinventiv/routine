@@ -64,6 +64,7 @@ namespace Routine.Core.Api
 			return NewVarList(name, list.Select(o => Get(o, idExtractor, modelId)));
 		}
 
+		public Rvariable NewVarList(string name, params Robject[] list) { return NewVarList(name, list.AsEnumerable()); }
 		public Rvariable NewVarList(string name, IEnumerable<Robject> list)
 		{
 			return context.CreateRvariable().WithList(name, list);
@@ -88,6 +89,11 @@ namespace Routine.Core.Api
 		public Robject Get(string id, string actualModelId, string viewModelId)
 		{
 			return context.CreateRobject().With(id, actualModelId, viewModelId);
+		}
+
+		public Robject Init(string modelId, params Rvariable[] initializationParameters)
+		{
+			return context.CreateRobject().With(modelId, initializationParameters);
 		}
 
 		public List<Robject> GetAvailableObjects(string modelId)

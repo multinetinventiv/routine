@@ -163,7 +163,6 @@ namespace Routine.Core
 		public bool IsNull { get; set; }
 		public string ObjectModelId { get; set; }
 		public string ReferenceId { get; set; }
-		public string InitializationModelId { get; set; }
 		public Dictionary<string, ParameterValueData> InitializationParameters { get; set; }
 
 		public ParameterData() { InitializationParameters = new Dictionary<string, ParameterValueData>(); }
@@ -172,7 +171,8 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterData: ObjectModelId={0}, ReferenceId={1}, IsNull={2}, InitializationModelId={3}, InitializationParameters={4}]", ObjectModelId, ReferenceId, IsNull, InitializationModelId, InitializationParameters.ToKeyValueString());
+			return string.Format("[ParameterData: ObjectModelId={0}, ReferenceId={1}, IsNull={2}, InitializationParameters={3}]", 
+												  ObjectModelId, ReferenceId, IsNull, InitializationParameters.ToKeyValueString());
 		}
 
 		public override bool Equals(object obj)
@@ -185,7 +185,7 @@ namespace Routine.Core
 				return false;
 			ParameterData other = (ParameterData)obj;
 			return (IsNull && other.IsNull) ||
-					(!IsNull && !other.IsNull && ObjectModelId == other.ObjectModelId && ReferenceId == other.ReferenceId && InitializationModelId == other.InitializationModelId && InitializationParameters.KeyValueEquals(other.InitializationParameters));
+					(!IsNull && !other.IsNull && ObjectModelId == other.ObjectModelId && ReferenceId == other.ReferenceId && InitializationParameters.KeyValueEquals(other.InitializationParameters));
 		}
 
 		public override int GetHashCode()
@@ -194,7 +194,7 @@ namespace Routine.Core
 			{
 				if (IsNull) { return IsNull.GetHashCode(); }
 
-				return (ObjectModelId != null ? ObjectModelId.GetHashCode() : 0) ^ (ReferenceId != null ? ReferenceId.GetHashCode() : 0) ^ (InitializationModelId != null ? InitializationModelId.GetHashCode() : 0) ^ (InitializationParameters != null ? InitializationParameters.GetKeyValueHashCode() : 0);
+				return (ObjectModelId != null ? ObjectModelId.GetHashCode() : 0) ^ (ReferenceId != null ? ReferenceId.GetHashCode() : 0) ^ (InitializationParameters != null ? InitializationParameters.GetKeyValueHashCode() : 0);
 			}
 		}
 

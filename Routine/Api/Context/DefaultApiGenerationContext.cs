@@ -16,6 +16,11 @@
 			return new ObjectCodeModel(this);
 		}
 
+		public InitializerCodeModel CreateInitializer()
+		{
+			return new InitializerCodeModel(this);
+		}
+
 		public MemberCodeModel CreateMember()
 		{
 			return new MemberCodeModel(this);

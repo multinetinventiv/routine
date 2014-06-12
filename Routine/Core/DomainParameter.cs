@@ -7,8 +7,6 @@ namespace Routine.Core
 {
 	public class DomainParameter
 	{
-		private static ObjectReferenceData ORD(ParameterData pd) { return new ObjectReferenceData { Id = pd.ReferenceId, ActualModelId = pd.ObjectModelId, ViewModelId = pd.ObjectModelId, IsNull = pd.IsNull }; }
-
 		private readonly ICoreContext ctx;
 
 		public DomainParameter(ICoreContext ctx)
@@ -16,7 +14,6 @@ namespace Routine.Core
 			this.ctx = ctx;
 		}
 
-		private DomainOperation domainOperation;
 		private TypeInfo type;
 
 		public string Id { get; private set; }
@@ -26,9 +23,8 @@ namespace Routine.Core
 
 		private bool IsList { get { return type.CanBeCollection(); } }
 
-		public DomainParameter For(DomainOperation domainOperation, IParameter parameter, int initialGroupIndex)
+		public DomainParameter For(IParameter parameter, int initialGroupIndex)
 		{
-			this.domainOperation = domainOperation;
 			this.type = parameter.ParameterType;
 
 			Groups = new List<int>();
@@ -77,7 +73,7 @@ namespace Routine.Core
 					for (int i = 0; i<parameterValueData.Values.Count; i++)
 					{
 						var parameterData = parameterValueData.Values[i];
-						parameterValue.SetValue(ctx.Locate(ORD(parameterData)), i);
+						parameterValue.SetValue(ctx.Locate(parameterData), i);
 					}
 					return parameterValue;
 				}
@@ -86,14 +82,14 @@ namespace Routine.Core
 					var parameterValue = type.CreateInstance() as IList;
 					foreach (var parameterData in parameterValueData.Values)
 					{
-						parameterValue.Add(ctx.Locate(ORD(parameterData)));
+						parameterValue.Add(ctx.Locate(parameterData));
 					}
 					return parameterValue;
 				}
 			}
 			else if (parameterValueData.Values.Any())
 			{
-				return ctx.Locate(ORD(parameterValueData.Values[0]));
+				return ctx.Locate(parameterValueData.Values[0]);
 			}
 
 			return null;

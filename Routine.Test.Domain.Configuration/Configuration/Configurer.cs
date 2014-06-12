@@ -156,6 +156,8 @@ namespace Routine.Test.Domain.Configuration
 
 						.ExtractModelModule.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
 												  .When(t => t.IsDomainType))
+
+						.SelectInitializers.Done(i => i.ByPublicConstructors().When(t => t.IsValueType && t.IsDomainType))
 						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>() && !p.Returns<TypedGuid>() && !p.ReturnsCollection())
 												  .When(t => t.IsDomainType))
 

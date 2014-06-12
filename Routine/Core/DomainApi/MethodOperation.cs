@@ -17,7 +17,7 @@ namespace Routine.Core.DomainApi
 		public string Name{ get { return method.Name;}}
 		public TypeInfo ReturnType { get { return method.ReturnType;}}
 
-		public List<IParameter> Parameters { get { return method.GetParameters().Select(p => new MethodParameter(this, p) as IParameter).ToList();}}
+		public List<IParameter> Parameters { get { return method.GetParameters().Select(p => new ParameterParameter(this, p) as IParameter).ToList();}}
 
 		public object PerformOn(object target, params object[] parameters) 
 		{

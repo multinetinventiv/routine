@@ -64,7 +64,7 @@ namespace Routine.Test.Module.ProjectManagement
 		//}
 
 		//TODO: input data sample
-		private List<Project> CreateProjects(DateTime defaultDeadline, List<NewProject> projects)
+		public List<Project> CreateProjects(DateTime defaultDeadline, List<NewProject> projects)
 		{
 			var op = new CreateProjectsOperation(ctx);
 

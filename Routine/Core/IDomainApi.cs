@@ -2,33 +2,43 @@ using System.Collections.Generic;
 
 namespace Routine.Core
 {
-	public interface IObjectItem
+	public interface ITypeComponent
 	{
 		string Name { get; }
+		TypeInfo Type { get; }
 		object[] GetCustomAttributes();
 	}
 
-	public interface IReturnItem : IObjectItem
+	public interface IReturnable : ITypeComponent
 	{
-		TypeInfo Type { get; }
 		TypeInfo ReturnType { get; }
 	}
-	
-	public interface IMember : IReturnItem
+
+	public interface IParametric : ITypeComponent
+	{
+		List<IParameter> Parameters { get; }
+	}
+
+	public interface IInitializer : IParametric
+	{
+		TypeInfo InitializedType { get; }
+
+		object Initialize(params object[] parameters);
+	}
+
+	public interface IMember : IReturnable
 	{
 		object FetchFrom(object target);
 	}
-	
-	public interface IOperation : IReturnItem
-	{
-		List<IParameter> Parameters { get; }
 
+	public interface IOperation : IReturnable, IParametric
+	{
 		object PerformOn(object target, params object[] parameters);
 	}
 
-	public interface IParameter : IObjectItem
+	public interface IParameter : ITypeComponent
 	{
-		IOperation Operation { get; }
+		IParametric Owner { get; }
 		int Index { get; }
 		TypeInfo ParameterType { get; }
 	}

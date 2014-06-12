@@ -10,12 +10,9 @@ namespace Routine.Core.Api
 		#region Data Adapter Methods
 
 		private static ObjectReferenceData ORD(string id, string amid, string vmid) { return new ObjectReferenceData { Id = id, ActualModelId = amid, ViewModelId = vmid }; }
-		private static ObjectReferenceData ORD(ParameterData pd) { return new ObjectReferenceData { Id = pd.ReferenceId, ActualModelId = pd.ObjectModelId, ViewModelId = pd.ObjectModelId, IsNull = pd.IsNull }; }
 
 		private static ObjectData OD(ObjectReferenceData ord) { return OD(ord, null); }
 		private static ObjectData OD(ObjectReferenceData ord, string value) { return new ObjectData { Reference = ord, Value = value }; }
-
-		private static ParameterData PD(ObjectReferenceData ord) { return new ParameterData { ReferenceId = ord.Id, ObjectModelId = ord.ActualModelId, IsNull = ord.IsNull }; }
 
 		#endregion
 
@@ -29,34 +26,30 @@ namespace Routine.Core.Api
 		private ObjectReferenceData objectReferenceData;
 		private string value;
 		private ObjectModel model;
+		private List<Rvariable> initializationParameters;
 		private Dictionary<string, Rmember> members;
 		private Dictionary<string, Roperation> operations;
 
-		private string initializationModelId;
-		private Dictionary<string, Rvariable> initializationParameters;
-
 		public Robject Null(){return With(new ObjectReferenceData{IsNull = true});}
+
+		public Robject With(string modelId, Rvariable[] initializationParameters) { return With(OD(ORD(null, modelId, modelId)), initializationParameters.ToList());}
 		public Robject With(string id, string modelId) { return With(id, modelId, modelId); }
 		public Robject With(string id, string actualModelId, string viewModelId) { return With(ORD(id, actualModelId, viewModelId)); }
 		internal Robject With(ObjectReferenceData objectReferenceData) { return With(OD(objectReferenceData)); }
 		internal Robject With(ObjectReferenceData objectReferenceData, string value) { return With(OD(objectReferenceData, value)); }
-		internal Robject With(ObjectData objectData) { return With(objectData, PD(objectData.Reference)); }
-		internal Robject With(ParameterData parameterData) { return With(OD(ORD(parameterData)), parameterData); }
-		internal Robject With(ObjectData objectData, ParameterData parameterData)
+		internal Robject With(ObjectData objectData) { return With(objectData, new List<Rvariable>()); }
+		private Robject With(ObjectData objectData, List<Rvariable> initializationParameters)
 		{
 			this.objectReferenceData = objectData.Reference;
+			this.initializationParameters = initializationParameters;
 			this.members = new Dictionary<string, Rmember>();
 			this.operations = new Dictionary<string, Roperation>();
-
-			this.initializationModelId = parameterData.InitializationModelId;
-			this.initializationParameters = new Dictionary<string, Rvariable>();
 
 			if(!IsNull)
 			{
 				this.model = Application.ObjectModel[objectReferenceData.ViewModelId];
 
 				FillObject(objectData);
-				//FillInitialization(parameterData);
 			}
 			
 			return this;
@@ -92,11 +85,6 @@ namespace Routine.Core.Api
 			}
 		}
 
-		private void FillInitialization(ParameterData data)
-		{
-			throw new NotImplementedException();
-		}
-
 		private void FetchValueIfNecessary()
 		{
 			if(value != null) {return;}
@@ -113,6 +101,11 @@ namespace Routine.Core.Api
 				return;
 			}
 
+			if (IsInitializedOnClient)
+			{
+				throw new RobjectIsInitializedOnClientException();
+			}
+
 			value = context.ObjectService.GetValue(objectReferenceData);
 		}
 
@@ -125,22 +118,38 @@ namespace Routine.Core.Api
 		}
 
 		private bool ModelIsLoaded { get { return members.Any() || operations.Any(); } }
-		internal ObjectReferenceData ObjectReferenceData {get{return objectReferenceData;}}
-		internal ParameterData ParameterData { get { return PD(ObjectReferenceData); } }
+		internal ObjectReferenceData ObjectReferenceData { get { return objectReferenceData; } }
+		
+		internal ParameterData GetParameterData()
+		{ 
+			var result = new ParameterData  {
+				IsNull = IsNull,
+				ObjectModelId = objectReferenceData.ActualModelId,
+				ReferenceId = objectReferenceData.Id
+			};
 
-		public Rapplication Application{get{return context.Rapplication;}}
-		public string ActualModelId{get{return objectReferenceData.ActualModelId;}}
-		public string ViewModelId{get{return objectReferenceData.ViewModelId;}}
-		public string Id {get{return objectReferenceData.Id;}}
-		public bool IsNull {get{return objectReferenceData.IsNull;}}
-		public bool IsNaked {get{return ActualModelId == ViewModelId;}}
-		public bool IsDomain {get{return !model.IsValueModel;}}
-		public string Module{get{return model.Module;}}
+			foreach (var initializationParameter in initializationParameters)
+			{
+				result.InitializationParameters.Add(initializationParameter.Name, initializationParameter.GetParameterValueData());
+			}
 
-		public string Value {get{FetchValueIfNecessary(); return value;}}
-		public List<Rmember> Members{get{LoadMembersAndOperationsIfNecessary(); return members.Values.ToList();}}
+			return result;
+		}
+
+		public Rapplication Application { get { return context.Rapplication; } }
+		public string ActualModelId { get { return objectReferenceData.ActualModelId; } }
+		public string ViewModelId { get { return objectReferenceData.ViewModelId; } }
+		public string Id { get { return objectReferenceData.Id; } }
+		public bool IsNull { get { return objectReferenceData.IsNull; } }
+		public bool IsNaked { get { return ActualModelId == ViewModelId; } }
+		public bool IsInitializedOnClient { get { return string.IsNullOrEmpty(objectReferenceData.Id); } }
+		public bool IsDomain { get { return !model.IsValueModel; } }
+		public string Module { get { return model.Module; } }
+
+		public string Value { get { FetchValueIfNecessary(); return value; } }
+		public List<Rmember> Members { get { LoadMembersAndOperationsIfNecessary(); return members.Values.ToList(); } }
 		public Rmember this[string memberModelId] { get { LoadMembersAndOperationsIfNecessary(); return members[memberModelId]; } }
-		public List<Roperation> Operations{get{LoadMembersAndOperationsIfNecessary(); return operations.Values.ToList();}}
+		public List<Roperation> Operations { get { LoadMembersAndOperationsIfNecessary(); return operations.Values.ToList(); } }
 
 		public bool MarkedAs(string mark)
 		{
@@ -187,6 +196,11 @@ namespace Routine.Core.Api
 				return false;
 
 			var robj = (Robject)obj;
+			if (IsInitializedOnClient || robj.IsInitializedOnClient)
+			{
+				return false;
+			}
+
 			return objectReferenceData.Equals(robj.objectReferenceData);
 		}
 

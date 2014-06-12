@@ -131,23 +131,36 @@ namespace Routine.Soa
 			
 			paramList.Add(Param("operationModelId", operationModelId));
 
+			AddParams(paramList, "parameterValues", parameterValues);
+
+			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
+		}
+
+		private void AddParams(List<RestParameter> paramList, string name, Dictionary<string, ParameterValueData> parameterValues)
+		{
 			int i = 0;
 			foreach (var key in parameterValues.Keys)
 			{
-				paramList.Add(Param("parameterValues[" + i + "].Key", key));
-				paramList.Add(Param("parameterValues[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
+				paramList.Add(Param(name + "[" + i + "].Key", key));
+				paramList.Add(Param(name + "[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
 
 				for (int j = 0; j < parameterValues[key].Values.Count; j++)
 				{
-					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].ReferenceId", parameterValues[key].Values[j].ReferenceId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].ObjectModelId", parameterValues[key].Values[j].ObjectModelId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.Values[" + j + "].IsNull", parameterValues[key].Values[j].IsNull.ToString()));
+					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ObjectModelId", parameterValues[key].Values[j].ObjectModelId));
+					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].IsNull", parameterValues[key].Values[j].IsNull.ToString()));
+
+					if (!string.IsNullOrEmpty(parameterValues[key].Values[j].ReferenceId))
+					{
+						paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ReferenceId", parameterValues[key].Values[j].ReferenceId));
+					}
+					else
+					{
+						AddParams(paramList, name + "[" + i + "].Value.Values[" + j + "].InitializationParameters", parameterValues[key].Values[j].InitializationParameters);
+					}
 				}
 
 				i++;
 			}
-
-			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
 		}
 	}
 }

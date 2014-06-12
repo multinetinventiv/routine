@@ -55,8 +55,10 @@ namespace Routine.Api
 					errors.AppendFormat("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
 				}
 				Console.WriteLine("Generated Source Code: \n\n" + sourceCode);
-				throw new Exception(errors.ToString());
+
+				throw new Exception(errors.ToString() + "\n\n Generated source code: \n\n" + sourceCode);
 			}
+			Console.WriteLine(sourceCode);
 
 			return results.CompiledAssembly;
 		}
