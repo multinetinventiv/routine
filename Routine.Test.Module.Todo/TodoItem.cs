@@ -130,19 +130,19 @@ namespace Routine.Test.Module.Todo
 		#endregion
 	}
 
-	public class TodoItems : Query<TodoItem>
+	public class TodoItems : Query<TodoItem>, ITodoItems
 	{
 		public TodoItems(IDomainContext context)
 			: base(context) {}
 
-		public List<TodoItem> DoneItems() 
+		internal List<TodoItem> DoneItems() 
 		{ 
 			return By(i => i.Done)
 					.OrderBy(i => i.DueDate)
 					.ToList();
 		}
 
-		public List<TodoItem> UndoneItems()
+		internal List<TodoItem> UndoneItems()
 		{
 			return By(i => !i.Done)
 					.OrderBy(i => i.DueDate)
@@ -160,6 +160,15 @@ namespace Routine.Test.Module.Todo
 
 			return By(i => assignees.Contains(i.AssigneeUid));
 		}
+
+		#region ITodoItems implementation
+
+		List<ITodoItem> ITodoItems.All()
+		{
+			return base.All().Cast<ITodoItem>().ToList();
+		}
+
+		#endregion
 	}
 }
 

@@ -29,7 +29,6 @@ namespace Routine.Mvc
 		IExtractor<ObjectViewModel, string> PerformRouteNameExtractor{get;}
 
 		IExtractor<ObjectViewModel, Func<OperationViewModel, int>> OperationOrderExtractor{get;}
-		ISelector<ObjectViewModel, Func<OperationViewModel, bool>> OperationGroupSelector{get;}
 
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> MemberOrderExtractor{get;}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> SimpleMemberOrderExtractor{get;}

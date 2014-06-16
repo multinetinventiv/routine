@@ -14,8 +14,9 @@ namespace Routine.Mvc
 			this.context = context; 
 		}
 
-		protected ActionResult ListPage(VariableViewModel vvm) { View("ListPage", vvm).ExecuteResult(ControllerContext); return new EmptyResult(); }
+		protected void RenderListPage(VariableViewModel vvm) { View("ListPage", vvm).ExecuteResult(ControllerContext); }
 		protected ActionResult Page(ObjectViewModel ovm) { View("Page", ovm).ExecuteResult(ControllerContext); return new EmptyResult(); }
+		protected ActionResult ModalPage(ObjectViewModel ovm) { View("ModalPage", ovm).ExecuteResult(ControllerContext); return new EmptyResult(); }
 
 		protected ActionResult RedirectToPage(ObjectViewModel ovm) { return RedirectToRoute(ovm.ViewRouteName, ovm.RouteValues); }
 
@@ -33,7 +34,17 @@ namespace Routine.Mvc
 		{
 			var result = context.MvcConfiguration.PerformInterceptor.Intercept(
 					context.CreatePerformInterceptionContext(target, operationModelId, parameters), 
-					() => target.Perform(operationModelId, parameters)) as VariableViewModel;
+				() => 
+				{
+					var innerResult = target.Perform(operationModelId, parameters);
+
+					if(innerResult.IsList)
+					{
+						RenderListPage(innerResult);
+					}
+
+					return innerResult;
+				}) as VariableViewModel;
 
 			if(result.IsVoid)
 			{
@@ -42,7 +53,7 @@ namespace Routine.Mvc
 
 			if(result.IsList)
 			{
-				return ListPage(result);
+				return new EmptyResult();
 			}
 
 			return RedirectToPage(result.Object);
@@ -52,22 +63,36 @@ namespace Routine.Mvc
 		{
 			return context.MvcConfiguration.GetInterceptor.Intercept(
 				context.CreateGetInterceptionContext(id, modelId),
-				() => Page(context.Application.Get(id, modelId))) as ActionResult;
+				() => 
+				{
+					var ovm = context.Application.Get(id, modelId);
+
+					if(Request["modal"] == "true")
+					{
+						return ModalPage(ovm);
+					}
+
+					return Page(ovm);
+				}
+			) as ActionResult;
 		}
 
 		public ActionResult GetAs(string id, string actualModelId, string viewModelId)
 		{
 			return context.MvcConfiguration.GetAsInterceptor.Intercept(
 				context.CreateGetAsInterceptionContext(id, actualModelId, viewModelId),
-				() => Page(context.Application.Get(id, actualModelId, viewModelId))) as ActionResult;
-		}
+				() => 
+				{
+					var ovm = context.Application.Get(id, actualModelId, viewModelId);
+					
+					if(Request.QueryString["modal"] == "true")
+					{
+						return ModalPage(ovm);
+					}
 
-		//TODO JSON actions
-		//do	--> client redirects if there is a single non-value type object
-		//		--> client refreshes object state and shows popup (or something else) when result is list or value type
-		//		--> client refreshes object state if result is void
-		//get member
-		//get member as table
-		//keep track of the user navigation so that it can be shown as like breadcrumb
+					return Page(ovm);
+				}
+			) as ActionResult;
+		}
     }
 }

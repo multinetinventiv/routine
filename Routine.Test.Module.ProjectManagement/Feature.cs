@@ -44,7 +44,7 @@ namespace Routine.Test.Module.ProjectManagement
 		}
 	}
 
-	public class Features : Query<Feature>
+	public class Features : Query<Feature>, IFeatures
 	{
 		public Features(IDomainContext ctx) : base(ctx) { }
 
@@ -52,5 +52,11 @@ namespace Routine.Test.Module.ProjectManagement
 		{
 			return By(f => f.ProjectUid == project.Uid);
 		}
+
+		#region IFeatures implementation
+
+		List<IFeature> IFeatures.ByProject(IProject project){return ByProject((Project)project).Cast<IFeature>().ToList();}
+
+		#endregion
 	}
 }

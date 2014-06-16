@@ -20,4 +20,9 @@ namespace Routine.Test.Module.Todo.Api
 		DateTime DueDate { get; }
 		TodoItemPriority Priority { get; }
 	}
+
+	public interface ITodoItems
+	{
+		List<ITodoItem> All();
+	}
 }

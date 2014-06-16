@@ -88,7 +88,7 @@ namespace Routine.Mvc
 			}
 		}
 
-		private List<OperationViewModel> Operations
+		public List<OperationViewModel> Operations
 		{
 			get
 			{
@@ -96,46 +96,6 @@ namespace Routine.Mvc
 						.Select(op => CreateOperation().With(op))
 						.OrderBy(MvcConfig.OperationOrderExtractor.Extract(this))
 						.ToList();
-			}
-		}
-
-		public List<OperationViewModel> OperationMenu
-		{
-			get
-			{				
-				var result = new List<OperationViewModel>();
-
-				var operations = Operations;
-
-				var groups = MvcConfig.OperationGroupSelector.Select(this);
-
-				foreach(var group in groups)
-				{
-					var groupOperations = operations.Where(group);
-
-					if(groupOperations.Any())
-					{
-						if(result.Any())
-						{
-							result.Add(CreateOperation().Separator());
-						}
-						
-						result.AddRange(groupOperations);
-						operations = operations.Except(groupOperations).ToList();
-					}
-				}
-
-				if(operations.Any())
-				{
-					if(result.Any())
-					{
-						result.Insert(0, CreateOperation().Separator());
-					}
-
-					result.InsertRange(0, operations);
-				}
-
-				return result;
 			}
 		}
 
@@ -148,6 +108,8 @@ namespace Routine.Mvc
 						.ToList();
 			}
 		}
+
+		public ParameterViewModel.OptionViewModel Option{ get { return new ParameterViewModel.OptionViewModel(robj); } }
 
 		public bool MarkedAs(string mark)
 		{
@@ -189,6 +151,7 @@ namespace Routine.Mvc
 	{
 		public static string Route(this UrlHelper source, ObjectViewModel model)
 		{
+			if(model == null) {return null;}
 			return source.RouteUrl(model.ViewRouteName, model.RouteValues);
 		}
 	}

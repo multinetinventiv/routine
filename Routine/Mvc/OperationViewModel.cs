@@ -11,19 +11,11 @@ namespace Routine.Mvc
         public OperationViewModel(IMvcContext mvcContext)
 			: base(mvcContext) {}
 
-		private bool separator;
 		private Roperation rop;
 
 		internal OperationViewModel With(Roperation rop)
 		{
 			this.rop = rop;
-
-			return this;
-		}
-
-		internal OperationViewModel Separator()
-		{
-			this.separator = true;
 
 			return this;
 		}
@@ -34,7 +26,6 @@ namespace Routine.Mvc
 		public string Text{get{return MvcConfig.DisplayNameExtractor.Extract(rop.Id);}}
 		public bool HasParameter{get{return rop.Parameters.Any();}}
 		public bool ReturnsList{get{return rop.ResultIsList;}}
-		public bool IsSeparator{get{return separator;}}
 
 		public List<ParameterViewModel> Parameters
 		{
@@ -53,6 +44,11 @@ namespace Routine.Mvc
 				result.Add("operationModelId", rop.Id);
 				return result;
 			}
+		}
+
+		public bool MarkedAs(string mark)
+		{
+			return rop.MarkedAs(mark);
 		}
 
 		public override bool Equals(object obj)

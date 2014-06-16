@@ -153,6 +153,7 @@ namespace Routine.Test.Domain.Configuration
 
 						.SelectModelMarks.Done(s => s.Always("Module").When(t => container.TypeIsSingleton(t) && t.FullName.EndsWith("Module")))
 						.SelectModelMarks.Done(s => s.Always("Search").When(t => t.CanBe<IQuery>()))
+						.SelectOperationMarks.Done(s => s.Always("ParamOptions").When(o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*")))
 
 						.ExtractModelModule.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
 												  .When(t => t.IsDomainType))
@@ -235,15 +236,15 @@ namespace Routine.Test.Domain.Configuration
 							.Add(e => e.Always("Search").When(vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).MarkedAs("Search")))
 							.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
 
-						.SelectOperationGroupFunctions.Done(s => s.Always(o => !o.HasParameter))
-
 						.ExtractParameterDefault.Done(e => e.ByConverting(p => p.Operation.Object[p.Id.ToUpperInitial()].GetValue())
 													 .When(p => p.Operation.Id.Matches("Update.*") && p.Operation.Object.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
-						.SelectOperationGroupFunctions.Done(s => s.Always(o => o.Text.Matches("Update.*")))
 
 						.ExtractParameterOptions
+							.Add(e => e.ByConverting(p => p.Operation.Object.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id).List)
+									   .When(p => p.Operation.Object.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id && 
+																						 o.ResultIsList && !o.Parameters.Any())))
 							.Add(e => e.ByConverting(p => p.Operation.Object.Application.Get("Instance", p.ViewModelId + "s").Perform("All").List)
-									   .When(p => p.Operation.Object.Application.ObjectModels.Any(m => m.Id == p.ViewModelId + "s")))
+									   .When(p => p.Operation.Object.Application.ObjectModels.Any(m => m.Id == p.ViewModelId + "s" && m.Operations.Any(o => o.Id == "All"))))
 							.Done(e => e.ByConverting(p => p.Operation.Object.Application.GetAvailableObjects(p.ViewModelId)))
 
 						.ExtractDisplayName.Done(e => e.ByConverting(s => s.SplitCamelCase().ToUpperInitial()))

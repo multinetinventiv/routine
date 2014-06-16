@@ -30,7 +30,9 @@ legend{font-size:90%; text-align:left; padding:1px;margin:0px;}
 dl {width:100%;overflow:hidden;}
 dt {float:left;width:45%;font-weight:normal;color:#8a8a8a;text-align:left;padding-right:3px;margin-bottom:5px;}
 dd {float:left;width:45%;margin-bottom:10px;}
-input[type=text]{height:20px;width:129px;border:1px solid #DDDDDD;}
+input[type=text], textarea{height:20px;width:129px;border:1px solid #DDDDDD;}
+form.operation-form fieldset input[type=button].modal-search{width:131px;height:20px;font-size:11px;}
+textarea{height:80px;}
 select{width:131px;}
 
 fieldset,fieldset.collapsible{padding:10px;border:1px solid black;border-bottom-width:1px;border-left-width:1px;border-right-width:1px;padding-right:0px;}
@@ -74,9 +76,10 @@ span.member-value-data{}
 span.operation-separator{display:inline;float:left;margin-right:5px;margin-top:5px;}
 div.operation-tabs{margin-bottom:10px;}
 div.confirm{padding:5px;font-size:13px;}
-.context-menu .operation-form .jqx-fill-state-normal,.context-menu .operation-form .jqx-fill-state-hover{border:0px;background-color:inherit;}
-.context-menu .operation-form .jqx-button{padding:0px;}
-.context-menu{display:none;position:absolute;}
+.context-menu .jqx-fill-state-normal,.context-menu .jqx-fill-state-hover{border:0px;background-color:inherit;}
+.context-menu .jqx-button{padding:0px;}
+.context-menu{display:none;position:fixed;}
+b input[type=button]{font-weight:bold;}
 
 .menu{height:53px;}
 .menu .parent{float:left;padding-right:4px;}

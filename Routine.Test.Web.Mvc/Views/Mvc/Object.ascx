@@ -6,11 +6,11 @@
 	<% if(model.HasOperation) { %>
 		<div class="operation-tabs<%= model.HasSimpleMember || model.HasTableMember?" collapsible-tabs":"" %>">
 			<ul>
-				<% foreach(var operation in model.OperationMenu.Where(m => !m.IsSeparator)) { %>
+				<% foreach(var operation in model.Operations.Where(o => !o.MarkedAs("ParamOptions") && !o.ReturnsList)) { %>
 					<li><%= operation.Text %></li>
 				<% } %>
 			</ul>
-			<% foreach(var operation in model.OperationMenu.Where(m => !m.IsSeparator)) { %>
+			<% foreach(var operation in model.Operations.Where(o => !o.MarkedAs("ParamOptions") && !o.ReturnsList)) { %>
 				<div><% operation.Render(Html); %></div>
 			<% } %>	
 		</div>

@@ -89,6 +89,11 @@ namespace Routine.Test.Module.Todo
 		public Assignees(IDomainContext context)
 			: base(context) {}
 
+		public new List<Assignee> All()
+		{
+			return base.All();
+		}
+
 		public Assignee SingleByName(string name)
 		{
 			return SingleBy(a => a.Name == name);

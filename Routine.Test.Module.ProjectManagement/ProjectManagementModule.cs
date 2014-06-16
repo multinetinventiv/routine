@@ -17,6 +17,8 @@ namespace Routine.Test.Module.ProjectManagement
 			this.ctx = ctx;
 		}
 
+		public List<Project> Projects { get { return ctx.Query<Projects>().All(); } }
+
 		public Project NewProject(string name)
 		{
 			return ctx.New<Project>().With(name);

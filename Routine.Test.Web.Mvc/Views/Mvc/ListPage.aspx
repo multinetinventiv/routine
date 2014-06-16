@@ -28,7 +28,17 @@
 <% foreach(var obj in model.List) { %>
 	<div class="context-menu context-menu-<%= i %>">
 		<ul>
-			<li><b><% obj.RenderAs(Html, "Link", "text", "Open"); %></b></li>
+			<li>
+				<b>
+					<% if(Request["mode"] == "select") {  %>
+						<input type="button" value="Select" onclick="selectRow(this);"/>
+						<input type="hidden" name="id" value="<%= obj.Option.Id %>" />
+						<input type="hidden" name="value" value="<%= obj.Option.Value %>" />
+					<% } else {
+						obj.RenderAs(Html, "Link", "text", "Open"); 
+					} %>
+				</b>
+			</li>
 		</ul>
 	</div>
 	<% i++; %>

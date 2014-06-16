@@ -4,8 +4,13 @@
 <% var index = ViewData["index"]; %>
 <input type="hidden" name="parameters[<%= index %>].key" value="<%= model.Id %>" />
 <% if(!model.HasOptions) { %>
-	<input type="text" name="parameters[<%= index %>].value" 
+	<% if(model.IsValue) { %>
+		<input type="text" name="parameters[<%= index %>].value" 
 			data-type="<%= model.DataType %>" value="<%= model.DefaultValue %>" />
+	<% } else { %>
+		<input type="hidden" name="parameters[<%= index %>].value" />
+		<input type="button" value="Search" class="modal-search" data-type="modal" data-route="<%= Url.Route(model.GetSearcher("Instance")) %>?modal=true"/>
+	<% } %>
 <% } else { %>
 	<% if(model.DataType == "s-boolean") { %>
 		<input type="checkbox" name="parameters[<%= index %>].value" 

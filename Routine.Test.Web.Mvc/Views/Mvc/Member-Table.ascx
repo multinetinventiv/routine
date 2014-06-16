@@ -29,7 +29,7 @@
 	<div class="context-menu context-menu-<%= i %>">
 		<ul>
 			<li><b><% obj.RenderAs(Html, "Link", "text", "Open"); %></b></li>
-	<% foreach(var op in obj.SimpleOperations) { %>
+	<% foreach(var op in obj.SimpleOperations.Where(op => !op.MarkedAs("ParamOptions"))) { %>
 			<li><% op.Render(Html, "mode", "table"); %></li>
 	<% } %>
 		</ul>

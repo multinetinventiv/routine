@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core.Api;
+using System.Web.Mvc;
 
 namespace Routine.Mvc
 {
@@ -18,10 +19,24 @@ namespace Routine.Mvc
 			return this;
 		}
 
-		public string DataType{get{return rpar.ViewModelId;}}
-		public string Id{get{return rpar.Id;}}
-		public string Text{get{return MvcConfig.DisplayNameExtractor.Extract(rpar.Id);}}
-		public bool IsList{get{return rpar.IsList;}}
+		public string DataType{ get { return rpar.ViewModelId; } }
+		public ObjectViewModel GetSearcher(string id)
+		{
+			var rapp = rpar.Operation.Object.Application;
+			var vm = rapp.ObjectModel[rpar.ViewModelId];
+			var som = rapp.ObjectModels.SingleOrDefault(om => om.Module == vm.Module && om.Name == vm.Name + "s");
+
+			if(som == null)
+			{
+				return null;
+			}
+				
+			return CreateObject().With(rapp.Get(id, som.Id));
+		}
+		public string Id{ get { return rpar.Id; } }
+		public string Text{ get { return MvcConfig.DisplayNameExtractor.Extract(rpar.Id); } }
+		public bool IsList{ get { return rpar.IsList; } }
+		public bool IsValue{ get { return rpar.Operation.Object.Application.ObjectModel[rpar.ViewModelId].IsValueModel; } }
 
 		public string DefaultValue
 		{
@@ -48,7 +63,7 @@ namespace Routine.Mvc
 				{
 					options = MvcConfig.ParameterOptionsExtractor
 						.Extract(rpar)
-						.Select(o => new OptionViewModel(o.Id + "|" + o.ActualModelId, o.Value))
+						.Select(o => new OptionViewModel(o))
 						.ToList();
 				}
 
@@ -61,10 +76,10 @@ namespace Routine.Mvc
 			public string Id{get;private set;}
 			public string Value{get;private set;}
 
-			public OptionViewModel(string id, string value)
+			public OptionViewModel(Robject robj)
 			{
-				Id = id;
-				Value = value;
+				Id = robj.Id + "|" + robj.ActualModelId;
+				Value = robj.Value;
 			}
 		}
 	}

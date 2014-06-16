@@ -418,6 +418,8 @@
     <Content Include="Scripts\jqwidgets\jqxtreemap.js" />
     <Content Include="Scripts\jqwidgets\jqxvalidator.js" />
     <Content Include="Scripts\jqwidgets\jqxwindow.js" />
+    <Content Include="Views\Mvc\ModalPage.aspx" />
+    <Content Include="Scripts\jquery-1.11.1.min.js" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

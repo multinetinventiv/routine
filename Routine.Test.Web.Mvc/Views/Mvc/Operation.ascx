@@ -5,10 +5,8 @@
 <% var text = ViewData["text"] as string??"OK"; %>
 <% var cancel = ViewData["cancel"] as string??"true"; %>
 
-<% if(model.IsSeparator) { %>
-	<span class="operation-separator">|</span>
-<% } else if(model.IsAvailable) { %>
-	<form action="<%= Url.Route(model) %>" class="operation-form" method="post">
+<% if(model.IsAvailable) { %>
+	<form action="<%= Url.Route(model) + (Request["modal"]=="true" ? "?mode=select":"") %>" class="operation-form" method="post">
 	<% if(mode == "menu")  { %>
 		<fieldset>
 			<div class="content">

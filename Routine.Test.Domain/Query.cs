@@ -22,7 +22,7 @@ namespace Routine.Test.Domain
 			return Lookup.Get(key);
 		}
 
-		public virtual List<T> All()
+		protected virtual List<T> All()
 		{
 			return Lookup.All();
 		}

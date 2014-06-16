@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Routine.Test.Domain;
+using Routine.Test.Module.ProjectManagement.Api;
+using System.Linq;
 
 namespace Routine.Test.Module.ProjectManagement
 {
-	public class Project
+	public class Project : IProject
 	{
-		private IDomainContext ctx;
-		private IRepository<Project> repository;
+		private readonly IDomainContext ctx;
+		private readonly IRepository<Project> repository;
 
 		private Project() { }
 		public Project(IDomainContext ctx, IRepository<Project> repository)
@@ -31,6 +30,11 @@ namespace Routine.Test.Module.ProjectManagement
 			return this;
 		}
 
+		public List<string> GetAvailableNamesForRename()
+		{
+			return new List<string>{ Name + "_1", Name + "_2" };
+		}
+
 		public void Rename(string name)
 		{
 			Name = name;
@@ -46,8 +50,24 @@ namespace Routine.Test.Module.ProjectManagement
 		public List<Feature> Features { get { return ctx.Query<Features>().ByProject(this); } }
 	}
 
-	public class Projects : Query<Project>
+	public class Projects : Query<Project>, IProjects
 	{
 		public Projects(IDomainContext ctx) : base(ctx) { }
+
+		internal new List<Project> All()
+		{
+			return base.All();
+		}
+
+		public List<Project> ByName(string name)
+		{
+			return By(p => p.Name.StartsWith(name));
+		}
+
+		#region IProjects implementation
+
+		List<IProject> IProjects.All(){return All().Cast<IProject>().ToList();}
+
+		#endregion
 	}
 }

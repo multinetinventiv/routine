@@ -41,7 +41,6 @@ namespace Routine.Mvc.Configuration
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string> ExtractPerformRouteName{ get; private set;}
 
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>> ExtractOperationOrder{ get; private set;}
-		public MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>> SelectOperationGroupFunctions{ get; private set;}
 
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractMemberOrder{ get; private set;}
 		public MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>> ExtractSimpleMemberOrder{ get; private set;}
@@ -71,7 +70,6 @@ namespace Routine.Mvc.Configuration
 			ExtractPerformRouteName = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
 
 			ExtractOperationOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, int>>(this, "OperationOrder");
-			SelectOperationGroupFunctions = new MultipleSelector<GenericMvcConfiguration, ObjectViewModel, Func<OperationViewModel, bool>>(this);
 
 			ExtractMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "MemberOrder");
 			ExtractSimpleMemberOrder = new MultipleExtractor<GenericMvcConfiguration, ObjectViewModel, Func<MemberViewModel, int>>(this, "SimpleMemberOrder");
@@ -104,7 +102,6 @@ namespace Routine.Mvc.Configuration
 			ExtractPerformRouteName.Merge(other.ExtractPerformRouteName);
 
 			ExtractOperationOrder.Merge(other.ExtractOperationOrder);
-			SelectOperationGroupFunctions.Merge(other.SelectOperationGroupFunctions);
 
 			ExtractMemberOrder.Merge(other.ExtractMemberOrder);
 			ExtractSimpleMemberOrder.Merge(other.ExtractSimpleMemberOrder);
@@ -171,7 +168,6 @@ namespace Routine.Mvc.Configuration
 		IExtractor<ObjectViewModel, string> IMvcConfiguration.PerformRouteNameExtractor{get{return ExtractPerformRouteName;}}
 
 		IExtractor<ObjectViewModel, Func<OperationViewModel, int>> IMvcConfiguration.OperationOrderExtractor{get{return ExtractOperationOrder;}}
-		ISelector<ObjectViewModel, Func<OperationViewModel, bool>> IMvcConfiguration.OperationGroupSelector{get{return SelectOperationGroupFunctions;}}
 
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.MemberOrderExtractor{get{return ExtractMemberOrder;}}
 		IExtractor<ObjectViewModel, Func<MemberViewModel, int>> IMvcConfiguration.SimpleMemberOrderExtractor{get{return ExtractSimpleMemberOrder;}}
