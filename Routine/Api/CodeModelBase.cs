@@ -15,6 +15,7 @@
 		public ApplicationCodeModel Application { get { return context.Application; } }
 
 		protected ObjectCodeModel CreateObject() { return context.CreateObject(); }
+		protected InitializerCodeModel CreateInitializer() { return context.CreateInitializer(); }
 		protected MemberCodeModel CreateMember() { return context.CreateMember(); }
 		protected OperationCodeModel CreateOperation() { return context.CreateOperation(); }
 		protected ParameterCodeModel CreateParameter() { return context.CreateParameter(); }

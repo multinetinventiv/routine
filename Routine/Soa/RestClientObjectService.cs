@@ -120,17 +120,7 @@ namespace Routine.Soa
 				Param("reference.IsNull", reference.IsNull.ToString())));
 		}
 
-		public ValueData GetMember(ObjectReferenceData reference, string memberModelId)
-		{
-			return As<ValueData>(Get("GetMember", 
-				Param("reference.Id", reference.Id), 
-				Param("reference.ActualModelId", reference.ActualModelId), 
-				Param("reference.ViewModelId", reference.ViewModelId), 
-				Param("reference.IsNull", reference.IsNull.ToString()),
-				Param("memberModelId", memberModelId)));
-		}
-
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			var paramList = new List<RestParameter>();
 			
@@ -141,24 +131,36 @@ namespace Routine.Soa
 			
 			paramList.Add(Param("operationModelId", operationModelId));
 
+			AddParams(paramList, "parameterValues", parameterValues);
+
+			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
+		}
+
+		private void AddParams(List<RestParameter> paramList, string name, Dictionary<string, ParameterValueData> parameterValues)
+		{
 			int i = 0;
 			foreach (var key in parameterValues.Keys)
 			{
-				paramList.Add(Param("parameterValues[" + i + "].Key", key));
-				paramList.Add(Param("parameterValues[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
+				paramList.Add(Param(name + "[" + i + "].Key", key));
+				paramList.Add(Param(name + "[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
 
-				for (int j = 0; j < parameterValues[key].References.Count; j++)
+				for (int j = 0; j < parameterValues[key].Values.Count; j++)
 				{
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].Id", parameterValues[key].References[j].Id));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ActualModelId", parameterValues[key].References[j].ActualModelId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].ViewModelId", parameterValues[key].References[j].ViewModelId));
-					paramList.Add(Param("parameterValues[" + i + "].Value.References[" + j + "].IsNull", parameterValues[key].References[j].IsNull.ToString()));
+					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ObjectModelId", parameterValues[key].Values[j].ObjectModelId));
+					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].IsNull", parameterValues[key].Values[j].IsNull.ToString()));
+
+					if (!string.IsNullOrEmpty(parameterValues[key].Values[j].ReferenceId))
+					{
+						paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ReferenceId", parameterValues[key].Values[j].ReferenceId));
+					}
+					else
+					{
+						AddParams(paramList, name + "[" + i + "].Value.Values[" + j + "].InitializationParameters", parameterValues[key].Values[j].InitializationParameters);
+					}
 				}
 
 				i++;
 			}
-
-			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
 		}
 	}
 }

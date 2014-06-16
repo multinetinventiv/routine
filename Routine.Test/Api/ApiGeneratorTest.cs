@@ -165,6 +165,58 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Initializer_is_rendered_as_constructor()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+			);
+
+			var testing =
+				Generator(c => c
+					.Use(p => p.ShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern()));
+
+			var constructor = GenerateAndGetClientClass(testing, "TestClass")
+				.GetConstructors().Single(c => c.GetParameters().Any(p => p.ParameterType == typeof(string)));
+
+			Assert.AreEqual(2, constructor.GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructor.GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructor.GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructor.GetParameters()[1].Name);
+		}
+
+		[Test]
+		public void Initializer_groups_are_rendered_as_constructor_overloads()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+					.Initializer(PModel("name", "s-string",  0, 1), PModel("surname", "s-string", 1))
+			);
+
+			var testing =
+				Generator(c => c
+					.Use(p => p.ShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern()));
+
+			var constructors = GenerateAndGetClientClass(testing, "TestClass")
+				.GetConstructors().Where(c => c.GetParameters().Any(p => p.ParameterType == typeof(string))).ToList();
+
+			Assert.AreEqual(2, constructors.Count);
+
+			Assert.AreEqual(2, constructors[0].GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructors[0].GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructors[0].GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructors[0].GetParameters()[1].Name);
+
+			Assert.AreEqual(3, constructors[1].GetParameters().Length);
+			Assert.AreEqual(typeof(Rapplication), constructors[1].GetParameters()[0].ParameterType);
+			Assert.AreEqual(typeof(string), constructors[1].GetParameters()[1].ParameterType);
+			Assert.AreEqual("name", constructors[1].GetParameters()[1].Name);
+			Assert.AreEqual(typeof(string), constructors[1].GetParameters()[2].ParameterType);
+			Assert.AreEqual("surname", constructors[1].GetParameters()[2].Name);
+		}
+
+		[Test]
 		public void Members_are_rendered_as_read_only_properties()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "s-string"));
@@ -185,28 +237,9 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void Heavy_members_are_rendered_as_methods()
-		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "s-string", true));
-
-			var testing = Generator(c => c
-				.Use(p => p.ShortModelIdPattern("System", "s"))
-				.Use(p => p.ParseableValueTypePattern()));
-
-			var methods = GenerateAndGetClientClass(testing, "TestClass").GetMethods();
-
-			Assert.IsTrue(methods.Any(p => p.Name == "GetName"), "GetName method was not found");
-
-			var nameMethod = methods.Single(p => p.Name == "GetName");
-
-			Assert.AreEqual(typeof(string), nameMethod.ReturnType);
-			Assert.AreEqual(0, nameMethod.GetParameters().Length);
-		}
-
-		[Test]
 		public void List_member_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", false, true));
+			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", true));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -222,7 +255,7 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operations_are_rendered_as_methods()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("VoidMethod", false, true));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("VoidMethod", true));
 
 			var methods = GenerateAndGetClientClass(Generator(), "TestClass").GetMethods();
 
@@ -237,7 +270,7 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operation_results_are_method_return_types()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", false, "s-string"));
+			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", "s-string"));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -253,7 +286,8 @@ namespace Routine.Test.Api
 		[Test]
 		public void List_operation_result_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringListMethod", false, "s-string", true));
+			ModelsAre(Model("TestClass").Name("TestClass")
+				.Operation("StringListMethod", "s-string", true));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -270,7 +304,7 @@ namespace Routine.Test.Api
 		public void Operation_parameters_are_method_parameters()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("ParameterMethod", false, true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)));
+				.Operation("ParameterMethod", true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -285,6 +319,37 @@ namespace Routine.Test.Api
 			Assert.AreEqual(typeof(string), parameterMethod.GetParameters()[0].ParameterType);
 			Assert.AreEqual("arg2", parameterMethod.GetParameters()[1].Name);
 			Assert.AreEqual(typeof(List<string>), parameterMethod.GetParameters()[1].ParameterType);
+		}
+
+		[Test]
+		public void Operation_groups_are_rendered_as_method_overloads()
+		{
+			ModelsAre(Model("TestClass").Name("TestClass")
+				.Operation("OverloadMethod", true, PModel("param1", "s-string", 0, 1), PModel("param2", "s-int-32", 1, 2)));
+
+			var testing = Generator(c => c
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern()));
+
+			var methods = GenerateAndGetClientClass(testing, "TestClass").GetMethods();
+
+			var overloadMethods = methods.Where(m => m.Name == "OverloadMethod").ToList();
+
+			Assert.AreEqual(3, overloadMethods.Count);
+
+			Assert.AreEqual(1, overloadMethods[0].GetParameters().Length);
+			Assert.AreEqual("param1", overloadMethods[0].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(string), overloadMethods[0].GetParameters()[0].ParameterType);
+
+			Assert.AreEqual(2, overloadMethods[1].GetParameters().Length);
+			Assert.AreEqual("param1", overloadMethods[1].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(string), overloadMethods[1].GetParameters()[0].ParameterType);
+			Assert.AreEqual("param2", overloadMethods[1].GetParameters()[1].Name);
+			Assert.AreEqual(typeof(int), overloadMethods[1].GetParameters()[1].ParameterType);
+
+			Assert.AreEqual(1, overloadMethods[2].GetParameters().Length);
+			Assert.AreEqual("param2", overloadMethods[2].GetParameters()[0].Name);
+			Assert.AreEqual(typeof(int), overloadMethods[2].GetParameters()[0].ParameterType);
 		}
 
 		[Test][Ignore]
@@ -425,8 +490,8 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == "arg1_test" &&
-					p["arg2"].References[0].Id == "arg2_test")
+					p["arg1"].Values[0].ReferenceId == "arg1_test" &&
+					p["arg2"].Values[0].ReferenceId == "arg2_test")
 				.Returns(Result(Id("result_test", "s-string")));
 
 			var testing = Generator(c => c
@@ -460,7 +525,7 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == expectedGuid.ToString())
+					p["arg1"].Values[0].ReferenceId == expectedGuid.ToString())
 				.Returns(Result(Id(expectedInt.ToString(), "s-int-32")));
 
 			var testing = Generator(c => c
@@ -494,7 +559,7 @@ namespace Routine.Test.Api
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].Id == expectedIntString)
+					p["arg1"].Values[0].ReferenceId == expectedIntString)
 				.Returns(Result(Id(expectedIntString, "s-int-32")));
 
 			var testing = Generator(c => c
@@ -529,8 +594,8 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].ActualModelId == "TestClass2" &&
-					p["arg1"].References[0].Id == "test2")
+					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2")
 				.Returns(Result(Id("test2", "TestClass2")));
 
 			var types = Generator().GenerateClientApi().GetTypes();
@@ -568,8 +633,8 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "Module1-TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].ActualModelId == "Module2-TestClass2" &&
-					p["arg1"].References[0].Id == "test2")
+					p["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2")
 				.Returns(Result(Id("test2", "Module2-TestClass2")));
 
 			var otherApiGenerator = Generator(c => c
@@ -617,8 +682,8 @@ namespace Routine.Test.Api
 				Model("s-string").IsValue(),
 				Model("TestClass2").Name("TestClass2"),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Subs", "TestClass2", false, true)
-				.Member("Names", "s-string", false, true)
+				.Member("Subs", "TestClass2", true)
+				.Member("Names", "s-string", true)
 				.Operation("SubListOperation", "TestClass2", true, PModel("arg1", "TestClass2", true))
 				.Operation("NameListOperation", "s-string", true, PModel("arg1", "s-string", true))
 			);
@@ -636,18 +701,18 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("SubListOperation", p =>
-					p["arg1"].References[0].ActualModelId == "TestClass2" &&
-					p["arg1"].References[0].Id == "test2.1" &&
-					p["arg1"].References[1].ActualModelId == "TestClass2" &&
-					p["arg1"].References[1].Id == "test2.2")
+					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[0].ReferenceId == "test2.1" &&
+					p["arg1"].Values[1].ObjectModelId == "TestClass2" &&
+					p["arg1"].Values[1].ReferenceId == "test2.2")
 				.Returns(Result(Id("test2.3", "TestClass2"), Id("test2.4", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("NameListOperation", p =>
-					p["arg1"].References[0].ActualModelId == "s-string" &&
-					p["arg1"].References[0].Id == "name1" &&
-					p["arg1"].References[1].ActualModelId == "s-string" &&
-					p["arg1"].References[1].Id == "name2")
+					p["arg1"].Values[0].ObjectModelId == "s-string" &&
+					p["arg1"].Values[0].ReferenceId == "name1" &&
+					p["arg1"].Values[1].ObjectModelId == "s-string" &&
+					p["arg1"].Values[1].ReferenceId == "name2")
 				.Returns(Result(Id("name3", "s-string"), Id("name4", "s-string")));
 
 			var testing = Generator(c => c
@@ -730,7 +795,7 @@ namespace Routine.Test.Api
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].References[0].IsNull)
+					p["arg1"].Values[0].IsNull)
 				.Returns(Result(Id("resultForNull", "s-string")));
 
 			var testing = Generator(c => c
@@ -889,6 +954,35 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Api_class_can_initialize_initializable_models()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+			);
+
+			var testing = Generator(c => c
+				.ApiNameIs("TestApi")
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern()));
+
+			var testApi = testing.GenerateClientApi();
+
+			var apiClass = testApi.GetTypes().Single(t => t.Name == "TestApi");
+			var testClass = testApi.GetTypes().Single(t => t.Name == "TestClass");
+
+			var initializationMethod = apiClass.GetMethod("NewTestClass");
+
+			Assert.IsNotNull(initializationMethod);
+			Assert.AreEqual(1, initializationMethod.GetParameters().Length);
+			Assert.AreEqual(typeof(string), initializationMethod.GetParameters()[0].ParameterType);
+			Assert.AreEqual("name", initializationMethod.GetParameters()[0].Name);
+
+			var apiObj = Activator.CreateInstance(apiClass, testingRapplication);
+
+			Assert.IsInstanceOf(testClass, initializationMethod.Invoke(apiObj, new object[] { "test" }));
+		}
+
+		[Test]
 		public void When_a_model_has_only_one_singleton_id__access_method_does_not_include_id_as_suffix()
 		{
 			ModelsAre(
@@ -960,10 +1054,10 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void When_api_class_is_generated__Robject_property_and_constructor_are_rendered_as_internal()
+		public void When_api_class_is_generated__Robject_property_and_constructors_are_rendered_as_internal()
 		{
 			ModelsAre(
-				Model("TestClass1").Name("TestClass1")
+				Model("TestClass1").Name("TestClass1").Initializer(PModel("name", "s-string"))
 			);
 
 			ObjectsAre(
@@ -972,6 +1066,8 @@ namespace Routine.Test.Api
 
 			var testing = Generator(c => c
 				.ApiNameIs("TestApi")
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())
 				.SelectSingletonId.Done(s => s
 					.Always("instance1")
 					.When(ocm => ocm.Id.EndsWith("Class1"))));

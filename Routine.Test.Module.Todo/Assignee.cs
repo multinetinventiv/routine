@@ -29,7 +29,7 @@ namespace Routine.Test.Module.Todo
 			Name = name;
 			Address = address;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}

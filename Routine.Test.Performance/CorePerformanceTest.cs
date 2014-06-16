@@ -69,7 +69,7 @@ namespace Routine.Test.Performance
 					.ExtractId.Done(e => e.ByProperty(p => p.Returns<int>("Id")).ReturnAsString())
 					.Locate.Done(l => l.ByConverting(id => objectRepository[id]).WhenId(id => objectRepository.ContainsKey(id)))
 						
-					.ExtractDisplayValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
+					.ExtractValue.Done(e => e.ByConverting(o => string.Format("{0}", o)))
 				);
 				
 			objectService = apiCtx.ObjectService;
@@ -322,13 +322,13 @@ namespace Routine.Test.Performance
 					ViewModelId = obj_type,
 					Id = obj_id.ToString()
 				};
-				var returnResult = objectService.PerformOperation(ord, "GetSub", new Dictionary<string, ReferenceData>{
-					{"index", new ReferenceData {
+				var returnResult = objectService.PerformOperation(ord, "GetSub", new Dictionary<string, ParameterValueData>{
+					{"index", new ParameterValueData {
 							IsList = false,
-							References = new List<ObjectReferenceData> {
-								new ObjectReferenceData {
-									ActualModelId= "s-int32",
-									Id = "0"
+							Values = new List<ParameterData> {
+								new ParameterData {
+									ObjectModelId= "s-int32",
+									ReferenceId = "0"
 								}
 							}
 						}

@@ -63,7 +63,7 @@ namespace Routine.Core
 				return result;
 			}
 
-			foreach (var member in domainType.LightMembers)
+			foreach (var member in domainType.Members)
 			{
 				result.Members.Add(member.Id, member.CreateData(target));
 			}
@@ -82,7 +82,7 @@ namespace Routine.Core
 			return member.CreateData(target, true);
 		}
 
-		public ValueData Perform(string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public ValueData Perform(string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			DomainOperation operation;
 			if(!domainType.Operation.TryGetValue(operationModelId, out operation))

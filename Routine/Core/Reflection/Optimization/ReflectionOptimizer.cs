@@ -52,7 +52,7 @@ namespace Routine.Core.Reflection.Optimization
 			"\t\t\treturn new $ReflectedType$($Parameters$);\n";
 
 		private const string parameterTemplate = 
-			"($ParameterType$)args[$ParameterIndex$]";
+			"(($ParameterType$)(args[$ParameterIndex$]??default($ParameterType$)))";
 
 		private static string Parameter(System.Reflection.ParameterInfo parameterInfo)
 		{

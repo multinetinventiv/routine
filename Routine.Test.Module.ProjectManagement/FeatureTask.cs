@@ -29,7 +29,7 @@ namespace Routine.Test.Module.ProjectManagement
 			FeatureUid = feature.Uid;
 			TaskRef = new TypedGuid(task.Uid, task.GetType());
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}

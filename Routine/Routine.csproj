@@ -19,6 +19,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -39,6 +40,17 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\InitializerCodeModel.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Core\Api\RobjectIsNotInitializedException.cs" />
+    <Compile Include="Core\DomainApi\ConstructorInitializer.cs" />
+    <Compile Include="Core\DomainApi\PropertyOperation.cs" />
+    <Compile Include="Core\DomainObjectInitializer.cs" />
+    <Compile Include="Core\DomainParameterResolver.cs" />
+    <Compile Include="Core\Reflection\ConstructorInfo.cs" />
+    <Compile Include="Core\Reflection\MethodBase.cs" />
+    <Compile Include="Core\Reflection\PreloadedConstructorInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectedConstructorInfo.cs" />
     <Compile Include="InterceptionPatterns.cs" />
     <Compile Include="Core\Builder\InterceptionConfigurationBuilder.cs" />
     <Compile Include="Core\Context\DefaultApiContext.cs" />
@@ -96,13 +108,13 @@
     <Compile Include="Core\Extractor\BaseOptionalExtractor.cs" />
     <Compile Include="Core\Extractor\ConverterExtractor.cs" />
     <Compile Include="Core\Extractor\MultipleExtractor.cs" />
-    <Compile Include="Core\Extractor\ReferenceValueExtractor.cs" />
+    <Compile Include="Core\Extractor\MemberValueExtractor.cs" />
     <Compile Include="Core\Extractor\StaticExtractor.cs" />
     <Compile Include="Core\Locator\BaseOptionalLocator.cs" />
     <Compile Include="Core\Locator\DelegateLocator.cs" />
     <Compile Include="Core\Locator\MultipleLocator.cs" />
     <Compile Include="Core\DomainApi\MethodOperation.cs" />
-    <Compile Include="Core\DomainApi\MethodParameter.cs" />
+    <Compile Include="Core\DomainApi\ParameterParameter.cs" />
     <Compile Include="Core\Selector\BaseOptionalSelector.cs" />
     <Compile Include="Core\Selector\DelegateSelector.cs" />
     <Compile Include="Core\Selector\Excluder.cs" />
@@ -120,10 +132,8 @@
     <Compile Include="Core\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="SoaPatterns.cs" />
-    <Compile Include="Core\Context\MemberInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectModelInterceptionContext.cs" />
     <Compile Include="Core\Context\ObjectReferenceInterceptionContext.cs" />
-    <Compile Include="Core\Context\OperationInterceptionContext.cs" />
     <Compile Include="Core\Context\PerformOperationInterceptionContext.cs" />
     <Compile Include="Soa\ISoaContext.cs" />
     <Compile Include="Soa\Context\DefaultSoaContext.cs" />
@@ -162,8 +172,8 @@
     <Compile Include="Core\Selector\NoneSelector.cs" />
     <Compile Include="Core\ObjectService.cs" />
     <Compile Include="Core\IObjectService.cs" />
-    <Compile Include="Core\Model.cs" />
-    <Compile Include="Core\Data.cs" />
+    <Compile Include="Core\IObjectService_Model.cs" />
+    <Compile Include="Core\IObjectService_Data.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="Core\Reflection\MethodInfo.cs" />
     <Compile Include="Core\Reflection\PropertyInfo.cs" />

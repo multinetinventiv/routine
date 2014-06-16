@@ -71,6 +71,7 @@ namespace Routine.Core.Reflection
 		protected override TypeInfo[] GetInterfaces(){return interfaces;}
 		public override bool CanBe(TypeInfo other){return canBeList.Any(t => t == other);}
 		protected override TypeInfo GetElementType(){return null;}
+		public override ConstructorInfo[] GetAllConstructors() { return new ConstructorInfo[0]; }
 		public override PropertyInfo[] GetAllProperties() { return new PropertyInfo[0]; }
 		public override PropertyInfo[] GetAllStaticProperties() { return new PropertyInfo[0]; }
 		public override MethodInfo[] GetAllMethods() { return new MethodInfo[0]; }

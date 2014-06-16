@@ -9,8 +9,6 @@ namespace Routine.Core
 		IInterceptor<ObjectModelInterceptionContext> GetAvailableObjectsInterceptor { get; }
 		IInterceptor<ObjectReferenceInterceptionContext> GetValueInterceptor { get; }
 		IInterceptor<ObjectReferenceInterceptionContext> GetInterceptor { get; }
-		IInterceptor<MemberInterceptionContext> GetMemberInterceptor { get; }
-		IInterceptor<OperationInterceptionContext> GetOperationInterceptor { get; }
 		IInterceptor<PerformOperationInterceptionContext> PerformOperationInterceptor { get; }
 	}
 }

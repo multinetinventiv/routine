@@ -19,7 +19,6 @@ namespace Routine.Core
 		public Marks Marks { get; private set; }
 		public bool IsList{get;private set;}
 		public string ViewModelId{get;private set;}
-		public bool IsHeavy{get;private set;}
 
 		public DomainMember For(DomainType domainType, IMember member)
 		{
@@ -30,7 +29,6 @@ namespace Routine.Core
 			Marks = new Marks(ctx.CodingStyle.MemberMarkSelector.Select(member));
 			IsList = member.ReturnType.CanBeCollection();
 			ViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(IsList ? member.ReturnType.GetItemType() : member.ReturnType);
-			IsHeavy = ctx.CodingStyle.MemberIsHeavyExtractor.Extract(member);
 
 			return this;
 		}
@@ -45,13 +43,12 @@ namespace Routine.Core
 			return new MemberModel {
 				Id = Id,
 				Marks = Marks.List,
-				IsHeavy = IsHeavy,
 				IsList = IsList,
 				ViewModelId = ViewModelId
 			};
 		}
 
-		public ValueData CreateData(object target) { return CreateData(target, false); }
+		public ValueData CreateData(object target) { return CreateData(target, ctx.CodingStyle.MemberFetchedEagerlyExtractor.Extract(member)); }
 		public ValueData CreateData(object target, bool eager)
 		{
 			return ctx.CreateValueData(member.FetchFrom(target), IsList, ViewModelId, eager);

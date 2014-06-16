@@ -157,19 +157,21 @@ namespace Routine.Test.Domain.Configuration
 
 						.ExtractModelModule.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
 												  .When(t => t.IsDomainType))
-						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>() && !p.Returns<TypedGuid>())
+
+						.SelectInitializers.Done(i => i.ByPublicConstructors().When(t => t.IsValueType && t.IsDomainType))
+						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>() && !p.Returns<TypedGuid>() && !p.ReturnsCollection())
 												  .When(t => t.IsDomainType))
 
 						.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true) && m.GetParameters().All(p => p.ParameterType != type.of<Guid>() && p.ParameterType != type.of<TypedGuid>()))
 													 .When(t => t.IsDomainType))
+						.SelectOperations.Done(s => s.ByPublicProperties(p => p.ReturnsCollection())
+													 .When(t => t.IsDomainType))
 
-						.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
-						.ExtractOperationIsHeavy.Done(e => e.ByConverting(o => o.HasParameters()))
-						.ExtractDisplayValue.Add(e => e.ByPublicProperty(p => p.Returns<string>("Title")))
-											.Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
-											.Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
-													   .WhenType(t => container.TypeIsSingleton(t)))
-											.Done(e => e.ByConverting(o => string.Format("{0}", o)))
+						.ExtractValue.Add(e => e.ByPublicProperty(p => p.Returns<string>("Title")))
+									 .Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
+									 .Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
+											    .WhenType(t => container.TypeIsSingleton(t)))
+									 .Done(e => e.ByConverting(o => string.Format("{0}", o)))
 
 						.Use(p => p.FromEmpty()
 							.ExtractId.Done(e => e.ByProperty(pr => Orm.IsId(pr))

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,14 +20,20 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public List<Project> Projects { get { return ctx.Query<Projects>().All(); } }
 
-		public Project NewProject(string name)
+		public Customer NewCustomer(string name)
 		{
-			return ctx.New<Project>().With(name);
+			return ctx.New<Customer>().With(name);
+		}
+
+		public Project NewProject(string name) { return NewProject(ctx.Query<Customers>().All().First(), name); }
+		public Project NewProject(Customer customer, string name)
+		{
+			return ctx.New<Project>().With(customer, name);
 		}
 
 		public void TestError()
 		{
-			ctx.New<Project>().With("should be rolled back");
+			NewProject(ctx.Query<Customers>().All().First(), "should be rolled back");
 			throw new Exception("test exception");
 		}
 
@@ -37,8 +44,11 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public void CreateTestData()
 		{
-			NewProject("Routine").NewFeature("UI");
-			NewProject("Multinet.Framework").NewFeature("Dependency Injection");
+			var ikinoktabir = NewCustomer("ikinoktabir");
+			NewProject(ikinoktabir, "Routine").NewFeature("UI");
+
+			var multinet = NewCustomer("Multinet");
+			NewProject(multinet, "Multinet.Framework").NewFeature("Dependency Injection");
 		}
 
 		public string TestRequestCache(Project project, string name)
@@ -48,6 +58,56 @@ namespace Routine.Test.Module.ProjectManagement
 			otherProject.Rename(name);
 
 			return project.Name;
+		}
+
+		//public CreateProjectsOperation BeginCreateProjects()
+		//{
+		//	return ctx.New<CreateProjectsOperation>();
+		//}
+
+		//TODO: input data sample
+		public List<Project> CreateProjects(DateTime defaultDeadline, List<NewProject> projects)
+		{
+			var op = new CreateProjectsOperation(ctx);
+
+			op.DefaultDeadline = defaultDeadline;
+			op.Projects.AddRange(projects);
+
+			return op.Create();
+		}
+	}
+
+	internal class CreateProjectsOperation
+	{
+		private readonly IDomainContext ctx;
+
+		public CreateProjectsOperation(IDomainContext ctx)
+		{
+			this.ctx = ctx;
+
+			Projects = new List<NewProject>();
+		}
+
+		public DateTime DefaultDeadline { get; set; }
+		public List<NewProject> Projects { get; private set; }
+
+		public List<Project> Create()
+		{
+			var result = new List<Project>();
+
+			foreach (var project in Projects)
+			{
+				var newProject = project;
+
+				if (newProject.Deadline == default(DateTime))
+				{
+					newProject.Deadline = DefaultDeadline;
+				}
+
+				result.Add(ctx.New<Project>().With(newProject));
+			}
+
+			return result;
 		}
 	}
 }

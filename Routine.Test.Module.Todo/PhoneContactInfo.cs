@@ -31,7 +31,7 @@ namespace Routine.Test.Module.Todo
 			Number = number;
 			DateCreated = DateTime.Now;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}

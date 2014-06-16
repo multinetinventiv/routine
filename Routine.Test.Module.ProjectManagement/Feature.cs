@@ -30,7 +30,7 @@ namespace Routine.Test.Module.ProjectManagement
 			Name = name;
 			ProjectUid = project.Uid;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}
@@ -58,5 +58,15 @@ namespace Routine.Test.Module.ProjectManagement
 		List<IFeature> IFeatures.ByProject(IProject project){return ByProject((Project)project).Cast<IFeature>().ToList();}
 
 		#endregion
+	}
+
+	public struct NewFeature
+	{
+		public string Name { get; private set; }
+
+		public NewFeature(string name, bool someBool) : this()
+		{
+			Name = name;
+		}
 	}
 }

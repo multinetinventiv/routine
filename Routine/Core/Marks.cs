@@ -9,7 +9,7 @@ namespace Routine.Core
 	{
 		private Dictionary<string, bool> marks;
 
-		public Marks(List<string> list)
+		public Marks(IEnumerable<string> list)
 		{
 			marks = new Dictionary<string, bool>();
 
@@ -22,5 +22,16 @@ namespace Routine.Core
 		public List<string> List { get { return marks.Keys.ToList(); } }
 
 		public bool Has(string mark) { return marks.ContainsKey(mark); }
+
+		public void Join(IEnumerable<string> list)
+		{
+			foreach (var mark in list)
+			{
+				if (!marks.ContainsKey(mark))
+				{
+					marks.Add(mark, true);
+				}
+			}
+		}
 	}
 }

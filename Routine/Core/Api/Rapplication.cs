@@ -35,8 +35,8 @@ namespace Routine.Core.Api
 				}
 			}
 		}
-		public ApplicationModel Model{get{FetchModelIfNecessary(); return model;}}
-		public ObjectModelIndex ObjectModel{get{FetchModelIfNecessary(); return modelIndex;}}
+		public ApplicationModel Model { get { FetchModelIfNecessary(); return model; } }
+		public ObjectModelIndex ObjectModel { get { FetchModelIfNecessary(); return modelIndex; } }
 		public List<ObjectModel> ObjectModels { get { return Model.Models; } }
 
 		public Rvariable NewVar<T>(string name, T value, string modelId)
@@ -64,6 +64,7 @@ namespace Routine.Core.Api
 			return NewVarList(name, list.Select(o => Get(o, idExtractor, modelId)));
 		}
 
+		public Rvariable NewVarList(string name, params Robject[] list) { return NewVarList(name, list.AsEnumerable()); }
 		public Rvariable NewVarList(string name, IEnumerable<Robject> list)
 		{
 			return context.CreateRvariable().WithList(name, list);
@@ -71,7 +72,8 @@ namespace Routine.Core.Api
 
 		private Robject Get<T>(T value, Func<T, string> idExtractor, string modelId)
 		{
-			if(object.Equals(value, default(T)))
+			object boxedValue = value;
+			if(boxedValue == null)
 			{
                 return context.CreateRobject().Null();
 			}
@@ -87,6 +89,11 @@ namespace Routine.Core.Api
 		public Robject Get(string id, string actualModelId, string viewModelId)
 		{
 			return context.CreateRobject().With(id, actualModelId, viewModelId);
+		}
+
+		public Robject Init(string modelId, params Rvariable[] initializationParameters)
+		{
+			return context.CreateRobject().With(modelId, initializationParameters);
 		}
 
 		public List<Robject> GetAvailableObjects(string modelId)

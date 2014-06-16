@@ -10,8 +10,6 @@ namespace Routine.Core.Configuration
 		public ChainInterceptor<GenericInterceptionConfiguration, ObjectModelInterceptionContext> InterceptGetAvailableObjects { get; private set; }
 		public ChainInterceptor<GenericInterceptionConfiguration, ObjectReferenceInterceptionContext> InterceptGetValue { get; private set; }
 		public ChainInterceptor<GenericInterceptionConfiguration, ObjectReferenceInterceptionContext> InterceptGet { get; private set; }
-		public ChainInterceptor<GenericInterceptionConfiguration, MemberInterceptionContext> InterceptGetMember { get; private set; }
-		public ChainInterceptor<GenericInterceptionConfiguration, OperationInterceptionContext> InterceptGetOperation { get; private set; }
 		public ChainInterceptor<GenericInterceptionConfiguration, PerformOperationInterceptionContext> InterceptPerformOperation { get; private set; }
 
 		internal GenericInterceptionConfiguration()
@@ -21,8 +19,6 @@ namespace Routine.Core.Configuration
 			InterceptGetAvailableObjects = new ChainInterceptor<GenericInterceptionConfiguration, ObjectModelInterceptionContext>(this);
 			InterceptGetValue = new ChainInterceptor<GenericInterceptionConfiguration, ObjectReferenceInterceptionContext>(this);
 			InterceptGet = new ChainInterceptor<GenericInterceptionConfiguration, ObjectReferenceInterceptionContext>(this);
-			InterceptGetMember = new ChainInterceptor<GenericInterceptionConfiguration, MemberInterceptionContext>(this);
-			InterceptGetOperation = new ChainInterceptor<GenericInterceptionConfiguration, OperationInterceptionContext>(this);
 			InterceptPerformOperation = new ChainInterceptor<GenericInterceptionConfiguration, PerformOperationInterceptionContext>(this);
 		}
 
@@ -33,8 +29,6 @@ namespace Routine.Core.Configuration
 			InterceptGetAvailableObjects.Merge(other.InterceptGetAvailableObjects);
 			InterceptGetValue.Merge(other.InterceptGetValue);
 			InterceptGet.Merge(other.InterceptGet);
-			InterceptGetMember.Merge(other.InterceptGetMember);
-			InterceptGetOperation.Merge(other.InterceptGetOperation);
 			InterceptPerformOperation.Merge(other.InterceptPerformOperation);
 
 			return this;
@@ -47,8 +41,6 @@ namespace Routine.Core.Configuration
 		IInterceptor<ObjectModelInterceptionContext> IInterceptionConfiguration.GetAvailableObjectsInterceptor { get { return InterceptGetAvailableObjects; } }
 		IInterceptor<ObjectReferenceInterceptionContext> IInterceptionConfiguration.GetValueInterceptor { get { return InterceptGetValue; } }
 		IInterceptor<ObjectReferenceInterceptionContext> IInterceptionConfiguration.GetInterceptor { get { return InterceptGet; } }
-		IInterceptor<MemberInterceptionContext> IInterceptionConfiguration.GetMemberInterceptor { get { return InterceptGetMember; } }
-		IInterceptor<OperationInterceptionContext> IInterceptionConfiguration.GetOperationInterceptor { get { return InterceptGetOperation; } }
 		IInterceptor<PerformOperationInterceptionContext> IInterceptionConfiguration.PerformOperationInterceptor { get { return InterceptPerformOperation; } }
 
 		#endregion	

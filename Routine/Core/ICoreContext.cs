@@ -4,12 +4,13 @@ namespace Routine.Core
 {
 	public interface ICoreContext
 	{
-		ICodingStyle CodingStyle{get;}
+		ICodingStyle CodingStyle { get; }
 		DomainType GetDomainType(string objectModelId);
 
+		DomainObjectInitializer CreateDomainObjectInitializer(DomainType domainType, IInitializer initializer);
 		DomainMember CreateDomainMember(DomainType domainType, IMember member);
 		DomainOperation CreateDomainOperation(DomainType domainType, IOperation operation);
-		DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter);
+		DomainParameter CreateDomainParameter(IParameter parameter, int initialGroupIndex);
 		DomainObject CreateDomainObject(object @object, string viewModelId);
 
 		DomainObject GetDomainObject(ObjectReferenceData objectReference);
@@ -31,6 +32,21 @@ namespace Routine.Core
 			});
 		}
 
+		internal static object Locate(this ICoreContext source, ParameterData parameterData)
+		{
+			if (parameterData.IsNull || !string.IsNullOrEmpty(parameterData.ReferenceId))
+			{
+				return source.Locate(new ObjectReferenceData {
+					Id = parameterData.ReferenceId,
+					ActualModelId = parameterData.ObjectModelId,
+					ViewModelId = parameterData.ObjectModelId,
+					IsNull = parameterData.IsNull
+				});
+			}
+
+			return source.GetDomainType(parameterData.ObjectModelId).Initialize(parameterData.InitializationParameters);
+		}
+
 		internal static object Locate(this ICoreContext source, ObjectReferenceData aReference)
 		{
 			if (aReference.IsNull)
@@ -49,6 +65,9 @@ namespace Routine.Core
 			if(isList)
 			{
 				var list = anObject as ICollection;
+
+				if (list == null) { return result; }
+
 				foreach(var item in list)
 				{
 					if (eager)
@@ -94,7 +113,7 @@ namespace Routine.Core
 				return itsReferenceId;
 			}
 
-			return source.CodingStyle.DisplayValueExtractor.Extract(anObject);
+			return source.CodingStyle.ValueExtractor.Extract(anObject);
 		}
 
 		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(null); }

@@ -1,7 +1,7 @@
 using System;
 using Routine.Core.Reflection;
 
-namespace Routine.Core.Member
+namespace Routine.Core.DomainApi
 {
 	public class PropertyMember : IMember
 	{
@@ -9,6 +9,8 @@ namespace Routine.Core.Member
 
 		public PropertyMember(PropertyInfo property) 
 		{
+			if (property.IsIndexer) { throw new ArgumentException("Given property cannot be an indexer"); }
+
 			this.property = property;
 		}
 
@@ -16,7 +18,6 @@ namespace Routine.Core.Member
 		public string Name { get { return property.Name; } }
 		public TypeInfo ReturnType { get { return property.PropertyType; } }
 
-		public bool CanFetchFrom(object target) { return !property.IsIndexer; }
 		public object FetchFrom(object target) 
 		{
 			return property.GetValue(target); 
@@ -25,6 +26,16 @@ namespace Routine.Core.Member
 		public object[] GetCustomAttributes()
 		{
 			return property.GetCustomAttributes();
+		}
+	}
+
+	public static class PropertyInfo_PropertyMemberExtensions
+	{
+		public static IMember ToMember(this PropertyInfo source)
+		{
+			if (source == null) { return null; }
+
+			return new PropertyMember(source);
 		}
 	}
 }

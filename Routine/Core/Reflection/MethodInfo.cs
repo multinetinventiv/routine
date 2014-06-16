@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Routine.Core.Reflection
 {
-	public abstract class MethodInfo
+	public abstract class MethodInfo : MethodBase
 	{
 		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo)
 		{
@@ -30,14 +31,11 @@ namespace Routine.Core.Reflection
 		protected abstract MethodInfo Load();
 
 		public abstract string Name { get; }
-		public abstract bool IsPublic { get; }
 		public abstract TypeInfo DeclaringType { get; }
 		public abstract TypeInfo ReflectedType { get; }
 		public abstract TypeInfo ReturnType { get; }
 
-		public abstract ParameterInfo[] GetParameters();
 		public abstract TypeInfo GetFirstDeclaringType();
-		public abstract object[] GetCustomAttributes();
 		public abstract object[] GetReturnTypeCustomAttributes();
 
 		public abstract object Invoke(object target, params object[] parameters);
@@ -96,26 +94,6 @@ namespace Routine.Core.Reflection
 			return declaringNamespace.Before(".") == reflectedNamespace.Before(".");
 		}
 
-		public bool HasNoParameters() { return HasParameters(); }
-		public bool HasParameters<T>() { return HasParameters(type.of<T>()); }
-		public bool HasParameters<T1, T2>() { return HasParameters(type.of<T1>(), type.of<T2>()); }
-		public bool HasParameters<T1, T2, T3>() { return HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>()); }
-		public bool HasParameters<T1, T2, T3, T4>() { return HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>()); }
-		public bool HasParameters(params TypeInfo[] parameterTypes)
-		{
-			if(GetParameters().Length != parameterTypes.Length) { return false; }
-
-			for(int i = 0; i < GetParameters().Length; i++)
-			{
-				if(!parameterTypes[i].CanBe(GetParameters()[i].ParameterType)) 
-				{
-					return false; 
-				}
-			}
-
-			return true;
-		}
-
 		public bool ReturnsVoid()
 		{
 			return ReturnType.IsVoid;
@@ -145,12 +123,6 @@ namespace Routine.Core.Reflection
 		public bool ReturnsCollection(TypeInfo itemType, string name)
 		{
 			return ReturnsCollection(itemType) && Name == name;
-		}
-
-		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }
-		public bool Has(TypeInfo attributeType)
-		{
-			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 		}
 
 		public bool ReturnTypeHas<TAttribute>() where TAttribute : Attribute { return Has(type.of<TAttribute>()); }

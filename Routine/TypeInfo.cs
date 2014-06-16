@@ -256,19 +256,21 @@ namespace Routine
 			IsPublic = type.IsPublic;
 			IsAbstract = type.IsAbstract;
 			IsInterface = type.IsInterface;
+			IsValueType = type.IsValueType;
 			IsGenericType = type.IsGenericType;
 			IsPrimitive = type.IsPrimitive;
 		}
 
-		public Type GetActualType(){return type;}
+		public Type GetActualType() { return type; }
 
 		public bool IsPublic { get; protected set; }
 		public bool IsAbstract { get; protected set; }
 		public bool IsInterface { get; protected set; }
+		public bool IsValueType { get; protected set; }
 		public bool IsGenericType { get; protected set; }
 		public bool IsPrimitive { get; protected set; }
-		
-		public bool IsVoid { get; protected set;}
+
+		public bool IsVoid { get; protected set; }
 		public bool IsEnum { get; protected set; }
 		public bool IsArray { get; protected set; }
 		public bool IsDomainType { get; protected set; }
@@ -278,6 +280,7 @@ namespace Routine
 		public abstract string Namespace{get;}
 		public abstract TypeInfo BaseType{get;}
 
+		public abstract ConstructorInfo[] GetAllConstructors();
 		public abstract PropertyInfo[] GetAllProperties();
 		public abstract PropertyInfo[] GetAllStaticProperties();
 		public abstract MethodInfo[] GetAllMethods();
@@ -292,6 +295,26 @@ namespace Routine
 		protected abstract void Load();
 
 		public abstract object CreateInstance();
+
+		public virtual List<ConstructorInfo> GetPublicConstructors()
+		{
+			return GetAllConstructors().Where(c => c.IsPublic).ToList();
+		}
+
+		public virtual ConstructorInfo GetConstructor(params TypeInfo[] typeInfos)
+		{
+			if (typeInfos.Length > 0)
+			{
+				var first = typeInfos[0];
+				var rest = Enumerable.Range(1, typeInfos.Length - 1).Select(i => typeInfos[i]).ToArray();
+
+				return GetAllConstructors().SingleOrDefault(c => c.HasParameters(first, rest));
+			}
+			else
+			{
+				return GetAllConstructors().SingleOrDefault(c => c.HasNoParameters());
+			}
+		}
 
 		public virtual ICollection<PropertyInfo> GetPublicProperties() { return GetPublicProperties(false);}
 		public virtual ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables)

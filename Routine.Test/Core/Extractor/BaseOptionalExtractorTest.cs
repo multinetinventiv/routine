@@ -18,7 +18,7 @@ namespace Routine.Test.Core.Extractor
 		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Extractor"};}}
 
 		[Test]
-		public void CanExtract_DurumBelirtilmemisseTrueDoner()
+		public void When_no_condition_is_given__CanExtract_always_returns_true()
 		{
 			IOptionalExtractor<string, string> testing = new TestExtractor<string>();
 
@@ -26,23 +26,16 @@ namespace Routine.Test.Core.Extractor
 		}
 
 		[Test]
-		public void CanExtract_NesneBelirtilmisDurumaUygunsaTrueDoner()
+		public void When_given__CanExtract_returns_condition_s_output()
 		{
 			IOptionalExtractor<string, string> testing = new TestExtractor<string>().When(o => o == "valid");
 
 			Assert.IsTrue(testing.CanExtract("valid"));
-		}
-
-		[Test]
-		public void CanExtract_NesneBelirtilmisDurumaUygunDegilseFalseDoner()
-		{
-			IOptionalExtractor<string, string> testing = new TestExtractor<string>().When(o => o == "valid");
-
 			Assert.IsFalse(testing.CanExtract("invalid"));
 		}
 
 		[Test]
-		public void Extract_ThrowsCannotExtractExceptionWhenItCantExtractFromGivenObject()
+		public void When_it_can_t_extract_from_given_object__Extract_throws_CannotExtractException()
 		{
 			IOptionalExtractor<string, string> testing = new TestExtractor<string>().When(o => o == "valid");
 
@@ -55,9 +48,18 @@ namespace Routine.Test.Core.Extractor
 		}
 
 		[Test]
-		public void Facade_WhenNull()
+		public void Facade_When()
 		{
-			IOptionalExtractor<string, string> testing = new TestExtractor<string>().WhenNull();
+			IOptionalExtractor<string, string> testing = new TestExtractor<string>().When("match");
+
+			Assert.IsTrue(testing.CanExtract("match"));
+			Assert.IsFalse(testing.CanExtract("nomatch"));
+		}
+
+		[Test]
+		public void Facade_WhenDefault()
+		{
+			IOptionalExtractor<string, string> testing = new TestExtractor<string>().WhenDefault();
 
 			Assert.IsTrue(testing.CanExtract(null));
 			Assert.IsFalse(testing.CanExtract("string"));

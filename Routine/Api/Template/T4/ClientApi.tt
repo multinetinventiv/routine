@@ -44,6 +44,18 @@ namespace <#= Application.DefaultNamespace #>
 
 			<# } #>
 		<# } #>
+
+		<# if(model.CanInitialize) { #>
+			<# foreach(var group in model.Initializer.Groups) { #>
+
+			public <#= model.FullName #> New<#= model.Name #>
+				(<#= string.Join(", ", group.Select(p => p.Model.FullName + " " + p.Id)) #>)
+			{
+				return new <#= model.FullName #>(rapplication, <#= string.Join(", ", group.Select(p => p.Id)) #>);
+			}
+
+			<# } #>
+		<# } #>
 	<# } #>
 	}
 }
@@ -62,16 +74,24 @@ namespace <#= model.Namespace #>
 			Robject = robject;
 		}
 
-	<# foreach(var member in model.Members) { #>		
-        <# if(member.IsHeavy) { #>
+	<# if(model.CanInitialize) { #>
+		<# foreach(var group in model.Initializer.Groups) { #>
 
-		public <#= member.ReturnModel.FullName #> Get<#= member.Id #>()
+		<#= AccessModifier #> <#= model.Name #>
+			(<#= Type<Rapplication>() #> rapplication, <#= string.Join(", ", group.Select(p => p.Model.FullName + " " + p.Id)) #>)
 		{
-			return Robject["<#= member.Id #>"].GetValue().<# RobjectToModel(member.ReturnModel); #>;
+			Robject = rapplication
+				.Init("<#= model.Id #>"
+			<# foreach(var parameter in group) { #>
+					, <# ModelToRvariable(parameter, "rapplication"); #>
+			<# } #>
+				);
 		}
-        
-        <# } else { #>
 
+		<# } #>
+	<# } #>
+
+	<# foreach(var member in model.Members) { #>
 		public <#= member.ReturnModel.FullName #> <#= member.Id #>
 		{
 			get
@@ -79,29 +99,29 @@ namespace <#= model.Namespace #>
 				return Robject["<#= member.Id #>"].GetValue().<# RobjectToModel(member.ReturnModel); #>;
 			}
 		}
-
-        <# } #>
 	<# } #>
 
 	<# foreach(var operation in model.Operations) { #>
+		<# foreach(var group in operation.Groups) { #>
 
 		public <#= operation.ReturnModel.FullName #> <#= operation.Id #>
-			(<#= string.Join(", ", operation.Parameters.Select(p => p.Model.FullName + " " + p.Id)) #>)
+			(<#= string.Join(", ", group.Select(p => p.Model.FullName + " " + p.Id)) #>)
 		{
 			var <#= operation.Id #>_result = Robject.Perform
 				(
 				"<#= operation.Id #>"
-		<# foreach(var parameter in operation.Parameters) { #>
+			<# foreach(var parameter in group) { #>
 				, <# ModelToRvariable(parameter); #>
-		<# } #>
+			<# } #>
 				)
 			;
 			
-		<# if(!operation.ReturnModel.IsVoid) { #>
+			<# if(!operation.ReturnModel.IsVoid) { #>
 			return <#= operation.Id #>_result.<# RobjectToModel(operation.ReturnModel); #>;
-		<# } #>
+			<# } #>
 		}
 
+		<# } #>
 	<# } #>
 
 		public void Invalidate()
@@ -185,28 +205,29 @@ protected void RobjectToModel(ObjectCodeModel model)
 
 }
 
-protected void ModelToRvariable(ParameterCodeModel parameter)
+protected void ModelToRvariable(ParameterCodeModel parameter) { ModelToRvariable(parameter, "Robject.Application"); }
+protected void ModelToRvariable(ParameterCodeModel parameter, string rapplicationVar)
 { 
 	var model = parameter.Model; 
 	
 	if(model.IsList) { #>
 		<#+ if(model.IsValueModel) { #>
 
-			Robject.Application.NewVarList("<#= parameter.Id #>", <#= parameter.Id #>, o => <#= model.GetValueToStringCode("o") #>, "<#= model.Id #>")
+			<#= rapplicationVar #>.NewVarList("<#= parameter.Id #>", <#= parameter.Id #>, o => <#= model.GetValueToStringCode("o") #>, "<#= model.Id #>")
 
 		<#+ } else { #>
 
-			Robject.Application.NewVarList("<#= parameter.Id #>", <#= parameter.Id #>.Select(o => o.Robject))
+			<#= rapplicationVar #>.NewVarList("<#= parameter.Id #>", <#= parameter.Id #>.Select(o => o.Robject))
 
 		<#+ } #>
 	<#+ } else { #>
 		<#+ if(model.IsValueModel) { #>
 
-			Robject.Application.NewVar("<#= parameter.Id #>", <#= parameter.Id #>, o => <#= model.GetValueToStringCode("o") #>, "<#= model.Id #>")
+			<#= rapplicationVar #>.NewVar("<#= parameter.Id #>", <#= parameter.Id #>, o => <#= model.GetValueToStringCode("o") #>, "<#= model.Id #>")
 
 		<#+ } else { #>
 
-			Robject.Application.NewVar("<#= parameter.Id #>", <#= parameter.Id #>.Robject)
+			<#= rapplicationVar #>.NewVar("<#= parameter.Id #>", <#= parameter.Id #>.Robject)
 
 		<#+ } #>
 	<#+ } #>

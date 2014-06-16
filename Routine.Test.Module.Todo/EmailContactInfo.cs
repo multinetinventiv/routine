@@ -30,7 +30,7 @@ namespace Routine.Test.Module.Todo
 			Address = address;
 			DateCreated = DateTime.Now;
 
-			Uid = repository.Insert<Guid>(this);
+			repository.Insert(this);
 
 			return this;
 		}

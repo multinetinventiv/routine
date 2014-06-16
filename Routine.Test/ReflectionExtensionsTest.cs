@@ -16,9 +16,9 @@ namespace Routine.Test
 
 		#region Helpers
 
-		private IObjectItem ObjectItem(params object[] customAttributes)
+		private ITypeComponent TypeComponent(params object[] customAttributes)
 		{
-			var result = new Mock<IObjectItem>();
+			var result = new Mock<ITypeComponent>();
 
 			result.Setup(o => o.GetCustomAttributes()).Returns(customAttributes);
 
@@ -59,7 +59,7 @@ namespace Routine.Test
 		#endregion
 
 		[Test]
-		public void Test_IOperation_HasParameters()
+		public void Test_IParametric_HasParameters()
 		{
 			Assert.IsTrue(Operation(type.ofvoid()).HasNoParameters());
 			Assert.IsTrue(Operation(type.ofvoid(), type.of<string>()).HasParameters<string>());
@@ -71,14 +71,14 @@ namespace Routine.Test
 		}
 
 		[Test]
-		public void Test_IOperation_ReturnsVoid()
+		public void Test_IParametric_ReturnsVoid()
 		{
 			Assert.IsTrue(Operation(type.ofvoid()).ReturnsVoid());
 			Assert.IsFalse(Operation(type.of<string>()).ReturnsVoid());
 		}
 
 		[Test]
-		public void Test_IReturnItem_Returns()
+		public void Test_IReturnable_Returns()
 		{
 			Assert.IsTrue(Operation(type.of<string>()).Returns(type.of<object>()));
 			Assert.IsFalse(Operation(type.of<int>()).Returns(type.of<string>()));
@@ -97,13 +97,13 @@ namespace Routine.Test
 		}
 
 		[Test]
-		public void Test_IObjectItem_Has()
+		public void Test_ITypeComponent_Has()
 		{
-			Assert.IsTrue(ObjectItem(new AttributeUsageAttribute(AttributeTargets.Method)).Has<AttributeUsageAttribute>());
-			Assert.IsTrue(ObjectItem(new AttributeUsageAttribute(AttributeTargets.Method)).Has(type.of<AttributeUsageAttribute>()));
+			Assert.IsTrue(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has<AttributeUsageAttribute>());
+			Assert.IsTrue(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has(type.of<AttributeUsageAttribute>()));
 
-			Assert.IsFalse(ObjectItem().Has<AttributeUsageAttribute>());
-			Assert.IsFalse(ObjectItem().Has(type.of<AttributeUsageAttribute>()));
+			Assert.IsFalse(TypeComponent().Has<AttributeUsageAttribute>());
+			Assert.IsFalse(TypeComponent().Has(type.of<AttributeUsageAttribute>()));
 		}
 	}
 }

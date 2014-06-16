@@ -3,27 +3,29 @@ using NUnit.Framework;
 using Routine.Core;
 using Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData;
 
+#region Test Model
+
 namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 {
 	public interface IBusinessData
 	{
-		IBusinessData SubData{get;}
+		IBusinessData SubData { get; }
 	}
 
 	public class BusinessData : IBusinessData
 	{
-		public string Id {get;set;}
-		public string Title{get;set;}
-		public List<string> Items{get;set;}
+		public string Id { get; set; }
+		public string Title { get; set; }
+		public List<string> Items { get; set; }
+		public List<BusinessData> SubDatas { get; set; }
 
-		public void Operation() {}
-		public List<string> HeavyOperation() {return null;}
+		public void Operation() { }
 
 		IBusinessData IBusinessData.SubData
 		{
 			get
 			{
-				return new BusinessData{Id = "sub_" + Id, Title = "Sub " + Title};
+				return new BusinessData { Id = "sub_" + Id, Title = "Sub " + Title };
 			}
 		}
 	}
@@ -46,19 +48,23 @@ namespace Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData
 			return value;
 		}
 	}
-}
+} 
+
+#endregion
 
 namespace Routine.Test.Core.Service
 {
 	[TestFixture]
 	public class ObjectServiceTest_GetObjectData : ObjectServiceTestBase
 	{
+		#region Setup & Helpers
+
 		private const string ACTUAL_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessData";
 		private const string VIEW_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
 		private const string VALUE_OMID = "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		public override string[] DomainTypeRootNamespaces{get{return new[]{"Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData"};}}
+		public override string[] DomainTypeRootNamespaces { get { return new[] { "Routine.Test.Core.Domain.ObjectServiceTest_GetObjectData" }; } }
 
 		[SetUp]
 		public override void SetUp()
@@ -68,12 +74,11 @@ namespace Routine.Test.Core.Service
 			codingStyle
 				.SerializeModelId.Done(s => s.SerializeBy(t => t.FullName).DeserializeBy(id => id.ToType()))
 
-				.ExtractDisplayValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
-
-				.ExtractMemberIsHeavy.Done(e => e.ByConverting(m => m.ReturnsCollection()))
-				.ExtractOperationIsHeavy.Done(e => e.ByConverting(o => o.ReturnsCollection()))
+				.ExtractValue.Done(e => e.ByProperty(p => p.Returns<string>("Title")))
 				;
-		}
+		} 
+
+		#endregion
 
 		[Test]
 		public void Object_is_located_via_configured_locator_and_its_id_is_extracted_using_corresponding_extractor()
@@ -86,7 +91,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void Display_value_is_extracted_using_corresponding_extractor()
+		public void Value_is_extracted_using_corresponding_extractor()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
@@ -96,7 +101,7 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void Display_value_is_id_when_model_is_value_type()
+		public void Value_is_id_when_model_is_value_type()
 		{
 			var actual = testing.Get(Id("sample", VALUE_OMID));
 
@@ -138,50 +143,29 @@ namespace Routine.Test.Core.Service
 		}
 
 		[Test]
-		public void When_getting_object__only_light_members_are_fetched()
+		public void Members_are_fetched_eagerly_when_corresponding_extractor_says_so()
 		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
+			codingStyle
+				.ExtractMemberFetchedEagerly.Done(e => e.Always(true).When(m => m.Name == "SubDatas"))
+			;
+
+			AddToRepository(new BusinessData { Id = "sub1", Items = new List<string> { "sub1_1", "sub1_2" } });
+			AddToRepository(new BusinessData { Id = "sub2", Items = new List<string> { "sub2_1", "sub2_2" } });
+			AddToRepository(new BusinessData { 
+				Id = "obj", 
+				SubDatas = new List<BusinessData> { 
+					objectRepository["sub1"] as BusinessData, 
+					objectRepository["sub2"] as BusinessData 
+				} 
+			});
 
 			var actual = testing.Get(Id("obj"));
+			var actualMember = actual.Members["SubDatas"];
 
-			Assert.IsFalse(actual.Members.ContainsKey("Items"));
-		}
-
-		[Test]
-		public void Heavy_members_can_be_fetched_separately()
-		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title", Items = new List<string>{ "obj_item1", "obj_item2" } });
-
-			var actual = testing.GetMember(Id("obj"), "Items");
-
-			Assert.IsTrue(actual.IsList);
-			Assert.AreEqual("obj_item1", actual.Values[0].Reference.Id);
-			Assert.AreEqual("obj_item2", actual.Values[1].Reference.Id);
-		}
-
-		[Test]
-		public void When_wanted_member_does_not_exist__exception_is_thrown()
-		{
-			AddToRepository(new BusinessData { Id = "obj" });
-
-			try
-			{
-				testing.GetMember(Id("obj"), "NonExistingMember");
-				Assert.Fail("exception not thrown");
-			}
-			catch(MemberDoesNotExistException){}
-		}
-
-		[Test]
-		public void By_default_get_member_returns_eager_result()
-		{
-			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
-
-			var actual = testing.GetMember(Id("obj", ACTUAL_OMID, VIEW_OMID), "SubData");
-
-			Assert.IsTrue(actual.Values[0].Members.ContainsKey("SubData"));
-			Assert.AreEqual("sub_sub_obj", actual.Values[0].Members["SubData"].Values[0].Reference.Id);
-			Assert.AreEqual("Sub Sub Obj Title", actual.Values[0].Members["SubData"].Values[0].Value);
+			Assert.AreEqual("sub1_1", actualMember.Values[0].Members["Items"].Values[0].Reference.Id);
+			Assert.AreEqual("sub1_2", actualMember.Values[0].Members["Items"].Values[1].Reference.Id);
+			Assert.AreEqual("sub2_1", actualMember.Values[1].Members["Items"].Values[0].Reference.Id);
+			Assert.AreEqual("sub2_2", actualMember.Values[1].Members["Items"].Values[1].Reference.Id);
 		}
 	}
 }

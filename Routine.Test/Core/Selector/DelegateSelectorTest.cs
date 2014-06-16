@@ -1,8 +1,7 @@
-using System;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Core;
-using Routine.Core.Member;
+using Routine.Core.DomainApi;
 using Routine.Core.Selector;
 
 namespace Routine.Test.Core.Selector
@@ -20,7 +19,7 @@ namespace Routine.Test.Core.Selector
 		}
 
 		[Test]
-		public void Select_BelirtilenYontemiKullanarakEldeEttigiListeyiDoner()
+		public void Selects_directly_using_given_delegate()
 		{
 			var testing = new DelegateSelector<TypeInfo, IMember>(t => t.GetPublicProperties().Select(p => new PropertyMember(p) as IMember));
 			var testingInterface = (IOptionalSelector<TypeInfo, IMember>)testing;
@@ -30,18 +29,6 @@ namespace Routine.Test.Core.Selector
 			Assert.AreEqual(2, actual.Count);
 			Assert.AreEqual("Prop1", actual[0].Name);
 			Assert.AreEqual("Prop2", actual[1].Name);
-		}
-
-		[Test]
-		public void Select_CacheAktifIseSonucuCacheUzerindenGetirir()
-		{
-			var testing = new DelegateSelector<TypeInfo, IMember>(t => t.GetPublicProperties().Select(p => new PropertyMember(p) as IMember)).UseCache();
-			var testingInterface = (IOptionalSelector<TypeInfo, IMember>)testing;
-
-			var expected = testingInterface.Select(type.of<TestClass>());
-			var actual = testingInterface.Select(type.of<TestClass>());
-
-			Assert.AreSame(expected, actual);
 		}
 	}
 }

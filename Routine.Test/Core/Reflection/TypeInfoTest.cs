@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Routine.Test.Core.Reflection.Domain;
 
@@ -31,14 +32,16 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreEqual(systemType.BaseType, testing.BaseType.GetActualType());
 			Assert.AreEqual(systemType.IsAbstract, testing.IsAbstract);
 			Assert.AreEqual(systemType.IsInterface, testing.IsInterface);
+			Assert.AreEqual(systemType.IsValueType, testing.IsValueType);
 			Assert.AreEqual(systemType.IsPrimitive, testing.IsPrimitive);
 			Assert.AreEqual(systemType.IsGenericType, testing.IsGenericType);
 			Assert.AreEqual(systemType.IsArray, testing.IsArray);
 			Assert.AreEqual(systemType.IsEnum, testing.IsEnum);
 			Assert.AreEqual(systemType.IsPublic, testing.IsPublic);
-			
-			Assert.AreEqual(systemType.GetMethod("ToString").Name, TypeInfo.Get(typeof(TestClass_OOP)).GetMethod("ToString").Name);
-			Assert.AreEqual(systemType.GetProperty("PublicProperty").Name, TypeInfo.Get(typeof(TestClass_OOP)).GetProperty("PublicProperty").Name);
+
+			Assert.IsNotNull(testing.GetConstructor(type.of<string>()));
+			Assert.AreEqual(systemType.GetProperty("PublicProperty").Name, testing.GetProperty("PublicProperty").Name);
+			Assert.AreEqual(systemType.GetMethod("ToString").Name, testing.GetMethod("ToString").Name);
 		}
 
 		[Test]
@@ -47,6 +50,16 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreEqual(typeof(string).ToString(), TypeInfo.Get(typeof(string)).ToString());
 			Assert.IsTrue(TypeInfo.Get(typeof(string)).Equals(typeof(string)));
 			Assert.AreEqual(typeof(string).GetHashCode(), TypeInfo.Get(typeof(string)).GetHashCode());
+		}
+
+		[Test]
+		public void Type_GetConstructors_is_wrapped_by_TypeInfo()
+		{
+			var actual = type.of<TestClass_OOP>().GetAllConstructors().ToList();
+
+			Assert.IsTrue(actual.Any(c => c.HasNoParameters()));
+			Assert.IsTrue(actual.Any(c => c.HasParameters<string>()));
+			Assert.IsTrue(actual.Any(c => c.HasParameters<int>()));
 		}
 
 		[Test]
@@ -101,6 +114,7 @@ namespace Routine.Test.Core.Reflection
 			Assert.AreSame(testing.FullName, testing.FullName);
 			Assert.AreSame(testing.Namespace, testing.Namespace);
 			Assert.AreSame(testing.BaseType, testing.BaseType);
+			Assert.AreSame(testing.GetAllConstructors(), testing.GetAllConstructors());
 			Assert.AreSame(testing.GetAllProperties(), testing.GetAllProperties());
 			Assert.AreSame(testing.GetAllMethods(), testing.GetAllMethods());
 			Assert.AreSame(testing.GetAllStaticProperties(), testing.GetAllStaticProperties());
@@ -204,6 +218,16 @@ namespace Routine.Test.Core.Reflection
 			Assert.IsFalse(type.of<DateTime>().IsDomainType);
 
 			Assert.IsTrue(type.of<TestClass_OOP>().IsDomainType);
+		}
+
+		[Test]
+		public void Extension_GetPublicConstructors()
+		{
+			var actual = type.of<TestClass_OOP>().GetPublicConstructors().ToList();
+
+			Assert.IsTrue(actual.Any(c => c.HasNoParameters()));
+			Assert.IsTrue(actual.Any(c => c.HasParameters<string>()));
+			Assert.IsFalse(actual.Any(c => c.HasParameters<int>()));
 		}
 
 		[Test]

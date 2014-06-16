@@ -11,7 +11,7 @@ namespace Routine.Test.Core.Api
 	public class ApiTest : ApiTestBase
 	{
 		[Test]
-		public void ClientGetsAllTypesInApplicationViaRapplication()
+		public void Client_gets_all_types_in_application_via_Rapplication()
 		{
 			ModelsAre(Model("model1"), Model("model2"));
 
@@ -22,7 +22,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void ClientCanAccessABusinessObjectByCreatingARobjectUsingModelAndIdInformation()
+		public void Client_can_access_a_business_object_by_creating_a_Robject_using_model_and_id_information()
 		{
 			ModelsAre(Model("actualModel"), Model("viewModel"));
 			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
@@ -34,7 +34,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void WhenCreatingRobjectGetObjectModelIsNotCalledCachedApplicationModelIsUsed()
+		public void When_creating_Robject__GetObjectModel_is_not_called__cached_application_model_is_used()
 		{
 			ModelsAre(Model("actualModel"));
 			ObjectsAre(Object(Id("id", "actualModel")));
@@ -48,7 +48,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void ClientGetsObjectIdAndValueAndModelInformationViaRobject()
+		public void Client_gets_object_id__value_and_model_information_via_Robject()
 		{
 			ModelsAre(Model("actualModel").Module("actualModule"), Model("viewModel").Module("viewModule"));
 			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
@@ -63,7 +63,7 @@ namespace Routine.Test.Core.Api
 		}
 		
 		[Test]
-		public void RobjectsFetchMemberDataOnlyWhenAsked()
+		public void Robjects_fetch_member_data_only_when_asked()
 		{
 			ModelsAre(
 				Model("model")
@@ -94,7 +94,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectsFetchDisplayValueAlongWithMemberAndOperationData()
+		public void Robjects_fetch_value_along_with_member_and_operation_data()
 		{
 			ModelsAre(Model("model").Member("member1"));
 			ObjectsAre(
@@ -111,43 +111,11 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RmembersFetchDataOnlyWhenAskedIfTheyAreHeavy()
+		public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode()
 		{
 			ModelsAre(
 				Model("model")
-				.Member("lightMember")
-				.Member("heavyMember", true));
-
-			ObjectsAre(
-				Object(Id("id1")), 
-				Object(Id("id2")), 
-				Object(Id("id", "model"))
-				.Member("lightMember", Id("id1"))
-				.Member("heavyMember", Id("id2")));
-
-			var testingRobject = Robj("id", "model");
-
-			var members = testingRobject.Members;
-
-			Assert.AreEqual("lightMember", members[0].Id);
-			Assert.AreEqual("heavyMember", members[1].Id);
-
-			var member1 = members[0].GetValue();
-			Assert.AreEqual("id1", member1.Object.Id);
-
-			var member2 = members[1].GetValue();
-			Assert.AreEqual("id2", member2.Object.Id);
-
-			objectServiceMock.Verify(o => o.GetMember(It.IsAny<ObjectReferenceData>(), "lightMember"), Times.Never());
-			objectServiceMock.Verify(o => o.GetMember(It.IsAny<ObjectReferenceData>(), "heavyMember"), Times.Once());
-		}
-
-		[Test]
-		public void RvariableBehaveOptimisticOnSingleListVoidAndNullMode()
-		{
-			ModelsAre(
-				Model("model")
-				.Operation("operation", false, true));
+				.Operation("operation",  true));
 
 			ObjectsAre(
 				Object(Id("id1")), 
@@ -182,7 +150,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RvariableCanBeNull()
+		public void Rvariable_can_be_null()
 		{
 			ModelsAre(Model("model").Member("member"));
 
@@ -196,7 +164,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectCanBeNull()
+		public void Robject_can_be_null()
 		{
 			ModelsAre(Model("model").Member("member"));
 
@@ -209,7 +177,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectBehaveOptimisticWhenItIsNull()
+		public void Robject_behaves_optimistic_when_it_is_null()
 		{
 			ModelsAre(Model("model").Member("member"));
 
@@ -225,7 +193,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void ClientPerformsOperationViaRobject()
+		public void Client_performs_operation_via_Robject()
 		{
 			ModelsAre(
 				Model("view_model")
@@ -240,8 +208,8 @@ namespace Routine.Test.Core.Api
 
 			When(Id("id", "actual_model", "view_model"))
 				.Performs("operation", p => 				
-					p["param1"].References[0].Id == "id_param1" &&
-					p["param2"].References[0].Id == "id_param2")
+					p["param1"].Values[0].ReferenceId == "id_param1" &&
+					p["param2"].Values[0].ReferenceId == "id_param2")
 				.Returns(Result(Id("id_result")));
 
 			var testingRobject = Robj("id", "actual_model", "view_model");
@@ -254,39 +222,110 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RparameterUsesItsOwnViewModelIdNoMatterWhatGivenRobjectsViewModelIdIs()
-		{	
+		public void Client_can_initialize_objects_via_Robject()
+		{
 			ModelsAre(
-				Model("model")
-				.Operation("operation", PModel("param", "param_model")),
-				Model("param_given_model"),
-				Model("param_model"));
+				Model("sub_data_model")
+					.Initializer(PModel("param1")),
+				Model("data_model")
+					.Initializer(PModel("param1", "sub_data_model"), PModel("param2")),
+				Model("operational_model")
+					.Operation("data_input", PModel("data", "data_model"))
+			);
 
 			ObjectsAre(
-				Object(Id("id", "model")),
-				Object(Id("id_param", "param_given_model")),
-				Object(Id("id_result")));
+				Object(Id("id", "operational_model")),
+				Object(Id("id_sub_data_param1")),
+				Object(Id("id_data_param2")),
+				Object(Id("id_result"))
+			);
 
-			When(Id("id", "model"))
-				.Performs("operation", p => 				
-					p["param"].References[0].ActualModelId == "param_given_model" &&
-					p["param"].References[0].ViewModelId == "param_model")
+			When(Id("id", "operational_model"))
+				.Performs("data_input", p =>
+					p["data"].Values[0].ObjectModelId == "data_model" &&
+					p["data"].Values[0].ReferenceId == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].ObjectModelId == "sub_data_model" &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == "id_sub_data_param1" &&
+					p["data"].Values[0].InitializationParameters["param2"].Values[0].ReferenceId == "id_data_param2")
 				.Returns(Result(Id("id_result")));
 
-			var testingRobject = Robj("id", "model");
+			var testingRobject = Robj("id", "operational_model");
 
-			var result = testingRobject.Perform("operation", 
-				Rvar("param", Robj("id_param", "param_given_model")));
+			var result = testingRobject.Perform("data_input",
+				Rvar("data", 
+					Robj("data_model", 
+						Rvar("param1", 
+							Robj("sub_data_model",
+								Rvar("param1", Robj("id_sub_data_param1"))
+							)
+						),
+						Rvar("param2",
+							Robj("id_data_param2")
+						)
+					)
+				)
+			);
 
 			Assert.AreEqual("id_result", result.Object.Id);
 		}
 
 		[Test]
-		public void RoperationCanReturnVoidResult()
+		public void Initialized_robjects_throws_RobjectIsInitializedOnClientException_when_value_is_accessed()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.Throws<RobjectIsInitializedOnClientException>(() => { var val = robj.Value; }, "exception not thrown");
+		}
+
+		[Test]
+		public void Initialized_robjects_return_null_when_id_is_accessed()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.IsNull(robj.Id);
+		}
+
+		[Test]
+		public void Initialized_robjects_are_only_equal_to_themselves()
+		{
+			ModelsAre(
+				Model("data_model")
+					.Initializer(PModel("param1"))
+			);
+
+			var robj1 = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			var robj2 = Robj("data_model",
+							Rvar("param1", Robj("id_data_param1"))
+						);
+
+			Assert.AreEqual(robj1, robj1);
+			Assert.AreNotEqual(robj1, robj2);
+		}
+
+		[Test]
+		public void Roperation_can_return_void_result()
 		{
 			ModelsAre(
 				Model("model")
-				.Operation("operation1", false, true));
+				.Operation("operation1", true));
 
 			ObjectsAre(Object(Id("id", "model")));
 
@@ -298,7 +337,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectIsNakedWhenItDoesNotHaveAViewModelId()
+		public void Robject_is_naked_when_it_does_not_have_a_view_model_id()
 		{
 			ModelsAre(
 				Model("actual_model"), Model("view_model"));
@@ -312,7 +351,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectIsDomainWhenItsModelIsNotValueType()
+		public void Robject_is_domain_when_its_model_is_not_value_type()
 		{
 			ModelsAre(
 				Model("value_model").IsValue(),
@@ -330,7 +369,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RparameterCanCreateValueVariableUsingGivenRobjects()
+		public void Rparameter_can_create_value_variable_using_given_Robjects()
 		{
 			ModelsAre(
 				Model("model")
@@ -351,7 +390,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectDoesNotFetchValueIfModelIsValue()
+		public void Robject_does_not_fetch_value_if_model_is_value()
 		{
 			ModelsAre(Model("model").IsValue());
 
@@ -366,7 +405,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void WhenNoModelIsFoundInCachedApplicationModelGivenModelIdIsAutomaticallyTreatedAsValueModel()
+		public void When_no_model_is_found_in_cached_application_model__given_model_id_is_automatically_treated_as_value_model()
 		{
 			objectServiceMock.Setup(o => o.GetApplicationModel()).Returns(new ApplicationModel());
 
@@ -380,7 +419,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void ClientFetchesAvailableInstancesViaRapplication()
+		public void Client_fetches_available_instances_via_Rapplication()
 		{
 			ModelsAre(Model("model").AvailableIds("id1", "id2"));
 
@@ -398,7 +437,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectsImplementsEqualityMembers()
+		public void Robjects_implements_equality_members()
 		{
 			ObjectsAre(Object(Id("value", "model")));
 
@@ -412,7 +451,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void WhenInvalidatedRobjectClearsFetchedData()
+		public void When_invalidated__Robject_clears_fetched_data()
 		{
 			ModelsAre(
 				Model("model")
@@ -446,7 +485,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RobjectCanCheckIfItsModelIsMarkedAsGivenMark()
+		public void Robject_can_check_if_its_model_is_marked_as_given_mark()
 		{
 			ModelsAre(
 				Model("model").Mark("mark"));
@@ -461,7 +500,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RmemberCanCheckIfItsModelIsMarkedAsGivenMark()
+		public void Rmember_can_check_if_its_model_is_marked_as_given_mark()
 		{
 			ModelsAre(
 				Model("model")
@@ -482,7 +521,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void RoperationCanCheckIfItsModelIsMarkedAsGivenMark()
+		public void Roperation_can_check_if_its_model_is_marked_as_given_mark()
 		{
 			ModelsAre(
 				Model("model")
@@ -509,7 +548,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void Facade_Rvariable_As_ReturnsDefaultWhenValueIsNull()
+		public void Facade_Rvariable_As_Returns_default_when_value_is_null()
 		{
 			int intResult = Rvar("value", RobjNull()).As(robj => int.Parse(robj.Value));
 
@@ -532,7 +571,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void Facade_Rvariable_AsList_PutsDefaultValueWhenAnItemIsNull()
+		public void Facade_Rvariable_AsList_Puts_default_value_when_an_item_is_null()
 		{
 			List<int> intResult = Rvarlist("value", RobjNull()).AsList(robj => int.Parse(robj.Value));
 
@@ -565,7 +604,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void Facade_Rapplication_NewVar_CreatesNullVariableWhenObjectIsNull()
+		public void Facade_Rapplication_NewVar_creates_null_variable_when_object_is_null()
 		{
 			ModelsAre(
 				Model(":System.Int32").IsValue(), 
@@ -579,7 +618,8 @@ namespace Routine.Test.Core.Api
 			Assert.IsTrue(actual.IsNull);
 
 			actual = testingRapplication.NewVar("name", 0, ":System.Int32");
-			Assert.IsTrue(actual.IsNull);
+			Assert.IsTrue(!actual.IsNull);
+			Assert.AreEqual("0", actual.Object.Id);
 		}
 
 		[Test]
@@ -607,7 +647,7 @@ namespace Routine.Test.Core.Api
 		}
 
 		[Test]
-		public void Facade_Rapplication_NewVarList_CreatesNullVariableWhenListIsNull()
+		public void Facade_Rapplication_NewVarList_creates_null_variable_when_list_is_null()
 		{
 			ModelsAre(
 				Model(":System.Int32").IsValue(), 
@@ -621,11 +661,34 @@ namespace Routine.Test.Core.Api
 			Assert.IsTrue(actual.List[0].IsNull);
 
 			actual = testingRapplication.NewVarList("name", new List<int>{0}, ":System.Int32");
-			Assert.IsTrue(actual.List[0].IsNull);
+			Assert.IsTrue(!actual.List[0].IsNull);
+			Assert.AreEqual("0", actual.List[0].Id);
+		}
+
+		[Test]
+		public void Roperation_returns_group_parameters_when_asked()
+		{
+			ModelsAre(
+				Model("model")
+				.Operation("operation", PModel("param1", "param_model", 0, 1), PModel("param2", "param_model", 1, 2)),
+				Model("param_model"));
+
+			ObjectsAre(Object(Id("id_root", "model")));
+
+			var root = Robj("id_root", "model");
+			var rop = root.Operations[0];
+
+			var groups = rop.Groups;
+
+			Assert.AreEqual(3, groups.Count);
+			Assert.AreEqual("param1", groups[0][0].Id);
+			Assert.AreEqual("param1", groups[1][0].Id);
+			Assert.AreEqual("param2", groups[1][1].Id);
+			Assert.AreEqual("param2", groups[2][0].Id);
 		}
 
 		[Test] [Ignore]
-		public void RobjectPerformsClientValidationGivenParametersAgainstOperationModel()
+		public void Robject_performs_client_validation_given_parameters_against_operation_model()
 		{
 			//TODO perform operation should check given parameters against operation model
 			Assert.Fail("not implemented");

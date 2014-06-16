@@ -1,4 +1,5 @@
-﻿using Routine.Core;
+﻿using System.Collections.Generic;
+using Routine.Core;
 
 namespace Routine.Api
 {
@@ -18,6 +19,8 @@ namespace Routine.Api
 
 		public string Id { get { return model.Id; } }
 		public ObjectCodeModel Model { get { return CreateObject().With(model.ViewModelId, model.IsList); } }
+		
+		internal List<int> Groups { get { return model.Groups; } }
 
 		public bool MarkedAs(string mark)
 		{

@@ -71,14 +71,7 @@ namespace Routine.Soa
 			return Json(result.ToSerializable(), JsonRequestBehavior.AllowGet);
 		}
 
-		public JsonResult GetMember(ObjectReferenceData reference, string memberModelId)
-		{
-			ValueData result = context.ObjectService.GetMember(reference, memberModelId) as ValueData;
-
-			return Json(result.ToSerializable(), JsonRequestBehavior.AllowGet);
-		}
-
-		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ReferenceData> parameterValues)
+		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			ValueData result = context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues) as ValueData;
 

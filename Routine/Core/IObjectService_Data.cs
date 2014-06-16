@@ -2,6 +2,43 @@ using System.Collections.Generic;
 
 namespace Routine.Core
 {
+	public class ValueData
+	{
+		public bool IsList { get; set; }
+		public List<ObjectData> Values { get; set; }
+
+		public ValueData() { Values = new List<ObjectData>(); }
+
+		#region ToString & Equality
+
+		public override string ToString()
+		{
+			return string.Format("[ValueData: IsList={0}, Values={1}]", IsList, Values.ToItemString());
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null)
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != typeof(ValueData))
+				return false;
+			ValueData other = (ValueData)obj;
+			return IsList == other.IsList && Values.ItemEquals(other.Values);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return IsList.GetHashCode() ^ (Values != null ? Values.GetItemHashCode() : 0);
+			}
+		}
+
+		#endregion
+	}
+
 	public class ObjectData
 	{
 		public ObjectReferenceData Reference { get; set; }
@@ -46,10 +83,10 @@ namespace Routine.Core
 
 	public class ObjectReferenceData
 	{
+		public bool IsNull { get; set; }
 		public string ActualModelId { get; set; }
 		public string Id { get; set; }
 		public string ViewModelId { get; set; }
-		public bool IsNull { get; set; }
 
 		#region ToString & Equality
 
@@ -84,18 +121,18 @@ namespace Routine.Core
 		#endregion
 	}
 
-	public class ValueData
+	public class ParameterValueData
 	{
 		public bool IsList { get; set; }
-		public List<ObjectData> Values { get; set; }
+		public List<ParameterData> Values { get; set; }
 
-		public ValueData() { Values = new List<ObjectData>(); }
+		public ParameterValueData() { Values = new List<ParameterData>(); }
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[ValueData: IsList={0}, Values={1}]", IsList, Values.ToItemString());
+			return string.Format("[ParameterValueData: IsList={0}, Values={1}]", IsList, Values.ToItemString());
 		}
 
 		public override bool Equals(object obj)
@@ -104,9 +141,9 @@ namespace Routine.Core
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			if (obj.GetType() != typeof(ValueData))
+			if (obj.GetType() != typeof(ParameterValueData))
 				return false;
-			ValueData other = (ValueData)obj;
+			ParameterValueData other = (ParameterValueData)obj;
 			return IsList == other.IsList && Values.ItemEquals(other.Values);
 		}
 
@@ -121,18 +158,21 @@ namespace Routine.Core
 		#endregion
 	}
 
-	public class ReferenceData
+	public class ParameterData
 	{
-		public bool IsList { get; set; }
-		public List<ObjectReferenceData> References { get; set; }
+		public bool IsNull { get; set; }
+		public string ObjectModelId { get; set; }
+		public string ReferenceId { get; set; }
+		public Dictionary<string, ParameterValueData> InitializationParameters { get; set; }
 
-		public ReferenceData() { References = new List<ObjectReferenceData>(); }
+		public ParameterData() { InitializationParameters = new Dictionary<string, ParameterValueData>(); }
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[ReferenceData: IsList={0}, References={1}]", IsList, References.ToItemString());
+			return string.Format("[ParameterData: ObjectModelId={0}, ReferenceId={1}, IsNull={2}, InitializationParameters={3}]", 
+												  ObjectModelId, ReferenceId, IsNull, InitializationParameters.ToKeyValueString());
 		}
 
 		public override bool Equals(object obj)
@@ -141,17 +181,20 @@ namespace Routine.Core
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			if (obj.GetType() != typeof(ReferenceData))
+			if (obj.GetType() != typeof(ParameterData))
 				return false;
-			ReferenceData other = (ReferenceData)obj;
-			return IsList == other.IsList && References.ItemEquals(other.References);
+			ParameterData other = (ParameterData)obj;
+			return (IsNull && other.IsNull) ||
+					(!IsNull && !other.IsNull && ObjectModelId == other.ObjectModelId && ReferenceId == other.ReferenceId && InitializationParameters.KeyValueEquals(other.InitializationParameters));
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return IsList.GetHashCode() ^ (References != null ? References.GetItemHashCode() : 0);
+				if (IsNull) { return IsNull.GetHashCode(); }
+
+				return (ObjectModelId != null ? ObjectModelId.GetHashCode() : 0) ^ (ReferenceId != null ? ReferenceId.GetHashCode() : 0) ^ (InitializationParameters != null ? InitializationParameters.GetKeyValueHashCode() : 0);
 			}
 		}
 

@@ -29,6 +29,11 @@ namespace Routine.Core.Context
 			return cache[objectModelId] as DomainType;
 		}
 
+		public DomainObjectInitializer CreateDomainObjectInitializer(DomainType domainType, IInitializer initializer)
+		{
+			return new DomainObjectInitializer(this).For(domainType, initializer);
+		}
+
 		public DomainMember CreateDomainMember(DomainType domainType, IMember member)
 		{
 			return new DomainMember(this).For(domainType, member);
@@ -39,9 +44,9 @@ namespace Routine.Core.Context
 			return new DomainOperation(this).For(domainType, operation);
 		}
 
-		public DomainParameter CreateDomainParameter(DomainOperation domainOperation, IParameter parameter)
+		public DomainParameter CreateDomainParameter(IParameter parameter, int initialGroupIndex)
 		{
-			return new DomainParameter(this).For(domainOperation, parameter);
+			return new DomainParameter(this).For(parameter, initialGroupIndex);
 		}
 
 		public DomainObject CreateDomainObject(object @object, string viewModelId)

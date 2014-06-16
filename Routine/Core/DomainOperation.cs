@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,37 +15,58 @@ namespace Routine.Core
 		}
 
 		private DomainType domainType;
-		private IOperation operation;
+		private List<IOperation> operations;
 
 		public Dictionary<string, DomainParameter> Parameter{ get; private set;}
 		public ICollection<DomainParameter> Parameters{get{return Parameter.Values;}}
 
 		public string Id { get; private set; }
 		public Marks Marks { get; private set; }
-		public bool ResultIsVoid{ get; private set;}
-		public bool ResultIsList{ get; private set;}
-		public string ResultViewModelId{ get; private set;}
-		public bool IsHeavy{ get; private set;}
+		public bool ResultIsVoid { get; private set; }
+		public bool ResultIsList { get; private set; }
+		public string ResultViewModelId { get; private set; }
 
 		public DomainOperation For(DomainType domainType, IOperation operation)
 		{
 			this.domainType = domainType;
-			this.operation = operation;
+			this.operations = new List<IOperation>();
 			Parameter = new Dictionary<string, DomainParameter>();
 
 			Id = operation.Name;
 			Marks = new Marks(ctx.CodingStyle.OperationMarkSelector.Select(operation));
 			ResultIsVoid = operation.ReturnType.IsVoid;
 			ResultIsList = operation.ReturnType.CanBeCollection();
-			ResultViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(ResultIsList ?operation.ReturnType.GetItemType():operation.ReturnType);
-			IsHeavy = ctx.CodingStyle.OperationIsHeavyExtractor.Extract(operation);
+			ResultViewModelId = ctx.CodingStyle.ModelIdSerializer.Serialize(ResultIsList ? operation.ReturnType.GetItemType() : operation.ReturnType);
 
 			foreach(var parameter in operation.Parameters)
 			{
-				Parameter.Add(parameter.Name, ctx.CreateDomainParameter(this, parameter));
+				Parameter.Add(parameter.Name, ctx.CreateDomainParameter(parameter, operations.Count));
 			}
 
+			operations.Add(operation);
+
 			return this;
+		}
+
+		public void AddGroup(IOperation operation)
+		{
+			if (operation.ReturnType != operations.Last().ReturnType) { throw new ReturnTypesDoNotMatchException(operations.Last().ReturnType, operation.ReturnType); }
+
+			foreach (var parameter in operation.Parameters)
+			{
+				if (Parameter.ContainsKey(parameter.Name))
+				{
+					Parameter[parameter.Name].AddGroup(parameter, operations.Count);
+				}
+				else
+				{
+					Parameter.Add(parameter.Name, ctx.CreateDomainParameter(parameter, operations.Count));
+				}
+			}
+
+			operations.Add(operation);
+
+			Marks.Join(ctx.CodingStyle.OperationMarkSelector.Select(operation));
 		}
 
 		public bool MarkedAs(string mark)
@@ -57,46 +79,21 @@ namespace Routine.Core
 			return new OperationModel {
 				Id = Id,
 				Marks = Marks.List,
-				IsHeavy = IsHeavy,
+				GroupCount = operations.Count,
+				Parameters = Parameters.Select(p => p.GetModel()).ToList(),
 				Result = new ResultModel {
 					IsList = ResultIsList,
 					IsVoid = ResultIsVoid,
 					ViewModelId = ResultViewModelId
-				},
-				Parameters = Parameters.Select(p => p.GetModel()).ToList()
+				}
 			};
 		}
 
-		public ValueData Perform(object target, Dictionary<string, ReferenceData> parameterValues)
+		public ValueData Perform(object target, Dictionary<string, ParameterValueData> parameterValues)
 		{
-			if (parameterValues == null) { parameterValues = new Dictionary<string, ReferenceData>(); }
+			var resolution = new DomainParameterResolver<IOperation>(operations, Parameter, parameterValues).Resolve();
 
-			var parameters = new object[Parameter.Count];
-			foreach(var parameterModelId in parameterValues.Keys)
-			{
-				var parameterData = parameterValues[parameterModelId];
-				DomainParameter parameter;
-				if (!Parameter.TryGetValue(parameterModelId, out parameter))
-				{
-					continue;
-				}
-
-				if(parameter.IsList)
-				{
-					var parameterValue = parameter.Type.CreateInstance() as IList;
-					foreach (var parameterReference in parameterData.References)
-					{
-						parameterValue.Add(ctx.Locate(parameterReference));
-					}
-					parameters[parameter.Index] = parameterValue;
-				}
-				else if(parameterData.References.Any())
-				{
-					parameters[parameter.Index] = ctx.Locate(parameterData.References[0]);
-				}
-			}
-
-			var resultValue = operation.PerformOn(target, parameters);
+			var resultValue = resolution.Result.PerformOn(target, resolution.Parameters);
 
 			if(ResultIsVoid)
 			{
@@ -105,5 +102,11 @@ namespace Routine.Core
 
 			return ctx.CreateValueData(resultValue, ResultIsList, ResultViewModelId, true);
 		}
+	}
+
+	public class ReturnTypesDoNotMatchException : Exception 
+	{
+		public ReturnTypesDoNotMatchException(TypeInfo expected, TypeInfo actual) 
+			: base(string.Format("Operation's expected return type is {0}, but given operation has a return type of {1}", expected, actual)) { }
 	}
 }

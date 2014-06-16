@@ -23,10 +23,12 @@ namespace Routine.Core.Api
 			return this;
 		}
 
-		public Roperation Operation{get{return parentOperation;}}
-		public string ViewModelId {get{return model.ViewModelId;}}
-		public string Id {get{return model.Id;}}
-		public bool IsList {get{return model.IsList;}}
+		public Roperation Operation { get { return parentOperation; } }
+		public string ViewModelId { get { return model.ViewModelId; } }
+		public string Id { get { return model.Id; } }
+		public bool IsList { get { return model.IsList; } }
+		
+		internal List<int> Groups { get { return model.Groups; } }
 
 		public Rvariable CreateVariable(params Robject[] robjs) {return CreateVariable(robjs.ToList());}
 		public Rvariable CreateVariable(List<Robject> robjs)
@@ -41,20 +43,13 @@ namespace Routine.Core.Api
 			return result;
 		}
 
-		internal ReferenceData CreateReferenceData(params Robject[] robjs) { return CreateReferenceData(robjs.ToList());}
-		internal ReferenceData CreateReferenceData(List<Robject> robjs)
+		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) { return CreateParameterValueData(robjs.ToList()); }
+		internal ParameterValueData CreateParameterValueData(List<Robject> robjs)
 		{
-			return new ReferenceData
+			return new ParameterValueData
 			{
 				IsList = IsList,
-				References = robjs.Select(robj =>
-					new ObjectReferenceData
-						{
-							Id = robj.ObjectReferenceData.Id,
-							ActualModelId = robj.ObjectReferenceData.ActualModelId,
-							ViewModelId = ViewModelId,
-							IsNull = robj.ObjectReferenceData.IsNull
-						}).ToList()
+				Values = robjs.Select(robj => robj.GetParameterData()).ToList()
 			};
 		}
 	}

@@ -6,12 +6,12 @@ namespace Routine.Core.Reflection
 	public class ReflectedMethodInfo : MethodInfo
 	{
 		internal ReflectedMethodInfo(System.Reflection.MethodInfo methodInfo)
-			: base(methodInfo){}
+			: base(methodInfo) { }
 
-		protected override MethodInfo Load(){return this;}
+		protected override MethodInfo Load() { return this; }
 
-		public override ParameterInfo[] GetParameters(){return methodInfo.GetParameters().Select(p => ParameterInfo.Reflected(p)).ToArray();}
-		public override object[] GetCustomAttributes(){return methodInfo.GetCustomAttributes(true);}
+		public override ParameterInfo[] GetParameters() { return methodInfo.GetParameters().Select(p => ParameterInfo.Reflected(p)).ToArray(); }
+		public override object[] GetCustomAttributes() { return methodInfo.GetCustomAttributes(true); }
 		public override object[] GetReturnTypeCustomAttributes() { return methodInfo.ReturnTypeCustomAttributes.GetCustomAttributes(true); }
 
 		public override TypeInfo GetFirstDeclaringType()
@@ -29,12 +29,12 @@ namespace Routine.Core.Reflection
 			return methodInfo.Invoke(null, parameters);
 		}
 
-		public override string Name{get{return methodInfo.Name;}}
-		public override bool IsPublic{get{return methodInfo.IsPublic;}}
+		public override string Name { get { return methodInfo.Name; } }
+		public override bool IsPublic { get { return methodInfo.IsPublic; } }
 
-		public override TypeInfo DeclaringType{get{return TypeInfo.Get(methodInfo.DeclaringType);}}
-		public override TypeInfo ReflectedType{get{return TypeInfo.Get(methodInfo.ReflectedType);}}
-		public override TypeInfo ReturnType{get{return TypeInfo.Get(methodInfo.ReturnType);}}
+		public override TypeInfo DeclaringType { get { return TypeInfo.Get(methodInfo.DeclaringType); } }
+		public override TypeInfo ReflectedType { get { return TypeInfo.Get(methodInfo.ReflectedType); } }
+		public override TypeInfo ReturnType { get { return TypeInfo.Get(methodInfo.ReturnType); } }
 	}
 }
 

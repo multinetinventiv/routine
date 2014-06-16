@@ -11,11 +11,10 @@ namespace Routine.Test.Domain.NHibernate
 			this.session = session;
 		}
 
-		public TKey Insert<TKey>(T obj)
+		public void Insert(T obj)
 		{
-			var result = (TKey)session.Save(obj);
+			session.Save(obj);
 			session.Flush();
-			return result;
 		}
 
 		public void Update(T obj)
