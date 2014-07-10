@@ -188,6 +188,7 @@ namespace Routine.Test.Domain.Configuration
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
 						.DefaultParametersAre("language_code")
+						.MaxResultLengthIs(100000000)
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
 						;
 			}

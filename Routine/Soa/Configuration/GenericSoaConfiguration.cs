@@ -4,8 +4,6 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Core;
 using Routine.Core.Extractor;
-using Routine.Core.Interceptor;
-using Routine.Soa.Context;
 
 namespace Routine.Soa.Configuration
 {
@@ -15,6 +13,9 @@ namespace Routine.Soa.Configuration
 
 		private List<string> DefaultParameters { get; set; }
 		public GenericSoaConfiguration DefaultParametersAre(params string[] parameters) { DefaultParameters.AddRange(parameters); return this; }
+
+		private int maxResultLength;
+		public GenericSoaConfiguration MaxResultLengthIs(int maxResultLength) { this.maxResultLength = maxResultLength; return this; }
 
 		public MultipleExtractor<GenericSoaConfiguration, Exception, SoaExceptionResult> ExtractExceptionResult { get; private set; }
 
@@ -54,6 +55,7 @@ namespace Routine.Soa.Configuration
 
 		string ISoaConfiguration.ActionRouteName { get { return ACTION; } }
 		List<string> ISoaConfiguration.DefaultParameters { get { return DefaultParameters; } }
+		int ISoaConfiguration.MaxResultLength { get { return maxResultLength; } }
 
 		IExtractor<Exception, SoaExceptionResult> ISoaConfiguration.ExceptionResultExtractor { get { return ExtractExceptionResult; } }
 

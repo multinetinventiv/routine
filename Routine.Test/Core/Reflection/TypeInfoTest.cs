@@ -246,6 +246,11 @@ namespace Routine.Test.Core.Reflection
 			Assert.IsTrue(actual.All(p => p.Name != "PublicGetPrivateSetProperty"));
 			Assert.IsTrue(actual.All(p => p.Name != "PrivateProperty"));
 			Assert.IsTrue(actual.All(p => p.Name != "PublicStaticProperty"));
+
+			actual = type.of<TestInterface_OOP>().GetPublicProperties().ToList();
+
+			Assert.IsTrue(actual.Any(p => p.Name == "ImplicitInterfaceProperty"));
+			Assert.IsTrue(actual.Any(p => p.Name == "ExplicitInterfaceProperty"));
 		}
 
 		[Test]

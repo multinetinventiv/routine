@@ -91,7 +91,8 @@ namespace Routine.Core.Api
 			return context.CreateRobject().With(id, actualModelId, viewModelId);
 		}
 
-		public Robject Init(string modelId, params Rvariable[] initializationParameters)
+		public Robject Init(string modelId, params Rvariable[] initializationParameters) { return Init(modelId, initializationParameters.AsEnumerable()); }
+		public Robject Init(string modelId, IEnumerable<Rvariable> initializationParameters)
 		{
 			return context.CreateRobject().With(modelId, initializationParameters);
 		}

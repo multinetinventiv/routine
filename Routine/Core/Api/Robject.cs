@@ -32,7 +32,7 @@ namespace Routine.Core.Api
 
 		public Robject Null(){return With(new ObjectReferenceData{IsNull = true});}
 
-		public Robject With(string modelId, Rvariable[] initializationParameters) { return With(OD(ORD(null, modelId, modelId)), initializationParameters.ToList());}
+		public Robject With(string modelId, IEnumerable<Rvariable> initializationParameters) { return With(OD(ORD(null, modelId, modelId)), initializationParameters.ToList());}
 		public Robject With(string id, string modelId) { return With(id, modelId, modelId); }
 		public Robject With(string id, string actualModelId, string viewModelId) { return With(ORD(id, actualModelId, viewModelId)); }
 		internal Robject With(ObjectReferenceData objectReferenceData) { return With(OD(objectReferenceData)); }

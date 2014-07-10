@@ -9,3 +9,5 @@
 **/Thumbs.db
 **/.DS_Store
 packages/**/*
+
+*.user

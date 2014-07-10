@@ -42,6 +42,30 @@ namespace Routine.Test.Module.ProjectManagement
 			return Thread.CurrentThread.CurrentCulture.Name;
 		}
 
+		public List<string> TextMaxLength(int count)
+		{
+			var result = new List<string>();
+
+			for (int i = 0; i < count * 100; i++)
+			{
+				result.Add(CreateBigString(i));
+			}
+
+			return result;
+		}
+
+		private string CreateBigString(int ix)
+		{
+			var result = ix + "-";
+
+			for (int i = 0; i < 100; i++)
+			{
+				result += "X";
+			}
+
+			return result;
+		}
+
 		public void CreateTestData()
 		{
 			var ikinoktabir = NewCustomer("ikinoktabir");

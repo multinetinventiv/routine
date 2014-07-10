@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Routine.Core;
-using Routine.Soa.Context;
 
 namespace Routine.Soa
 {
@@ -9,6 +8,7 @@ namespace Routine.Soa
 	{
 		string ActionRouteName { get; }
 		List<string> DefaultParameters { get; }
+		int MaxResultLength { get; }
 
 		IExtractor<Exception, SoaExceptionResult> ExceptionResultExtractor { get; }
 	}

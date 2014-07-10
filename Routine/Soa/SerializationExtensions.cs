@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Routine.Core;
 
 namespace Routine.Soa
@@ -71,12 +72,7 @@ namespace Routine.Soa
 				return source.Values[0].ToSerializable();
 			}
 
-			var result = new List<object>();
-			foreach (var value in source.Values)
-			{
-				result.Add(value.ToSerializable());
-			}
-			return result;
+			return source.Values.Select(value => value.ToSerializable()).ToList();
 		}
 
 		public static ObjectReferenceData DeserializeObjectReferenceData(object @object)
@@ -85,7 +81,7 @@ namespace Routine.Soa
 
 			if (!(@object is string)) { throw new ArgumentException("Given parameter value should be null or string, but was " + @object, "@object"); }
 
-			string refString = @object as string;
+			var refString = @object as string;
 
 			if (!refString.Contains(REF_SPLITTER)) { throw new ArgumentException(string.Format("Given string should contain at least one '{0}' to split id and actual model id", REF_SPLITTER), "@object"); }
 			

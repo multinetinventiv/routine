@@ -1,5 +1,4 @@
-﻿using System;
-using Routine.Soa.Configuration;
+﻿using Routine.Soa.Configuration;
 
 namespace Routine.Soa.Builder
 {
@@ -13,6 +12,7 @@ namespace Routine.Soa.Builder
 		public GenericSoaConfiguration FromBasic()
 		{
 			return FromScratch()
+				.MaxResultLengthIs(2*1024*1024)
 				.ExtractExceptionResult.OnFailReturn(new SoaExceptionResult());
 		}
 	}
