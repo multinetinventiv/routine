@@ -116,7 +116,7 @@ namespace Routine.Core
 			return source.CodingStyle.ValueExtractor.Extract(anObject);
 		}
 
-		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(null); }
+		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject) { return source.CreateReferenceData(anObject, null); }
 		internal static ObjectReferenceData CreateReferenceData(this ICoreContext source, object anObject, string viewModelId)
 		{
 			var result = new ObjectReferenceData();

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Web.Script.Serialization;
 
 namespace Routine.Core.Rest
@@ -14,7 +11,7 @@ namespace Routine.Core.Rest
 
 	public class JsonRestSerializer : IRestSerializer
 	{
-		private JavaScriptSerializer realSerializer;
+		private readonly JavaScriptSerializer realSerializer;
 
 		public JsonRestSerializer() : this(new JavaScriptSerializer()) { }
 		public JsonRestSerializer(JavaScriptSerializer realSerializer)

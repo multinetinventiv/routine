@@ -22,7 +22,8 @@ namespace Routine.Test.Performance
 						.Before(ctx => Console.WriteLine("before - " + ctx.OperationModelId))
 						.Success(ctx => Console.WriteLine("success - " + ctx.Result))
 						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
-						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))))
+						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))
+						.When(ctx => ctx.OperationModelId != "TestMaxLength")))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
 					.ServiceUrlBaseIs("http://127.0.0.1:5485/Soa")
@@ -139,6 +140,11 @@ namespace Routine.Test.Performance
 			{
 				Console.WriteLine("\tbulk project: {0} - {1}", bulkProject.Id, bulkProject.Value);
 			}
+			Console.WriteLine("------------");
+
+			Console.WriteLine("testing max length;");
+			var maxLengthResult = projectManagementModule.Perform("TestMaxLength", rapp.NewVar("count", 1000, "s-int-32"));
+			Console.WriteLine("Total {0} items fetched successfully", maxLengthResult.List.Count);
 			Console.WriteLine("------------");
 
 		}

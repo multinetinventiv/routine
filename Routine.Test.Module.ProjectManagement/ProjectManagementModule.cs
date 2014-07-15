@@ -42,7 +42,7 @@ namespace Routine.Test.Module.ProjectManagement
 			return Thread.CurrentThread.CurrentCulture.Name;
 		}
 
-		public List<string> TextMaxLength(int count)
+		public List<string> TestMaxLength(int count)
 		{
 			var result = new List<string>();
 
