@@ -33,7 +33,8 @@ namespace Routine
 
 					.ExtractAvailableIds.Done(e => e.Always(true.ToString(), false.ToString()).When(t => t.CanBe<bool>()))
 
-					.ExtractId.Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
+					.ExtractId
+						   .Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
 
 					.Locate.Add(l => l.Directly().WhenTypeCanBe<string>())
 						   .Done(l => l.By((t, id) => t.Parse(id)).WhenType(t => t.CanParse()))

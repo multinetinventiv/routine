@@ -425,6 +425,9 @@ namespace Routine
 			return type.ToString();
 		}
 
+		public static bool operator ==(TypeInfo l, TypeInfo r) { return Equals(l, r); }
+		public static bool operator !=(TypeInfo l, TypeInfo r) { return !(l == r); }
+
 		public override bool Equals(object obj)
 		{
 			if(obj == null){return false;}
@@ -432,9 +435,10 @@ namespace Routine
 			var typeObj = obj as Type;
 			if(typeObj != null){return type == typeObj;}
 
-			if(obj is TypeInfo){return object.ReferenceEquals(this, obj);}
+			var typeInfoObj = obj as TypeInfo;
+			if (typeInfoObj == null) { return false; }
 
-			return false;
+			return ReferenceEquals(this, typeInfoObj) || type == typeInfoObj.type;
 		}
 
 		public override int GetHashCode()
@@ -445,6 +449,7 @@ namespace Routine
 
 	public class NoDomainTypeRootNamespaceIsDefinedException : Exception {}
 
+// ReSharper disable InconsistentNaming
 	public static class type
 	{
 		public static TypeInfo of<T>()
@@ -457,6 +462,7 @@ namespace Routine
 			return TypeInfo.Void();
 		}
 	}
+// ReSharper restore InconsistentNaming
 
 	public static class TypeInfoObjectExtensions
 	{

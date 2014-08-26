@@ -25,8 +25,6 @@ namespace Routine.Test.Common
 
 		public static bool operator ==(FatString l, FatString r) { return object.Equals(l, r); }
 		public static bool operator !=(FatString l, FatString r) { return !(l == r); }
-		public static implicit operator FatString(string normalString) { return new FatString(normalString); }
-		public static explicit operator string(FatString fatString) { return fatString.value; }
 
 		public override bool Equals(object obj)
 		{

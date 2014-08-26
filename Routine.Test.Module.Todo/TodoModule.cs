@@ -54,9 +54,9 @@ namespace Routine.Test.Module.Todo
 		public void CreateTestData()
 		{
 			NewTodoList(DateTime.Now, 7, "Toplanti", 10);
-			NewAssignee("Cihan Deniz", "Suadiye");
-			NewAssignee("Zafer Tokcanli", "Maslak");
-			NewAssignee("Caglayan Yildirim", "Maltepe");
+			NewAssignee("Cihan Deniz", new FatString("Suadiye"));
+			NewAssignee("Zafer Tokcanli", new FatString("Maslak"));
+			NewAssignee("Caglayan Yildirim", new FatString("Maltepe"));
 
 			UndoneItems[0].Assign(Assignees[0]);
 			UndoneItems[1].Assign(Assignees[1]);

@@ -38,14 +38,15 @@ namespace Routine.Api
 				{ 
 					Id = modelId, 
 					Name = type.Name, 
-					IsValueModel = !ApiGenConfig.ReferencedTypeIsClientTypeExtractor.Extract(type),
+					IsValueModel = ApiGenConfig.ReferencedTypeIsValueTypeExtractor.Extract(type),
 				};
 
 				@namespace = type.Namespace;
 
-				if (model.IsValueModel && ApiGenConfig.ValueTypeIsNotConvertedExtractor.Extract(type))
+				if (model.IsValueModel)
 				{
-					type = TypeInfo.Get<string>();
+					var targetType = ApiGenConfig.TargetValueTypeExtractor.Extract(type);
+					type = targetType ?? type;
 				}
 				
 				return this;

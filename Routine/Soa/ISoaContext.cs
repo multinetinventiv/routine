@@ -9,5 +9,6 @@ namespace Routine.Soa
 
 		ObjectReferenceData GetObjectReference(object @object);
 		object GetObject(ObjectReferenceData reference);
+		object GetObject(TypeInfo type, string id);
 	}
 }

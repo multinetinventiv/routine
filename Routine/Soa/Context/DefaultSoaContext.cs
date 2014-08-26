@@ -26,5 +26,10 @@ namespace Routine.Soa.Context
 		{
 			return coreContext.Locate(reference);
 		}
+
+		public object GetObject(TypeInfo type, string id)
+		{
+			return coreContext.Locate(type, id);
+		}
 	}
 }

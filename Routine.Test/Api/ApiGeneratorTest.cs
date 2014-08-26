@@ -414,8 +414,8 @@ namespace Routine.Test.Api
 				.Member("DependentProperty", "Module1-TestClass1"));
 
 			var otherApiGenerator = Generator(c => c
-				//RoutineTest is used instead of Routine.Test, 
-				//this is because when running all tests together, it conflicts with another test
+				//RoutineTest is used instead of Routine.Test
+				//when running all tests together, it conflicts with another test
 				.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module1")
 				.GenerateInMemory(false)
 				.IncludeModule("Module1"));
@@ -430,8 +430,7 @@ namespace Routine.Test.Api
 					.SerializeReferencedModelId.Done(s => s
 						.DeserializeBy(str => str.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToType())
 						.DeserializeWhen(str => str.StartsWith("Module1")))
-					.ExtractReferencedTypeIsClientType.Done(e => e
-						.Always(true).When(t => t.FullName.StartsWith("RoutineTest.ApiGen.Client."))))
+					)
 				.AddReference(otherApi);
 
 			var testClass2 = GenerateAndGetClientClass(testing, "TestClass2");
@@ -565,7 +564,8 @@ namespace Routine.Test.Api
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
-				.ExtractValueTypeIsNotConverted.Done(e => e.Always(true).When(t => t == type.of<int>())));
+				.ExtractTargetValueType.Done(e => e.Always(type.of<string>()).When(t => t == type.of<int>()))
+				);
 
 			var testObj = GenerateAndGetClientInstance(testing, "test_id", "TestClass");
 
@@ -574,6 +574,45 @@ namespace Routine.Test.Api
 
 			actualIntString = (string)testObj.GetType().GetMethod("Operation").Invoke(testObj, new object[] { expectedIntString });
 			Assert.AreEqual(expectedIntString, actualIntString);
+		}
+
+		[Test]
+		public void Value_types_can_be_rendered_as_another_value_type()
+		{
+			const string expectedString = "test string";
+			var expectedFatString = new FatString(expectedString);
+
+			ModelsAre(
+				Model("s-string").IsValue(),
+				Model("s-fat-string").IsValue(),
+				Model("TestClass").Name("TestClass")
+				.Member("Id", "s-string")
+				.Operation("Operation", "s-string", PModel("arg1", "s-string")));
+
+			ObjectsAre(
+				Object(Id("test_id", "TestClass"))
+				.Value("test_value")
+				.Member("Id", Id(expectedString, "s-string")));
+
+			When(Id("test_id", "TestClass"))
+				.Performs("Operation", p =>
+					p["arg1"].Values[0].ReferenceId == expectedString)
+				.Returns(Result(Id(expectedString, "s-string")));
+
+			var testing = Generator(c => c
+				.Use(p => p.ShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())
+				.ExtractTargetValueType.Done(e => e.Always(type.of<FatString>()).When(t => t == type.of<string>()))
+				)
+				.AddReference<FatString>();
+
+			var testObj = GenerateAndGetClientInstance(testing, "test_id", "TestClass");
+
+			var actualFatString = (FatString)testObj.GetType().GetProperty("Id").GetValue(testObj, new object[0]);
+			Assert.AreEqual(expectedFatString, actualFatString);
+
+			actualFatString = (FatString)testObj.GetType().GetMethod("Operation").Invoke(testObj, new object[] { expectedFatString });
+			Assert.AreEqual(expectedFatString, actualFatString);
 		}
 
 		[Test]
@@ -654,8 +693,7 @@ namespace Routine.Test.Api
 					.SerializeReferencedModelId.Done(s => s
 						.DeserializeBy(str => str.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToType())
 						.DeserializeWhen(str => str.StartsWith("Module2")))
-					.ExtractReferencedTypeIsClientType.Done(e => e
-						.Always(true).When(t => t.Namespace.StartsWith("RoutineTest.ApiGen.Client.Module2"))))
+				)
 				.AddReference(otherApi);
 
 			var testingApi = testing.GenerateClientApi();
@@ -1106,8 +1144,7 @@ namespace Routine.Test.Api
 					.SerializeReferencedModelId.Done(s => s
 						.DeserializeBy(str => str.Replace("-", ".").Prepend("Routine.Test.ApiGen.Client.").ToType())
 						.DeserializeWhen(str => str.StartsWith("Module2")))
-					.ExtractReferencedTypeIsClientType.Done(e => e
-						.Always(true).When(t => t.Namespace.StartsWith("Routine.Test.ApiGen.Client.Module2"))))
+					)
 				.AddReference(otherApi);
 			
 			var api = testing.GenerateClientApi();

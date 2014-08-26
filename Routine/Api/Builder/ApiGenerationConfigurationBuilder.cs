@@ -12,8 +12,8 @@ namespace Routine.Api.Builder
 		public GenericApiGenerationConfiguration FromBasic()
 		{
 			return FromScratch()
-					.ExtractReferencedTypeIsClientType.OnFailReturn(false)
-					.ExtractValueTypeIsNotConverted.OnFailReturn(false);
+					.ExtractReferencedTypeIsValueType.OnFailReturn(false)
+					.ExtractTargetValueType.OnFailReturn(null);
 			;
 		}
 	}

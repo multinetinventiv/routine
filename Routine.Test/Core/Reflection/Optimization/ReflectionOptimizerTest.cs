@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Routine.Test.Common;
 
 namespace Routine.Test.Core.Reflection.Optimization
 {
@@ -73,7 +74,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 
 		private void PrivateVoidMethod() { real.PrivateVoidMethod(); }
 		void IOptimizedInterface<string>.PrivateVoidMethod() { PrivateVoidMethod(); }
-	} 
+	}
 
 	#endregion
 
@@ -121,7 +122,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 			}
 
 			return testing.CreateInvoker(typeof(T).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static));
-		} 
+		}
 
 		#endregion
 
@@ -144,7 +145,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 				InvokerFor<IOptimizedInterface<string>>("NonExistingMethod");
 				Assert.Fail("exception not thrown");
 			}
-			catch(ArgumentNullException ex)
+			catch (ArgumentNullException ex)
 			{
 				Assert.AreEqual("method", ex.ParamName);
 			}
@@ -203,14 +204,14 @@ namespace Routine.Test.Core.Reflection.Optimization
 				InvokerFor<OptimizedClass>("OneParameterVoidMethod").Invoke(target);
 				Assert.Fail("exception not thrown");
 			}
-			catch(IndexOutOfRangeException){}
+			catch (IndexOutOfRangeException) { }
 
 			try
 			{
 				InvokerFor<OptimizedClass>("OneParameterVoidMethod").Invoke(target, 0);
 				Assert.Fail("exception not thrown");
 			}
-			catch(InvalidCastException){}
+			catch (InvalidCastException) { }
 		}
 
 		[Test]
@@ -307,10 +308,16 @@ namespace Routine.Test.Core.Reflection.Optimization
 			InvokerFor<OptimizedClass.InnerClass>("new").Invoke(target);
 		}
 
-		[Test] [Ignore]
+		[Test][Ignore]
 		public void Generic_method_invoker_interface_support()
 		{
 			Assert.Fail("not implemented");
+		}
+
+		[Test][Ignore]
+		public void Test_the_case_where_somehow_other_method_s_parameter_type_causes_an_extra_dll_reference()
+		{
+			Assert.Fail();
 		}
 	}
 }

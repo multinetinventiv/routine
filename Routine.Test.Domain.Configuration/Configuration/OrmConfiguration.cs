@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,8 @@ namespace Routine.Test.Domain.Configuration
 		}
 
 		public static OrmConfiguration Instance{ get; private set;}
-
+		
+		private global::NHibernate.Cfg.Configuration configuration;
 		public ISessionFactory BuildSessionFactory(IDomainContext domainContext, IEnumerable<System.Reflection.Assembly> assemblies)
 		{
 			var result = Fluently.Configure()
@@ -56,14 +58,14 @@ namespace Routine.Test.Domain.Configuration
 					.ExposeConfiguration(c => c.SetInterceptor(new NHibernateIDomainContextInterceptor(domainContext)))
 				;
 
-			return result
-					.ExposeConfiguration(c => new SchemaUpdate(c).Execute(true, true))
-					.BuildSessionFactory();
+			configuration = result.ExposeConfiguration(c => new SchemaUpdate(c).Execute(true, true)).BuildConfiguration();
+
+			return configuration.BuildSessionFactory();
 		}
 
-		public bool ShouldMap(TypeInfo type)
+		public bool IsPersistent(TypeInfo type)
 		{
-			return ShouldMap(type.GetActualType());
+			return configuration.GetClassMapping(type.GetActualType()) != null;
 		}
 
 		public override bool ShouldMap(Type type)
@@ -81,14 +83,9 @@ namespace Routine.Test.Domain.Configuration
 				member.MemberInfo.Name == "Uid";
 		}
 
-		public bool IsId(PropertyInfo propertyInfo)
-		{
-			return IsId(propertyInfo.GetActualProperty().ToMember());
-		}
-
 		public override bool ShouldMap(Member member)
 		{
-			return member.IsAutoProperty;
+			return member.IsAutoProperty && !typeof(ICollection).IsAssignableFrom(member.PropertyType);
 		}
 
 		private class NHibernateIDomainContextInterceptor : EmptyInterceptor

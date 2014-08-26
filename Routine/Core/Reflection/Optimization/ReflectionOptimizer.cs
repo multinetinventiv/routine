@@ -18,7 +18,7 @@ namespace Routine.Core.Reflection.Optimization
 	}
 	public class ReflectionOptimizer
 	{
-		private const string methodInvokerTemplate = 
+		private const string methodInvokerTemplate =
 			"namespace $Namespace$ {\n" +
 			"\tpublic class $ReflectedTypeName$_$MethodName$Invoker : $BaseInterface$ {\n" +
 			"\t\tpublic object Invoke(object target, params object[] args) {\n" +
@@ -26,7 +26,7 @@ namespace Routine.Core.Reflection.Optimization
 			"\t\t}\n" +
 			"\t}\n" +
 			"}\n";
-			
+
 		private const string voidInvocationTemplate =
 			"\t\t\t$Target$.$MethodName$($Parameters$);\n" +
 			"\t\t\treturn null;\n";
@@ -48,15 +48,15 @@ namespace Routine.Core.Reflection.Optimization
 			"\t\t\t$Target$[$ParametersExceptLast$] = $LastParameter$;\n" +
 			"\t\t\treturn null;\n";
 
-		private const string newInvocationTemplate = 
+		private const string newInvocationTemplate =
 			"\t\t\treturn new $ReflectedType$($Parameters$);\n";
 
-		private const string parameterTemplate = 
+		private const string parameterTemplate =
 			"(($ParameterType$)(args[$ParameterIndex$]??default($ParameterType$)))";
 
 		private static string Parameter(System.Reflection.ParameterInfo parameterInfo)
 		{
-			if(parameterInfo == null){return "";}
+			if (parameterInfo == null) { return ""; }
 
 			return parameterTemplate
 					.Replace("$ParameterType$", parameterInfo.ParameterType.ToCSharpString())
@@ -72,31 +72,31 @@ namespace Routine.Core.Reflection.Optimization
 		{
 			string result;
 
-			if(method.IsConstructor)
+			if (method.IsConstructor)
 			{
 				result = newInvocationTemplate;
 			}
-			else if(method.IsSpecialName)
+			else if (method.IsSpecialName)
 			{
-				if(method.Name.StartsWith("get_"))
+				if (method.Name.StartsWith("get_"))
 				{
-					if(method.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
+					if (method.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
 					else { result = propertyGetInvocationTemplate; }
 				}
 				else
 				{
-					if(method.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
+					if (method.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
 					else { result = propertySetInvocationTemplate; }
 				}
 			}
 			else
 			{
 				var methodInfo = method as System.Reflection.MethodInfo;
-				if(methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
+				if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
 				else { result = nonVoidInvocationTemplate; }
 			}
 
-			if(method.IsStatic) { result = result.Replace("$Target$", "$ReflectedType$"); }
+			if (method.IsStatic) { result = result.Replace("$Target$", "$ReflectedType$"); }
 			else { result = result.Replace("$Target$", "(($ReflectedType$)target)"); }
 
 			return result;
@@ -109,12 +109,12 @@ namespace Routine.Core.Reflection.Optimization
 
 		private static string MethodName(System.Reflection.MethodBase method)
 		{
-			if(method.IsConstructor)
+			if (method.IsConstructor)
 			{
 				return "Constructor";
 			}
 
-			if(method.IsSpecialName)
+			if (method.IsSpecialName)
 			{
 				return method.Name.After("_");
 			}
@@ -142,10 +142,10 @@ namespace Routine.Core.Reflection.Optimization
 
 		public IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
 		{
-			if(method == null){throw new ArgumentNullException("method");}
-			if(method.ContainsGenericParameters) { throw new ArgumentException(MissingGenericParametersMessage(method), "method"); }
-			if(!method.IsPublic){return new ReflectionMethodInvoker(method);}
-			if(!method.ReflectedType.IsPublic && !method.ReflectedType.IsNestedPublic){return new ReflectionMethodInvoker(method);}
+			if (method == null) { throw new ArgumentNullException("method"); }
+			if (method.ContainsGenericParameters) { throw new ArgumentException(MissingGenericParametersMessage(method), "method"); }
+			if (!method.IsPublic) { return new ReflectionMethodInvoker(method); }
+			if (!method.ReflectedType.IsPublic && !method.ReflectedType.IsNestedPublic) { return new ReflectionMethodInvoker(method); }
 
 			var provider = new CSharpCodeProvider();
 			var compilerParameters = new CompilerParameters();
@@ -203,7 +203,7 @@ namespace Routine.Core.Reflection.Optimization
 
 			visits.Add(type, true);
 
-			SafeAddReference(type.Assembly.Location, compilerParameters);
+			SafeAddReference(type.Assembly, compilerParameters);
 
 			if (type.IsGenericType)
 			{
@@ -222,14 +222,16 @@ namespace Routine.Core.Reflection.Optimization
 
 		}
 
-		private static void SafeAddReference(string assembly, CompilerParameters compilerParameters)
+		private static void SafeAddReference(System.Reflection.Assembly assembly, CompilerParameters compilerParameters)
 		{
-			if (compilerParameters.ReferencedAssemblies.Contains(assembly))
-			{
-				return;
-			}
+			if (compilerParameters.ReferencedAssemblies.Contains(assembly.Location)) { return; }
 
-			compilerParameters.ReferencedAssemblies.Add(assembly);
+			compilerParameters.ReferencedAssemblies.Add(assembly.Location);
+
+			foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
+			{
+				SafeAddReference(System.Reflection.Assembly.Load(referencedAssembly), compilerParameters);
+			}
 		}
 	}
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Routine.Core.Reflection.Optimization;
 
@@ -16,7 +13,7 @@ namespace Routine.Test.Core.Reflection.Optimization
 		}
 
 		[Test]
-		public void WhenExceptionOccursInvokerShouldThrowActualException()
+		public void When_exception_occurs_invoker_should_throw_the_actual_exception()
 		{
 			var expected = new Exception("message");
 

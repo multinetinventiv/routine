@@ -174,12 +174,11 @@ namespace Routine.Test.Domain.Configuration
 									 .Done(e => e.ByConverting(o => string.Format("{0}", o)))
 
 						.Use(p => p.FromEmpty()
-							.ExtractId.Done(e => e.ByProperty(pr => Orm.IsId(pr))
-												  .WhenType(t => Orm.ShouldMap(t))
-												  .ReturnAsString())
+							.ExtractId.Done(e => e.ByConverting(o => container.Resolve<ISession>().GetIdentifier(o).ToString())
+									  .WhenType(t => Orm.IsPersistent(t)))
 							.Locate.Done(l => l.By((t, id) => container.Resolve<ISession>().Get(t.GetActualType(), Guid.Parse(id)))
 											   .AcceptNullResult(false)
-											   .WhenType(t => Orm.ShouldMap(t))))
+											   .WhenType(t => Orm.IsPersistent(t))))
 						;
 			}
 

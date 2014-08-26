@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -150,7 +151,7 @@ namespace Routine.Core
 		{
 			if (Initializer == null)
 			{
-				throw new CannotLocateException(Type, parameterValues.ToKeyValueString());
+				throw new InvalidOperationException(string.Format("Cannot initialize {0}. Domain type does not have an initializer.", Type));
 			}
 
 			return Initializer.Initialize(parameterValues);

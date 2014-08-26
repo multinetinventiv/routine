@@ -25,7 +25,8 @@ namespace Routine.Core
 
 		public static DomainObject GetDomainObject(this ICoreContext source, string id, string actualModelId, string viewModelId)
 		{
-			return source.GetDomainObject(new ObjectReferenceData {
+			return source.GetDomainObject(new ObjectReferenceData
+			{
 				Id = id,
 				ActualModelId = actualModelId,
 				ViewModelId = viewModelId
@@ -34,17 +35,22 @@ namespace Routine.Core
 
 		internal static object Locate(this ICoreContext source, ParameterData parameterData)
 		{
-			if (parameterData.IsNull || !string.IsNullOrEmpty(parameterData.ReferenceId))
+			if (!parameterData.IsNull && string.IsNullOrEmpty(parameterData.ReferenceId))
 			{
-				return source.Locate(new ObjectReferenceData {
-					Id = parameterData.ReferenceId,
-					ActualModelId = parameterData.ObjectModelId,
-					ViewModelId = parameterData.ObjectModelId,
-					IsNull = parameterData.IsNull
-				});
+				var dtype = source.GetDomainType(parameterData.ObjectModelId);
+				if (dtype.Initializer != null)
+				{
+					return dtype.Initialize(parameterData.InitializationParameters);
+				}
 			}
 
-			return source.GetDomainType(parameterData.ObjectModelId).Initialize(parameterData.InitializationParameters);
+			return Locate(source, new ObjectReferenceData
+			{
+				Id = parameterData.ReferenceId ?? string.Empty,
+				ActualModelId = parameterData.ObjectModelId,
+				ViewModelId = parameterData.ObjectModelId,
+				IsNull = parameterData.IsNull
+			});
 		}
 
 		internal static object Locate(this ICoreContext source, ObjectReferenceData aReference)
@@ -58,17 +64,22 @@ namespace Routine.Core
 			return source.CodingStyle.Locator.Locate(source.CodingStyle.ModelIdSerializer.Deserialize(aReference.ActualModelId), aReference.Id);
 		}
 
+		internal static object Locate(this ICoreContext source, TypeInfo type, string id)
+		{
+			return source.CodingStyle.Locator.Locate(type, id);
+		}
+
 		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, string viewModelId, bool eager)
-		{			
+		{
 			var result = new ValueData();
 			result.IsList = isList;
-			if(isList)
+			if (isList)
 			{
 				var list = anObject as ICollection;
 
 				if (list == null) { return result; }
 
-				foreach(var item in list)
+				foreach (var item in list)
 				{
 					if (eager)
 					{
@@ -108,7 +119,7 @@ namespace Routine.Core
 
 		internal static string GetValue(this ICoreContext source, object anObject, DomainType itsDomainType, string itsReferenceId)
 		{
-			if(itsDomainType.IsValueModel)
+			if (itsDomainType.IsValueModel)
 			{
 				return itsReferenceId;
 			}

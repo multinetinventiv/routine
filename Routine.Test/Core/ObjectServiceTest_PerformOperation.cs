@@ -267,6 +267,19 @@ namespace Routine.Test.Core
 		}
 
 		[Test]
+		public void When_no_reference_id_was_given_and_no_initializer_was_found__service_treats_this_situation_as_if_an_empty_string_was_sent()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "DoParameterizedOperation",
+				Params(
+					Param("str", Id(null, "s-string"))
+				));
+
+			businessMock.Verify(o => o.DoParameterizedOperation(string.Empty, null));
+		}
+
+		[Test]
 		public void Null_parameter_support()
 		{
 			SetUpObject("id");

@@ -23,6 +23,9 @@ namespace Routine
 		{
 			return source
 				.FromEmpty()
+				.ExtractReferencedTypeIsValueType
+					.Add(e => e.Always(true).When(t => t.CanBe<string>()))
+					.Done(e => e.Always(true).When(t => t.CanParse()))
 				.ExtractStringToValueCodeTemplate
 					.Add(e => e.Always("{valueString}").When(t => t.CanBe<string>()))
 					.Done(e => e.Always("{type}.Parse({valueString})").When(t => t.CanParse()))
