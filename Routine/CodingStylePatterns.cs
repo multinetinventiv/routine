@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Routine.Core;
 using Routine.Core.Builder;
 using Routine.Core.Configuration;
 
@@ -19,7 +18,7 @@ namespace Routine
 
 					.ExtractId.Done(e => e.Always(nullId).WhenDefault())
 
-					.Locate.Done(l => l.Always(null).WhenId(id => id == nullId))
+					.Locate.Done(l => l.Always(null).WhenId(id => id == null || id == nullId))
 
 					.ExtractValue.Done(e => e.Always(string.Empty).WhenDefault());
 		}
