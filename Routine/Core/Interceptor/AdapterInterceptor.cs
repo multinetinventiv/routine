@@ -6,7 +6,7 @@ namespace Routine.Core.Interceptor
 		where TContext : TAdaptedContext
 		where TAdaptedContext : InterceptionContext
 	{
-		private IInterceptor<TAdaptedContext> wrappedInterceptor;
+		private readonly IInterceptor<TAdaptedContext> wrappedInterceptor;
 
 		public AdapterInterceptor(IInterceptor<TAdaptedContext> wrappedInterceptor)
 		{

@@ -4,8 +4,8 @@ namespace Routine.Core.Interceptor
 {
 	internal class DecoratorInterceptorVariableNameFactory
 	{
-		private static object variableNameLock = new object();
-		private static int instanceCount = 0;
+		private static readonly object variableNameLock = new object();
+		private static int instanceCount;
 		internal static string NextVariableName()
 		{
 			lock (variableNameLock)
@@ -26,8 +26,9 @@ namespace Routine.Core.Interceptor
 
 		public DecoratorInterceptor(Func<TContext, TVariableType> beforeDelegate)
 		{
-			this.variableName = DecoratorInterceptorVariableNameFactory.NextVariableName();
 			this.beforeDelegate = beforeDelegate;
+			
+			variableName = DecoratorInterceptorVariableNameFactory.NextVariableName();
 
 			Success(obj => { });
 			Fail(obj => { });
@@ -55,7 +56,7 @@ namespace Routine.Core.Interceptor
 			catch (Exception ex)
 			{
 				context[ExceptionVariableName] = ex;
-				throw ex;
+				throw;
 			}
 		}
 

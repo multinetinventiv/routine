@@ -41,7 +41,14 @@ namespace Routine.Core.Interceptor
 				OnFail(context);
 				if (!context.ExceptionHandled)
 				{
-					throw context.Exception;
+					if (ex == context.Exception) // if exception was not changed, preserve stack trace
+					{
+						throw;
+					}
+					else
+					{
+						throw context.Exception;
+					}
 				}
 			}
 			finally
