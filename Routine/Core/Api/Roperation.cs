@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
 
 namespace Routine.Core.Api
 {
@@ -9,7 +7,7 @@ namespace Routine.Core.Api
 	{
 		private readonly IApiContext context;
 
-        public Roperation(IApiContext context)
+		public Roperation(IApiContext context)
 		{
 			this.context = context;
 		}
@@ -23,10 +21,11 @@ namespace Routine.Core.Api
 		{
 			this.parentObject = parentObject;
 			this.model = model;
-			this.parameters = new Dictionary<string, Rparameter>();
-			this.groups = Enumerable.Range(0, model.GroupCount).Select(i => new List<Rparameter>()).ToList();
 
-			foreach(var parameter in model.Parameters)
+			parameters = new Dictionary<string, Rparameter>();
+			groups = Enumerable.Range(0, model.GroupCount).Select(i => new List<Rparameter>()).ToList();
+
+			foreach (var parameter in model.Parameters)
 			{
 				parameters[parameter.Id] = context.CreateRparameter().With(this, parameter);
 			}
@@ -44,11 +43,12 @@ namespace Routine.Core.Api
 			return this;
 		}
 
-		public Robject Object{get{return parentObject;}}
-		public string Id {get{return model.Id;}}
-		public List<Rparameter> Parameters{get{return parameters.Values.ToList();}}
-		public bool ResultIsVoid{get{return model.Result.IsVoid;}}
-		public bool ResultIsList{get{return model.Result.IsList;}}
+		public Robject Object { get { return parentObject; } }
+		public string Id { get { return model.Id; } }
+		public List<Rparameter> Parameters { get { return parameters.Values.ToList(); } }
+		public bool ResultIsVoid { get { return model.Result.IsVoid; } }
+		public bool ResultIsList { get { return model.Result.IsList; } }
+		public string ResultViewModelId { get { return model.Result.ViewModelId; } }
 
 		public List<List<Rparameter>> Groups { get { return groups; } }
 
@@ -60,21 +60,21 @@ namespace Routine.Core.Api
 		public Rvariable Perform(List<Rvariable> parameterVariables)
 		{
 			var parameterValues = new Dictionary<string, ParameterValueData>();
-			foreach(var parameterVariable in parameterVariables)
+			foreach (var parameterVariable in parameterVariables)
 			{
 				var rparam = parameters[parameterVariable.Name];
 				var parameterValue = rparam.CreateParameterValueData(parameterVariable.List);
 				parameterValues.Add(rparam.Id, parameterValue);
 			}
 
-            var resultData = context.ObjectService.PerformOperation(parentObject.ObjectReferenceData, model.Id, parameterValues);
+			var resultData = context.ObjectService.PerformOperation(parentObject.ObjectReferenceData, model.Id, parameterValues);
 
-			if(ResultIsVoid)
+			if (ResultIsVoid)
 			{
-                return context.CreateRvariable().Void();
+				return context.CreateRvariable().Void();
 			}
 
-            return context.CreateRvariable().With(resultData);
+			return context.CreateRvariable().With(resultData);
 		}
 	}
 }

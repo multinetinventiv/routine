@@ -6,16 +6,31 @@ using System.Text;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Routine.Core;
+using Routine.Core.Rest;
 
 namespace Routine.Soa
 {
 	public class SoaController : Controller
 	{
-		private readonly ISoaContext context;
+		private const int DEFAULT_RECURSION_LIMIT = 100;
 
-		public SoaController(ISoaContext context)
+		private static IRestSerializer CreateDefaultSerializer(int maxResultLength)
+		{
+			return new JsonRestSerializer(new JavaScriptSerializer
+				{
+					MaxJsonLength = maxResultLength,
+					RecursionLimit = DEFAULT_RECURSION_LIMIT
+				});
+		}
+
+		private readonly ISoaContext context;
+		private readonly IRestSerializer serializer;
+
+		public SoaController(ISoaContext context) : this(context, CreateDefaultSerializer(context.SoaConfiguration.MaxResultLength)) { }
+		public SoaController(ISoaContext context, IRestSerializer serializer)
 		{
 			this.context = context;
+			this.serializer = serializer;
 		}
 
 		protected override void OnException(ExceptionContext filterContext)
@@ -58,7 +73,7 @@ namespace Routine.Soa
 		{
 			var result = context.ObjectService.GetAvailableObjects(objectModelId);
 
-			return LargeJson(result.Select(o => o.ToSerializable()).ToList(), JsonRequestBehavior.AllowGet);
+			return LargeJson(result, JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetValue(ObjectReferenceData reference)
@@ -70,14 +85,14 @@ namespace Routine.Soa
 		{
 			var result = context.ObjectService.Get(reference);
 
-			return LargeJson(result.ToSerializable(), JsonRequestBehavior.AllowGet);
+			return LargeJson(result, JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			var result = context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues);
 
-			return LargeJson(result.ToSerializable());
+			return LargeJson(result);
 		}
 
 		#region MaxJsonLength extension
@@ -85,10 +100,9 @@ namespace Routine.Soa
 		protected LargeJsonResult LargeJson(object data) { return LargeJson(data, JsonRequestBehavior.DenyGet); }
 		protected virtual LargeJsonResult LargeJson(object data, JsonRequestBehavior jsonRequestBehavior)
 		{
-			return new LargeJsonResult
+			return new LargeJsonResult(serializer)
 				{
 					Data = data,
-					MaxJsonLength = context.SoaConfiguration.MaxResultLength,
 					JsonRequestBehavior = jsonRequestBehavior
 				};
 		}
@@ -97,14 +111,12 @@ namespace Routine.Soa
 		{
 			private const string JSON_REQUEST_GET_NOT_ALLOWED = "This request has been blocked because sensitive information could be disclosed to third party web sites when this is used in a GET request. To allow GET requests, set JsonRequestBehavior to AllowGet.";
 
-			public LargeJsonResult()
-			{
-				MaxJsonLength = 1024000;
-				RecursionLimit = 100;
-			}
+			private readonly IRestSerializer serializer;
 
-			public int MaxJsonLength { get; set; }
-			public int RecursionLimit { get; set; }
+			public LargeJsonResult(IRestSerializer serializer)
+			{
+				this.serializer = serializer;
+			}
 
 			public override void ExecuteResult(ControllerContext context)
 			{
@@ -133,12 +145,6 @@ namespace Routine.Soa
 				}
 
 				if (Data == null) { return; }
-
-				var serializer = new JavaScriptSerializer
-					{
-						MaxJsonLength = MaxJsonLength,
-						RecursionLimit = RecursionLimit
-					};
 
 				response.Write(serializer.Serialize(Data));
 			}

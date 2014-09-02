@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web.Script.Serialization;
 using NUnit.Framework;
 using Routine.Core;
 using Routine.Core.Api;
+using Routine.Core.Rest;
 
 namespace Routine.Test.Performance
 {
@@ -24,6 +26,7 @@ namespace Routine.Test.Performance
 						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
 						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))
 						.When(ctx => ctx.OperationModelId != "TestMaxLength")))
+				.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = 11788891 }))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
 					.ServiceUrlBaseIs("http://127.0.0.1:5485/Soa")
@@ -31,7 +34,7 @@ namespace Routine.Test.Performance
 					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When("language_code"))
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
 				);
-				
+
 
 			rapp = soaClientContext.Rapplication;
 		}
@@ -44,11 +47,11 @@ namespace Routine.Test.Performance
 			Console.WriteLine("Id: " + todoModule.Id);
 			Console.WriteLine("Value: " + todoModule.Value);
 			Console.WriteLine("Members:");
-			foreach(var member in todoModule.Members)
+			foreach (var member in todoModule.Members)
 			{
-				Console.WriteLine("\t" + member.Id + (member.IsList?" (List)":""));
+				Console.WriteLine("\t" + member.Id + (member.IsList ? " (List)" : ""));
 				var value = member.GetValue();
-				foreach(var item in value.List)
+				foreach (var item in value.List)
 				{
 					Console.WriteLine("\t\tId: " + item.Id);
 					Console.WriteLine("\t\tValue: " + item.Value);
@@ -62,7 +65,7 @@ namespace Routine.Test.Performance
 			}
 
 			var assignees = availables[0];
-			var testAssignee = assignees.Perform("SingleByName", rapp.NewVar<string>("name", "test", "s-string"));
+			var testAssignee = assignees.Perform("SingleByName", rapp.NewVar("name", "test", "s-string"));
 
 			Console.WriteLine("SingleByName(test):");
 
@@ -79,9 +82,9 @@ namespace Routine.Test.Performance
 					Console.WriteLine("\t\t\tValue: " + item.Value);
 				}
 			}
-			
+
 			Console.WriteLine("\tUpdating object...");
-			var updateResult = testAssignee.Object.Perform("Update", rapp.NewVar<string>("name", "test", "s-string"));
+			var updateResult = testAssignee.Object.Perform("Update", rapp.NewVar("name", "test", "s-string"));
 			Console.WriteLine("\tUpdate result is void: " + updateResult.IsVoid);
 
 			Console.WriteLine("----------");
@@ -105,31 +108,31 @@ namespace Routine.Test.Performance
 
 			Console.WriteLine("Sending data input... (ProjectManagementModule.CreateProjects)");
 			var bulkProjects = projectManagementModule.Perform("CreateProjects",
-				rapp.NewVar<DateTime>("defaultDeadline", DateTime.Now.AddDays(7), "s-date-time"),
+				rapp.NewVar("defaultDeadline", DateTime.Now.AddDays(7), "s-date-time"),
 				rapp.NewVarList("projects",
 					rapp.Init("m-project-management--new-project",
 						rapp.NewVar("customer", customers.List[0]),
-						rapp.NewVar<DateTime>("deadline", DateTime.Now.AddDays(14), "s-date-time"),
-						rapp.NewVar<string>("name", "project 1", "s-string"),
-						rapp.NewVarList("features", 
+						rapp.NewVar("deadline", DateTime.Now.AddDays(14), "s-date-time"),
+						rapp.NewVar("name", "project 1", "s-string"),
+						rapp.NewVarList("features",
 							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar<string>("name", "project 1 - feature 1", "s-string"),
-								rapp.NewVar<bool>("someBool", true, "s-boolean")
+								rapp.NewVar("name", "project 1 - feature 1", "s-string"),
+								rapp.NewVar("someBool", true, "s-boolean")
 							),
 							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar<string>("name", "project 1 - feature 2", "s-string"),
-								rapp.NewVar<bool>("someBool", false, "s-boolean")
+								rapp.NewVar("name", "project 1 - feature 2", "s-string"),
+								rapp.NewVar("someBool", false, "s-boolean")
 							)
 						)
 					),
 					rapp.Init("m-project-management--new-project",
 						rapp.NewVar("customer", customers.List[0]),
-						rapp.NewVar<DateTime>("deadline", DateTime.Now.AddDays(21), "s-date-time"),
-						rapp.NewVar<string>("name", "project 2", "s-string"),
+						rapp.NewVar("deadline", DateTime.Now.AddDays(21), "s-date-time"),
+						rapp.NewVar("name", "project 2", "s-string"),
 						rapp.NewVarList("features",
 							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar<string>("name", "project 2 - feature 1", "s-string"),
-								rapp.NewVar<bool>("someBool", false, "s-boolean")
+								rapp.NewVar("name", "project 2 - feature 1", "s-string"),
+								rapp.NewVar("someBool", false, "s-boolean")
 							)
 						)
 					)

@@ -21,7 +21,6 @@ namespace Routine.Test.Core.Api
 		protected Rapplication testingRapplication;
 
 		protected virtual string DefaultObjectModelId{get{return "DefaultModel";}}
-		private IObjectService ObjectService{get{return objectServiceMock.Object;}}
 
 		[SetUp]
 		public virtual void SetUp()
@@ -30,11 +29,11 @@ namespace Routine.Test.Core.Api
 			objectModelDictionary = new Dictionary<string, ObjectModel>();
 			objectDictionary = new Dictionary<ObjectReferenceData, ObjectData>();
 
-            var ctx = new DefaultApiContext(objectServiceMock.Object);
-            this.ctx = ctx;
+            var apiContext = new DefaultApiContext(objectServiceMock.Object);
+            ctx = apiContext;
 
-			testingRapplication = new Rapplication(ctx);
-            ctx.Rapplication = testingRapplication;
+			testingRapplication = new Rapplication(apiContext);
+            apiContext.Rapplication = testingRapplication;
 
 			objectServiceMock.Setup(o => o.GetApplicationModel())
 				.Returns(() => new ApplicationModel{Models = objectModelDictionary.Select(o => o.Value).ToList()});
@@ -342,7 +341,7 @@ namespace Routine.Test.Core.Api
 						.Setup(o => o.PerformOperation(
 							objectReferenceData, 
 							operationModelId,
-							It.Is<Dictionary<string, ParameterValueData>>(parameterMatcher)));
+							It.Is(parameterMatcher)));
 			}
 		}
 

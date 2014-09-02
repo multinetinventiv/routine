@@ -22,27 +22,11 @@ namespace Routine.Soa
 		{
 			try
 			{
-				if (typeof(T) == typeof(ObjectReferenceData)) 
-				{ 
-					object result = SerializationExtensions.DeserializeObjectReferenceData(serializer.Deserialize(responseString));
-					return (T)result;
-				}
-				else if (typeof(T) == typeof(ObjectData))
-				{
-					object result = SerializationExtensions.DeserializeObjectData(serializer.Deserialize(responseString));
-					return (T)result;
-				}
-				else if (typeof(T) == typeof(ValueData))
-				{
-					object result = SerializationExtensions.DeserializeValueData(serializer.Deserialize(responseString));
-					return (T)result;
-				}
-
 				return serializer.Deserialize<T>(responseString);
 			}
 			catch (Exception ex)
 			{
-				SoaExceptionResult exceptionResult = null;
+				SoaExceptionResult exceptionResult;
 
 				try { exceptionResult = new SoaExceptionResult(serializer.Deserialize<SoaExceptionResultData>(responseString)); } //assume it is a soa exception
 				catch (Exception) { throw ex; } //assumption was wrong, throw first exception
