@@ -126,9 +126,9 @@ namespace Routine
 		public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }
 		private ICache Cache() { return cache; }
 
-		private IInterceptionConfiguration interceptionConfiguration = null;
+		private IInterceptionConfiguration interceptionConfiguration;
 		public ContextBuilder UsingInterception(IInterceptionConfiguration interceptionConfiguration) { this.interceptionConfiguration = interceptionConfiguration; return this; }
-		public ContextBuilder UsingNoInterception() { this.interceptionConfiguration = null; return this; }
+		public ContextBuilder UsingNoInterception() { return UsingInterception(null); }
 		private IInterceptionConfiguration InterceptionConfiguration() { return interceptionConfiguration; }
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Script.Serialization;
 using Routine.Soa;
 
@@ -87,5 +88,11 @@ namespace Routine.Core.Rest
 
 			return realSerializer.Serialize(@object);
 		}
+	}
+
+	public static class ContextBuilderJsonRestSerializerExtensions
+	{
+		public static ContextBuilder UsingSerializer(this ContextBuilder source, int maxJsonLength) { return source.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = maxJsonLength })); }
+		public static ContextBuilder UsingSerializer(this ContextBuilder source, int maxJsonLength, int recursionLimit) { return source.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = maxJsonLength, RecursionLimit = recursionLimit })); }
 	}
 }
