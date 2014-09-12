@@ -1,5 +1,4 @@
-﻿using Routine.Core;
-using Routine.Core.Api;
+﻿using Routine.Core.Api;
 
 namespace Routine.Core
 {

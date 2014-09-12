@@ -1,6 +1,5 @@
 namespace Routine.Core.Rest
 {
-
 	public class RestParameter
 	{
 		public string Name{get;private set;}
@@ -27,7 +26,7 @@ namespace Routine.Core.Rest
 				return true;
 			if(obj.GetType() != typeof(RestParameter))
 				return false;
-			RestParameter other = (RestParameter)obj;
+			var other = (RestParameter)obj;
 			return Name == other.Name && Value == other.Value;
 		}
 
