@@ -169,7 +169,7 @@
                         .removeAttr("id").removeClass("template").addClass("module")
                         .appendTo($("#service-tree"))
                         .children(":first-child").click(function () {
-                            $(this).siblings("div").each(function () { $(this).toggle() });
+                            $(this).siblings("div").each(function () { $(this).toggle(); });
                         })
                         .parent();
                 }
@@ -466,7 +466,7 @@
             var responseDiv = $form.children(".response");
             responseDiv.empty();
             
-            if(data.IsException) {
+            if(data != undefined && data.IsException) {
                 showError(responseDiv, data);
                 return;
             }
@@ -481,7 +481,7 @@
                 return;
             }
             
-            var data = normalizeValue(data);
+            data = normalizeValue(data);
             
             var responseTypesDiv = $(tmp_response_types)
                 .removeAttr("id").removeClass("template").addClass("response-types")
