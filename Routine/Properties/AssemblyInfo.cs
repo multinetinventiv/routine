@@ -9,6 +9,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright © 2014")]
 [assembly: AssemblyTrademark("routineframework.org")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.3.12.*")]
+[assembly: AssemblyVersion("0.3.14.*")]
 
 [assembly: InternalsVisibleTo("Routine.Test")]

@@ -3,6 +3,7 @@ using System.Net;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 
 namespace Routine.Core.Rest
 {
@@ -27,7 +28,7 @@ namespace Routine.Core.Rest
 
 		public string Get(string url, params RestParameter[] parameters)
 		{
-			url += "?" + string.Join("&", parameters.Select(p => p.Name + "=" + p.Value));
+			url += "?" + string.Join("&", parameters.Select(p => p.Name + "=" + HttpUtility.UrlEncode(p.Value)));
 
 			var req = requestFactory(url);
 			req.Method = "GET";
@@ -47,7 +48,7 @@ namespace Routine.Core.Rest
 			var req = requestFactory(url);
 			req.Method = "POST";
 
-			string postData = string.Join("&", parameters.Select(p => p.Name + "=" + p.Value));
+			string postData = string.Join("&", parameters.Select(p => p.Name + "=" + HttpUtility.UrlEncode(p.Value)));
 			byte[] byteArray = Encoding.UTF8.GetBytes(postData);
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.ContentLength = byteArray.Length;
