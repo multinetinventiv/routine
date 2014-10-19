@@ -25,6 +25,8 @@ namespace Routine.Mvc
 		public string Module { get { return robj.Module; } }
 
 		public string Title { get { return robj.IsNull?MvcConfig.NullDisplayValue:robj.Value; } }
+	
+		//TODO get from mvc configuration
 		public bool HasDetail { get { return !robj.IsNull && robj.IsDomain && (robj.Members.Any() || robj.Operations.Any()); } }
 
 		private string ViewRouteNameBase { get { return MvcConfig.ViewRouteNameExtractor.Extract(this); } }
