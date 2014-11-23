@@ -9,13 +9,16 @@ namespace Routine.Api
 {
 	public class ApiGenerator
 	{
-		private readonly IApiGenerationContext context;
+		private readonly ApplicationCodeModel applicationCodeModel;
+		private readonly IApiGenerationConfiguration applicationConfiguration;
 		private readonly List<Assembly> references;
 
 		public ApiGenerator(IApiGenerationContext context)
 		{
-			this.context = context;
-			this.references = new List<Assembly>();
+			applicationCodeModel = context.Application;
+			applicationConfiguration = context.Configuration;
+
+			references = new List<Assembly>();
 
 			AddSystemReference();
 		}
@@ -24,7 +27,7 @@ namespace Routine.Api
 		public ApiGenerator AddReference<T>() { return AddReference(typeof(T).Assembly); }
 		public ApiGenerator AddReference(Assembly assembly)
 		{
-			if(references.Contains(assembly))
+			if (references.Contains(assembly))
 			{
 				return this;
 			}
@@ -36,7 +39,7 @@ namespace Routine.Api
 
 		public Assembly Generate(IApiTemplate template)
 		{
-			if(string.IsNullOrEmpty(context.ApiGenerationConfiguration.DefaultNamespace))
+			if (string.IsNullOrEmpty(applicationConfiguration.GetDefaultNamespace()))
 			{
 				throw new InvalidOperationException("DefaultNamespace property cannot be null or empty!");
 			}
@@ -44,7 +47,7 @@ namespace Routine.Api
 			var provider = new CSharpCodeProvider();
 			CompilerParameters compilerparams = CreateCompilerParameters();
 
-			string sourceCode = template.Render(context);
+			string sourceCode = template.Render(applicationCodeModel);
 
 			var results = provider.CompileAssemblyFromSource(compilerparams, sourceCode);
 			if (results.Errors.HasErrors)
@@ -54,9 +57,8 @@ namespace Routine.Api
 				{
 					errors.AppendFormat("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
 				}
-				Console.WriteLine("Generated Source Code: \n\n" + sourceCode);
 
-				throw new Exception(errors.ToString() + "\n\n Generated source code: \n\n" + sourceCode);
+				throw new Exception(string.Format("{0}\n\n Generated source code: \n\n{1}", errors, sourceCode));
 			}
 			Console.WriteLine(sourceCode);
 
@@ -68,22 +70,22 @@ namespace Routine.Api
 			var result = new CompilerParameters();
 			result.GenerateExecutable = false;
 
-			if (context.ApiGenerationConfiguration.InMemory)
+			if (applicationConfiguration.GetInMemory())
 			{
 				result.GenerateInMemory = true;
 			}
 			else
 			{
-				result.OutputAssembly = context.ApiGenerationConfiguration.DefaultNamespace + ".dll";
+				result.OutputAssembly = applicationConfiguration.GetDefaultNamespace() + ".dll";
 			}
 
-			foreach(var reference in references)
+			foreach (var reference in references)
 			{
 				result.ReferencedAssemblies.Add(reference.Location);
 			}
 
 			if (!result.ReferencedAssemblies.Contains(GetType().Assembly.Location)) { result.ReferencedAssemblies.Add(GetType().Assembly.Location); }
-            if (!result.ReferencedAssemblies.Contains("System.Core.dll")) { result.ReferencedAssemblies.Add("System.Core.dll"); }
+			if (!result.ReferencedAssemblies.Contains("System.Core.dll")) { result.ReferencedAssemblies.Add("System.Core.dll"); }
 
 			return result;
 		}

@@ -1,6 +1,4 @@
 using NUnit.Framework;
-using System;
-using Routine.Api;
 
 namespace Routine.Test.Soa
 {

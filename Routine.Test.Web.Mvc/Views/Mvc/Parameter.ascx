@@ -1,4 +1,5 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
+<%@ Import Namespace="Routine.Ui" %>
 
 <% var model = Model as ParameterViewModel; %>
 <% var index = ViewData["index"]; %>
@@ -9,7 +10,7 @@
 			data-type="<%= model.DataType %>" value="<%= model.DefaultValue %>" />
 	<% } else { %>
 		<input type="hidden" name="parameters[<%= index %>].value" />
-		<input type="button" value="Search" class="modal-search" data-type="modal" data-route="<%= Url.Route(model.GetSearcher("Instance")) %>?modal=true"/>
+		<input type="button" value="Search" class="modal-search" data-type="modal" data-route="<%= Url.Route(model.GetSearcher()) %>?modal=true"/>
 	<% } %>
 <% } else { %>
 	<% if(model.DataType == "s-boolean") { %>

@@ -1,30 +1,27 @@
 ﻿using System.Collections.Generic;
-using Routine.Core;
+using Routine.Client;
 
 namespace Routine.Api
 {
-	public class ParameterCodeModel : CodeModelBase
+	public class ParameterCodeModel
 	{
-		public ParameterCodeModel(IApiGenerationContext context)
-			: base(context) { }
+		public Rparameter Parameter { get; private set; }
+		public ObjectCodeModel Model { get; private set; }
 
-		private ParameterModel model;
-
-		internal ParameterCodeModel With(ParameterModel model)
+		public ParameterCodeModel(ApplicationCodeModel application, Rparameter parameter)
 		{
-			this.model = model;
+			Parameter = parameter;
 
-			return this;
+			Model = application.GetModel(parameter.ParameterType, parameter.IsList);
 		}
 
-		public string Id { get { return model.Id; } }
-		public ObjectCodeModel Model { get { return CreateObject().With(model.ViewModelId, model.IsList); } }
-		
-		internal List<int> Groups { get { return model.Groups; } }
+		public string Id { get { return Parameter.Id; } }
+
+		internal List<int> Groups { get { return Parameter.Groups; } }
 
 		public bool MarkedAs(string mark)
 		{
-			return model.Marks.Contains(mark);
+			return Parameter.MarkedAs(mark);
 		}
 	}
 }

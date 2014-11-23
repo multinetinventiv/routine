@@ -13,7 +13,7 @@ namespace Routine.Api.Template.T4
     using System.Text;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using Routine.Core.Api;
+    using Routine.Client;
     using System;
     
     /// <summary>
@@ -110,14 +110,14 @@ namespace Routine.Api.Template.T4
             this.Write("\t\t");
             
             #line 29 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
- var singletonIds = model.SingletonIds; 
+ var staticInstanceIds = model.StaticInstanceIds; 
             
             #line default
             #line hidden
             this.Write("\t\t");
             
             #line 30 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
- foreach(var singletonId in singletonIds) { 
+ foreach(var staticInstanceId in staticInstanceIds) { 
             
             #line default
             #line hidden
@@ -144,7 +144,7 @@ namespace Routine.Api.Template.T4
             #line hidden
             
             #line 33 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(singletonIds.Count > 1 ? singletonId.ToUpperInitial() : ""));
+            this.Write(this.ToStringHelper.ToStringWithCulture(staticInstanceIds.Count > 1 ? staticInstanceId.ToUpperInitial() : ""));
             
             #line default
             #line hidden
@@ -158,7 +158,7 @@ namespace Routine.Api.Template.T4
             this.Write("(rapplication.Get(\"");
             
             #line 35 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(singletonId));
+            this.Write(this.ToStringHelper.ToStringWithCulture(staticInstanceId));
             
             #line default
             #line hidden
@@ -192,7 +192,7 @@ namespace Routine.Api.Template.T4
             #line hidden
             
             #line 40 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(singletonIds.Count > 1 ? singletonId.ToUpperInitial() : ""));
+            this.Write(this.ToStringHelper.ToStringWithCulture(staticInstanceIds.Count > 1 ? staticInstanceId.ToUpperInitial() : ""));
             
             #line default
             #line hidden
@@ -206,7 +206,7 @@ namespace Routine.Api.Template.T4
             this.Write("(rapplication.Get(\"");
             
             #line 42 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(singletonId));
+            this.Write(this.ToStringHelper.ToStringWithCulture(staticInstanceId));
             
             #line default
             #line hidden
@@ -476,7 +476,7 @@ namespace Routine.Api.Template.T4
             
             #line default
             #line hidden
-            this.Write("\"].GetValue().");
+            this.Write("\"].Get().");
             
             #line 99 "E:\Projects\routine\Routine\Api\Template\T4\ClientApi.tt"
  RobjectToModel(member.ReturnModel); 

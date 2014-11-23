@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,33 +11,32 @@ using Routine.Api;
 using Routine.Api.Configuration;
 using Routine.Api.Context;
 using Routine.Api.Template.T4;
+using Routine.Client;
 using Routine.Core;
-using Routine.Core.Api;
+using Routine.Core.Configuration;
+using Routine.Test.Client;
 using Routine.Test.Common;
-using Routine.Test.Core.Api;
 
 namespace Routine.Test.Api
 {
 	[TestFixture]
 	public class ApiGeneratorTest : ApiTestBase
 	{
-		#region SetUp Helpers
+		#region SetUp & Helpers
+
 		private const string TEST_NAMESPACE = "Routine.Test.ApiGen.Client";
 
 		private ApiGenerator Generator() { return Generator(c => c); }
-		private ApiGenerator Generator(Func<GenericApiGenerationConfiguration, IApiGenerationConfiguration> config)
+		private ApiGenerator Generator(Func<ConventionalApiGenerationConfiguration, IApiGenerationConfiguration> config)
 		{
-			var ctx = new DefaultApiGenerationContext(
-				config(BuildRoutine.ApiGenerationConfig()
+			var cfg = config(
+				BuildRoutine.ApiGenerationConfig()
 					.FromBasic()
-					.GenerateInMemory(true)
-					.DefaultNamespaceIs(TEST_NAMESPACE)
-				)
-			);
+					.InMemory.Set(true)
+					.DefaultNamespace.Set(TEST_NAMESPACE)
+				);
 
-			ctx.Application = new ApplicationCodeModel(testingRapplication, ctx);
-
-			return new ApiGenerator(ctx);
+			return new ApiGenerator(new DefaultApiGenerationContext(cfg, new ApplicationCodeModel(testingRapplication, cfg)));
 		}
 
 		public Type GenerateAndGetClientClass(ApiGenerator generator, string name)
@@ -47,13 +47,14 @@ namespace Routine.Test.Api
 		public object GenerateAndGetClientInstance(ApiGenerator generator, string id, string name)
 		{
 			return Activator.CreateInstance(GenerateAndGetClientClass(generator, name), Robj(id, name));
-		} 
+		}
+
 		#endregion
 
 		[Test]
 		public void Generates_assembly_with_given_default_namespace_when_in_memory_is_set_to_false()
 		{
-			var testing = Generator(c => c.GenerateInMemory(false).DefaultNamespaceIs("Default.Namespace"));
+			var testing = Generator(c => c.InMemory.Set(false).DefaultNamespace.Set("Default.Namespace"));
 
 			Assembly assembly = testing.GenerateClientApi();
 
@@ -75,20 +76,20 @@ namespace Routine.Test.Api
 		{
 			ModelsAre(Model("TestClassId").Name("TestClass"));
 
-			var testing = Generator(c => c.DefaultNamespaceIs("Default.Namespace"));
+			var testing = Generator(c => c.DefaultNamespace.Set("Default.Namespace"));
 
 			var testClass = GenerateAndGetClientClass(testing, "TestClass");
 
 			Assert.IsTrue(testClass.Namespace.StartsWith("Default.Namespace"), "Namespace should start with Default.Namespace, but it is -> " + testClass.Namespace);
 
-			testing = Generator(c => c.DefaultNamespaceIs(null));
+			testing = Generator(c => c.DefaultNamespace.Set(null));
 
 			try
 			{
 				testing.GenerateClientApi();
 				Assert.Fail("exception not thrown");
 			}
-			catch(InvalidOperationException) {}
+			catch (InvalidOperationException) { }
 		}
 
 		[Test]
@@ -129,10 +130,12 @@ namespace Routine.Test.Api
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
 				.Member("Price", "c-price")
-				.Member("Address", "c-fat-string")
+				.Member("Address", "c-fat-string"),
+				Model("c-fat-string").IsValue(),
+				Model("c-price").IsValue()
 			);
 
-			var testing = 
+			var testing =
 				Generator(c => c
 					.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
 					.Use(p => p.ParseableValueTypePattern()))
@@ -152,23 +155,91 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void When_an_object_model_is_not_found_in_application_model_and_cannot_be_serialized_as_referenced_model_id__InvalidOperationException_is_thrown()
+		public void When_the_type_of_a_member__operation_or_parameter_is_not_rendered_and_is_not_configured_as_a_referenced_type__ConfigurationException_is_thrown()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "System.String"));
+			ModelsAre(
+				Model("TestClass")
+				.Name("TestClass")
+				.Member("Member", "s-string"),
+				Model("s-string").IsValue()
+			);
 
-			try {
+			try
+			{
 				Generator().GenerateClientApi();
 				Assert.Fail("exception not thrown");
-			} catch (InvalidOperationException ex) {
-				Assert.IsTrue(ex.Message.Contains("System.String"), "Exception message does not contain System.String");
 			}
+			catch (ConfigurationException ex)
+			{
+				Assert.IsTrue(ex.Message.Contains("s-string"), "Exception message does not contain s-string");
+			}
+
+			ModelsAre(true, Model("TestClass").Name("TestClass").Initializer(PModel("notReferenced", "s-string")));
+
+			try
+			{
+				Generator().GenerateClientApi();
+				Assert.Fail("exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.IsTrue(ex.Message.Contains("s-string"), "Exception message does not contain s-string");
+			}
+
+			ModelsAre(true, Model("TestClass").Name("TestClass").Operation("Operation", PModel("notReferenced", "s-string")));
+
+			try
+			{
+				Generator().GenerateClientApi();
+				Assert.Fail("exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.IsTrue(ex.Message.Contains("s-string"), "Exception message does not contain s-string");
+			}
+
+			ModelsAre(true, Model("TestClass").Name("TestClass").Operation("Operation", "s-string"));
+
+			try
+			{
+				Generator().GenerateClientApi();
+				Assert.Fail("exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.IsTrue(ex.Message.Contains("s-string"), "Exception message does not contain s-string");
+			}
+		}
+
+		[Test]
+		public void Types_of_members__operations_and_parameters_that_are_neither_rendered_nor_configured_as_a_referenced_type__can_be_configured_to_be_skipped()
+		{
+			ModelsAre(
+				Model("TestClass")
+				.Name("TestClass")
+				.Initializer(PModel("notReferenced", "s-string"))
+				.Member("Member", "s-string")
+				.Operation("Operation", "s-string")
+				.Operation("Operation2", PModel("notReferenced", "s-string")),
+				Model("s-string").IsValue()
+			);
+
+			var clientType = GenerateAndGetClientClass(Generator(c => c.IgnoreReferencedTypeNotFound.Set(true)), "TestClass");
+
+			Assert.IsFalse(clientType.GetConstructors().Any(c => c.GetParameters().Any(p => p.Name == "notReferenced")));
+			Assert.IsFalse(clientType.GetProperties().Any(c => c.Name == "Member"));
+			Assert.IsFalse(clientType.GetMethods().Any(c => c.Name == "Operation"));
+			Assert.IsFalse(clientType.GetMethods().Any(c => c.GetParameters().Any(p => p.Name == "notReferenced")));
 		}
 
 		[Test]
 		public void Initializer_is_rendered_as_constructor()
 		{
 			ModelsAre(
-				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+				Model("TestClass")
+				.Name("TestClass")
+				.Initializer(PModel("name", "s-string")),
+				Model("s-string").IsValue()
 			);
 
 			var testing =
@@ -189,8 +260,10 @@ namespace Routine.Test.Api
 		public void Initializer_groups_are_rendered_as_constructor_overloads()
 		{
 			ModelsAre(
-				Model("TestClass").Name("TestClass")
-					.Initializer(PModel("name", "s-string",  0, 1), PModel("surname", "s-string", 1))
+				Model("TestClass")
+				.Name("TestClass")
+				.Initializer(PModel("name", "s-string", 0, 1), PModel("surname", "s-string", 1)),
+				Model("s-string").IsValue()
 			);
 
 			var testing =
@@ -219,7 +292,10 @@ namespace Routine.Test.Api
 		[Test]
 		public void Members_are_rendered_as_read_only_properties()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Name", "s-string"));
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Member("Name", "s-string"),
+				Model("s-string").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -239,7 +315,10 @@ namespace Routine.Test.Api
 		[Test]
 		public void List_member_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", true));
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Member("OrderIds", "s-string", true),
+				Model("s-string").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -270,7 +349,10 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operation_results_are_method_return_types()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Operation("StringMethod", "s-string"));
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Operation("StringMethod", "s-string"),
+				Model("s-string").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -286,9 +368,10 @@ namespace Routine.Test.Api
 		[Test]
 		public void List_operation_result_support()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("StringListMethod", "s-string", true));
-
+			ModelsAre(
+				Model("TestClass").Name("TestClass").Operation("StringListMethod", "s-string", true),
+				Model("s-string").IsValue()
+			);
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern()));
@@ -303,8 +386,12 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operation_parameters_are_method_parameters()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("ParameterMethod", true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)));
+			ModelsAre(
+				Model("TestClass")
+				.Name("TestClass")
+				.Operation("ParameterMethod", true, PModel("arg1", "s-string"), PModel("arg2", "s-string", true)),
+				Model("s-string").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -324,8 +411,13 @@ namespace Routine.Test.Api
 		[Test]
 		public void Operation_groups_are_rendered_as_method_overloads()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass")
-				.Operation("OverloadMethod", true, PModel("param1", "s-string", 0, 1), PModel("param2", "s-int-32", 1, 2)));
+			ModelsAre(
+				Model("TestClass")
+				.Name("TestClass")
+				.Operation("OverloadMethod", true, PModel("param1", "s-string", 0, 1), PModel("param2", "s-int-32", 1, 2)),
+				Model("s-string").IsValue(),
+				Model("s-int-32").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -353,7 +445,7 @@ namespace Routine.Test.Api
 		}
 
 		[Test][Ignore]
-		public void Naked_objects_have_a_conversion_method_for_each_of_their_view_model()
+		public void Client_types_have_a_conversion_method_for_each_of_their_view_model()
 		{
 			Assert.Fail("to be designed");
 		}
@@ -366,7 +458,10 @@ namespace Routine.Test.Api
 				Model("Included2-TestClass2").Module("Included2").Name("TestClass2"),
 				Model("Excluded1-TestClass3").Module("Excluded1").Name("TestClass3"));
 
-			var testing = Generator(c => c.IncludeModule("Included.*"));
+			var testing = Generator(c => c
+				.TypeIsRendered.Set(false, m => !m.Module.Matches("Included.*"))
+			);
+
 			var types = testing.GenerateClientApi().GetTypes();
 
 			Assert.IsTrue(types.Any(t => t.Name == "TestClass1"), "TestClass1 was not found");
@@ -375,27 +470,32 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void Automatically_excludes_members_and_operations_needing_a_type_in_excluded_modules()
+		public void Automatically_excludes_members_and_operations_needing_a_not_rendered_model()
 		{
 			ModelsAre(
 				Model("Included-TestClass1").Module("Included").Name("TestClass1")
+				.Initializer(PModel("parameterExcluded", "Excluded-TestClass2"))
 				.Member("PropertyExcluded", "Excluded-TestClass2")
 				.Member("PropertyIncluded", "s-string")
 				.Operation("MethodExcludedBecauseOfReturnType", "Excluded-TestClass2")
 				.Operation("MethodExcludedBecauseOfParameter", "s-string", PModel("excludeReason", "Excluded-TestClass2"))
 				.Operation("MethodIncluded", "s-string"),
-				Model("Excluded-TestClass2").Module("Excluded").Name("TestClass2"));
+				Model("Excluded-TestClass2").Module("Excluded").Name("TestClass2"),
+				Model("s-string").IsValue()
+			);
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
-				.IncludeModule("Included.*"));
+				.TypeIsRendered.Set(false, m => !m.Module.Matches("Included.*")));
 
 			var types = testing.GenerateClientApi().GetTypes();
 
 			Assert.IsFalse(types.Any(t => t.Name == "TestClass2"), "TestClass2 was found");
 
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
+
+			Assert.IsFalse(testClass1.GetConstructors().Any(c => c.GetParameters().Any(p => p.Name == "parameterExcluded")), "Initializer should be excluded but was found");
 
 			Assert.IsNull(testClass1.GetProperty("PropertyExcluded"), "PropertyExcluded was found");
 			Assert.IsNull(testClass1.GetMethod("MethodExcludedBecauseOfReturnType"), "MethodExcludedBecauseOfReturnType was found");
@@ -416,21 +516,21 @@ namespace Routine.Test.Api
 			var otherApiGenerator = Generator(c => c
 				//RoutineTest is used instead of Routine.Test
 				//when running all tests together, it conflicts with another test
-				.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module1")
-				.GenerateInMemory(false)
-				.IncludeModule("Module1"));
+				.DefaultNamespace.Set("RoutineTest.ApiGen.Client.Module1")
+				.InMemory.Set(false)
+				.TypeIsRendered.Set(false, m => m.Module != "Module1"));
 
 			var otherApi = otherApiGenerator.GenerateClientApi();
 
 			var testClass1 = otherApi.GetTypes().Single(t => t.Name == "TestClass1");
 
 			var testing = Generator(c => c
-					.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module2")
-					.IncludeModule("Module2")
-					.SerializeReferencedModelId.Done(s => s
-						.DeserializeBy(str => str.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToType())
-						.DeserializeWhen(str => str.StartsWith("Module1")))
-					)
+				.DefaultNamespace.Set("RoutineTest.ApiGen.Client.Module2")
+				.TypeIsRendered.Set(false, m => m.Module != "Module2")
+				.ReferencedType.Set(s => s
+					.By(t => t.Id.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToTypeInfo(true))
+					.When(t => t.Id.StartsWith("Module1")))
+				)
 				.AddReference(otherApi);
 
 			var testClass2 = GenerateAndGetClientClass(testing, "TestClass2");
@@ -445,7 +545,7 @@ namespace Routine.Test.Api
 			ModelsAre(
 				Model("Module1-TestClass1").Module("Module1").Name("TestClass1"));
 
-			var testing = Generator(c => c.DefaultNamespaceIs("Routine.Test.ApiGen.Client.Module1"));
+			var testing = Generator(c => c.DefaultNamespace.Set("Routine.Test.ApiGen.Client.Module1"));
 
 			var testClass1 = GenerateAndGetClientClass(testing, "TestClass1");
 
@@ -525,7 +625,7 @@ namespace Routine.Test.Api
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
 					p["arg1"].Values[0].ReferenceId == expectedGuid.ToString())
-				.Returns(Result(Id(expectedInt.ToString(), "s-int-32")));
+				.Returns(Result(Id(expectedInt.ToString(CultureInfo.InvariantCulture), "s-int-32")));
 
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
@@ -564,7 +664,7 @@ namespace Routine.Test.Api
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
-				.ExtractTargetValueType.Done(e => e.Always(type.of<string>()).When(t => t == type.of<int>()))
+				.TargetValueType.Set(e => e.Constant(type.of<string>()).When(type.of<int>()))
 				);
 
 			var testObj = GenerateAndGetClientInstance(testing, "test_id", "TestClass");
@@ -602,9 +702,8 @@ namespace Routine.Test.Api
 			var testing = Generator(c => c
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
-				.ExtractTargetValueType.Done(e => e.Always(type.of<FatString>()).When(t => t == type.of<string>()))
-				)
-				.AddReference<FatString>();
+				.TargetValueType.Set(type.of<FatString>(), type.of<string>())
+			).AddReference<FatString>();
 
 			var testObj = GenerateAndGetClientInstance(testing, "test_id", "TestClass");
 
@@ -679,20 +778,21 @@ namespace Routine.Test.Api
 			var otherApiGenerator = Generator(c => c
 				//RoutineTest is used instead of Routine.Test, 
 				//this is because when running all tests together, it conflicts with another test
-				.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module2") 
-				.GenerateInMemory(false)
-				.IncludeModule("Module2"));
+				.DefaultNamespace.Set("RoutineTest.ApiGen.Client.Module2")
+				.InMemory.Set(false)
+				.TypeIsRendered.Set(false, m => m.Module != "Module2")
+			);
 
 			var otherApi = otherApiGenerator.GenerateClientApi();
 
 			var testClass2 = otherApi.GetTypes().Single(t => t.Name == "TestClass2");
 
 			var testing = Generator(c => c
-					.DefaultNamespaceIs("RoutineTest.ApiGen.Client.Module1")
-					.IncludeModule("Module1")
-					.SerializeReferencedModelId.Done(s => s
-						.DeserializeBy(str => str.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToType())
-						.DeserializeWhen(str => str.StartsWith("Module2")))
+					.DefaultNamespace.Set("RoutineTest.ApiGen.Client.Module1")
+				.TypeIsRendered.Set(false, m => m.Module != "Module1")
+					.ReferencedType.Set(s => s
+						.By(t => t.Id.Replace("-", ".").Prepend("RoutineTest.ApiGen.Client.").ToTypeInfo(true))
+						.When(t => t.Id.StartsWith("Module2")))
 				)
 				.AddReference(otherApi);
 
@@ -967,14 +1067,13 @@ namespace Routine.Test.Api
 			);
 
 			var testing = Generator(c => c
-				.ApiNameIs("TestApi")
-				.SelectSingletonId.Done(s => s
-					.Always("instance1", "instance2")
+				.ApiName.Set("TestApi")
+				.StaticInstanceIds.Add(s => s
+					.Constant("instance1", "instance2")
 					.When(ocm => ocm.Id.EndsWith("Class1"))));
 
 			var testApi = testing.GenerateClientApi();
 
-			var testClass1 = testApi.GetTypes().Single(t => t.Name == "TestClass1");
 			var testClass2 = testApi.GetTypes().Single(t => t.Name == "TestClass2");
 			var apiClass = testApi.GetTypes().Single(t => t.Name == "TestApi");
 
@@ -995,11 +1094,12 @@ namespace Routine.Test.Api
 		public void Api_class_can_initialize_initializable_models()
 		{
 			ModelsAre(
-				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string"))
+				Model("TestClass").Name("TestClass").Initializer(PModel("name", "s-string")),
+				Model("s-string").IsValue()
 			);
 
 			var testing = Generator(c => c
-				.ApiNameIs("TestApi")
+				.ApiName.Set("TestApi")
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern()));
 
@@ -1033,17 +1133,15 @@ namespace Routine.Test.Api
 			);
 
 			var testing = Generator(c => c
-				.ApiNameIs("TestApi")
-				.SelectSingletonId.Done(s => s
-					.Always("instance1")
+				.ApiName.Set("TestApi")
+				.StaticInstanceIds.Add(s => s
+					.Constant("instance1")
 					.When(ocm => ocm.Id.EndsWith("Class1"))));
 
 			var testApi = testing.GenerateClientApi();
 
-			var testClass1 = testApi.GetTypes().Single(t => t.Name == "TestClass1");
-			var testClass2 = testApi.GetTypes().Single(t => t.Name == "TestClass2");
 			var apiClass = testApi.GetTypes().Single(t => t.Name == "TestApi");
-			
+
 			var apiObj = Activator.CreateInstance(apiClass, testingRapplication);
 
 			var instance1 = apiClass.GetMethod("GetTestClass1", new Type[0]).Invoke(apiObj, new object[0]);
@@ -1066,15 +1164,12 @@ namespace Routine.Test.Api
 			);
 
 			var testing = Generator(c => c
-				.ApiNameIs("TestApi")
-				.SelectSingletonId
-					.Add(s => s.Always("instance1").When(ocm => ocm.Id.EndsWith("Class1")))
-					.Done(s => s.Always("instance2", "instance3").When(ocm => ocm.Id.EndsWith("Class2"))));
+				.ApiName.Set("TestApi")
+				.StaticInstanceIds.Add(s => s.Constant("instance1").When(ocm => ocm.Id.EndsWith("Class1")))
+				.StaticInstanceIds.Add(s => s.Constant("instance2", "instance3").When(ocm => ocm.Id.EndsWith("Class2"))));
 
 			var testApi = testing.GenerateClientApi();
 
-			var testClass1 = testApi.GetTypes().Single(t => t.Name == "TestClass1");
-			var testClass2 = testApi.GetTypes().Single(t => t.Name == "TestClass2");
 			var apiClass = testApi.GetTypes().Single(t => t.Name == "TestApi");
 
 			Assert.AreEqual(TEST_NAMESPACE, apiClass.Namespace);
@@ -1095,7 +1190,8 @@ namespace Routine.Test.Api
 		public void When_api_class_is_generated__Robject_property_and_constructors_are_rendered_as_internal()
 		{
 			ModelsAre(
-				Model("TestClass1").Name("TestClass1").Initializer(PModel("name", "s-string"))
+				Model("TestClass1").Name("TestClass1").Initializer(PModel("name", "s-string")),
+				Model("s-string").IsValue()
 			);
 
 			ObjectsAre(
@@ -1103,11 +1199,11 @@ namespace Routine.Test.Api
 			);
 
 			var testing = Generator(c => c
-				.ApiNameIs("TestApi")
+				.ApiName.Set("TestApi")
 				.Use(p => p.ShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())
-				.SelectSingletonId.Done(s => s
-					.Always("instance1")
+				.StaticInstanceIds.Add(s => s
+					.Constant("instance1")
 					.When(ocm => ocm.Id.EndsWith("Class1"))));
 
 			var testApi = testing.GenerateClientApi();
@@ -1128,25 +1224,26 @@ namespace Routine.Test.Api
 			);
 
 			var otherApiGenerator = Generator(c => c
-					.ApiNameIs("Module2Api")
-					.DefaultNamespaceIs("Routine.Test.ApiGen.Client.Module2")
-					.GenerateInMemory(false)
-					.FriendlyAssemblyNamesAre("Routine.Test.ApiGen.Client.Module1")
-					.IncludeModule("Module2"));
+					.ApiName.Set("Module2Api")
+					.DefaultNamespace.Set("Routine.Test.ApiGen.Client.Module2")
+					.InMemory.Set(false)
+					.FriendlyAssemblyNames.Add("Routine.Test.ApiGen.Client.Module1")
+					.TypeIsRendered.Set(false, m => m.Module != "Module2")
+				);
 
 			var otherApi = otherApiGenerator.GenerateClientApi();
 
 			var testing = Generator(c => c
-					.ApiNameIs("Module1Api")
-					.DefaultNamespaceIs("Routine.Test.ApiGen.Client.Module1")
-					.GenerateInMemory(false)
-					.IncludeModule("Module1")
-					.SerializeReferencedModelId.Done(s => s
-						.DeserializeBy(str => str.Replace("-", ".").Prepend("Routine.Test.ApiGen.Client.").ToType())
-						.DeserializeWhen(str => str.StartsWith("Module2")))
+					.ApiName.Set("Module1Api")
+					.DefaultNamespace.Set("Routine.Test.ApiGen.Client.Module1")
+					.InMemory.Set(false)
+					.TypeIsRendered.Set(false, m => m.Module != "Module1")
+					.ReferencedType.Set(s => s
+						.By(t => t.Id.Replace("-", ".").Prepend("Routine.Test.ApiGen.Client.").ToTypeInfo(true))
+						.When(t => t.Id.StartsWith("Module2")))
 					)
 				.AddReference(otherApi);
-			
+
 			var api = testing.GenerateClientApi();
 
 			Assert.IsTrue(File.Exists(otherApi.Location));

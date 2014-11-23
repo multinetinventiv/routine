@@ -1,28 +1,26 @@
-﻿using Routine.Core;
+﻿using Routine.Client;
 
 namespace Routine.Api
 {
-	public class MemberCodeModel : CodeModelBase
+	public class MemberCodeModel
 	{
-		public MemberCodeModel(IApiGenerationContext context)
-			: base(context) { }
+		public Rmember Member { get; private set; }
 
-		private MemberModel model;
+		public ObjectCodeModel ReturnModel { get; private set; }
 
-		internal MemberCodeModel With(MemberModel model)
+		public MemberCodeModel(ApplicationCodeModel application, Rmember member)
 		{
-			this.model = model;
+			Member = member;
 
-			return this;
+			ReturnModel = application.GetModel(member.MemberType, member.IsList);
 		}
 
-		public string Id { get { return model.Id; } }
-		public bool IsList { get { return model.IsList; } }
-		public ObjectCodeModel ReturnModel { get { return CreateObject().With(model.ViewModelId, model.IsList); } }
+		public string Id { get { return Member.Id; } }
+		public bool IsList { get { return Member.IsList; } }
 
 		public bool MarkedAs(string mark)
 		{
-			return model.Marks.Contains(mark);
+			return Member.MarkedAs(mark);
 		}
 	}
 }

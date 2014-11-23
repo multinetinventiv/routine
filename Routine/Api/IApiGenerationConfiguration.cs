@@ -1,25 +1,28 @@
 ﻿using System.Collections.Generic;
-using Routine.Core;
+using Routine.Client;
+using Routine.Engine;
 
 namespace Routine.Api
 {
 	public interface IApiGenerationConfiguration
 	{
-		string ApiName { get; }
-		string DefaultNamespace { get; }
-		bool InMemory { get; }
-		ModuleFilter Modules { get; }
-		List<string> FriendlyAssemblyNames { get; }
+		string GetApiName();
+		string GetDefaultNamespace();
+		bool GetInMemory();
+		bool GetIgnoreReferencedTypeNotFound();
 
-		ISerializer<TypeInfo> ReferencedModelIdSerializer { get; }
+		List<string> GetFriendlyAssemblyNames();
 
-		IExtractor<TypeInfo, bool> ReferencedTypeIsValueTypeExtractor { get; }
-		
-		IExtractor<TypeInfo, TypeInfo> TargetValueTypeExtractor { get; }
-		
-		IExtractor<TypeInfo, string> StringToValueCodeTemplateExtractor { get; }
-		IExtractor<TypeInfo, string> ValueToStringCodeTemplateExtractor { get; }
+		IType GetReferencedType(Rtype type);
+		bool GetReferencedTypeIsValueType(IType type);
+		IType GetTargetValueType(IType type);
+		string GetStringToValueCodeTemplate(IType type);
+		string GetValueToStringCodeTemplate(IType type);
+		List<string> GetStaticInstanceIds(ObjectCodeModel objectCodeModel);
 
-		ISelector<ObjectCodeModel, string> SingletonIdSelector { get; }
+		bool IsRendered(Rtype type);
+		bool IsRendered(Rinitializer initializer);
+		bool IsRendered(Rmember member);
+		bool IsRendered(Roperation operation);
 	}
 }

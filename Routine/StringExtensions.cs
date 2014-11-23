@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -31,14 +33,14 @@ namespace Routine
 			                            "(?<=[^A-Z])(?=[A-Z])",
 			                            "(?<=[A-Za-z])(?=[^A-Za-z])");
 
-			return Regex.Replace(source, pattern, splitter.ToString());
+			return Regex.Replace(source, pattern, splitter.ToString(CultureInfo.InvariantCulture));
 		}
 
 		public static string SnakeCaseToCamelCase(this string source) { return source.SnakeCaseToCamelCase('_'); }
 		public static string SnakeCaseToCamelCase(this string source, char splitter)
 		{
 			if(source == null) {return null;}
-			if (!source.Contains(splitter.ToString())) { return source; }
+			if (!source.Contains(splitter.ToString(CultureInfo.InvariantCulture))) { return source; }
 
 			var words = source.Split(splitter);
 
@@ -51,27 +53,25 @@ namespace Routine
 			return result;
 		}
 
-		public static string Before(this string source, char searchChar) { return source.Before(searchChar.ToString()); }
+		public static string Before(this string source, char searchChar) { return source.Before(searchChar.ToString(CultureInfo.InvariantCulture)); }
 		public static string Before(this string source, string searchString) { return source.Before(searchString, true); }
-		public static string BeforeLast(this string source, char searchChar) { return source.BeforeLast(searchChar.ToString()); }
+		public static string BeforeLast(this string source, char searchChar) { return source.BeforeLast(searchChar.ToString(CultureInfo.InvariantCulture)); }
 		public static string BeforeLast(this string source, string searchString) { return source.Before(searchString, false); }
-		private static string Before(this string source, char searchChar, bool first) { return source.Before(searchChar.ToString(), first); }
 		private static string Before(this string source, string searchString, bool first)
 		{
-			int ix = first ? source.IndexOf(searchString) : source.LastIndexOf(searchString);
-			if(ix < 0) { return source; }
+			var ix = first ? source.IndexOf(searchString, StringComparison.Ordinal) : source.LastIndexOf(searchString, StringComparison.Ordinal);
 
-			return source.Substring(0, ix);
+			return ix < 0 ? source : source.Substring(0, ix);
 		}
 		
-		public static string After(this string source, char searchChar) { return source.After(searchChar.ToString()); }
+		public static string After(this string source, char searchChar) { return source.After(searchChar.ToString(CultureInfo.InvariantCulture)); }
 		public static string After(this string source, string searchString) { return source.After(searchString, true); }
-		public static string AfterLast(this string source, char searchChar) { return source.AfterLast(searchChar.ToString());}
+		public static string AfterLast(this string source, char searchChar) { return source.AfterLast(searchChar.ToString(CultureInfo.InvariantCulture));}
 		public static string AfterLast(this string source, string searchString) {return source.After(searchString, false);}
-		private static string After(this string source, char searchChar, bool first) {return source.After(searchChar.ToString(), first);}
 		private static string After(this string source, string searchString, bool first)
 		{
-			int ix = first ? source.IndexOf(searchString) : source.LastIndexOf(searchString);
+			var ix = first ? source.IndexOf(searchString, StringComparison.Ordinal) : source.LastIndexOf(searchString, StringComparison.Ordinal);
+			
 			if(ix < 0) { return source; }
 			ix = ix + searchString.Length;
 			return source.Substring(ix, source.Length - ix);

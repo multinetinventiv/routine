@@ -26,7 +26,7 @@ namespace Routine.Soa
 		private readonly ISoaContext context;
 		private readonly IRestSerializer serializer;
 
-		public SoaController(ISoaContext context) : this(context, CreateDefaultSerializer(context.SoaConfiguration.MaxResultLength)) { }
+		public SoaController(ISoaContext context) : this(context, CreateDefaultSerializer(context.SoaConfiguration.GetMaxResultLength())) { }
 		public SoaController(ISoaContext context, IRestSerializer serializer)
 		{
 			this.context = context;
@@ -38,13 +38,15 @@ namespace Routine.Soa
 			base.OnException(filterContext);
 
 			filterContext.ExceptionHandled = true;
-			filterContext.Result = LargeJson(context.SoaConfiguration.ExceptionResultExtractor.Extract(filterContext.Exception), JsonRequestBehavior.AllowGet);
+			filterContext.Result = LargeJson(context.SoaConfiguration.GetExceptionResult(filterContext.Exception), JsonRequestBehavior.AllowGet);
 		}
 
 		public ActionResult Index()
 		{
 			var stream = GetType().Assembly.GetManifestResourceStream(
 					GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith("SoaTestPage.html")));
+
+			if (stream == null) { throw new InvalidOperationException("Could not get manifest resource stream for test page"); }
 
 			var sr = new StreamReader(stream);
 
@@ -54,7 +56,7 @@ namespace Routine.Soa
 
 			fileContent = fileContent
 				.Replace("@urlBase", Url.Action("Index"))
-				.Replace("@defaultParams", string.Join(",", context.SoaConfiguration.DefaultParameters.Select(s => s.SurroundWith("\""))));
+				.Replace("@headers", string.Join(",", context.SoaConfiguration.GetHeaders().Select(s => s.SurroundWith("\""))));
 
 			return File(Encoding.UTF8.GetBytes(fileContent), "text/html");
 		}
@@ -67,13 +69,6 @@ namespace Routine.Soa
 		public JsonResult GetObjectModel(string objectModelId)
 		{
 			return LargeJson(context.ObjectService.GetObjectModel(objectModelId), JsonRequestBehavior.AllowGet);
-		}
-
-		public JsonResult GetAvailableObjects(string objectModelId)
-		{
-			var result = context.ObjectService.GetAvailableObjects(objectModelId);
-
-			return LargeJson(result, JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetValue(ObjectReferenceData reference)
@@ -93,6 +88,13 @@ namespace Routine.Soa
 			var result = context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues);
 
 			return LargeJson(result);
+		}
+
+		public JsonResult Perform(ObjectReferenceData targetReference, string operationModelId, string parameters)
+		{
+			var parameterValues = serializer.Deserialize<Dictionary<string, ParameterValueData>>(parameters);
+
+			return PerformOperation(targetReference, operationModelId, parameterValues);
 		}
 
 		#region MaxJsonLength extension

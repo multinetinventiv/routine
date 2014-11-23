@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using Routine.Core;
 
 namespace Routine.Soa
 {
 	public interface ISoaClientConfiguration
 	{
-		string ServiceUrlBase { get; }
-		List<string> DefaultParameters { get; }
+		string GetServiceUrlBase();
+		
+		Exception GetException(SoaExceptionResult exceptionResult);
 
-		IExtractor<SoaExceptionResult, Exception> ExceptionExtractor { get; }
-		IExtractor<string, string> DefaultParameterValueExtractor { get; }
+		List<string> GetHeaders();
+		string GetHeaderValue(string header);
 	}
 }
 

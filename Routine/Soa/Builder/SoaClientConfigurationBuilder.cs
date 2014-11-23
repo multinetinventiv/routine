@@ -5,16 +5,16 @@ namespace Routine.Soa.Builder
 {
 	public class SoaClientConfigurationBuilder
 	{
-		public GenericSoaClientConfiguration FromScratch()
+		public ConventionalSoaClientConfiguration FromScratch()
 		{
-			return new GenericSoaClientConfiguration();
+			return new ConventionalSoaClientConfiguration();
 		}
 
-		public GenericSoaClientConfiguration FromBasic()
+		public ConventionalSoaClientConfiguration FromBasic()
 		{
 			return FromScratch()
-				.ExtractException.OnFailReturn(new Exception())
-				.ExtractDefaultParameterValue.OnFailReturn(string.Empty)
+				.Exception.OnFailReturn(new Exception())
+				.HeaderValue.OnFailReturn(string.Empty)
 				;
 		}
 	}

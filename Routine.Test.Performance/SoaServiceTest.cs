@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using NUnit.Framework;
-using Routine.Core;
-using Routine.Core.Api;
+using Routine.Client;
 using Routine.Core.Rest;
 
 namespace Routine.Test.Performance
@@ -20,26 +19,26 @@ namespace Routine.Test.Performance
 			soaClientContext = BuildRoutine.Context()
 				.UsingInterception(BuildRoutine.InterceptionConfig()
 					.FromBasic()
-					.InterceptPerformOperation.Done(i => i.Do()
+					.ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()
 						.Before(ctx => Console.WriteLine("before - " + ctx.OperationModelId))
 						.Success(ctx => Console.WriteLine("success - " + ctx.Result))
 						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
 						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))
-						.When(ctx => ctx.OperationModelId != "TestMaxLength")))
+						.When(ctx => ctx.OperationModelId != "TestMaxLength"))))
 				.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = 11788891 }))
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
-					.ServiceUrlBaseIs("http://127.0.0.1:5485/Soa")
-					.DefaultParametersAre("language_code")
-					.ExtractDefaultParameterValue.Done(e => e.Always("tr-TR").When("language_code"))
+					.ServiceUrlBase.Set("http://127.0.0.1:5485/Soa")
+					.Headers.Add("language_code")
+					.HeaderValue.Set("tr-TR", "language_code")
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
 				);
 
 
-			rapp = soaClientContext.Rapplication;
+			rapp = soaClientContext.Application;
 		}
 
-		[Test]
+		[Test][Ignore]
 		public void ServiceClientTest()
 		{
 			var todoModule = rapp.Get("Instance", "m-todo--todo-module");
@@ -47,24 +46,24 @@ namespace Routine.Test.Performance
 			Console.WriteLine("Id: " + todoModule.Id);
 			Console.WriteLine("Value: " + todoModule.Value);
 			Console.WriteLine("Members:");
-			foreach (var member in todoModule.Members)
+			foreach (var memberValue in todoModule.MemberValues)
 			{
-				Console.WriteLine("\t" + member.Id + (member.IsList ? " (List)" : ""));
-				var value = member.GetValue();
+				Console.WriteLine("\t" + memberValue.Member.Id + (memberValue.Member.IsList ? " (List)" : ""));
+				var value = memberValue.Get();
 				foreach (var item in value.List)
 				{
 					Console.WriteLine("\t\tId: " + item.Id);
 					Console.WriteLine("\t\tValue: " + item.Value);
 				}
 			}
-			var availables = rapp.GetAvailableObjects("m-todo--assignees");
+			var instances = rapp["m-todo--assignees"].StaticInstances;
 			Console.WriteLine("Available objects for m-todo--assignees:");
-			foreach (var available in availables)
+			foreach (var instance in instances)
 			{
-				Console.WriteLine("\t" + available.Id);
+				Console.WriteLine("\t" + instance.Id);
 			}
 
-			var assignees = availables[0];
+			var assignees = instances[0];
 			var testAssignee = assignees.Perform("SingleByName", rapp.NewVar("name", "test", "s-string"));
 
 			Console.WriteLine("SingleByName(test):");
@@ -72,10 +71,10 @@ namespace Routine.Test.Performance
 			Console.WriteLine("\tId: " + testAssignee.Object.Id);
 			Console.WriteLine("\tValue: " + testAssignee.Object.Value);
 			Console.WriteLine("\tMembers:");
-			foreach (var member in testAssignee.Object.Members)
+			foreach (var memberValue in testAssignee.Object.MemberValues)
 			{
-				Console.WriteLine("\t\t" + member.Id + (member.IsList ? " (List)" : ""));
-				var value = member.GetValue();
+				Console.WriteLine("\t\t" + memberValue.Member.Id + (memberValue.Member.IsList ? " (List)" : ""));
+				var value = memberValue.Get();
 				foreach (var item in value.List)
 				{
 					Console.WriteLine("\t\t\tId: " + item.Id);
@@ -152,7 +151,7 @@ namespace Routine.Test.Performance
 
 		}
 
-		[Test]
+		[Test][Ignore]
 		public void ManuelTestField()
 		{
 			Console.WriteLine(typeof(IList<string>).GetMethod("IndexOf").ContainsGenericParameters);

@@ -2,14 +2,7 @@
 {
 	public interface IApiGenerationContext
 	{
-		IApiGenerationConfiguration ApiGenerationConfiguration { get; }
-
+		IApiGenerationConfiguration Configuration { get; }
 		ApplicationCodeModel Application { get; }
-
-		ObjectCodeModel CreateObject();
-		InitializerCodeModel CreateInitializer();
-		MemberCodeModel CreateMember();
-		OperationCodeModel CreateOperation();
-		ParameterCodeModel CreateParameter();
 	}
 }

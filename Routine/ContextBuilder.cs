@@ -1,14 +1,17 @@
 ﻿using Routine.Api;
 using Routine.Api.Context;
+using Routine.Client;
+using Routine.Client.Context;
 using Routine.Core;
-using Routine.Core.Api;
 using Routine.Core.Cache;
-using Routine.Core.Context;
 using Routine.Core.Rest;
-using Routine.Mvc;
-using Routine.Mvc.Context;
+using Routine.Engine;
+using Routine.Engine.Context;
+using Routine.Interception;
 using Routine.Soa;
 using Routine.Soa.Context;
+using Routine.Ui;
+using Routine.Ui.Context;
 
 namespace Routine
 {
@@ -51,29 +54,17 @@ namespace Routine
 
 		private IApiGenerationContext ApiGenerationContext(IApiGenerationConfiguration apiGenerationConfiguration, IApiContext apiContext)
 		{
-			var result = new DefaultApiGenerationContext(apiGenerationConfiguration);
-
-			result.Application = new ApplicationCodeModel(apiContext.Rapplication, result);
-
-			return result;
+			return new DefaultApiGenerationContext(apiGenerationConfiguration, new ApplicationCodeModel(apiContext.Application, apiGenerationConfiguration));
 		}
 
 		private IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)
 		{
-			var result = new DefaultMvcContext(mvcConfiguration);
-
-			result.Application = new ApplicationViewModel(apiContext.Rapplication, result);
-
-			return result;
+			return new DefaultMvcContext(mvcConfiguration, new ApplicationViewModel(apiContext.Application, mvcConfiguration));
 		}
 
 		private IApiContext ApiContext(IObjectService objectService)
 		{
-			var result = new DefaultApiContext(objectService);
-
-			result.Rapplication = new Rapplication(result);
-
-			return result;
+			return new DefaultApiContext(objectService, new Rapplication(objectService));
 		}
 
 		private ISoaContext SoaContext(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
@@ -95,12 +86,7 @@ namespace Routine
 		{
 			if (InterceptionConfiguration() == null) { return real; }
 
-			return new InterceptedObjectService(InterceptionContext(real));
-		}
-
-		private IInterceptionContext InterceptionContext(IObjectService real)
-		{
-			return new DefaultInterceptionContext(InterceptionConfiguration(), real);
+			return new InterceptedObjectService(real, InterceptionConfiguration());
 		}
 
 		private ICoreContext coreContext;

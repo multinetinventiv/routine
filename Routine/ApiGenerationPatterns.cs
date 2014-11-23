@@ -1,37 +1,35 @@
 ﻿using Routine.Api.Configuration;
-using Routine.Core.Builder;
+using Routine.Core.Configuration;
 
 namespace Routine
 {
 	public static class ApiGenerationPatterns
 	{
-		public static GenericApiGenerationConfiguration FromEmpty(this PatternBuilder<GenericApiGenerationConfiguration> source) { return new GenericApiGenerationConfiguration(); }
+		public static ConventionalApiGenerationConfiguration FromEmpty(this PatternBuilder<ConventionalApiGenerationConfiguration> source) { return new ConventionalApiGenerationConfiguration(); }
 
-		public static GenericApiGenerationConfiguration ShortModelIdPattern(this PatternBuilder<GenericApiGenerationConfiguration> source, string prefix, string shortPrefix)
+		public static ConventionalApiGenerationConfiguration ShortModelIdPattern(this PatternBuilder<ConventionalApiGenerationConfiguration> source, string prefix, string shortPrefix)
 		{
 			return source
 				.FromEmpty()
-				.SerializeReferencedModelId.Done(s => s
-					.SerializeBy(t => t.FullName.ShortenModelId(prefix, shortPrefix))
-					.SerializeWhen(t => t.FullName.StartsWith(prefix + ".") && t.IsPublic)
-					.DeserializeBy(str => str.NormalizeModelId(prefix, shortPrefix).ToType())
-					.DeserializeWhen(str => str.StartsWith(shortPrefix + "-")))
+				.ReferencedType.Set(c => c
+					.By(t => t.Id.NormalizeModelId(prefix, shortPrefix).ToTypeInfo(true))
+					.When(t => t.Id.StartsWith(shortPrefix + "-")))
 			;
 		}
 
-		public static GenericApiGenerationConfiguration ParseableValueTypePattern(this PatternBuilder<GenericApiGenerationConfiguration> source)
+		public static ConventionalApiGenerationConfiguration ParseableValueTypePattern(this PatternBuilder<ConventionalApiGenerationConfiguration> source)
 		{
 			return source
 				.FromEmpty()
-				.ExtractReferencedTypeIsValueType
-					.Add(e => e.Always(true).When(t => t.CanBe<string>()))
-					.Done(e => e.Always(true).When(t => t.CanParse()))
-				.ExtractStringToValueCodeTemplate
-					.Add(e => e.Always("{valueString}").When(t => t.CanBe<string>()))
-					.Done(e => e.Always("{type}.Parse({valueString})").When(t => t.CanParse()))
-				.ExtractValueToStringCodeTemplate
-					.Add(e => e.Always("{value}").When(t => t.CanBe<string>()))
-					.Done(e => e.Always("{value}.ToString()").When(t => t.CanParse()))
+				
+				.ReferencedTypeIsValueType.Set(e => e.Constant(true).When(t => t.CanBe<string>()))
+				.ReferencedTypeIsValueType.Set(e => e.Constant(true).When(t => t.CanParse()))
+
+				.StringToValueCodeTemplate.Set(e => e.Constant("{valueString}").When(t => t.CanBe<string>()))
+				.StringToValueCodeTemplate.Set(e => e.Constant("{type}.Parse({valueString})").When(t => t.CanParse()))
+
+				.ValueToStringCodeTemplate.Set(e => e.Constant("{value}").When(t => t.CanBe<string>()))
+				.ValueToStringCodeTemplate.Set(e => e.Constant("{value}.ToString()").When(t => t.CanParse()))
 			;
 		}
 	}

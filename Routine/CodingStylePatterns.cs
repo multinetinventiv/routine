@@ -1,70 +1,83 @@
 using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using Routine.Core.Builder;
 using Routine.Core.Configuration;
+using Routine.Engine.Configuration.Conventional;
 
 namespace Routine
 {
 	public static class CodingStylePatterns
 	{
-		public static GenericCodingStyle FromEmpty(this PatternBuilder<GenericCodingStyle> source) { return new GenericCodingStyle(); }
-
-		public static GenericCodingStyle NullPattern(this PatternBuilder<GenericCodingStyle> source, string nullId)
-		{
-			return source
-					.FromEmpty()
-					.SerializeModelId.Done(s => s.SerializeBy(t => nullId).SerializeWhen(t => t == null)
-												 .DeserializeBy(id => (TypeInfo)null).DeserializeWhen(id => id == nullId))
-
-					.ExtractId.Done(e => e.Always(nullId).WhenDefault())
-
-					.Locate.Done(l => l.Always(null).WhenId(id => id == null || id == nullId))
-
-					.ExtractValue.Done(e => e.Always(string.Empty).WhenDefault());
-		}
-
-		public static GenericCodingStyle ParseableValueTypePattern(this PatternBuilder<GenericCodingStyle> source)
+		public static ConventionalCodingStyle FromEmpty(this PatternBuilder<ConventionalCodingStyle> source) { return new ConventionalCodingStyle(); }
+		
+		public static ConventionalCodingStyle ParseableValueTypePattern(this PatternBuilder<ConventionalCodingStyle> source)
 		{
 			return source
 					.FromEmpty()
 
-					.ExtractModelIsValue.Done(e => e.Always(true).When(t => t.CanBe<string>() || t.CanParse()))
+					.TypeIsValue.Set(c => c.Constant(true).When(t => t.CanBe<string>() || t.CanParse()))
 
-					.ExtractAvailableIds.Done(e => e.Always(true.ToString(), false.ToString()).When(t => t.CanBe<bool>()))
+					.StaticInstances.Set(c => c.Constant(true, false).When(t => t.CanBe<bool>()))
 
-					.ExtractId
-						   .Done(e => e.ByConverting(o => string.Format("{0}", o)).WhenType(t => t.CanBe<string>() || t.CanParse()))
+					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanBe<string>() || t.CanParse()))
 
-					.Locate.Add(l => l.Directly().WhenTypeCanBe<string>())
-						   .Done(l => l.By((t, id) => t.Parse(id)).WhenType(t => t.CanParse()))
+					.ObjectLocator.Set(c => c.Locator(l => l.By(o => string.Format("{0}", o))).When(t => t.CanBe<string>()))
+					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => t.Parse(id))).When(t => t.CanParse()))
 
-					.SelectMembers.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
-					.SelectOperations.Done(s => s.None().When(t => t.CanBe<string>() || t.CanParse()))
-					;
-		}	
-
-		public static GenericCodingStyle EnumPattern(this PatternBuilder<GenericCodingStyle> source)
-		{
-			return source
-					.FromEmpty()
-					.ExtractModelIsValue.Done(e => e.Always(true).When(t => t.IsEnum))
-					.ExtractAvailableIds.Done(e => e.ByConverting(t => Enum.GetNames(t.GetActualType()).ToList()).When(t => t.IsEnum))
-					.ExtractId.Done(e => e.ByConverting(o => o.ToString()).WhenType(t => t.IsEnum))
-					.Locate.Done(l => l.By((t, id) => Enum.Parse(t.GetActualType(), id)).AcceptNullResult(false).WhenType(t => t.IsEnum))
-					.SelectMembers.Done(s => s.None().When(t => t.IsEnum))
-					.SelectOperations.Done(s => s.None().When(t => t.IsEnum))
+					.Members.AddNoneWhen(t => t.CanBe<string>() || t.CanParse())
+					.Operations.AddNoneWhen(t => t.CanBe<string>() || t.CanParse())
 					;
 		}
 
-		public static GenericCodingStyle ShortModelIdPattern(this PatternBuilder<GenericCodingStyle> source, string prefix, string shortPrefix)
+		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source)
 		{
 			return source
 					.FromEmpty()
-					.SerializeModelId.Done(s => s
-						.SerializeBy(t => t.FullName.ShortenModelId(prefix, shortPrefix))
-						.SerializeWhen(t => t.FullName.StartsWith(prefix + ".") && t.IsPublic)
-						.DeserializeBy(str => str.NormalizeModelId(prefix, shortPrefix).ToType())
-						.DeserializeWhen(str => str.StartsWith(shortPrefix + "-")));
+					.TypeIsValue.Set(c => c.Constant(true).When(t => t.IsEnum))
+					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
+					.IdExtractor.Set(c => c.Id(e => e.By(o => o.ToString())).When(t => t.IsEnum))
+					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => t.GetEnumValues()[t.GetEnumNames().IndexOf(id)]).AcceptNullResult(false)).When(t => t.IsEnum))
+					.Members.AddNoneWhen(t => t.IsEnum)
+					.Operations.AddNoneWhen(t => t.IsEnum)
+					;
+		}
+
+		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source, bool useName)
+		{
+			if (useName)
+			{
+				return source.EnumPattern();
+			}
+
+			return source
+					.FromEmpty()
+					.TypeIsValue.Set(false, t => t.IsEnum)
+					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
+					.IdExtractor.Set(c => c.Id(e => e.By(o => ((int)o).ToString(CultureInfo.InvariantCulture))).When(t => t.IsEnum))
+					.ValueExtractor.Set(c => c.Value(e => e.By(o => o.ToString())).When(t => t.IsEnum))
+					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) =>
+					{
+						var value = int.Parse(id);
+						var type = t as TypeInfo;
+						if (!Enum.IsDefined(type.GetActualType(), value))
+						{
+							throw new InvalidEnumArgumentException(id, value, type.GetActualType());
+						}
+						return Enum.ToObject(type.GetActualType(), value);
+					}).AcceptNullResult(false)).When(t => t is TypeInfo && t.IsEnum))
+					.Members.AddNoneWhen(t => t.IsEnum)
+					.Operations.AddNoneWhen(t => t.IsEnum)
+					;
+		}
+
+		public static ConventionalCodingStyle ShortModelIdPattern(this PatternBuilder<ConventionalCodingStyle> source, string prefix, string shortPrefix)
+		{
+			return source
+					.FromEmpty()
+					.TypeId.Set(c => c
+						.By(t => t.FullName.ShortenModelId(prefix, shortPrefix))
+						.When(t => t.FullName.StartsWith(prefix + ".") && t.IsPublic));
 		}
 
 		public static string ShortenModelId(this string source, string actualPrefix, string shortPrefix)
@@ -83,15 +96,15 @@ namespace Routine
 			return actualPrefix.Append(source.After(shortPrefix).Replace("--", "-.-").SnakeCaseToCamelCase('-').ToUpperInitial());
 		}
 
-		public static GenericCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<GenericCodingStyle> source)
+		public static ConventionalCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionalCodingStyle> source)
 		{
 			return source
 				.FromEmpty()
-				.SelectModelMarks.Done(s => s.By(t => t.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
-				.SelectInitializerMarks.Done(s => s.By(i => i.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
-				.SelectMemberMarks.Done(s => s.By(m => m.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
-				.SelectOperationMarks.Done(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
-				.SelectParameterMarks.Done(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute"))))
+				.TypeMarks.Add(c => c.By(t => t.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.InitializerMarks.Add(s => s.By(i => i.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.MemberMarks.Add(s => s.By(m => m.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.OperationMarks.Add(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.ParameterMarks.Add(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
 				;
 		}
 	}

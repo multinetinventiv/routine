@@ -3,7 +3,7 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Runtime.CompilerServices" #>
-<#@ import namespace="Routine.Core.Api" #>
+<#@ import namespace="Routine.Client" #>
 
 using System.Linq;
 
@@ -26,20 +26,20 @@ namespace <#= Application.DefaultNamespace #>
 		}
 
 	<# foreach(var model in Application.Models) { #>
-		<# var singletonIds = model.SingletonIds; #>
-		<# foreach(var singletonId in singletonIds) { #>
+		<# var staticInstanceIds = model.StaticInstanceIds; #>
+		<# foreach(var staticInstanceId in staticInstanceIds) { #>
 			<# if(model.Members.Count > 0) { #>
 		
-		public <#= model.FullName #> Get<#= model.Name #><#= singletonIds.Count > 1 ? singletonId.ToUpperInitial() : "" #>()
+		public <#= model.FullName #> Get<#= model.Name #><#= staticInstanceIds.Count > 1 ? staticInstanceId.ToUpperInitial() : "" #>()
 		{
-			return new <#= model.FullName #>(rapplication.Get("<#= singletonId #>", "<#= model.Id #>"));
+			return new <#= model.FullName #>(rapplication.Get("<#= staticInstanceId #>", "<#= model.Id #>"));
 		}
 
 			<# } else { #>
 			
-		public <#= model.FullName #> <#= model.Name #><#= singletonIds.Count > 1 ? singletonId.ToUpperInitial() : "" #>
+		public <#= model.FullName #> <#= model.Name #><#= staticInstanceIds.Count > 1 ? staticInstanceId.ToUpperInitial() : "" #>
 		{
-			get { return new <#= model.FullName #>(rapplication.Get("<#= singletonId #>", "<#= model.Id #>")); }
+			get { return new <#= model.FullName #>(rapplication.Get("<#= staticInstanceId #>", "<#= model.Id #>")); }
 		}
 
 			<# } #>
@@ -96,7 +96,7 @@ namespace <#= model.Namespace #>
 		{
 			get
 			{
-				return Robject["<#= member.Id #>"].GetValue().<# RobjectToModel(member.ReturnModel); #>;
+				return Robject["<#= member.Id #>"].Get().<# RobjectToModel(member.ReturnModel); #>;
 			}
 		}
 	<# } #>

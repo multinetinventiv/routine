@@ -20,12 +20,15 @@ using log4net.Core;
 using log4net.Layout;
 using log4net.Repository.Hierarchy;
 using NHibernate;
-using Routine.Core;
-using Routine.Mvc;
+using Routine.Client;
+using Routine.Engine;
+using Routine.Interception;
 using Routine.Soa;
 using Routine.Test.Common;
 using Routine.Test.Domain.NHibernate;
 using Routine.Test.Domain.Windsor;
+using Routine.Ui;
+using InterceptionTarget = Routine.Ui.InterceptionTarget;
 
 namespace Routine.Test.Domain.Configuration
 {
@@ -45,9 +48,9 @@ namespace Routine.Test.Domain.Configuration
 					.AddFacility<FactorySupportFacility>()
 					.AddFacility<LoggingFacility>(f => f.LogUsing(LoggerImplementation.Trace).WithLevel(LoggerLevel.Debug));
 
-				#if DEBUG
+#if DEBUG
 				container.Kernel.ComponentRegistered += (k, h) => h.ComponentModel.Services.ForEach(t => Console.WriteLine(t.FullName + ", " + h.ComponentModel.Implementation.FullName));
-				#endif
+#endif
 
 				ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container.Kernel));
 			}
@@ -104,24 +107,26 @@ namespace Routine.Test.Domain.Configuration
 				((Logger)LogManager.GetLogger(logger).Logger).Level = level;
 			}
 
-			private FileAppender FileAppender(string fileName, Level threshold)
-			{
-				var appender = new RollingFileAppender
-				{
-					Name = "RollingFile",
-					AppendToFile = true,
-					File = @"logs\" + fileName,
-					Layout = new PatternLayout("%date %-5level %logger - %message%newline"),
-					Threshold = threshold,
-					RollingStyle = RollingFileAppender.RollingMode.Date,
-					DatePattern = ".yyyyMMdd",
-					StaticLogFileName = true,
-					MaximumFileSize = "2000KB"
-				};
+			#region file appender sample
+			//private FileAppender FileAppender(string fileName, Level threshold)
+			//{
+			//	var appender = new RollingFileAppender
+			//	{
+			//		Name = "RollingFile",
+			//		AppendToFile = true,
+			//		File = @"logs\" + fileName,
+			//		Layout = new PatternLayout("%date %-5level %logger - %message%newline"),
+			//		Threshold = threshold,
+			//		RollingStyle = RollingFileAppender.RollingMode.Date,
+			//		DatePattern = ".yyyyMMdd",
+			//		StaticLogFileName = true,
+			//		MaximumFileSize = "2000KB"
+			//	};
 
-				appender.ActivateOptions();
-				return appender;
-			}
+			//	appender.ActivateOptions();
+			//	return appender;
+			//} 
+			#endregion
 
 			private DebugAppender DebugAppender()
 			{
@@ -141,44 +146,42 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.CodingStyle()
 						.FromBasic()
-						.DomainTypeRootNamespacesAre("Routine.Test.Module")
-						.Use(p => p.NullPattern("_null"))
+						.AddTypes(ModuleAssemblies(), t => t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
 						.Use(p => p.ShortModelIdPattern("System", "s"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Module", "m"))
 						.Use(p => p.ParseableValueTypePattern())
-						.Use(p => p.EnumPattern())
+						.Use(p => p.EnumPattern(false))
 						.Use(p => p.SingletonPattern(container, "Instance"))
 						.Use(p => p.AutoMarkWithAttributesPattern())
 
-						.SelectModelMarks.Done(s => s.Always("Module").When(t => container.TypeIsSingleton(t) && t.FullName.EndsWith("Module")))
-						.SelectModelMarks.Done(s => s.Always("Search").When(t => t.CanBe<IQuery>()))
-						.SelectOperationMarks.Done(s => s.Always("ParamOptions").When(o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*")))
+						.TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
+						.TypeMarks.Add("Search", t => t.CanBe<IQuery>())
+						.OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
 
-						.ExtractModelModule.Done(e => e.ByConverting(t => t.Namespace.After("Module.").BeforeLast("."))
-												  .When(t => t.IsDomainType))
+						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".")).When(t => t.IsDomainType))
 
-						.SelectInitializers.Done(i => i.ByPublicConstructors().When(t => t.IsValueType && t.IsDomainType))
-						.SelectMembers.Done(s => s.ByPublicProperties(p => p.IsWithinRootNamespace(true) && p.IsPubliclyReadable && !p.IsIndexer && !p.Returns<Guid>() && !p.Returns<TypedGuid>() && !p.ReturnsCollection())
-												  .When(t => t.IsDomainType))
+						.Initializers.Add(c => c.PublicInitializers().When(t => t.IsValueType && t.IsDomainType))
+						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && m.IsPublic && !m.Returns<Guid>() && !m.Returns<TypedGuid>() && !m.ReturnsCollection())
+										   .When(t => t.IsDomainType))
 
-						.SelectOperations.Done(s => s.ByPublicMethods(m => m.IsWithinRootNamespace(true) && m.GetParameters().All(p => p.ParameterType != type.of<Guid>() && p.ParameterType != type.of<TypedGuid>()))
-													 .When(t => t.IsDomainType))
-						.SelectOperations.Done(s => s.ByPublicProperties(p => p.ReturnsCollection())
-													 .When(t => t.IsDomainType))
+						.Operations.Add(s => s.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
+											  .When(t => t.IsDomainType))
+						.Operations.Add(s => s.PublicMembers(m => m.ReturnsCollection())
+											  .When(t => t.IsDomainType))
 
-						.ExtractValue.Add(e => e.ByPublicProperty(p => p.Returns<string>("Title")))
-									 .Add(e => e.ByPublicProperty(p => p.Returns<string>("Name")))
-									 .Add(e => e.ByConverting(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial())
-											    .WhenType(t => container.TypeIsSingleton(t)))
-									 .Done(e => e.ByConverting(o => string.Format("{0}", o)))
+						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
+						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Name")))
+						.ValueExtractor.Set(c => c.Value(e => e.By(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial()))
+												  .When(t => t is TypeInfo && container.TypeIsSingleton(t)))
+						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
 
 						.Use(p => p.FromEmpty()
-							.ExtractId.Done(e => e.ByConverting(o => container.Resolve<ISession>().GetIdentifier(o).ToString())
-									  .WhenType(t => Orm.IsPersistent(t)))
-							.Locate.Done(l => l.By((t, id) => container.Resolve<ISession>().Get(t.GetActualType(), Guid.Parse(id)))
-											   .AcceptNullResult(false)
-											   .WhenType(t => Orm.IsPersistent(t))))
+							.IdExtractor.Set(c => c.Id(e => e.By(o => container.Resolve<ISession>().GetIdentifier(o).ToString()))
+												   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
+							.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
+													 .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
+							)
 						;
 			}
 
@@ -186,8 +189,8 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
-						.DefaultParametersAre("language_code")
-						.MaxResultLengthIs(100000000)
+						.Headers.Add("language_code")
+						.MaxResultLength.Set(100000000)
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
 						;
 			}
@@ -196,19 +199,18 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.InterceptionConfig()
 						.FromBasic()
-						.Use(p => p.CommonInterceptorPattern(i => i.Before(() => Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(HttpContext.Current.Request["language_code"] ?? "en-US"))))
-						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
+						.Interceptors.Add(c => c.Interceptor(i => i.Before(() => Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(HttpContext.Current.Request["language_code"] ?? "en-US"))))
+						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
 
-						.InterceptPerformOperation
-							.Add(i => i.Do()
-									.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
-									.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-									.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-									.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
-							.Done(i => i.Before(() => { throw new Exception("Cannot call hidden service"); })
-									   .When(ctx => ctx.GetOperationModel().Marks.Contains("Hidden")))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()
+															 .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+															 .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+															 .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+															 .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId)))))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); })
+															 .When(ctx => ctx.GetOperationModel().Marks.Contains("Hidden"))))
 
-						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
+						.Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())
 																   .Fail(t => t.Rollback())))
 						;
@@ -218,39 +220,50 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.MvcConfig()
 						.FromBasic("Instance")
-						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
-						.InterceptPerform
-							.Done(i => i.Do()
-											.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
-											.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-											.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-											.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId))))
-						.Use(p => p.CommonInterceptorPattern(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
+						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
+						.Interceptors.Add(c => c.Interceptor(i => i.Do()
+													.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx["OperationModelId"])))
+													.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+													.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+													.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx["OperationModelId"]))))
+												.When(s => s == InterceptionTarget.Perform))
+						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())
 																   .Fail(t => t.Rollback())))
 
-						.ExtractIndexId.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Marks.Contains("Module")))
-						.ExtractMenuIds
-							.Add(e => e.Always("Instance").When(om => !om.IsViewModel && om.Marks.Contains("Search")))
-							.Done(e => e.Always("Instance").When(om => !om.IsViewModel && om.Marks.Contains("Module")))
+						.IndexId.Set("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
+						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Search"))
+						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
 
-						.ExtractViewName
-							.Add(e => e.Always("Search").When(vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).MarkedAs("Search")))
-							.Done(e => e.ByConverting(vmb => vmb.GetType().Name.Before("ViewModel")))
+						.ViewName.Set("Search", vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).MarkedAs("Search"))
+						.ViewName.Set(c => c.By(vmb => vmb.GetType().Name.Before("ViewModel")))
 
-						.ExtractParameterDefault.Done(e => e.ByConverting(p => p.Operation.Object[p.Id.ToUpperInitial()].GetValue())
-													 .When(p => p.Operation.Id.Matches("Update.*") && p.Operation.Object.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
+						//.ParameterDefault.Set(c => c.By(p => p.Owner.Operation.Object[p.Id.ToUpperInitial()].GetValue())
+						//							  .When(p => p.Owner.Owner.IsOperation() && p.Owner.Operation.Id.Matches("Update.*") && p.Type.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
 
-						.ExtractParameterOptions
-							.Add(e => e.ByConverting(p => p.Operation.Object.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id).List)
-									   .When(p => p.Operation.Object.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id && 
-																						 o.ResultIsList && !o.Parameters.Any())))
-							.Add(e => e.ByConverting(p => p.Operation.Object.Application.Get("Instance", p.ViewModelId + "s").Perform("All").List)
-									   .When(p => p.Operation.Object.Application.ObjectModels.Any(m => m.Id == p.ViewModelId + "s" && m.Operations.Any(o => o.Id == "All"))))
-							.Done(e => e.ByConverting(p => p.Operation.Object.Application.GetAvailableObjects(p.ViewModelId)))
+						//.ParameterOptions.Add(c => c.By(p => p.Operation.Object.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id).List)
+						//							  .When(p => p.Owner.IsOperation() && p.Type.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Owner.Operation.Id &&
+						//																		 o.ResultIsList && !o.Parameters.Any())))
+						.ParameterOptions.Add(c => c.By(p => p.Application.Get("Instance", p.ParameterType.Id + "s").Perform("All").List)
+													.When(p => p.Application.Types.Any(t => t.Id == p.ParameterType.Id + "s" && t.Operations.Any(o => o.Id == "All"))))
 
-						.ExtractDisplayName.Done(e => e.ByConverting(s => s.SplitCamelCase().ToUpperInitial()))
-						.ExtractOperationOrder.Done(e => e.Always(ovm => ovm.HasParameter ?0:1))
+						.ParameterOptions.Add(c => c.By(p => p.ParameterType.StaticInstances))
+
+						.ParameterSearcher.Set(c => c.By(p =>
+						{
+							var som = p.Application.Types.SingleOrDefault(t => t.Module == p.ParameterType.Module && t.Name == p.ParameterType.Name + "s");
+
+							if (som == null)
+							{
+								return null;
+							}
+
+							return p.Application.Get("Instance", som.Id);
+						}))
+
+						.DisplayName.Set(c => c.By(s => s.SplitCamelCase().ToUpperInitial()))
+						.OperationOrder.Set(c => c.By(ovm => ovm.HasParameter ? 0 : 1))
+						.OperationIsSimple.Set(true, o => !o.HasParameter)
 						;
 			}
 
@@ -275,11 +288,11 @@ namespace Routine.Test.Domain.Configuration
 			}
 
 			private AssemblyFilter BinDirectory { get { return new AssemblyFilter("bin"); } }
-			private AssemblyFilter ModuleDirectory { get {return BinDirectory.FilterByName(n => n.Name.StartsWith("Routine.Test.Module"));} }
+			private AssemblyFilter ModuleDirectory { get { return BinDirectory.FilterByName(n => n.Name.StartsWith("Routine.Test.Module")); } }
 
 			private bool TypeShouldBeSingleton(Type type)
 			{
-				return (typeof(IQuery).IsAssignableFrom(type) || type.Name.EndsWith("Module")) && 
+				return (typeof(IQuery).IsAssignableFrom(type) || type.Name.EndsWith("Module")) &&
 					type.IsClass && !type.IsAbstract;
 			}
 
@@ -288,12 +301,12 @@ namespace Routine.Test.Domain.Configuration
 			private void DataAccess()
 			{
 				container.Register(
-					Component.For<ISessionFactory>()		.Instance(BuildSessionFactory())				.LifestyleSingleton(),
-					Component.For<ISession>()				.UsingFactoryMethod(OpenSession)				.LifestyleScoped(),
-					Component.For(typeof(IRepository<>))	.ImplementedBy(typeof(NHibernateRepository<>))	.LifestyleScoped(),
-					Component.For(typeof(ILookup<>))		.ImplementedBy(typeof(NHibernateLookup<>))		.LifestyleScoped());
+					Component.For<ISessionFactory>().Instance(BuildSessionFactory()).LifestyleSingleton(),
+					Component.For<ISession>().UsingFactoryMethod(OpenSession).LifestyleScoped(),
+					Component.For(typeof(IRepository<>)).ImplementedBy(typeof(NHibernateRepository<>)).LifestyleScoped(),
+					Component.For(typeof(ILookup<>)).ImplementedBy(typeof(NHibernateLookup<>)).LifestyleScoped());
 			}
-			
+
 			private OrmConfiguration Orm { get { return OrmConfiguration.Instance; } }
 
 			private ISessionFactory BuildSessionFactory()
@@ -305,13 +318,13 @@ namespace Routine.Test.Domain.Configuration
 			{
 				var result = ReflectionUtil.GetAssemblies(ModuleDirectory);
 
-				#if DEBUG
+#if DEBUG
 				Debug.WriteLine("assembly count: " + result.Count());
-				foreach(var item in result)
+				foreach (var item in result)
 				{
 					Debug.WriteLine("module: " + item.FullName);
 				}
-				#endif
+#endif
 
 				return result;
 			}

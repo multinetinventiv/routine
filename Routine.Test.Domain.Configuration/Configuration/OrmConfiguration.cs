@@ -17,8 +17,6 @@ using NHibernate.Cache;
 using NHibernate.Driver;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.UserTypes;
-using Routine.Core.Reflection;
-using Routine.Test.Domain;
 using Routine.Test.Domain.NHibernate.UserType;
 
 namespace Routine.Test.Domain.Configuration
@@ -144,7 +142,7 @@ namespace Routine.Test.Domain.Configuration
 		}
 	}
 
-	internal static class SQLiteConfigurationExtension
+	internal static class SqliteConfigurationExtension
 	{
 		public static SQLiteConfiguration UsingCrossPlatformDriver(this SQLiteConfiguration source)
 		{

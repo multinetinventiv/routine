@@ -12,3 +12,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("0.3.14.*")]
 
 [assembly: InternalsVisibleTo("Routine.Test")]
+[assembly: InternalsVisibleTo("Routine.Test.Performance")]

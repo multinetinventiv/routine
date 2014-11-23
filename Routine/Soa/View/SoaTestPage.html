@@ -4,60 +4,60 @@
     <meta charset="utf-8" />
     <title>Soa Client</title>
     <style>
-        body {font-family: Arial;font-size:12px;background-color:#f2efe8;}
-        a {text-decoration:none;color:black;}
-        a:hover {text-decoration:underline;}
+        body {font-family: Arial;font-size: 12px;background-color: #f2efe8;}
+        a {text-decoration: none;color: black;}
+        a:hover {text-decoration: underline;}
         .template, .options {display: none;}
-        .module, .model, .operation {border: solid 1px gray;padding:5px;margin:5px;cursor:pointer;cursor:hand;}
+        .module, .model, .operation {border: solid 1px gray;padding: 5px;margin: 5px;cursor: pointer;cursor: hand;}
         .module {background-color: #dbe5f6;}
         .model {background-color: #ffffff;}
-        .operation {background-color: #fae8e8;cursor:initial;}
+        .operation {background-color: #fae8e8;cursor: initial;}
         .operation a {float: right;}
-        .form {border: solid 1px gray;margin: 5px;padding: 5px;width: 100%;height:100%;background-color: #ffffff;}
+        .form {border: solid 1px gray;margin: 5px;padding: 5px;width: 100%;height: 100%;background-color: #ffffff;}
         h1, h2, h3, p {margin: 0px;}
-        h1 {font-size:13px;}
-        h2 {font-size:12px;}
-        h3 {font-size:11px;}
-        #left-pane{float:left;}
-        #service-tree {width:250px;}
-        #default-params{border: solid 1px gray; padding: 5px; margin: 5px; width: 228px; font-size: 11px; background-color: #dbe5f6;}
-        #default-params span{width: 100px; display: inline-block;}
-        #default-params input{width: 122px;}
-        #right-pane {position:fixed;left: 260px;margin-top: -1px;}
-        #form-container {float:left;}
+        h1 {font-size: 13px;}
+        h2 {font-size: 12px;}
+        h3 {font-size: 11px;}
+        #left-pane {float: left;}
+        #service-tree {width: 250px;}
+        #headers {border: solid 1px gray;padding: 5px;margin: 5px;width: 228px;font-size: 11px;background-color: #dbe5f6;}
+        #headers span {width: 100px;display: inline-block;}
+        #headers input {width: 122px;}
+        #right-pane {position: fixed;left: 260px;margin-top: -1px;}
+        #form-container {float: left;}
         #tab-container {float: left;margin: 5px;padding-top: 6px;margin-bottom: 0px;}
-        .label {width: 150px;display: inline-block;font-weight:bold;}
-        .tab {border:solid 1px gray;padding:5px;margin-right:2px;background-color:#f8f6f0;font-size:10px;cursor:hand;cursor:pointer;}
-        .tab a {margin-left:5px;}
-        .selected {background-color:#ffffff;font-weight:bold;font-size:11px;}
-        .request {float:left;width: 400px;border-right: solid 1px gray;height: 100%;overflow-y:auto;}
-        .request h1 {height:30px;}
+        .label {width: 150px;display: inline-block;font-weight: bold;}
+        .tab {border: solid 1px gray;padding: 5px;margin-right: 2px;background-color: #f8f6f0;font-size: 10px;cursor: hand;cursor: pointer;}
+        .tab a {margin-left: 5px;}
+        .selected {background-color: #ffffff;font-weight: bold;font-size: 11px;}
+        .request {float: left;width: 400px;border-right: solid 1px gray;height: 100%;overflow-y: auto;}
+        .request h1 {height: 30px;}
         .request h1 input {float: right;margin-right: 10px;}
         .parameter {border: solid 1px #DDDDDD;border-top-width: 5px;padding-left: 6px;margin: 5px;padding-top: 3px;padding-bottom: 3px;}
-        .parameter .parameter{margin-left:7px;}
-        .parameter-item {display:inline-block;margin-left:-3px;}
+        .parameter .parameter {margin-left: 7px;}
+        .parameter-item {display: inline-block;margin-left: -3px;}
         .parameter-item select {width: 153px;height: 22px;margin: 2px;}
-        .parameter-item-group {display:block;}
-        .parameter-item-added  {margin-left:150px;}
-        .parameter-item-added-group  {border-top:dashed 1px gray;}
+        .parameter-item-group {display: block;}
+        .parameter-item-added {margin-left: 150px;}
+        .parameter-item-added-group {border-top: dashed 1px gray;}
         .response {float: left;overflow: auto;height: 100%;}
-        .response .label {width:100px;}
-		.response .result {margin-left:5px;clear:both;display:block;font-size: 16px;font-weight: bold;}
-        .response .success {color:#18d003;}
-		.response .error {color:red;}
-		.response .value{font-weight:normal;}
-        .response-types{padding: 5px; padding-bottom: 11px;}
-        .object-response{display:none;}
-        .object-response .empty, .object-response .show-all{margin-left:5px;}
-        .object {border: solid 1px gray;margin:5px;padding:5px;}
-        .member {margin-left:10px;display:none;}
-        .member-item {display:inline-block;}
-        .table { width: 99%; border-left: solid 1px; border-top: solid 1px; margin-left: 5px; }
-        .table th, .table td{ border-right: solid 1px; border-bottom: solid 1px; padding:3px;}
-        .table td.alternate{background-color:#eeecec}
-        .table th { text-align: left;}
+        .response .label {width: 100px;}
+        .response .result {margin-left: 5px;clear: both;display: block;font-size: 16px;font-weight: bold;}
+        .response .success {color: #18d003;}
+        .response .error {color: red;}
+        .response .value {font-weight: normal;}
+        .response-types {padding: 5px;padding-bottom: 11px;}
+        .object-response {display: none;}
+        .object-response .empty, .object-response .show-all {margin-left: 5px;}
+        .object {border: solid 1px gray;margin: 5px;padding: 5px;}
+        .member {margin-left: 10px;display: none;}
+        .member-item {display: inline-block;}
+        .table {width: 99%;border-left: solid 1px;border-top: solid 1px;margin-left: 5px;}
+        .table th, .table td {border-right: solid 1px;border-bottom: solid 1px;padding: 3px;}
+        .table td.alternate {background-color: #eeecec;}
+        .table th {text-align: left;}
     </style>
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script type="text/javascript">
         /*
         * jQuery Form Plugin; v20140218
@@ -80,9 +80,9 @@
     </script>
     <script type="text/javascript">
         var urlBase = "@urlBase";
-        var defaultParams = [@defaultParams];
+        var headers = [@headers];
 
-        var models, tmp_default_param, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
+        var models, tmp_header, tmp_module, tmp_model, tmp_operation, tmp_tab, tmp_form, tmp_parameter, tmp_parameter_item, 
             tmp_simple_parameter, tmp_response_types, tmp_object_response, tmp_object, tmp_member, tmp_member_item, tmp_table_response;
 
         $(function () {
@@ -95,7 +95,7 @@
                 $(".response").width($("#form-container").width() - 420);
             });
 
-            tmp_default_param= $("#default-param").clone().wrap("<p>").parent().html();
+            tmp_header= $("#header").clone().wrap("<p>").parent().html();
             tmp_module = $("#module").clone().wrap("<p>").parent().html();
             tmp_model = $("#model").clone().wrap("<p>").parent().html();
             tmp_operation = $("#operation").clone().wrap("<p>").parent().html();
@@ -111,17 +111,17 @@
             tmp_member_item = $("#member-item").clone().wrap("<p>").parent().html();
             tmp_table_response = $("#table-response").clone().wrap("<p>").parent().html();
 
-            var defaultParamsDiv = $("#default-params");
-            if(defaultParams.length <= 0) {defaultParamsDiv.hide();}
+            var headersDiv = $("#headers");
+            if(headers.length <= 0) {headersDiv.hide();}
 
-            for(var i = 0; i<defaultParams.length; i++) {
-                var defaultParam = defaultParams[i];
+            for(var i = 0; i<headers.length; i++) {
+                var header = headers[i];
 
-                $(tmp_default_param
-                            .replace(/@paramName/g, defaultParam)
-                            .replace(/@paramKey/g, defaultParam))
-                            .removeAttr("id").removeClass("template").addClass("default-param")
-                            .appendTo(defaultParamsDiv);
+                $(tmp_header
+                            .replace(/@headerLabel/g, header)
+                            .replace(/@headerName/g, header))
+                            .removeAttr("id").removeClass("template").addClass("header")
+                            .appendTo(headersDiv);
             }
 
             $.get(urlBase + "/GetApplicationModel", function (data) {
@@ -153,7 +153,7 @@
                             .appendTo(modelDiv);
                     }
 
-                   modelDiv.children(":first-child").click();
+                    modelDiv.children(":first-child").click();
                 }
 
                 $(".module").each(function () {
@@ -260,9 +260,9 @@
                 }
 
                 var item = "<select name='"+$(this).attr("name") + "'>";
-                var optionArray = options.split("|");
+                var optionArray = options.split("||");
                 for(var i = 0; i<optionArray.length; i++) {
-                    item += "<option value='" + optionArray[i] + "'>" + optionArray[i] + "</option>";
+                    item += "<option value='" + optionArray[i].split("|")[0] + "'>" + optionArray[i].split("|")[1] + "</option>";
                 }
                 item +="</select>";
                 $(this).before(item);
@@ -328,21 +328,12 @@
         }
 
         function getOptions(modelId) {
-            var options;
-            $.ajax({ url: urlBase + '/GetAvailableObjects', 
-                async: false,
-                dataType: 'json',
-                data:{objectModelId:modelId},
-                success: function(data) {
-                    options = data;
-                }
-            });
-
+            var options = getModel(modelId).StaticInstances;
             var result = "";
             for(var j = 0; j<options.length; j++) {
-                var option = normalizeObject(options[j]);
+                var option = options[j];
 
-                result += option.Reference.Id + "|";
+                result += option.Reference.Id + "|" + option.Value + "||";
             }
             if(result.length > 0) {
                 result = result.substr(0, result.length - 1);
@@ -436,8 +427,20 @@
                     return models[i];
                 }
             }
+            var valueModel = null;
 
-            return {Id:modelId,Marks:[],Name:modelId,Module:"",IsValueModel:true,IsViewModel:false,Members:[],Operations:[],Initializer:{GroupCount:0,Marks:[],Parameters:[]}};
+            $.ajax({ url: urlBase + '/GetObjectModel', 
+                async: false,
+                dataType: 'json',
+                data:{objectModelId:modelId},
+                success: function(data) {
+                    valueModel = data;
+                }
+            });
+
+            models.push(valueModel);
+
+            return valueModel;
         }
 
         function getOperation(model, operationId) {
@@ -450,12 +453,12 @@
 
         function buildActionUrl(submitButton) {
             var url = $(submitButton).closest("form").attr("data-action");
-            var defaultParams = $("#default-params input[type=text]");
+            var headers = $("#headers input[type=text]");
 
-            for(var i = 0; i<defaultParams.length; i++) {
+            for(var i = 0; i<headers.length; i++) {
                 if(i == 0) {url += "?"} else {url += "&"}
                 
-                var input = $(defaultParams.get(i));
+                var input = $(headers.get(i));
                 url += input.attr("name") + "=" + input.val();
             }
 
@@ -703,30 +706,35 @@
 </head>
 <body>
     <div id="left-pane">
-        <div id="default-params"></div>
+        <div id="headers"></div>
         <div id="service-tree"></div>
     </div>
     <div id="right-pane">
         <div id="tab-container"></div>
         <div id="form-container"></div>
     </div>
-    <div id="default-param" class="template"><span>@paramName</span><input type="text" name="@paramKey"/></div>
-    <div id="module" class="template" data-module="@name"><h1>@name</h1></div>
-    <div id="model" class="template"><h2>@name</h2></div>
-    <div id="operation" class="template"><h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3></div>
+    <div id="header" class="template"><span>@headerLabel</span><input type="text" name="@headerName" /></div>
+    <div id="module" class="template" data-module="@name">
+        <h1>@name</h1>
+    </div>
+    <div id="model" class="template">
+        <h2>@name</h2>
+    </div>
+    <div id="operation" class="template">
+        <h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3>
+    </div>
     <span id="tab" class="template">@modelName - @id<a href="javascript:void(0)" onclick="javascript:closeForm(this)">&#10005;</a></span>
     <form id="form" class="template" data-action="@urlBase/PerformOperation" method="post" data-model-id="@modelId" data-operation-id="@id">
         <div class="request">
-            <h1>
-                @modelName - @id
-                <input type="submit" value="Call &#9658;" onclick='buildActionUrl(this);'/>
+            <h1>@modelName - @id
+                <input type="submit" value="Call &#9658;" onclick='buildActionUrl(this);' />
             </h1>
             <div class="parameter">
                 <span class="label">@modelNameId:</span>
                 <div class="parameter-item">
-                    <input type="hidden" name="targetReference.ActualModelId" value="@modelId"/>
-                    <input type="hidden" name="targetReference.ViewModelId" value="@modelId"/>
-                    <input type="text" name="targetReference.Id" data-options="@targetOptions"/>
+                    <input type="hidden" name="targetReference.ActualModelId" value="@modelId" />
+                    <input type="hidden" name="targetReference.ViewModelId" value="@modelId" />
+                    <input type="text" name="targetReference.Id" data-options="@targetOptions" />
                 </div>
             </div>
             <input type="hidden" name="operationModelId" value="@id" />
@@ -734,18 +742,18 @@
         <div class="response"></div>
     </form>
     <div id="parameter" class="template">
-        <span class="label">@id:<input type="checkbox" onchange="toggleParameter(this, '@prefix');" checked="checked"/></span>
+        <span class="label">@id:<input type="checkbox" onchange="toggleParameter(this, '@prefix');" checked="checked" /></span>
         <input type="hidden" name="@prefix[@index].Key" value="@id" />
         <input class="add" type="button" value="+" onclick="javascript:addParameter(this, '@prefix', @index, '@modelId', @isList)" />
         <input class="remove" type="button" value="-" onclick="javascript:removeParameter(this)" />
     </div>
     <div id="parameter-item" class="template" data-index="@index">
-        <input type="hidden" name="@prefix[@paramIndex].Value.Values[@index].ObjectModelId" value="@modelId"/>
+        <input type="hidden" name="@prefix[@paramIndex].Value.Values[@index].ObjectModelId" value="@modelId" />
     </div>
-    <input id="simple-parameter" class="template" type="text" name="@prefix[@paramIndex].Value.Values[@index].ReferenceId" data-options="@options"/>
+    <input id="simple-parameter" class="template" type="text" name="@prefix[@paramIndex].Value.Values[@index].ReferenceId" data-options="@options" />
     <div id="response-types" class="template">
-        <input type="radio" class="table-type" name="response-type" value="table" checked="checked" onclick="javascript:showResponseType(this)"/><label for="table">Table</label>
-        <input type="radio" class="object-type" name="response-type" value="object" onclick="javascript:showResponseType(this)"/><label for="object">Object</label>
+        <input type="radio" class="table-type" name="response-type" value="table" checked="checked" onclick="javascript:showResponseType(this)" /><label for="table">Table</label>
+        <input type="radio" class="object-type" name="response-type" value="object" onclick="javascript:showResponseType(this)" /><label for="object">Object</label>
     </div>
     <div id="object-response" class="template"></div>
     <div id="object" class="template">
@@ -757,6 +765,8 @@
     <div id="member-item" class="template">
         [@id, @value]
     </div>
-    <div id="table-response" class="template"><table class="table" cellspacing="0" cellpadding="0"></table></div>
+    <div id="table-response" class="template">
+        <table class="table" cellspacing="0" cellpadding="0"></table>
+    </div>
 </body>
 </html>

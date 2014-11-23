@@ -2,6 +2,6 @@
 {
 	public interface IApiTemplate
 	{
-		string Render(IApiGenerationContext context);
+		string Render(ApplicationCodeModel applicationCodeModel);
 	}
 }

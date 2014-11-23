@@ -24,20 +24,27 @@ namespace Routine.Soa
 			{
 				return serializer.Deserialize<T>(responseString);
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-				SoaExceptionResult exceptionResult;
+				SoaExceptionResult exceptionResult = null;
 
-				try { exceptionResult = new SoaExceptionResult(serializer.Deserialize<SoaExceptionResultData>(responseString)); } //assume it is a soa exception
-				catch (Exception) { throw ex; } //assumption was wrong, throw first exception
+				var isExceptionResult = true;
+				try
+				{
+					//assume it is a soa exception
+					exceptionResult = new SoaExceptionResult(serializer.Deserialize<SoaExceptionResultData>(responseString));
+				} 
+				catch (Exception) { isExceptionResult = false; }
+				
+				if (!isExceptionResult) { throw; } //assumption was wrong, throw first exception
 
-				throw soaClientConfiguration.ExceptionExtractor.Extract(exceptionResult);
+				throw soaClientConfiguration.GetException(exceptionResult);
 			}
 		}
 
 		private string Url(string serviceName)
 		{
-			return soaClientConfiguration.ServiceUrlBase + "/" + serviceName;
+			return soaClientConfiguration.GetServiceUrlBase() + "/" + serviceName;
 		}
 
 		private RestParameter Param(string name, string value)
@@ -49,9 +56,9 @@ namespace Routine.Soa
 		{
 			var result = new List<RestParameter>();
 
-			foreach (var parameter in soaClientConfiguration.DefaultParameters)
+			foreach (var parameter in soaClientConfiguration.GetHeaders())
 			{
-				result.Add(Param(parameter, soaClientConfiguration.DefaultParameterValueExtractor.Extract(parameter)));
+				result.Add(Param(parameter, soaClientConfiguration.GetHeaderValue(parameter)));
 			}
 
 			result.AddRange(parameters);
@@ -76,75 +83,42 @@ namespace Routine.Soa
 
 		public ObjectModel GetObjectModel(string objectModelId)
 		{
-			return As<ObjectModel>(Get("GetObjectModel", 
+			return As<ObjectModel>(Get("GetObjectModel",
 				Param("objectModelId", objectModelId)));
-		}
-
-		public List<ObjectData> GetAvailableObjects(string objectModelId)
-		{
-			return As<ValueData>(Get("GetAvailableObjects", 
-				Param("objectModelId", objectModelId))).Values;
 		}
 
 		public string GetValue(ObjectReferenceData reference)
 		{
-			return Get("GetValue", 
-				Param("reference.Id", reference.Id), 
-				Param("reference.ActualModelId", reference.ActualModelId), 
-				Param("reference.ViewModelId", reference.ViewModelId), 
+			return Get("GetValue",
+				Param("reference.Id", reference.Id),
+				Param("reference.ActualModelId", reference.ActualModelId),
+				Param("reference.ViewModelId", reference.ViewModelId),
 				Param("reference.IsNull", reference.IsNull.ToString()));
 		}
 
 		public ObjectData Get(ObjectReferenceData reference)
 		{
-			return As<ObjectData>(Get("Get", 
-				Param("reference.Id", reference.Id), 
-				Param("reference.ActualModelId", reference.ActualModelId), 
-				Param("reference.ViewModelId", reference.ViewModelId), 
+			return As<ObjectData>(Get("Get",
+				Param("reference.Id", reference.Id),
+				Param("reference.ActualModelId", reference.ActualModelId),
+				Param("reference.ViewModelId", reference.ViewModelId),
 				Param("reference.IsNull", reference.IsNull.ToString())));
 		}
 
 		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			var paramList = new List<RestParameter>();
-			
+
 			paramList.Add(Param("targetReference.Id", targetReference.Id));
 			paramList.Add(Param("targetReference.ActualModelId", targetReference.ActualModelId));
 			paramList.Add(Param("targetReference.ViewModelId", targetReference.ViewModelId));
 			paramList.Add(Param("targetReference.IsNull", targetReference.IsNull.ToString()));
-			
+
 			paramList.Add(Param("operationModelId", operationModelId));
 
-			AddParams(paramList, "parameterValues", parameterValues);
+			paramList.Add(Param("parameters", serializer.Serialize(parameterValues)));
 
-			return As<ValueData>(Post("PerformOperation", paramList.ToArray()));
-		}
-
-		private void AddParams(List<RestParameter> paramList, string name, Dictionary<string, ParameterValueData> parameterValues)
-		{
-			int i = 0;
-			foreach (var key in parameterValues.Keys)
-			{
-				paramList.Add(Param(name + "[" + i + "].Key", key));
-				paramList.Add(Param(name + "[" + i + "].Value.IsList", parameterValues[key].IsList.ToString()));
-
-				for (int j = 0; j < parameterValues[key].Values.Count; j++)
-				{
-					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ObjectModelId", parameterValues[key].Values[j].ObjectModelId));
-					paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].IsNull", parameterValues[key].Values[j].IsNull.ToString()));
-
-					if (!string.IsNullOrEmpty(parameterValues[key].Values[j].ReferenceId))
-					{
-						paramList.Add(Param(name + "[" + i + "].Value.Values[" + j + "].ReferenceId", parameterValues[key].Values[j].ReferenceId));
-					}
-					else
-					{
-						AddParams(paramList, name + "[" + i + "].Value.Values[" + j + "].InitializationParameters", parameterValues[key].Values[j].InitializationParameters);
-					}
-				}
-
-				i++;
-			}
+			return As<ValueData>(Post("Perform", paramList.ToArray()));
 		}
 	}
 }

@@ -2,128 +2,52 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core.Reflection;
-using System.Diagnostics;
+using Routine.Engine;
+using Routine.Engine.Reflection;
 
 namespace Routine
 {
-	public abstract class TypeInfo
+	public abstract class TypeInfo : IType
 	{
-		#region Assembly Browsing
-
-		public static List<TypeInfo> GetAllDomainTypes()
-		{
-			var assemblies = GetAllDomainAssemblies();
-
-			List<TypeInfo> types = new List<TypeInfo>();
-			foreach (var assembly in assemblies)
-			{
-				try
-				{
-					foreach (var type in assembly.GetTypes().Where(t => t.IsPublic))
-					{
-						try
-						{
-							types.Add(TypeInfo.Get(type));
-						}
-						catch (Exception ex)
-						{
-							Debug.WriteLine("TypeInfo.GetAllDomainTypes() -> " + ex.Message);
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine("TypeInfo.GetAllDomainTypes() -> " + ex.Message);
-				}
-			}
-
-			return types;
-		}
-
-		private static List<System.Reflection.Assembly> GetAllDomainAssemblies()
-		{
-			var result = new List<System.Reflection.Assembly>();
-
-			var state = new Dictionary<string, bool>();
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => MayHaveDomainTypeRootNamespace(a.GetName()));
-
-			foreach(var assembly in assemblies)
-			{
-				state.Add(assembly.FullName, true);
-			}
-			foreach(var assembly in assemblies)
-			{
-				result.AddRange(GetReferencedAssemblies(assembly, state));
-			}
-
-			return result;
-		}
-
-		private static List<System.Reflection.Assembly> GetReferencedAssemblies(System.Reflection.Assembly assembly, Dictionary<string, bool> state)
-		{
-			var result = new List<System.Reflection.Assembly> {assembly};
-
-			var references = assembly
-				.GetReferencedAssemblies()
-				.Where(an => !state.ContainsKey(an.FullName) && MayHaveDomainTypeRootNamespace(an));
-
-			foreach (var reference in references)
-			{
-				state.Add(reference.FullName, true);
-				System.Reflection.Assembly referenceAssembly = null;
-				try 
-				{
-					referenceAssembly = System.Reflection.Assembly.Load(reference);
-				} 
-				catch(Exception ex)
-				{
-					Debug.WriteLine("TypeInfo.GetReferencedAssembly() -> Could not load assembly: " + assembly);
-					Debug.WriteLine("Exception Details: " + ex);
-				}
-
-				if(referenceAssembly != null)
-				{
-					result.AddRange(GetReferencedAssemblies(referenceAssembly, state));
-				}
-			}
-
-			return result;
-		}
-
-		public static bool MayHaveDomainTypeRootNamespace(System.Reflection.AssemblyName name)
-		{
-			return domainTypeRootNamespaces.Any(ns => name.FullName.StartsWith(ns.Before(".")));
-		}
-		#endregion
-
 		#region Factory Methods
 
-		private static readonly Dictionary<Type, TypeInfo> typeCache = new Dictionary<Type, TypeInfo>();
-		private static readonly List<string> domainTypeRootNamespaces;
+		private static readonly Dictionary<Type, TypeInfo> typeCache;
+		private static readonly List<Type> domainTypes;
 
 		private static Func<Type, bool> proxyMatcher;
 		private static Func<Type, Type> actualTypeGetter;
 
 		static TypeInfo()
 		{
-			domainTypeRootNamespaces = new List<string>();
-			proxyMatcher = t => false;
-			actualTypeGetter = t => t;
+			typeCache = new Dictionary<Type, TypeInfo>();
+			domainTypes = new List<Type>();
+
+			SetProxyMatcher(null, null);
 		}
 
-		public static void AddDomainTypeRootNamespace(params string[] rootNamespaces)
+		public static void Clear()
 		{
-			domainTypeRootNamespaces.AddRange(rootNamespaces);
+			typeCache.Clear();
+			domainTypes.Clear();
+
+			SetProxyMatcher(null, null);
+		}
+
+		public static void AddDomainTypes(params Type[] newDomainTypes)
+		{
+			domainTypes.AddRange(newDomainTypes.Where(t => !domainTypes.Contains(t)));
 
 			var invalidationList = new List<Type>();
-			foreach(var typeKey in typeCache.Keys)
+			foreach (var typeKey in typeCache.Keys)
 			{
 				var type = typeCache[typeKey];
 
-				if(!type.IsDomainType && (
-						(!proxyMatcher(typeKey) && ShouldBeDomainType(typeKey)) || 
-						(proxyMatcher(typeKey) && ShouldBeDomainType(actualTypeGetter(typeKey)))
+				if 
+				(
+					!type.IsDomainType && 
+					(
+						(!proxyMatcher(typeKey) && domainTypes.Contains(typeKey)) ||
+						(proxyMatcher(typeKey) && domainTypes.Contains(actualTypeGetter(typeKey)))
 					)
 				)
 				{
@@ -131,10 +55,10 @@ namespace Routine
 				}
 			}
 
-			foreach(var type in invalidationList)
+			foreach (var type in invalidationList)
 			{
 				typeCache.Remove(type);
-				TypeInfo.Get(type);
+				Get(type);
 			}
 		}
 
@@ -145,11 +69,6 @@ namespace Routine
 
 			TypeInfo.proxyMatcher = proxyMatcher;
 			TypeInfo.actualTypeGetter = actualTypeGetter;
-		}
-
-		private static bool ShouldBeDomainType(Type type)
-		{
-			return type.Namespace != null && domainTypeRootNamespaces.Any(ns => type.Namespace.StartsWith(ns));
 		}
 
 		protected const System.Reflection.BindingFlags ALL_STATIC = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
@@ -167,18 +86,18 @@ namespace Routine
 
 		public static TypeInfo Get(Type type)
 		{
-			if(type == null)
+			if (type == null)
 			{
 				return null;
 			}
 
-			TypeInfo result = null;
-			
-			if(!typeCache.TryGetValue(type, out result))
+			TypeInfo result;
+
+			if (!typeCache.TryGetValue(type, out result))
 			{
-				lock(typeCache)
+				lock (typeCache)
 				{
-					if(!typeCache.TryGetValue(type, out result))
+					if (!typeCache.TryGetValue(type, out result))
 					{
 						if (proxyMatcher(type))
 						{
@@ -212,7 +131,7 @@ namespace Routine
 
 		private static TypeInfo CreateTypeInfo(Type type)
 		{
-			TypeInfo result = null;
+			TypeInfo result;
 
 			if (type == typeof(void))
 			{
@@ -234,7 +153,7 @@ namespace Routine
 			{
 				result = new ReflectedTypeInfo(type);
 			}
-			else if (ShouldBeDomainType(type))
+			else if (domainTypes.Contains(type))
 			{
 				result = new DomainTypeInfo(type);
 			}
@@ -275,10 +194,10 @@ namespace Routine
 		public bool IsArray { get; protected set; }
 		public bool IsDomainType { get; protected set; }
 
-		public abstract string Name{get;}
-		public abstract string FullName{get;}
-		public abstract string Namespace{get;}
-		public abstract TypeInfo BaseType{get;}
+		public abstract string Name { get; }
+		public abstract string FullName { get; }
+		public abstract string Namespace { get; }
+		public abstract TypeInfo BaseType { get; }
 
 		public abstract ConstructorInfo[] GetAllConstructors();
 		public abstract PropertyInfo[] GetAllProperties();
@@ -290,11 +209,16 @@ namespace Routine
 		protected abstract TypeInfo GetElementType();
 		protected abstract TypeInfo[] GetInterfaces();
 		public abstract bool CanBe(TypeInfo other);
+		protected abstract TypeInfo[] GetConvertibleTypes();
+		public virtual List<string> GetEnumNames() { return new List<string>(); }
+		public virtual List<object> GetEnumValues() { return new List<object>(); }
+		protected virtual TypeInfo GetEnumUnderlyingType() { return null; }
 
 		protected abstract MethodInfo GetParseMethod();
 		protected abstract void Load();
 
 		public abstract object CreateInstance();
+		public abstract IList CreateListInstance(int length);
 
 		public virtual List<ConstructorInfo> GetPublicConstructors()
 		{
@@ -310,16 +234,14 @@ namespace Routine
 
 				return GetAllConstructors().SingleOrDefault(c => c.HasParameters(first, rest));
 			}
-			else
-			{
-				return GetAllConstructors().SingleOrDefault(c => c.HasNoParameters());
-			}
+
+			return GetAllConstructors().SingleOrDefault(c => c.HasNoParameters());
 		}
 
-		public virtual ICollection<PropertyInfo> GetPublicProperties() { return GetPublicProperties(false);}
+		public virtual ICollection<PropertyInfo> GetPublicProperties() { return GetPublicProperties(false); }
 		public virtual ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables)
 		{
-			if(onlyPublicReadableAndWritables)
+			if (onlyPublicReadableAndWritables)
 			{
 				return GetAllProperties().Where(p => p.IsPubliclyReadable && p.IsPubliclyWritable).ToList();
 			}
@@ -327,10 +249,10 @@ namespace Routine
 			return GetAllProperties().Where(p => p.IsPubliclyReadable).ToList();
 		}
 
-		public virtual ICollection<PropertyInfo> GetPublicStaticProperties(){return GetPublicStaticProperties(false);}
+		public virtual ICollection<PropertyInfo> GetPublicStaticProperties() { return GetPublicStaticProperties(false); }
 		public virtual ICollection<PropertyInfo> GetPublicStaticProperties(bool onlyPublicReadableAndWritables)
 		{
-			if(onlyPublicReadableAndWritables)
+			if (onlyPublicReadableAndWritables)
 			{
 				return GetAllStaticProperties().Where(p => p.IsPubliclyReadable && p.IsPubliclyWritable).ToList();
 			}
@@ -388,38 +310,6 @@ namespace Routine
 			return GetAllStaticMethods().Where(m => m.Name == name).ToList();
 		}
 
-		public virtual bool CanBe<T>() 
-		{
-			return CanBe(TypeInfo.Get<T>()); 
-		}
-
-		public virtual bool CanBeCollection() { return CanBeCollection<object>(); }
-		public virtual bool CanBeCollection<T>() { return CanBeCollection(TypeInfo.Get<T>()); }
-		public virtual bool CanBeCollection(TypeInfo itemType) 
-		{
-			return CanBe<ICollection>() && 
-				(IsGenericType && GetGenericArguments()[0].CanBe(itemType)) ||
-				(IsArray && GetElementType().CanBe(itemType));
-		}
-
-		public virtual TypeInfo GetItemType()
-		{
-			if(!CanBeCollection()) { throw new ArgumentException("type");}
-			if(IsGenericType) { return GetGenericArguments()[0];}
-			if(IsArray){return GetElementType();}
-
-			throw new ArgumentException("type");
-		}
-
-		public virtual bool CanParse() { return GetParseMethod() != null; }
-		public virtual object Parse(string value) { return GetParseMethod().InvokeStatic(value); }
-
-		public bool Has<TAttribute>() where TAttribute : Attribute { return Has(TypeInfo.Get<TAttribute>()); }
-		public bool Has(TypeInfo attributeType)
-		{
-			return GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
-		}
-
 		public override string ToString()
 		{
 			return type.ToString();
@@ -430,10 +320,10 @@ namespace Routine
 
 		public override bool Equals(object obj)
 		{
-			if(obj == null){return false;}
+			if (obj == null) { return false; }
 
 			var typeObj = obj as Type;
-			if(typeObj != null){return type == typeObj;}
+			if (typeObj != null) { return type == typeObj; }
 
 			var typeInfoObj = obj as TypeInfo;
 			if (typeInfoObj == null) { return false; }
@@ -445,11 +335,49 @@ namespace Routine
 		{
 			return type.GetHashCode();
 		}
+
+		#region ITypeComponent implementation
+
+		IType ITypeComponent.ParentType { get { return null; } }
+
+		#endregion
+
+		#region IType implementation
+
+		IType IType.BaseType { get { return BaseType; } }
+
+		List<IType> IType.ConvertibleTypes { get { return GetConvertibleTypes().Cast<IType>().ToList(); } }
+		List<IInitializer> IType.Initializers { get { return GetAllConstructors().Cast<IInitializer>().ToList(); } }
+		List<IMember> IType.Members { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IMember>().ToList(); } }
+		List<IOperation> IType.Operations { get { return GetAllMethods().Cast<IOperation>().ToList(); } }
+
+		List<IType> IType.GetGenericArguments() { return GetGenericArguments().Cast<IType>().ToList(); }
+		IType IType.GetElementType() { return GetElementType(); }
+		IOperation IType.GetParseOperation() { return GetParseMethod(); }
+		IType IType.GetEnumUnderlyingType() { return GetEnumUnderlyingType(); }
+
+		bool IType.CanBe(IType otherType)
+		{
+			var otherTypeInfo = otherType as TypeInfo;
+
+			return otherTypeInfo != null && CanBe(otherTypeInfo);
+		}
+
+		object IType.Convert(object target, IType otherType)
+		{
+			var thisAsIType = this as IType;
+
+			if (!thisAsIType.CanBe(otherType)) { throw new InvalidOperationException(string.Format("Cannot convert an object of type {0} to {1}", this, otherType)); }
+
+			return target;
+		}
+
+		#endregion
 	}
 
-	public class NoDomainTypeRootNamespaceIsDefinedException : Exception {}
+	public class NoDomainTypeRootNamespaceIsDefinedException : Exception { }
 
-// ReSharper disable InconsistentNaming
+	// ReSharper disable InconsistentNaming
 	public static class type
 	{
 		public static TypeInfo of<T>()
@@ -462,13 +390,13 @@ namespace Routine
 			return TypeInfo.Void();
 		}
 	}
-// ReSharper restore InconsistentNaming
+	// ReSharper restore InconsistentNaming
 
 	public static class TypeInfoObjectExtensions
 	{
 		public static TypeInfo GetTypeInfo(this object source)
 		{
-			if(source == null){return null;}
+			if (source == null) { return null; }
 
 			return TypeInfo.Get(source.GetType());
 		}

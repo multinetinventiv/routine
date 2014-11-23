@@ -4,16 +4,16 @@ namespace Routine.Soa.Builder
 {
 	public class SoaConfigurationBuilder
 	{
-		public GenericSoaConfiguration FromScratch()
+		public ConventionalSoaConfiguration FromScratch()
 		{
-			return new GenericSoaConfiguration();
+			return new ConventionalSoaConfiguration();
 		}
 
-		public GenericSoaConfiguration FromBasic()
+		public ConventionalSoaConfiguration FromBasic()
 		{
 			return FromScratch()
-				.MaxResultLengthIs(2*1024*1024)
-				.ExtractExceptionResult.OnFailReturn(new SoaExceptionResult());
+				.MaxResultLength.Set(2*1024*1024)
+				.ExceptionResult.OnFailReturn(new SoaExceptionResult());
 		}
 	}
 }

@@ -2,38 +2,13 @@
 {
 	public class DefaultApiGenerationContext : IApiGenerationContext
 	{
-		public IApiGenerationConfiguration ApiGenerationConfiguration { get; private set; }
+		public IApiGenerationConfiguration Configuration { get; private set; }
+		public ApplicationCodeModel Application { get; private set; }
 
-		public DefaultApiGenerationContext(IApiGenerationConfiguration configuration) 
-		{ 
-			ApiGenerationConfiguration = configuration; 
-		}
-
-		public ApplicationCodeModel Application { get; set; }
-
-		public ObjectCodeModel CreateObject()
+		public DefaultApiGenerationContext(IApiGenerationConfiguration configuration, ApplicationCodeModel application)
 		{
-			return new ObjectCodeModel(this);
-		}
-
-		public InitializerCodeModel CreateInitializer()
-		{
-			return new InitializerCodeModel(this);
-		}
-
-		public MemberCodeModel CreateMember()
-		{
-			return new MemberCodeModel(this);
-		}
-
-		public OperationCodeModel CreateOperation()
-		{
-			return new OperationCodeModel(this);
-		}
-
-		public ParameterCodeModel CreateParameter()
-		{
-			return new ParameterCodeModel(this);
+			Configuration = configuration;
+			Application = application;
 		}
 	}
 }

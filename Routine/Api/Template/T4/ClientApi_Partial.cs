@@ -4,16 +4,16 @@ namespace Routine.Api.Template.T4
 {
 	public partial class ClientApi : IApiTemplate
 	{
-		private IApiGenerationContext context;
+		private ApplicationCodeModel applicationCodeModel;
 
-		public string Render(IApiGenerationContext context)
+		public string Render(ApplicationCodeModel applicationCodeModel)
 		{
-			this.context = context;
+			this.applicationCodeModel = applicationCodeModel;
 
 			return TransformText();
 		}
 
-		public ApplicationCodeModel Application { get { return context.Application; } }
+		public ApplicationCodeModel Application { get { return applicationCodeModel; } }
 	}
 
 	public static class ClientApi_ApiGeneratorExtension

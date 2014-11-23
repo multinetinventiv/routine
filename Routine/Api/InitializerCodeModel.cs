@@ -1,47 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Routine.Core;
+using Routine.Client;
 
 namespace Routine.Api
 {
-	public class InitializerCodeModel : CodeModelBase
+	public class InitializerCodeModel
 	{
-		public InitializerCodeModel(IApiGenerationContext context)
-			: base(context) { }
+		public Rinitializer Initializer { get; private set; }
 
-		private InitializerModel model;
+		public List<ParameterCodeModel> Parameters { get; private set; }
+		public List<List<ParameterCodeModel>> Groups { get; private set; }
 
-		internal InitializerCodeModel With(InitializerModel model)
+		public InitializerCodeModel(ApplicationCodeModel application, Rinitializer initializer)
 		{
-			this.model = model;
+			Initializer = initializer;
 
-			return this;
-		}
+			Parameters = initializer.Parameters.Select(p => new ParameterCodeModel(application, p)).ToList();
+			Groups = Enumerable.Range(0, initializer.Groups.Count).Select(i => new List<ParameterCodeModel>()).ToList();
 
-		public List<ParameterCodeModel> Parameters { get { return model.Parameters.Select(p => CreateParameter().With(p)).ToList(); } }
-		public List<List<ParameterCodeModel>> Groups
-		{
-			get
+			foreach (var param in Parameters)
 			{
-				var result = Enumerable.Range(0, model.GroupCount).Select(i => new List<ParameterCodeModel>()).ToList();
-
-				foreach (var param in Parameters)
+				foreach (var group in param.Groups)
 				{
-					foreach (var group in param.Groups)
-					{
-						result[group].Add(param);
-					}
+					Groups[group].Add(param);
 				}
-
-				return result;
 			}
 		}
 
 		public bool MarkedAs(string mark)
 		{
-			return model.Marks.Contains(mark);
+			return Initializer.MarkedAs(mark);
 		}
 	}
 }

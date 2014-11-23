@@ -1,4 +1,5 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
+<%@ Import Namespace="Routine.Ui" %>
 
 <% var model = Model as OperationViewModel; %>
 <% var mode = ViewData["mode"] as string??"menu"; %>

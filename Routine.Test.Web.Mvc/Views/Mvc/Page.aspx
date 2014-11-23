@@ -22,7 +22,7 @@
 	<div class="segment menu">
 		<div class="wrapper">
 			<a href="<%= Url.Action("Index", "App") %>"><img runat="server" src="~/Content/Images/top_logo.png" /></a>
-			<% model.Application.Menu.Render(Html); %>
+			<% model.Menu.Render(Html); %>
 		</div>
 	</div>
 	<footer>

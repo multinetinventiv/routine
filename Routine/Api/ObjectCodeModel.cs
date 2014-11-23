@@ -1,93 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
+using Routine.Client;
+using Routine.Engine;
 
 namespace Routine.Api
 {
-	public class ObjectCodeModel : CodeModelBase
+	public class ObjectCodeModel
 	{
-		public ObjectCodeModel(IApiGenerationContext context)
-			: base(context) { }
-
-		private bool isVoid;
-		private bool isList;
-		private ObjectModel model;
-		private string @namespace;
-		private TypeInfo type;
-
-		internal ObjectCodeModel Void()
+		private static string BuildNamespace(string defaultNamespace, Rtype type)
 		{
-			isVoid = true;
-			model = new ObjectModel { Id = "void", Name = "void" };
+			var result = defaultNamespace;
+			if (!string.IsNullOrEmpty(type.Module) && !result.EndsWith(type.Module))
+			{
+				result += "." + type.Module;
+			}
 
-			return this;
+			return result;
 		}
 
-		internal ObjectCodeModel With(string modelId, bool isList)
+		private readonly ApplicationCodeModel application;
+		private readonly bool isVoid;
+		private readonly bool isList;
+		private readonly string @namespace;
+
+		private readonly IType clientType;
+		private readonly string stringToValueCodeTemplate;
+		private readonly string valueToStringCodeTemplate;
+
+		public Rtype Type { get; private set; }
+		public InitializerCodeModel Initializer { get; private set; }
+		public List<MemberCodeModel> Members { get; private set; }
+		public List<OperationCodeModel> Operations { get; private set; }
+
+		internal ObjectCodeModel(ApplicationCodeModel application, Rtype voidType)
+			: this(application, true, false, voidType, null, type.ofvoid(), null, null) { }
+
+		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, string defaultNamespace)
+			: this(application, false, false, type, BuildNamespace(defaultNamespace, type), null, null, null) { }
+
+		internal ObjectCodeModel(ApplicationCodeModel application, ObjectCodeModel model, bool isList)
+			: this(application, false, isList, model.Type, model.@namespace, model.clientType, model.stringToValueCodeTemplate, model.valueToStringCodeTemplate) { }
+
+		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, IType clientType)
+			: this(application, false, false, type, clientType.Namespace, clientType, null, null) { }
+
+		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, IType clientType, string stringToValueCodeTemplate, string valueToStringCodeTemplate)
+			: this(application, false, false, type, clientType.Namespace, clientType, stringToValueCodeTemplate, valueToStringCodeTemplate) { }
+
+		private ObjectCodeModel(ApplicationCodeModel application, bool isVoid, bool isList, Rtype type, string @namespace, IType clientType, string stringToValueCodeTemplate, string valueToStringCodeTemplate)
 		{
+			this.application = application;
+			this.isVoid = isVoid;
 			this.isList = isList;
+			this.@namespace = @namespace;
+			this.clientType = clientType;
+			this.stringToValueCodeTemplate = stringToValueCodeTemplate;
+			this.valueToStringCodeTemplate = valueToStringCodeTemplate;
 
-			try
-			{
-				this.type = ApiGenConfig.ReferencedModelIdSerializer.Deserialize(modelId);
-
-				if (type == null) { throw new CannotDeserializeException(modelId); }
-
-				this.model = new ObjectModel 
-				{ 
-					Id = modelId, 
-					Name = type.Name, 
-					IsValueModel = ApiGenConfig.ReferencedTypeIsValueTypeExtractor.Extract(type),
-				};
-
-				@namespace = type.Namespace;
-
-				if (model.IsValueModel)
-				{
-					var targetType = ApiGenConfig.TargetValueTypeExtractor.Extract(type);
-					type = targetType ?? type;
-				}
-				
-				return this;
-			}
-			catch (CannotDeserializeException ex)
-			{
-				var ocm = Application.Models.SingleOrDefault(m => m.Id == modelId);
-
-				if(ocm == null)
-				{
-					throw new InvalidOperationException(modelId + " could not be deserialized to a type and was not found in application model!", ex);
-				}
-
-				return With(ocm.model);
-			}
-		}
-
-		internal ObjectCodeModel With(ObjectModel model)
-		{
-			this.model = model;
-			
-			@namespace = DefaultNamespace;
-			if (!string.IsNullOrEmpty(model.Module) && !@namespace.EndsWith(model.Module))
-			{
-				@namespace += "." + model.Module;
-			}
-
-			return this;
+			Type = type;
 		}
 
 		public bool IsVoid { get { return isVoid; } }
 		public bool IsList { get { return isList; } }
-		public string Id { get { return model.Id; } }
+		public string Id { get { return Type.Id; } }
 		public string Namespace { get { return @namespace; } }
-		public string Name { get { return model.Name; } }
-		public bool IsValueModel { get { return model.IsValueModel; } }
-		public bool IsViewModel { get { return model.IsViewModel; } }
-		public string Module { get { return model.Module; } }
-		public string FullName 
-		{ 
-			get 
+		public string Name { get { return Type.Name; } }
+		public bool IsValueModel { get { return Type.IsValueType; } }
+		public bool IsViewModel { get { return Type.IsViewType; } }
+		public string Module { get { return Type.Module; } }
+		public List<string> StaticInstanceIds { get { return application.GetStaticInstanceIds(this); } }
+
+		public string FullName
+		{
+			get
 			{
 				if (!isList)
 				{
@@ -97,14 +83,22 @@ namespace Routine.Api
 				var listType = typeof(List<>);
 
 				return listType.Namespace + "." + listType.Name.Before("`") + "<" + FullNameIgnoringList + ">";
-			} 
+			}
 		}
 
 		public string FullNameIgnoringList
 		{
 			get
 			{
-				if (type != null) { return type.FullName; }
+				if (clientType != null)
+				{
+					if (IsVoid)
+					{
+						return "void";
+					}
+
+					return clientType.FullName;
+				}
 
 				if (string.IsNullOrEmpty(Namespace)) { return Name; }
 
@@ -112,71 +106,58 @@ namespace Routine.Api
 			}
 		}
 
-		public List<string> SingletonIds { get { return ApiGenConfig.SingletonIdSelector.Select(this); } }
+		public bool CanInitialize { get { return Initializer != null; } }
 
-		public bool CanInitialize { get { return model.Initializer.GroupCount > 0; } }
-		public InitializerCodeModel Initializer
+		internal void Load()
 		{
-			get
+			if (Type.Initializer != null && application.IsRendered(Type.Initializer) && Type.Initializer.Parameters.All(p => application.ValidateType(p.ParameterType)))
 			{
-				if (!CanInitialize)
-				{
-					return null;
-				}
-
-				return CreateInitializer().With(model.Initializer);
+				Initializer = new InitializerCodeModel(application, Type.Initializer);
 			}
-		}
 
-		public List<MemberCodeModel> Members 
-		{ 
-			get 
-			{
-				return model.Members
-					.Where(m => ModelCanBeUsed(m.ViewModelId))
-					.Select(m => CreateMember().With(m))
-					.ToList();
-			}
-		}
+			Members = Type.Members
+				.Where(m => application.IsRendered(m) && application.ValidateType(m.MemberType))
+				.Select(m => new MemberCodeModel(application, m))
+				.ToList();
 
-		public List<OperationCodeModel> Operations
-		{
-			get
-			{
-				return model.Operations
-					.Where(o => ModelCanBeUsed(o.Result.ViewModelId) && o.Parameters.All(p => ModelCanBeUsed(p.ViewModelId)))
-					.Select(o => CreateOperation().With(o))
-					.ToList();
-			}
+			Operations = Type.Operations
+				.Where(o => application.IsRendered(o) && (o.ResultIsVoid || application.ValidateType(o.ResultType)) && o.Parameters.All(p => application.ValidateType(p.ParameterType)))
+				.Select(o => new OperationCodeModel(application, o))
+				.ToList();
 		}
 
 		public string GetStringToValueCode(string robjectVariableName)
 		{
-			if (!model.IsValueModel)
+			if (!Type.IsValueType)
 			{
 				throw new InvalidOperationException("Only value models can have string to value conversion");
 			}
 
-			return ApiGenConfig.StringToValueCodeTemplateExtractor.Extract(type)
+			return stringToValueCodeTemplate
 					.Replace("{valueString}", robjectVariableName + ".Value")
 					.Replace("{valueRobject}", robjectVariableName)
-					.Replace("{type}", type.FullName);
+					.Replace("{type}", clientType.FullName);
 		}
 
 		public string GetValueToStringCode(string objectVariableName)
 		{
-			if (!model.IsValueModel)
+			if (!Type.IsValueType)
 			{
 				throw new InvalidOperationException("Only value models can have string to value conversion");
 			}
 
-			return ApiGenConfig.ValueToStringCodeTemplateExtractor.Extract(type)
+			return valueToStringCodeTemplate
 					.Replace("{value}", objectVariableName);
 		}
 
 		public bool MarkedAs(string mark)
 		{
-			return model.Marks.Contains(mark);
+			return Type.MarkedAs(mark);
+		}
+
+		internal ObjectCodeModel GetListType()
+		{
+			return new ObjectCodeModel(application, this, true);
 		}
 	}
 }

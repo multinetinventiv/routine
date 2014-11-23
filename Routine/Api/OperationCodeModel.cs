@@ -1,59 +1,46 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
+using Routine.Client;
 
 namespace Routine.Api
 {
-	public class OperationCodeModel : CodeModelBase
+	public class OperationCodeModel
 	{
-		public OperationCodeModel(IApiGenerationContext context)
-			: base(context) { }
+		public Roperation Operation { get; private set; }
+		public ObjectCodeModel ReturnModel { get; private set; }
+		public List<ParameterCodeModel> Parameters { get; private set; }
+		public List<List<ParameterCodeModel>> Groups { get; private set; }
 
-		private OperationModel model;
-
-		internal OperationCodeModel With(OperationModel model)
+		public OperationCodeModel(ApplicationCodeModel application, Roperation operation)
 		{
-			this.model = model;
+			Operation = operation;
 
-			return this;
-		}
-
-		public string Id { get { return model.Id; } }
-		public ObjectCodeModel ReturnModel 
-		{ 
-			get 
+			if (operation.ResultIsVoid)
 			{
-				if (model.Result.IsVoid)
-				{
-					return CreateObject().Void();
-				}
-
-				return CreateObject().With(model.Result.ViewModelId, model.Result.IsList);
-			} 
-		}
-
-		public List<ParameterCodeModel> Parameters { get { return model.Parameters.Select(p => CreateParameter().With(p)).ToList(); } }
-		public List<List<ParameterCodeModel>> Groups
-		{
-			get
+				ReturnModel = application.GetVoidModel();
+			}
+			else
 			{
-				var result = Enumerable.Range(0, model.GroupCount).Select(i => new List<ParameterCodeModel>()).ToList();
+				ReturnModel = application.GetModel(operation.ResultType, operation.ResultIsList);
+			}
 
-				foreach (var param in Parameters)
+			Parameters = operation.Parameters.Select(p => new ParameterCodeModel(application, p)).ToList();
+			Groups = Enumerable.Range(0, operation.Groups.Count).Select(i => new List<ParameterCodeModel>()).ToList();
+
+			foreach (var param in Parameters)
+			{
+				foreach (var group in param.Groups)
 				{
-					foreach (var group in param.Groups)
-					{
-						result[group].Add(param);
-					}
+					Groups[group].Add(param);
 				}
-
-				return result;
 			}
 		}
 
+		public string Id { get { return Operation.Id; } }
+
 		public bool MarkedAs(string mark)
 		{
-			return model.Marks.Contains(mark);
+			return Operation.MarkedAs(mark);
 		}
 	}
 }

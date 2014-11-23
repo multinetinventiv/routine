@@ -6,7 +6,6 @@ namespace Routine.Core
 	{
 		ApplicationModel GetApplicationModel();
 		ObjectModel GetObjectModel(string objectModelId);
-		List<ObjectData> GetAvailableObjects(string objectModelId);
 
 		string GetValue(ObjectReferenceData reference);
 		ObjectData Get(ObjectReferenceData reference);
