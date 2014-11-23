@@ -21,6 +21,8 @@ namespace Routine.Ui
 		public string Module { get { return Object.Type.Module; } }
 
 		public string Title { get { return Object.IsNull ? Configuration.GetNullDisplayValue() : Object.Value; } }
+
+		//TODO get from mvc configuration
 		public bool HasDetail { get { return !Object.IsNull && !Object.Type.IsValueType && (Object.Type.Members.Any() || Object.Type.Operations.Any()); } }
 
 		private string ViewRouteNameBase { get { return Configuration.GetViewRouteName(this); } }
