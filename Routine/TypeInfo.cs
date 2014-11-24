@@ -33,33 +33,16 @@ namespace Routine
 			SetProxyMatcher(null, null);
 		}
 
+		public static List<TypeInfo> GetDomainTypes()
+		{
+			return domainTypes.Select(t => t.ToTypeInfo()).ToList();
+		}
+
 		public static void AddDomainTypes(params Type[] newDomainTypes)
 		{
 			domainTypes.AddRange(newDomainTypes.Where(t => !domainTypes.Contains(t)));
-
-			var invalidationList = new List<Type>();
-			foreach (var typeKey in typeCache.Keys)
-			{
-				var type = typeCache[typeKey];
-
-				if 
-				(
-					!type.IsDomainType && 
-					(
-						(!proxyMatcher(typeKey) && domainTypes.Contains(typeKey)) ||
-						(proxyMatcher(typeKey) && domainTypes.Contains(actualTypeGetter(typeKey)))
-					)
-				)
-				{
-					invalidationList.Add(typeKey);
-				}
-			}
-
-			foreach (var type in invalidationList)
-			{
-				typeCache.Remove(type);
-				Get(type);
-			}
+			
+			typeCache.Clear();
 		}
 
 		public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)

@@ -109,7 +109,7 @@ namespace Routine.Engine.Configuration.Conventional
 			return AddTypes(types.Select(t => TypeInfo.Get(t) as IType));
 		}
 
-		public ConventionalCodingStyle AddTypes(params IType[] types) { return AddTypes(types as IEnumerable<IType>); }
+		public ConventionalCodingStyle AddTypes(params IType[] types) { return AddTypes(types.AsEnumerable()); }
 		public ConventionalCodingStyle AddTypes(IEnumerable<IType> types)
 		{
 			this.types.AddRange(types.Where(t => !this.types.Contains(t)));

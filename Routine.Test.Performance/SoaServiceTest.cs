@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Web.Script.Serialization;
 using NUnit.Framework;
 using Routine.Client;
@@ -24,8 +27,9 @@ namespace Routine.Test.Performance
 						.Success(ctx => Console.WriteLine("success - " + ctx.Result))
 						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
 						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))
-						.When(ctx => ctx.OperationModelId != "TestMaxLength"))))
-				.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = 11788891 }))
+						.When(ctx => ctx.OperationModelId != "TestMaxLength" && ctx.OperationModelId != "TestBigInput"))))
+				.UsingSerializer(new JsonRestSerializer(new JavaScriptSerializer { MaxJsonLength = int.MaxValue }))
+				.UsingRestClient(request => request.Timeout = Timeout.Infinite)
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
 					.ServiceUrlBase.Set("http://127.0.0.1:5485/Soa")
@@ -38,7 +42,8 @@ namespace Routine.Test.Performance
 			rapp = soaClientContext.Application;
 		}
 
-		[Test][Ignore]
+		[Test]
+		[Ignore]
 		public void ServiceClientTest()
 		{
 			var todoModule = rapp.Get("Instance", "m-todo--todo-module");
@@ -144,14 +149,44 @@ namespace Routine.Test.Performance
 			}
 			Console.WriteLine("------------");
 
+
 			Console.WriteLine("testing max length;");
+			var stopwatch = Stopwatch.StartNew();
 			var maxLengthResult = projectManagementModule.Perform("TestMaxLength", rapp.NewVar("count", 1000, "s-int-32"));
-			Console.WriteLine("Total {0} items fetched successfully", maxLengthResult.List.Count);
+			stopwatch.Stop();
+			Console.WriteLine("Total {0} items fetched successfully in {1:c}", maxLengthResult.List.Count, stopwatch.Elapsed);
+			Console.WriteLine("------------");
+
+			Console.WriteLine("Sending big data input... (ProjectManagementModule.TestBigInput)");
+			const int bulk_count = 20000;
+			stopwatch = Stopwatch.StartNew();
+			var bulkProjectCount = projectManagementModule.Perform("TestBigInput",
+				rapp.NewVarList("projects",
+					Enumerable.Range(0, bulk_count).Select(i =>
+						rapp.Init("m-project-management--new-project",
+							rapp.NewVar("customer", customers.List[0]),
+							rapp.NewVar("deadline", DateTime.Now.AddDays(21), "s-date-time"),
+							rapp.NewVar("name", "project " + i, "s-string"),
+							rapp.NewVarList("features",
+								Enumerable.Range(0, 3).Select(j =>
+									rapp.Init("m-project-management--new-feature",
+										rapp.NewVar("name", "project " + i + " - feature " + j, "s-string"),
+										rapp.NewVar("someBool", false, "s-boolean")
+										)
+									)
+								)
+							)
+						)
+					)
+				);
+			stopwatch.Stop();
+			Console.WriteLine("total {0} newproject input sent in {1:c}", bulkProjectCount, stopwatch.Elapsed);
 			Console.WriteLine("------------");
 
 		}
 
-		[Test][Ignore]
+		[Test]
+		[Ignore]
 		public void ManuelTestField()
 		{
 			Console.WriteLine(typeof(IList<string>).GetMethod("IndexOf").ContainsGenericParameters);

@@ -51,6 +51,11 @@ namespace Routine.Test.Module.ProjectManagement
 			return result;
 		}
 
+		public int TestBigInput(List<NewProject> projects)
+		{
+			return projects.Count;
+		}
+
 		private string CreateBigString(int ix)
 		{
 			var result = ix + "-";

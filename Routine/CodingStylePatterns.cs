@@ -10,7 +10,7 @@ namespace Routine
 	public static class CodingStylePatterns
 	{
 		public static ConventionalCodingStyle FromEmpty(this PatternBuilder<ConventionalCodingStyle> source) { return new ConventionalCodingStyle(); }
-		
+
 		public static ConventionalCodingStyle ParseableValueTypePattern(this PatternBuilder<ConventionalCodingStyle> source)
 		{
 			return source
@@ -30,9 +30,12 @@ namespace Routine
 					;
 		}
 
-		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source)
+		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source) { return source.EnumPattern(true); }
+		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source, bool useName)
 		{
-			return source
+			if (useName)
+			{
+				return source
 					.FromEmpty()
 					.TypeIsValue.Set(c => c.Constant(true).When(t => t.IsEnum))
 					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
@@ -41,13 +44,6 @@ namespace Routine
 					.Members.AddNoneWhen(t => t.IsEnum)
 					.Operations.AddNoneWhen(t => t.IsEnum)
 					;
-		}
-
-		public static ConventionalCodingStyle EnumPattern(this PatternBuilder<ConventionalCodingStyle> source, bool useName)
-		{
-			if (useName)
-			{
-				return source.EnumPattern();
 			}
 
 			return source
@@ -64,6 +60,7 @@ namespace Routine
 						{
 							throw new InvalidEnumArgumentException(id, value, type.GetActualType());
 						}
+
 						return Enum.ToObject(type.GetActualType(), value);
 					}).AcceptNullResult(false)).When(t => t is TypeInfo && t.IsEnum))
 					.Members.AddNoneWhen(t => t.IsEnum)

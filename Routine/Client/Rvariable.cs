@@ -122,7 +122,12 @@ namespace Routine.Client
 
 		public override string ToString()
 		{
-			return List.ToItemString();
+			if (IsList)
+			{
+				return List.ToItemString();
+			}
+
+			return Object.ToString();
 		}
 	}
 }

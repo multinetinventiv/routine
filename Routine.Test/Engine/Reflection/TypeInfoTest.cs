@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
+using RoutineTest.OuterDomainNamespace;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -41,6 +43,32 @@ namespace Routine.Test.Engine.Reflection
 			Assert.IsNotNull(testing.GetConstructor(type.of<string>()));
 			Assert.AreEqual(systemType.GetProperty("PublicProperty").Name, testing.GetProperty("PublicProperty").Name);
 			Assert.AreEqual(systemType.GetMethod("ToString").Name, testing.GetMethod("ToString").Name);
+		}
+
+		[Test]
+		public void When_a_previously_cached_type_is_added_as_domain_type__previously_created_reflected_type_info_instance_is_invalidated()
+		{
+			Assert.IsInstanceOf<ReflectedTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
+
+			TypeInfo.AddDomainTypes(typeof(TestOuterDomainType_OOP));
+
+			Assert.IsInstanceOf<DomainTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
+		}
+
+		[Test]
+		public void When_a_domain_type_has_a_currently_non_domain_type_reference__that_type_reference_should_be_invalidated_after_adding_it_as_a_domain_type()
+		{
+			TypeInfo.AddDomainTypes(typeof(TestOuterDomainType_OOP));
+
+			var property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First();
+
+			Assert.IsInstanceOf<ReflectedTypeInfo>(property.PropertyType);
+
+			TypeInfo.AddDomainTypes(typeof(TestOuterLaterAddedDomainType_OOP));
+
+			property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First();
+
+			Assert.IsInstanceOf<DomainTypeInfo>(property.PropertyType);
 		}
 
 		[Test]

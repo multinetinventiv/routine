@@ -9,6 +9,9 @@ namespace Routine.Test.Core
 		{
 			TypeInfo.SetProxyMatcher(t => t.Name.Contains("Proxy"), t => t.BaseType);
 		}
+
+		[TearDown]
+		public virtual void TearDown() { }
 	}
 }
 

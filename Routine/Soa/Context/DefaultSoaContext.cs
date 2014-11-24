@@ -15,5 +15,20 @@ namespace Routine.Soa.Context
 			ObjectService = objectService;
 			CoreContext = coreContext;
 		}
+
+		public ObjectReferenceData GetObjectReference(object @object)
+		{
+			return CoreContext.CreateDomainObject(@object).GetReferenceData();
+		}
+
+		public object GetObject(ObjectReferenceData reference)
+		{
+			return CoreContext.GetObject(reference);
+		}
+
+		public object GetObject(IType type, string id)
+		{
+			return CoreContext.GetDomainType(type).Locate(id);
+		}
 	}
 }

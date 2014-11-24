@@ -236,6 +236,17 @@ namespace RoutineTest.OuterNamespace
 	}
 }
 
+namespace RoutineTest.OuterDomainNamespace
+{
+	public class TestOuterDomainType_OOP
+	{
+		public TestOuterLaterAddedDomainType_OOP LaterAddedDomainTypeProperty { get; set; }
+	}
+	public class TestOuterLaterAddedDomainType_OOP
+	{ 
+	}
+}
+
 #endregion
 
 namespace Routine.Test.Engine.Reflection
@@ -250,11 +261,18 @@ namespace Routine.Test.Engine.Reflection
 			TypeInfo.AddDomainTypes(GetType().Assembly
 				.GetTypes()
 				.Where(t =>
-					t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") || 
+					t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||
 					t.Namespace.StartsWith("RoutineTest.OuterNamespace")
 				)
 				.ToArray()
 				);
+		}
+
+		public override void TearDown()
+		{
+			base.TearDown();
+
+			TypeInfo.Clear();
 		}
 
 		protected ConstructorInfo OOP_Constructor(params TypeInfo[] typeInfos)
@@ -265,25 +283,25 @@ namespace Routine.Test.Engine.Reflection
 		protected MethodInfo OOP_Method(string prefixOrFullName)
 		{
 			return type.of<TestClass_OOP>().GetMethod(prefixOrFullName + "Method") ??
-			       type.of<TestClass_OOP>().GetMethod(prefixOrFullName);
+				   type.of<TestClass_OOP>().GetMethod(prefixOrFullName);
 		}
 
 		protected MethodInfo OOP_StaticMethod(string prefixOrFullName)
 		{
 			return type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName + "Method") ??
-			       type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
+				   type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo OOP_Property(string prefixOrFullName)
 		{
 			return type.of<TestClass_OOP>().GetProperty(prefixOrFullName + "Property") ??
-			       type.of<TestClass_OOP>().GetProperty(prefixOrFullName);
+				   type.of<TestClass_OOP>().GetProperty(prefixOrFullName);
 		}
 
 		protected PropertyInfo OOP_StaticProperty(string prefixOrFullName)
 		{
 			return type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName + "Property") ??
-			       type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName);
+				   type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName);
 		}
 
 		protected ConstructorInfo Members_Constructor(params TypeInfo[] typeInfos)
@@ -294,13 +312,13 @@ namespace Routine.Test.Engine.Reflection
 		protected MethodInfo Members_Method(string prefixOrFullName)
 		{
 			return type.of<TestClass_Members>().GetMethod(prefixOrFullName + "Method") ??
-			       type.of<TestClass_Members>().GetMethod(prefixOrFullName);
+				   type.of<TestClass_Members>().GetMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo Members_Property(string prefixOrFullName)
 		{
 			return type.of<TestClass_Members>().GetProperty(prefixOrFullName + "Property") ??
-			       type.of<TestClass_Members>().GetProperty(prefixOrFullName);
+				   type.of<TestClass_Members>().GetProperty(prefixOrFullName);
 		}
 
 		protected ConstructorInfo Attribute_Constructor(params TypeInfo[] typeInfos)
@@ -311,25 +329,25 @@ namespace Routine.Test.Engine.Reflection
 		protected MethodInfo Attribute_Method(string prefixOrFullName)
 		{
 			return type.of<TestClass_Attribute>().GetMethod(prefixOrFullName + "Method") ??
-			       type.of<TestClass_Attribute>().GetMethod(prefixOrFullName);
+				   type.of<TestClass_Attribute>().GetMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo Attribute_Property(string prefixOrFullName)
 		{
 			return type.of<TestClass_Attribute>().GetProperty(prefixOrFullName + "Property") ??
-			       type.of<TestClass_Attribute>().GetProperty(prefixOrFullName);
+				   type.of<TestClass_Attribute>().GetProperty(prefixOrFullName);
 		}
 
 		protected MethodInfo Attribute_InterfaceMethod(string prefixOrFullName)
 		{
 			return type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName + "Method") ??
-			       type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName);
+				   type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName);
 		}
 
 		protected PropertyInfo Attribute_InterfaceProperty(string prefixOrFullName)
 		{
 			return type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName + "Property") ??
-			       type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
+				   type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
 		}
 	}
 }

@@ -6,24 +6,24 @@ namespace Routine.Core.Cache
 	{
 		public bool Contains(string key)
 		{
-			return HttpContext.Current.Cache[key] != null;
+			return HttpRuntime.Cache[key] != null;
 		}
 
 		public void Add(string key, object value)
 		{
-			HttpContext.Current.Cache.Insert(key, value);
+			HttpRuntime.Cache.Insert(key, value);
 		}
 
 		public void Remove(string key)
 		{
-			HttpContext.Current.Cache.Remove(key);
+			HttpRuntime.Cache.Remove(key);
 		}
 
 		public object this[string key]
 		{
 			get
 			{
-				return HttpContext.Current.Cache[key];
+				return HttpRuntime.Cache[key];
 			}
 		}
 	}
