@@ -46,7 +46,7 @@ namespace Routine.Engine
 		public void AddGroup(IParameter parameter, int groupIndex)
 		{
 			if (Groups.Contains(groupIndex)) { throw new InvalidOperationException(string.Format("{0}.{1}(...,{2},...): Given groupIndex ({3}) was already added!", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, groupIndex)); }
-			if (!ParameterType.Type.Equals(parameter.ParameterType)) { throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType); }
+			if (!this.parameter.ParameterType.Equals(parameter.ParameterType)) { throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType); }
 
 			Groups.Add(groupIndex);
 

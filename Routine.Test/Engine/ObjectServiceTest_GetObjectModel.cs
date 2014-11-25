@@ -30,6 +30,9 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 		public string OverloadOp(bool b) { return null; }
 		public void OverloadOp(bool s, string s1) { }
 
+		public void OverloadOpBug(List<int> e) { }
+		public void OverloadOpBug(List<int> e, int f) { }
+
 		public IgnoredModel IgnoredMember { get; set; }
 		public IgnoredModel IgnoredForReturnType() { return null; }
 		public void IgnoredForParameter(IgnoredModel ignoreReason) { }
@@ -512,6 +515,17 @@ namespace Routine.Test.Engine
 
 			Assert.AreEqual(2, om.Initializer.GroupCount);
 			Assert.IsFalse(om.Initializer.Parameters.Any(p => p.ViewModelId == "s-int-32" && p.Id == "data"));
+		}
+
+		[Test]
+		public void Bug_list_parameter_types_makes_invalid_check_for_overloads()
+		{
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+			var actual = om.Operations.Single(o => o.Id == "OverloadOpBug");
+
+			Assert.AreEqual(2, actual.GroupCount);
 		}
 	}
 }

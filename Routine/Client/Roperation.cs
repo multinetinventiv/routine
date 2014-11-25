@@ -10,7 +10,7 @@ namespace Routine.Client
 		public Rtype ResultType { get; private set; }
 
 		public Roperation(OperationModel model, Rtype type)
-			: base(model.GroupCount, model.Parameters, model.Marks, type)
+			: base(model.Id, model.GroupCount, model.Parameters, model.Marks, type)
 		{
 			this.model = model;
 

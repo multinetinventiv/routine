@@ -7,7 +7,7 @@ namespace Routine.Client
 		private readonly InitializerModel model;
 
 		public Rinitializer(InitializerModel model, Rtype type)
-			: base(model.GroupCount, model.Parameters, model.Marks, type)
+			: base(Constants.INITIALIZER_ID, model.GroupCount, model.Parameters, model.Marks, type)
 		{
 			this.model = model;
 		}
@@ -33,5 +33,6 @@ namespace Routine.Client
 		} 
 
 		#endregion
+
 	}
 }

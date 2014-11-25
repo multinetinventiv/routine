@@ -189,8 +189,7 @@ namespace Routine.Test.Performance
 		[Ignore]
 		public void ManuelTestField()
 		{
-			Console.WriteLine(typeof(IList<string>).GetMethod("IndexOf").ContainsGenericParameters);
-			Console.WriteLine(typeof(IList<>).GetMethod("IndexOf").ContainsGenericParameters);
+			Console.WriteLine(Enumerable.Range(-1, 0).ToList());
 		}
 	}
 }

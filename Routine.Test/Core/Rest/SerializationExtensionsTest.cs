@@ -42,6 +42,14 @@ namespace Routine.Test.Core.Rest
 		}
 
 		[Test]
+		public void When_serializing__ObjectReferenceData_serializes_id_with_escape_character()
+		{
+			var testing = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid" };
+
+			Assert.AreEqual("id##2#amid", testing.ToSerializable());
+		}
+
+		[Test]
 		public void When_serializing__ObjectReferenceData_serializes_only_ActualModelId_when_it_is_the_same_with_ViewModelId()
 		{
 			var testing = new ObjectReferenceData { Id = "id", ActualModelId = "amid", ViewModelId = "amid" };
@@ -414,6 +422,15 @@ namespace Routine.Test.Core.Rest
 		{
 			var expected = new ObjectReferenceData { Id = "id", ActualModelId = "amid", ViewModelId = "amid" };
 			var actual = SerializationExtensions.DeserializeObjectReferenceData("id#amid");
+
+			Assert.AreEqual(expected, actual);
+		}
+
+		[Test]
+		public void When_deserializing__ObjectReferenceData_deserializes_id_with_escape_character()
+		{
+			var expected = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid", ViewModelId = "amid" };
+			var actual = SerializationExtensions.DeserializeObjectReferenceData("id##2#amid");
 
 			Assert.AreEqual(expected, actual);
 		}

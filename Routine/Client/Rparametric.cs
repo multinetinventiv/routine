@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
@@ -12,7 +13,7 @@ namespace Routine.Client
 		public List<List<Rparameter>> Groups { get; private set; }
 		public List<string> Marks { get; private set; }
 
-		protected Rparametric(int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
+		protected Rparametric(string id, int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
 		{
 			Marks = new List<string>(marks);
 
@@ -32,6 +33,11 @@ namespace Routine.Client
 
 				foreach (var group in param.Groups)
 				{
+					if (group >= Groups.Count || group < 0)
+					{
+						throw new InvalidOperationException(string.Format("Parameter '{0}' has a group '{1}' that does not exist on '{2}'. There only {3} groups.", param.Id, group, id, Groups.Count));
+					}
+
 					Groups[group].Add(param);
 				}
 			}
