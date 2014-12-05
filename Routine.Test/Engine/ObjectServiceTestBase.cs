@@ -38,6 +38,8 @@ namespace Routine.Test.Engine
 
 				.IdExtractor.Set(c => c.IdByMember(p => p.Returns<string>("Id")).When(t => t.IsDomainType))
 				.ObjectLocator.Set(c => c.Locator(l => l.By(id => objectRepository[id])).When(t => t.IsDomainType))
+
+				.NextLayer()
 				;
 
 			var cache = new DictionaryCache();

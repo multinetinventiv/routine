@@ -82,7 +82,7 @@ namespace Routine.Test.Api
 
 			Assert.IsTrue(testClass.Namespace.StartsWith("Default.Namespace"), "Namespace should start with Default.Namespace, but it is -> " + testClass.Namespace);
 
-			testing = Generator(c => c.DefaultNamespace.Set(null));
+			testing = Generator(c => c.DefaultNamespace.SetDefault());
 
 			try
 			{

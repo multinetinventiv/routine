@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -7,7 +8,7 @@ using Routine.Interception;
 
 namespace Routine.Ui.Configuration
 {
-	public class ConventionalMvcConfiguration : IMvcConfiguration
+	public class ConventionalMvcConfiguration : LayeredBase<ConventionalMvcConfiguration>, IMvcConfiguration
 	{
 		public const string DEFAULT_OBJECT_ID = "default";
 

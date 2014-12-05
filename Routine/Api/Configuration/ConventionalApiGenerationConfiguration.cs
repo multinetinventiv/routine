@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Routine.Client;
 using Routine.Core.Configuration;
 using Routine.Engine;
 
 namespace Routine.Api.Configuration
 {
-	public class ConventionalApiGenerationConfiguration : IApiGenerationConfiguration
+	public class ConventionalApiGenerationConfiguration : LayeredBase<ConventionalApiGenerationConfiguration>, IApiGenerationConfiguration
 	{
 		public SingleConfiguration<ConventionalApiGenerationConfiguration, string> ApiName { get; private set; }
 		public SingleConfiguration<ConventionalApiGenerationConfiguration, string> DefaultNamespace { get; private set; }

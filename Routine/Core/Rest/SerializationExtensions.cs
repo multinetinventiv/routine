@@ -6,6 +6,7 @@ namespace Routine.Core.Rest
 {
 	public static class SerializationExtensions
 	{
+		private const string TEMP_ESCAPE = "__r!s@e_";
 		private const string REF_SPLITTER = "#";
 		private const string ESCAPED_REF_SPLITTER = "##";
 		private const string OMID_KEY = "Id";
@@ -117,9 +118,8 @@ namespace Routine.Core.Rest
 			if (!refString.Contains(REF_SPLITTER)) { throw new ArgumentException(string.Format("Given string should contain at least one '{0}' to split id and actual model id", REF_SPLITTER), "object"); }
 
 			var result = new ObjectReferenceData();
-			const string tempEscape = "__r!s@e_";
-			refString = refString.Replace(ESCAPED_REF_SPLITTER, tempEscape);
-			result.Id = refString.Before(REF_SPLITTER).Replace(tempEscape, REF_SPLITTER);
+			refString = refString.Replace(ESCAPED_REF_SPLITTER, TEMP_ESCAPE);
+			result.Id = refString.Before(REF_SPLITTER).Replace(TEMP_ESCAPE, REF_SPLITTER);
 
 			var midString = refString.After(REF_SPLITTER);
 			if (midString.Contains(REF_SPLITTER))

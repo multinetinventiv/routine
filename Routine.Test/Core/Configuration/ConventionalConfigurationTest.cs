@@ -3,7 +3,6 @@ using Moq;
 using NUnit.Framework;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
-using Routine.Engine.Configuration.Conventional;
 
 namespace Routine.Test.Core.Configuration
 {
@@ -12,47 +11,39 @@ namespace Routine.Test.Core.Configuration
 	{
 		#region Setup & Helpers
 
-		private Mock<IConvention<string, string>> conventionMock1;
-		private Mock<IConvention<string, string>> conventionMock2;
-		private Mock<IConvention<string, string>> conventionMock3;
+		private Mock<ILayered> layeredMock;
+		private Mock<ILayered> otherLayeredMock;
 
-		private ConventionalConfiguration<ConventionalCodingStyle, string, string> testing;
-		private ConventionalConfiguration<ConventionalCodingStyle, string, string> testingOther;
+		private ConventionalConfiguration<ILayered, string, string> testing;
+		private ConventionalConfiguration<ILayered, string, string> testingOther;
+		private ConventionalConfiguration<ILayered, string, string> testingOtherConfig;
 
 		[SetUp]
 		public override void SetUp()
 		{
-			conventionMock1 = new Mock<IConvention<string, string>>();
-			conventionMock2 = new Mock<IConvention<string, string>>();
-			conventionMock3 = new Mock<IConvention<string, string>>();
+			layeredMock = new Mock<ILayered>();
+			otherLayeredMock = new Mock<ILayered>();
 
-			testing = new ConventionalConfiguration<ConventionalCodingStyle, string, string>(new ConventionalCodingStyle(), "test");
-			testingOther = new ConventionalConfiguration<ConventionalCodingStyle, string, string>(new ConventionalCodingStyle(), "test other");
+			testing = new ConventionalConfiguration<ILayered, string, string>(layeredMock.Object, "test");
+			testingOther = new ConventionalConfiguration<ILayered, string, string>(layeredMock.Object, "test other");
+			testingOtherConfig = new ConventionalConfiguration<ILayered, string, string>(otherLayeredMock.Object, "test other configuration");
 
-			testing.Set(conventionMock1.Object);
-			testing.Set(conventionMock2.Object);
-
-			testingOther.Set(conventionMock3.Object);
+			layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
+			otherLayeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
 		}
 
-		private void SetUpConvention(Mock<IConvention<string, string>> conventionMock, string result)
+		private void SetMoreSpecificLayer()
 		{
-			conventionMock.Setup(o => o.AppliesTo(It.IsAny<string>())).Returns(true);
-			conventionMock.Setup(o => o.Apply(It.IsAny<string>())).Returns(result);
+			var currentLayer = layeredMock.Object.CurrentLayer;
+			layeredMock.Setup(o => o.CurrentLayer).Returns(currentLayer.MoreSpecific());
 		}
-
-		private void SetUpConvention(Mock<IConvention<string, string>> conventionMock, Exception exception)
-		{
-			conventionMock.Setup(o => o.AppliesTo(It.IsAny<string>())).Returns(true);
-			conventionMock.Setup(o => o.Apply(It.IsAny<string>())).Throws(exception);
-		} 
 
 		#endregion
 
 		[Test]
 		public void Gets_using_first_appropriate_convention()
 		{
-			SetUpConvention(conventionMock2, "convention2");
+			testing.Set("convention2");
 
 			Assert.AreEqual("convention2", testing.Get("dummy"));
 		}
@@ -105,51 +96,137 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void A_default_fail_result_can_be_set_to_be_returned_in_case_all_conventions_fail()
-		{
-			testing.OnFailReturn("default");
-
-			Assert.AreEqual("default", testing.Get("dummy"));
-		}
-
-		[Test]
 		public void Merges_with_other_ConventionalConfiguration_adding_other_s_conventions_to_the_end()
 		{
-			SetUpConvention(conventionMock3, "convention3");
+			testing.Set("out1", "in1");
+			testingOther.Set("out2");
 
 			testing.Merge(testingOther);
 
-			Assert.AreEqual("convention3", testing.Get("dummy"));
+			Assert.AreEqual("out1", testing.Get("in1"));
+			Assert.AreEqual("out2", testing.Get("dummy"));
 		}
 
 		[Test]
 		public void When_an_exception_occurs__wraps_with_ConfigurationException()
 		{
-			Assert.Fail();
+			var expected = new Exception("inner");
+			testing.Set(c => c.By(s => { throw expected; }));
+
+			try
+			{
+				testing.Get("dummy");
+
+				Assert.Fail("Exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.AreSame(expected, ex.InnerException);
+			}
 		}
 
 		[Test]
 		public void When_a_ConfigurationException_occurs__simply_rethrows_it()
 		{
-			Assert.Fail();
+			var expected = new ConfigurationException();
+			testing.Set(c => c.By(s => { throw expected; }));
+
+			try
+			{
+				testing.Get("dummy");
+
+				Assert.Fail("Exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.AreSame(expected, ex);
+			}
 		}
 
 		[Test]
-		public void Test_cache_feature()
+		public void When_set__convention_result_is_cached_for_a_given_input()
 		{
-			Assert.Fail();
+			testing = new ConventionalConfiguration<ILayered, string, string>(layeredMock.Object, "test", true);
+			
+			var conventionMock = new Mock<IConvention<string, string>>();
+			
+			conventionMock.Setup(o => o.AppliesTo(It.IsAny<string>())).Returns(true);
+			conventionMock.Setup(o => o.Apply(It.IsAny<string>())).Returns((string s) => s);
+
+			testing.Set(conventionMock.Object);
+
+			testing.Get("test");
+			testing.Get("test");
+			testing.Get("test2");
+
+			conventionMock.Verify(o => o.AppliesTo("test"), Times.Once);
+			conventionMock.Verify(o => o.Apply("test"), Times.Once);
+			conventionMock.Verify(o => o.AppliesTo("test2"), Times.Once);
+			conventionMock.Verify(o => o.Apply("test2"), Times.Once);
 		}
 
-		[Test][Ignore]
-		public void Convention_orders()
+		[Test]
+		public void Conventions_are_applied_within_the_given_order()
 		{
-			Assert.Fail();
+			testing.Set("out1", "in1");
+			testing.Set("out2", "in1");
+			testing.Set("out3", "in2");
+
+			Assert.AreEqual("out1", testing.Get("in1"));
+			Assert.AreEqual("out3", testing.Get("in2"));
 		}
 
-		[Test][Ignore]
-		public void Specific_configuration()
+		[Test]
+		public void When_layer_is_changed_conventions_are_ordered_first_by_their_layer_order_then_by_the_given_order()
 		{
-			Assert.Fail();
+			testing.Set("out1", "in1");
+
+			SetMoreSpecificLayer();
+
+			testing.Set("out2", "in1");
+
+			Assert.AreEqual("out2", testing.Get("in1"));
+		}
+
+		[Test]
+		public void When_merging_conventions_remain_sorted_by_their_layer()
+		{
+			testing.Set("out1", "in1");
+
+			SetMoreSpecificLayer();
+
+			testingOther.Set("out2", "in1");
+
+			testing.Merge(testingOther);
+
+			Assert.AreEqual("out2", testing.Get("in1"));
+		}
+
+		[Test]
+		public void When_merging_conventions_from_different_configuration_current_layer_is_added_to_given_conventions()
+		{
+			testing.Set("out1", "in1");
+
+			SetMoreSpecificLayer();
+
+			testingOtherConfig.Set("out2", "in1");
+
+			testing.Merge(testingOtherConfig);
+
+			Assert.AreEqual("out2", testing.Get("in1"));
+		}
+
+		[Test]
+		public void A_default_fail_result_can_be_set_to_be_returned_in_case_all_conventions_fail()
+		{
+			testing.Set("default");
+
+			SetMoreSpecificLayer();
+
+			testing.Set("specific", "in");
+
+			Assert.AreEqual("specific", testing.Get("in"));
+			Assert.AreEqual("default", testing.Get("dummy"));
 		}
 	}
 }

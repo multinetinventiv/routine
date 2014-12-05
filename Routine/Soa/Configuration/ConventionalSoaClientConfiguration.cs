@@ -4,7 +4,7 @@ using Routine.Core.Configuration;
 
 namespace Routine.Soa.Configuration
 {
-	public class ConventionalSoaClientConfiguration : ISoaClientConfiguration
+	public class ConventionalSoaClientConfiguration : LayeredBase<ConventionalSoaClientConfiguration>, ISoaClientConfiguration
 	{
 		public SingleConfiguration<ConventionalSoaClientConfiguration, string> ServiceUrlBase { get; private set; }
 

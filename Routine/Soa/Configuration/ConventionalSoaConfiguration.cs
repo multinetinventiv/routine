@@ -6,7 +6,7 @@ using Routine.Core.Configuration;
 
 namespace Routine.Soa.Configuration
 {
-	public class ConventionalSoaConfiguration : ISoaConfiguration
+	public class ConventionalSoaConfiguration : LayeredBase<ConventionalSoaConfiguration>, ISoaConfiguration
 	{
 		private const string ACTION = "action";
 

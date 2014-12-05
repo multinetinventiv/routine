@@ -19,6 +19,7 @@ namespace Routine.Api
 			return result;
 		}
 
+		private readonly ObjectCodeModel actual;
 		private readonly ApplicationCodeModel application;
 		private readonly bool isVoid;
 		private readonly bool isList;
@@ -28,29 +29,34 @@ namespace Routine.Api
 		private readonly string stringToValueCodeTemplate;
 		private readonly string valueToStringCodeTemplate;
 
+		private InitializerCodeModel initializer;
+		private readonly List<MemberCodeModel> members;
+		private readonly List<OperationCodeModel> operations;
+
 		public Rtype Type { get; private set; }
-		public InitializerCodeModel Initializer { get; private set; }
-		public List<MemberCodeModel> Members { get; private set; }
-		public List<OperationCodeModel> Operations { get; private set; }
+		public InitializerCodeModel Initializer { get { return actual != null ? actual.Initializer : initializer; } }
+		public List<MemberCodeModel> Members { get { return actual != null ? actual.Members : members; } }
+		public List<OperationCodeModel> Operations { get { return actual != null ? actual.Operations : operations; } }
 
 		internal ObjectCodeModel(ApplicationCodeModel application, Rtype voidType)
-			: this(application, true, false, voidType, null, type.ofvoid(), null, null) { }
+			: this(application, null, true, false, voidType, null, type.ofvoid(), null, null) { }
 
 		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, string defaultNamespace)
-			: this(application, false, false, type, BuildNamespace(defaultNamespace, type), null, null, null) { }
+			: this(application, null, false, false, type, BuildNamespace(defaultNamespace, type), null, null, null) { }
 
 		internal ObjectCodeModel(ApplicationCodeModel application, ObjectCodeModel model, bool isList)
-			: this(application, false, isList, model.Type, model.@namespace, model.clientType, model.stringToValueCodeTemplate, model.valueToStringCodeTemplate) { }
+			: this(application, model, false, isList, model.Type, model.@namespace, model.clientType, model.stringToValueCodeTemplate, model.valueToStringCodeTemplate) { }
 
 		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, IType clientType)
-			: this(application, false, false, type, clientType.Namespace, clientType, null, null) { }
+			: this(application, null, false, false, type, clientType.Namespace, clientType, null, null) { }
 
 		internal ObjectCodeModel(ApplicationCodeModel application, Rtype type, IType clientType, string stringToValueCodeTemplate, string valueToStringCodeTemplate)
-			: this(application, false, false, type, clientType.Namespace, clientType, stringToValueCodeTemplate, valueToStringCodeTemplate) { }
+			: this(application, null, false, false, type, clientType.Namespace, clientType, stringToValueCodeTemplate, valueToStringCodeTemplate) { }
 
-		private ObjectCodeModel(ApplicationCodeModel application, bool isVoid, bool isList, Rtype type, string @namespace, IType clientType, string stringToValueCodeTemplate, string valueToStringCodeTemplate)
+		private ObjectCodeModel(ApplicationCodeModel application, ObjectCodeModel actual, bool isVoid, bool isList, Rtype type, string @namespace, IType clientType, string stringToValueCodeTemplate, string valueToStringCodeTemplate)
 		{
 			this.application = application;
+			this.actual = actual;
 			this.isVoid = isVoid;
 			this.isList = isList;
 			this.@namespace = @namespace;
@@ -59,6 +65,9 @@ namespace Routine.Api
 			this.valueToStringCodeTemplate = valueToStringCodeTemplate;
 
 			Type = type;
+
+			members = new List<MemberCodeModel>();
+			operations = new List<OperationCodeModel>();
 		}
 
 		public bool IsVoid { get { return isVoid; } }
@@ -112,18 +121,16 @@ namespace Routine.Api
 		{
 			if (Type.Initializer != null && application.IsRendered(Type.Initializer) && Type.Initializer.Parameters.All(p => application.ValidateType(p.ParameterType)))
 			{
-				Initializer = new InitializerCodeModel(application, Type.Initializer);
+				initializer = new InitializerCodeModel(application, Type.Initializer);
 			}
 
-			Members = Type.Members
+			members.AddRange(Type.Members
 				.Where(m => application.IsRendered(m) && application.ValidateType(m.MemberType))
-				.Select(m => new MemberCodeModel(application, m))
-				.ToList();
+				.Select(m => new MemberCodeModel(application, m)));
 
-			Operations = Type.Operations
+			operations.AddRange(Type.Operations
 				.Where(o => application.IsRendered(o) && (o.ResultIsVoid || application.ValidateType(o.ResultType)) && o.Parameters.All(p => application.ValidateType(p.ParameterType)))
-				.Select(o => new OperationCodeModel(application, o))
-				.ToList();
+				.Select(o => new OperationCodeModel(application, o)));
 		}
 
 		public string GetStringToValueCode(string robjectVariableName)

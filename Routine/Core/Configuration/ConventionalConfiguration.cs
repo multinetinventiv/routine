@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Routine.Core.Configuration.Convention;
 
 namespace Routine.Core.Configuration
 {
-	public class ConventionalConfiguration<TConfiguration, TFrom, TResult>
+	public class ConventionalConfiguration<TConfiguration, TFrom, TResult> where TConfiguration : ILayered
 	{
 		private readonly TConfiguration configuration;
 		private readonly string name;
-		private readonly List<IConvention<TFrom, TResult>> conventions;
+		private readonly List<LayeredConvention> conventions;
 		private readonly Dictionary<TFrom, TResult> cache;
 
-		private bool defaultIsSet;
-		private TResult defaultResult;
 		private Func<TFrom, ConfigurationException> exceptionDelegate;
 
 		public ConventionalConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
@@ -21,7 +20,7 @@ namespace Routine.Core.Configuration
 			this.configuration = configuration;
 			this.name = name;
 
-			conventions = new List<IConvention<TFrom, TResult>>();
+			conventions = new List<LayeredConvention>();
 			if (cacheResult)
 			{
 				cache = new Dictionary<TFrom, TResult>();
@@ -30,40 +29,60 @@ namespace Routine.Core.Configuration
 			OnFailThrow(o => new ConfigurationException(name, o));
 		}
 
-		public TConfiguration OnFailReturn(TResult defaultResult) { defaultIsSet = true; this.defaultResult = defaultResult; return configuration; }
-
 		public TConfiguration OnFailThrow(ConfigurationException exception) { return OnFailThrow(o => exception); }
-		public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { defaultIsSet = false; this.exceptionDelegate = exceptionDelegate; return configuration; }
+		public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { this.exceptionDelegate = exceptionDelegate; return configuration; }
 
+		public TConfiguration SetDefault() { return Set(default(TResult)); }
 		public TConfiguration Set(TResult result)
 		{
-			//TODO order -> specific
 			return Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result));
 		}
 
 		public TConfiguration Set(TResult result, TFrom obj)
 		{
-			//TODO order -> specific
 			return Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(obj));
 		}
 
 		public TConfiguration Set(TResult result, Func<TFrom, bool> whenDelegate)
 		{
-			//TODO order -> specific
 			return Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(whenDelegate));
 		}
 
 		public TConfiguration Set(IConvention<TFrom, TResult> convention)
 		{
-			//TODO order -> default
-			conventions.Add(convention);
+			Add(convention, configuration.CurrentLayer);
 
 			return configuration;
 		}
 
+		private void Add(IConvention<TFrom, TResult> convention, Layer layer)
+		{
+			lock (conventions)
+			{
+				conventions.Add(new LayeredConvention(convention, layer));
+
+				var layerGroups = conventions.GroupBy(c => c.Layer);
+
+				var newOrder = layerGroups.OrderByDescending(l => l.Key.Order).SelectMany(g => g).ToList();
+
+				conventions.Clear();
+				conventions.AddRange(newOrder);
+			}
+		}
+
 		public TConfiguration Merge(ConventionalConfiguration<TConfiguration, TFrom, TResult> other)
 		{
-			conventions.AddRange(other.conventions);
+			foreach (var convention in other.conventions)
+			{
+				var layer = convention.Layer;
+
+				if (!Equals(configuration, other.configuration))
+				{
+					layer = new Layer(layer.Order + configuration.CurrentLayer.Order);
+				}
+
+				Add(convention.Convention, layer);
+			}
 
 			return configuration;
 		}
@@ -79,7 +98,7 @@ namespace Routine.Core.Configuration
 				}
 
 				var found = false;
-				foreach (var convention in conventions)
+				foreach (var convention in conventions.Select(c => c.Convention))
 				{
 					if (convention.AppliesTo(obj))
 					{
@@ -87,12 +106,6 @@ namespace Routine.Core.Configuration
 						found = true;
 						break;
 					}
-				}
-
-				if (!found && defaultIsSet)
-				{
-					result = defaultResult;
-					found = true;
 				}
 
 				if (!found)
@@ -116,6 +129,17 @@ namespace Routine.Core.Configuration
 			catch (ConfigurationException) { throw; }
 			catch (Exception ex) { throw new ConfigurationException(name, obj, ex); }
 		}
-	}
 
+		private class LayeredConvention
+		{
+			public IConvention<TFrom, TResult> Convention { get; private set; }
+			public Layer Layer { get; private set; }
+
+			public LayeredConvention(IConvention<TFrom, TResult> convention, Layer layer)
+			{
+				Convention = convention;
+				Layer = layer;
+			}
+		}
+	}
 }

@@ -11,7 +11,6 @@ using Routine.Engine.Extractor;
 using Routine.Engine.Virtual;
 using Routine.Interception;
 using Routine.Interception.Configuration;
-using Routine.Soa.Builder;
 using Routine.Soa.Configuration;
 using Routine.Ui.Configuration;
 
@@ -109,6 +108,16 @@ namespace Routine
 		{
 			return new InterceptorBuilder<TContext>();
 		}
+
+		public static VirtualTypeBuilder VirtualType()
+		{
+			return new VirtualTypeBuilder();
+		}
+
+		public static OperationBuilder Operation(IType parentType)
+		{
+			return new OperationBuilder(parentType);
+		}
 	}
 
 	public static class BuildRoutineExtensions
@@ -117,7 +126,7 @@ namespace Routine
 
 		public static TConfiguration Set<TConfiguration, TFrom, TResult>(
 			this ConventionalConfiguration<TConfiguration, TFrom, TResult> source,
-			Func<ConventionBuilder<TFrom, TResult>, IConvention<TFrom, TResult>> conventionDelegate)
+			Func<ConventionBuilder<TFrom, TResult>, IConvention<TFrom, TResult>> conventionDelegate) where TConfiguration : ILayered
 		{
 			return source.Set(conventionDelegate(BuildRoutine.Convention<TFrom, TResult>()));
 		}
@@ -389,6 +398,26 @@ namespace Routine
 		public static ConventionalSoaClientConfiguration Use(this ConventionalSoaClientConfiguration source, Func<PatternBuilder<ConventionalSoaClientConfiguration>, ConventionalSoaClientConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.SoaClientPattern()));
+		}
+
+		#endregion
+
+		#region Virtual
+
+		public static ConventionalCodingStyle AddTypes(this ConventionalCodingStyle source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
+		{
+			return source.AddTypes(typeBuilders.Select(builder => builder(BuildRoutine.VirtualType())));
+		}
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IOperation> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
+			where TConfiguration : IType
+		{
+			return source.Add(t => builder(BuildRoutine.Operation(t)));
+		}
+
+		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
+		{
+			return source.By(t => builder(BuildRoutine.Operation(t)).ToList());
 		}
 
 		#endregion

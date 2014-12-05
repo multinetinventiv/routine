@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Routine.Engine.Virtual;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel;
 using Routine.Test.Engine.Ignored;
 
@@ -80,6 +81,7 @@ namespace Routine.Test.Engine
 		private const string TESTED_VIM_ID = "r-object-service-test-_-get-object-model--i-business-model";
 		private const string TESTED_DM_ID = "r-object-service-test-_-get-object-model--business-data-model";
 		private const string TESTED_EM_ID = "r-object-service-test-_-get-object-model--business-enum";
+		private const string TESTED_VOM_ID = "r-object-service-test-_-get-object-model--virtual";
 
 		protected override string DefaultModelId { get { return TESTED_OM_ID; } }
 		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel"; } }
@@ -526,6 +528,70 @@ namespace Routine.Test.Engine
 			var actual = om.Operations.Single(o => o.Id == "OverloadOpBug");
 
 			Assert.AreEqual(2, actual.GroupCount);
+		}
+
+		[Test]
+		public void Virtual_types_are_rendered_as_regular_object_models()
+		{
+			codingStyle.AddTypes(v => v.FromBasic()
+				.Name.Set("Virtual")
+				.Namespace.Set(RootNamespace));
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.AreEqual("Virtual", om.Name);
+		}
+
+		[Test]
+		public void Virtual_types_are_marked_as_virtual()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern("virtual"))
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("Virtual")
+					.Namespace.Set(RootNamespace));
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.IsTrue(om.Marks.Contains("virtual"));
+		}
+
+		[Test]
+		public void Virtual_types_can_have_static_instances()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("Virtual")
+					.Namespace.Set(RootNamespace))
+				.StaticInstances.Set(c => c.By(t => new List<object> { new VirtualObject("Instance", t as VirtualType) }).When(t => t is VirtualType))
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.AreEqual(1, om.StaticInstances.Count);
+			Assert.AreEqual("Instance", om.StaticInstances[0].Reference.Id);
+		}
+
+		[Test]
+		public void Proxy_operations_can_be_added_to_an_existing_type()
+		{
+			codingStyle
+				.Operations.Add(c => c.Build(o => o.Proxy<string>("Insert").TargetByParameter("str")).When(type.of<BusinessModel>()))
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsTrue(om.Operations.Any(o => o.Id == "Insert"));
+			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "Insert").Parameters.Any(p => p.Id == "str" && p.ViewModelId == "s-string"));
 		}
 	}
 }

@@ -663,7 +663,8 @@
         function normalizeReference(referenceString)
         {
             var result = new Object();
-            result.Id = referenceString.substring(0, referenceString.indexOf("#"));
+            referenceString = referenceString.replace(/##/g, "__r!s@e_");
+            result.Id = referenceString.substring(0, referenceString.indexOf("#")).replace(/__r!s@e_/g, "#");
             referenceString = referenceString.substring(referenceString.indexOf("#") + 1, referenceString.length);
             if(referenceString.indexOf("#") >= 0)
             {

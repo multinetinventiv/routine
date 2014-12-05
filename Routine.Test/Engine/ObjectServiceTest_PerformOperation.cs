@@ -4,11 +4,12 @@ using Moq;
 using NUnit.Framework;
 using Routine.Core;
 using Routine.Engine;
+using Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation;
 
-namespace Routine.Test.Engine
+#region Test Model
+
+namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 {
-	#region Test Model
-
 	public interface IBusinessOperation
 	{
 		string Title { get; }
@@ -27,6 +28,9 @@ namespace Routine.Test.Engine
 		void OverloadOp(int i);
 		void OverloadOp(string s, int i);
 		void OverloadOp(string s1, string s, int i1);
+
+		void OverloadArray(string s);
+		void OverloadArray(int[] i, string s);
 
 		void DataInput(BusinessMasterInputData input);
 	}
@@ -55,6 +59,8 @@ namespace Routine.Test.Engine
 		void IBusinessOperation.OverloadOp(string s1, string s, int i1) { mock.OverloadOp(s1, s, i1); }
 
 		void IBusinessOperation.DataInput(BusinessMasterInputData input) { mock.DataInput(input); }
+		void IBusinessOperation.OverloadArray(string s) { mock.OverloadArray(s); }
+		void IBusinessOperation.OverloadArray(int[] i, string s) { mock.OverloadArray(i, s); }
 	}
 
 	public struct BusinessInputData
@@ -78,21 +84,25 @@ namespace Routine.Test.Engine
 			Datas = datas;
 		}
 	}
+}
 
-	#endregion
+#endregion
 
+namespace Routine.Test.Engine
+{
 	[TestFixture]
 	public class ObjectServiceTest_PerformOperation : ObjectServiceTestBase
 	{
 		#region Setup & Helpers
 
-		private const string ACTUAL_OMID = "Routine.Test.Engine.BusinessOperation";
-		private const string VIEW_OMID = "Routine.Test.Engine.IBusinessOperation";
-		private const string DATA_OMID = "Routine.Test.Engine.BusinessInputData";
-		private const string MASTER_DATA_OMID = "Routine.Test.Engine.BusinessMasterInputData";
+		private const string ACTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessOperation";
+		private const string VIEW_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.IBusinessOperation";
+		private const string DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInputData";
+		private const string MASTER_DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessMasterInputData";
+		private const string VIRTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.VirtualOperation";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		protected override string RootNamespace { get { return "Routine.Test.Engine"; } }
+		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation"; } }
 
 		private Mock<IBusinessOperation> businessMock;
 		private BusinessOperation businessObj;
@@ -103,7 +113,7 @@ namespace Routine.Test.Engine
 			base.SetUp();
 
 			codingStyle
-				.TypeId.Set(c => c.By(t => t.FullName))
+				.TypeId.Set(c => c.By(t => t.FullName).When(t => t.IsDomainType))
 				.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
 				;
 
@@ -469,6 +479,116 @@ namespace Routine.Test.Engine
 			//group 3 -> match 0 --> non-match 3 (s1, s, i1)
 			businessMock.Verify(o => o.OverloadOp(), Times.Once());
 		}
+
+		[Test]
+		public void A_group_can_have_different_index_for_a_common_parameter()
+		{
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "OverloadArray",
+				Params(
+					Param("s", Id("s_value", "s-string")),
+					Param("i", Id("1", "s-int-32"), Id("2", "s-int-32"))
+				)
+			);
+
+			businessMock.Verify(o => o.OverloadArray(It.Is<int[]>(i => i[0] == 1 && i[1] == 2), "s_value"), Times.Once);
+		}
+
+		[Test]
+		public void Virtual_types_can_behave_as_a_proxy()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("VirtualOperation")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj)))
+			;
+
+			testing.GetApplicationModel();
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "Void", Params());
+
+			businessMock.Verify(o => o.Void(), Times.Once);
+		}
+
+		[Test]
+		public void Proxy_operations_includes_overloads()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("VirtualOperation")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(o => o.Proxy<IBusinessOperation>("OverloadOp").Target(businessObj)))
+			;
+
+			testing.GetApplicationModel();
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params());
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s", Id("s_value", "s-string"))
+			));
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("i", Id("1", "s-int-32"))
+			));
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s", Id("s_value", "s-string")),
+				Param("i", Id("1", "s-int-32"))
+			));
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s1", Id("s1_value", "s-string")),
+				Param("s", Id("s_value", "s-string")),
+				Param("i1", Id("2", "s-int-32"))
+			));
+
+			businessMock.Verify(o => o.OverloadOp(), Times.Once);
+			businessMock.Verify(o => o.OverloadOp("s_value"), Times.Once);
+			businessMock.Verify(o => o.OverloadOp(1), Times.Once);
+			businessMock.Verify(o => o.OverloadOp("s_value", 1), Times.Once);
+			businessMock.Verify(o => o.OverloadOp("s1_value", "s_value", 2), Times.Once);
+		}
+
+		[Test]
+		public void When_configured_proxy_operations_optionally_adds_a_parameter_for_target()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("VirtualOperation")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(p => p.Proxy<IBusinessOperation>("OverloadOp").TargetByParameter("objId")))
+			;
+
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("objId", Id("id")),
+				Param("s1", Id("s1_value", "s-string")),
+				Param("s", Id("s_value", "s-string")),
+				Param("i1", Id("2", "s-int-32"))
+			));
+
+			businessMock.Verify(o => o.OverloadOp("s1_value", "s_value", 2), Times.Once);
+		}
+
+		[Test]
+		public void Proxy_operations_on_real_types_performs_on_given_target()
+		{
+			codingStyle
+				.Operations.Add(c => c.Build(o => o.Proxy<IBusinessOperation>("Void").TargetBySelf()).When(type.of<BusinessOperation>()))
+			;
+
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "Void", Params());
+
+			businessMock.Verify(o => o.Void(), Times.Once);
+		}
 	}
 }
-

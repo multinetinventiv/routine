@@ -22,5 +22,11 @@ namespace Routine.Test.Core.Configuration
 		{
 			Assert.Fail();
 		}
+
+		[Test]
+		public void When_adding_item__parent_configuration_can_be_used()
+		{
+			Assert.Fail();
+		}
 	}
 }

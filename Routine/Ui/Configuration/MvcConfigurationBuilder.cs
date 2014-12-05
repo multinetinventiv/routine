@@ -2,42 +2,38 @@ namespace Routine.Ui.Configuration
 {
 	public class MvcConfigurationBuilder
 	{
-		public ConventionalMvcConfiguration FromScratch() { return FromScratch(ConventionalMvcConfiguration.DEFAULT_OBJECT_ID);}
-		public ConventionalMvcConfiguration FromScratch(string defaultObjectId)
-		{
-			return new ConventionalMvcConfiguration(defaultObjectId);
-		}
-
 		public ConventionalMvcConfiguration FromBasic(){ return FromBasic(ConventionalMvcConfiguration.DEFAULT_OBJECT_ID);}
 		public ConventionalMvcConfiguration FromBasic(string defaultObjectId)
 		{
-			return FromScratch(defaultObjectId)
-					.NullDisplayValue.Set("-")
-					.ViewNameSeparator.Set('-')
-					.ListValueSeparator.Set(',')
-					
-					.ParameterDefault.OnFailReturn(null)
-					.ParameterSearcher.OnFailReturn(null)
+			return new ConventionalMvcConfiguration(defaultObjectId)
+				.NullDisplayValue.Set("-")
+				.ViewNameSeparator.Set('-')
+				.ListValueSeparator.Set(',')
 
-					.ViewName.OnFailReturn(string.Empty)
+				.ParameterDefault.SetDefault()
+				.ParameterSearcher.SetDefault()
 
-					.ViewRouteName.OnFailReturn("Get")
-					.PerformRouteName.OnFailReturn("Perform")
+				.ViewName.Set(string.Empty)
 
-					.OperationOrder.OnFailReturn(0)
+				.ViewRouteName.Set("Get")
+				.PerformRouteName.Set("Perform")
 
-					.MemberOrder.OnFailReturn(0)
-					.SimpleMemberOrder.OnFailReturn(0)
-					.TableMemberOrder.OnFailReturn(0)
+				.OperationOrder.Set(0)
 
-					.OperationIsAvailable.OnFailReturn(true)
-					.OperationIsRendered.OnFailReturn(true)
-					.OperationIsSimple.OnFailReturn(false)
+				.MemberOrder.Set(0)
+				.SimpleMemberOrder.Set(0)
+				.TableMemberOrder.Set(0)
 
-					.MemberIsRendered.OnFailReturn(true)
-					.MemberIsSimple.OnFailReturn(true)
-					.MemberIsTable.OnFailReturn(false)
-					;
+				.OperationIsAvailable.Set(true)
+				.OperationIsRendered.Set(true)
+				.OperationIsSimple.Set(false)
+
+				.MemberIsRendered.Set(true)
+				.MemberIsSimple.Set(true)
+				.MemberIsTable.Set(false)
+
+				.NextLayer()
+			;
 		}
 	}
 }

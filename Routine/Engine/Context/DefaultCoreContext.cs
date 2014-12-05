@@ -76,7 +76,7 @@ namespace Routine.Engine.Context
 
 		public DomainObject CreateDomainObject(object @object, DomainType viewDomainType)
 		{
-			var type = (@object == null) ? null : @object.GetTypeInfo();
+			var type = (@object == null) ? null : CodingStyle.GetType(@object);
 			var actualDomainType = GetDomainType(type);
 
 			viewDomainType = viewDomainType ?? actualDomainType;

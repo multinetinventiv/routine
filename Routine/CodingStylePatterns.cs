@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Routine.Core.Configuration;
 using Routine.Engine.Configuration.Conventional;
+using Routine.Engine.Virtual;
 
 namespace Routine
 {
@@ -103,6 +104,19 @@ namespace Routine
 				.OperationMarks.Add(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
 				.ParameterMarks.Add(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
 				;
+		}
+
+		public static ConventionalCodingStyle VirtualTypePattern(this PatternBuilder<ConventionalCodingStyle> source) { return source.VirtualTypePattern(Constants.DEFAULT_VIRTUAL_MARK); }
+		public static ConventionalCodingStyle VirtualTypePattern(this PatternBuilder<ConventionalCodingStyle> source, string virtualMark)
+		{
+			return source
+				.FromEmpty()
+				.Type.Set(c => c.By(o => ((VirtualObject)o).Type).When(o => o is VirtualObject))
+				.IdExtractor.Set(c => c.Id(e => e.By(o => (o as VirtualObject).Id)).When(t => t is VirtualType))
+				.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
+				.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))).When(t => t is VirtualType))
+				.TypeMarks.Add(virtualMark, t => t is VirtualType)
+			;
 		}
 	}
 }

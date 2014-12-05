@@ -5,11 +5,12 @@ using Routine.Core.Configuration;
 
 namespace Routine.Engine.Configuration.Conventional
 {
-	public class ConventionalCodingStyle : ICodingStyle
+	public class ConventionalCodingStyle : LayeredBase<ConventionalCodingStyle>, ICodingStyle
 	{
 		private readonly List<IType> types;
 
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, string> TypeId { get; private set; }
+		public ConventionalConfiguration<ConventionalCodingStyle, object, IType> Type { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, string> Module { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, bool> TypeIsValue { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, bool> TypeIsView { get; private set; }
@@ -34,6 +35,7 @@ namespace Routine.Engine.Configuration.Conventional
 			types = new List<IType>();
 
 			TypeId = new ConventionalConfiguration<ConventionalCodingStyle, IType, string>(this, "TypeId", true);
+			Type = new ConventionalConfiguration<ConventionalCodingStyle, object, IType>(this, "Type");
 			Module = new ConventionalConfiguration<ConventionalCodingStyle, IType, string>(this, "Module");
 			TypeIsValue = new ConventionalConfiguration<ConventionalCodingStyle, IType, bool>(this, "TypeIsValue");
 			TypeIsView = new ConventionalConfiguration<ConventionalCodingStyle, IType, bool>(this, "TypeIsView");
@@ -59,6 +61,7 @@ namespace Routine.Engine.Configuration.Conventional
 			AddTypes(other.types);
 
 			TypeId.Merge(other.TypeId);
+			Type.Merge(other.Type);
 			Module.Merge(other.Module);
 			TypeIsValue.Merge(other.TypeIsValue);
 			TypeIsView.Merge(other.TypeIsView);
@@ -120,7 +123,7 @@ namespace Routine.Engine.Configuration.Conventional
 		#region ICodingStyle implementation
 
 		List<IType> ICodingStyle.GetTypes() { return types; }
-
+		IType ICodingStyle.GetType(object @object) { return Type.Get(@object); }
 		string ICodingStyle.GetTypeId(IType type) { return TypeId.Get(type); }
 		string ICodingStyle.GetModuleName(IType type) { return Module.Get(type); }
 		bool ICodingStyle.IsValue(IType type) { return TypeIsValue.Get(type); }

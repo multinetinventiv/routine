@@ -5,7 +5,7 @@ namespace Routine.Engine
 	public interface ICodingStyle
 	{
 		List<IType> GetTypes();
-
+		IType GetType(object @object);
 		string GetTypeId(IType type);
 		string GetModuleName(IType type);
 		bool IsValue(IType type);

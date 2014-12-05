@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Core.Configuration
 {
@@ -16,7 +18,9 @@ namespace Routine.Core.Configuration
 			list = new List<TItem>();
 		}
 
-		public TConfiguration Add(params TItem[] items){return Add(items as IEnumerable<TItem>);}
+		public TConfiguration Add(params Func<TConfiguration, TItem>[] itemDelegates) { return Add(itemDelegates.Select(d => d(configuration))); }
+		public TConfiguration Add(params TItem[] items) { return Add(items as IEnumerable<TItem>); }
+		public TConfiguration Add(Func<TConfiguration, IEnumerable<TItem>> itemsDelegate) { return Add(itemsDelegate(configuration)); }
 		public TConfiguration Add(IEnumerable<TItem> items)
 		{
 			list.AddRange(items);

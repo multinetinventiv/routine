@@ -1,4 +1,6 @@
-﻿namespace Routine.Core.Configuration
+﻿using System;
+
+namespace Routine.Core.Configuration
 {
 	public class SingleConfiguration<TConfiguration, TItem>
 	{
@@ -7,7 +9,7 @@
 		private readonly bool required;
 		private bool valueSet;
 
-		public SingleConfiguration(TConfiguration configuration, string name):this(configuration, name, false){}
+		public SingleConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
 		public SingleConfiguration(TConfiguration configuration, string name, bool required)
 		{
 			this.configuration = configuration;
@@ -17,6 +19,8 @@
 
 		private TItem value;
 
+		public TConfiguration SetDefault() { return Set(default(TItem)); }
+		public TConfiguration Set(Func<TConfiguration, TItem> valueDelegate) { return Set(valueDelegate(configuration)); }
 		public TConfiguration Set(TItem value)
 		{
 			this.value = value;
