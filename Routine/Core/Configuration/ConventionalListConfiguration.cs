@@ -10,13 +10,19 @@ namespace Routine.Core.Configuration
 		private readonly TConfiguration configuration;
 		private readonly string name;
 		private readonly List<IConvention<TFrom, List<TResultItem>>> conventions;
+		private readonly Dictionary<TFrom, List<TResultItem>> cache;
 
-		public ConventionalListConfiguration(TConfiguration configuration, string name)
+		public ConventionalListConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
+		public ConventionalListConfiguration(TConfiguration configuration, string name, bool cacheResult)
 		{
 			this.configuration = configuration;
 			this.name = name;
 
 			conventions = new List<IConvention<TFrom, List<TResultItem>>>();
+			if (cacheResult)
+			{
+				cache = new Dictionary<TFrom, List<TResultItem>>();
+			}
 		}
 
 		public TConfiguration AddNoneWhen(TFrom obj)
@@ -67,10 +73,17 @@ namespace Routine.Core.Configuration
 
 		public List<TResultItem> Get(TFrom obj)
 		{
-			var result = new List<TResultItem>();
-
 			try
 			{
+				List<TResultItem> result;
+
+				if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out result))
+				{
+					return result;
+				}
+
+				result = new List<TResultItem>();
+
 				foreach (var convention in conventions)
 				{
 					if (convention.AppliesTo(obj))
@@ -78,15 +91,25 @@ namespace Routine.Core.Configuration
 						result.AddRange(convention.Apply(obj));
 					}
 				}
+
+				result = result.Distinct().ToList();
+
+				if (cache != null)
+				{
+					lock (cache)
+					{
+						if (!Equals(obj, null) && !cache.ContainsKey(obj))
+						{
+							cache.Add(obj, result);
+						}
+					}
+				}
+
+				return result;
 			}
-			catch (NoConventionShouldBeAppliedException)
-			{
-				return new List<TResultItem>();
-			}
+			catch (NoConventionShouldBeAppliedException) { return new List<TResultItem>(); }
 			catch (ConfigurationException) { throw; }
 			catch (Exception ex) { throw new ConfigurationException(name, obj, ex); }
-
-			return result.Distinct().ToList();
 		}
 
 		internal class NoConventionShouldBeAppliedException : Exception { }

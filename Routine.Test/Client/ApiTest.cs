@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -93,14 +94,20 @@ namespace Routine.Test.Client
 				.Member("member2", Id("id2")));
 
 			var testingRobject = Robj("id", "model");
-			var members = testingRobject.MemberValues;
-			members = testingRobject.MemberValues;
 
-			Assert.AreEqual("member1", members[0].Member.Id);
-			Assert.AreEqual("id1", members[0].Get().Object.Id);
+			var membersFirstFetch = testingRobject.MemberValues;
+			Assert.AreEqual("member1", membersFirstFetch[0].Member.Id);
+			Assert.AreEqual("id1", membersFirstFetch[0].Get().Object.Id);
 
-			Assert.AreEqual("member2", members[1].Member.Id);
-			Assert.AreEqual("id2", members[1].Get().Object.Id);
+			Assert.AreEqual("member2", membersFirstFetch[1].Member.Id);
+			Assert.AreEqual("id2", membersFirstFetch[1].Get().Object.Id);
+
+			var membersSecondFetch = testingRobject.MemberValues;
+			Assert.AreEqual("member1", membersSecondFetch[0].Member.Id);
+			Assert.AreEqual("id1", membersSecondFetch[0].Get().Object.Id);
+
+			Assert.AreEqual("member2", membersSecondFetch[1].Member.Id);
+			Assert.AreEqual("id2", membersSecondFetch[1].Get().Object.Id);
 
 			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Once());
 		}
@@ -416,6 +423,14 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
+		public void Robjects_cannot_be_created_from_view_types()
+		{
+			ModelsAre(Model("model").IsView());
+
+			Assert.Throws<CannotCreateRobjectException>(() => Robj("dummy", "model"));
+		}
+
+		[Test]
 		public void When_no_model_is_found_TypeNotFoundException_is_thrown()
 		{
 			objectServiceMock.Setup(o => o.GetApplicationModel()).Returns(new ApplicationModel());
@@ -441,20 +456,6 @@ namespace Routine.Test.Client
 			Assert.AreEqual("value 1", actual[0].Value);
 			Assert.AreEqual("id2", actual[1].Id);
 			Assert.AreEqual("value 2", actual[1].Value);
-		}
-
-		[Test]
-		public void Robjects_implements_equality_members()
-		{
-			ObjectsAre(Object(Id("value", "model")));
-
-			var left = Robj("value", "model");
-			var right = Robj("value", "model");
-
-			Assert.AreEqual(left, right);
-			Assert.AreNotSame(left, right);
-
-			Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
 		}
 
 		[Test]
@@ -542,6 +543,84 @@ namespace Routine.Test.Client
 
 			Assert.IsTrue(testingRoperation.MarkedAs("mark"));
 			Assert.IsFalse(testingRoperation.MarkedAs("nonexistingmark"));
+		}
+
+		[Test]
+		public void Roperation_and_throws_exception_when_a_parameter_has_a_group_that_does_not_exist_on_operation()
+		{
+			ModelsAre(
+				Model("model")
+					.Operation(new OperationModel
+					{
+						GroupCount = 1,
+						Id = "operation",
+						Result = new ResultModel {IsVoid = true},
+						Parameters = new List<ParameterModel> {PModel("id", 0, 1)}
+					})
+				);
+
+			Assert.Throws<InvalidOperationException>(() => Rtyp("model2"));
+		}
+
+		[Test]
+		public void Rinitializer_throws_exception_when_a_parameter_has_a_group_that_does_not_exist_on_or_initializer()
+		{
+			ModelsAre(
+				Model("model")
+					.Initializer(1, PModel("id", 0, 1))
+				);
+
+			Assert.Throws<InvalidOperationException>(() => Rtyp("model"));
+		}
+
+		[Test][Ignore]
+		public void Rapplication_implements_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test][Ignore]
+		public void Rtype_implements_formatting_and_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test][Ignore]
+		public void Rinitializer_implements_formatting_and_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test][Ignore]
+		public void Rmember_implements_formatting_and_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test][Ignore]
+		public void Roperation_implements_formatting_and_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test][Ignore]
+		public void Rparameter_implements_formatting_and_equality_members()
+		{
+			Assert.Fail();
+		}
+
+		[Test]
+		public void Robjects_implements_formatting_and_equality_members()
+		{
+			ObjectsAre(Object(Id("value", "model")));
+
+			var left = Robj("value", "model");
+			var right = Robj("value", "model");
+
+			Assert.AreEqual(left, right);
+			Assert.AreNotSame(left, right);
+
+			Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
 		}
 
 		[Test]
@@ -692,14 +771,6 @@ namespace Routine.Test.Client
 			Assert.AreEqual("param1", groups[1][0].Id);
 			Assert.AreEqual("param2", groups[1][1].Id);
 			Assert.AreEqual("param2", groups[2][0].Id);
-		}
-
-		[Test]
-		[Ignore]
-		public void Robject_performs_client_validation_given_parameters_against_operation_model()
-		{
-			//TODO perform operation should check given parameters against operation model
-			Assert.Fail("not implemented");
 		}
 	}
 }

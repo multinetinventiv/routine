@@ -144,6 +144,25 @@ namespace Routine.Test.Engine.Virtual
 		}
 
 		[Test]
+		public void Virtual_types_support_formatting_and_equality_members()
+		{
+			IType testing = BuildRoutine.VirtualType().FromBasic()
+				.Name.Set("Virtual")
+				.Namespace.Set("Routine")
+			;
+
+			Assert.AreEqual("v-Routine.Virtual", testing.ToString());
+
+			IType clone = BuildRoutine.VirtualType().FromBasic()
+				.Name.Set("Virtual")
+				.Namespace.Set("Routine")
+			;
+
+			Assert.AreEqual(testing.GetHashCode(), clone.GetHashCode());
+			Assert.AreEqual(testing, clone);
+		}
+
+		[Test]
 		public void Not_supported_features()
 		{
 			IType testing = BuildRoutine.VirtualType().FromBasic();

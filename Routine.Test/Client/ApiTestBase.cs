@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -99,12 +100,13 @@ namespace Routine.Test.Client
 			public ObjectModelBuilder Name(string name) { result.Name = name; return this; }
 			public ObjectModelBuilder Module(string module) { result.Module = module; return this; }
 
-			public ObjectModelBuilder Initializer(params ParameterModel[] parameters)
+			public ObjectModelBuilder Initializer(params ParameterModel[] parameters) { return Initializer(parameters.Any() ? parameters.Max(p => p.Groups.Max()) + 1 : 1, parameters); }
+			public ObjectModelBuilder Initializer(int groupCount, params ParameterModel[] parameters)
 			{
 				result.Initializer = new InitializerModel
 				{
 					Parameters = parameters.ToList(),
-					GroupCount = parameters.Any() ? parameters.Max(p => p.Groups.Max()) + 1 : 1
+					GroupCount = groupCount
 				};
 
 				return this;
@@ -139,6 +141,11 @@ namespace Routine.Test.Client
 				operationModel.Result.ViewModelId = resultViewModelId;
 				operationModel.Result.IsList = isList;
 
+				return Operation(operationModel);
+			}
+
+			public ObjectModelBuilder Operation(OperationModel operationModel)
+			{
 				result.Operations.Add(operationModel);
 
 				return this;
@@ -193,7 +200,7 @@ namespace Routine.Test.Client
 		{
 			foreach (var modelId in modelIds)
 			{
-				if (modelId  != null && !objectModelDictionary.ContainsKey(modelId))
+				if (modelId != null && !objectModelDictionary.ContainsKey(modelId))
 				{
 					ModelsAre(Model(modelId).Name(modelId));
 				}

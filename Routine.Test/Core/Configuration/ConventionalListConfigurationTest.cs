@@ -1,5 +1,9 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Moq;
+using NUnit.Framework;
 using Routine.Core.Configuration;
+using Routine.Core.Configuration.Convention;
 using Routine.Engine;
 using Routine.Engine.Configuration.Conventional;
 
@@ -28,7 +32,7 @@ namespace Routine.Test.Core.Configuration
 		[Test]
 		public void Returns_directly_given_convention_s_result()
 		{
-			testing.Add(new[]{"result1", "result2"});
+			testing.Add(new[] { "result1", "result2" });
 
 			var actual = testing.Get(type.of<string>());
 
@@ -111,21 +115,61 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void Cache_feature()
+		public void When_set__convention_result_is_cached_for_a_given_input()
 		{
-			Assert.Fail();
+			testing = new ConventionalListConfiguration<ConventionalCodingStyle, IType, string>(new ConventionalCodingStyle(), "test", true);
+
+			var conventionMock = new Mock<IConvention<IType, List<string>>>();
+
+			conventionMock.Setup(o => o.AppliesTo(It.IsAny<IType>())).Returns(true);
+			conventionMock.Setup(o => o.Apply(It.IsAny<IType>())).Returns((IType s) => new List<string> { s.FullName });
+
+			testing.Add(conventionMock.Object);
+
+			testing.Get(type.of<string>());
+			testing.Get(type.of<string>());
+			testing.Get(type.of<int>());
+
+			conventionMock.Verify(o => o.AppliesTo(type.of<string>()), Times.Once);
+			conventionMock.Verify(o => o.Apply(type.of<string>()), Times.Once);
+			conventionMock.Verify(o => o.AppliesTo(type.of<int>()), Times.Once);
+			conventionMock.Verify(o => o.Apply(type.of<int>()), Times.Once);
 		}
 
 		[Test]
-		public void Wraps_any_exception_with_ConfigurationException()
+		public void When_an_exception_occurs__wraps_with_ConfigurationException()
 		{
-			Assert.Fail();
+			var expected = new Exception("inner");
+			testing.Add(c => c.By(s => { throw expected; }));
+
+			try
+			{
+				testing.Get(type.of<string>());
+
+				Assert.Fail("Exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.AreSame(expected, ex.InnerException);
+			}
 		}
 
 		[Test]
-		public void Rethrows_ConfigurationException()
+		public void When_a_ConfigurationException_occurs__simply_rethrows_it()
 		{
-			Assert.Fail();
+			var expected = new ConfigurationException();
+			testing.Add(c => c.By(s => { throw expected; }));
+
+			try
+			{
+				testing.Get(type.of<string>());
+
+				Assert.Fail("Exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.AreSame(expected, ex);
+			}
 		}
 	}
 }

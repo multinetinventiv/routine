@@ -24,6 +24,37 @@ namespace Routine.Engine.Virtual
 			Operations = new ListConfiguration<VirtualType, IOperation>(this, "Operations");
 		}
 
+		public override string ToString()
+		{
+			return string.Format("v-{0}.{1}", Namespace.Get(), Name.Get());
+		}
+
+		#region Equality & Hashcode
+
+		protected bool Equals(VirtualType other)
+		{
+			return Equals(Name.Get(), other.Name.Get()) && Equals(Namespace.Get(), other.Namespace.Get());
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+
+			return Equals((VirtualType)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (Name.Get().GetHashCode() * 397) ^ Namespace.Get().GetHashCode();
+			}
+		} 
+
+		#endregion
+
 		#region ITypeComponent implementation
 
 		string ITypeComponent.Name { get { return Name.Get(); } }

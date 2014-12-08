@@ -33,7 +33,7 @@ namespace Routine.Client
 
 				foreach (var group in param.Groups)
 				{
-					if (group >= Groups.Count || group < 0)
+					if (group >= Groups.Count)
 					{
 						throw new InvalidOperationException(string.Format("Parameter '{0}' has a group '{1}' that does not exist on '{2}'. There only {3} groups.", param.Id, group, id, Groups.Count));
 					}

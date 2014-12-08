@@ -70,9 +70,9 @@ namespace Routine.Client
 
 		private void LoadMembersAndOperationsIfNecessary()
 		{
-			if (ModelIsLoaded) { return; }
 			if (IsNull) { return; }
 			if (Type.IsValueType) { return; }
+			if (members.Any()) { return; }
 
 			foreach (var member in Type.Members)
 			{
@@ -114,7 +114,6 @@ namespace Routine.Client
 			FillObject(Application.Service.Get(objectReferenceData));
 		}
 
-		private bool ModelIsLoaded { get { return members.Any(); } }
 		internal ObjectReferenceData ObjectReferenceData { get { return objectReferenceData; } }
 
 		internal ParameterData GetParameterData()
