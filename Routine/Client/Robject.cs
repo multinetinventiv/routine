@@ -34,10 +34,10 @@ namespace Routine.Client
 		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(new List<Rvariable>(), objectData, actualType, viewType) { }
 		private Robject(List<Rvariable> initializationParameters, ObjectData objectData, Rtype actualType, Rtype viewType)
 		{
-			if (actualType != null && actualType.IsViewType)
-			{
-				throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
-			}
+			//if (actualType != null && actualType.IsViewType)
+			//{
+			//	throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
+			//}
 
 			ActualType = actualType;
 			ViewType = viewType;

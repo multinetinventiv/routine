@@ -20,7 +20,7 @@ using Routine.Test.Common;
 namespace Routine.Test.Api
 {
 	[TestFixture]
-	public class ApiGeneratorTest : ApiTestBase
+	public class ApiGeneratorTest : ClientTestBase
 	{
 		#region SetUp & Helpers
 

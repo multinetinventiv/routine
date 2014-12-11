@@ -16,6 +16,9 @@ namespace Routine.Engine.Configuration
 			this.operations = operations;
 		}
 
+		public IType ParentType { get { return parentType; } }
+		public IEnumerable<IOperation> Operations { get { return operations; } }
+
 		public IEnumerable<IOperation> TargetBySelf() { return TargetBy(o => (T)o); }
 		public IEnumerable<IOperation> Target(T target) { return TargetBy(() => target); }
 		public IEnumerable<IOperation> TargetBy(Func<T> targetDelegate) { return TargetBy(o => targetDelegate()); }
@@ -24,13 +27,16 @@ namespace Routine.Engine.Configuration
 			return operations.Select(o => new ProxyOperation(parentType, o, (obj, parameters) => targetDelegate(obj)));
 		}
 
-		public IEnumerable<IOperation> TargetByParameter(string parameterName)
+		public IEnumerable<IOperation> TargetByParameter() { return TargetByParameter(typeof(T).Name.ToLowerInitial()); }
+		public IEnumerable<IOperation> TargetByParameter(string parameterName) { return TargetByParameter<T>(parameterName); }
+		public IEnumerable<IOperation> TargetByParameter<TConcrete>() where TConcrete : T { return TargetByParameter<TConcrete>(typeof(TConcrete).Name.ToLowerInitial()); }
+		public IEnumerable<IOperation> TargetByParameter<TConcrete>(string parameterName) where TConcrete : T
 		{
-			return operations.Select(o => 
-				new ProxyOperation(parentType, o, 
-					(obj, parameters) => parameters[0], 
+			return operations.Select(o =>
+				new ProxyOperation(parentType, o,
+					(obj, parameters) => parameters[0],
 					BuildRoutine.Parameter(o).Virtual()
-						.ParameterType.Set(type.of<T>())
+						.ParameterType.Set(type.of<TConcrete>())
 						.Name.Set(parameterName)
 				)
 			);

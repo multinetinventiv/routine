@@ -78,7 +78,14 @@ namespace Routine.Core.Configuration
 
 				if (!Equals(configuration, other.configuration))
 				{
-					layer = new Layer(layer.Order + configuration.CurrentLayer.Order);
+					if (layer == Layer.LeastSpecific && configuration.CurrentLayer == Layer.LeastSpecific)
+					{
+						layer = Layer.LeastSpecific;
+					}
+					else
+					{
+						layer = new Layer(layer.Order + configuration.CurrentLayer.Order);
+					}
 				}
 
 				Add(convention.Convention, layer);

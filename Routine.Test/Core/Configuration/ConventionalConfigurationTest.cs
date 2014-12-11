@@ -217,6 +217,17 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
+		public void When_merging_conventions_from_different_configuration__if_both_are_at_the_least_specific_layer__other_conventions_are_added_to_the_end()
+		{
+			testing.Set("out1", "in1");
+			testingOtherConfig.Set("out2", "in1");
+
+			testing.Merge(testingOtherConfig);
+
+			Assert.AreEqual("out1", testing.Get("in1"));
+		}
+
+		[Test]
 		public void A_default_fail_result_can_be_set_to_be_returned_in_case_all_conventions_fail()
 		{
 			testing.Set("default");

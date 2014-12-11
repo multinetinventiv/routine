@@ -12,7 +12,7 @@ using Routine.Core;
 
 namespace Routine.Test.Client
 {
-	public abstract class ApiTestBase
+	public abstract class ClientTestBase
 	{
 		protected Mock<IObjectService> objectServiceMock;
 		private Dictionary<string, ObjectModel> objectModelDictionary;
@@ -342,10 +342,10 @@ namespace Routine.Test.Client
 
 		protected class ObjectStubber
 		{
-			private readonly ApiTestBase test;
+			private readonly ClientTestBase test;
 			private readonly ObjectReferenceData objectReferenceData;
 
-			public ObjectStubber(ApiTestBase test, ObjectReferenceData objectReferenceData)
+			public ObjectStubber(ClientTestBase test, ObjectReferenceData objectReferenceData)
 			{
 				this.test = test;
 				this.objectReferenceData = objectReferenceData;

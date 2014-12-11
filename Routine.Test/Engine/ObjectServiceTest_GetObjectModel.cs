@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using Routine.Engine.Virtual;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel;
@@ -14,7 +15,7 @@ namespace Routine.Test.Engine.Ignored
 
 namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 {
-	public class BusinessModel
+	public class BusinessModel : IBusinessModel
 	{
 		public int Id { get; set; }
 		public List<string> List { get; set; }
@@ -39,7 +40,10 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 		public void IgnoredForParameter(IgnoredModel ignoreReason) { }
 	}
 
-	public interface IBusinessModel { }
+	public interface IBusinessModel
+	{
+		void VoidOp();
+	}
 
 	public class BusinessValueModel
 	{
@@ -577,6 +581,25 @@ namespace Routine.Test.Engine
 
 			Assert.AreEqual(1, om.StaticInstances.Count);
 			Assert.AreEqual("Instance", om.StaticInstances[0].Reference.Id);
+		}
+
+		[Test]
+		public void Proxy_operations_can_be_added_to_a_virtual_type()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("Virtual")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(o => o.Proxy<IBusinessModel>("VoidOp").TargetByParameter<BusinessModel>()))
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.IsTrue(om.Operations.Any(o => o.Id == "VoidOp"));
+			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "VoidOp").Parameters.Any(p => p.Id == "businessModel" && p.ViewModelId == TESTED_OM_ID));
 		}
 
 		[Test]
