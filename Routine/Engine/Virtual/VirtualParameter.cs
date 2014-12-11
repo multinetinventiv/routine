@@ -1,24 +1,40 @@
-﻿using System;
+﻿using Routine.Core.Configuration;
 
 namespace Routine.Engine.Virtual
 {
 	public class VirtualParameter : IParameter
 	{
-		public IType ParameterType { get; private set; }
-		public string Name { get; private set; }
+		private readonly IParametric owner;
 
-		public VirtualParameter(IType parameterType, string name)
+		public SingleConfiguration<VirtualParameter, string> Name { get; private set; }
+		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; private set; }
+		public SingleConfiguration<VirtualParameter, int> Index { get; private set; }
+
+		public VirtualParameter(IParametric owner)
 		{
-			if (parameterType == null) { throw new ArgumentNullException("parameterType"); }
-			if (string.IsNullOrEmpty(name)) { throw new ArgumentNullException("name"); }
+			this.owner = owner;
 
-			ParameterType = parameterType;
-			Name = name;
+			Name = new SingleConfiguration<VirtualParameter, string>(this, "Name", true);
+			ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, "ParameterType", true);
+			Index = new SingleConfiguration<VirtualParameter, int>(this, "Index");
 		}
 
-		IParametric IParameter.Owner { get { throw new InvalidOperationException("Virtual parameter does not have owner."); } }
-		int IParameter.Index { get { return 0; } }
-		IType ITypeComponent.ParentType { get { throw new InvalidOperationException("Virtual parameter does not have parent type."); } }
+		#region ITypeComponent implementation
+
 		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+
+		string ITypeComponent.Name { get { return Name.Get(); } }
+		IType ITypeComponent.ParentType { get { return owner.ParentType; } } 
+
+		#endregion
+		
+		#region IParameter implementation
+
+		IParametric IParameter.Owner { get { return owner; } }
+		IType IParameter.ParameterType { get { return ParameterType.Get(); } }
+		int IParameter.Index { get { return Index.Get(); } } 
+
+		#endregion
+
 	}
 }

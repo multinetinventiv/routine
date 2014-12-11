@@ -118,6 +118,11 @@ namespace Routine
 		{
 			return new OperationBuilder(parentType);
 		}
+
+		public static ParameterBuilder Parameter(IParametric owner)
+		{
+			return new ParameterBuilder(owner);
+		}
 	}
 
 	public static class BuildRoutineExtensions
@@ -215,6 +220,13 @@ namespace Routine
 			return source.Constant(items.ToList());
 		}
 
+		public static ConventionBase<TFrom, List<TResultItem>> By<TFrom, TResultItem>(
+			this ConventionBuilder<TFrom, List<TResultItem>> source,
+			Func<TFrom, TResultItem> converterDelegate)
+		{
+			return source.By(o => new List<TResultItem>{converterDelegate(o)});
+		}
+
 		public static ConventionBase<TFrom, ILocator> Locator<TFrom>(
 			this ConventionBuilder<TFrom, ILocator> source,
 			Func<LocatorBuilder, ILocator> locatorDelegate)
@@ -270,7 +282,7 @@ namespace Routine
 			return source
 				.By(t => configurationDelegate(BuildRoutine.IdExtractor().ByMemberValue(t.Members.First(memberFilter))))
 				.When(t => t.Members.Any(memberFilter));
-		} 
+		}
 
 		#endregion
 
@@ -301,7 +313,7 @@ namespace Routine
 				.By(t => configurationDelegate(BuildRoutine.IdExtractor()
 					.ByMemberValue(new OperationMember(t.Operations.First(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
 				.When(t => t.Operations.Any(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))) as DelegateBasedConvention<IType, IIdExtractor>;
-		} 
+		}
 
 		#endregion
 
@@ -331,7 +343,7 @@ namespace Routine
 			return source
 				.By(t => configurationDelegate(BuildRoutine.ValueExtractor().ByMemberValue(t.Members.First(memberFilter))))
 				.When(t => t.Members.Any(memberFilter));
-		} 
+		}
 
 		#endregion
 
@@ -362,12 +374,12 @@ namespace Routine
 				.By(t => configurationDelegate(BuildRoutine.ValueExtractor()
 					.ByMemberValue(new OperationMember(t.Operations.First(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
 				.When(t => t.Operations.Any(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid())));
-		} 
+		}
 
 		#endregion
 
 		#endregion
-		
+
 		#region PatternBuilder
 
 		public static ConventionalCodingStyle Use(this ConventionalCodingStyle source, Func<PatternBuilder<ConventionalCodingStyle>, ConventionalCodingStyle> pattern)
@@ -415,9 +427,32 @@ namespace Routine
 			return source.Add(t => builder(BuildRoutine.Operation(t)));
 		}
 
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IOperation> source, Func<OperationBuilder, IOperation> builder)
+			where TConfiguration : IType
+		{
+			return source.Add(t => builder(BuildRoutine.Operation(t)));
+		}
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IParameter> source, Func<ParameterBuilder, IEnumerable<IParameter>> builder)
+			where TConfiguration : IParametric
+		{
+			return source.Add(o => builder(BuildRoutine.Parameter(o)));
+		}
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IParameter> source, Func<ParameterBuilder, IParameter> builder)
+			where TConfiguration : IParametric
+		{
+			return source.Add(o => builder(BuildRoutine.Parameter(o)));
+		}
+
 		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
 		{
 			return source.By(t => builder(BuildRoutine.Operation(t)).ToList());
+		}
+
+		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IOperation> builder)
+		{
+			return source.By(t => new List<IOperation> { builder(BuildRoutine.Operation(t)) });
 		}
 
 		#endregion

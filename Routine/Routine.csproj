@@ -68,6 +68,12 @@
     <Compile Include="Core\InitializerModel.cs" />
     <Compile Include="Core\Rest\JsonRestSerializer.cs" />
     <Compile Include="Engine\Configuration\OperationBuilder.cs" />
+    <Compile Include="Engine\Configuration\OperationBuilder.Parameters.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OperationBuilder.Parameters.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Engine\Configuration\ParameterBuilder.cs" />
     <Compile Include="Engine\Configuration\ProxyOperationBuilder.cs" />
     <Compile Include="Engine\Configuration\VirtualTypeBuilder.cs" />
     <Compile Include="Engine\DomainParameterGroup.cs" />
@@ -76,6 +82,7 @@
     <Compile Include="Engine\Virtual\ProxyParameter.cs" />
     <Compile Include="Engine\Virtual\VirtualObject.cs" />
     <Compile Include="Engine\Virtual\ProxyOperation.cs" />
+    <Compile Include="Engine\Virtual\VirtualOperation.cs" />
     <Compile Include="Engine\Virtual\VirtualParameter.cs" />
     <Compile Include="Engine\Virtual\VirtualType.cs" />
     <Compile Include="Interception\InterceptionContext.cs" />
@@ -254,10 +261,13 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ClientApi.cs</LastGenOutput>
     </None>
+    <None Include="Engine\Configuration\OperationBuilder.Parameters.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>OperationBuilder.Parameters.cs</LastGenOutput>
+    </None>
     <None Include="Routine.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
 </Project>

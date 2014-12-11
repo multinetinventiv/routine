@@ -62,6 +62,8 @@
     <Compile Include="Engine\Virtual\OperationMemberTest.cs" />
     <Compile Include="Engine\Virtual\ProxyOperationTest.cs" />
     <Compile Include="Engine\Virtual\VirtualObjectTest.cs" />
+    <Compile Include="Engine\Virtual\VirtualOperationTest.cs" />
+    <Compile Include="Engine\Virtual\VirtualParameterTest.cs" />
     <Compile Include="Engine\Virtual\VirtualTypeTest.cs" />
     <Compile Include="Interception\InterceptedObjectServiceTest.cs" />
     <Compile Include="Interception\BaseAroundInterceptorTest.cs" />

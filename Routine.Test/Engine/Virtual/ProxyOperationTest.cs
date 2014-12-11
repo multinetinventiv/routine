@@ -2,11 +2,12 @@
 using NUnit.Framework;
 using Routine.Engine;
 using Routine.Engine.Virtual;
+using Routine.Test.Core;
 
 namespace Routine.Test.Engine.Virtual
 {
 	[TestFixture]
-	public class ProxyOperationTest
+	public class ProxyOperationTest : CoreTestBase
 	{
 		[Test]
 		public void Proxy_operations_inherit_is_public__name__parameters__return_type_and_custom_attributes_from_given_operation()

@@ -593,5 +593,42 @@ namespace Routine.Test.Engine
 			Assert.IsTrue(om.Operations.Any(o => o.Id == "Insert"));
 			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "Insert").Parameters.Any(p => p.Id == "str" && p.ViewModelId == "s-string"));
 		}
+
+		[Test]
+		public void Virtual_operations_can_be_added_to_an_existing_type()
+		{
+			codingStyle
+				.Operations.Add(c => c.Build(o => o.Virtual("Ping", (string input) => input)).When(type.of<BusinessModel>()))
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsTrue(om.Operations.Any(o => o.Id == "Ping"));
+			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "Ping").Parameters.Any(p => p.Id == "input" && p.ViewModelId == "s-string"));
+			Assert.AreEqual("s-string", om.Operations.SingleOrDefault(o => o.Id == "Ping").Result.ViewModelId);
+		}
+
+		[Test]
+		public void Virtual_operations_can_be_added_to_a_virtual_type()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("Virtual")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(o => o.Virtual("Ping", (string input) => input))
+				)
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.IsTrue(om.Operations.Any(o => o.Id == "Ping"));
+			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "Ping").Parameters.Any(p => p.Id == "input" && p.ViewModelId == "s-string"));
+			Assert.AreEqual("s-string", om.Operations.SingleOrDefault(o => o.Id == "Ping").Result.ViewModelId);
+		}
 	}
 }

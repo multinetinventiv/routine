@@ -26,7 +26,14 @@ namespace Routine.Engine.Configuration
 
 		public IEnumerable<IOperation> TargetByParameter(string parameterName)
 		{
-			return operations.Select(o => new ProxyOperation(parentType, o, (obj, parameters) => parameters[0], new VirtualParameter(type.of<T>(), parameterName)));
+			return operations.Select(o => 
+				new ProxyOperation(parentType, o, 
+					(obj, parameters) => parameters[0], 
+					BuildRoutine.Parameter(o).Virtual()
+						.ParameterType.Set(type.of<T>())
+						.Name.Set(parameterName)
+				)
+			);
 		}
 	}
 }

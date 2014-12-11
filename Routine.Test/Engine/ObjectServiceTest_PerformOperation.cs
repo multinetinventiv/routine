@@ -590,5 +590,25 @@ namespace Routine.Test.Engine
 
 			businessMock.Verify(o => o.Void(), Times.Once);
 		}
+
+		[Test]
+		public void Virtual_operations_perform_using_given_delegate()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("VirtualOperation")
+					.Namespace.Set(RootNamespace)
+					.Operations.Add(o => o.Virtual("Ping", (string input) => "ping: " + input)))
+			;
+
+			testing.GetApplicationModel();
+
+			var result = testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "Ping", Params(
+				Param("input", Id("test", "s-string"))
+			));
+
+			Assert.AreEqual("ping: test", result.Values[0].Reference.Id);
+		}
 	}
 }

@@ -22,6 +22,7 @@ using log4net.Repository.Hierarchy;
 using NHibernate;
 using Routine.Client;
 using Routine.Engine;
+using Routine.Engine.Virtual;
 using Routine.Interception;
 using Routine.Soa;
 using Routine.Test.Common;
@@ -147,6 +148,14 @@ namespace Routine.Test.Domain.Configuration
 				return BuildRoutine.CodingStyle()
 						.FromBasic()
 						.AddTypes(ModuleAssemblies(), t => t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
+						.Use(p => p.VirtualTypePattern())
+						.AddTypes(v => v.FromBasic()
+							.Namespace.Set("Routine.Test.Module.Virtual")
+							.Name.Set("VirtualType")
+							.Operations.Add(o => o.Proxy<int>().TargetByParameter("i"))
+							.Operations.Add(o => o.Virtual("VirtualService", (string str, int i) => string.Join(",", Enumerable.Range(0, i).Select(ix => str))))
+						)
+						.StaticInstances.Set(c => c.By(t => new VirtualObject("Instance", t as VirtualType)).When(t => t is VirtualType))
 						.Use(p => p.ShortModelIdPattern("System", "s"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Module", "m"))
@@ -165,10 +174,12 @@ namespace Routine.Test.Domain.Configuration
 						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && m.IsPublic && !m.Returns<Guid>() && !m.Returns<TypedGuid>() && !m.ReturnsCollection())
 										   .When(t => t.IsDomainType))
 
-						.Operations.Add(s => s.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
+						.Operations.Add(c => c.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
 											  .When(t => t.IsDomainType))
-						.Operations.Add(s => s.PublicMembers(m => m.ReturnsCollection())
+						.Operations.Add(c => c.PublicMembers(m => m.ReturnsCollection())
 											  .When(t => t.IsDomainType))
+						.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
+						.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
 
 						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
 						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Name")))

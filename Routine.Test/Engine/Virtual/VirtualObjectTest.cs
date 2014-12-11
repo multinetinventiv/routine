@@ -41,5 +41,17 @@ namespace Routine.Test.Engine.Virtual
 
 			Assert.AreEqual("virtual", testing.ToString());
 		}
+
+		[Test]
+		public void Implements_equality_members_on_id_and_type()
+		{
+			var type = VirtualType();
+
+			var testing1 = new VirtualObject("virtual", type);
+			var testing2 = new VirtualObject("virtual", type);
+
+			Assert.AreEqual(testing1, testing2);
+			Assert.AreEqual(testing1.GetHashCode(), testing2.GetHashCode());
+		}
 	}
 }
