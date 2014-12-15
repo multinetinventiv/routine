@@ -1,8 +1,16 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Routine.Test.Engine.Domain.LaterAdded;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel;
 
+namespace Routine.Test.Engine.Domain.LaterAdded
+{
+	public class BusinessModel4
+	{
+		public string Name { get; set; }
+	}
+}
 namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel
 {
 	public class BusinessModel1
@@ -10,6 +18,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel
 		private class BusinessModel3 { }
 
 		public string GetString(int i) { return null; }
+
+		public BusinessModel4 PropertyWithLaterAddedType { get; set; }
 	}
 
 	public interface IBusinessModel2 { }
@@ -60,6 +70,16 @@ namespace Routine.Test.Engine
 			var actual = testing.GetApplicationModel();
 
 			Assert.AreSame(expected, actual);
+		}
+
+		[Test]
+		public void Later_added_types_cause_an_invalidation_on_cached_types()
+		{
+			codingStyle.AddTypes(typeof (BusinessModel4));
+
+			var actual = testing.GetApplicationModel().Models.First(m => m.Name == "BusinessModel1");
+
+			Assert.IsTrue(actual.Members.Any(m => m.Id == "PropertyWithLaterAddedType"));
 		}
 	}
 }

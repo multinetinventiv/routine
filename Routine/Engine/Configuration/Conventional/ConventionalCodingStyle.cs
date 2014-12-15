@@ -109,6 +109,18 @@ namespace Routine.Engine.Configuration.Conventional
 		{
 			TypeInfo.AddDomainTypes(types);
 
+			//TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
+			//refresh previously cached type info instances
+			for (int i = 0; i < this.types.Count; i++)
+			{
+				var type = this.types[i];
+
+				if (!(type is TypeInfo)) { continue; }
+
+				var typeInfo = type as TypeInfo;
+
+				this.types[i] = TypeInfo.Get(typeInfo.GetActualType());
+			}
 			return AddTypes(types.Select(t => TypeInfo.Get(t) as IType));
 		}
 

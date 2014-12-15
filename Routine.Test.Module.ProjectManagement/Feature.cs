@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Routine.Test.Common;
 using Routine.Test.Domain;
 using Routine.Test.Module.ProjectManagement.Api;
 
@@ -11,8 +8,8 @@ namespace Routine.Test.Module.ProjectManagement
 {
 	public class Feature : IFeature
 	{
-		private IDomainContext ctx;
-		private IRepository<Feature> repository;
+		private readonly IDomainContext ctx;
+		private readonly IRepository<Feature> repository;
 
 		private Feature() { }
 		public Feature(IDomainContext ctx, IRepository<Feature> repository)
