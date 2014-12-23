@@ -19,18 +19,20 @@ namespace Routine.Ui
 		}
 
 		public ObjectViewModel Target { get { return new ObjectViewModel(Configuration, Object); } }
-		public bool IsAvailable { get { return Configuration.IsAvailable(this); } }
-		public bool IsSimple { get { return Configuration.IsSimple(this); } }
 		public string Id { get { return Operation.Id; } }
 		public string Text { get { return Configuration.GetDisplayName(Operation.Id); } }
+
 		public bool HasParameter { get { return Operation.Parameters.Any(); } }
 		public bool ReturnsList { get { return Operation.ResultIsList; } }
+
+		public bool IsRendered { get { return Configuration.IsRendered(this); } }
+		public bool IsAvailable { get { return Configuration.IsAvailable(this); } }
 
 		public List<ParameterViewModel> Parameters
 		{
 			get
 			{
-				return Operation.Parameters.Select(p => new ParameterViewModel(Configuration, p)).ToList();
+				return Operation.Parameters.Select(p => new ParameterViewModel(Configuration, p, Object)).ToList();
 			}
 		}
 
@@ -43,6 +45,16 @@ namespace Routine.Ui
 				result.Add("operationModelId", Operation.Id);
 				return result;
 			}
+		}
+		public bool Is(OperationTypes types)
+		{
+			return Configuration.GetOperationTypes(this).HasFlag(types);
+		}
+
+		public int GetOrder() { return GetOrder(OperationTypes.None); }
+		public int GetOrder(OperationTypes operationTypes)
+		{
+			return Configuration.GetOrder(this, operationTypes);
 		}
 
 		public bool MarkedAs(string mark)

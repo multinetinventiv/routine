@@ -8,7 +8,7 @@
 		<% headerOk = true; %>
 	<thead>
 		<tr>
-		<% foreach(var col in obj.SimpleMembers) { %>
+		<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
 			<th class="data-column"><%= col.Text %></th>
 		<% } %>
 		</tr>
@@ -16,7 +16,7 @@
 	<tbody>
 	<% } %>
 		<tr>
-	<% foreach(var col in obj.SimpleMembers) { %>
+	<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
 		<td><% col.Render(Html); %></td>
 	<% } %>
 		</tr>
@@ -29,7 +29,7 @@
 	<div class="context-menu context-menu-<%= i %>">
 		<ul>
 			<li><b><% obj.RenderAs(Html, "Link", "text", "Open"); %></b></li>
-	<% foreach(var op in obj.SimpleOperations.Where(op => !op.MarkedAs("ParamOptions"))) { %>
+	<% foreach(var op in obj.GetOperations(OperationTypes.Table)) { %>
 			<li><% op.Render(Html, "mode", "table"); %></li>
 	<% } %>
 		</ul>

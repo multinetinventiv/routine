@@ -19,18 +19,15 @@ namespace Routine.Ui.Configuration
 				.PerformRouteName.Set("Perform")
 
 				.OperationOrder.Set(0)
-
+				.OptionOrder.Set(0)
 				.MemberOrder.Set(0)
-				.SimpleMemberOrder.Set(0)
-				.TableMemberOrder.Set(0)
 
 				.OperationIsAvailable.Set(true)
 				.OperationIsRendered.Set(true)
-				.OperationIsSimple.Set(false)
+				.OperationTypes.Set(OperationTypes.Page)
 
 				.MemberIsRendered.Set(true)
-				.MemberIsSimple.Set(true)
-				.MemberIsTable.Set(false)
+				.MemberTypes.Set(MemberTypes.PageNameValue)
 
 				.NextLayer()
 			;

@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
-using Routine.Core.Rest;
 
 namespace Routine.Ui
 {
 	public class ParameterViewModel : ViewModelBase
 	{
 		public Rparameter Parameter { get; private set; }
+		public Robject Target { get; private set; }
+		public Rparametric Operation { get { return Parameter.Owner; } }
 
-		public ParameterViewModel(IMvcConfiguration configuration, Rparameter rpar)
+		public ParameterViewModel(IMvcConfiguration configuration, Rparameter rpar, Robject target)
 			: base(configuration)
 		{
 			Parameter = rpar;
+			Target = target;
 		}
 
 		public string DataType { get { return Parameter.ParameterType.Id; } }
@@ -25,7 +27,7 @@ namespace Routine.Ui
 		{
 			get
 			{
-				var result = Configuration.GetDefault(Parameter);
+				var result = Configuration.GetDefault(this);
 
 				if (result == null)
 				{
@@ -44,24 +46,13 @@ namespace Routine.Ui
 			{
 				if (options == null)
 				{
-					options = Configuration.GetOptions(Parameter)
-						.Select(o => new OptionViewModel(o))
+					options = Configuration.GetOptions(this)
+						.Select(o => new OptionViewModel(Configuration, this, o))
+						.OrderBy(o => o.Order)
 						.ToList();
 				}
 
 				return options;
-			}
-		}
-
-		public class OptionViewModel
-		{
-			public string Id { get; private set; }
-			public string Value { get; private set; }
-
-			public OptionViewModel(Robject robj)
-			{
-				Id = robj.ObjectReferenceData.ToSerializable().ToString();
-				Value = robj.Value;
 			}
 		}
 

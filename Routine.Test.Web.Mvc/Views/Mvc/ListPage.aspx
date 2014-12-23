@@ -8,7 +8,7 @@
 		<% headerOk = true; %>
 	<thead>
 		<tr>
-		<% foreach(var col in obj.SimpleMembers) { %>
+		<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
 			<th class="data-column"><%= col.Text %></th>
 		<% } %>
 		</tr>
@@ -16,7 +16,7 @@
 	<tbody>
 	<% } %>
 		<tr>
-	<% foreach(var col in obj.SimpleMembers) { %>
+	<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
 		<td><% col.Render(Html); %></td>
 	<% } %>
 		</tr>

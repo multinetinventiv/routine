@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -21,8 +20,8 @@ namespace Routine.Ui.Configuration
 		public ConventionalConfiguration<ConventionalMvcConfiguration, Rtype, string> IndexId { get; private set; }
 		public ConventionalListConfiguration<ConventionalMvcConfiguration, Rtype, string> MenuIds { get; private set; }
 
-		public ConventionalConfiguration<ConventionalMvcConfiguration, Rparameter, Rvariable> ParameterDefault { get; private set; }
-		public ConventionalListConfiguration<ConventionalMvcConfiguration, Rparameter, Robject> ParameterOptions { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, ParameterViewModel, Rvariable> ParameterDefault { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, ParameterViewModel, List<Robject>> ParameterOptions { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ViewModelBase, string> ViewName { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, string, string> DisplayName { get; private set; }
@@ -30,19 +29,16 @@ namespace Routine.Ui.Configuration
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> ViewRouteName { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> PerformRouteName { get; private set; }
 
-		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, int> OperationOrder { get; private set; }
-
-		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int> MemberOrder { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int> SimpleMemberOrder { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int> TableMemberOrder { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int> OperationOrder { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, OptionViewModel, int> OptionOrder { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<MemberViewModel, MemberTypes>, int> MemberOrder { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> OperationIsAvailable { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> OperationIsRendered { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> OperationIsSimple { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, OperationTypes> OperationTypes { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool> MemberIsRendered { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool> MemberIsSimple { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool> MemberIsTable { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, MemberTypes> MemberTypes { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, Rparameter, Robject> ParameterSearcher { get; private set; }
 
@@ -60,8 +56,8 @@ namespace Routine.Ui.Configuration
 			IndexId = new ConventionalConfiguration<ConventionalMvcConfiguration, Rtype, string>(this, "IndexId", true);
 			MenuIds = new ConventionalListConfiguration<ConventionalMvcConfiguration, Rtype, string>(this, "MenuIds");
 
-			ParameterDefault = new ConventionalConfiguration<ConventionalMvcConfiguration, Rparameter, Rvariable>(this, "ParameterDefault");
-			ParameterOptions = new ConventionalListConfiguration<ConventionalMvcConfiguration, Rparameter, Robject>(this, "ParameterOptions");
+			ParameterDefault = new ConventionalConfiguration<ConventionalMvcConfiguration, ParameterViewModel, Rvariable>(this, "ParameterDefault");
+			ParameterOptions = new ConventionalConfiguration<ConventionalMvcConfiguration, ParameterViewModel, List<Robject>>(this, "ParameterOptions");
 			ParameterSearcher = new ConventionalConfiguration<ConventionalMvcConfiguration, Rparameter, Robject>(this, "ParameterSearcher");
 
 			ViewName = new ConventionalConfiguration<ConventionalMvcConfiguration, ViewModelBase, string>(this, "ViewName");
@@ -70,19 +66,16 @@ namespace Routine.Ui.Configuration
 			ViewRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "ViewRouteName");
 			PerformRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
 
-			OperationOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, int>(this, "OperationOrder");
-
-			MemberOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int>(this, "MemberOrder");
-			SimpleMemberOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int>(this, "SimpleMemberOrder");
-			TableMemberOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, int>(this, "TableMemberOrder");
+			OperationOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int>(this, "OperationOrder");
+			OptionOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, OptionViewModel, int>(this, "OptionOrder");
+			MemberOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<MemberViewModel, MemberTypes>, int>(this, "MemberOrder");
 
 			OperationIsAvailable = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "OperationIsAvailable");
 			OperationIsRendered = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "OperationIsRendered");
-			OperationIsSimple = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "OperationIsSimple");
+			OperationTypes = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, OperationTypes>(this, "OperationTypes");
 
 			MemberIsRendered = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool>(this, "MemberIsRendered");
-			MemberIsSimple = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool>(this, "MemberIsSimple");
-			MemberIsTable = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool>(this, "MemberIsTable");
+			MemberTypes = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, MemberTypes>(this, "MemberTypes");
 
 			if (rootConfig)
 			{
@@ -108,18 +101,15 @@ namespace Routine.Ui.Configuration
 			PerformRouteName.Merge(other.PerformRouteName);
 
 			OperationOrder.Merge(other.OperationOrder);
-
+			OptionOrder.Merge(other.OptionOrder);
 			MemberOrder.Merge(other.MemberOrder);
-			SimpleMemberOrder.Merge(other.SimpleMemberOrder);
-			TableMemberOrder.Merge(other.TableMemberOrder);
 
 			OperationIsAvailable.Merge(other.OperationIsAvailable);
 			OperationIsRendered.Merge(other.OperationIsRendered);
-			OperationIsSimple.Merge(other.OperationIsSimple);
+			OperationTypes.Merge(other.OperationTypes);
 
 			MemberIsRendered.Merge(other.MemberIsRendered);
-			MemberIsSimple.Merge(other.MemberIsSimple);
-			MemberIsTable.Merge(other.MemberIsTable);
+			MemberTypes.Merge(other.MemberTypes);
 
 			return this;
 		}
@@ -168,8 +158,8 @@ namespace Routine.Ui.Configuration
 		string IMvcConfiguration.GetIndexId(Rtype type) { return IndexId.Get(type); }
 		List<string> IMvcConfiguration.GetMenuIds(Rtype type) { return MenuIds.Get(type); }
 
-		Rvariable IMvcConfiguration.GetDefault(Rparameter rpar) { return ParameterDefault.Get(rpar); }
-		List<Robject> IMvcConfiguration.GetOptions(Rparameter rpar) { return ParameterOptions.Get(rpar); }
+		Rvariable IMvcConfiguration.GetDefault(ParameterViewModel parameterViewModel) { return ParameterDefault.Get(parameterViewModel); }
+		List<Robject> IMvcConfiguration.GetOptions(ParameterViewModel parameterViewModel) { return ParameterOptions.Get(parameterViewModel); }
 		Robject IMvcConfiguration.GetSearcher(Rparameter rpar) { return ParameterSearcher.Get(rpar); }
 
 		string IMvcConfiguration.GetViewName(ViewModelBase viewModel) { return ViewName.Get(viewModel); }
@@ -178,21 +168,30 @@ namespace Routine.Ui.Configuration
 		string IMvcConfiguration.GetViewRouteName(ObjectViewModel objectViewModel) { return ViewRouteName.Get(objectViewModel); }
 		string IMvcConfiguration.GetPerformRouteName(ObjectViewModel objectViewModel) { return PerformRouteName.Get(objectViewModel); }
 
-		int IMvcConfiguration.GetOperationOrder(OperationViewModel operationViewModel) { return OperationOrder.Get(operationViewModel); }
-
-		int IMvcConfiguration.GetMemberOrder(MemberViewModel memberViewModel) { return MemberOrder.Get(memberViewModel); }
-		int IMvcConfiguration.GetSimpleMemberOrder(MemberViewModel memberViewModel) { return SimpleMemberOrder.Get(memberViewModel); }
-		int IMvcConfiguration.GetTableMemberOrder(MemberViewModel memberViewModel) { return TableMemberOrder.Get(memberViewModel); }
+		int IMvcConfiguration.GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes) { return OperationOrder.Get(new TypedViewModel<OperationViewModel, OperationTypes>(operationViewModel, operationTypes)); }
+		int IMvcConfiguration.GetOrder(OptionViewModel optionViewModel) { return OptionOrder.Get(optionViewModel); }
+		int IMvcConfiguration.GetOrder(MemberViewModel memberViewModel, MemberTypes memberTypes) { return MemberOrder.Get(new TypedViewModel<MemberViewModel, MemberTypes>(memberViewModel, memberTypes)); }
 
 		bool IMvcConfiguration.IsAvailable(OperationViewModel operationViewModel) { return OperationIsAvailable.Get(operationViewModel); }
 		bool IMvcConfiguration.IsRendered(OperationViewModel operationViewModel) { return OperationIsRendered.Get(operationViewModel); }
-		bool IMvcConfiguration.IsSimple(OperationViewModel operationViewModel) { return OperationIsSimple.Get(operationViewModel); }
+		OperationTypes IMvcConfiguration.GetOperationTypes(OperationViewModel operationViewModel) { return OperationTypes.Get(operationViewModel); }
 
 		bool IMvcConfiguration.IsRendered(MemberViewModel memberViewModel) { return MemberIsRendered.Get(memberViewModel); }
-		bool IMvcConfiguration.IsSimple(MemberViewModel memberViewModel) { return MemberIsSimple.Get(memberViewModel); }
-		bool IMvcConfiguration.IsTable(MemberViewModel memberViewModel) { return MemberIsTable.Get(memberViewModel); }
+		MemberTypes IMvcConfiguration.GetMemberTypes(MemberViewModel memberViewModel) { return MemberTypes.Get(memberViewModel); }
 
 		#endregion
+
+		public class TypedViewModel<TViewModel, TType> where TViewModel : ViewModelBase
+		{
+			public TViewModel ViewModel { get; private set; }
+			public TType Type { get; private set; }
+
+			public TypedViewModel(TViewModel viewModel, TType type)
+			{
+				ViewModel = viewModel;
+				Type = type;
+			}
+		}
 	}
 }
 

@@ -18,13 +18,13 @@ namespace Routine.Ui
 		{
 			get
 			{
-				foreach (var model in rapp.Types)
+				foreach (var rtype in rapp.Types)
 				{
 					try
 					{
-						var id = Configuration.GetIndexId(model);
+						var id = Configuration.GetIndexId(rtype);
 
-						return new ObjectViewModel(Configuration, rapp.Get(id, model.Id));
+						return new ObjectViewModel(Configuration, rapp.Get(id, rtype.Id));
 					}
 					catch (ConfigurationException) { }
 				}

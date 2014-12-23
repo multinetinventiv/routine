@@ -17,13 +17,54 @@ namespace Routine.Ui
 		{
 			Object = @object;
 		}
-		public string ViewModelId { get { return Object.Type.Id; } }
-		public string Module { get { return Object.Type.Module; } }
 
-		public string Title { get { return Object.IsNull ? Configuration.GetNullDisplayValue() : Object.Value; } }
+		public string ViewModelId
+		{
+			get
+			{
+				if (Object.IsNull)
+				{
+					return string.Empty;
+				}
+
+				return Object.Type.Id;
+			}
+		}
+
+		public string Module
+		{
+			get
+			{
+				if (Object.IsNull)
+				{
+					return string.Empty;
+				}
+
+				return Object.Type.Module;
+			}
+		}
+
+		public string Title
+		{
+			get
+			{
+				if (Object.IsNull)
+				{
+					return Configuration.GetNullDisplayValue();
+				}
+				
+				return Object.Value;
+			}
+		}
 
 		//TODO get from mvc configuration
-		public bool HasDetail { get { return !Object.IsNull && !Object.Type.IsValueType && (Object.Type.Members.Any() || Object.Type.Operations.Any()); } }
+		public bool HasDetail
+		{
+			get
+			{
+				return !Object.IsNull && !Object.Type.IsValueType && (HasMember || HasOperation);
+			}
+		}
 
 		private string ViewRouteNameBase { get { return Configuration.GetViewRouteName(this); } }
 		public string ViewRouteName { get { return ViewRouteNameBase; } }
@@ -67,74 +108,62 @@ namespace Routine.Ui
 			}
 		}
 
-		public bool HasOperation { get { return Object.Type.Operations.Any(); } }
-		public bool HasSimpleMember { get { return Object.Type.Members.Any(m => !m.IsList); } }
-		public bool HasTableMember { get { return Object.Type.Members.Any(m => m.IsList); } }
+		public bool HasOperation { get { return GetOperations().Any(); } }
+		public bool HasMember { get { return GetMembers().Any(); } }
 
-		private List<MemberViewModel> Members
+		private List<MemberViewModel> GetMembers()
 		{
-			get
-			{
-				return Object.MemberValues
-						.Select(m => new MemberViewModel(Configuration, m))
-						.Where(m => Configuration.IsRendered(m))
-						.OrderBy(m => Configuration.GetMemberOrder(m))
-						.ToList();
-			}
+			return Object.MemberValues
+					.Select(m => new MemberViewModel(Configuration, m))
+					.Where(m => m.IsRendered)
+					.OrderBy(m => m.GetOrder())
+					.ToList();
 		}
 
-		public List<MemberViewModel> SimpleMembers
+		public List<MemberViewModel> GetMembers(MemberTypes memberTypes)
 		{
-			get
-			{
-				return Members
-						.Where(m => m.IsSimple)
-						.ToList();
-			}
+			return GetMembers()
+					.Where(m => m.Is(memberTypes))
+					.OrderBy(m => m.GetOrder(memberTypes))
+					.ToList();
 		}
 
-		public List<MemberViewModel> TableMembers
+		public List<OperationViewModel> GetOperations()
 		{
-			get
-			{
-				return Members
-						.Where(m => m.IsTable)
-						.ToList();
-			}
+			return Object.Type.Operations
+					.Select(o => new OperationViewModel(Configuration, Object, o))
+					.Where(o => o.IsRendered)
+					.OrderBy(m => m.GetOrder())
+					.ToList();
 		}
 
-		public List<OperationViewModel> Operations
+		public List<OperationViewModel> GetOperations(OperationTypes operationTypes)
 		{
-			get
-			{
-				return Object.Type.Operations
-						.Select(o => new OperationViewModel(Configuration, Object, o))
-						.Where(o => Configuration.IsRendered(o))
-						.OrderBy(o => Configuration.GetOperationOrder(o))
-						.ToList();
-			}
+			return GetOperations()
+					.Where(o => o.Is(operationTypes))
+					.OrderBy(m => m.GetOrder(operationTypes))
+					.ToList();
 		}
 
-		public List<OperationViewModel> SimpleOperations
-		{
-			get
-			{
-				return Operations
-						.Where(o => o.IsSimple)
-						.ToList();
-			}
-		}
-
-		public ParameterViewModel.OptionViewModel Option { get { return new ParameterViewModel.OptionViewModel(Object); } }
+		public OptionViewModel Option { get { return new OptionViewModel(Configuration, Object); } }
 
 		public bool MarkedAs(string mark)
 		{
+			if (Object.IsNull)
+			{
+				return false;
+			}
+
 			return Object.Type.MarkedAs(mark);
 		}
 
 		public VariableViewModel Perform(string operationModelId, Dictionary<string, string> parameterDictionary)
 		{
 			if (parameterDictionary == null) { parameterDictionary = new Dictionary<string, string>(); }
+			if (Object.IsNull)
+			{
+				return new VariableViewModel(Configuration, new Rvariable());
+			}
 
 			var rop = Object.Type.Operations.Single(o => o.Id == operationModelId);
 			var rparams = rop.Parameters;
@@ -172,6 +201,7 @@ namespace Routine.Ui
 		public static string Route(this UrlHelper source, ObjectViewModel model)
 		{
 			if (model == null) { return null; }
+
 			return source.RouteUrl(model.ViewRouteName, model.RouteValues);
 		}
 	}

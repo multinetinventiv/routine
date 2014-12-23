@@ -16,9 +16,9 @@ namespace Routine.Test.Module.Todo
 			this.ctx = ctx;
 		}
 
-		public List<TodoItem> UndoneItems { get { return ctx.Query<TodoItems>().UndoneItems(); } }
-		public List<Assignee> Assignees { get { return ctx.Query<Assignees>().All(); } }
 		public int DoneItemCount { get { return ctx.Query<TodoItems>().DoneItems().Count; } }
+		public List<Assignee> Assignees { get { return ctx.Query<Assignees>().All(); } }
+		public List<TodoItem> UndoneItems { get { return ctx.Query<TodoItems>().UndoneItems(); } }
 
 		public void NewAssignee(string name, FatString address)
 		{

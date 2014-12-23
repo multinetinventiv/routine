@@ -35,6 +35,6 @@
 		<input type="submit" value="<%= model.Text %>"/>
 	<% } %>
 	</form>
-<% } else if(!model.IsAvailable) { %>
+<% } else { %>
 	<input type="submit" value="<%= model.Text %>" class="disabled"/>
 <% } %>

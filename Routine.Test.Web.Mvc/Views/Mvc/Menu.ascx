@@ -11,7 +11,7 @@
 		<% link.RenderAs(Html, "Link"); %>
 		<div class="children<%= first?"":" children-after-first"%>">
 			<% var firstChild = true; %>
-			<% foreach(var sublink in model.Links.Where(l => l.MarkedAs("Search") && l.Operations.Any(o => o.ReturnsList))) { %>
+			<% foreach(var sublink in model.Links.Where(l => l.MarkedAs("Search") && l.GetOperations(OperationTypes.Search).Any())) { %>
 				<% if(sublink.Module == link.Module) { %>
 					<% if(firstChild) { %>
 						<% firstChild = false; %>

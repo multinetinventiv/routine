@@ -17,11 +17,9 @@ namespace Routine.Ui
 
 		public string Id { get { return Member.Id; } }
 		public string Text { get { return Configuration.GetDisplayName(Member.Id); } }
-
 		public bool IsList { get { return Member.IsList; } }
-		public bool IsSimple { get { return Configuration.IsSimple(this); } }
-		public bool IsTable { get { return Configuration.IsTable(this); } }
-
+		public bool IsRendered { get { return Configuration.IsRendered(this); } }
+		
 		public ObjectViewModel Object
 		{
 			get
@@ -39,6 +37,22 @@ namespace Routine.Ui
 					.Select(robj => new ObjectViewModel(Configuration, robj))
 					.ToList();
 			}
+		}
+
+		public bool Is(MemberTypes types)
+		{
+			return Configuration.GetMemberTypes(this).HasFlag(types);
+		}
+
+		public int GetOrder() { return GetOrder(MemberTypes.None); }
+		public int GetOrder(MemberTypes memberTypes)
+		{
+			return Configuration.GetOrder(this, memberTypes);
+		}
+
+		public bool MarkedAs(string mark)
+		{
+			return Member.MarkedAs(mark);
 		}
 	}
 }

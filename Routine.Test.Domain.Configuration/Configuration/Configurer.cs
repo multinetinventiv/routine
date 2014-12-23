@@ -20,7 +20,6 @@ using log4net.Core;
 using log4net.Layout;
 using log4net.Repository.Hierarchy;
 using NHibernate;
-using Routine.Client;
 using Routine.Engine;
 using Routine.Engine.Virtual;
 using Routine.Interception;
@@ -167,16 +166,15 @@ namespace Routine.Test.Domain.Configuration
 						.TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
 						.TypeMarks.Add("Search", t => t.CanBe<IQuery>())
 						.OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
+						.OperationMarks.Add("Virtual", o => o is VirtualOperation || o is ProxyOperation)
 
 						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".")).When(t => t.IsDomainType))
 
 						.Initializers.Add(c => c.PublicInitializers().When(t => t.IsValueType && t.IsDomainType))
-						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && m.IsPublic && !m.Returns<Guid>() && !m.Returns<TypedGuid>() && !m.ReturnsCollection())
+						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && m.IsPublic && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
 										   .When(t => t.IsDomainType))
 
 						.Operations.Add(c => c.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
-											  .When(t => t.IsDomainType))
-						.Operations.Add(c => c.PublicMembers(m => m.ReturnsCollection())
 											  .When(t => t.IsDomainType))
 						.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
 						.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
@@ -212,18 +210,16 @@ namespace Routine.Test.Domain.Configuration
 						.FromBasic()
 						.Interceptors.Add(c => c.Interceptor(i => i.Before(() => Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(HttpContext.Current.Request["language_code"] ?? "en-US"))))
 						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
-
-						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()
-															 .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
-															 .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-															 .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-															 .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId)))))
-						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); })
-															 .When(ctx => ctx.GetOperationModel().Marks.Contains("Hidden"))))
-
 						.Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())
 																   .Fail(t => t.Rollback())))
+
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+																		  .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+																		  .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+																		  .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId)))))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); }))
+													   .When(iom => iom.OperationModel.Marks.Contains("Hidden")))
 						;
 			}
 
@@ -246,19 +242,20 @@ namespace Routine.Test.Domain.Configuration
 						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Search"))
 						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
 
-						.ViewName.Set("Search", vmb => vmb is ObjectViewModel && ((ObjectViewModel)vmb).MarkedAs("Search"))
-						.ViewName.Set(c => c.By(vmb => vmb.GetType().Name.Before("ViewModel")))
+						.ViewName.Set("Search", vm => vm is ObjectViewModel && ((ObjectViewModel)vm).MarkedAs("Search"))
+						.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
 
-						//.ParameterDefault.Set(c => c.By(p => p.Owner.Operation.Object[p.Id.ToUpperInitial()].GetValue())
-						//							  .When(p => p.Owner.Owner.IsOperation() && p.Owner.Operation.Id.Matches("Update.*") && p.Type.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
+						.ParameterDefault.Set(c => c.By(p => p.Target[p.Id.ToUpperInitial()].Get())
+													.When(p => p.Parameter.Owner.IsOperation() && p.Parameter.Owner.Operation.Id.Matches("Update.*") && p.Parameter.Type.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
 
-						//.ParameterOptions.Add(c => c.By(p => p.Operation.Object.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Operation.Id).List)
-						//							  .When(p => p.Owner.IsOperation() && p.Type.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Owner.Operation.Id &&
-						//																		 o.ResultIsList && !o.Parameters.Any())))
-						.ParameterOptions.Add(c => c.By(p => p.Application.Get("Instance", p.ParameterType.Id + "s").Perform("All").List)
-													.When(p => p.Application.Types.Any(t => t.Id == p.ParameterType.Id + "s" && t.Operations.Any(o => o.Id == "All"))))
+						.ParameterOptions.Set(c => c.By(p => p.Target.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Id).List)
+													.When(p => p.Parameter.Owner.IsOperation() && 
+															   p.Parameter.Type.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Id &&
+																									o.ResultIsList && !o.Parameters.Any())))
+						.ParameterOptions.Set(c => c.By(p => p.Parameter.Application.Get("Instance", p.Parameter.ParameterType.Id + "s").Perform("All").List)
+													.When(p => p.Parameter.Application.Types.Any(t => t.Id == p.Parameter.ParameterType.Id + "s" && t.Operations.Any(o => o.Id == "All"))))
 
-						.ParameterOptions.Add(c => c.By(p => p.ParameterType.StaticInstances))
+						.ParameterOptions.Set(c => c.By(p => p.Parameter.ParameterType.StaticInstances))
 
 						.ParameterSearcher.Set(c => c.By(p =>
 						{
@@ -273,8 +270,16 @@ namespace Routine.Test.Domain.Configuration
 						}))
 
 						.DisplayName.Set(c => c.By(s => s.SplitCamelCase().ToUpperInitial()))
-						.OperationOrder.Set(c => c.By(ovm => ovm.HasParameter ? 0 : 1))
-						.OperationIsSimple.Set(true, o => !o.HasParameter)
+						.OperationOrder.Set(c => c.By(ovm => ovm.ViewModel.HasParameter ? 0 : 1))
+
+						.OperationIsRendered.Set(false, o => o.MarkedAs("ParamOptions"))
+						.OperationIsRendered.Set(false, o => o.MarkedAs("Virtual"))
+						.OperationTypes.Set(OperationTypes.Page | OperationTypes.Table, o => !o.HasParameter)
+						.OperationTypes.Set(OperationTypes.Search, o => o.ReturnsList)
+
+						.MemberIsRendered.Set(false, m => m.MarkedAs("Virtual"))
+						.MemberTypes.Set(MemberTypes.PageTable, m => m.IsList)
+						.MemberTypes.Set(MemberTypes.PageNameValue | MemberTypes.TableColumn, m => !m.IsList)
 						;
 			}
 

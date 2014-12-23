@@ -60,7 +60,7 @@ namespace Routine.Client
 
 			if (data.Members.Count <= 0) { return; }
 
-			LoadMembersAndOperationsIfNecessary();
+			LoadMembersIfNecessary();
 
 			foreach (var memberModelId in data.Members.Keys)
 			{
@@ -68,7 +68,7 @@ namespace Routine.Client
 			}
 		}
 
-		private void LoadMembersAndOperationsIfNecessary()
+		private void LoadMembersIfNecessary()
 		{
 			if (IsNull) { return; }
 			if (Type.IsValueType) { return; }
@@ -140,8 +140,8 @@ namespace Routine.Client
 		public bool IsInitializedOnClient { get { return string.IsNullOrEmpty(objectReferenceData.Id); } }
 		public string Value { get { FetchValueIfNecessary(); return value; } }
 
-		public MemberValue this[string memberModelId] { get { LoadMembersAndOperationsIfNecessary(); return members[memberModelId]; } }
-		public List<MemberValue> MemberValues { get { LoadMembersAndOperationsIfNecessary(); return members.Values.ToList(); } }
+		public MemberValue this[string memberModelId] { get { LoadMembersIfNecessary(); return members[memberModelId]; } }
+		public List<MemberValue> MemberValues { get { LoadMembersIfNecessary(); return members.Values.ToList(); } }
 
 		public Rvariable Perform(string operationModelId, params Rvariable[] parameters) { return Perform(operationModelId, parameters.ToList()); }
 		public Rvariable Perform(string operationModelId, List<Rvariable> parameters)

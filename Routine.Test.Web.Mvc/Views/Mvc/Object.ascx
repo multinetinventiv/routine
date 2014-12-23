@@ -1,23 +1,26 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
 
 <% var model = Model as ObjectViewModel; %>
+<% var operations = model.GetOperations(OperationTypes.Page); %>
+<% var nameValueMembers = model.GetMembers(MemberTypes.PageNameValue); %>
+<% var tableMembers = model.GetMembers(MemberTypes.PageTable); %>
 <fieldset class="object-data">
 	<legend class="object-data"><%= model.Title %></legend>
-	<% if(model.HasOperation) { %>
-		<div class="operation-tabs<%= model.HasSimpleMember || model.HasTableMember?" collapsible-tabs":"" %>">
+	<% if(operations.Any()) { %>
+		<div class="operation-tabs<%= model.HasMember?" collapsible-tabs":"" %>">
 			<ul>
-				<% foreach(var operation in model.Operations.Where(o => !o.MarkedAs("ParamOptions") && !o.ReturnsList)) { %>
+				<% foreach(var operation in operations) { %>
 					<li><%= operation.Text %></li>
 				<% } %>
 			</ul>
-			<% foreach(var operation in model.Operations.Where(o => !o.MarkedAs("ParamOptions") && !o.ReturnsList)) { %>
+			<% foreach(var operation in operations) { %>
 				<div><% operation.Render(Html); %></div>
 			<% } %>	
 		</div>
 	<% } %>
-	<% if(model.HasSimpleMember) { %>
-		<dl class="data-list<%= model.HasOperation?"":" no-operation"%>">
-		<% foreach(var member in model.SimpleMembers) { %>
+	<% if(nameValueMembers.Any()) { %>
+		<dl class="data-list<%= operations.Any()?"":" no-operation"%>">
+		<% foreach(var member in nameValueMembers) { %>
 			<dt class="single-value"><%= member.Text %></dt>
 			<dd class="single-value">
 				<% member.Render(Html); %>
@@ -25,14 +28,14 @@
 		<% } %>	
 		</dl>
 	<% } %>	
-	<% if(model.HasTableMember) { %>
+	<% if(tableMembers.Any()) { %>
 		<div class="data-tabs tabs">
 			<ul>
-				<% foreach(var member in model.TableMembers) { %>
+				<% foreach(var member in tableMembers) { %>
 					<li><%= member.Text %></li>
 				<% } %>
 			</ul>
-			<% foreach(var member in model.TableMembers) { %>
+			<% foreach(var member in tableMembers) { %>
 				<div><% member.RenderAs(Html, "Table"); %></div>
 			<% } %>	
 		</div>

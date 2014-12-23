@@ -190,6 +190,7 @@
     <Compile Include="Ui\ApplicationViewModel.cs" />
     <Compile Include="Ui\IMvcContext.cs" />
     <Compile Include="Ui\ObjectViewModel.cs" />
+    <Compile Include="Ui\OptionViewModel.cs" />
     <Compile Include="Ui\VariableViewModel.cs" />
     <Compile Include="Ui\ViewModelBase.cs" />
     <Compile Include="Ui\MenuViewModel.cs" />

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Routine.Client;
 using Routine.Interception;
@@ -15,8 +16,12 @@ namespace Routine.Ui
 		string GetIndexId(Rtype type);
 		List<string> GetMenuIds(Rtype type);
 
-		Rvariable GetDefault(Rparameter parameter);
-		List<Robject> GetOptions(Rparameter parameter);
+		Rvariable GetDefault(ParameterViewModel parameterViewModel);
+		
+		//TODO List<Rvariable> donmeli
+		List<Robject> GetOptions(ParameterViewModel parameterViewModel);
+		
+		//TODO operation donmeli
 		Robject GetSearcher(Rparameter parameter);
 
 		string GetViewName(ViewModelBase viewModel);
@@ -25,18 +30,34 @@ namespace Routine.Ui
 		string GetViewRouteName(ObjectViewModel objectViewModel);
 		string GetPerformRouteName(ObjectViewModel objectViewModel);
 
-		int GetOperationOrder(OperationViewModel operationViewModel);
-		int GetMemberOrder(MemberViewModel memberViewModel);
-		int GetSimpleMemberOrder(MemberViewModel memberViewModel);
-		int GetTableMemberOrder(MemberViewModel memberViewModel);
+		int GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes);
+		int GetOrder(OptionViewModel optionViewModel);
+		int GetOrder(MemberViewModel memberViewModel, MemberTypes memberTypes);
 
 		bool IsAvailable(OperationViewModel operationViewModel);
 		bool IsRendered(OperationViewModel operationViewModel);
-		bool IsSimple(OperationViewModel operationViewModel);
+		OperationTypes GetOperationTypes(OperationViewModel operationViewModel);
 
 		bool IsRendered(MemberViewModel memberViewModel);
-		bool IsSimple(MemberViewModel memberViewModel);
-		bool IsTable(MemberViewModel memberViewModel);
+		MemberTypes GetMemberTypes(MemberViewModel memberViewModel);
+	}
+
+	[Flags]
+	public enum OperationTypes
+	{
+		None = 0,
+		Page = 1,
+		Table = 2,
+		Search = 4,
+	}
+
+	[Flags]
+	public enum MemberTypes
+	{
+		None = 0,
+		PageNameValue = 1,
+		PageTable = 2,
+		TableColumn = 4,
 	}
 
 	public enum InterceptionTarget
