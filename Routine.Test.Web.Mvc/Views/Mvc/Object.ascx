@@ -31,12 +31,12 @@
 	<% if(tableMembers.Any()) { %>
 		<div class="data-tabs tabs">
 			<ul>
-				<% foreach(var member in tableMembers) { %>
-					<li><%= member.Text %></li>
+				<% foreach(var table in tableMembers) { %>
+					<li><%= table.Text %></li>
 				<% } %>
 			</ul>
-			<% foreach(var member in tableMembers) { %>
-				<div><% member.RenderAs(Html, "Table"); %></div>
+			<% foreach(var table in tableMembers) { %>
+				<div><% table.RenderAs(Html, "Table"); %></div>
 			<% } %>	
 		</div>
 	<% } %>	

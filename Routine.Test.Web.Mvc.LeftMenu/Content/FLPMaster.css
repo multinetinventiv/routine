@@ -1,0 +1,423 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 11px;
+	padding: 0px;
+	background-color: white;
+}
+
+
+
+div.page {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+	div.page div.menu {
+		width: 200px;
+		height: 2000px;
+		float: left;
+		border-right: 1px solid gray;
+		padding-right: 5px;
+		padding-left: 5px;
+		background-color: orange;
+		font-family: inherit;
+	}
+
+		div.page div.menu div.menu-item {
+		}
+
+		div.page div.menu div.user {
+			-moz-border-bottom-colors: none;
+			-moz-border-left-colors: none;
+			-moz-border-right-colors: none;
+			-moz-border-top-colors: none;
+			border-color: -moz-use-text-color -moz-use-text-color white;
+			border-image: none;
+			border-radius: 0;
+			border-style: none none solid;
+			border-width: 0 0 1px;
+			font-size: 15px;
+			font-weight: bold;
+			height: 34px;
+			margin-top: 15px;
+			color: white;
+			margin-bottom: 10px;
+		}
+
+			div.page div.menu div.user a {
+				color: white;
+			}
+
+				div.page div.menu div.user a:hover {
+					color: lightgray;
+				}
+
+		div.page div.menu a {
+			text-decoration: none;
+			line-height: 30px;
+			color: black;
+			font-weight: bold;
+		}
+
+		div.page div.menu div.menu-item div.parent {
+			border: 1px solid black;
+			height: 30px;
+			font-size: 14px;
+			background-color: white;
+			margin-bottom: 5px;
+			margin-top: 5px;
+			cursor: pointer;
+			z-index: 100;
+			position: relative;
+		}
+
+			div.page div.menu div.menu-item div.parent a {
+				pointer-events: none;
+				cursor: pointer;
+				display: block;
+				padding-left: 20px;
+			}
+
+		div.page div.menu div.menu-item div.children {
+			border: 1px solid gray;
+			font-size: 14px;
+			background-color: white;
+			margin-bottom: 5px;
+			margin-top: -5px;
+			background-color: white;
+			height: 0;
+			position: relative;
+		}
+
+			div.page div.menu div.menu-item div.children a {
+				position: absolute;
+				padding-left: 20px;
+				right: 0;
+				left: 0;
+				top: -30px;
+			}
+
+				div.page div.menu div.menu-item div.children a:hover {
+					background-color: skyblue;
+					color: white;
+				}
+
+	div.page div.page-content {
+		border-left: 1px solid gray;
+		display: block;
+		height: 2000px;
+		left: 211px;
+		padding-left: 10px;
+		padding-top: 20px;
+		position: absolute;
+		right: 0;
+	}
+
+div.context-menus div {
+	display: none;
+}
+div.context-menu {
+	position: absolute;
+}
+div.context-menu a {
+	display: block;
+}
+
+div.context-menu .jqx-fill-state-normal {
+		border: none;
+	}
+	div.context-menu .jqx-fill-state-hover {
+		border: none;
+	}
+	div.context-menu input {
+		width: 100%;
+		text-align: left;
+	}
+
+
+.operation-tabs {
+}
+
+header h1 {
+	float: right;
+	font-weight: normal;
+}
+
+header div.wrapper {
+	height: 100px;
+}
+
+
+dl {
+	overflow: hidden;
+}
+
+dt {
+	float: left;
+	font-weight: normal;
+	color: #8a8a8a;
+	text-align: left;
+	padding-right: 3px;
+	margin-bottom: 5px;
+	width: 300px;
+}
+
+dd {
+	float: left;
+	width: 300px;
+	margin-bottom: 10px;
+}
+
+input[type=text] {
+	height: 20px;
+	width: 350px;
+	border: 1px solid #DDDDDD;
+}
+
+input[data-type=c-phone], input[data-type=c-email], input[type=password] {
+	height: 20px;
+	width: 290px;
+	border: 1px solid #DDDDDD;
+}
+
+textarea {
+	height: 100px;
+	width: 350px;
+}
+
+select {
+	text-align: right;
+}
+
+fieldset, fieldset.collapsible {
+	padding: 10px;
+	border: 1px solid black;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	padding-right: 0px;
+}
+
+	fieldset.collapsible {
+		margin-bottom: 0px;
+		margin-top: 23px;
+		padding-bottom: 0px;
+	}
+
+	fieldset.collapsed {
+		border-width: 0;
+		margin: 0;
+		padding: 0;
+		margin-top: 0;
+	}
+
+legend.collapsible {
+	cursor: pointer;
+	color: black;
+	font-size: 12px;
+	font-weight: normal;
+	padding: 5px;
+	margin-left: -10px;
+	float: left;
+	margin-top: -33px;
+	background-color: #FAFAFA;
+}
+
+legend.collapsed {
+	cursor: pointer;
+	padding: 5px;
+	font-size: 12px;
+	font-weight: normal;
+	border: 1px solid #BBBBBB;
+	margin-right: 3px;
+	color: black;
+	margin-top: 3px;
+	letter-spacing: normal;
+	word-spacing: normal;
+}
+
+legend.collapsed {
+	float: none;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+form.operation-form {
+	display: inline;
+}
+
+	form.operation-form fieldset {
+		display: inline-block;
+		float: left;
+		clear: none;
+		margin-right: 5px;
+		border: transparent;
+	}
+
+		form.operation-form fieldset, form.operation-form fieldset legend {
+			border-color: #BBBBBB;
+		}
+
+			form.operation-form fieldset input[value=OK] {
+				float: left;
+				width: 61px;
+			}
+
+			form.operation-form fieldset input[value=Cancel] {
+				float: none;
+				margin-left: 10px;
+				width: 61px;
+			}
+
+dl.parameter-list {
+	padding-right: 10px;
+}
+
+dl {
+	clear: both;
+}
+
+
+form.operation-form fieldset input[type="submit"], form.operation-form fieldset input[type="button"] {
+	float: left;
+	margin-right: 8px;
+	width: 61px;
+	cursor: pointer;
+}
+
+fieldset.search-data {
+	border: 0 none;
+	display: inline-block;
+	height: auto;
+	padding: 0;
+	margin-left: 20px;
+}
+
+fieldset.object-data {
+	border: 0 none;
+	display: inline-block;
+	height: auto;
+	margin-left: 20px;
+	padding: 0;
+}
+
+legend.search-data {
+	border: 0px;
+	border-radius: 0px;
+	font-weight: bold;
+	font-size: 15px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #BBBBBB;
+}
+
+legend.object-data {
+	border: 0px;
+	border-radius: 0px;
+	font-weight: bold;
+	font-size: 15px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #BBBBBB;
+}
+
+dl.data-list {
+	margin-top: 0px;
+	border-top: 1px solid #BBBBBB;
+	padding-top: 10px;
+}
+
+	dl.data-list dt {
+		font-size: 12px;
+		width: 200px;
+		margin-right: 10px;
+	}
+
+	dl.data-list dd {
+		display: block;
+		float: left;
+		font-size: 12px;
+		text-align: left;
+		width: 900px;
+	}
+
+	dl.data-list dt.single-value {
+		float: left;
+		padding-left: 12px;
+		width: 200px;
+	}
+
+div.messages {
+	background-color: brown;
+	color: white;
+	font-weight: bold;
+	cursor: pointer;
+	cursor: pointer;
+	height: 50px;
+	position: relative;
+}
+
+form.operation-form fieldset input.modal-search[type="button"] {
+	font-size: 11px;
+	height: 20px;
+	width: 290px;
+}
+
+div.tab-container {
+	float: left;
+	height: 100px;
+	position: relative;
+	width: 1300px;
+	color: white;
+}
+
+	div.tab-container div.tab-header {
+		background-color: orange;
+		float: left;
+		font-size: 14px;
+		position: absolute;
+		width: 100%;
+		z-index: 2;
+		font-weight: bold;
+	}
+
+		div.tab-container div.tab-header div.tab {
+			background-color: orange;
+			border: 1px solid black;
+			float: left;
+			height: 30px;
+			line-height: 30px;
+			position: relative;
+			text-align: center;
+			width: 150px;
+		}
+
+			div.tab-container div.tab-header div.tab:hover {
+				background-color: lightsalmon;
+			}
+
+	div.tab-container div.tab-content {
+		float: left;
+		position: absolute;
+		top: 30px;
+		z-index: 1;
+	}
+
+	div.tab-container div.tab-header div.selected {
+		background-color: white;
+		color: black;
+	}
+
+		div.tab-container div.tab-header div.selected:hover {
+			background-color: white;
+		}
+
+	div.tab-container div.hide {
+		display: none;
+	}

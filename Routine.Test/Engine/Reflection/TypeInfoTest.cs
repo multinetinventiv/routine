@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Engine.Reflection;
@@ -416,10 +417,11 @@ namespace Routine.Test.Engine.Reflection
 		{
 			Assert.AreEqual('c', type.of<char>().Parse("c"));
 			Assert.AreEqual(1, type.of<int>().Parse("1"));
+			Assert.Fail("Parse islemi invariant culture ile olmali, ya da format verilebilmeli");
 			Assert.AreEqual(1.0d, type.of<double>().Parse("1.0"));
 			Assert.AreEqual(1.0, type.of<decimal>().Parse("1.0"));
 			Assert.AreEqual(1.0f, type.of<float>().Parse("1.0"));
-            Assert.AreEqual(new DateTime(2013, 7, 15, 11, 2, 10), type.of<DateTime>().Parse(new DateTime(2013, 7, 15, 11, 2, 10).ToString()));
+            Assert.AreEqual(new DateTime(2013, 7, 15, 11, 2, 10), type.of<DateTime>().Parse(new DateTime(2013, 7, 15, 11, 2, 10).ToString(CultureInfo.InvariantCulture)));
 			Assert.AreEqual(TestClass_Parseable.ParsedResult, type.of<TestClass_Parseable>().Parse("dummy"));
 		}
 
