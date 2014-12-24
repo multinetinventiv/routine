@@ -17,6 +17,7 @@ namespace Routine.Ui.Configuration
 
 				.ViewRouteName.Set("Get")
 				.PerformRouteName.Set("Perform")
+				.ObjectHasDetail.Set(c => c.By(ovm => ovm.HasMember || ovm.HasOperation))
 
 				.OperationOrder.Set(0)
 				.OptionOrder.Set(0)

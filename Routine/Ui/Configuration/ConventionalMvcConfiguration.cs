@@ -28,6 +28,7 @@ namespace Routine.Ui.Configuration
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> ViewRouteName { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> PerformRouteName { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, bool> ObjectHasDetail { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int> OperationOrder { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OptionViewModel, int> OptionOrder { get; private set; }
@@ -65,6 +66,7 @@ namespace Routine.Ui.Configuration
 
 			ViewRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "ViewRouteName");
 			PerformRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
+			ObjectHasDetail = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, bool>(this, "ObjectHasDetail");
 
 			OperationOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int>(this, "OperationOrder");
 			OptionOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, OptionViewModel, int>(this, "OptionOrder");
@@ -99,6 +101,7 @@ namespace Routine.Ui.Configuration
 
 			ViewRouteName.Merge(other.ViewRouteName);
 			PerformRouteName.Merge(other.PerformRouteName);
+			ObjectHasDetail.Merge(other.ObjectHasDetail);
 
 			OperationOrder.Merge(other.OperationOrder);
 			OptionOrder.Merge(other.OptionOrder);
@@ -167,6 +170,7 @@ namespace Routine.Ui.Configuration
 
 		string IMvcConfiguration.GetViewRouteName(ObjectViewModel objectViewModel) { return ViewRouteName.Get(objectViewModel); }
 		string IMvcConfiguration.GetPerformRouteName(ObjectViewModel objectViewModel) { return PerformRouteName.Get(objectViewModel); }
+		bool IMvcConfiguration.GetHasDetail(ObjectViewModel objectViewModel) { return ObjectHasDetail.Get(objectViewModel); }
 
 		int IMvcConfiguration.GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes) { return OperationOrder.Get(new TypedViewModel<OperationViewModel, OperationTypes>(operationViewModel, operationTypes)); }
 		int IMvcConfiguration.GetOrder(OptionViewModel optionViewModel) { return OptionOrder.Get(optionViewModel); }

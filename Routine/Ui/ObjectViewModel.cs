@@ -57,12 +57,11 @@ namespace Routine.Ui
 			}
 		}
 
-		//TODO get from mvc configuration
 		public bool HasDetail
 		{
 			get
 			{
-				return !Object.IsNull && !Object.Type.IsValueType && (HasMember || HasOperation);
+				return !Object.IsNull && !Object.Type.IsValueType && Configuration.GetHasDetail(this);
 			}
 		}
 
@@ -111,7 +110,7 @@ namespace Routine.Ui
 		public bool HasOperation { get { return GetOperations().Any(); } }
 		public bool HasMember { get { return GetMembers().Any(); } }
 
-		private List<MemberViewModel> GetMembers()
+		public List<MemberViewModel> GetMembers()
 		{
 			return Object.MemberValues
 					.Select(m => new MemberViewModel(Configuration, m))

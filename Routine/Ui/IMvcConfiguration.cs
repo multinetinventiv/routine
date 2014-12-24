@@ -29,6 +29,7 @@ namespace Routine.Ui
 
 		string GetViewRouteName(ObjectViewModel objectViewModel);
 		string GetPerformRouteName(ObjectViewModel objectViewModel);
+		bool GetHasDetail(ObjectViewModel objectViewModel);
 
 		int GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes);
 		int GetOrder(OptionViewModel optionViewModel);
@@ -65,5 +66,6 @@ namespace Routine.Ui
 		Perform,
 		Get,
 		GetAs,
+		Index,
 	}
 }

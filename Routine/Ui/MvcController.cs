@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
+using Routine.Interception;
 using Routine.Ui.Context;
 
 namespace Routine.Ui
@@ -21,7 +22,17 @@ namespace Routine.Ui
 
 		protected ActionResult RedirectToPage(ObjectViewModel ovm) { return RedirectToRoute(ovm.ViewRouteName, ovm.RouteValues); }
 
-		public ActionResult Index() { return RedirectToPage(application.Index); }
+		public ActionResult Index()
+		{
+			var context = new InterceptionContext(InterceptionTarget.Index.ToString());
+			return configuration.GetInterceptor(InterceptionTarget.Index).Intercept(
+				context,
+				() =>
+				{
+					return RedirectToPage(application.Index);
+				}
+			) as ActionResult;
+		}
 
 		public ActionResult Perform(string id, string modelId, string operationModelId, Dictionary<string, string> parameters)
 		{
