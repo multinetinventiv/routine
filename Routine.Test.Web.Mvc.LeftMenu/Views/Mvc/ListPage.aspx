@@ -31,7 +31,7 @@
 			<li>
 				<b>
 					<% if(Request["mode"] == "select") {  %>
-						<input class ="enable-double-click" type="button" value="Select" onclick="selectRow(this);"/>
+						<input class="enable-double-click" type="button" value="Select" onclick="selectRow(this);"/>
 						<input type="hidden" name="id" value="<%= obj.Option.Id %>" />
 						<input type="hidden" name="value" value="<%= obj.Option.Value %>" />
 					<% } else {

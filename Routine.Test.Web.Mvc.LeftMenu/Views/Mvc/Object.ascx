@@ -8,14 +8,9 @@
 <fieldset class="object-data">
     <legend class="object-data"><%= model.Title %></legend>
     <% if (operations.Any()) { %>
-    <div class="operation-tabs<%= model.HasMember?" collapsible-tabs":"" %>">
-        <ul>
-            <% foreach (var operation in operations) { %>
-            <li><%= operation.Text %></li>
-            <% } %>
-        </ul>
+    <div class="operation-buttons">
         <% foreach (var operation in operations) { %>
-        <div><% operation.Render(Html); %></div>
+			<% operation.Render(Html); %>
         <% } %>
     </div>
     <% } %>

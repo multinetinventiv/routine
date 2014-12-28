@@ -10,7 +10,7 @@
 				<% } %>
 			</ul>
 			<% foreach(var operation in model.GetOperations(OperationTypes.Search)) { %>
-				<div><% operation.Render(Html, "text", "Search", "cancel", "false"); %></div>
+				<div><% operation.Render(Html, "text", "Search", "mode", "inline"); %></div>
 			<% } %>	
 	</div>
 	<div class="search-result" />

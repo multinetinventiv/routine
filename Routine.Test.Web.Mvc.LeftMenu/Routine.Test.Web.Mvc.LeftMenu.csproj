@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -63,9 +64,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\FLPMaster.css" />
-    <Content Include="Content\Images\top_logo.png" />
     <Content Include="Content\Master.css" />
+    <Content Include="Content\Images\top_logo.png" />
     <Content Include="Content\Search.png" />
     <Content Include="Content\ui\images\animated-overlay.gif" />
     <Content Include="Content\ui\images\cross.png" />

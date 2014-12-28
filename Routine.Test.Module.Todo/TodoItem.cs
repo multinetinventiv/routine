@@ -48,7 +48,7 @@ namespace Routine.Test.Module.Todo
 			repository.Update(this);
 		}
 
-		public void MarkAs(bool done)
+		public void Mark(bool done)
 		{
 			Done = done;
 

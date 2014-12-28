@@ -31,7 +31,9 @@
 		<ul>
 			<li><b><% obj.RenderAs(Html, "Link", "text", "Open"); %></b></li>
 	<% foreach(var op in obj.GetOperations(OperationTypes.Table)) { %>
-			<li><% op.Render(Html, "mode", "table"); %></li>
+			<li>
+				<% op.Render(Html); %>
+			</li>
 	<% } %>
 		</ul>
 	</div>

@@ -9,13 +9,14 @@
 	<link rel="stylesheet" type="text/css" href="~/Scripts/jqwidgets/styles/jqx.darkblue.css" />
 	<link rel="stylesheet" type="text/css" href="~/Scripts/jqwidgets/styles/jqx.office.css" />
 	<link rel="stylesheet" type="text/css" href="~/Scripts/jqwidgets/styles/jqx.orange.css" />
+	<link rel="stylesheet" type="text/css" href="~/Scripts/jqwidgets/styles/jqx.metro.css" />
 	<script src="/Scripts/jquery-1.11.1.min.js"></script>
 	<script src="/Scripts/jqwidgets/jqxcore.js"></script>
 	<script src="/Scripts/jqwidgets/jqx-all.js"></script>
 	<script src="/Scripts/FormValidation.js"></script>
 	<script src="/Scripts/Master.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="~/Content/FLPMaster.css">
+	<link rel="stylesheet" type="text/css" href="~/Content/Master.css">
 </head>
 <body oncontextmenu="return false;">
 	<div class="page">
