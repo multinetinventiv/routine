@@ -27,6 +27,7 @@ namespace Routine.Ui
 
 		public bool IsRendered { get { return Configuration.IsRendered(this); } }
 		public bool IsAvailable { get { return Configuration.IsAvailable(this); } }
+		public bool ConfirmationRequired { get { return Configuration.GetConfirmationRequired(this); } }
 
 		public List<ParameterViewModel> Parameters
 		{

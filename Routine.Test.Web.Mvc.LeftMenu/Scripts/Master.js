@@ -13,7 +13,7 @@ $(function () {
 	$("dl.data-list").each(function () {
 		$(this).css("width", (window.innerWidth - 302));
 	});
-	$("dl.parameter-list dd").each(function () {
+	$(".operation-tabs dl.parameter-list dd").each(function () {
 		$(this).css("width", (window.innerWidth - 322));
 	});
 	$("legend").each(function () {
@@ -25,6 +25,12 @@ $(function () {
 	$(".menu .parent").mousedown(function () {
 		$(this).children("a").css("border", "2px solid lightgray");
 		$(this).children("a").css("height", "26px");
+	});
+	$(".menu ").css("height", window.innerHeight);
+	$(".page-content ").css("height", (window.innerHeight - 20));
+	$(window).resize(function () {
+		$(".menu ").css("height", window.innerHeight);
+		$(".page-content ").css("height", (window.innerHeight - 20));
 	});
 	$(".menu .parent").mouseup(function () {
 		$(this).children("a").css("border", "none");
@@ -128,14 +134,23 @@ function hide(element, delta, duration) {
 
 
 function render(obj) {
-	$(obj).find(".context-menu input[type=submit]").each(function () { $(this).jqxButton(); });
-	$(obj).find(".operation-tabs input[type=submit]").each(function () { $(this).jqxButton(); });
 	$(obj).find("input[type=button]").each(function () { $(this).jqxButton(); });
+	$(obj).find("input[type=submit]").each(function () { $(this).jqxButton(); });
+	$(obj).find(".operation-buttons input[type=button].operation-button").each(function () {
+		$(this).jqxButton({ theme: "metro" });
+		$(this).addClass("operation-button");
+	});
+	$(obj).find(".operation-buttons input[type=submit].operation-button").each(function () {
+		$(this).jqxButton({ theme: "metro" });
+		$(this).addClass("operation-button");
+	});
 	$(obj).find("form.operation-form input[type=button]").click(function () {
 		if ($(this).attr('value') == "Cancel") {
 			$(this).closest("form")[0].reset();
-			$(".operation-tabs").jqxTabs('collapse');
-		} else if ($(this).attr('data-type') == "modal") {
+			return;
+		}
+
+		if ($(this).attr('data-type') == "modal") {
 			if (!($(this).prev().attr('data-return') == undefined)) {
 				$('#' + $(this).prev().attr('data-return')).jqxWindow('open');
 				return;
@@ -144,11 +159,41 @@ function render(obj) {
 			$(this).prev().attr('data-return', 'waiting');
 			$.get($(this).attr('data-route'), function (data) {
 				var modal = $("<div><div class='header'>Search</div><div class='modal-content'>" + data + "</div></div>")
-							.jqxWindow({ height: 800, minWidth: '1350px', isModal: true });
+					.jqxWindow({
+						maxHeight: (window.innerHeight) + 'px',
+						maxWidth: (window.innerWidth) + 'px',
+						height: (window.innerHeight - 100) + 'px',
+						width: (window.innerWidth - 250) + 'px',
+						isModal: true,
+						resizable: false
+					});
+				
 				$('input[data-return=waiting]').attr('data-return', modal.attr('id'));
 
 				render(modal);
 			});
+			return;
+		}
+	});
+	$(obj).find(".operation-tabs form.operation-form input[type=button]").click(function () {
+		if ($(this).attr('value') == "Cancel") {
+			$(".operation-tabs").jqxTabs('collapse');
+		} 
+	});
+	$(obj).find("input[type=button].operation-button").click(function () {
+		var modalDiv = $('#' + $(this).attr("data-modal-id"));
+		if (!(modalDiv.attr('data-modal-applied') == undefined)) {
+			modalDiv.jqxWindow('open');
+			return;
+		}
+
+		modalDiv.attr("data-modal-applied", "true");
+		modalDiv.show();
+		modalDiv.jqxWindow({ isModal: true, width: '382px', resizable: false });
+	});
+	$(obj).find(".operation-form-div form.operation-form input[type=button]").click(function () {
+		if ($(this).attr('value') == "Cancel") {
+			$('#' + $(this).attr('data-modal-id')).jqxWindow('close');
 		}
 	});
 	$(obj).find("div.messages").click(function () {
@@ -178,8 +223,8 @@ function render(obj) {
 				.next(".context-menus:first")
 				.children(".context-menu-" + event.args.index)
 				.delay(100)
-				.css('left', event.args.originalEvent.pageX - 250)
-				.css('top', event.args.originalEvent.pageY - 15)
+				.css('left', event.args.originalEvent.pageX - 5)
+				.css('top', event.args.originalEvent.pageY - 5)
 				.fadeIn(50);
 		});
 		$('#' + $(this).attr('id')).on('rowDoubleClick', function (event) {
@@ -205,11 +250,9 @@ function render(obj) {
 		$(this).find(".operation-form").each(function (i, e) {
 			if ($(this).hasClass("disabled")) {
 				$(this).closest(".operation-tabs").jqxTabs("disableAt", i);
-
 			}
 		});
 	});
-
 
 	$(obj).find(".collapsible-tabs").each(function () {
 		$(this).jqxTabs({ collapsible: true });
@@ -338,7 +381,7 @@ function render(obj) {
 };
 
 function selectRow(btn) {
-	var modal = $(btn).closest('div.modal-content').parent().parent();
+	var modal = $(btn).closest('div.modal-content').parent();
 	var input = $("input[data-return=" + modal.attr('id') + "]");
 	input.val($(btn).next().val());
 	input.next().val($(btn).next().next().val());

@@ -37,6 +37,7 @@ namespace Routine.Ui.Configuration
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> OperationIsAvailable { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> OperationIsRendered { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, OperationTypes> OperationTypes { get; private set; }
+		public ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool> ConfirmationRequired { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool> MemberIsRendered { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, MemberTypes> MemberTypes { get; private set; }
@@ -75,6 +76,7 @@ namespace Routine.Ui.Configuration
 			OperationIsAvailable = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "OperationIsAvailable");
 			OperationIsRendered = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "OperationIsRendered");
 			OperationTypes = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, OperationTypes>(this, "OperationTypes");
+			ConfirmationRequired = new ConventionalConfiguration<ConventionalMvcConfiguration, OperationViewModel, bool>(this, "ConfirmationRequired");
 
 			MemberIsRendered = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool>(this, "MemberIsRendered");
 			MemberTypes = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, MemberTypes>(this, "MemberTypes");
@@ -110,6 +112,7 @@ namespace Routine.Ui.Configuration
 			OperationIsAvailable.Merge(other.OperationIsAvailable);
 			OperationIsRendered.Merge(other.OperationIsRendered);
 			OperationTypes.Merge(other.OperationTypes);
+			ConfirmationRequired.Merge(other.ConfirmationRequired);
 
 			MemberIsRendered.Merge(other.MemberIsRendered);
 			MemberTypes.Merge(other.MemberTypes);
@@ -179,6 +182,7 @@ namespace Routine.Ui.Configuration
 		bool IMvcConfiguration.IsAvailable(OperationViewModel operationViewModel) { return OperationIsAvailable.Get(operationViewModel); }
 		bool IMvcConfiguration.IsRendered(OperationViewModel operationViewModel) { return OperationIsRendered.Get(operationViewModel); }
 		OperationTypes IMvcConfiguration.GetOperationTypes(OperationViewModel operationViewModel) { return OperationTypes.Get(operationViewModel); }
+		bool IMvcConfiguration.GetConfirmationRequired(OperationViewModel operationViewModel) { return ConfirmationRequired.Get(operationViewModel); }
 
 		bool IMvcConfiguration.IsRendered(MemberViewModel memberViewModel) { return MemberIsRendered.Get(memberViewModel); }
 		MemberTypes IMvcConfiguration.GetMemberTypes(MemberViewModel memberViewModel) { return MemberTypes.Get(memberViewModel); }

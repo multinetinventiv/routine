@@ -1,39 +1,53 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl" %>
 
 <% var model = Model as OperationViewModel; %>
-<% var mode = ViewData["mode"] as string??"menu"; %>
-<% var text = ViewData["text"] as string??"OK"; %>
-<% var cancel = ViewData["cancel"] as string??"true"; %>
+<% var dataModalId = model.Object.Id + model.Id + "-div"; %>
+<% var text = ViewData["text"] as string??model.Text; %>
+<% var mode = ViewData["mode"] as string ?? ((model.HasParameter || model.ConfirmationRequired) ? "modal" : "inline"); %>
+<% if(mode == "modal")  { %>
+	<input data-modal-id="<%= dataModalId %>" type="button" class="operation-button" value="<%= model.Text %>"/>
+    <div id="<%= dataModalId %>" class="operation-form-div">
+	    <div class="header"><%= model.Text %></div>
+	    <div class="modal-content">
+			<% text = model.HasParameter ? model.Text : "OK"; %>
+<% } %>
 
 <% if(model.IsAvailable) { %>
 	<form action="<%= Url.Route(model) + (Request["modal"]=="true" ? "?mode=select":"") %>" class="operation-form" method="post">
 <% } else if(!model.IsAvailable) { %>
 	<form action="<%= Url.Route(model) + (Request["modal"]=="true" ? "?mode=select":"") %>" class="operation-form disabled" style="display: none" method="post">
 <% } %>
-	<% if(mode == "menu")  { %>
+		<% if(model.HasParameter || model.ConfirmationRequired) { %>
 		<fieldset>
 			<div class="content">
-		<% if(!model.HasParameter) { %>
-				<div class="confirm">Are you sure?</div>
-		<% } else { %>
-				<dl class="parameter-list">
-			<% int i = 0; %>
-			<% foreach(var parameter in model.Parameters) { %>
-					<dt><%= parameter.Text %></dt>
-					<dd>
-						<% parameter.Render(Html, "index", i); %>
-					</dd>
-					<% i++; %>
+			<% if(!model.HasParameter) { %>
+					<div class="confirm">Are you sure?</div>
+			<% } else { %>
+					<dl class="parameter-list">
+				<% int i = 0; %>
+				<% foreach(var parameter in model.Parameters) { %>
+						<dt><%= parameter.Text %></dt>
+						<dd>
+							<% parameter.Render(Html, "index", i); %>
+						</dd>
+						<% i++; %>
+				<% } %>
+					</dl>
 			<% } %>
-				</dl>
+			
+			<% if (mode == "modal") { %>
+			<input type="button" value="Cancel" data-modal-id="<%= dataModalId %>"/>
+			<% } %>
 		<% } %>
-			<% if(cancel == "true") { %>
-				<input type="button" value="Cancel"/>
-			<% } %>
-				<input type="submit" value="<%= text %>"/>
+
+			<input type="submit" value="<%= text %>" <%= (!model.HasParameter && !model.ConfirmationRequired)?"class=\"operation-button\"":"" %>/>
+		<% if(model.HasParameter || model.ConfirmationRequired) { %>
 			</div>
 		</fieldset>
-	<% } else if(mode == "table"){ %>
-		<input type="submit" value="<%= model.Text %>"/>
-	<% } %>
+		<% } %>
 	</form>
+
+<% if(mode == "modal")  { %>
+	    </div>
+    </div>
+<% } %>

@@ -26,6 +26,7 @@ namespace Routine.Ui.Configuration
 				.OperationIsAvailable.Set(true)
 				.OperationIsRendered.Set(true)
 				.OperationTypes.Set(OperationTypes.Page)
+				.ConfirmationRequired.Set(true)
 
 				.MemberIsRendered.Set(true)
 				.MemberTypes.Set(MemberTypes.PageNameValue)

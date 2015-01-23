@@ -38,6 +38,7 @@ namespace Routine.Ui
 		bool IsAvailable(OperationViewModel operationViewModel);
 		bool IsRendered(OperationViewModel operationViewModel);
 		OperationTypes GetOperationTypes(OperationViewModel operationViewModel);
+		bool GetConfirmationRequired(OperationViewModel operationViewModel);
 
 		bool IsRendered(MemberViewModel memberViewModel);
 		MemberTypes GetMemberTypes(MemberViewModel memberViewModel);

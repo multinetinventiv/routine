@@ -274,8 +274,10 @@ namespace Routine.Test.Domain.Configuration
 
 						.OperationIsRendered.Set(false, o => o.MarkedAs("ParamOptions"))
 						.OperationIsRendered.Set(false, o => o.MarkedAs("Virtual"))
-						.OperationTypes.Set(OperationTypes.Page | OperationTypes.Table, o => !o.HasParameter)
 						.OperationTypes.Set(OperationTypes.Search, o => o.ReturnsList)
+						.OperationTypes.Set(OperationTypes.Page | OperationTypes.Table)
+						.ConfirmationRequired.Set(false, o => o.Id.StartsWith("Test"))
+						.ConfirmationRequired.Set(false, o => o.Id.StartsWith("Mark"))
 
 						.MemberIsRendered.Set(false, m => m.MarkedAs("Virtual"))
 						.MemberTypes.Set(MemberTypes.PageTable, m => m.IsList)
