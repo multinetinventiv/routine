@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Routine.Core
@@ -16,6 +17,7 @@ namespace Routine.Core
 		}
 
 		#region ToString & Equality
+
 		public override string ToString()
 		{
 			return string.Format("[InitializerModel: Marks={0}, GroupCount={1}, Parameters={2}]", Marks.ToItemString(), GroupCount, Parameters.ToItemString());
@@ -29,7 +31,7 @@ namespace Routine.Core
 				return true;
 			if (obj.GetType() != typeof(InitializerModel))
 				return false;
-			InitializerModel other = (InitializerModel)obj;
+			var other = (InitializerModel)obj;
 			return Marks.ItemEquals(other.Marks) && GroupCount == other.GroupCount && Parameters.ItemEquals(other.Parameters);
 		}
 

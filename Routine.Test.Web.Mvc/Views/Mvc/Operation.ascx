@@ -25,9 +25,9 @@
 			<% } %>
 				</dl>
 		<% } %>
-			<% if(cancel == "true") { %>
+		<% if(cancel == "true") { %>
 				<input type="button" value="Cancel"/>
-			<% } %>
+		<% } %>
 				<input type="submit" value="<%= text %>"/>
 			</div>
 		</fieldset>

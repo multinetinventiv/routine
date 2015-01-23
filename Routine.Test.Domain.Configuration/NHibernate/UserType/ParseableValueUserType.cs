@@ -1,5 +1,4 @@
 ﻿using NHibernate;
-using Routine;
 
 namespace Routine.Test.Domain.NHibernate.UserType
 {

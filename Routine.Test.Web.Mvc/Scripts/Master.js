@@ -22,10 +22,10 @@ $(function(){
 });
 
 function render(obj) {
-	$(obj).find("td.action a.reference-link").each(function() {$(this).jqxLinkButton()});
-	$(obj).find(".context-menu input[type=submit]").each(function() {$(this).jqxButton()});
-	$(obj).find(".operation-tabs input[type=submit]").each(function() {$(this).jqxButton({theme:"darkblue"})});
-	$(obj).find("input[type=button]").each(function() {$(this).jqxButton()});
+	$(obj).find("td.action a.reference-link").each(function() { $(this).jqxLinkButton(); });
+	$(obj).find(".context-menu input[type=submit]").each(function() { $(this).jqxButton(); });
+	$(obj).find(".operation-tabs input[type=submit]").each(function() { $(this).jqxButton({ theme: "darkblue" }); });
+	$(obj).find("input[type=button]").each(function() { $(this).jqxButton(); });
 	$(obj).find("form.operation-form input[type=button]").click(function() {
 		if($(this).attr('value') == "Cancel") {
 			$(this).closest("form")[0].reset();
@@ -158,13 +158,19 @@ function render(obj) {
 				.next(".context-menus:first")
 				.find(".context-menu-" + event.args.index + " ul li b a");
 
-			if(item.length > 0) { document.location = item.attr("href"); return;}
+			if (item.length > 0) {
+				document.location = item.attr("href");
+				return;
+			}
 
-			var item = $(this)
+			item = $(this)
 				.next(".context-menus:first")
 				.find(".context-menu-" + event.args.index + " ul li b input[type=button]");
 			
-			if(item.length > 0) {item.click(); return;}
+			if (item.length > 0) {
+				item.click(); 
+				return;
+			}
 		});
 	});
 	$(obj).find(".context-menu").each(function() { $(this).jqxMenu({mode:"vertical",width:"160px"}); });

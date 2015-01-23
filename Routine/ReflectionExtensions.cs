@@ -46,7 +46,8 @@ namespace Routine
 
 		#region internal Type
 
-		internal static string ToCSharpString(this Type source)
+		public static string ToCSharpString(this Type source) { return source.ToTypeInfo().ToCSharpString(); }
+		public static string ToCSharpString(this IType source)
 		{
 			if (!source.IsGenericType)
 			{
@@ -60,6 +61,7 @@ namespace Routine
 
 			return result.Replace("+", ".");
 		}
+
 
 		#endregion
 

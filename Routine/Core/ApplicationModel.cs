@@ -9,6 +9,7 @@ namespace Routine.Core
 		public ApplicationModel() { Models = new List<ObjectModel>(); }
 
 		#region ToString & Equality
+
 		public override string ToString()
 		{
 			return string.Format("[ApplicationModel: Models={0}]", Models.ToItemString());
@@ -22,7 +23,8 @@ namespace Routine.Core
 				return true;
 			if (obj.GetType() != typeof(ApplicationModel))
 				return false;
-			ApplicationModel other = (ApplicationModel)obj;
+
+			var other = (ApplicationModel)obj;
 			return Models.ItemEquals(other.Models);
 		}
 

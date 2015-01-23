@@ -17,17 +17,15 @@ namespace Routine
 			return source
 					.FromEmpty()
 
-					.TypeIsValue.Set(c => c.Constant(true).When(t => t.CanBe<string>() || t.CanParse()))
+					.TypeIsValue.Set(true, t => t.CanParse())
+
+					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanParse()))
+					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse()))
+
+					.Members.AddNoneWhen(t => t.CanParse())
+					.Operations.AddNoneWhen(t => t.CanParse())
 
 					.StaticInstances.Set(c => c.Constant(true, false).When(t => t.CanBe<bool>()))
-
-					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanBe<string>() || t.CanParse()))
-
-					.ObjectLocator.Set(c => c.Locator(l => l.By(o => string.Format("{0}", o))).When(t => t.CanBe<string>()))
-					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => t.Parse(id))).When(t => t.CanParse()))
-
-					.Members.AddNoneWhen(t => t.CanBe<string>() || t.CanParse())
-					.Operations.AddNoneWhen(t => t.CanBe<string>() || t.CanParse())
 					;
 		}
 
@@ -41,7 +39,7 @@ namespace Routine
 					.TypeIsValue.Set(c => c.Constant(true).When(t => t.IsEnum))
 					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
 					.IdExtractor.Set(c => c.Id(e => e.By(o => o.ToString())).When(t => t.IsEnum))
-					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => t.GetEnumValues()[t.GetEnumNames().IndexOf(id)]).AcceptNullResult(false)).When(t => t.IsEnum))
+					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.GetEnumValues()[t.GetEnumNames().IndexOf(id)]).AcceptNullResult(false)).When(t => t.IsEnum))
 					.Members.AddNoneWhen(t => t.IsEnum)
 					.Operations.AddNoneWhen(t => t.IsEnum)
 					;
@@ -53,7 +51,7 @@ namespace Routine
 					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
 					.IdExtractor.Set(c => c.Id(e => e.By(o => ((int)o).ToString(CultureInfo.InvariantCulture))).When(t => t.IsEnum))
 					.ValueExtractor.Set(c => c.Value(e => e.By(o => o.ToString())).When(t => t.IsEnum))
-					.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) =>
+					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) =>
 					{
 						var value = int.Parse(id);
 						var type = t as TypeInfo;
@@ -113,7 +111,7 @@ namespace Routine
 				.FromEmpty()
 				.Type.Set(c => c.By(o => ((VirtualObject)o).Type).When(o => o is VirtualObject))
 				.IdExtractor.Set(c => c.Id(e => e.By(o => (o as VirtualObject).Id)).When(t => t is VirtualType))
-				.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
+				.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
 				.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))).When(t => t is VirtualType))
 				.TypeMarks.Add(virtualMark, t => t is VirtualType)
 			;

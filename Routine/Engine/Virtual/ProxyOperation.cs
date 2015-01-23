@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Routine.Core.Configuration;
 
 namespace Routine.Engine.Virtual
 {
@@ -12,6 +13,8 @@ namespace Routine.Engine.Virtual
 		private readonly List<IParameter> parameters;
 		private readonly Func<object, object[], object> targetDelegate;
 
+		public SingleConfiguration<ProxyOperation, string> Name { get; private set; }
+
 		public ProxyOperation(IType parentType, IOperation real, params IParameter[] parameters) : this(parentType, real, (o, p) => o, parameters.AsEnumerable()) { }
 		public ProxyOperation(IType parentType, IOperation real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
 		public ProxyOperation(IType parentType, IOperation real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
@@ -20,6 +23,8 @@ namespace Routine.Engine.Virtual
 			if (real == null) { throw new ArgumentNullException("real"); }
 			if (targetDelegate == null) { throw new ArgumentNullException("targetDelegate"); }
 			if (parameters == null) { throw new ArgumentNullException("parameters"); }
+
+			Name = new SingleConfiguration<ProxyOperation, string>(this, "Name", true);
 
 			this.real = real;
 			this.parentType = parentType;
@@ -30,6 +35,8 @@ namespace Routine.Engine.Virtual
 			parameterOffset = this.parameters.Count;
 
 			this.parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, parameterOffset + i) as IParameter));
+
+			Name.Set(real.Name);
 		}
 
 		private object PerformOn(object target, object[] parameters)
@@ -40,7 +47,7 @@ namespace Routine.Engine.Virtual
 		#region ITypeComponent implementation
 
 		IType ITypeComponent.ParentType { get { return parentType; } }
-		string ITypeComponent.Name { get { return real.Name; } }
+		string ITypeComponent.Name { get { return Name.Get(); } }
 		object[] ITypeComponent.GetCustomAttributes() { return real.GetCustomAttributes(); }
 
 		#endregion

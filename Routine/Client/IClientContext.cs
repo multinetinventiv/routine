@@ -2,7 +2,7 @@
 
 namespace Routine.Client
 {
-    public interface IApiContext
+    public interface IClientContext
     {
         IObjectService ObjectService { get; }
 		Rapplication Application { get; }

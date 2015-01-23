@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Routine.Engine;
 using Routine.Engine.Locator;
@@ -12,10 +14,13 @@ namespace Routine.Test.Engine.Locator
 		[Test]
 		public void Uses_delegate_to_locate_an_object()
 		{
-			var testing = new DelegateBasedLocator((t, id) => "located: " + id);
+			var testing = new DelegateBasedLocator((t, ids) => ids.Select(id => "located: " + id).Cast<object>().ToList());
 			var testingInterface = (ILocator)testing;
 
-			Assert.AreEqual("located: test", testingInterface.Locate(type.of<string>(), "test"));
+			var actual = testingInterface.Locate(type.of<string>(), new List<string> { "test1", "test2" });
+
+			Assert.AreEqual("located: test1", actual[0]);
+			Assert.AreEqual("located: test2", actual[1]);
 		}
 
 		[Test]

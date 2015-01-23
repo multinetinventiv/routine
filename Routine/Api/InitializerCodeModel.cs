@@ -31,5 +31,27 @@ namespace Routine.Api
 		{
 			return Initializer.MarkedAs(mark);
 		}
+
+		#region Equality & Hashcode
+
+		protected bool Equals(InitializerCodeModel other)
+		{
+			return Equals(Initializer, other.Initializer);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((InitializerCodeModel)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Initializer != null ? Initializer.GetHashCode() : 0);
+		}
+
+		#endregion
 	}
 }

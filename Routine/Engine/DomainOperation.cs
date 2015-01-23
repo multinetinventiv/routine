@@ -50,7 +50,16 @@ namespace Routine.Engine
 
 		public void AddGroup(IOperation operation)
 		{
-			if (groups.Any() && !operation.ReturnType.Equals(groups.Last().Parametric.ReturnType)) { throw new ReturnTypesDoNotMatchException(operation, groups.Last().Parametric.ReturnType, operation.ReturnType); }
+			if (groups.Any() &&
+			    !operation.ReturnType.Equals(groups.Last().Parametric.ReturnType))
+			{
+				throw new ReturnTypesDoNotMatchException(operation, groups.Last().Parametric.ReturnType, operation.ReturnType);
+			}
+
+			if (groups.Any(g => g.ContainsSameParameters(operation)))
+			{
+				throw new IdenticalSignatureAlreadyAddedException(operation);
+			}
 
 			foreach (var parameter in operation.Parameters)
 			{
@@ -104,11 +113,5 @@ namespace Routine.Engine
 
 			return ctx.CreateValueData(resultValue, ResultIsList, ResultType, true);
 		}
-	}
-
-	public class ReturnTypesDoNotMatchException : Exception
-	{
-		public ReturnTypesDoNotMatchException(IReturnable returnable, IType expected, IType actual)
-			: base(string.Format("{0}.{1}: Expected return type is {2}, but given return type is {3}", returnable.ParentType.Name, returnable.Name, expected, actual)) { }
 	}
 }

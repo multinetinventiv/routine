@@ -10,7 +10,7 @@ namespace Routine.Test.Engine.Virtual
 	public class ProxyOperationTest : CoreTestBase
 	{
 		[Test]
-		public void Proxy_operations_inherit_is_public__name__parameters__return_type_and_custom_attributes_from_given_operation()
+		public void Proxy_operations_inherit_ispublic__name__parameters__return_type_and_custom_attributes_from_given_operation()
 		{
 			//[SecuritySafeCritical] string Insert(int startIndex, string value)
 			IOperation real = type.of<string>().GetMethod("Insert");
@@ -37,6 +37,16 @@ namespace Routine.Test.Engine.Virtual
 
 				Assert.AreEqual(realAttr, proxyAttr);
 			}
+		}
+
+		[Test]
+		public void Proxy_operation_name_can_be_altered()
+		{
+			//[SecuritySafeCritical] string Insert(int startIndex, string value)
+			IOperation real = type.of<string>().GetMethod("Insert");
+			IOperation proxy = new ProxyOperation(type.of<string>(), real).Name.Set("Overridden");
+
+			Assert.AreEqual("Overridden", proxy.Name);
 		}
 
 		[Test]

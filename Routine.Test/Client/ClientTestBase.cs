@@ -18,7 +18,7 @@ namespace Routine.Test.Client
 		private Dictionary<string, ObjectModel> objectModelDictionary;
 		private Dictionary<ObjectReferenceData, ObjectData> objectDictionary;
 
-		protected IApiContext ctx;
+		protected IClientContext ctx;
 		protected Rapplication testingRapplication;
 
 		protected virtual string DefaultObjectModelId { get { return "DefaultModel"; } }
@@ -30,10 +30,10 @@ namespace Routine.Test.Client
 			objectModelDictionary = new Dictionary<string, ObjectModel>();
 			objectDictionary = new Dictionary<ObjectReferenceData, ObjectData>();
 
-			var apiContext = new DefaultApiContext(objectServiceMock.Object, new Rapplication(objectServiceMock.Object));
+			var clientContext = new DefaultClientContext(objectServiceMock.Object, new Rapplication(objectServiceMock.Object));
 
-			ctx = apiContext;
-			testingRapplication = apiContext.Application;
+			ctx = clientContext;
+			testingRapplication = clientContext.Application;
 
 			objectServiceMock.Setup(o => o.GetApplicationModel())
 				.Returns(() => new ApplicationModel { Models = objectModelDictionary.Select(o => o.Value).ToList() });
@@ -153,20 +153,29 @@ namespace Routine.Test.Client
 
 			public ObjectModelBuilder StaticInstanceIds(params string[] ids)
 			{
+				foreach (var id in ids)
+				{
+					StaticInstanceId(id, result.Id);
+				}
+
+				return this;
+			}
+
+			public ObjectModelBuilder StaticInstanceId(string id, string actualModelId)
+			{
 				result
 					.StaticInstances
-					.AddRange(ids.Select(id =>
+					.Add(
 						new ObjectData
 						{
 							Reference = new ObjectReferenceData
 							{
 								Id = id,
-								ActualModelId = result.Id,
+								ActualModelId = actualModelId,
 								ViewModelId = result.Id
 							},
 						}
-					)
-				);
+					);
 
 				return this;
 			}
@@ -351,7 +360,7 @@ namespace Routine.Test.Client
 				this.objectReferenceData = objectReferenceData;
 			}
 
-			public ISetup<IObjectService, ValueData> Performs(string operationModelId) { return Performs(operationModelId, (p => true)); }
+			public ISetup<IObjectService, ValueData> Performs(string operationModelId) { return Performs(operationModelId, p => true); }
 			public ISetup<IObjectService, ValueData> Performs(string operationModelId, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher)
 			{
 				return test.objectServiceMock

@@ -22,7 +22,8 @@ namespace Routine.Core
 				return true;
 			if (obj.GetType() != typeof(ObjectReferenceData))
 				return false;
-			ObjectReferenceData other = (ObjectReferenceData)obj;
+
+			var other = (ObjectReferenceData)obj;
 			return (IsNull && other.IsNull) ||
 			       (!IsNull && !other.IsNull && ActualModelId == other.ActualModelId && ViewModelId == other.ViewModelId && Id == other.Id);
 		}

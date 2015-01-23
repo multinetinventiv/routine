@@ -48,9 +48,15 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Context\DefaultApiGenerationContext.cs" />
-    <Compile Include="Api\IApiGenerationContext.cs" />
+    <Compile Include="Api\Context\DefaultApiContext.cs" />
+    <Compile Include="Api\IApiContext.cs" />
     <Compile Include="Api\InitializerCodeModel.cs" />
+    <Compile Include="Api\TypeConversionTemplateBase.cs" />
+    <Compile Include="Api\Template\ClientApiTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ClientApiTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Include="Client\CannotCreateRobjectException.cs" />
     <Compile Include="Client\Rinitializer.cs" />
     <Compile Include="Client\Rparametric.cs" />
@@ -79,6 +85,10 @@
     <Compile Include="Engine\DomainParameterGroup.cs" />
     <Compile Include="Engine\Extractor\DelegateBasedExtractor.cs" />
     <Compile Include="Engine\Extractor\ExtractorBase.cs" />
+    <Compile Include="Engine\IdenticalSignatureAlreadyAddedException.cs" />
+    <Compile Include="Engine\InitializedTypeDoNotMatchException.cs" />
+    <Compile Include="Engine\ParameterTypesDoNotMatchException.cs" />
+    <Compile Include="Engine\ReturnTypesDoNotMatchException.cs" />
     <Compile Include="Engine\Virtual\ProxyParameter.cs" />
     <Compile Include="Engine\Virtual\VirtualObject.cs" />
     <Compile Include="Engine\Virtual\ProxyOperation.cs" />
@@ -114,25 +124,20 @@
     <Compile Include="FuncExtensions.cs" />
     <Compile Include="InterceptionPatterns.cs" />
     <Compile Include="Interception\Configuration\InterceptionConfigurationBuilder.cs" />
-    <Compile Include="Client\Context\DefaultApiContext.cs" />
-    <Compile Include="Api\Configuration\ApiGenerationConfigurationBuilder.cs" />
-    <Compile Include="Api\Configuration\ConventionalApiGenerationConfiguration.cs" />
+    <Compile Include="Client\Context\DefaultClientContext.cs" />
+    <Compile Include="Api\Configuration\ApiConfigurationBuilder.cs" />
+    <Compile Include="Api\Configuration\ConventionalApiConfiguration.cs" />
     <Compile Include="Api\ApplicationCodeModel.cs" />
     <Compile Include="Api\ParameterCodeModel.cs" />
     <Compile Include="Api\OperationCodeModel.cs" />
     <Compile Include="Api\MemberCodeModel.cs" />
-    <Compile Include="Api\ObjectCodeModel.cs" />
-    <Compile Include="Api\IApiGenerationConfiguration.cs" />
+    <Compile Include="Api\TypeCodeModel.cs" />
+    <Compile Include="Api\IApiConfiguration.cs" />
     <Compile Include="Api\IApiTemplate.cs" />
-    <Compile Include="Api\Template\T4\ClientApi.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ClientApi.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Api\Template\T4\ClientApi_Partial.cs" />
-    <Compile Include="Client\IApiContext.cs" />
+    <Compile Include="Api\Template\ClientApiTemplate.Partial.cs" />
+    <Compile Include="Client\IClientContext.cs" />
     <Compile Include="ContextBuilder.cs" />
-    <Compile Include="ApiGenerationPatterns.cs" />
+    <Compile Include="ApiPatterns.cs" />
     <Compile Include="Interception\Configuration\ConventionalInterceptionConfiguration.cs" />
     <Compile Include="Interception\IInterceptionConfiguration.cs" />
     <Compile Include="Interception\InterceptedObjectService.cs" />
@@ -258,9 +263,9 @@
     <EmbeddedResource Include="Soa\View\SoaTestPage.html" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Api\Template\T4\ClientApi.tt">
+    <None Include="Api\Template\ClientApiTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ClientApi.cs</LastGenOutput>
+      <LastGenOutput>ClientApiTemplate.cs</LastGenOutput>
     </None>
     <None Include="Engine\Configuration\OperationBuilder.Parameters.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

@@ -8,8 +8,7 @@ namespace Routine.Client
 	{
 		#region Data Adapter Methods
 
-		private static ObjectReferenceData Ord(string id, string amid, string vmid) { return new ObjectReferenceData { Id = id, ActualModelId = amid, ViewModelId = vmid }; }
-
+		private static ObjectReferenceData Ord(string id, string amid, string vmid, bool isNull) { return new ObjectReferenceData { Id = id, ActualModelId = amid, ViewModelId = vmid, IsNull = isNull }; }
 		private static ObjectData Od(ObjectReferenceData ord) { return Od(ord, null); }
 		private static ObjectData Od(ObjectReferenceData ord, string value) { return new ObjectData { Reference = ord, Value = value }; }
 
@@ -26,9 +25,9 @@ namespace Routine.Client
 		public Rtype Type { get { return ViewType ?? ActualType; } }
 
 		public Robject() : this(new ObjectReferenceData { IsNull = true }, null, null) { }
-		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Ord(null, type.Id, type.Id)), type, type) { }
+		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Ord(null, type.Id, type.Id, false)), type, type) { }
 		public Robject(string id, Rtype type) : this(id, type, type) { }
-		public Robject(string id, Rtype actualType, Rtype viewType) : this(Ord(id, actualType.Id, viewType.Id), actualType, viewType) { }
+		public Robject(string id, Rtype actualType, Rtype viewType) : this(Ord(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
 		internal Robject(ObjectReferenceData objectReferenceData, Rtype actualType, Rtype viewType) : this(Od(objectReferenceData), actualType, viewType) { }
 		internal Robject(ObjectReferenceData objectReferenceData, Rtype actualType, Rtype viewType, string value) : this(Od(objectReferenceData, value), actualType, viewType) { }
 		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(new List<Rvariable>(), objectData, actualType, viewType) { }

@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.Remoting;
+using Moq;
 using NUnit.Framework;
+using Routine.Engine;
 using Routine.Engine.Virtual;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel;
 using Routine.Test.Engine.Ignored;
@@ -524,7 +527,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Bug_list_parameter_types_makes_invalid_check_for_overloads()
+		public void Bug__List_parameter_types_makes_invalid_check_for_overloads()
 		{
 			testing.GetApplicationModel();
 
@@ -532,6 +535,51 @@ namespace Routine.Test.Engine
 			var actual = om.Operations.Single(o => o.Id == "OverloadOpBug");
 
 			Assert.AreEqual(2, actual.GroupCount);
+		}
+
+		[Test]
+		public void When_two_identical_operations_added_as_a_group__second_one_is_automatically_skipped()
+		{
+			codingStyle
+				.Operations.Add(c => c.Build(o => o.Virtual("VoidOp", () => { })).When(type.of<BusinessModel>()))
+				.Operations.Add(c => c.Build(o => o.Virtual("StringOp", (List<string> list) => "dummy")).When(type.of<BusinessModel>()))
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.AreEqual(1, om.Operations.Single(o => o.Id == "VoidOp").GroupCount);
+			Assert.AreEqual(1, om.Operations.Single(o => o.Id == "StringOp").GroupCount);
+		}
+
+		[Test]
+		public void When_two_identical_initializer_added_as_a_group__second_one_is_automatically_skipped()
+		{
+			var parameterMock = new Mock<IParameter>();
+			parameterMock.Setup(obj => obj.Index).Returns(0);
+			parameterMock.Setup(obj => obj.ParameterType).Returns(type.of<string>());
+			parameterMock.Setup(obj => obj.Name).Returns("data");
+			parameterMock.Setup(obj => obj.ParentType).Returns(type.of<ObjectServiceTest_GetObjectModel>());
+			parameterMock.Setup(obj => obj.GetCustomAttributes()).Returns(new object[0]);
+
+			var initializerMock = new Mock<IInitializer>();
+			initializerMock.Setup(obj => obj.IsPublic).Returns(true);
+			initializerMock.Setup(obj => obj.Name).Returns("mock_ctor");
+			initializerMock.Setup(obj => obj.GetCustomAttributes()).Returns(new object[0]);
+			initializerMock.Setup(obj => obj.ParentType).Returns(type.of<ObjectServiceTest_GetObjectModel>());
+			initializerMock.Setup(obj => obj.InitializedType).Returns(type.of<BusinessDataModel>());
+			initializerMock.Setup(obj => obj.Parameters).Returns(new List<IParameter> { parameterMock.Object });
+
+			parameterMock.Setup(obj => obj.Owner).Returns(initializerMock.Object);
+
+			codingStyle.Initializers.Add(c => c.Constant(initializerMock.Object).When(type.of<BusinessDataModel>()));
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_DM_ID);
+
+			Assert.AreEqual(2, om.Initializer.GroupCount);
 		}
 
 		[Test]
@@ -615,6 +663,25 @@ namespace Routine.Test.Engine
 
 			Assert.IsTrue(om.Operations.Any(o => o.Id == "Insert"));
 			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "Insert").Parameters.Any(p => p.Id == "str" && p.ViewModelId == "s-string"));
+		}
+
+		[Test]
+		public void Proxy_operation_names_can_be_altered()
+		{
+			codingStyle
+				.Operations.Add(c => c.Build(ob => ob.Proxy<string>("Insert")
+													 .Name.Set(nc => nc.By(o => "Overridden" + o.Name))
+													 .TargetByParameter("str"))
+									  .When(type.of<BusinessModel>())
+				)
+			;
+
+			testing.GetApplicationModel();
+
+			var om = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsTrue(om.Operations.Any(o => o.Id == "OverriddenInsert"));
+			Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Id == "OverriddenInsert").Parameters.Any(p => p.Id == "str" && p.ViewModelId == "s-string"));
 		}
 
 		[Test]

@@ -43,14 +43,14 @@ namespace Routine
 			return new PatternBuilder<ConventionalInterceptionConfiguration>();
 		}
 
-		public static ApiGenerationConfigurationBuilder ApiGenerationConfig()
+		public static ApiConfigurationBuilder ApiConfig()
 		{
-			return new ApiGenerationConfigurationBuilder();
+			return new ApiConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalApiGenerationConfiguration> ApiGenerationPattern()
+		internal static PatternBuilder<ConventionalApiConfiguration> ApiGenerationPattern()
 		{
-			return new PatternBuilder<ConventionalApiGenerationConfiguration>();
+			return new PatternBuilder<ConventionalApiConfiguration>();
 		}
 
 		public static MvcConfigurationBuilder MvcConfig()
@@ -397,7 +397,7 @@ namespace Routine
 			return source.Merge(pattern(BuildRoutine.SoaPattern()));
 		}
 
-		public static ConventionalApiGenerationConfiguration Use(this ConventionalApiGenerationConfiguration source, Func<PatternBuilder<ConventionalApiGenerationConfiguration>, ConventionalApiGenerationConfiguration> pattern)
+		public static ConventionalApiConfiguration Use(this ConventionalApiConfiguration source, Func<PatternBuilder<ConventionalApiConfiguration>, ConventionalApiConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
 		}

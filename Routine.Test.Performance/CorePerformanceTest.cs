@@ -129,7 +129,7 @@ namespace Routine.Test.Performance
 						.MemberFetchedEagerly.Set(true)
 						.Operations.Add(c => c.Operations(o => !o.IsInherited(true, true)).When(t => t.IsDomainType))
 						.IdExtractor.Set(c => c.IdByMember(m => m.Returns<int>("Id")))
-						.ObjectLocator.Set(c => c.Locator(l => l.By(id => objectRepository[id])))
+						.ObjectLocator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
 						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
 				);
 
@@ -560,8 +560,8 @@ namespace Routine.Test.Performance
 					}, load);
 			#endregion
 
-			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is below expected");
-			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is below expected");
+			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
+			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
 		}
 
 		[TestCase(1000)]
@@ -569,8 +569,8 @@ namespace Routine.Test.Performance
 		[TestCase(100000)]
 		public void PerformOperation_LightParameter_HeavyLoad(int load)
 		{
-			const double max_engine_overhead_ratio = 6.6;
-			const double max_client_overhead_ratio = 1.7;
+			const double max_engine_overhead_ratio = 7.2;
+			const double max_client_overhead_ratio = 2;
 
 			#region setup
 			Console.WriteLine("Load -> " + load);
@@ -854,8 +854,8 @@ namespace Routine.Test.Performance
 
 			#endregion
 
-			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is below expected");
-			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is below expected");
+			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
+			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
 		}
 
 		[TestCase(10, 10)]
@@ -1136,8 +1136,8 @@ namespace Routine.Test.Performance
 
 			#endregion
 
-			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is below expected");
-			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is below expected");
+			Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
+			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
 		}
 	}
 }

@@ -99,12 +99,13 @@ namespace Routine.Client
 		private Robject Get<T>(T value, Func<T, string> idExtractor, string modelId)
 		{
 			object boxedValue = value;
-			if (boxedValue == null)
+			string id = null;
+			if (boxedValue != null)
 			{
-				return new Robject();
+				id = idExtractor(value);
 			}
 
-			return Get(idExtractor(value), modelId);
+			return Get(id, modelId);
 		}
 
 		public Robject Get(string id, string modelId) { return Get(id, modelId, modelId); }

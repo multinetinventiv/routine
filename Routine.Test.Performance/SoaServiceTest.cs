@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -13,7 +12,7 @@ namespace Routine.Test.Performance
 	[TestFixture]
 	public class SoaServiceTest
 	{
-		private IApiContext soaClientContext;
+		private IClientContext soaClientContext;
 		private Rapplication rapp;
 
 		[SetUp]

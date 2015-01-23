@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CSharp;
 
@@ -9,19 +10,19 @@ namespace Routine.Api
 {
 	public class ApiGenerator
 	{
-		private readonly ApplicationCodeModel applicationCodeModel;
-		private readonly IApiGenerationConfiguration applicationConfiguration;
 		private readonly List<Assembly> references;
 
-		public ApiGenerator(IApiGenerationContext context)
+		public IApiContext Context { get; private set; }
+
+		public ApiGenerator(IApiContext context)
 		{
-			applicationCodeModel = context.Application;
-			applicationConfiguration = context.Configuration;
+			Context = context;
 
 			references = new List<Assembly>();
 
 			AddSystemReference();
 		}
+
 
 		private void AddSystemReference() { AddReference<int>(); }
 		public ApiGenerator AddReference<T>() { return AddReference(typeof(T).Assembly); }
@@ -39,17 +40,24 @@ namespace Routine.Api
 
 		public Assembly Generate(IApiTemplate template)
 		{
-			if (string.IsNullOrEmpty(applicationConfiguration.GetDefaultNamespace()))
-			{
-				throw new InvalidOperationException("DefaultNamespace property cannot be null or empty!");
-			}
+			var defaultNamespace = Context.Configuration.GetDefaultNamespace();
 
 			var provider = new CSharpCodeProvider();
-			CompilerParameters compilerparams = CreateCompilerParameters();
+			var compilerparams = CreateCompilerParameters(defaultNamespace);
 
-			string sourceCode = template.Render(applicationCodeModel);
+			var sourceCode = new StringBuilder();
 
-			var results = provider.CompileAssemblyFromSource(compilerparams, sourceCode);
+			sourceCode.AppendLine("using System.Linq;");
+
+			sourceCode.AppendLine("[assembly: " + typeof(AssemblyVersionAttribute).FullName + "(\"" + Context.Configuration.GetVersion(Context.Application) + "\")]");
+			foreach (var assemblyName in Context.Configuration.GetFriendlyAssemblyNames())
+			{
+				sourceCode.AppendLine("[assembly: " + typeof(InternalsVisibleToAttribute).FullName + "(\"" + assemblyName + "\")]");
+			}
+
+			sourceCode.AppendLine(template.Render(Context.Application));
+
+			var results = provider.CompileAssemblyFromSource(compilerparams, sourceCode.ToString());
 			if (results.Errors.HasErrors)
 			{
 				var errors = new StringBuilder("Compiler Errors :\n");
@@ -58,25 +66,32 @@ namespace Routine.Api
 					errors.AppendFormat("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
 				}
 
-				throw new Exception(string.Format("{0}\n\n Generated source code: \n\n{1}", errors, sourceCode));
+				throw new ApiGenerationException(string.Format("{0}\n\n Generated source code: \n\n{1}", errors, sourceCode));
 			}
+
 			Console.WriteLine(sourceCode);
 
 			return results.CompiledAssembly;
 		}
 
-		private CompilerParameters CreateCompilerParameters()
+		private CompilerParameters CreateCompilerParameters(string defaultNamespace)
 		{
 			var result = new CompilerParameters();
 			result.GenerateExecutable = false;
 
-			if (applicationConfiguration.GetInMemory())
+			if (Context.Configuration.GetInMemory())
 			{
 				result.GenerateInMemory = true;
 			}
 			else
 			{
-				result.OutputAssembly = applicationConfiguration.GetDefaultNamespace() + ".dll";
+				var outputFileName = Context.Configuration.GetOutputFileName();
+				if (string.IsNullOrEmpty(outputFileName))
+				{
+					outputFileName = defaultNamespace;
+				}
+
+				result.OutputAssembly = outputFileName + ".dll";
 			}
 
 			foreach (var reference in references)
@@ -89,5 +104,11 @@ namespace Routine.Api
 
 			return result;
 		}
+	}
+
+	public class ApiGenerationException : Exception
+	{
+		public ApiGenerationException(string message)
+			: base(message) { }
 	}
 }

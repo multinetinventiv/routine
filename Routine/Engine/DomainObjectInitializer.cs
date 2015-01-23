@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
 
@@ -29,7 +28,16 @@ namespace Routine.Engine
 
 		public void AddGroup(IInitializer initializer)
 		{
-			if (groups.Any() && !initializer.InitializedType.Equals(groups.Last().Parametric.InitializedType)) { throw new InitializedTypeDoNotMatchException(initializer, groups.Last().Parametric.InitializedType, initializer.InitializedType); }
+			if (groups.Any() &&
+			    !initializer.InitializedType.Equals(groups.Last().Parametric.InitializedType))
+			{
+				throw new InitializedTypeDoNotMatchException(initializer, groups.Last().Parametric.InitializedType, initializer.InitializedType);
+			}
+
+			if (groups.Any(g => g.ContainsSameParameters(initializer)))
+			{
+				throw new IdenticalSignatureAlreadyAddedException(initializer);
+			}
 
 			foreach (var parameter in initializer.Parameters)
 			{
@@ -65,11 +73,5 @@ namespace Routine.Engine
 				Parameters = Parameters.Select(p => p.GetModel()).ToList()
 			};
 		}
-	}
-
-	public class InitializedTypeDoNotMatchException : Exception
-	{
-		public InitializedTypeDoNotMatchException(IInitializer initializer, IType expected, IType actual)
-			: base(string.Format("{0}.{1}: Expected initialized type is {2}, but given initialized type is {3}", initializer.ParentType.Name, initializer.Name, expected, actual)) { }
 	}
 }

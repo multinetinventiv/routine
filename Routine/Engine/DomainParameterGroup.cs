@@ -15,5 +15,11 @@ namespace Routine.Engine
 			Parameters = parameters.OrderBy(p => parametric.Parameters.Single(p2 => p2.Name == p.Id).Index).ToList();
 			GroupIndex = groupIndex;
 		}
+
+		public bool ContainsSameParameters(T parametric)
+		{
+			return Parametric.Parameters.Count == parametric.Parameters.Count &&
+			       Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
+		}
 	}
 }

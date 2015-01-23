@@ -17,34 +17,34 @@ namespace Routine
 {
 	public class ContextBuilder
 	{
-		public IApiGenerationContext AsApiGenerationLocal(IApiGenerationConfiguration apiGenerationConfiguration, ICodingStyle codingStyle)
+		public IApiContext AsApiGenerationLocal(IApiConfiguration apiConfiguration, ICodingStyle codingStyle)
 		{
-			return ApiGenerationContext(apiGenerationConfiguration, ApiContext(ObjectService(codingStyle)));
+			return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
 		}
 
-		public IApiGenerationContext AsApiGenerationRemote(IApiGenerationConfiguration apiGenerationConfiguration, ISoaClientConfiguration soaClientConfiguration)
+		public IApiContext AsApiGenerationRemote(IApiConfiguration apiConfiguration, ISoaClientConfiguration soaClientConfiguration)
 		{
-			return ApiGenerationContext(apiGenerationConfiguration, ApiContext(ObjectServiceClient(soaClientConfiguration)));
+			return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(soaClientConfiguration)));
 		}
 
 		public IMvcContext AsMvcApplication(IMvcConfiguration mvcConfiguration, ICodingStyle codingStyle)
 		{
-			return MvcContext(mvcConfiguration, ApiContext(ObjectService(codingStyle)));
+			return MvcContext(mvcConfiguration, ClientContext(ObjectService(codingStyle)));
 		}
 
 		public IMvcContext AsMvcSoaClient(IMvcConfiguration mvcConfiguration, ISoaClientConfiguration soaClientConfiguration)
 		{
-			return MvcContext(mvcConfiguration, ApiContext(ObjectServiceClient(soaClientConfiguration)));
+			return MvcContext(mvcConfiguration, ClientContext(ObjectServiceClient(soaClientConfiguration)));
 		}
 
-		public IApiContext AsSoaClient(ISoaClientConfiguration soaClientConfiguration)
+		public IClientContext AsSoaClient(ISoaClientConfiguration soaClientConfiguration)
 		{
-			return ApiContext(ObjectServiceClient(soaClientConfiguration));
+			return ClientContext(ObjectServiceClient(soaClientConfiguration));
 		}
 
-		public IApiContext AsClientApplication(ICodingStyle codingStyle)
+		public IClientContext AsClientApplication(ICodingStyle codingStyle)
 		{
-			return ApiContext(ObjectService(codingStyle));
+			return ClientContext(ObjectService(codingStyle));
 		}
 
 		public ISoaContext AsSoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
@@ -52,19 +52,19 @@ namespace Routine
 			return SoaContext(soaConfiguration, codingStyle);
 		}
 
-		private IApiGenerationContext ApiGenerationContext(IApiGenerationConfiguration apiGenerationConfiguration, IApiContext apiContext)
+		private IApiContext ApiContext(IApiConfiguration apiConfiguration, IClientContext clientContext)
 		{
-			return new DefaultApiGenerationContext(apiGenerationConfiguration, new ApplicationCodeModel(apiContext.Application, apiGenerationConfiguration));
+			return new DefaultApiContext(apiConfiguration, new ApplicationCodeModel(clientContext.Application, apiConfiguration));
 		}
 
-		private IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IApiContext apiContext)
+		private IMvcContext MvcContext(IMvcConfiguration mvcConfiguration, IClientContext clientContext)
 		{
-			return new DefaultMvcContext(mvcConfiguration, new ApplicationViewModel(apiContext.Application, mvcConfiguration));
+			return new DefaultMvcContext(mvcConfiguration, new ApplicationViewModel(clientContext.Application, mvcConfiguration));
 		}
 
-		private IApiContext ApiContext(IObjectService objectService)
+		private IClientContext ClientContext(IObjectService objectService)
 		{
-			return new DefaultApiContext(objectService, new Rapplication(objectService));
+			return new DefaultClientContext(objectService, new Rapplication(objectService));
 		}
 
 		private ISoaContext SoaContext(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)

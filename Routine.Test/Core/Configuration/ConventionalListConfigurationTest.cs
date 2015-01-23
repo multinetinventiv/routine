@@ -99,7 +99,7 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void Can_override_empty_result_even_if_there_exist_other_applicable_conventions()
+		public void Can_override_empty_result_even_if_there_exists_other_applicable_conventions()
 		{
 			testing.Add("result1");
 			testing.Add("result2");
@@ -112,6 +112,12 @@ namespace Routine.Test.Core.Configuration
 			var actual = testing.Get(type.of<string>());
 
 			Assert.AreEqual(0, actual.Count);
+		}
+
+		[Test][Ignore]
+		public void Can_override_certain_list_even_if_there_exists_other_applicable_conventions()
+		{
+			Assert.Fail();
 		}
 
 		[Test]

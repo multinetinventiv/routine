@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -18,6 +19,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 		IBusinessOperation GetResult();
 		void DoParameterizedOperation(string str, IBusinessOperation obj);
 		void DoOperationWithList(List<string> list);
+		void DoOperationWithIntList(List<int> list);
 		void DoOperationWithArray(string[] array);
 		void DoOperationWithParamsArray(params string[] paramsArray);
 		List<string> GetListResult();
@@ -33,6 +35,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 		void OverloadArray(int[] i, string s);
 
 		void DataInput(BusinessMasterInputData input);
+		void InitLocateInput(List<BusinessInitializableLocatable> input);
 	}
 
 	public class BusinessOperation : IBusinessOperation
@@ -47,6 +50,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 		IBusinessOperation IBusinessOperation.GetResult() { return mock.GetResult(); }
 		void IBusinessOperation.DoParameterizedOperation(string str, IBusinessOperation obj) { mock.DoParameterizedOperation(str, obj); }
 		void IBusinessOperation.DoOperationWithList(List<string> list) { mock.DoOperationWithList(list); }
+		void IBusinessOperation.DoOperationWithIntList(List<int> list) { mock.DoOperationWithIntList(list); }
 		void IBusinessOperation.DoOperationWithArray(string[] array) { mock.DoOperationWithArray(array); }
 		void IBusinessOperation.DoOperationWithParamsArray(params string[] paramsArray) { mock.DoOperationWithParamsArray(paramsArray); }
 		List<string> IBusinessOperation.GetListResult() { return mock.GetListResult(); }
@@ -61,6 +65,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 		void IBusinessOperation.DataInput(BusinessMasterInputData input) { mock.DataInput(input); }
 		void IBusinessOperation.OverloadArray(string s) { mock.OverloadArray(s); }
 		void IBusinessOperation.OverloadArray(int[] i, string s) { mock.OverloadArray(i, s); }
+
+		void IBusinessOperation.InitLocateInput(List<BusinessInitializableLocatable> input) { mock.InitLocateInput(input); }
 	}
 
 	public struct BusinessInputData
@@ -78,10 +84,30 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 	{
 		public List<BusinessInputData> Datas { get; private set; }
 
-		public BusinessMasterInputData(List<BusinessInputData> datas)
+		public BusinessMasterInputData(List<BusinessInputData> datas) 
 			: this()
 		{
 			Datas = datas;
+		}
+	}
+
+	public class BusinessInitializableLocatable
+	{
+		public string Value { get; private set; }
+
+		public static BusinessInitializableLocatable Get(string value)
+		{
+			return new BusinessInitializableLocatable(value);
+		}
+
+		private BusinessInitializableLocatable(string value)
+		{
+			Value = value;
+		}
+
+		public BusinessInitializableLocatable(int value)
+		{
+			Value = value.ToString(CultureInfo.InvariantCulture);
 		}
 	}
 }
@@ -100,6 +126,7 @@ namespace Routine.Test.Engine
 		private const string DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInputData";
 		private const string MASTER_DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessMasterInputData";
 		private const string VIRTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.VirtualOperation";
+		private const string INIT_LOCATE_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInitializableLocatable";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
 		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation"; } }
@@ -115,6 +142,8 @@ namespace Routine.Test.Engine
 			codingStyle
 				.TypeId.Set(c => c.By(t => t.FullName).When(t => t.IsDomainType))
 				.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
+				.ObjectLocator.SetDefault(type.of<BusinessInputData>())
+				.ObjectLocator.SetDefault(type.of<BusinessMasterInputData>())
 				;
 
 			businessMock = new Mock<IBusinessOperation>();
@@ -379,10 +408,60 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		[Ignore]
-		public void Optional_parameter_support()
+		public void When_all_arguments_are_of_the_same_domain_type__list_parameters_are_located_at_once()
 		{
-			Assert.Fail("not implemented");
+			codingStyle
+				.ObjectLocator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => int.Parse(id) + 100))).When(type.of<int>()))
+			;
+
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "DoOperationWithIntList",
+				Params(
+					Param("list", Id("1", "s-int-32"), Id("2", "s-int-32"))
+				));
+
+			businessMock.Verify(o => o.DoOperationWithIntList(new List<int> { 101, 102 }));
+		}
+
+		[Test]
+		public void When_multiple_locating__null_and_initialized_arguments_are_not_sent_to_locator_but_their_index_are_kept()
+		{
+			codingStyle
+				.Initializers.Add(c => c.PublicInitializers().When(type.of<BusinessInitializableLocatable>()))
+				.ObjectLocator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => BusinessInitializableLocatable.Get(id + " test")))).When(type.of<BusinessInitializableLocatable>()))
+			;
+
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "InitLocateInput",
+				Params(
+					Param("input",
+						PD(Id("1", INIT_LOCATE_OMID)),
+						Init(INIT_LOCATE_OMID,
+							Params(
+								Param("value", Id("2", "s-int-32"))
+							)
+						),
+						PD(Id("3", INIT_LOCATE_OMID)),
+						PD(IdNull()),
+						PD(Id("5", INIT_LOCATE_OMID))
+					)
+				)
+			);
+
+			businessMock.Verify(o => o
+				.InitLocateInput(
+					It.Is<List<BusinessInitializableLocatable>>(list =>
+						list[0].Value == "1 test" && 
+						list[1].Value == "2" && 
+						list[2].Value == "3 test" && 
+						list[3] == null && 
+						list[4].Value == "5 test"
+					)
+				),
+				Times.Once()
+			);
 		}
 
 		[Test]

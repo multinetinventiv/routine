@@ -188,7 +188,7 @@ namespace Routine.Test.Domain.Configuration
 						.Use(p => p.FromEmpty()
 							.IdExtractor.Set(c => c.Id(e => e.By(o => container.Resolve<ISession>().GetIdentifier(o).ToString()))
 												   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
-							.ObjectLocator.Set(c => c.Locator(l => l.By((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
+							.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
 													 .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
 							)
 						;

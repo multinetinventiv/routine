@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Routine.Core
@@ -32,7 +33,7 @@ namespace Routine.Core
 				return true;
 			if (obj.GetType() != typeof(ParameterModel))
 				return false;
-			ParameterModel other = (ParameterModel)obj;
+			var other = (ParameterModel)obj;
 			return Id == other.Id && Marks.ItemEquals(other.Marks) && Groups.ItemEquals(other.Groups) && ViewModelId == other.ViewModelId && IsList == other.IsList;
 		}
 

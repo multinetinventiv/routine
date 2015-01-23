@@ -38,27 +38,23 @@ namespace Routine.Core.Configuration
 		public TConfiguration Add(TResultItem result) { return Add(new List<TResultItem> { result }); }
 		public TConfiguration Add(IEnumerable<TResultItem> result)
 		{
-			//TODO -> specific
 			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()));
 		}
 
 		public TConfiguration Add(TResultItem result, TFrom obj) { return Add(new List<TResultItem> { result }, obj); }
 		public TConfiguration Add(IEnumerable<TResultItem> result, TFrom obj)
 		{
-			//TODO -> specific
 			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()).When(obj));
 		}
 
 		public TConfiguration Add(TResultItem result, Func<TFrom, bool> whenDelegate) { return Add(new List<TResultItem> { result }, whenDelegate); }
 		public TConfiguration Add(IEnumerable<TResultItem> result, Func<TFrom, bool> whenDelegate)
 		{
-			//TODO -> specific
 			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()).When(whenDelegate));
 		}
 
 		public TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention)
 		{
-			//TODO -> default
 			conventions.Add(convention);
 
 			return configuration;

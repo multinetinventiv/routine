@@ -38,7 +38,18 @@ namespace Routine.Engine.Configuration
 					.StaticInstances.Set(c => c.Constant(null).When(t => t == null))
 
 					.TypeId.Set(c => c.By(t => Constants.VOID_MODEL_ID).When(t => t.IsVoid))
-					.TypeIsValue.Set(true, t => t.IsVoid))
+					.TypeIsValue.Set(true, t => t.IsVoid)
+				)
+					
+				.Override(cfg => cfg
+					.TypeIsValue.Set(true, t => t.CanBe<string>())
+				
+					.IdExtractor.Set(c => c.Id(e => e.By(o => o as string)).When(type.of<string>()))
+					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy(o => o)).When(type.of<string>()))
+
+					.Members.AddNoneWhen(type.of<string>())
+					.Operations.AddNoneWhen(type.of<string>())
+				)
 
 				.NextLayer()
 			;

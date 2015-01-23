@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Routine.Core
@@ -27,7 +28,7 @@ namespace Routine.Core
 				return true;
 			if (obj.GetType() != typeof(MemberModel))
 				return false;
-			MemberModel other = (MemberModel)obj;
+			var other = (MemberModel)obj;
 			return Id == other.Id && Marks.ItemEquals(other.Marks) && ViewModelId == other.ViewModelId && IsList == other.IsList;
 		}
 

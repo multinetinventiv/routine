@@ -33,6 +33,9 @@ namespace Routine.Core.Configuration
 		public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { this.exceptionDelegate = exceptionDelegate; return configuration; }
 
 		public TConfiguration SetDefault() { return Set(default(TResult)); }
+		public TConfiguration SetDefault(TFrom obj) { return Set(default(TResult), obj); }
+		public TConfiguration SetDefault(Func<TFrom, bool> whenDelegate) { return Set(default(TResult), whenDelegate); }
+
 		public TConfiguration Set(TResult result)
 		{
 			return Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result));

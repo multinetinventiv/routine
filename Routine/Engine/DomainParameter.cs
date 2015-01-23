@@ -45,8 +45,15 @@ namespace Routine.Engine
 
 		public void AddGroup(IParameter parameter, int groupIndex)
 		{
-			if (Groups.Contains(groupIndex)) { throw new InvalidOperationException(string.Format("{0}.{1}(...,{2},...): Given groupIndex ({3}) was already added!", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, groupIndex)); }
-			if (!this.parameter.ParameterType.Equals(parameter.ParameterType)) { throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType); }
+			if (Groups.Contains(groupIndex))
+			{
+				throw new InvalidOperationException(string.Format("{0}.{1}(...,{2},...): Given groupIndex ({3}) was already added!", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, groupIndex));
+			}
+
+			if (!this.parameter.ParameterType.Equals(parameter.ParameterType))
+			{
+				throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType);
+			}
 
 			Groups.Add(groupIndex);
 
@@ -72,52 +79,81 @@ namespace Routine.Engine
 
 		internal object Locate(ParameterValueData parameterValueData)
 		{
-			if (IsList)
+			if (!IsList)
 			{
-				var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
+				return GetObject(parameterValueData);
+			}
+
+			var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
+
+			var objects = GetObjects(parameterValueData);
+
+			for (int i = 0; i < objects.Count; i++)
+			{
 				if (parameter.ParameterType.IsArray)
 				{
-					int i = 0;
-					foreach (var parameterData in parameterValueData.Values)
-					{
-						result[i] = GetObject(parameterData);
-
-						i++;
-					}
+					result[i] = objects[i];
 				}
 				else
 				{
-					foreach (var parameterData in parameterValueData.Values)
-					{
-						result.Add(GetObject(parameterData));
-					}
+					result.Add(objects[i]);
 				}
-				return result;
 			}
 
-			if (parameterValueData.Values.Any())
-			{
-				return GetObject(parameterValueData.Values[0]);
-			}
-
-			return null;
+			return result;
 		}
 
-		private object GetObject(ParameterData parameterData)
+		private object GetObject(ParameterValueData parameterValueData)
+		{
+			if (!parameterValueData.Values.Any())
+			{
+				return null;
+			}
+
+			var parameterData = parameterValueData.Values[0];
+
+			return GetDomainType(parameterData).Locate(parameterData);
+		}
+
+		private List<object> GetObjects(ParameterValueData parameterValueData)
+		{
+			if (!parameterValueData.Values.Any())
+			{
+				return new List<object>();
+			}
+
+			var result = new List<object>();
+
+			var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
+
+			if (domainTypes.Any(dt => dt != ParameterType))
+			{
+				for (int i = 0; i < parameterValueData.Values.Count; i++)
+				{
+					var parameterData = parameterValueData.Values[i];
+					var domainType = domainTypes[i];
+
+					result.Add(domainType.Locate(parameterData));
+				}
+			}
+			else
+			{
+				result.AddRange(ParameterType.LocateMany(parameterValueData.Values));
+			}
+
+			return result;
+		}
+
+		private DomainType GetDomainType(ParameterData parameterData)
 		{
 			var domainType = ParameterType;
+
 			if (parameterData.ObjectModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ObjectModelId))
 			{
 				domainType = ctx.GetDomainType(parameterData.ObjectModelId);
 			}
 
-			return domainType.Locate(parameterData);
+			return domainType;
 		}
-	}
-
-	public class ParameterTypesDoNotMatchException : Exception
-	{
-		public ParameterTypesDoNotMatchException(IParameter parameter, IType expected, IType actual)
-			: base(string.Format("{0}.{1}(...,{2},...): Parameter's expected type is {3}, but given parameter has a type of {4}", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, expected, actual)) { }
 	}
 }

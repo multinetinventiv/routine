@@ -33,6 +33,7 @@ namespace Routine.Engine
 		public bool IsValueModel { get; private set; }
 		public bool IsViewModel { get; private set; }
 		public bool Initializable { get { return Initializer != null; } }
+		public bool Locatable { get { return Locator != null; } }
 
 		public DomainType(ICoreContext ctx, IType type)
 		{
@@ -84,6 +85,11 @@ namespace Routine.Engine
 					Console.WriteLine("{0}.{1} initializer is skipped. On initialier groups (constructor overloading) parameters with the same name but different types are not allowed. Exception is; {2}", Type.Name, initializer.Name, ex.Message);
 					Console.WriteLine();
 				}
+				catch (IdenticalSignatureAlreadyAddedException ex)
+				{
+					Console.WriteLine("{0}.{1} initializer is skipped. An initializer with same signature is already added. Exception is; {2}", Type.Name, initializer.Name, ex.Message);
+					Console.WriteLine();
+				}
 			}
 
 			foreach (var member in ctx.CodingStyle.GetMembers(Type))
@@ -127,6 +133,11 @@ namespace Routine.Engine
 					Console.WriteLine("{0}.{1} operation is skipped. On operation groups (method overloading) parameters with the same name but different types are not allowed. Exception is; {2}", Type.Name, operation.Name, ex.Message);
 					Console.WriteLine();
 				}
+				catch (IdenticalSignatureAlreadyAddedException ex)
+				{
+					Console.WriteLine("{0}.{1} operation is skipped. An operation with same signature is already added. Exception is; {2}", Type.Name, operation.Name, ex.Message);
+					Console.WriteLine();
+				}
 			}
 		}
 
@@ -152,19 +163,56 @@ namespace Routine.Engine
 			};
 		}
 
-		public object Locate(ParameterData parameterData)
+		internal object Locate(ParameterData parameterData)
 		{
-			if (!parameterData.IsNull && string.IsNullOrEmpty(parameterData.ReferenceId) && Initializable)
+			return LocateMany(new List<ParameterData> { parameterData })[0];
+		}
+
+		internal List<object> LocateMany(List<ParameterData> parameterDatas)
+		{
+			var result = new object[parameterDatas.Count];
+
+			var locateIdsWithOriginalIndex = new List<Tuple<int, string>>();
+
+			for (int i = 0; i < parameterDatas.Count; i++)
 			{
-				return Initializer.Initialize(parameterData.InitializationParameters);
+				var parameterData = parameterDatas[i];
+				if (Initializable && !parameterData.IsNull && string.IsNullOrEmpty(parameterData.ReferenceId))
+				{
+					result[i] = Initializer.Initialize(parameterData.InitializationParameters);
+				}
+				else if (parameterData.IsNull)
+				{
+					result[i] = null;
+				}
+				else
+				{
+					locateIdsWithOriginalIndex.Add(new Tuple<int, string>(i, parameterData.ReferenceId));
+				}
 			}
 
-			if (parameterData.IsNull)
+			if (locateIdsWithOriginalIndex.Any())
 			{
-				return null;
+				var locateIds = locateIdsWithOriginalIndex.Select(t => t.Item2).ToList();
+				var located = LocateMany(locateIds);
+
+				if (located.Count != locateIdsWithOriginalIndex.Count)
+				{
+					throw new InvalidOperationException(
+						string.Format("Locator returned a result with different number of objects ({0}) than given number of ids ({1}) when locating ids {2} of type {3}",
+						located.Count,
+						locateIds.Count,
+						locateIds.ToItemString(),
+						Type));
+				}
+
+				for (int i = 0; i < located.Count; i++)
+				{
+					result[locateIdsWithOriginalIndex[i].Item1] = located[i];
+				}
 			}
 
-			return Locate(parameterData.ReferenceId);
+			return result.ToList();
 		}
 
 		public object Locate(ObjectReferenceData objectReferenceData)
@@ -179,12 +227,24 @@ namespace Routine.Engine
 
 		public object Locate(string id)
 		{
-			if (Locator == null)
+			return LocateMany(new List<string> { id })[0];
+		}
+
+		public List<object> LocateMany(List<string> ids)
+		{
+			if (!Locatable)
 			{
-				throw new CannotLocateException(Type, id);
+				throw new CannotLocateException(Type, ids);
 			}
 
-			return Locator.Locate(Type, id);
+			if (!ids.Any())
+			{
+				return new List<object>();
+			}
+
+			var notNullIds = ids.Select(id => id ?? string.Empty).ToList();
+
+			return Locator.Locate(Type, notNullIds);
 		}
 	}
 

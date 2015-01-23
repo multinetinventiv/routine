@@ -26,6 +26,7 @@ namespace Routine.Ui
 			{
 				viewDataDict.Add(viewData[i] as string, viewData[i + 1]);
 			}
+
 			html.RenderPartial(viewName, this, viewDataDict);
 		}
 	}

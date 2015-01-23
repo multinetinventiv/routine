@@ -16,8 +16,8 @@ namespace Routine.Client
 		public Dictionary<string, Rmember> Member { get; private set; }
 		public Dictionary<string, Roperation> Operation { get; private set; }
 
-		private Rtype() : this(null, new ObjectModel { Id = Constants.VOID_MODEL_ID, IsValueModel = true}) { }
-		public Rtype(Rapplication application, ObjectModel model) 
+		private Rtype() : this(null, new ObjectModel { Id = Constants.VOID_MODEL_ID, IsValueModel = true }) { }
+		public Rtype(Rapplication application, ObjectModel model)
 		{
 			Application = application;
 			this.model = model;
@@ -51,6 +51,7 @@ namespace Routine.Client
 		public bool IsValueType { get { return model.IsValueModel; } }
 		public bool IsViewType { get { return model.IsViewModel; } }
 		public bool IsVoid { get { return Id == Constants.VOID_MODEL_ID; } }
+		public bool Initializable { get { return Initializer != null; } }
 		public List<Rmember> Members { get { return Member.Values.ToList(); } }
 		public List<Roperation> Operations { get { return Operation.Values.ToList(); } }
 

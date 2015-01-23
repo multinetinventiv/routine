@@ -52,21 +52,24 @@ namespace Routine.Client
 
 		protected bool Equals(Roperation other)
 		{
-			return Equals(model, other.model);
+			return Equals(Type, other.Type) && Equals(model, other.model);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(null, obj)) { return false; }
-			if (ReferenceEquals(this, obj)) { return true; }
-			if (obj.GetType() != GetType()) { return false; }
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
 
 			return Equals((Roperation)obj);
 		}
 
 		public override int GetHashCode()
 		{
-			return (model != null ? model.GetHashCode() : 0);
+			unchecked
+			{
+				return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+			}
 		}
 
 		#endregion

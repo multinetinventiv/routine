@@ -37,7 +37,7 @@ namespace Routine.Test.Engine
 				.Operations.Add(c => c.PublicOperations(m => !m.IsInherited()).When(t => t.IsDomainType))
 
 				.IdExtractor.Set(c => c.IdByMember(p => p.Returns<string>("Id")).When(t => t.IsDomainType))
-				.ObjectLocator.Set(c => c.Locator(l => l.By(id => objectRepository[id])).When(t => t.IsDomainType))
+				.ObjectLocator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.IsDomainType))
 
 				.NextLayer()
 				;
@@ -57,13 +57,13 @@ namespace Routine.Test.Engine
 			objectRepository.Add(id, obj);
 		}
 
-		protected ObjectReferenceData IdNull(){return Id(null, null, null, true);}
-		protected virtual ObjectReferenceData Id(string id) { return Id(id, DefaultModelId);}
-		protected ObjectReferenceData Id(string id, string modelId) {return Id(id, modelId, modelId);}
-		protected ObjectReferenceData Id(string id, string actualModelId, string viewModelId) {return Id(id, actualModelId, viewModelId, false);}
+		protected ObjectReferenceData IdNull() { return Id(null, null, null, true); }
+		protected virtual ObjectReferenceData Id(string id) { return Id(id, DefaultModelId); }
+		protected ObjectReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
+		protected ObjectReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
 		protected ObjectReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
 		{
-			return new ObjectReferenceData{ Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId, IsNull = isNull };
+			return new ObjectReferenceData { Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId, IsNull = isNull };
 		}
 
 		protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters)
@@ -80,17 +80,19 @@ namespace Routine.Test.Engine
 
 		protected ParameterData Init(string objectModelId, Dictionary<string, ParameterValueData> initializationParameters)
 		{
-			return new ParameterData {
+			return new ParameterData
+			{
 				ObjectModelId = objectModelId,
 				InitializationParameters = initializationParameters
 			};
 		}
 
 		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ParameterData[] values) { return Param(modelId, values.Length > 1, values); }
-		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values) 
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values)
 		{
-			return new KeyValuePair<string, ParameterValueData>(modelId, 
-				new ParameterValueData {
+			return new KeyValuePair<string, ParameterValueData>(modelId,
+				new ParameterValueData
+				{
 					IsList = isList,
 					Values = values.ToList()
 				}

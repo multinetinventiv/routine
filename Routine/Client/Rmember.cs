@@ -33,7 +33,7 @@ namespace Routine.Client
 
 		protected bool Equals(Rmember other)
 		{
-			return Equals(model, other.model);
+			return Equals(Type, other.Type) && Equals(model, other.model);
 		}
 
 		public override bool Equals(object obj)
@@ -41,13 +41,16 @@ namespace Routine.Client
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != this.GetType()) return false;
-			return Equals((Rmember)obj);
+			return Equals((Rmember) obj);
 		}
 
 		public override int GetHashCode()
 		{
-			return (model != null ? model.GetHashCode() : 0);
-		} 
+			unchecked
+			{
+				return ((Type != null ? Type.GetHashCode() : 0)*397) ^ (model != null ? model.GetHashCode() : 0);
+			}
+		}
 
 		#endregion
 	}

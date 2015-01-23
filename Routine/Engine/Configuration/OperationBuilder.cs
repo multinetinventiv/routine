@@ -20,10 +20,12 @@ namespace Routine.Engine.Configuration
 		public IEnumerable<IOperation> Proxy<T>(T target) { return Proxy<T>().Target(target); }
 
 		public ProxyOperationBuilder<T> Proxy<T>() { return Proxy<T>(m => true); }
-		public ProxyOperationBuilder<T> Proxy<T>(string methodName) { return Proxy<T>(m => m.Name == methodName); }
-		public ProxyOperationBuilder<T> Proxy<T>(Func<MethodInfo, bool> methodPredicate)
+		public ProxyOperationBuilder<T> Proxy<T>(string targetMethodName) { return Proxy<T>(m => m.Name == targetMethodName); }
+		public ProxyOperationBuilder<T> Proxy<T>(Func<MethodInfo, bool> targetMethodPredicate)
 		{
-			return new ProxyOperationBuilder<T>(parentType, type.of<T>().GetAllMethods().Where(methodPredicate));
+			return new ProxyOperationBuilder<T>(parentType, type.of<T>().GetAllMethods().Where(targetMethodPredicate))
+				.Name.Set(c => c.By(o => o.Name))
+				.NextLayer();
 		}
 
 		private VirtualOperation Virtual()

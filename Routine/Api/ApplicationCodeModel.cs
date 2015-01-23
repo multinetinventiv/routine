@@ -8,21 +8,20 @@ namespace Routine.Api
 {
 	public class ApplicationCodeModel
 	{
-		private readonly IApiGenerationConfiguration config;
-		private readonly List<ObjectCodeModel> models;
-		private readonly Dictionary<Rtype, ObjectCodeModel> modelCache;
+		private readonly List<TypeCodeModel> models;
+		private readonly Dictionary<Rtype, TypeCodeModel> modelCache;
 
 		public Rapplication Application { get; private set; }
+		internal IApiConfiguration Configuration { get; private set; }
 
-		public ApplicationCodeModel(Rapplication rapp, IApiGenerationConfiguration config)
+		public ApplicationCodeModel(Rapplication rapp, IApiConfiguration config)
 		{
 			Application = rapp;
-
-			this.config = config;
+			Configuration = config;
 
 			models = rapp.Types
-				.Where(t => !t.IsValueType && config.IsRendered(t))
-				.Select(m => new ObjectCodeModel(this, m, config.GetDefaultNamespace()))
+				.Where(t => !t.IsVoid && config.IsRendered(t))
+				.Select(m => new TypeCodeModel(this, m))
 				.ToList();
 
 			modelCache = models.ToDictionary(m => m.Type);
@@ -33,19 +32,41 @@ namespace Routine.Api
 			}
 		}
 
-		public string ApiName { get { return config.GetApiName(); } }
-		public bool ApiExists { get { return !string.IsNullOrEmpty(ApiName); } }
-		public string DefaultNamespace { get { return config.GetDefaultNamespace(); } }
+		public string DefaultNamespace { get { return Configuration.GetDefaultNamespace(); } }
 
-		public List<string> FriendlyAssemblyNames { get { return config.GetFriendlyAssemblyNames(); } }
-		public List<ObjectCodeModel> Models { get { return models; } }
+		public List<TypeCodeModel> Models { get { return models; } }
 
-		public ObjectCodeModel GetModel(Rtype type) { return GetModel(type, false); }
-		public ObjectCodeModel GetModel(Rtype type, bool isList)
+		public TypeCodeModel GetModel(Rtype type) { return GetModel(type, false); }
+		public TypeCodeModel GetModel(Rtype type, bool isList)
 		{
 			if (!modelCache.ContainsKey(type))
 			{
-				CreateModel(type);
+				TypeCodeModel result;
+
+				if (type.IsVoid)
+				{
+					result = new TypeCodeModel(this);
+				}
+				else
+				{
+					var clientType = Configuration.GetReferencedType(type);
+					if (clientType == null)
+					{
+						throw new InvalidOperationException(string.Format("ReferencedType cannot be null for {0}", type));
+					}
+
+					result = new TypeCodeModel(this, type, clientType);
+				}
+
+				lock (models)
+				{
+					if (!modelCache.ContainsKey(type))
+					{
+						modelCache.Add(type, result);
+					}
+				}
+
+				result.Load();
 			}
 
 			if (isList)
@@ -56,48 +77,7 @@ namespace Routine.Api
 			return modelCache[type];
 		}
 
-		private void CreateModel(Rtype type)
-		{
-			ObjectCodeModel result;
-
-			if (type.IsVoid)
-			{
-				result = new ObjectCodeModel(this, type);
-			}
-			else
-			{
-				var clientType = config.GetReferencedType(type);
-
-				if (clientType == null)
-				{
-					throw new InvalidOperationException(string.Format("No model or referenced type found with given model id: {0}", type));
-				}
-
-				if (config.GetReferencedTypeIsValueType(clientType))
-				{
-					clientType = config.GetTargetValueType(clientType) ?? clientType;
-
-					result = new ObjectCodeModel(this, type, clientType, config.GetStringToValueCodeTemplate(clientType),
-						config.GetValueToStringCodeTemplate(clientType));
-				}
-				else
-				{
-					result = new ObjectCodeModel(this, type, clientType);
-				}
-			}
-
-			result.Load();
-
-			lock (models)
-			{
-				if (!modelCache.ContainsKey(type))
-				{
-					modelCache.Add(type, result);
-				}
-			}
-		}
-
-		public ObjectCodeModel GetVoidModel()
+		public TypeCodeModel GetVoidModel()
 		{
 			return GetModel(Rtype.Void, false);
 		}
@@ -111,51 +91,34 @@ namespace Routine.Api
 
 			try
 			{
-				return config.GetReferencedType(type) != null;
+				return Configuration.GetReferencedType(type) != null;
 			}
 			catch (ConfigurationException)
 			{
-				if (!type.IsValueType)
-				{
-					Console.WriteLine("Type '{0}' was not included so ignored", type);
-
-					return false;
-				}
-
-				if (config.GetIgnoreReferencedTypeNotFound())
-				{
-					Console.WriteLine("Referenced type for '{0}' was not found and ignored", type);
-
-					return false;
-				}
-
-				throw;
+				return false;
 			}
 		}
 
-		internal bool IsRendered(Rtype type)
+		#region Equality & Hashcode
+
+		protected bool Equals(ApplicationCodeModel other)
 		{
-			return config.IsRendered(type);
+			return Equals(Application, other.Application);
 		}
 
-		internal bool IsRendered(Rinitializer initializer)
+		public override bool Equals(object obj)
 		{
-			return config.IsRendered(initializer);
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((ApplicationCodeModel)obj);
 		}
 
-		internal bool IsRendered(Rmember member)
+		public override int GetHashCode()
 		{
-			return config.IsRendered(member);
+			return (Application != null ? Application.GetHashCode() : 0);
 		}
 
-		internal bool IsRendered(Roperation operation)
-		{
-			return config.IsRendered(operation);
-		}
-
-		public List<string> GetStaticInstanceIds(ObjectCodeModel objectCodeModel)
-		{
-			return config.GetStaticInstanceIds(objectCodeModel);
-		}
+		#endregion
 	}
 }
