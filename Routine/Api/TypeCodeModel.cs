@@ -28,9 +28,6 @@ namespace Routine.Api
 				: application.Configuration.GetRenderedTypeTemplate(this, mode);
 		}
 
-		internal TypeCodeModel(ApplicationCodeModel application)
-			: this(application, null, false, Rtype.Void, type.ofvoid()) { }
-
 		internal TypeCodeModel(ApplicationCodeModel application, Rtype type)
 			: this(application, null, false, type, null) { }
 
@@ -73,7 +70,7 @@ namespace Routine.Api
 		public bool IsVoid { get { return Type.IsVoid; } }
 		public bool IsList { get { return isList; } }
 		public string Id { get { return Type.Id; } }
-		public bool IsReferenced { get { return !IsVoid && ReferencedType != null; } }
+		public bool IsReferenced { get { return ReferencedType != null; } }
 
 		public string GetFullName(int mode) { return GetFullName(mode, false); }
 		public string GetFullName(int mode, bool ignoreList)
@@ -83,11 +80,6 @@ namespace Routine.Api
 				var listType = typeof(List<>);
 
 				return listType.Namespace + "." + listType.Name.Before("`") + "<" + GetFullName(mode, true) + ">";
-			}
-
-			if (IsVoid)
-			{
-				return "void";
 			}
 
 			if (IsReferenced)

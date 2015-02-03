@@ -125,7 +125,14 @@
             }
 
             $.get(urlBase + "/GetApplicationModel", function (data) {
-                models = data.Models;
+                $.each(data.Models.sort(function (l,r) { return l.Module < r.Module ? -1 : l.Module > r.Module ? 1 : 0; }), function(i, model) {
+                    if (model.Operations.length <= 0) {
+                        return;
+                    }
+                    getModuleDiv(model.Module);
+                });
+
+                models = data.Models.sort(function (l,r) { return l.Name < r.Name ? -1 : l.Name > r.Name ? 1 : 0; });
                 for (var i = 0; i < models.length; i++) {
                     var model = models[i];
 
@@ -143,8 +150,9 @@
                         })
                         .parent();
 
-                    for (var j = 0; j < model.Operations.length; j++) {
-                        var operation = model.Operations[j];
+                    var operations = model.Operations.sort(function (l,r) { return l.Id < r.Id ? -1 : l.Id > r.Id ? 1 : 0; });
+                    for (var j = 0; j < operations.length; j++) {
+                        var operation = operations[j];
 
                         $(tmp_operation
                             .replace(/@id/g, operation.Id)
@@ -718,10 +726,10 @@
     <div id="module" class="template" data-module="@name">
         <h1>@name</h1>
     </div>
-    <div id="model" class="template">
+    <div id="model" class="template" data-sort="@name">
         <h2>@name</h2>
     </div>
-    <div id="operation" class="template">
+    <div id="operation" class="template" data-sort="@id">
         <h3>@id<a href="javascript:createForm('@modelId','@id');">Open</a></h3>
     </div>
     <span id="tab" class="template">@modelName - @id<a href="javascript:void(0)" onclick="javascript:closeForm(this)">&#10005;</a></span>

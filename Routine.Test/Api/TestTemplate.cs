@@ -29,225 +29,218 @@ namespace Routine.Test.Api
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n");
+            this.Write("\r\nusing System;\r\n\r\n");
             
-            #line 8 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 10 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  foreach(var model in Application.Models) { 
             
             #line default
             #line hidden
             this.Write("\t");
             
-            #line 9 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 11 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  foreach(var mode in model.GetModes()) { 
             
             #line default
             #line hidden
             this.Write("\r\nnamespace ");
             
-            #line 11 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 13 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.GetNamespace(mode)));
             
             #line default
             #line hidden
             this.Write("\r\n{\r\n\tpublic class ");
             
-            #line 13 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 15 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.GetName(mode)));
             
             #line default
             #line hidden
             this.Write("\r\n\t{\r\n\t\tprivate readonly ");
             
-            #line 15 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 17 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(typeof(Robject).FullName));
             
             #line default
             #line hidden
             this.Write(" robject;\r\n\t\tpublic ");
             
-            #line 16 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 18 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(typeof(Robject).FullName));
             
             #line default
             #line hidden
             this.Write(" Robject { get { return robject; } }\r\n\r\n\t\tpublic ");
             
-            #line 18 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 20 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.GetName(mode)));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 18 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 20 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(typeof(Robject).FullName));
             
             #line default
             #line hidden
             this.Write(" robject)\r\n\t\t{\r\n\t\t\tthis.robject = robject;\r\n\t\t}\r\n\t\t");
             
-            #line 22 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 24 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  if(model.Initializable) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\tpublic ");
             
-            #line 24 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 26 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(model.GetName(mode)));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 24 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", model.Initializer.Parameters.Select(p => p.Model.GetFullName(mode) + " " + p.GetName(mode)))));
+            #line 26 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", model.Initializer.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode)))));
             
             #line default
             #line hidden
             this.Write(") { }\r\n\t\t");
             
-            #line 25 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 27 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t");
             
-            #line 26 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 28 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  foreach(var member in model.Members) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\tpublic ");
             
-            #line 28 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 30 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName(mode)));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 28 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 30 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(member.GetName(mode)));
             
             #line default
             #line hidden
             this.Write(" { get { return default(");
             
-            #line 28 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 30 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName(mode)));
             
             #line default
             #line hidden
             this.Write("); } }\r\n\t\t");
             
-            #line 29 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 31 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t");
             
-            #line 30 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 32 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  foreach(var operation in model.Operations) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\tpublic ");
             
-            #line 32 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 34 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.GetFullName(mode)));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 32 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 34 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.GetName(mode)));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 32 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", operation.Parameters.Select(p => p.Model.GetFullName(mode) + " " + p.GetName(mode)))));
-            
-            #line default
-            #line hidden
-            this.Write(") \r\n\t\t{\r\n\t\t\tvar ");
-            
             #line 34 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.GetName(mode)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", operation.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode)))));
             
             #line default
             #line hidden
-            this.Write("_result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
+            this.Write(") \r\n\t\t{\r\n\t\t\tvar __result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
             
-            #line 36 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 38 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
             
             #line default
             #line hidden
             this.Write("\"\r\n\t\t\t");
             
-            #line 37 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 39 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  foreach(var parameter in operation.Parameters) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t\t, ");
             
-            #line 39 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Model.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application")));
+            #line 41 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application")));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t");
             
-            #line 40 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 42 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t\r\n\t\t\t\t)\r\n\t\t\t;\r\n\t\t\t");
             
-            #line 44 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 46 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  if(!operation.ReturnModel.IsVoid) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\treturn ");
             
-            #line 46 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.RenderRvariableToObject(mode, operation.GetName(mode) + "_result", "robject.Application")));
+            #line 48 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.RenderRvariableToObject(mode, "__result", "robject.Application")));
             
             #line default
             #line hidden
             this.Write(";\r\n\t\t\t");
             
-            #line 47 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 49 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t}\r\n\t\t");
             
-            #line 50 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 52 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n\t\tpublic override string ToString()\r\n\t\t{\r\n\t\t\treturn robject.Id;\r\n\t\t}\r\n\t}\r\n}\r\n\t");
             
-            #line 58 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 60 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 59 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
+            #line 61 "E:\Projects\routine\Routine.Test\Api\TestTemplate.tt"
  } 
             
             #line default

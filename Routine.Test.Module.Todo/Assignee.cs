@@ -89,7 +89,7 @@ namespace Routine.Test.Module.Todo
 		public Assignees(IDomainContext context)
 			: base(context) {}
 
-		public new List<Assignee> All()
+		internal new List<Assignee> All()
 		{
 			return base.All();
 		}
@@ -101,7 +101,12 @@ namespace Routine.Test.Module.Todo
 
 		public List<Assignee> ByName(string name)
 		{
-			return By(a => a.Name.Contains(name));
+			return By(a => a.Name.StartsWith(name));
+		}
+
+		public List<Assignee> ByAddress(string address)
+		{
+			return By(a => a.Address.Value.StartsWith(address));
 		}
 	}
 }

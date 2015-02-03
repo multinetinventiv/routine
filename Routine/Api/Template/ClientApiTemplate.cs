@@ -110,7 +110,7 @@ namespace Routine.Api.Template
             this.Write("(");
             
             #line 23 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.GetName(Mode.Interface)))));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface)))));
             
             #line default
             #line hidden
@@ -257,18 +257,11 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\t\t(");
             
             #line 58 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.GetName(Mode.Interface)))));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface)))));
             
             #line default
             #line hidden
-            this.Write(")\r\n\t\t{\r\n\t\t\tvar ");
-            
-            #line 60 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.GetName(Mode.Interface)));
-            
-            #line default
-            #line hidden
-            this.Write("_result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
+            this.Write(")\r\n\t\t{\r\n\t\t\tvar __result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
             
             #line 62 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
@@ -285,7 +278,7 @@ namespace Routine.Api.Template
             this.Write("\t\t\t\t, ");
             
             #line 64 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application")));
             
             #line default
             #line hidden
@@ -306,7 +299,7 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\t\treturn ");
             
             #line 71 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.RenderRvariableToObject(operation.GetName(Mode.Interface) + "_result", "Robject.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(operation.ReturnModel.RenderRvariableToObject("__result", "Robject.Application")));
             
             #line default
             #line hidden
@@ -414,7 +407,7 @@ namespace Routine.Api.Template
             this.Write(" New\r\n\t\t\t(");
             
             #line 120 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id))));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface)))));
             
             #line default
             #line hidden
@@ -491,7 +484,7 @@ namespace Routine.Api.Template
             this.Write(".New\r\n\t\t\t(");
             
             #line 140 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id))));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface)))));
             
             #line default
             #line hidden
@@ -512,7 +505,7 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\t\t\t\t, ");
             
             #line 146 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.Id, "Rapplication")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.FactoryInterface), "Rapplication")));
             
             #line default
             #line hidden
@@ -575,14 +568,14 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\tpublic ");
             
             #line 168 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Model.GetFullName()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.GetFullName()));
             
             #line default
             #line hidden
             this.Write(" ");
             
             #line 168 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id.ToUpperInitial()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.GetName(Mode.InitializeOnlyStructProperty)));
             
             #line default
             #line hidden
@@ -624,7 +617,7 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\t\t(");
             
             #line 176 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id))));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.InitializeOnlyStruct)))));
             
             #line default
             #line hidden
@@ -645,14 +638,14 @@ namespace Routine.Api.Template
             this.Write("\t\t\t\r\n\t\t\t");
             
             #line 181 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id.ToUpperInitial()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.GetName(Mode.InitializeOnlyStructProperty)));
             
             #line default
             #line hidden
             this.Write(" = ");
             
             #line 181 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Id));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.GetName(Mode.InitializeOnlyStruct)));
             
             #line default
             #line hidden
@@ -729,7 +722,7 @@ namespace Routine.Api.Template
             this.Write("\t\t\t\r\n\t\t\t\tinitParams.Add(");
             
             #line 198 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.Id.ToUpperInitial(), "rtype.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application")));
             
             #line default
             #line hidden
@@ -1044,7 +1037,7 @@ namespace Routine.Api.Template
             this.Write(" type, string instanceId)\r\n\t\t{\r\n\t");
             
             #line 284 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
- foreach(var model in StaticInstanceModels) { 
+ foreach(var model in GetInstanceModels) { 
             
             #line default
             #line hidden
@@ -1076,7 +1069,7 @@ namespace Routine.Api.Template
             
             #line default
             #line hidden
-            this.Write("\t\r\n\t\t\tthrow new StaticInstanceException(type);\r\n\t\t}\r\n\r\n\t\tT I");
+            this.Write("\t\r\n\t\t\tthrow new GetInstanceException(type);\r\n\t\t}\r\n\r\n\t\tT I");
             
             #line 295 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ApiName));
@@ -1181,23 +1174,24 @@ namespace Routine.Api.Template
             
             #line default
             #line hidden
-            this.Write("\r\n\t\t\tthrow new SingletonException(type);\r\n\t\t}\r\n\t}\r\n\t\r\n\tpublic class StaticInstanc" +
-                    "eException : ");
+            this.Write("\r\n\t\t\tthrow new SingletonException(type);\r\n\t\t}\r\n\t}\r\n\t\r\n\tpublic class GetInstanceEx" +
+                    "ception : ");
             
             #line 318 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Type<Exception>()));
             
             #line default
             #line hidden
-            this.Write("\r\n\t{\r\n\t\tpublic StaticInstanceException(");
+            this.Write("\r\n\t{\r\n\t\tpublic GetInstanceException(");
             
             #line 320 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Type<Type>()));
             
             #line default
             #line hidden
-            this.Write(" targetType) : base(string.Format(\"Given type {0} does not have static instances\"" +
-                    ", targetType)) { }\r\n\t}\r\n\r\n\tpublic class SingletonException : ");
+            this.Write(" targetType) : base(string.Format(\"Cannot get instance for {0}. Given type should" +
+                    " be non view type and rendered as interface.\", targetType)) { }\r\n\t}\r\n\r\n\tpublic c" +
+                    "lass SingletonException : ");
             
             #line 323 "E:\Projects\routine\Routine\Api\Template\ClientApiTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Type<Exception>()));

@@ -52,6 +52,7 @@
     <Compile Include="Api\Context\DefaultApiContext.cs" />
     <Compile Include="Api\IApiContext.cs" />
     <Compile Include="Api\InitializerCodeModel.cs" />
+    <Compile Include="Api\SimpleTypeConversionTemplate.cs" />
     <Compile Include="Api\TypeConversionTemplateBase.cs" />
     <Compile Include="Api\Template\ClientApiTemplate.cs">
       <AutoGen>True</AutoGen>

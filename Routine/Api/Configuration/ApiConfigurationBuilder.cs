@@ -7,7 +7,11 @@ namespace Routine.Api.Configuration
 		public ConventionalApiConfiguration FromBasic()
 		{
 			return new ConventionalApiConfiguration()
-				.Version.Set(new Version(1, 0, 0, 0))
+				.AssemblyVersion.Set(new Version(1, 0, 0, 0))
+				.AssemblyGuid.Set(c => c.By(acm => Guid.NewGuid()))
+
+				.TypeIsRendered.Set(false, rt => rt.IsVoid)
+				.ReferencedType.Set(type.ofvoid(), rt => rt.IsVoid)
 
 				.TypeIsRendered.Set(true)
 

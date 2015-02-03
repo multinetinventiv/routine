@@ -20,7 +20,7 @@ namespace <#= model.GetNamespace(Mode.Interface) #>
 	<# foreach(var operation in model.Operations) { #>
 		<# foreach(var group in operation.Groups) { #>
 
-		<#= operation.ReturnModel.GetFullName() #> <#= operation.GetName(Mode.Interface) #>(<#= string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.GetName(Mode.Interface))) #>);
+		<#= operation.ReturnModel.GetFullName() #> <#= operation.GetName(Mode.Interface) #>(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>);
 		<# } #>
 	<# } #>
 
@@ -55,20 +55,20 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		<# foreach(var group in operation.Groups) { #>
 
 		<#= operation.ReturnModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.<#= operation.GetName(Mode.Interface) #>
-			(<#= string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.GetName(Mode.Interface))) #>)
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>)
 		{
-			var <#= operation.GetName(Mode.Interface) #>_result = Robject.Perform
+			var __result = Robject.Perform
 				(
 				"<#= operation.Id #>"
 			<# foreach(var parameter in group) { #>
-				, <#= parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application") #>
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application") #>
 			<# } #>
 
 				)
 			;
 			<# if(!operation.ReturnModel.IsVoid) { #>
 
-			return <#= operation.ReturnModel.RenderRvariableToObject(operation.GetName(Mode.Interface) + "_result", "Robject.Application") #>;
+			return <#= operation.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
 			<# } #>
 
 		}
@@ -117,7 +117,7 @@ namespace <#= model.GetNamespace(Mode.FactoryInterface) #>
 		<# foreach(var group in model.Initializer.Groups) { #>
 
 		<#= model.GetFullName(Mode.Interface) #> New
-			(<#= string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id)) #>);
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>);
 		<# } #>
 
 	}
@@ -137,13 +137,13 @@ namespace <#= model.GetNamespace(Mode.Factory) #>
 		<# foreach(var group in model.Initializer.Groups) { #>
 
 		<#= model.GetFullName(Mode.Interface) #> <#= model.GetFullName(Mode.FactoryInterface) #>.New
-			(<#= string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id)) #>)
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>)
 		{
 			var robject = Rapplication
 				.Init("<#= model.Id #>"
 			<# foreach(var parameter in group) { #>
 
-					, <#= parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.Id, "Rapplication") #>
+					, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.FactoryInterface), "Rapplication") #>
 			<# } #>
 
 				);
@@ -165,7 +165,7 @@ namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 		private readonly int group;
 		<# foreach(var parameter in model.Initializer.Parameters) { #>
 
-		public <#= parameter.Model.GetFullName() #> <#= parameter.Id.ToUpperInitial() #> { get; private set; }
+		public <#= parameter.ParameterModel.GetFullName() #> <#= parameter.GetName(Mode.InitializeOnlyStructProperty) #> { get; private set; }
 		<# } #>
 
 		<# var groups = model.Initializer.Groups; #>
@@ -173,12 +173,12 @@ namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 			<# var group = groups[i]; #>
 
 		public <#= model.GetName(Mode.InitializeOnlyStruct) #>
-			(<#= string.Join(", ", group.Select(p => p.Model.GetFullName() + " " + p.Id)) #>) : this()
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.InitializeOnlyStruct))) #>) : this()
 		{
 			this.group = <#= i #>;
 			<# foreach(var parameter in group) { #>
 			
-			<#= parameter.Id.ToUpperInitial() #> = <#= parameter.Id #>;
+			<#= parameter.GetName(Mode.InitializeOnlyStructProperty) #> = <#= parameter.GetName(Mode.InitializeOnlyStruct) #>;
 			<# } #>
 
 		}
@@ -195,7 +195,7 @@ namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 			{
 				<# foreach(var parameter in group) { #>
 			
-				initParams.Add(<#= parameter.Model.RenderObjectToRvariable(parameter.Id, parameter.Id.ToUpperInitial(), "rtype.Application") #>);
+				initParams.Add(<#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application") #>);
 				<# } #>
 
 			}
@@ -281,7 +281,7 @@ namespace <#= Application.DefaultNamespace #>
 		T I<#= ApiName #>.Get<T>(string instanceId) { return (T)((I<#= ApiName #>)this).Get(typeof(T), instanceId); }
 		object I<#= ApiName#>.Get(<#= Type<Type>() #> type, string instanceId)
 		{
-	<# foreach(var model in StaticInstanceModels) { #>
+	<# foreach(var model in GetInstanceModels) { #>
 			
 			if(type.IsAssignableFrom(typeof(<#= model.GetFullName(Mode.Concrete) #>)))
 			{
@@ -289,7 +289,7 @@ namespace <#= Application.DefaultNamespace #>
 			}
 	<# } #>
 	
-			throw new StaticInstanceException(type);
+			throw new GetInstanceException(type);
 		}
 
 		T I<#= ApiName #>.Get<T>() { return (T)((I<#= ApiName #>)this).Get(typeof(T)); }
@@ -315,9 +315,9 @@ namespace <#= Application.DefaultNamespace #>
 		}
 	}
 	
-	public class StaticInstanceException : <#= Type<Exception>() #>
+	public class GetInstanceException : <#= Type<Exception>() #>
 	{
-		public StaticInstanceException(<#= Type<Type>() #> targetType) : base(string.Format("Given type {0} does not have static instances", targetType)) { }
+		public GetInstanceException(<#= Type<Type>() #> targetType) : base(string.Format("Cannot get instance for {0}. Given type should be non view type and rendered as interface.", targetType)) { }
 	}
 
 	public class SingletonException : <#= Type<Exception>() #>

@@ -33,7 +33,7 @@ namespace Routine.Api.Template
 		public List<TypeCodeModel> OperationalModels { get { return Application.Models.Where(m => m.HasMode(Mode.Interface)).ToList(); } }
 		public List<TypeCodeModel> InitializableOperationalModels { get { return OperationalModels.Where(m => m.HasMode(Mode.FactoryInterface)).ToList(); } }
 		public List<TypeCodeModel> SingletonModels { get { return OperationalModels.Where(m => m.Type.StaticInstances.Count == 1).ToList(); } }
-		public List<TypeCodeModel> StaticInstanceModels { get { return OperationalModels.Where(m => m.Type.StaticInstances.Any() && !m.Type.IsViewType).ToList(); } }
+		public List<TypeCodeModel> GetInstanceModels { get { return OperationalModels.Where(m => !m.Type.IsViewType).ToList(); } }
 
 		public List<TypeCodeModel> InitializeOnlyStructModels { get { return Application.Models.Where(m => m.HasMode(Mode.InitializeOnlyStruct)).ToList(); } }
 
@@ -48,8 +48,9 @@ namespace Routine.Api.Template
 			public static readonly int Factory = 2;
 			public static readonly int FactoryInterface = 3;
 			public static readonly int InitializeOnlyStruct = 4;
-			public static readonly int Enum = 5;
-			public static readonly int EnumConverter = 6;
+			public static readonly int InitializeOnlyStructProperty = 5;
+			public static readonly int Enum = 6;
+			public static readonly int EnumConverter = 7;
 		}
 	}
 
@@ -119,6 +120,7 @@ namespace Routine.Api.Template
 
 				.RenderedTypeTemplate.Set(new ClientApiStructConversionTemplate(), mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStruct)
 				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStruct))
+				.RenderedParameterName.Set(c => c.By(mm => mm.Model.Id.ToUpperInitial()).When(mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStructProperty))
 
 				.NextLayer()
 			;
@@ -289,7 +291,7 @@ namespace Routine.Api.Template
 
 		private static int GetDefaultMode(this TypeCodeModel source)
 		{
-			if (source.IsVoid || source.IsReferenced)
+			if (source.IsReferenced)
 			{
 				return ClientApiTemplate.Mode.Referenced;
 			}

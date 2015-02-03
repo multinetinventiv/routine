@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting;
 using Moq;
 using NUnit.Framework;
 using Routine.Engine;
@@ -108,7 +106,7 @@ namespace Routine.Test.Engine
 		#endregion
 
 		[Test]
-		public void Model_id_is_created_using_given_serializer()
+		public void Model_id_is_configured()
 		{
 			testing.GetApplicationModel();
 
@@ -118,7 +116,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Object_model_is_marked_with_given_selectors()
+		public void Object_model_is_marked_via_configuration()
 		{
 			codingStyle
 				.TypeMarks.Add(c => c.Constant("value").When(t => t.CanParse()))
@@ -138,7 +136,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Object_model_is_value_model_if_corresponding_extractor_says_so()
+		public void Object_model_can_be_configured_to_be_value_model()
 		{
 			testing.GetApplicationModel();
 
@@ -172,7 +170,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Object_model_is_view_model_if_corresponding_extractor_says_so()
+		public void Object_model_can_be_configured_to_be_view_model()
 		{
 			testing.GetApplicationModel();
 
@@ -192,7 +190,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Module_is_extracted_using_corresponding_extractor()
+		public void Module_is_configured()
 		{
 			testing.GetApplicationModel();
 
@@ -202,7 +200,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Initializer_list_is_created_using_given_selector()
+		public void Initializers_are_configured()
 		{
 			testing.GetApplicationModel();
 
@@ -212,7 +210,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void An_initializer_is_marked_with_given_selectors()
+		public void An_initializer_is_marked_via_configuration()
 		{
 			codingStyle
 				.InitializerMarks.Add(c => c.Constant("parametric").When(i => !i.HasNoParameters()))
@@ -240,7 +238,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Member_list_is_created_using_given_selector()
+		public void Members_are_configured()
 		{
 			testing.GetApplicationModel();
 
@@ -253,7 +251,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void A_member_is_marked_with_given_selectors()
+		public void A_member_is_marked_via_configuration()
 		{
 			codingStyle
 				.MemberMarks.Add(c => c.Constant("heavy").When(m => m.ReturnsCollection()))
@@ -289,7 +287,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Operation_list_is_created_using_given_selector()
+		public void Operations_are_configured()
 		{
 			testing.GetApplicationModel();
 
@@ -304,7 +302,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void An_operation_is_marked_with_given_selectors()
+		public void An_operation_is_via_configuration()
 		{
 			codingStyle
 				.OperationMarks.Add(c => c.Constant("heavy").When(o => o.Parameters.Any(p => p.ParameterType.CanBeCollection())))
@@ -405,7 +403,7 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void A_parameter_is_marked_with_given_selectors()
+		public void A_parameter_is_marked_via_configuration()
 		{
 			codingStyle
 				.ParameterMarks.Add(c => c.Constant("list").When(p => p.ParameterType.CanBeCollection()))

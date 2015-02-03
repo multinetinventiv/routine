@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.CSharp;
 
@@ -45,19 +46,23 @@ namespace Routine.Api
 			var provider = new CSharpCodeProvider();
 			var compilerparams = CreateCompilerParameters(defaultNamespace);
 
-			var sourceCode = new StringBuilder();
+			var renderedCode = template.Render(Context.Application);
 
-			sourceCode.AppendLine("using System.Linq;");
-
-			sourceCode.AppendLine("[assembly: " + typeof(AssemblyVersionAttribute).FullName + "(\"" + Context.Configuration.GetVersion(Context.Application) + "\")]");
-			foreach (var assemblyName in Context.Configuration.GetFriendlyAssemblyNames())
+			if (!renderedCode.Contains("using System.Linq;"))
 			{
-				sourceCode.AppendLine("[assembly: " + typeof(InternalsVisibleToAttribute).FullName + "(\"" + assemblyName + "\")]");
+				renderedCode = renderedCode.Prepend("using System.Linq;");
 			}
 
-			sourceCode.AppendLine(template.Render(Context.Application));
+			var assemblyCode = new StringBuilder();
+			assemblyCode.AppendLine("[assembly: " + typeof(AssemblyVersionAttribute).FullName + "(\"" + Context.Configuration.GetAssemblyVersion(Context.Application) + "\")]");
+			assemblyCode.AppendLine("[assembly: " + typeof(GuidAttribute).FullName + "(\"" + Context.Configuration.GetAssemblyGuid(Context.Application) + "\")]");
+			foreach (var assemblyName in Context.Configuration.GetFriendlyAssemblyNames())
+			{
+				assemblyCode.AppendLine("[assembly: " + typeof(InternalsVisibleToAttribute).FullName + "(\"" + assemblyName + "\")]");
+			}
+			assemblyCode.AppendLine();
 
-			var results = provider.CompileAssemblyFromSource(compilerparams, sourceCode.ToString());
+			var results = provider.CompileAssemblyFromSource(compilerparams, assemblyCode.ToString(), renderedCode);
 			if (results.Errors.HasErrors)
 			{
 				var errors = new StringBuilder("Compiler Errors :\n");
@@ -66,10 +71,11 @@ namespace Routine.Api
 					errors.AppendFormat("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
 				}
 
-				throw new ApiGenerationException(string.Format("{0}\n\n Generated source code: \n\n{1}", errors, sourceCode));
+				throw new ApiGenerationException(string.Format("{0}\n\n Generated source code: \n\n{1}\n\n{2}", errors, assemblyCode, renderedCode));
 			}
 
-			Console.WriteLine(sourceCode);
+			Console.WriteLine(assemblyCode);
+			Console.WriteLine(renderedCode);
 
 			return results.CompiledAssembly;
 		}

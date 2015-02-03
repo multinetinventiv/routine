@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Routine.Api;
 using Routine.Api.Configuration;
@@ -70,11 +71,22 @@ namespace Routine.Test.Api
 		[Test]
 		public void Assembly_version_can_be_configured()
 		{
-			var testing = Generator(c => c.Version.Set(new Version(2, 3, 4, 5)));
+			var testing = Generator(c => c.AssemblyVersion.Set(new Version(2, 3, 4, 5)));
 
 			var assembly = testing.Generate(new TestTemplate());
 
 			Assert.AreEqual(new Version(2, 3, 4, 5), assembly.GetName().Version);
+		}
+
+		[Test]
+		public void Assembly_guid_can_be_configured()
+		{
+			var testing = Generator(c => c.AssemblyGuid.Set(Guid.Parse("7461227D-5C22-4D10-9ACF-F699C95B3F10")));
+
+			var assembly = testing.Generate(new TestTemplate());
+			
+			var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute),true)[0];
+			Assert.AreEqual(Guid.Parse("7461227D-5C22-4D10-9ACF-F699C95B3F10"), Guid.Parse(attribute.Value));
 		}
 
 		[Test]
@@ -509,6 +521,45 @@ namespace Routine.Test.Api
 
 			var actualInt = (int)testClassInstance.GetType().GetMethod("ParseableValueTypes").Invoke(testClassInstance, new object[] { expectedGuid });
 			Assert.AreEqual(expectedInt, actualInt);
+		}
+
+		[Test]
+		public void Parseable_value_type_pattern__Nullable_support()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+				.Operation("NullableTypes", "s-int-32?", PModel("uid", "s-guid?")),
+				Model("s-guid?").IsValue(),
+				Model("s-int-32?").IsValue()
+			);
+
+			ObjectsAre(
+				Object(Id("test_id", "TestClass"))
+			);
+			
+			//this is set to prevent default behaviour to return a non-null value
+			When(Id("test_id", "TestClass"))
+				.Performs("NullableTypes").Returns(Result(Id("1", "s-int-32?")));
+
+			When(Id("test_id", "TestClass"))
+				.Performs("NullableTypes", p =>
+					p["uid"].Values[0].IsNull
+				).Returns(Result(Null("s-int-32?")));
+
+			var testing =
+				Generator(c => c
+					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern())
+				);
+
+			var testClassInstance = CreateInstance(testing, "test_id", "TestClass");
+
+			var actual = (int?)testClassInstance.GetType().GetMethod("NullableTypes").Invoke(testClassInstance, new object[] { null });
+			Assert.IsNull(actual);
+
+			//tests if default behaviour change is working
+			actual = (int?)testClassInstance.GetType().GetMethod("NullableTypes").Invoke(testClassInstance, new object[] { Guid.NewGuid() });
+			Assert.IsNotNull(actual);
 		}
 
 		[Test]

@@ -96,7 +96,7 @@ namespace Routine.Test.Api.Template
 		/// in the dll that contains view model.
 		/// </summary>
 		[Test]
-		public void There_is_no_static_instance_support_for_view_models()
+		public void There_is_no_instance_support_for_view_models()
 		{
 			ModelsAre(
 				Model("ITestClass").Name("ITestClass").IsView()
@@ -125,7 +125,7 @@ namespace Routine.Test.Api.Template
 			}
 			catch (TargetInvocationException ex)
 			{
-				Assert.AreEqual("StaticInstanceException", ex.InnerException.GetType().Name);
+				Assert.AreEqual("GetInstanceException", ex.InnerException.GetType().Name);
 				Assert.IsTrue(ex.InnerException.Message.Contains(iITestClass.FullName));
 			}
 		}

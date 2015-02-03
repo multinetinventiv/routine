@@ -5,6 +5,8 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="Routine.Client" #>
 
+using System;
+
 <# foreach(var model in Application.Models) { #>
 	<# foreach(var mode in model.GetModes()) { #>
 
@@ -21,7 +23,7 @@ namespace <#= model.GetNamespace(mode) #>
 		}
 		<# if(model.Initializable) { #>
 
-		public <#= model.GetName(mode) #>(<#= string.Join(", ", model.Initializer.Parameters.Select(p => p.Model.GetFullName(mode) + " " + p.GetName(mode))) #>) { }
+		public <#= model.GetName(mode) #>(<#= string.Join(", ", model.Initializer.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) { }
 		<# } #>
 		<# foreach(var member in model.Members) { #>
 
@@ -29,21 +31,21 @@ namespace <#= model.GetNamespace(mode) #>
 		<# } #>
 		<# foreach(var operation in model.Operations) { #>
 
-		public <#= operation.ReturnModel.GetFullName(mode) #> <#= operation.GetName(mode) #>(<#= string.Join(", ", operation.Parameters.Select(p => p.Model.GetFullName(mode) + " " + p.GetName(mode))) #>) 
+		public <#= operation.ReturnModel.GetFullName(mode) #> <#= operation.GetName(mode) #>(<#= string.Join(", ", operation.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) 
 		{
-			var <#= operation.GetName(mode) #>_result = Robject.Perform
+			var __result = Robject.Perform
 				(
 				"<#= operation.Id #>"
 			<# foreach(var parameter in operation.Parameters) { #>
 
-				, <#= parameter.Model.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application") #>
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application") #>
 			<# } #>
 				
 				)
 			;
 			<# if(!operation.ReturnModel.IsVoid) { #>
 
-			return <#= operation.ReturnModel.RenderRvariableToObject(mode, operation.GetName(mode) + "_result", "robject.Application") #>;
+			return <#= operation.ReturnModel.RenderRvariableToObject(mode, "__result", "robject.Application") #>;
 			<# } #>
 
 		}

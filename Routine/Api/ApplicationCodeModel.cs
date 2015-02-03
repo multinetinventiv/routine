@@ -41,22 +41,13 @@ namespace Routine.Api
 		{
 			if (!modelCache.ContainsKey(type))
 			{
-				TypeCodeModel result;
-
-				if (type.IsVoid)
+				var clientType = Configuration.GetReferencedType(type);
+				if (clientType == null)
 				{
-					result = new TypeCodeModel(this);
+					throw new InvalidOperationException(string.Format("ReferencedType cannot be null for {0}", type));
 				}
-				else
-				{
-					var clientType = Configuration.GetReferencedType(type);
-					if (clientType == null)
-					{
-						throw new InvalidOperationException(string.Format("ReferencedType cannot be null for {0}", type));
-					}
 
-					result = new TypeCodeModel(this, type, clientType);
-				}
+				var result = new TypeCodeModel(this, type, clientType);
 
 				lock (models)
 				{

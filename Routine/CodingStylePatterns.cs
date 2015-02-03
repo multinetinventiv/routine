@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Routine.Core.Configuration;
+using Routine.Engine;
 using Routine.Engine.Configuration.Conventional;
 using Routine.Engine.Virtual;
 
@@ -67,29 +68,25 @@ namespace Routine
 					;
 		}
 
-		public static ConventionalCodingStyle ShortModelIdPattern(this PatternBuilder<ConventionalCodingStyle> source, string prefix, string shortPrefix)
+		public static ConventionalCodingStyle ShortModelIdPattern(this PatternBuilder<ConventionalCodingStyle> source, string prefix, string shortPrefix) { return source.ShortModelIdPattern(prefix, shortPrefix, t => true); }
+		public static ConventionalCodingStyle ShortModelIdPattern(this PatternBuilder<ConventionalCodingStyle> source, string prefix, string shortPrefix, Func<IType, bool> typeFilter)
 		{
 			return source
 					.FromEmpty()
 					.TypeId.Set(c => c
+						.By(t => t.GetGenericArguments()[0].FullName.ShortenModelId(prefix, shortPrefix) + "?")
+						.When(t => typeFilter(t) && t.IsGenericType && t.Name.StartsWith("Nullable`1")))
+					.TypeId.Set(c => c
 						.By(t => t.FullName.ShortenModelId(prefix, shortPrefix))
-						.When(t => t.FullName.StartsWith(prefix + ".") && t.IsPublic));
+						.When(t => typeFilter(t) && t.FullName.StartsWith(prefix + ".") && t.IsPublic));
 		}
 
-		public static string ShortenModelId(this string source, string actualPrefix, string shortPrefix)
+		private static string ShortenModelId(this string source, string actualPrefix, string shortPrefix)
 		{
 			shortPrefix = shortPrefix.Append("-");
 			actualPrefix = actualPrefix.Append(".");
 
 			return shortPrefix.Append(source.After(actualPrefix).SplitCamelCase('-').Replace("-.-", "--").ToLowerInvariant());
-		}
-
-		public static string NormalizeModelId(this string source, string actualPrefix, string shortPrefix)
-		{
-			shortPrefix = shortPrefix.Append("-");
-			actualPrefix = actualPrefix.Append(".");
-
-			return actualPrefix.Append(source.After(shortPrefix).Replace("--", "-.-").SnakeCaseToCamelCase('-').ToUpperInitial());
 		}
 
 		public static ConventionalCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionalCodingStyle> source)

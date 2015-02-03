@@ -72,6 +72,7 @@
     <Compile Include="Core\Configuration\SingleConfigurationTest.cs" />
     <Compile Include="Core\Configuration\ListConfigurationTest.cs" />
     <Compile Include="Core\Rest\JsonRestSerializerTest.cs" />
+    <Compile Include="Engine\Configuration\ConventionalCodingStyleTest.cs" />
     <Compile Include="Engine\Extractor\IdExtractorTest.cs" />
     <Compile Include="Engine\Extractor\ValueExtractorTest.cs" />
     <Compile Include="Engine\Virtual\MemberOperationTest.cs" />

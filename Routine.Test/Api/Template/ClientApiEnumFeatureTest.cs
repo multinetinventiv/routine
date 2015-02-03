@@ -161,7 +161,7 @@ namespace Routine.Test.Api.Template
 			}
 			catch (TargetInvocationException ex)
 			{
-				Assert.AreEqual("StaticInstanceException", ex.InnerException.GetType().Name);
+				Assert.AreEqual("GetInstanceException", ex.InnerException.GetType().Name);
 				Assert.IsTrue(ex.InnerException.Message.Contains(testEnum.FullName));
 			}
 

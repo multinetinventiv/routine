@@ -29,11 +29,10 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Api_interface_gives_access_to_static_instances()
+		public void Api_interface_gives_access_to_instances_of_operational_types()
 		{
 			ModelsAre(
 				Model("TestClass1").Name("TestClass1")
-				.StaticInstanceIds("instance1", "instance2")
 				.Member("Name", "TestClass2"),
 				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2")
 			);
@@ -71,19 +70,6 @@ namespace Routine.Test.Api.Template
 
 			Assert.AreEqual("instance1_value (instance1)", instance1.ToString());
 			Assert.AreEqual("instance2_value (instance2)", instance2.ToString());
-
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
-			var getTestClass2 = get.MakeGenericMethod(iTestClass2);
-			try
-			{
-				getTestClass2.Invoke(apiObj, new object[] { "instance1" });
-				Assert.Fail("exception not thrown");
-			}
-			catch (TargetInvocationException ex)
-			{
-				Assert.AreEqual("StaticInstanceException", ex.InnerException.GetType().Name);
-				Assert.IsTrue(ex.InnerException.Message.Contains(iTestClass2.FullName));
-			}
 		}
 
 		[Test]

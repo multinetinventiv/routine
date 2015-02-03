@@ -49,6 +49,11 @@ namespace Routine
 		public static string ToCSharpString(this Type source) { return source.ToTypeInfo().ToCSharpString(); }
 		public static string ToCSharpString(this IType source)
 		{
+			if (source.IsVoid)
+			{
+				return "void";
+			}
+
 			if (!source.IsGenericType)
 			{
 				return source.FullName.Replace("+", ".");

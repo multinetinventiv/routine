@@ -12,7 +12,8 @@ namespace Routine.Api.Configuration
 		public SingleConfiguration<ConventionalApiConfiguration, bool> InMemory { get; private set; }
 		public SingleConfiguration<ConventionalApiConfiguration, string> OutputFileName { get; private set; }
 
-		public ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Version> Version { get; private set; }
+		public ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Version> AssemblyVersion { get; private set; }
+		public ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Guid> AssemblyGuid { get; private set; }
 
 		public ListConfiguration<ConventionalApiConfiguration, string> FriendlyAssemblyNames { get; private set; }
 
@@ -40,7 +41,8 @@ namespace Routine.Api.Configuration
 			InMemory = new SingleConfiguration<ConventionalApiConfiguration, bool>(this, "InMemory");
 			OutputFileName = new SingleConfiguration<ConventionalApiConfiguration, string>(this, "OutputFileName");
 
-			Version = new ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Version>(this, "Version", true);
+			AssemblyVersion = new ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Version>(this, "AssemblyVersion", true);
+			AssemblyGuid = new ConventionalConfiguration<ConventionalApiConfiguration, ApplicationCodeModel, Guid>(this, "AssemblyGuid", true);
 
 			FriendlyAssemblyNames = new ListConfiguration<ConventionalApiConfiguration, string>(this, "FriendlyAssemblyNames");
 
@@ -64,7 +66,8 @@ namespace Routine.Api.Configuration
 
 		public ConventionalApiConfiguration Merge(ConventionalApiConfiguration other)
 		{
-			Version.Merge(other.Version);
+			AssemblyVersion.Merge(other.AssemblyVersion);
+			AssemblyGuid.Merge(other.AssemblyGuid);
 
 			FriendlyAssemblyNames.Merge(other.FriendlyAssemblyNames);
 
@@ -94,7 +97,8 @@ namespace Routine.Api.Configuration
 		bool IApiConfiguration.GetInMemory() { return InMemory.Get(); }
 		string IApiConfiguration.GetOutputFileName() { return OutputFileName.Get(); }
 
-		Version IApiConfiguration.GetVersion(ApplicationCodeModel application) { return Version.Get(application); }
+		Version IApiConfiguration.GetAssemblyVersion(ApplicationCodeModel application) { return AssemblyVersion.Get(application); }
+		Guid IApiConfiguration.GetAssemblyGuid(ApplicationCodeModel application) { return AssemblyGuid.Get(application); }
 
 		List<string> IApiConfiguration.GetFriendlyAssemblyNames() { return FriendlyAssemblyNames.Get(); }
 

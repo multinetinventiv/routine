@@ -7,14 +7,14 @@ namespace Routine.Api
 	{
 		private readonly ApplicationCodeModel application;
 		public Rparameter Parameter { get; private set; }
-		public TypeCodeModel Model { get; private set; }
+		public TypeCodeModel ParameterModel { get; private set; }
 
 		public ParameterCodeModel(ApplicationCodeModel application, Rparameter parameter)
 		{
 			this.application = application;
 			Parameter = parameter;
 
-			Model = application.GetModel(parameter.ParameterType, parameter.IsList);
+			ParameterModel = application.GetModel(parameter.ParameterType, parameter.IsList);
 		}
 
 		public string Id { get { return Parameter.Id; } }

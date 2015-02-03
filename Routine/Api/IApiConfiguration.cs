@@ -10,7 +10,8 @@ namespace Routine.Api
 		string GetDefaultNamespace();
 		bool GetInMemory();
 		string GetOutputFileName();
-		Version GetVersion(ApplicationCodeModel application);
+		Version GetAssemblyVersion(ApplicationCodeModel application);
+		Guid GetAssemblyGuid(ApplicationCodeModel application);
 
 		List<string> GetFriendlyAssemblyNames();
 		

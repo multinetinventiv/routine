@@ -1,8 +1,9 @@
-using System;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Test.Engine.Domain.LaterAdded;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel;
+
+#region Teset Model
 
 namespace Routine.Test.Engine.Domain.LaterAdded
 {
@@ -23,13 +24,17 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel
 	}
 
 	public interface IBusinessModel2 { }
-}
+} 
+
+#endregion
 
 namespace Routine.Test.Engine
 {
 	[TestFixture]
 	public class ObjectServiceTest_GetApplicationModel : ObjectServiceTestBase
 	{
+		#region Setup & Helpers
+
 		protected override string DefaultModelId { get { return typeof(BusinessModel1).FullName; } }
 		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel"; } }
 
@@ -41,7 +46,9 @@ namespace Routine.Test.Engine
 			codingStyle
 				.TypeId.Set(s => s.By(t => t.FullName).When(t => t.IsDomainType))
 				;
-		}
+		} 
+
+		#endregion
 
 		[Test]
 		public void Iterates_through_all_given_types_and_creates_ObjectModel_for_each_type()
