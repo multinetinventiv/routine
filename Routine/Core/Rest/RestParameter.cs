@@ -2,8 +2,8 @@ namespace Routine.Core.Rest
 {
 	public class RestParameter
 	{
-		public string Name{get;private set;}
-		public string Value{get;private set;}
+		public string Name { get; private set; }
+		public string Value { get; private set; }
 
 		public RestParameter(string name, string value)
 		{
@@ -20,11 +20,11 @@ namespace Routine.Core.Rest
 
 		public override bool Equals(object obj)
 		{
-			if(obj == null)
+			if (obj == null)
 				return false;
-			if(ReferenceEquals(this, obj))
+			if (ReferenceEquals(this, obj))
 				return true;
-			if(obj.GetType() != typeof(RestParameter))
+			if (obj.GetType() != typeof(RestParameter))
 				return false;
 			var other = (RestParameter)obj;
 			return Name == other.Name && Value == other.Value;
@@ -34,7 +34,7 @@ namespace Routine.Core.Rest
 		{
 			unchecked
 			{
-				return (Name != null ?Name.GetHashCode():0) ^ (Value != null ?Value.GetHashCode():0);
+				return (Name != null ? Name.GetHashCode() : 0) ^ (Value != null ? Value.GetHashCode() : 0);
 			}
 		}
 
