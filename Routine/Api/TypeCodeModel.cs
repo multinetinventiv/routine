@@ -156,7 +156,7 @@ namespace Routine.Api
 		{
 			if (IsList)
 			{
-				return string.Format("{0}.NewVarList(\"{1}\", {2}.Select(o => {3}))",
+				return string.Format("{0}.NewVarList(\"{1}\", {2}, o => {3})",
 					rapplicationExpression,
 					rvariableName,
 					objectExpression,
@@ -164,10 +164,11 @@ namespace Routine.Api
 				);
 			}
 
-			return string.Format("{0}.NewVar(\"{1}\", {2})",
+			return string.Format("{0}.NewVar(\"{1}\", {2}, o => {3})",
 				rapplicationExpression,
 				rvariableName,
-				RenderObjectToRobject(mode, objectExpression, rapplicationExpression)
+				objectExpression,
+				RenderObjectToRobject(mode, "o", rapplicationExpression)
 			);
 		}
 

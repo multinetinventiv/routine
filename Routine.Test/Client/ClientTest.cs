@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -563,6 +564,28 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
+		public void Roperation_returns_group_parameters_when_asked()
+		{
+			ModelsAre(
+				Model("model")
+				.Operation("operation", PModel("param1", "param_model", 0, 1), PModel("param2", "param_model", 1, 2)),
+				Model("param_model"));
+
+			ObjectsAre(Object(Id("id_root", "model")));
+
+			var root = Robj("id_root", "model");
+			var rop = root.Type.Operations[0];
+
+			var groups = rop.Groups;
+
+			Assert.AreEqual(3, groups.Count);
+			Assert.AreEqual("param1", groups[0][0].Id);
+			Assert.AreEqual("param1", groups[1][0].Id);
+			Assert.AreEqual("param2", groups[1][1].Id);
+			Assert.AreEqual("param2", groups[2][0].Id);
+		}
+
+		[Test]
 		public void Rinitializer_throws_exception_when_a_parameter_has_a_group_that_does_not_exist_on_or_initializer()
 		{
 			ModelsAre(
@@ -692,9 +715,9 @@ namespace Routine.Test.Client
 		[Test]
 		public void Facade_Rvariable_As()
 		{
-			ModelsAre(Model(":System.Int32").IsValue());
+			ModelsAre(Model("s-int-32").IsValue());
 
-			int result = Rvar("value", Robj("10", ":System.Int32")).As(robj => int.Parse(robj.Value));
+			int result = Rvar("value", Robj("10", "s-int-32")).As(robj => int.Parse(robj.Value));
 
 			Assert.AreEqual(10, result);
 		}
@@ -714,9 +737,9 @@ namespace Routine.Test.Client
 		[Test]
 		public void Facade_Rvariable_AsList()
 		{
-			ModelsAre(Model(":System.Int32").IsValue());
+			ModelsAre(Model("s-int-32").IsValue());
 
-			List<int> result = Rvarlist("value", new[] { Robj("10", ":System.Int32"), Robj("11", ":System.Int32") }).AsList(robj => int.Parse(robj.Value));
+			List<int> result = Rvarlist("value", new[] { Robj("10", "s-int-32"), Robj("11", "s-int-32") }).AsList(robj => int.Parse(robj.Value));
 
 			Assert.AreEqual(10, result[0]);
 			Assert.AreEqual(11, result[1]);
@@ -737,19 +760,24 @@ namespace Routine.Test.Client
 		[Test]
 		public void Facade_Rapplication_NewVar()
 		{
-			ModelsAre(Model(":System.Int32").IsValue());
+			ModelsAre(Model("s-int-32").IsValue());
 
-			var actual = testingRapplication.NewVar("name", Robj("10", ":System.Int32"));
-
-			Assert.AreEqual("10", actual.Object.Id);
-			Assert.AreEqual("name", actual.Name);
-
-			actual = testingRapplication.NewVar("name", 10, ":System.Int32");
+			var actual = testingRapplication.NewVar("name", Robj("10", "s-int-32"));
 
 			Assert.AreEqual("10", actual.Object.Id);
 			Assert.AreEqual("name", actual.Name);
 
-			actual = testingRapplication.NewVar("name", 10, o => o.ToString(), ":System.Int32");
+			actual = testingRapplication.NewVar("name", 10, "s-int-32");
+
+			Assert.AreEqual("10", actual.Object.Id);
+			Assert.AreEqual("name", actual.Name);
+
+			actual = testingRapplication.NewVar("name", 10, o => o.ToString(CultureInfo.InvariantCulture), "s-int-32");
+
+			Assert.AreEqual("10", actual.Object.Id);
+			Assert.AreEqual("name", actual.Name);
+
+			actual = testingRapplication.NewVar("name", 10, o => testingRapplication["s-int-32"].Get(o.ToString(CultureInfo.InvariantCulture)));
 
 			Assert.AreEqual("10", actual.Object.Id);
 			Assert.AreEqual("name", actual.Name);
@@ -759,39 +787,51 @@ namespace Routine.Test.Client
 		public void Facade_Rapplication_NewVar_creates_null_variable_when_object_is_null()
 		{
 			ModelsAre(
-				Model(":System.Int32").IsValue(),
-				Model(":System.String").IsValue());
+				Model("s-int-32").IsValue(),
+				Model("s-string").IsValue());
 
 			var actual = testingRapplication.NewVar("name", RobjNull());
 			Assert.IsTrue(actual.IsNull);
 
-			string o = null;
-			actual = testingRapplication.NewVar("name", o, ":System.String");
-			Assert.IsTrue(actual.IsNull);
-
-			actual = testingRapplication.NewVar("name", 0, ":System.Int32");
+			actual = testingRapplication.NewVar("name", 0, "s-int-32");
 			Assert.IsTrue(!actual.IsNull);
 			Assert.AreEqual("0", actual.Object.Id);
+
+			string nullStringValue = null;
+			actual = testingRapplication.NewVar("name", nullStringValue, "s-string");
+			Assert.IsTrue(actual.IsNull);
+			
+			actual = testingRapplication.NewVar("name", nullStringValue, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
+			Assert.IsTrue(actual.IsNull);
+
+			actual = testingRapplication.NewVar("name", nullStringValue, o => testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
+			Assert.IsTrue(actual.IsNull);
 		}
 
 		[Test]
 		public void Facade_Rapplication_NewVarList()
 		{
-			ModelsAre(Model(":System.Int32").IsValue());
+			ModelsAre(Model("s-int-32").IsValue());
 
-			var actual = testingRapplication.NewVarList("name", new List<Robject> { Robj("10", ":System.Int32"), Robj("11", ":System.Int32") });
-
-			Assert.AreEqual("name", actual.Name);
-			Assert.AreEqual("10", actual.List[0].Id);
-			Assert.AreEqual("11", actual.List[1].Id);
-
-			actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, ":System.Int32");
+			var actual = testingRapplication.NewVarList("name", new List<Robject> { Robj("10", "s-int-32"), Robj("11", "s-int-32") });
 
 			Assert.AreEqual("name", actual.Name);
 			Assert.AreEqual("10", actual.List[0].Id);
 			Assert.AreEqual("11", actual.List[1].Id);
 
-			actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, o => o.ToString(), ":System.Int32");
+			actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, "s-int-32");
+
+			Assert.AreEqual("name", actual.Name);
+			Assert.AreEqual("10", actual.List[0].Id);
+			Assert.AreEqual("11", actual.List[1].Id);
+
+			actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, o => o.ToString(CultureInfo.InvariantCulture), "s-int-32");
+
+			Assert.AreEqual("name", actual.Name);
+			Assert.AreEqual("10", actual.List[0].Id);
+			Assert.AreEqual("11", actual.List[1].Id);
+
+			actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, o => testingRapplication["s-int-32"].Get(o.ToString(CultureInfo.InvariantCulture)));
 
 			Assert.AreEqual("name", actual.Name);
 			Assert.AreEqual("10", actual.List[0].Id);
@@ -802,41 +842,26 @@ namespace Routine.Test.Client
 		public void Facade_Rapplication_NewVarList_creates_null_variable_when_list_is_null()
 		{
 			ModelsAre(
-				Model(":System.Int32").IsValue(),
-				Model(":System.String").IsValue());
+				Model("s-int-32").IsValue(),
+				Model("s-string").IsValue());
 
 			var actual = testingRapplication.NewVarList("name", new List<Robject> { RobjNull() });
 			Assert.IsTrue(actual.List[0].IsNull);
 
-			string nullString = null;
-			actual = testingRapplication.NewVarList("name", new List<string> { nullString }, ":System.String");
-			Assert.IsTrue(actual.List[0].IsNull);
-
-			actual = testingRapplication.NewVarList("name", new List<int> { 0 }, ":System.Int32");
+			actual = testingRapplication.NewVarList("name", new List<int> { 0 }, "s-int-32");
 			Assert.IsTrue(!actual.List[0].IsNull);
 			Assert.AreEqual("0", actual.List[0].Id);
-		}
 
-		[Test]
-		public void Roperation_returns_group_parameters_when_asked()
-		{
-			ModelsAre(
-				Model("model")
-				.Operation("operation", PModel("param1", "param_model", 0, 1), PModel("param2", "param_model", 1, 2)),
-				Model("param_model"));
+			string nullString = null;
+			actual = testingRapplication.NewVarList("name", new List<string> { nullString }, "s-string");
+			Assert.IsTrue(actual.List[0].IsNull);
 
-			ObjectsAre(Object(Id("id_root", "model")));
+			actual = testingRapplication.NewVarList("name", new List<string> { nullString }, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
+			Assert.IsTrue(actual.List[0].IsNull);
 
-			var root = Robj("id_root", "model");
-			var rop = root.Type.Operations[0];
+			actual = testingRapplication.NewVarList("name", new List<string> { nullString }, o => testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
+			Assert.IsTrue(actual.List[0].IsNull);
 
-			var groups = rop.Groups;
-
-			Assert.AreEqual(3, groups.Count);
-			Assert.AreEqual("param1", groups[0][0].Id);
-			Assert.AreEqual("param1", groups[1][0].Id);
-			Assert.AreEqual("param2", groups[1][1].Id);
-			Assert.AreEqual("param2", groups[2][0].Id);
 		}
 	}
 }

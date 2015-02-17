@@ -654,6 +654,40 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Null_input_and_output_support()
+		{
+			ModelsAre(
+				Model("TestClass1").Module("Module").Name("TestClass1")
+				.Operation("Operation", "TestClass2", PModel("arg", "TestClass2")),
+				Model("TestClass2").Module("Module").Name("TestClass2"));
+
+			ObjectsAre(
+				Object(Id("test1", "TestClass1")),
+				Object(Id("fail", "TestClass2"))
+			);
+
+			When(Id("test1", "TestClass1")).Performs("Operation"
+				).Returns(Result(Id("fail", "TestClass2")))
+			;
+
+			When(Id("test1", "TestClass1")).Performs("Operation", 
+				p => p["arg"].Values[0].IsNull
+				).Returns(Result(Null("TestClass2")));
+
+			var testing = Generator();
+
+			var assembly = testing.Generate(new TestTemplate());
+			var testClass1 = GetRenderedType(assembly, "TestClass1");
+
+			var operation = testClass1.GetMethod("Operation");
+
+			var test1 = CreateInstance(testClass1, "test1", "TestClass1");
+
+			var actual = operation.Invoke(test1, new object[] {null});
+			Assert.IsNull(actual);
+		}
+
+		[Test]
 		public void When_type_is_list__conversion_template_uses_list_methods_of_rapplication_and_rvariable()
 		{
 			ModelsAre(

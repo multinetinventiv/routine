@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
-using Routine.Api;
-using Routine.Api.Configuration;
-using Routine.Api.Template;
 using Routine.Core;
 
 namespace Routine.Test.Api.Template
@@ -458,12 +455,14 @@ namespace Routine.Test.Api.Template
 				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
 				.Member("Name", "s-string")
+				.Member("Self", "TestClass1")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "TestClass1"))
 				.Value("test1_value")
 				.Member("Name", Null("s-string"))
+				.Member("Self", Null("TestClass1"))
 			);
 
 			var testing = Generator(c => c
@@ -474,58 +473,49 @@ namespace Routine.Test.Api.Template
 			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
 
 			var nameProperty = iTestClass1.GetProperty("Name");
+			var selfProperty = iTestClass1.GetProperty("Self");
 
 			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
 
 			var name = nameProperty.GetValue(testObj1, new object[0]);
 			Assert.IsNull(name);
+
+			var self = selfProperty.GetValue(testObj1, new object[0]);
+			Assert.IsNull(self);
 		}
 
 		[Test]
-		public void Null_parameter_value_support()
+		public void Null_parameter_and_operation_result_support()
 		{
 			ModelsAre(
 				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Operation("Operation", "s-string", PModel("arg1", "s-string"))
+				.Operation("Operation", "s-string", PModel("arg", "s-string"))
+				.Operation("Operation2", "TestClass1", PModel("arg", "TestClass1"))
 			);
 
-			ObjectsAre(Object(Id("test1", "TestClass1")).Value("test1_value"));
-
-			When(Id("test1", "TestClass1"))
-				.Performs("Operation", p =>
-					p["arg1"].Values[0].IsNull)
-				.Returns(Result(Id("resultForNull", "s-string")));
-
-			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
-				.Use(p => p.ParseableValueTypePattern()));
-
-			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
-
-			var operation = iTestClass1.GetMethod("Operation");
-
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
-
-			var actual = operation.Invoke(testObj1, new object[] { null });
-			Assert.AreEqual("resultForNull", actual);
-		}
-
-		[Test]
-		public void Null_operation_result_support()
-		{
-			ModelsAre(
-				Model("s-string").IsValue(),
-				Model("TestClass1").Name("TestClass1")
-				.Operation("Operation", "s-string")
+			ObjectsAre(
+				Object(Id("test1", "TestClass1")).Value("test1_value"),
+				Object(Id("fail", "TestClass1"))
 			);
-
-			ObjectsAre(Object(Id("test1", "TestClass1")).Value("test1_value"));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation")
-				.Returns(Result(Null("s-string")));
+				.Returns(Result(Id("fail", "s-string")));
+
+			When(Id("test1", "TestClass1"))
+				.Performs("Operation2")
+				.Returns(Result(Id("fail", "TestClass1")));
+
+			When(Id("test1", "TestClass1"))
+				.Performs("Operation", p => 
+					p["arg"].Values[0].IsNull
+				).Returns(Result(Null("s-string")));
+
+			When(Id("test1", "TestClass1"))
+				.Performs("Operation2", p => 
+					p["arg"].Values[0].IsNull
+				).Returns(Result(Null("TestClass")));
 
 			var testing = Generator(c => c
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
@@ -535,10 +525,14 @@ namespace Routine.Test.Api.Template
 			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
 
 			var operation = iTestClass1.GetMethod("Operation");
+			var operation2 = iTestClass1.GetMethod("Operation2");
 
 			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
 
-			var actual = operation.Invoke(testObj1, new object[0]);
+			var actual = operation.Invoke(testObj1, new object[]{null});
+			Assert.IsNull(actual);
+
+			actual = operation2.Invoke(testObj1, new object[]{null});
 			Assert.IsNull(actual);
 		}
 	}

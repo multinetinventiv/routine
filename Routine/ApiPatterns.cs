@@ -39,10 +39,10 @@ namespace Routine
 
 				.ReferencedTypeTemplate.Set(c => c
 					.By(t => new NullableTypeConversionTemplate())
-					.When(t => t.IsGenericType && t.Name.StartsWith("Nullable`1") && t.GetGenericArguments()[0].CanParse()))
+					.When(t => t.IsGenericType && t.Name.StartsWith("Nullable`1") && t.GetGenericArguments()[0].CanParse() && t.GetGenericArguments()[0].IsValueType))
 				.ReferencedTypeTemplate.Set(c => c
 					.By(t => new ParseableValueTypeConversionTemplate())
-					.When(t => t.CanParse())
+					.When(t => t.CanParse() && t.IsValueType)
 				)
 			;
 		}

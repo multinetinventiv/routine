@@ -12,6 +12,9 @@ namespace Routine.Soa
 {
 	public class SoaController : Controller
 	{
+		public static string ControllerName { get { return typeof(SoaController).Name.BeforeLast("Controller"); } }
+		public static string DefaultAction { get { return "Index"; } }
+
 		private const int DEFAULT_RECURSION_LIMIT = 100;
 
 		private static IRestSerializer CreateDefaultSerializer(int maxResultLength)

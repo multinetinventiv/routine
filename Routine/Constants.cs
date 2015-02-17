@@ -14,5 +14,7 @@
 		public const string PROPERTY_OPERATION_DEFAULT_PREFIX = "Get";
 
 		public const int DEFAULT_MAX_RESULT_LENGTH = 2 * 1024 * 1024;
+
+		public const string SOA_ROUTE_NAME = "__routine_soa_route";
 	}
 }

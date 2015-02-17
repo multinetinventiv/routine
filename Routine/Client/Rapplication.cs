@@ -56,7 +56,7 @@ namespace Routine.Client
 		{
 			get
 			{
-				FetchModelIfNecessary(); 
+				FetchModelIfNecessary();
 
 				return types.Values.ToList();
 			}
@@ -69,7 +69,12 @@ namespace Routine.Client
 
 		public Rvariable NewVar<T>(string name, T value, Func<T, string> idExtractor, string modelId)
 		{
-			return NewVar(name, Get(value, idExtractor, modelId));
+			return NewVar(name, value, o => Get(o, idExtractor, modelId));
+		}
+
+		public Rvariable NewVar<T>(string name, T value, Func<T, Robject> robjectExtractor)
+		{
+			return NewVar(name, Get(value, robjectExtractor));
 		}
 
 		public Rvariable NewVar(string name, Robject robj)
@@ -84,7 +89,12 @@ namespace Routine.Client
 
 		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, string> idExtractor, string modelId)
 		{
-			return NewVarList(name, list.Select(o => Get(o, idExtractor, modelId)));
+			return NewVarList(name, list, o => Get(o, idExtractor, modelId));
+		}
+
+		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, Robject> robjectExtractor)
+		{
+			return NewVarList(name, list.Select(o => Get(o, robjectExtractor)));
 		}
 
 		public Rvariable NewVarList(string name, params Robject[] list) { return NewVarList(name, list.AsEnumerable()); }
@@ -95,6 +105,18 @@ namespace Routine.Client
 
 		public Rvariable NullVariable() { return new Rvariable(); }
 		public Robject NullObject() { return new Robject(); }
+
+		private Robject Get<T>(T value, Func<T, Robject> robjectExtractor)
+		{
+			object boxedValue = value;
+			var robj = new Robject();
+			if (boxedValue != null)
+			{
+				robj = robjectExtractor(value);
+			}
+
+			return robj;
+		}
 
 		private Robject Get<T>(T value, Func<T, string> idExtractor, string modelId)
 		{

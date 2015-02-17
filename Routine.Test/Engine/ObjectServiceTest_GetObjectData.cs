@@ -29,7 +29,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData
 		}
 	}
 
-	public class BusinessValue
+	public struct BusinessValue
 	{
 		public static BusinessValue Parse(string value)
 		{

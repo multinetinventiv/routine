@@ -6,7 +6,7 @@ namespace Routine
 {
 	public static class SoaPatterns
 	{
-		public static ConventionalSoaConfiguration FromEmpty(this PatternBuilder<ConventionalSoaConfiguration> source) { return new ConventionalSoaConfiguration(false); }
+		public static ConventionalSoaConfiguration FromEmpty(this PatternBuilder<ConventionalSoaConfiguration> source) { return new ConventionalSoaConfiguration(); }
 
 		public static ConventionalSoaConfiguration ExceptionsWrappedAsUnhandledPattern(this PatternBuilder<ConventionalSoaConfiguration> source)
 		{

@@ -1,4 +1,6 @@
-﻿using Routine.Core;
+﻿using System.Web.Mvc;
+using System.Web.Routing;
+using Routine.Core;
 using Routine.Engine;
 
 namespace Routine.Soa.Context
@@ -14,6 +16,17 @@ namespace Routine.Soa.Context
 			SoaConfiguration = soaConfiguration;
 			ObjectService = objectService;
 			CoreContext = coreContext;
+
+			RegisterRoutes();
+		}
+
+		private void RegisterRoutes()
+		{
+			RouteTable.Routes.MapRoute(
+				Constants.SOA_ROUTE_NAME,
+				SoaConfiguration.GetRootPath() + "/{action}/{id}",
+				new { controller = SoaController.ControllerName, action = SoaController.DefaultAction, id = "" }
+			);
 		}
 
 		public ObjectReferenceData GetObjectReference(object @object)

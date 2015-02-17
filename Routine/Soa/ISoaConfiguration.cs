@@ -5,7 +5,7 @@ namespace Routine.Soa
 {
 	public interface ISoaConfiguration
 	{
-		string GetActionRouteName();
+		string GetRootPath();
 		int GetMaxResultLength();
 		List<string> GetHeaders();
 		SoaExceptionResult GetExceptionResult(Exception exception);

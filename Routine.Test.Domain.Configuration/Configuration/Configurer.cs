@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Castle.Core.Internal;
 using Castle.Core.Logging;
 using Castle.Facilities.FactorySupport;
@@ -57,6 +58,11 @@ namespace Routine.Test.Domain.Configuration
 
 			public void MvcApplication()
 			{
+				AreaRegistration.RegisterAllAreas();
+
+				GlobalFilters.Filters.Add(new HandleErrorAttribute());
+				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
 				container.Register(
 					Component.For<IMvcContext>()
 						.Instance(BuildRoutine.Context()
@@ -73,6 +79,11 @@ namespace Routine.Test.Domain.Configuration
 
 			public void SoaApplication()
 			{
+				AreaRegistration.RegisterAllAreas();
+
+				GlobalFilters.Filters.Add(new HandleErrorAttribute());
+				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
 				container.Register(
 					Component.For<ISoaContext>()
 						.Instance(BuildRoutine.Context()
@@ -81,6 +92,12 @@ namespace Routine.Test.Domain.Configuration
 						.LifestyleSingleton(),
 
 					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
+				);
+
+				RouteTable.Routes.MapRoute(
+					"Default",
+					"",
+					new { controller = SoaController.ControllerName, action = SoaController.DefaultAction, id = "" }
 				);
 
 				Logging();
@@ -198,6 +215,7 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.SoaConfig()
 						.FromBasic()
+						.RootPath.Set("Service")
 						.Headers.Add("language_code")
 						.MaxResultLength.Set(100000000)
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())

@@ -120,6 +120,7 @@ namespace Routine.Ui.Configuration
 			return this;
 		}
 
+		//TODO move to DefaultMvcContext
 		private void RegisterRoutes(string defaultObjectId)
 		{
 			RouteTable.Routes.MapRoute(

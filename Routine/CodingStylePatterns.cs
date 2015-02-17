@@ -18,13 +18,13 @@ namespace Routine
 			return source
 					.FromEmpty()
 
-					.TypeIsValue.Set(true, t => t.CanParse())
+					.TypeIsValue.Set(true, t => t.CanParse() && t.IsValueType)
 
-					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanParse()))
-					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse()))
+					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanParse() && t.IsValueType))
+					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse() && t.IsValueType))
 
-					.Members.AddNoneWhen(t => t.CanParse())
-					.Operations.AddNoneWhen(t => t.CanParse())
+					.Members.AddNoneWhen(t => t.CanParse() && t.IsValueType)
+					.Operations.AddNoneWhen(t => t.CanParse() && t.IsValueType)
 
 					.StaticInstances.Set(c => c.Constant(true, false).When(t => t.CanBe<bool>()))
 					;
