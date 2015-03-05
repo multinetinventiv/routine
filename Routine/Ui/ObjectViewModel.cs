@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
 using Routine.Client;
 using Routine.Core.Rest;
 
@@ -17,6 +15,8 @@ namespace Routine.Ui
 		{
 			Object = @object;
 		}
+
+		public override string SpecificViewName { get { return Object.IsNull ? null : Object.Type.Name; } }
 
 		public string ViewModelId
 		{
@@ -52,7 +52,7 @@ namespace Routine.Ui
 				{
 					return Configuration.GetNullDisplayValue();
 				}
-				
+
 				return Object.Value;
 			}
 		}
@@ -62,30 +62,6 @@ namespace Routine.Ui
 			get
 			{
 				return !Object.IsNull && !Object.Type.IsValueType && Configuration.GetHasDetail(this);
-			}
-		}
-
-		private string ViewRouteNameBase { get { return Configuration.GetViewRouteName(this); } }
-		public string ViewRouteName { get { return ViewRouteNameBase; } }
-
-		private string PerformRouteNameBase { get { return Configuration.GetPerformRouteName(this); } }
-		public string PerformRouteName { get { return Object.IsNaked ? PerformRouteNameBase : PerformRouteNameBase + "As"; } }
-
-		public RouteValueDictionary RouteValues
-		{
-			get
-			{
-				return new RouteValueDictionary(new { id = Object.Id, modelId = Object.ActualType.Id });
-			}
-		}
-
-		public RouteValueDictionary RouteValuesIncludingViewModelId
-		{
-			get
-			{
-				if (Object.IsNaked) { return RouteValues; }
-
-				return new RouteValueDictionary(new { id = Object.Id, actualModelId = Object.ActualType.Id, viewModelId = Object.ViewType.Id });
 			}
 		}
 
@@ -170,7 +146,9 @@ namespace Routine.Ui
 			var parameters = new List<Rvariable>();
 			foreach (var item in parameterDictionary)
 			{
-				var rparam = rparams.Single(p => p.Id == item.Key);
+				var rparam = rparams.SingleOrDefault(p => p.Id == item.Key);
+
+				if (rparam == null) { continue; }
 
 				var robjs = item.Value.Trim().Split(Configuration.GetListValueSeparator()).Select(id =>
 				{
@@ -192,16 +170,6 @@ namespace Routine.Ui
 			var result = Object.Perform(operationModelId, parameters);
 
 			return new VariableViewModel(Configuration, result);
-		}
-	}
-
-	public static class UrlHelper_ObjectViewModelExtensions
-	{
-		public static string Route(this UrlHelper source, ObjectViewModel model)
-		{
-			if (model == null) { return null; }
-
-			return source.RouteUrl(model.ViewRouteName, model.RouteValues);
 		}
 	}
 }

@@ -16,5 +16,10 @@
 		public const int DEFAULT_MAX_RESULT_LENGTH = 2 * 1024 * 1024;
 
 		public const string SOA_ROUTE_NAME = "__routine_soa_route";
+		
+		public const string MVC_PERFORM_ROUTE_NAME = "__routine_mvc_perform_route";
+		public const string MVC_PERFORM_AS_ROUTE_NAME = "__routine_mvc_perform_as_route";
+		public const string MVC_GET_ROUTE_NAME = "__routine_mvc_get_route";
+		public const string MVC_GET_AS_ROUTE_NAME = "__routine_mvc_get_as_route";
 	}
 }

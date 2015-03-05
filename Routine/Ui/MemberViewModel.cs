@@ -15,6 +15,11 @@ namespace Routine.Ui
 			Value = member;
 		}
 
+		public override string SpecificViewName
+		{
+			get { return string.Format("{0}{1}{2}", Member.Type.Name, Configuration.GetViewNameSeparator(), Id); }
+		}
+
 		public string Id { get { return Member.Id; } }
 		public string Text { get { return Configuration.GetDisplayName(Member.Id); } }
 		public bool IsList { get { return Member.IsList; } }

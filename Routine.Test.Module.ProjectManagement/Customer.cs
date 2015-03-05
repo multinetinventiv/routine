@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Routine.Test.Domain;
 
 namespace Routine.Test.Module.ProjectManagement
 {
 	public class Customer
 	{
-		private IDomainContext ctx;
-		private IRepository<Customer> repository;
+		private readonly IDomainContext context;
+		private readonly IRepository<Customer> repository;
 
 		private Customer() { }
-		public Customer(IDomainContext ctx, IRepository<Customer> repository)
+		public Customer(IDomainContext context, IRepository<Customer> repository)
 		{
-			this.ctx = ctx;
+			this.context = context;
 			this.repository = repository;
 		}
 

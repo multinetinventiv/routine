@@ -35,8 +35,8 @@ namespace Routine.Test.Module.ProjectManagement
 			return this;
 		}
 
-		internal Project With(NewProject newProject) 
-		{ 
+		internal Project With(NewProject newProject)
+		{
 			With(newProject.Customer, newProject.Name, newProject.Deadline);
 
 			foreach (var feature in newProject.Features)
@@ -49,7 +49,7 @@ namespace Routine.Test.Module.ProjectManagement
 
 		public List<string> GetAvailableNamesForRename()
 		{
-			return new List<string>{ Name + "_1", Name + "_2" };
+			return new List<string> { Name + "_1", Name + "_2" };
 		}
 
 		public void Rename(string name)
@@ -64,6 +64,7 @@ namespace Routine.Test.Module.ProjectManagement
 			ctx.New<Feature>().With(name, this);
 		}
 
+		public Customer Customer { get { return ctx.Query<Customers>().ByUid(CustomerUid); } }
 		public List<Feature> Features { get { return ctx.Query<Features>().ByProject(this); } }
 	}
 
@@ -83,7 +84,7 @@ namespace Routine.Test.Module.ProjectManagement
 
 		#region IProjects implementation
 
-		List<IProject> IProjects.All(){return All().Cast<IProject>().ToList();}
+		List<IProject> IProjects.All() { return All().Cast<IProject>().ToList(); }
 
 		#endregion
 	}

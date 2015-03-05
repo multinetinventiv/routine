@@ -20,9 +20,9 @@ namespace Routine.Test.Module.Todo
 		public List<Assignee> Assignees { get { return ctx.Query<Assignees>().All(); } }
 		public List<TodoItem> UndoneItems { get { return ctx.Query<TodoItems>().UndoneItems(); } }
 
-		public void NewAssignee(string name, FatString address)
+		public Assignee NewAssignee(string name, FatString address)
 		{
-			ctx.New<Assignee>().With(name, address);
+			return ctx.New<Assignee>().With(name, address);
 		}
 
 		public void NewTodoList(DateTime firstDueDate, int periodInDays, string todoSuffix, int count)

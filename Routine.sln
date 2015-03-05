@@ -1,6 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A9E4ABC4-268C-48D4-9123-D6568FC67096}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet\NuGet.exe = NuGet\NuGet.exe
+		NuGet\package.bat = NuGet\package.bat
+		NuGet\publish.config = NuGet\publish.config
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine", "Routine\Routine.csproj", "{A597022C-F6DD-495F-A846-290EEDE08B9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test", "Routine.Test\Routine.Test.csproj", "{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}"
@@ -17,13 +26,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common", "Rout
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement", "Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj", "{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A9E4ABC4-268C-48D4-9123-D6568FC67096}"
-	ProjectSection(SolutionItems) = preProject
-		NuGet\NuGet.exe = NuGet\NuGet.exe
-		NuGet\package.bat = NuGet\package.bat
-		NuGet\publish.config = NuGet\publish.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo.Api", "Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj", "{300B819C-EE59-4879-8A97-FB2C317E38D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Api", "Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj", "{75480479-B00B-4919-85E7-199706A6D923}"
@@ -32,7 +34,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain", "Rout
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain.Configuration", "Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj", "{0DE7385D-C945-4166-B60F-54AD8C1534F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Web.Mvc.LeftMenu", "Routine.Test.Web.Mvc.LeftMenu\Routine.Test.Web.Mvc.LeftMenu.csproj", "{161454D3-C3B8-4319-B0FD-00C74D1E2D27}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Ui", "Routine.Test.Module.ProjectManagement.Ui\Routine.Test.Module.ProjectManagement.Ui.csproj", "{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,12 +104,12 @@ Global
 		{0DE7385D-C945-4166-B60F-54AD8C1534F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DE7385D-C945-4166-B60F-54AD8C1534F1}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{0DE7385D-C945-4166-B60F-54AD8C1534F1}.Test|Any CPU.Build.0 = Test|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Release|Any CPU.Build.0 = Release|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{161454D3-C3B8-4319-B0FD-00C74D1E2D27}.Test|Any CPU.Build.0 = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

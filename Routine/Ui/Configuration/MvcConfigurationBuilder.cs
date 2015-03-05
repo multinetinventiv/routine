@@ -1,22 +1,21 @@
+using System;
+
 namespace Routine.Ui.Configuration
 {
 	public class MvcConfigurationBuilder
 	{
-		public ConventionalMvcConfiguration FromBasic(){ return FromBasic(ConventionalMvcConfiguration.DEFAULT_OBJECT_ID);}
-		public ConventionalMvcConfiguration FromBasic(string defaultObjectId)
+		public ConventionalMvcConfiguration FromBasic()
 		{
-			return new ConventionalMvcConfiguration(defaultObjectId)
+			return new ConventionalMvcConfiguration()
 				.NullDisplayValue.Set("-")
-				.ViewNameSeparator.Set('-')
 				.ListValueSeparator.Set(',')
+				.DefaultObjectId.Set("default")
+
+				.CachePolicyAction.Set(hcp => { })
 
 				.ParameterDefault.SetDefault()
 				.ParameterSearcher.SetDefault()
 
-				.ViewName.Set(string.Empty)
-
-				.ViewRouteName.Set("Get")
-				.PerformRouteName.Set("Perform")
 				.ObjectHasDetail.Set(c => c.By(ovm => ovm.HasMember || ovm.HasOperation))
 
 				.OperationOrder.Set(0)
@@ -33,6 +32,28 @@ namespace Routine.Ui.Configuration
 
 				.NextLayer()
 			;
+		}
+
+		public ConventionalMvcConfiguration DefaultTheme(Func<ObjectViewModel, bool> searchViewModelPredicate)
+		{
+			return FromBasic()
+				.ThemeAssembly.Set(typeof(MvcPatterns).Assembly)
+				.ThemeNamespace.Set("Routine.Ui.Themes.Default")
+				.ViewNameSeparator.Set('.')
+				.ViewName.Set("Search", vm => vm is ObjectViewModel && searchViewModelPredicate(((ObjectViewModel)vm)))
+				.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
+				;
+		}
+
+		public ConventionalMvcConfiguration TopMenuTheme(Func<ObjectViewModel, bool> searchViewModelPredicate)
+		{
+			return FromBasic()
+				.ThemeAssembly.Set(typeof(MvcPatterns).Assembly)
+				.ThemeNamespace.Set("Routine.Ui.Themes.TopMenu")
+				.ViewNameSeparator.Set('.')
+				.ViewName.Set("Search", vm => vm is ObjectViewModel && searchViewModelPredicate(((ObjectViewModel)vm)))
+				.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
+				;
 		}
 	}
 }

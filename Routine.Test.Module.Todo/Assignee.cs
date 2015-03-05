@@ -43,8 +43,7 @@ namespace Routine.Test.Module.Todo
 				return ctx.Query<EmailContactInfos>().ByOwnerAssigneeUid(Uid)
 						  .Cast<IContactInfo>()
 						  .Union(
-							ctx.Query<PhoneContactInfos>().ByOwnerAssigneeUid(Uid)
-						  	   .Cast<IContactInfo>())
+							ctx.Query<PhoneContactInfos>().ByOwnerAssigneeUid(Uid))
 						  .OrderByDescending(c => c.DateCreated)
 						  .ToList();
 			}

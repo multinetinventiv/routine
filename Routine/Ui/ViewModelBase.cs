@@ -1,5 +1,5 @@
+using System.Globalization;
 using System.Web.Mvc;
-using System.Web.Mvc.Html;
 
 namespace Routine.Ui
 {
@@ -14,20 +14,33 @@ namespace Routine.Ui
 
 		protected IMvcConfiguration Configuration { get { return configuration; } }
 
-		public void Render(HtmlHelper html, params object[] viewData) { RenderAs(html, null, viewData); }
-		public void RenderAs(HtmlHelper html, string type, params object[] viewData)
+		public string GetViewName(ControllerContext controllerContext) { return GetViewName(controllerContext, null); }
+		public string GetViewName(ControllerContext controllerContext, string mode)
 		{
-			var viewName = Configuration.GetViewName(this);
-
-			if(!string.IsNullOrEmpty(type)) { viewName += Configuration.GetViewNameSeparator() + type; }
-
-			var viewDataDict = new ViewDataDictionary();
-			for(int i = 0; i<viewData.Length; i+=2)
+			if (MayHaveSpecificView)
 			{
-				viewDataDict.Add(viewData[i] as string, viewData[i + 1]);
+				var specificViewName = Combine(SpecificViewName, mode);
+
+				if (ViewEngines.Engines.FindPartialView(controllerContext, specificViewName).View != null)
+				{
+					return specificViewName;
+				}
 			}
 
-			html.RenderPartial(viewName, this, viewDataDict);
+			return Combine(configuration.GetViewName(this), mode);
 		}
+
+		private string Combine(string viewName, string mode)
+		{
+			if (string.IsNullOrEmpty(mode))
+			{
+				return viewName;
+			}
+
+			return string.Format("{0}{1}{2}", viewName, Configuration.GetViewNameSeparator(), mode.ToLower(CultureInfo.InvariantCulture));
+		}
+
+		private bool MayHaveSpecificView { get { return !string.IsNullOrEmpty(SpecificViewName); } }
+		public virtual string SpecificViewName { get { return null; } }
 	}
 }

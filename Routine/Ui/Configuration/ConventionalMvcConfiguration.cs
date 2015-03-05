@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
-using System.Web.Routing;
+using System.Reflection;
+using System.Web;
 using Routine.Client;
 using Routine.Core.Configuration;
 using Routine.Interception;
@@ -9,11 +10,16 @@ namespace Routine.Ui.Configuration
 {
 	public class ConventionalMvcConfiguration : LayeredBase<ConventionalMvcConfiguration>, IMvcConfiguration
 	{
-		public const string DEFAULT_OBJECT_ID = "default";
-
 		public SingleConfiguration<ConventionalMvcConfiguration, string> NullDisplayValue { get; private set; }
 		public SingleConfiguration<ConventionalMvcConfiguration, char> ViewNameSeparator { get; private set; }
 		public SingleConfiguration<ConventionalMvcConfiguration, char> ListValueSeparator { get; private set; }
+		public SingleConfiguration<ConventionalMvcConfiguration, string> DefaultObjectId { get; private set; }
+		public SingleConfiguration<ConventionalMvcConfiguration, string> RootPath { get; private set; }
+		public SingleConfiguration<ConventionalMvcConfiguration, Assembly> ThemeAssembly { get; private set; }
+		public SingleConfiguration<ConventionalMvcConfiguration, string> ThemeNamespace { get; private set; }
+		public ListConfiguration<ConventionalMvcConfiguration, Assembly> UiAssemblies { get; private set; }
+
+		public ConventionalConfiguration<ConventionalMvcConfiguration, string, Action<HttpCachePolicy>> CachePolicyAction { get; private set; }
 
 		public ConventionalListConfiguration<ConventionalMvcConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>> Interceptors { get; private set; }
 
@@ -26,8 +32,6 @@ namespace Routine.Ui.Configuration
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ViewModelBase, string> ViewName { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, string, string> DisplayName { get; private set; }
 
-		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> ViewRouteName { get; private set; }
-		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string> PerformRouteName { get; private set; }
 		public ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, bool> ObjectHasDetail { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int> OperationOrder { get; private set; }
@@ -44,14 +48,18 @@ namespace Routine.Ui.Configuration
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, Rparameter, Robject> ParameterSearcher { get; private set; }
 
-		public ConventionalMvcConfiguration() : this(true) { }
-		public ConventionalMvcConfiguration(string defaultObjectId) : this(true, defaultObjectId) { }
-		internal ConventionalMvcConfiguration(bool rootConfig) : this(rootConfig, DEFAULT_OBJECT_ID) { }
-		internal ConventionalMvcConfiguration(bool rootConfig, string defaultObjectId)
+		public ConventionalMvcConfiguration()
 		{
 			NullDisplayValue = new SingleConfiguration<ConventionalMvcConfiguration, string>(this, "NullDisplayValue", true);
 			ViewNameSeparator = new SingleConfiguration<ConventionalMvcConfiguration, char>(this, "ViewNameSeparator", true);
 			ListValueSeparator = new SingleConfiguration<ConventionalMvcConfiguration, char>(this, "ListValueSeparator", true);
+			DefaultObjectId = new SingleConfiguration<ConventionalMvcConfiguration, string>(this, "DefaultObjectId", true);
+			RootPath = new SingleConfiguration<ConventionalMvcConfiguration, string>(this, "RootPath");
+			ThemeAssembly = new SingleConfiguration<ConventionalMvcConfiguration, Assembly>(this, "ThemeAssembly", true);
+			ThemeNamespace = new SingleConfiguration<ConventionalMvcConfiguration, string>(this, "ThemeNamespace", true);
+			UiAssemblies = new ListConfiguration<ConventionalMvcConfiguration, Assembly>(this, "UiAssemblies");
+
+			CachePolicyAction = new ConventionalConfiguration<ConventionalMvcConfiguration, string, Action<HttpCachePolicy>>(this, "CachePolicyAction", true);
 
 			Interceptors = new ConventionalListConfiguration<ConventionalMvcConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>>(this, "Interceptors");
 
@@ -65,8 +73,6 @@ namespace Routine.Ui.Configuration
 			ViewName = new ConventionalConfiguration<ConventionalMvcConfiguration, ViewModelBase, string>(this, "ViewName");
 			DisplayName = new ConventionalConfiguration<ConventionalMvcConfiguration, string, string>(this, "DisplayName");
 
-			ViewRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "ViewRouteName");
-			PerformRouteName = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, string>(this, "PerformRouteName");
 			ObjectHasDetail = new ConventionalConfiguration<ConventionalMvcConfiguration, ObjectViewModel, bool>(this, "ObjectHasDetail");
 
 			OperationOrder = new ConventionalConfiguration<ConventionalMvcConfiguration, TypedViewModel<OperationViewModel, OperationTypes>, int>(this, "OperationOrder");
@@ -80,15 +86,14 @@ namespace Routine.Ui.Configuration
 
 			MemberIsRendered = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, bool>(this, "MemberIsRendered");
 			MemberTypes = new ConventionalConfiguration<ConventionalMvcConfiguration, MemberViewModel, MemberTypes>(this, "MemberTypes");
-
-			if (rootConfig)
-			{
-				RegisterRoutes(defaultObjectId);
-			}
 		}
 
 		public ConventionalMvcConfiguration Merge(ConventionalMvcConfiguration other)
 		{
+			UiAssemblies.Merge(other.UiAssemblies);
+
+			CachePolicyAction.Merge(other.CachePolicyAction);
+
 			Interceptors.Merge(other.Interceptors);
 
 			IndexId.Merge(other.IndexId);
@@ -101,8 +106,6 @@ namespace Routine.Ui.Configuration
 			ViewName.Merge(other.ViewName);
 			DisplayName.Merge(other.DisplayName);
 
-			ViewRouteName.Merge(other.ViewRouteName);
-			PerformRouteName.Merge(other.PerformRouteName);
 			ObjectHasDetail.Merge(other.ObjectHasDetail);
 
 			OperationOrder.Merge(other.OperationOrder);
@@ -120,45 +123,18 @@ namespace Routine.Ui.Configuration
 			return this;
 		}
 
-		//TODO move to DefaultMvcContext
-		private void RegisterRoutes(string defaultObjectId)
-		{
-			RouteTable.Routes.MapRoute(
-				"PerformAs",
-				"{actualModelId}/{id}/As/{viewModelId}/Perform/{operationModelId}",
-				new { controller = "Mvc", action = "PerformAs" }
-			);
-
-			RouteTable.Routes.MapRoute(
-				"Perform",
-				"{modelId}/{id}/Perform/{operationModelId}",
-				new { controller = "Mvc", action = "Perform" }
-			);
-
-			RouteTable.Routes.MapRoute(
-				"GetAs",
-				"{actualModelId}/{id}/As/{viewModelId}",
-				new { controller = "Mvc", action = "GetAs", id = defaultObjectId }
-			);
-
-			RouteTable.Routes.MapRoute(
-				"Get",
-				"{modelId}/{id}",
-				new { controller = "Mvc", action = "Get", id = defaultObjectId }
-			);
-
-			RouteTable.Routes.MapRoute(
-				"Index",
-				"",
-				new { controller = "Mvc", action = "Index" }
-			);
-		}
-
 		#region IMvcConfiguration implementation
 
 		string IMvcConfiguration.GetNullDisplayValue() { return NullDisplayValue.Get(); }
 		char IMvcConfiguration.GetViewNameSeparator() { return ViewNameSeparator.Get(); }
 		char IMvcConfiguration.GetListValueSeparator() { return ListValueSeparator.Get(); }
+		string IMvcConfiguration.GetDefaultObjectId() { return DefaultObjectId.Get(); }
+		string IMvcConfiguration.GetRootPath() { return RootPath.Get(); }
+		List<Assembly> IMvcConfiguration.GetUiAssemblies() { return UiAssemblies.Get(); }
+		Assembly IMvcConfiguration.GetThemeAssembly() { return ThemeAssembly.Get(); }
+		string IMvcConfiguration.GetThemeNamespace() { return ThemeNamespace.Get(); }
+
+		Action<HttpCachePolicy> IMvcConfiguration.GetCachePolicyAction(string virtualPath) { return CachePolicyAction.Get(virtualPath); }
 
 		IInterceptor<InterceptionContext> IMvcConfiguration.GetInterceptor(InterceptionTarget target) { return new ChainInterceptor<InterceptionContext>(Interceptors.Get(target)); }
 
@@ -172,8 +148,6 @@ namespace Routine.Ui.Configuration
 		string IMvcConfiguration.GetViewName(ViewModelBase viewModel) { return ViewName.Get(viewModel); }
 		string IMvcConfiguration.GetDisplayName(string key) { return DisplayName.Get(key); }
 
-		string IMvcConfiguration.GetViewRouteName(ObjectViewModel objectViewModel) { return ViewRouteName.Get(objectViewModel); }
-		string IMvcConfiguration.GetPerformRouteName(ObjectViewModel objectViewModel) { return PerformRouteName.Get(objectViewModel); }
 		bool IMvcConfiguration.GetHasDetail(ObjectViewModel objectViewModel) { return ObjectHasDetail.Get(objectViewModel); }
 
 		int IMvcConfiguration.GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes) { return OperationOrder.Get(new TypedViewModel<OperationViewModel, OperationTypes>(operationViewModel, operationTypes)); }

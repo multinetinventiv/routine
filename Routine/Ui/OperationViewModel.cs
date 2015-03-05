@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
 using Routine.Client;
 
 namespace Routine.Ui
@@ -16,6 +14,11 @@ namespace Routine.Ui
 		{
 			Object = @object;
 			Operation = operation;
+		}
+
+		public override string SpecificViewName
+		{
+			get { return string.Format("{0}{1}{2}", Operation.Type.Name, Configuration.GetViewNameSeparator(), Id); }
 		}
 
 		public ObjectViewModel Target { get { return new ObjectViewModel(Configuration, Object); } }
@@ -37,16 +40,6 @@ namespace Routine.Ui
 			}
 		}
 
-		public string PerformRouteName { get { return Target.PerformRouteName; } }
-		public RouteValueDictionary RouteValues
-		{
-			get
-			{
-				var result = Target.RouteValuesIncludingViewModelId;
-				result.Add("operationModelId", Operation.Id);
-				return result;
-			}
-		}
 		public bool Is(OperationTypes types)
 		{
 			return Configuration.GetOperationTypes(this).HasFlag(types);
@@ -83,14 +76,6 @@ namespace Routine.Ui
 			{
 				return (Text != null ? Text.GetHashCode() : 0);
 			}
-		}
-	}
-
-	public static class UrlHelper_OperationViewModelExtensions
-	{
-		public static string Route(this UrlHelper source, OperationViewModel model)
-		{
-			return source.RouteUrl(model.PerformRouteName, model.RouteValues);
 		}
 	}
 }

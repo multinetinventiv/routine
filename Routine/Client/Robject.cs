@@ -198,6 +198,11 @@ namespace Routine.Client
 			}
 		}
 
+		public override string ToString()
+		{
+			return string.Format("{0}({1})", Id, Type.Id);
+		}
+
 		#region Equality & Hashcode
 
 		protected bool Equals(Robject other)

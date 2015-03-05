@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
@@ -29,14 +30,39 @@ using Routine.Test.Common;
 using Routine.Test.Domain.NHibernate;
 using Routine.Test.Domain.Windsor;
 using Routine.Ui;
+using Routine.Ui.Configuration;
 using InterceptionTarget = Routine.Ui.InterceptionTarget;
+using MemberTypes = Routine.Ui.MemberTypes;
 
 namespace Routine.Test.Domain.Configuration
 {
 	public static class Configurer
 	{
-		public static void ConfigureMvcApplication() { new Configuration().MvcApplication(); }
+		public static void ConfigureMvcApplication(Mvc.ThemeConfiguration themeConfig) { new Configuration().MvcApplication(themeConfig); }
 		public static void ConfigureSoaApplication() { new Configuration().SoaApplication(); }
+
+		public static class Mvc
+		{
+			public static ThemeConfiguration DefaultTheme()
+			{
+				return new ThemeConfiguration(() => BuildRoutine.MvcConfig().DefaultTheme(ovm => ovm.MarkedAs("Search")));
+			}
+
+			public static ThemeConfiguration TopMenuTheme()
+			{
+				return new ThemeConfiguration(() => BuildRoutine.MvcConfig().TopMenuTheme(ovm => ovm.MarkedAs("Search")));
+			}
+
+			public class ThemeConfiguration
+			{
+				internal ThemeConfiguration(Func<ConventionalMvcConfiguration> themeDelegate)
+				{
+					BuildMvcConfig = themeDelegate;
+				}
+
+				internal Func<ConventionalMvcConfiguration> BuildMvcConfig { get; private set; }
+			}
+		}
 
 		private class Configuration
 		{
@@ -56,7 +82,7 @@ namespace Routine.Test.Domain.Configuration
 				ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container.Kernel));
 			}
 
-			public void MvcApplication()
+			public void MvcApplication(Mvc.ThemeConfiguration themeConfig)
 			{
 				AreaRegistration.RegisterAllAreas();
 
@@ -66,10 +92,24 @@ namespace Routine.Test.Domain.Configuration
 				container.Register(
 					Component.For<IMvcContext>()
 						.Instance(BuildRoutine.Context()
-							.AsMvcApplication(MvcConfiguration(), CodingStyle()))
+							.AsMvcApplication(MvcConfiguration(themeConfig), CodingStyle()))
 						.LifestyleSingleton(),
 
-					Component.For<MvcController>().ImplementedBy<MvcController>().LifestylePerWebRequest()
+					Component.For<RoutineController>().ImplementedBy<RoutineController>().LifestylePerWebRequest()
+				);
+
+				container.Register(
+					Classes
+						.FromAssemblyInDirectory(UiDirectory)
+						.BasedOn<Controller>()
+						.WithServiceSelf()
+						.LifestylePerWebRequest()
+					);
+
+				RouteTable.Routes.MapRoute(
+					"Index",
+					"",
+					new { controller = RoutineController.ControllerName, action = RoutineController.DefaultAction }
 				);
 
 				Logging();
@@ -163,7 +203,7 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.CodingStyle()
 						.FromBasic()
-						.AddTypes(ModuleAssemblies(), t => t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
+						.AddTypes(ModuleAssemblies(), t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
 						.Use(p => p.VirtualTypePattern())
 						.AddTypes(v => v.FromBasic()
 							.Namespace.Set("Routine.Test.Module.Virtual")
@@ -188,7 +228,7 @@ namespace Routine.Test.Domain.Configuration
 						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".")).When(t => t.IsDomainType))
 
 						.Initializers.Add(c => c.PublicInitializers().When(t => t.IsValueType && t.IsDomainType))
-						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && m.IsPublic && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
+						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
 										   .When(t => t.IsDomainType))
 
 						.Operations.Add(c => c.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
@@ -241,10 +281,17 @@ namespace Routine.Test.Domain.Configuration
 						;
 			}
 
-			private IMvcConfiguration MvcConfiguration()
+			private IMvcConfiguration MvcConfiguration(Mvc.ThemeConfiguration themeConfig)
 			{
-				return BuildRoutine.MvcConfig()
-						.FromBasic("Instance")
+				return themeConfig.BuildMvcConfig()
+						.RootPath.Set("auto")
+						.DefaultObjectId.Set("Instance")
+						.UiAssemblies.Add(UiAssemblies())
+						.CachePolicyAction.Set(hcp =>
+						{
+							hcp.SetCacheability(HttpCacheability.Private);
+							hcp.AppendCacheExtension("max-age=" + TimeSpan.FromHours(1).TotalSeconds);	
+						}, vp => !vp.EndsWith(".aspx") && !vp.EndsWith(".ascx"))
 						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
 						.Interceptors.Add(c => c.Interceptor(i => i.Do()
 													.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx["OperationModelId"])))
@@ -260,8 +307,6 @@ namespace Routine.Test.Domain.Configuration
 						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Search"))
 						.MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
 
-						.ViewName.Set("Search", vm => vm is ObjectViewModel && ((ObjectViewModel)vm).MarkedAs("Search"))
-						.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
 
 						.ParameterDefault.Set(c => c.By(p => p.Target[p.Id.ToUpperInitial()].Get())
 													.When(p => p.Parameter.Owner.IsOperation() && p.Parameter.Owner.Operation.Id.Matches("Update.*") && p.Parameter.Type.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
@@ -277,18 +322,19 @@ namespace Routine.Test.Domain.Configuration
 
 						.ParameterSearcher.Set(c => c.By(p =>
 						{
-							var som = p.Application.Types.SingleOrDefault(t => t.Module == p.ParameterType.Module && t.Name == p.ParameterType.Name + "s");
+							var rtype = p.Application.Types.SingleOrDefault(t => t.Module == p.ParameterType.Module && t.Name == p.ParameterType.Name + "s");
 
-							if (som == null)
+							if (rtype == null)
 							{
 								return null;
 							}
 
-							return p.Application.Get("Instance", som.Id);
+							return rtype.Get("Instance");
 						}))
 
 						.DisplayName.Set(c => c.By(s => s.SplitCamelCase().ToUpperInitial()))
 						.OperationOrder.Set(c => c.By(ovm => ovm.ViewModel.HasParameter ? 0 : 1))
+						.MemberOrder.Set(-1, m => m.ViewModel.Member.Id == "UndoneItems" && m.Type == MemberTypes.PageTable)
 
 						.OperationIsRendered.Set(false, o => o.MarkedAs("ParamOptions"))
 						.OperationIsRendered.Set(false, o => o.MarkedAs("Virtual"))
@@ -320,11 +366,30 @@ namespace Routine.Test.Domain.Configuration
 						.Where(TypeShouldBeTransient)
 						.WithServiceSelf()
 						.WithServiceAllInterfaces()
-						.LifestyleTransient());
+						.LifestyleTransient()
+					);
 			}
 
 			private AssemblyFilter BinDirectory { get { return new AssemblyFilter("bin"); } }
-			private AssemblyFilter ModuleDirectory { get { return BinDirectory.FilterByName(n => n.Name.StartsWith("Routine.Test.Module")); } }
+
+			private AssemblyFilter ModuleDirectory
+			{
+				get
+				{
+					return BinDirectory.FilterByName(n => 
+						n.Name.StartsWith("Routine.Test.Module") && 
+						!n.Name.EndsWith("Ui"));
+				}
+			}
+			private AssemblyFilter UiDirectory
+			{
+				get
+				{
+					return BinDirectory.FilterByName(n => 
+						n.Name.StartsWith("Routine.Test.Module") && 
+						n.Name.EndsWith("Ui"));
+				}
+			}
 
 			private bool TypeShouldBeSingleton(Type type)
 			{
@@ -350,19 +415,36 @@ namespace Routine.Test.Domain.Configuration
 				return Orm.BuildSessionFactory(container.Resolve<IDomainContext>(), ModuleAssemblies());
 			}
 
-			private IEnumerable<System.Reflection.Assembly> ModuleAssemblies()
+			private IEnumerable<Assembly> ModuleAssemblies()
 			{
 				var result = ReflectionUtil.GetAssemblies(ModuleDirectory);
 
 #if DEBUG
-				Debug.WriteLine("assembly count: " + result.Count());
-				foreach (var item in result)
+				var moduleAssemblies = result.ToList();
+				Debug.WriteLine("assembly count: " + moduleAssemblies.Count());
+				foreach (var item in moduleAssemblies)
 				{
 					Debug.WriteLine("module: " + item.FullName);
 				}
 #endif
 
-				return result;
+				return moduleAssemblies;
+			}
+
+			private IEnumerable<Assembly> UiAssemblies()
+			{
+				var result = ReflectionUtil.GetAssemblies(UiDirectory);
+
+#if DEBUG
+				var uiAssemblies = result.ToList();
+				Debug.WriteLine("assembly count: " + uiAssemblies.Count());
+				foreach (var item in uiAssemblies)
+				{
+					Debug.WriteLine("ui: " + item.FullName);
+				}
+#endif
+
+				return uiAssemblies;
 			}
 
 			private ISession OpenSession(IKernel kernel)

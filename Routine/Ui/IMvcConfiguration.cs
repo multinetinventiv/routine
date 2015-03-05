@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Web;
 using Routine.Client;
 using Routine.Interception;
 
@@ -10,7 +12,13 @@ namespace Routine.Ui
 		string GetNullDisplayValue();
 		char GetViewNameSeparator();
 		char GetListValueSeparator();
+		string GetDefaultObjectId();
+		string GetRootPath();
+		Assembly GetThemeAssembly();
+		string GetThemeNamespace();
+		List<Assembly> GetUiAssemblies();
 
+		Action<HttpCachePolicy> GetCachePolicyAction(string virtualPath);
 		IInterceptor<InterceptionContext> GetInterceptor(InterceptionTarget target);
 
 		string GetIndexId(Rtype type);
@@ -18,17 +26,15 @@ namespace Routine.Ui
 
 		Rvariable GetDefault(ParameterViewModel parameterViewModel);
 		
-		//TODO List<Rvariable> donmeli
+		//TODO should return List<Rvariable> 
 		List<Robject> GetOptions(ParameterViewModel parameterViewModel);
 		
-		//TODO operation donmeli
+		//TODO should return List<Roperation>
 		Robject GetSearcher(Rparameter parameter);
 
 		string GetViewName(ViewModelBase viewModel);
 		string GetDisplayName(string key);
 
-		string GetViewRouteName(ObjectViewModel objectViewModel);
-		string GetPerformRouteName(ObjectViewModel objectViewModel);
 		bool GetHasDetail(ObjectViewModel objectViewModel);
 
 		int GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes);

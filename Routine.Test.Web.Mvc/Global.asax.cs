@@ -7,7 +7,7 @@ namespace Routine.Test.Web.Mvc
 	{
 		protected void Application_Start()
 		{
-			Configurer.ConfigureMvcApplication();
+			Configurer.ConfigureMvcApplication(Configurer.Mvc.DefaultTheme());
 		}
 	}
 }

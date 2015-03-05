@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -31,7 +32,7 @@ namespace Routine.Test.Performance
 				.UsingRestClient(request => request.Timeout = Timeout.Infinite)
 				.AsSoaClient(BuildRoutine.SoaClientConfig()
 					.FromBasic()
-					.ServiceUrlBase.Set("http://127.0.0.1:5485/Soa")
+					.ServiceUrlBase.Set("http://localhost:5485/Service")
 					.Headers.Add("language_code")
 					.HeaderValue.Set("tr-TR", "language_code")
 					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
@@ -188,7 +189,13 @@ namespace Routine.Test.Performance
 		[Ignore]
 		public void ManuelTestField()
 		{
-			Console.WriteLine(Enumerable.Range(-1, 0).ToList());
+			Console.WriteLine(Path.Combine("", "test/path"));
+			Console.WriteLine(Path.Combine("/", "test/path"));
+			Console.WriteLine(Path.Combine("root/", "test/path"));
+			Console.WriteLine(Path.Combine("/root", "test/path"));
+			Console.WriteLine(Path.Combine("/root/", "test/path"));
+			Console.WriteLine(Path.Combine("root", "test/path"));
+			Console.WriteLine(Path.Combine("root/", "/test/path"));
 		}
 	}
 }
