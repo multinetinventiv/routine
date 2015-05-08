@@ -27,7 +27,7 @@ namespace Routine.Test.Client
 		[Test]
 		public void Client_can_access_a_business_object_by_creating_a_Robject_using_model_and_id_information()
 		{
-			ModelsAre(Model("actualModel"), Model("viewModel"));
+			ModelsAre(Model("actualModel").ViewModelIds("viewModel"), Model("viewModel").IsView("actualModel"));
 			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
 
 			var testingRobject = Robj("id", "actualModel", "viewModel");
@@ -62,9 +62,44 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
+		public void Rtype_lists_its_view_types()
+		{
+			ModelsAre(
+				Model("viewModel1").IsView("actualModel"), 
+				Model("viewModel2").IsView("actualModel"),
+				Model("actualModel").ViewModelIds("viewModel1", "viewModel2")
+			);
+
+			var testingRtype = Rtyp("actualModel");
+
+			Assert.AreEqual(2, testingRtype.ViewTypes.Count);
+			Assert.AreEqual("viewModel1", testingRtype.ViewTypes[0].Id);
+			Assert.AreEqual("viewModel2", testingRtype.ViewTypes[1].Id);
+		}
+
+		[Test]
+		public void Rtype_list_its_actual_types()
+		{
+			ModelsAre(
+				Model("viewModel").IsView("actualModel1", "actualModel2"),
+				Model("actualModel1").ViewModelIds("viewModel"),
+				Model("actualModel2").ViewModelIds("viewModel")
+			);
+
+			var testingRtype = Rtyp("viewModel");
+
+			Assert.AreEqual(2, testingRtype.ActualTypes.Count);
+			Assert.AreEqual("actualModel1", testingRtype.ActualTypes[0].Id);
+			Assert.AreEqual("actualModel2", testingRtype.ActualTypes[1].Id);
+		}
+
+		[Test]
 		public void Client_gets_object_id_and_value_information_via_Robject()
 		{
-			ModelsAre(Model("actualModel").Module("actualModule"), Model("viewModel").Module("viewModule"));
+			ModelsAre(
+				Model("actualModel").Module("actualModule").ViewModelIds("viewModel"), 
+				Model("viewModel").Module("viewModule").IsView("actualModel")
+			);
 			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
 
 			var testingRobject = Robj("id", "actualModel", "viewModel");
@@ -82,9 +117,7 @@ namespace Routine.Test.Client
 			ModelsAre(
 				Model("model")
 				.Member("member1")
-				.Member("member2")
-				.Operation("operation1", PModel("param1"))
-				.Operation("operation2", PModel("param2")));
+				.Member("member2"));
 
 			ObjectsAre(
 				Object(Id("id1")),
@@ -215,9 +248,9 @@ namespace Routine.Test.Client
 		public void Client_performs_operation_via_Robject()
 		{
 			ModelsAre(
-				Model("view_model")
+				Model("view_model").IsView("actual_model")
 				.Operation("operation", PModel("param1"), PModel("param2")),
-				Model("actual_model"));
+				Model("actual_model").ViewModelIds("view_model"));
 
 			ObjectsAre(
 				Object(Id("id", "actual_model", "view_model")),
@@ -359,11 +392,14 @@ namespace Routine.Test.Client
 		public void Robject_is_naked_when_it_does_not_have_a_view_model_id()
 		{
 			ModelsAre(
-				Model("actual_model"), Model("view_model"));
+				Model("actual_model").ViewModelIds("view_model"), 
+				Model("view_model").IsView("actual_model")
+			);
 
 			ObjectsAre(
 				Object(Id("id")),
-				Object(Id("id", "actual_model", "view_model")));
+				Object(Id("id", "actual_model", "view_model"))
+			);
 
 			Assert.IsTrue(Robj("id").IsNaked);
 			Assert.IsFalse(Robj("id", "actual_model", "view_model").IsNaked);
@@ -423,12 +459,60 @@ namespace Routine.Test.Client
 			objectServiceMock.Verify(o => o.GetValue(It.IsAny<ObjectReferenceData>()), Times.Never());
 		}
 
-		[Test][Ignore]
+		[Test]
 		public void Robjects_cannot_be_created_from_view_types()
 		{
-			ModelsAre(Model("model").IsView());
+			ModelsAre(
+				Model("view").IsView("actual"),
+				Model("actual").ViewModelIds("view")
+			);
 
-			Assert.Throws<CannotCreateRobjectException>(() => Robj("dummy", "model"));
+			Assert.Throws<CannotCreateRobjectException>(() => Robj("dummy", "view"));
+		}
+
+		[Test]
+		public void Robjects_can_convert_to_one_of_its_view_type()
+		{
+			ModelsAre(
+				Model("string").IsValue(),
+				Model("view").IsView("actual")
+				.Member("Text", "string"),
+				Model("actual").ViewModelIds("view")
+				.Member("Text", "string")
+			);
+
+			ObjectsAre(
+				Object(Id("id", "actual"))
+				.Member("Text", Id("from actual", "string")),
+				Object(Id("id", "actual", "view"))
+				.Member("Text", Id("from view", "string"))
+			);
+
+			var robjActual = Robj("id", "actual");
+
+			var robjView = robjActual.As(Rtyp("view"));
+
+			Assert.AreEqual("id", robjView.Id);
+			Assert.AreEqual("view", robjView.Type.Id);
+			Assert.AreEqual("from view", robjView["Text"].Get().Object.Id);
+		}
+
+		[Test]
+		public void Robjects_cannot_be_converted_to_a_view_type_that_does_not_belong_to_the_given_actual_type()
+		{
+			ModelsAre(
+				Model("view").IsView("actual1"),
+				Model("actual1").ViewModelIds("view"),
+				Model("actual2")
+			);
+
+			ObjectsAre(
+				Object(Id("id", "actual2"))
+			);
+
+			var robjActual = Robj("id", "actual2");
+
+			Assert.Throws<CannotCreateRobjectException>(() => robjActual.As(Rtyp("view")));
 		}
 
 		[Test]
@@ -861,7 +945,6 @@ namespace Routine.Test.Client
 
 			actual = testingRapplication.NewVarList("name", new List<string> { nullString }, o => testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
 			Assert.IsTrue(actual.List[0].IsNull);
-
 		}
 	}
 }

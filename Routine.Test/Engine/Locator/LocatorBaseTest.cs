@@ -49,12 +49,7 @@ namespace Routine.Test.Engine.Locator
 
 			testing.AcceptNullResult(false);
 
-			try
-			{
-				testingInterface.Locate(type.of<string>(), new List<string> { "dummy" });
-				Assert.Fail("exception not thrown");
-			}
-			catch (CannotLocateException) { }
+			Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
 		}
 
 		[Test]
@@ -63,12 +58,7 @@ namespace Routine.Test.Engine.Locator
 			var testing = new TestLocator(true);
 			var testingInterface = testing as ILocator;
 
-			try
-			{
-				testingInterface.Locate(type.of<string>(), new List<string> { "dummy" });
-				Assert.Fail("exception not thrown");
-			}
-			catch (CannotLocateException) { }
+			Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
 		}
 	}
 }

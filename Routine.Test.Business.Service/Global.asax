@@ -1,2 +1,2 @@
-<%@ Application Inherits="Routine.Test.Business.Service.SoaApplication" %>
+<%@ Application Inherits="Routine.Test.Business.Service.ServiceApplication" %>
 

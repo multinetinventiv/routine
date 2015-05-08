@@ -73,6 +73,8 @@
     <Compile Include="Core\Configuration\ListConfigurationTest.cs" />
     <Compile Include="Core\Rest\JsonRestSerializerTest.cs" />
     <Compile Include="Engine\Configuration\ConventionalCodingStyleTest.cs" />
+    <Compile Include="Engine\Converter\DelegateBasedConverterTest.cs" />
+    <Compile Include="Engine\Converter\TypeCastConverterTest.cs" />
     <Compile Include="Engine\Extractor\IdExtractorTest.cs" />
     <Compile Include="Engine\Extractor\ValueExtractorTest.cs" />
     <Compile Include="Engine\Virtual\MemberOperationTest.cs" />
@@ -99,10 +101,11 @@
     <Compile Include="Client\ClientTest.cs" />
     <Compile Include="Client\ClientTestBase.cs" />
     <Compile Include="Engine\Context\DefaultCoreContextTest.cs" />
-    <Compile Include="Soa\RestClientObjectServiceTest.cs" />
+    <Compile Include="Service\ResponseHeaderProcessor\PredefinedResponseHeaderProcessorTest.cs" />
+    <Compile Include="Service\RestClientObjectServiceTest.cs" />
     <Compile Include="StringExtensionsTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
-    <Compile Include="Soa\SoaControllerTest.cs" />
+    <Compile Include="Service\ServiceControllerTest.cs" />
     <Compile Include="Core\ObjectModelAndDataToStringAndEqualsTest.cs" />
     <Compile Include="Engine\ObjectServiceTest_GetApplicationModel.cs" />
     <Compile Include="Engine\ObjectServiceTest_GetObjectData.cs" />

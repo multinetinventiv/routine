@@ -1,4 +1,5 @@
-﻿using Routine.Api;
+﻿using System.Web.Script.Serialization;
+using Routine.Api;
 using Routine.Api.Context;
 using Routine.Client;
 using Routine.Client.Context;
@@ -8,8 +9,8 @@ using Routine.Core.Rest;
 using Routine.Engine;
 using Routine.Engine.Context;
 using Routine.Interception;
-using Routine.Soa;
-using Routine.Soa.Context;
+using Routine.Service;
+using Routine.Service.Context;
 using Routine.Ui;
 using Routine.Ui.Context;
 
@@ -22,9 +23,9 @@ namespace Routine
 			return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
 		}
 
-		public IApiContext AsApiGenerationRemote(IApiConfiguration apiConfiguration, ISoaClientConfiguration soaClientConfiguration)
+		public IApiContext AsApiGenerationRemote(IApiConfiguration apiConfiguration, IServiceClientConfiguration serviceClientConfiguration)
 		{
-			return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(soaClientConfiguration)));
+			return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(serviceClientConfiguration)));
 		}
 
 		public IMvcContext AsMvcApplication(IMvcConfiguration mvcConfiguration, ICodingStyle codingStyle)
@@ -32,14 +33,14 @@ namespace Routine
 			return MvcContext(mvcConfiguration, ClientContext(ObjectService(codingStyle)));
 		}
 
-		public IMvcContext AsMvcSoaClient(IMvcConfiguration mvcConfiguration, ISoaClientConfiguration soaClientConfiguration)
+		public IMvcContext AsMvcServiceClient(IMvcConfiguration mvcConfiguration, IServiceClientConfiguration serviceClientConfiguration)
 		{
-			return MvcContext(mvcConfiguration, ClientContext(ObjectServiceClient(soaClientConfiguration)));
+			return MvcContext(mvcConfiguration, ClientContext(ObjectServiceClient(serviceClientConfiguration)));
 		}
 
-		public IClientContext AsSoaClient(ISoaClientConfiguration soaClientConfiguration)
+		public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
 		{
-			return ClientContext(ObjectServiceClient(soaClientConfiguration));
+			return ClientContext(ObjectServiceClient(serviceClientConfiguration));
 		}
 
 		public IClientContext AsClientApplication(ICodingStyle codingStyle)
@@ -47,9 +48,9 @@ namespace Routine
 			return ClientContext(ObjectService(codingStyle));
 		}
 
-		public ISoaContext AsSoaApplication(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
+		public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
 		{
-			return SoaContext(soaConfiguration, codingStyle);
+			return ServiceContext(serviceConfiguration, codingStyle);
 		}
 
 		private IApiContext ApiContext(IApiConfiguration apiConfiguration, IClientContext clientContext)
@@ -67,9 +68,9 @@ namespace Routine
 			return new DefaultClientContext(objectService, new Rapplication(objectService));
 		}
 
-		private ISoaContext SoaContext(ISoaConfiguration soaConfiguration, ICodingStyle codingStyle)
+		private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
 		{
-			return new DefaultSoaContext(CoreContext(codingStyle), soaConfiguration, ObjectService(codingStyle));
+			return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle));
 		}
 
 		private IObjectService ObjectService(ICodingStyle codingStyle)
@@ -77,9 +78,9 @@ namespace Routine
 			return InterceptIfConfigured(new ObjectService(CoreContext(codingStyle), Cache()));
 		}
 
-		private IObjectService ObjectServiceClient(ISoaClientConfiguration soaClientConfiguration)
+		private IObjectService ObjectServiceClient(IServiceClientConfiguration serviceClientConfiguration)
 		{
-			return InterceptIfConfigured(new RestClientObjectService(soaClientConfiguration, RestClient(), Serializer()));
+			return InterceptIfConfigured(new RestClientObjectService(serviceClientConfiguration, RestClient(), Serializer()));
 		}
 
 		private IObjectService InterceptIfConfigured(IObjectService real)
@@ -104,17 +105,17 @@ namespace Routine
 		public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
 		private IRestClient RestClient() { return restClient; }
 
-		private IRestSerializer serializer = new JsonRestSerializer();
-		public ContextBuilder UsingSerializer(IRestSerializer serializer) { this.serializer = serializer; return this; }
-		private IRestSerializer Serializer() { return serializer; }
+		private IJsonSerializer serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer());
+		public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
+		private IJsonSerializer Serializer() { return serializer; }
 
 		private ICache cache = new WebCache();
 		public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }
 		private ICache Cache() { return cache; }
 
 		private IInterceptionConfiguration interceptionConfiguration;
-		public ContextBuilder UsingInterception(IInterceptionConfiguration interceptionConfiguration) { this.interceptionConfiguration = interceptionConfiguration; return this; }
 		public ContextBuilder UsingNoInterception() { return UsingInterception(null); }
+		public ContextBuilder UsingInterception(IInterceptionConfiguration interceptionConfiguration) { this.interceptionConfiguration = interceptionConfiguration; return this; }
 		private IInterceptionConfiguration InterceptionConfiguration() { return interceptionConfiguration; }
 	}
 }

@@ -18,6 +18,7 @@ namespace Routine.Ui.Configuration
 		public SingleConfiguration<ConventionalMvcConfiguration, Assembly> ThemeAssembly { get; private set; }
 		public SingleConfiguration<ConventionalMvcConfiguration, string> ThemeNamespace { get; private set; }
 		public ListConfiguration<ConventionalMvcConfiguration, Assembly> UiAssemblies { get; private set; }
+		public ListConfiguration<ConventionalMvcConfiguration, string> StaticFileExtensions { get; private set; }
 
 		public ConventionalConfiguration<ConventionalMvcConfiguration, string, Action<HttpCachePolicy>> CachePolicyAction { get; private set; }
 
@@ -58,6 +59,7 @@ namespace Routine.Ui.Configuration
 			ThemeAssembly = new SingleConfiguration<ConventionalMvcConfiguration, Assembly>(this, "ThemeAssembly", true);
 			ThemeNamespace = new SingleConfiguration<ConventionalMvcConfiguration, string>(this, "ThemeNamespace", true);
 			UiAssemblies = new ListConfiguration<ConventionalMvcConfiguration, Assembly>(this, "UiAssemblies");
+			StaticFileExtensions = new ListConfiguration<ConventionalMvcConfiguration, string>(this, "StaticFileExtensions");
 
 			CachePolicyAction = new ConventionalConfiguration<ConventionalMvcConfiguration, string, Action<HttpCachePolicy>>(this, "CachePolicyAction", true);
 
@@ -91,6 +93,7 @@ namespace Routine.Ui.Configuration
 		public ConventionalMvcConfiguration Merge(ConventionalMvcConfiguration other)
 		{
 			UiAssemblies.Merge(other.UiAssemblies);
+			StaticFileExtensions.Merge(other.StaticFileExtensions);
 
 			CachePolicyAction.Merge(other.CachePolicyAction);
 
@@ -133,6 +136,7 @@ namespace Routine.Ui.Configuration
 		List<Assembly> IMvcConfiguration.GetUiAssemblies() { return UiAssemblies.Get(); }
 		Assembly IMvcConfiguration.GetThemeAssembly() { return ThemeAssembly.Get(); }
 		string IMvcConfiguration.GetThemeNamespace() { return ThemeNamespace.Get(); }
+		List<string> IMvcConfiguration.GetStaticFileExtensions() { return StaticFileExtensions.Get(); }
 
 		Action<HttpCachePolicy> IMvcConfiguration.GetCachePolicyAction(string virtualPath) { return CachePolicyAction.Get(virtualPath); }
 

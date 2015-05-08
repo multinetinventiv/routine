@@ -39,6 +39,15 @@ namespace Routine.Test.Module.ProjectManagement
 		{
 			ctx.New<FeatureTask>().With(this, task);
 		}
+
+		public void AddTasks(string testNormalizeParamIndices, List<ITask> tasks){AddTasks(tasks);}
+		public void AddTasks(List<ITask> tasks)
+		{
+			foreach (var task in tasks)
+			{
+				AddTask(task);
+			}
+		}
 	}
 
 	public class Features : Query<Feature>, IFeatures

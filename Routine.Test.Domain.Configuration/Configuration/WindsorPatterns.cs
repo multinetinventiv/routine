@@ -15,7 +15,7 @@ namespace Routine.Test.Domain.Configuration
 					.FromEmpty()
 					.IdExtractor.Set(c => c.Id(e => e.Constant(singletonId))
 										   .When(t => container.TypeIsSingleton(t)))
-					.ObjectLocator.Set(c => c.Locator(l => l.Singleton(t => container.Resolve(t))
+					.Locator.Set(c => c.Locator(l => l.Singleton(t => container.Resolve(t))
 															.AcceptNullResult(false))
 											 .When(t => container.TypeIsSingleton(t)))
 					.StaticInstances.Set(c => c.By(t => container.Resolve(t))

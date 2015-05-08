@@ -1,0 +1,26 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+
+namespace Routine.Service.ResponseHeaderProcessor
+{
+<# for(int i = 1; i <= 15; i++) { #>
+    <# var list = Enumerable.Range(1, i); #>
+
+	public class Predefined<#= i #>ResponseHeaderProcessor : PredefinedResponseHeaderProcessorBase<Predefined<#= i #>ResponseHeaderProcessor>
+	{
+		public Predefined<#= i #>ResponseHeaderProcessor(<#= string.Join(", ", list.Select(l => "string headerKey" + l)) #>) 
+			: base(<#= string.Join(", ", list.Select(l => "headerKey" + l)) #>) { }
+
+		public Predefined<#= i #>ResponseHeaderProcessor Do(Action<<#= string.Join(", ", list.Select(l => "string")) #>> processorDelegate)
+		{
+			return Do(headers => processorDelegate(<#= string.Join(", ", list.Select(l => "headers[" + (l-1) + "]")) #>));
+		}
+	}
+<# } #>
+
+}

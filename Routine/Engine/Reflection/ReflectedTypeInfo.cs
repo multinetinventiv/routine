@@ -59,8 +59,6 @@ namespace Routine.Engine.Reflection
 			return other.GetActualType().IsAssignableFrom(type);
 		}
 
-		protected override TypeInfo[] GetConvertibleTypes() { throw new NotImplementedException(); }
-
 		protected override MethodInfo GetParseMethod() { return null; }
 
 		protected override void Load() { }

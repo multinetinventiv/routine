@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Routine.Test.Common
 {
@@ -33,7 +30,7 @@ namespace Routine.Test.Common
 
 		public override string ToString()
 		{
-			return uid.ToString() + "|" + type.FullName;
+			return uid.ToString() + "|" + type.AssemblyQualifiedName;
 		}
 
 		public static bool operator ==(TypedGuid l, TypedGuid r) { return object.Equals(l, r); }

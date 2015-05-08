@@ -18,6 +18,8 @@ namespace Routine.Engine
 
 		object GetObject(ObjectReferenceData aReference);
 
+		DomainType CreateDomainType(IType type);
+
 		DomainObject CreateDomainObject(object @object, DomainType viewDomainType);
 		DomainObject CreateDomainObject(ObjectReferenceData objectReference);
 	}
@@ -44,7 +46,8 @@ namespace Routine.Engine
 			return source.CreateDomainObject(anObject, null);
 		}
 
-		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager)
+		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager) { return source.CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager); }
+		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
 		{
 			var result = new ValueData { IsList = isList };
 
@@ -56,12 +59,12 @@ namespace Routine.Engine
 
 				foreach (var item in list)
 				{
-					result.Values.Add(source.CreateDomainObject(item, viewDomainType).GetObjectData(eager));
+					result.Values.Add(source.CreateDomainObject(item, viewDomainType).GetObjectData(currentDepth, eager));
 				}
 			}
 			else
 			{
-				result.Values.Add(source.CreateDomainObject(anObject, viewDomainType).GetObjectData(eager));
+				result.Values.Add(source.CreateDomainObject(anObject, viewDomainType).GetObjectData(currentDepth, eager));
 			}
 
 			return result;

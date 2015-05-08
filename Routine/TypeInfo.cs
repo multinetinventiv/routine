@@ -192,7 +192,6 @@ namespace Routine
 		protected abstract TypeInfo GetElementType();
 		protected abstract TypeInfo[] GetInterfaces();
 		public abstract bool CanBe(TypeInfo other);
-		protected abstract TypeInfo[] GetConvertibleTypes();
 		public virtual List<string> GetEnumNames() { return new List<string>(); }
 		public virtual List<object> GetEnumValues() { return new List<object>(); }
 		protected virtual TypeInfo GetEnumUnderlyingType() { return null; }
@@ -202,6 +201,36 @@ namespace Routine
 
 		public abstract object CreateInstance();
 		public abstract IList CreateListInstance(int length);
+
+		protected virtual TypeInfo[] GetAssignableTypes()
+		{
+			var result = new List<TypeInfo>();
+
+			result.Add(Get<object>());
+
+			FillInheritance(this, result);
+
+			foreach (var typeInfo in GetInterfaces())
+			{
+				FillInheritance(typeInfo, result);
+			}
+
+			return result.ToArray();
+		}
+
+		protected static void FillInheritance(TypeInfo root, List<TypeInfo> state)
+		{
+			var cur = root;
+			while (cur != null)
+			{
+				if (!state.Contains(cur))
+				{
+					state.Add(cur);
+				}
+
+				cur = cur.BaseType;
+			}
+		}
 
 		public virtual List<ConstructorInfo> GetPublicConstructors()
 		{
@@ -213,7 +242,7 @@ namespace Routine
 			if (typeInfos.Length > 0)
 			{
 				var first = typeInfos[0];
-				var rest = Enumerable.Range(1, typeInfos.Length - 1).Select(i => typeInfos[i]).ToArray();
+				var rest = Enumerable.Range(1, typeInfos.Length - 1).Select(i => (IType)typeInfos[i]).ToArray();
 
 				return GetAllConstructors().SingleOrDefault(c => c.HasParameters(first, rest));
 			}
@@ -329,7 +358,7 @@ namespace Routine
 
 		IType IType.BaseType { get { return BaseType; } }
 
-		List<IType> IType.ConvertibleTypes { get { return GetConvertibleTypes().Cast<IType>().ToList(); } }
+		List<IType> IType.AssignableTypes { get { return GetAssignableTypes().Cast<IType>().ToList(); } }
 		List<IInitializer> IType.Initializers { get { return GetAllConstructors().Cast<IInitializer>().ToList(); } }
 		List<IMember> IType.Members { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IMember>().ToList(); } }
 		List<IOperation> IType.Operations { get { return GetAllMethods().Cast<IOperation>().ToList(); } }
@@ -346,21 +375,18 @@ namespace Routine
 			return otherTypeInfo != null && CanBe(otherTypeInfo);
 		}
 
-		object IType.Convert(object target, IType otherType)
+		object IType.Cast(object @object, IType otherType)
 		{
 			var thisAsIType = this as IType;
 
-			if (!thisAsIType.CanBe(otherType)) { throw new InvalidOperationException(string.Format("Cannot convert an object of type {0} to {1}", this, otherType)); }
+			if (!thisAsIType.CanBe(otherType)) { throw new InvalidCastException(string.Format("Cannot cast an object of type {0} to {1}", this, otherType)); }
 
-			return target;
+			return @object;
 		}
 
 		#endregion
 	}
 
-	public class NoDomainTypeRootNamespaceIsDefinedException : Exception { }
-
-	// ReSharper disable InconsistentNaming
 	public static class type
 	{
 		public static TypeInfo of<T>()
@@ -373,7 +399,6 @@ namespace Routine
 			return TypeInfo.Void();
 		}
 	}
-	// ReSharper restore InconsistentNaming
 
 	public static class TypeInfoObjectExtensions
 	{

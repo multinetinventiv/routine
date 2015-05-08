@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Net;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Web;
 
@@ -26,24 +26,17 @@ namespace Routine.Core.Rest
 			this.requestFactory = requestFactory;
 		}
 
-		public string Get(string url, params RestParameter[] parameters)
+		public RestResponse Get(string url, params RestParameter[] parameters)
 		{
 			url += "?" + string.Join("&", parameters.Select(p => p.Name + "=" + HttpUtility.UrlEncode(p.Value)));
 
 			var req = requestFactory(url);
 			req.Method = "GET";
-			var res = req.GetResponse();
 
-			string result;
-			using (var reader = new StreamReader(res.GetResponseStream()))
-			{
-				result = reader.ReadToEnd();
-			}
-
-			return result;
+			return CreateRestResponse(req.GetResponse());
 		}
 
-		public string Post(string url, params RestParameter[] parameters)
+		public RestResponse Post(string url, params RestParameter[] parameters)
 		{
 			var req = requestFactory(url);
 			req.Method = "POST";
@@ -57,14 +50,32 @@ namespace Routine.Core.Rest
 				dataStream.Write(byteArray, 0, byteArray.Length);
 			}
 
-			var res = req.GetResponse();
+			return CreateRestResponse(req.GetResponse());
+		}
 
-			string result;
-			using (var reader = new StreamReader(res.GetResponseStream()))
+		private static RestResponse CreateRestResponse(WebResponse webResponse)
+		{
+			var rs = webResponse.GetResponseStream();
+
+			if (rs == null)
 			{
-				result = reader.ReadToEnd();
+				return RestResponse.Empty;
 			}
 
+			string body;
+			using (var reader = new StreamReader(rs))
+			{
+				body = reader.ReadToEnd();
+			}
+
+			var result = new RestResponse(body);
+			foreach (var headerKey in webResponse.Headers.AllKeys)
+			{
+				if (headerKey.Contains(Constants.SERVICE_RESPONSE_HEADER_PREFIX))
+				{
+					result.Headers.Add(headerKey.After(Constants.SERVICE_RESPONSE_HEADER_PREFIX), webResponse.Headers[headerKey]);
+				}
+			}
 			return result;
 		}
 	}

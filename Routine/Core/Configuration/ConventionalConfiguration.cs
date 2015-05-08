@@ -85,6 +85,10 @@ namespace Routine.Core.Configuration
 					{
 						layer = Layer.LeastSpecific;
 					}
+					else if (configuration.CurrentLayer == Layer.MostSpecific)
+					{
+						layer = Layer.MostSpecific;
+					}
 					else
 					{
 						layer = new Layer(layer.Order + configuration.CurrentLayer.Order);

@@ -22,6 +22,7 @@ namespace Routine.Test.Engine.Reflection.Domain
 	{
 		string ExplicitBaseInterfaceProperty { get; }
 	}
+
 	public interface TestInterface_OOP : TestBaseInterface_OOP
 	{
 		string ImplicitInterfaceProperty { get; }
@@ -251,7 +252,6 @@ namespace RoutineTest.OuterDomainNamespace
 
 namespace Routine.Test.Engine.Reflection
 {
-
 	public abstract class ReflectionTestBase : CoreTestBase
 	{
 		public override void SetUp()

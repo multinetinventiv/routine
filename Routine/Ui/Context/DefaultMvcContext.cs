@@ -20,7 +20,11 @@ namespace Routine.Ui.Context
 
 		private void RegisterRoutes()
 		{
-			RouteTable.Routes.IgnoreRoute("{*staticfile}", new { staticfile = @".*\.(css|js|gif|jpg|png)(/.*)?" });
+			RouteTable.Routes.IgnoreRoute("{*staticfile}", new
+			{
+				//To treat a configured extension as a static file (e.g. -> ".*\.(css|js|png)(/.*)?")
+				staticfile = string.Format(@".*\.({0})(/.*)?", string.Join("|", Configuration.GetStaticFileExtensions()))
+			}); 
 			
 			RouteTable.Routes.MapRoute(
 				Constants.MVC_PERFORM_AS_ROUTE_NAME,

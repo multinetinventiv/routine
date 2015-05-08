@@ -89,6 +89,11 @@ namespace Routine.Test.Client
 
 			public ObjectModelBuilder Id(string id) { result.Id = id; return this; }
 
+			public ObjectModelBuilder ViewModelIds(params string[] viewModelIds)
+			{
+				result.ViewModelIds.AddRange(viewModelIds);
+				return this;
+			}
 
 			public ObjectModelBuilder Mark(params string[] marks) { result.Marks.AddRange(marks); return this; }
 			public ObjectModelBuilder MarkMember(string memberId, params string[] marks) { result.Members.Single(m => m.Id == memberId).Marks.AddRange(marks); return this; }
@@ -96,7 +101,18 @@ namespace Routine.Test.Client
 			public ObjectModelBuilder MarkParameter(string operationId, string parameterId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Parameters.Single(p => p.Id == parameterId).Marks.AddRange(marks); return this; }
 
 			public ObjectModelBuilder IsValue() { result.IsValueModel = true; return this; }
-			public ObjectModelBuilder IsView() { result.IsViewModel = true; return this; }
+
+			public ObjectModelBuilder IsView(string firstActualModelId, params string[] restOfTheActualModelIds)
+			{
+				if (string.IsNullOrEmpty(firstActualModelId)) { throw new ArgumentException("firstActualModelId cannot be null or empty. A view model should have at least one actual model id", "firstActualModelId"); }
+
+				result.IsViewModel = true;
+				result.ActualModelIds.Add(firstActualModelId);
+				result.ActualModelIds.AddRange(restOfTheActualModelIds);
+
+				return this;
+			}
+
 			public ObjectModelBuilder Name(string name) { result.Name = name; return this; }
 			public ObjectModelBuilder Module(string module) { result.Module = module; return this; }
 

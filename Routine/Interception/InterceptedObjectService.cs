@@ -32,7 +32,7 @@ namespace Routine.Interception
 			var context = new InterceptionContext(InterceptionTarget.GetApplicationModel.ToString());
 
 			var result = getApplicationModelInterceptor.Intercept(
-				context, 
+				context,
 				() => objectService.GetApplicationModel()
 			) as ApplicationModel;
 
@@ -44,7 +44,7 @@ namespace Routine.Interception
 			var context = new ObjectModelInterceptionContext(InterceptionTarget.GetObjectModel.ToString(), objectService, objectModelId);
 
 			var result = getObjectModelInterceptor.Intercept(
-				context, 
+				context,
 				() => objectService.GetObjectModel(context.ObjectModelId)
 			) as ObjectModel;
 
@@ -54,9 +54,9 @@ namespace Routine.Interception
 		public string GetValue(ObjectReferenceData reference)
 		{
 			var context = new ObjectReferenceInterceptionContext(InterceptionTarget.GetValue.ToString(), objectService, reference);
-			
+
 			var result = getValueInterceptor.Intercept(
-				context, 
+				context,
 				() => objectService.GetValue(context.TargetReference)
 			) as string;
 
@@ -66,9 +66,9 @@ namespace Routine.Interception
 		public ObjectData Get(ObjectReferenceData reference)
 		{
 			var context = new ObjectReferenceInterceptionContext(InterceptionTarget.Get.ToString(), objectService, reference);
-			
+
 			var result = getInterceptor.Intercept(
-				context, 
+				context,
 				() => objectService.Get(reference)
 			) as ObjectData;
 
@@ -78,14 +78,14 @@ namespace Routine.Interception
 		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			var context = new ServiceInterceptionContext(InterceptionTarget.PerformOperation.ToString(), objectService, targetReference, operationModelId, parameterValues);
-			var objectModel = targetReference.ViewModelId ==null ? context.GetActualModel() : context.GetViewModel();
+			var objectModel = targetReference.ViewModelId == null ? context.GetActualModel() : context.GetViewModel();
 
 			var serviceInterceptor = interceptionConfiguration.GetServiceInterceptor(objectModel, context.GetOperationModel());
 
 			var result = performOperationInterceptor.Intercept(
-				context, 
+				context,
 				() => serviceInterceptor.Intercept(
-					context, 
+					context,
 					() => objectService.PerformOperation(context.TargetReference, context.OperationModelId, context.ParameterValues)
 				)
 			) as ValueData;

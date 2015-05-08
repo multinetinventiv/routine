@@ -287,9 +287,19 @@ namespace Routine.Api.Template
 			return source.RenderRvariableToObject(source.GetDefaultMode(), rvariableExpression, rapplicationExpression);
 		}
 
+		public static string RenderRobjectToObject(this TypeCodeModel source, string robjectExpression, string rapplicationExpression)
+		{
+			return source.RenderRobjectToObject(source.GetDefaultMode(), robjectExpression, rapplicationExpression);
+		}
+
 		public static string RenderObjectToRvariable(this TypeCodeModel source, string rvariableName, string objectExpression, string rapplicationExpression)
 		{
 			return source.RenderObjectToRvariable(source.GetDefaultMode(), rvariableName, objectExpression, rapplicationExpression);
+		}
+
+		public static string RenderObjectToRobject(this TypeCodeModel source, string objectExpression, string rapplicationExpression)
+		{
+			return source.RenderObjectToRobject(source.GetDefaultMode(), objectExpression, rapplicationExpression);
 		}
 
 		private static int GetDefaultMode(this TypeCodeModel source)

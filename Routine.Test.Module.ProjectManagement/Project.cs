@@ -41,7 +41,7 @@ namespace Routine.Test.Module.ProjectManagement
 
 			foreach (var feature in newProject.Features)
 			{
-				NewFeature(feature.Name);
+				NewFeature(feature);
 			}
 
 			return this;
@@ -59,9 +59,16 @@ namespace Routine.Test.Module.ProjectManagement
 			repository.Update(this);
 		}
 
-		public void NewFeature(string name)
+		public void AutoRename()
 		{
-			ctx.New<Feature>().With(name, this);
+			Name = Name.Replace("o", "u");
+
+			repository.Update(this);
+		}
+
+		public void NewFeature(NewFeature newFeature)
+		{
+			ctx.New<Feature>().With(newFeature.Name, this);
 		}
 
 		public Customer Customer { get { return ctx.Query<Customers>().ByUid(CustomerUid); } }

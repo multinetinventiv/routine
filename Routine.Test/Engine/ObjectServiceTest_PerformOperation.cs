@@ -126,6 +126,7 @@ namespace Routine.Test.Engine
 		private const string DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInputData";
 		private const string MASTER_DATA_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessMasterInputData";
 		private const string VIRTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.VirtualOperation";
+		private const string VIRTUAL_VIMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.IVirtualOperation";
 		private const string INIT_LOCATE_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInitializableLocatable";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
@@ -142,8 +143,9 @@ namespace Routine.Test.Engine
 			codingStyle
 				.TypeId.Set(c => c.By(t => t.FullName).When(t => t.IsDomainType))
 				.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
-				.ObjectLocator.SetDefault(type.of<BusinessInputData>())
-				.ObjectLocator.SetDefault(type.of<BusinessMasterInputData>())
+				.Locator.SetDefault(type.of<BusinessInputData>())
+				.Locator.SetDefault(type.of<BusinessMasterInputData>())
+				.Use(p => p.PolymorphismPattern(t => t.IsDomainType))
 				;
 
 			businessMock = new Mock<IBusinessOperation>();
@@ -174,6 +176,30 @@ namespace Routine.Test.Engine
 			testing.PerformOperation(Id("id"), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once());
+		}
+
+		[Test]
+		public void Locates_target_object_using_actual_model__but_operation_is_performed_on_view_target()
+		{
+			var convertedBusinessMock = new Mock<IBusinessOperation>();
+			var convertedBusinessObj = new BusinessOperation(convertedBusinessMock.Object);
+
+			codingStyle.Override(cs => cs
+				.Converter.Set(c => c.Converter(cb => cb.By((o, t) =>
+															{
+																Assert.AreSame(businessObj, o);
+
+																return convertedBusinessObj;
+															}))
+									 .When(type.of<BusinessOperation>()))
+			);
+
+			SetUpObject("id");
+
+			testing.PerformOperation(Id("id"), "Void", Params());
+
+			businessMock.Verify(o => o.Void(), Times.Never());
+			convertedBusinessMock.Verify(o => o.Void(), Times.Once());
 		}
 
 		[Test]
@@ -411,7 +437,7 @@ namespace Routine.Test.Engine
 		public void When_all_arguments_are_of_the_same_domain_type__list_parameters_are_located_at_once()
 		{
 			codingStyle
-				.ObjectLocator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => int.Parse(id) + 100))).When(type.of<int>()))
+				.Locator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => int.Parse(id) + 100))).When(type.of<int>()))
 			;
 
 			SetUpObject("id");
@@ -429,7 +455,7 @@ namespace Routine.Test.Engine
 		{
 			codingStyle
 				.Initializers.Add(c => c.PublicInitializers().When(type.of<BusinessInitializableLocatable>()))
-				.ObjectLocator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => BusinessInitializableLocatable.Get(id + " test")))).When(type.of<BusinessInitializableLocatable>()))
+				.Locator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => BusinessInitializableLocatable.Get(id + " test")))).When(type.of<BusinessInitializableLocatable>()))
 			;
 
 			SetUpObject("id");
@@ -588,6 +614,31 @@ namespace Routine.Test.Engine
 			testing.GetApplicationModel();
 
 			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "Void", Params());
+
+			businessMock.Verify(o => o.Void(), Times.Once);
+		}
+
+		[Test]
+		public void Virtual_inheritance_allows_target_to_be_cast_to_virtual_interface()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.AddTypes(v => v.FromBasic()
+					.Name.Set("VirtualOperation")
+					.Namespace.Set(RootNamespace)
+					.AssignableTypes.Add(vi => vi
+						.FromBasic()
+						.IsInterface.Set(true)
+						.Name.Set("IVirtualOperation")
+						.Namespace.Set(RootNamespace)
+						.Operations.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj))
+					)
+				)
+			;
+
+			testing.GetApplicationModel();
+
+			testing.PerformOperation(Id("virtual", VIRTUAL_OMID, VIRTUAL_VIMID), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once);
 		}

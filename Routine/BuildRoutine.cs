@@ -11,7 +11,8 @@ using Routine.Engine.Extractor;
 using Routine.Engine.Virtual;
 using Routine.Interception;
 using Routine.Interception.Configuration;
-using Routine.Soa.Configuration;
+using Routine.Service;
+using Routine.Service.Configuration;
 using Routine.Ui.Configuration;
 
 namespace Routine
@@ -63,24 +64,24 @@ namespace Routine
 			return new PatternBuilder<ConventionalMvcConfiguration>();
 		}
 
-		public static SoaConfigurationBuilder SoaConfig()
+		public static ServiceConfigurationBuilder ServiceConfig()
 		{
-			return new SoaConfigurationBuilder();
+			return new ServiceConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalSoaConfiguration> SoaPattern()
+		internal static PatternBuilder<ConventionalServiceConfiguration> ServicePattern()
 		{
-			return new PatternBuilder<ConventionalSoaConfiguration>();
+			return new PatternBuilder<ConventionalServiceConfiguration>();
 		}
 
-		public static SoaClientConfigurationBuilder SoaClientConfig()
+		public static ServiceClientConfigurationBuilder ServiceClientConfig()
 		{
-			return new SoaClientConfigurationBuilder();
+			return new ServiceClientConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalSoaClientConfiguration> SoaClientPattern()
+		internal static PatternBuilder<ConventionalServiceClientConfiguration> ServiceClientPattern()
 		{
-			return new PatternBuilder<ConventionalSoaClientConfiguration>();
+			return new PatternBuilder<ConventionalServiceClientConfiguration>();
 		}
 
 		public static LocatorBuilder Locator()
@@ -103,6 +104,11 @@ namespace Routine
 			return new ValueExtractorBuilder();
 		}
 
+		public static ConverterBuilder Converter()
+		{
+			return new ConverterBuilder();
+		}
+
 		public static InterceptorBuilder<TContext> Interceptor<TContext>()
 			where TContext : InterceptionContext
 		{
@@ -122,6 +128,11 @@ namespace Routine
 		public static ParameterBuilder Parameter(IParametric owner)
 		{
 			return new ParameterBuilder(owner);
+		}
+
+		public static ResponseHeaderProcessorBuilder ResponseHeaderProcessor()
+		{
+			return new ResponseHeaderProcessorBuilder();
 		}
 	}
 
@@ -246,6 +257,13 @@ namespace Routine
 			Func<ValueExtractorBuilder, IValueExtractor> valueExtractorDelegate)
 		{
 			return source.Constant(valueExtractorDelegate(BuildRoutine.ValueExtractor()));
+		}
+
+		public static ConventionBase<TFrom, IConverter> Converter<TFrom>(
+			this ConventionBuilder<TFrom, IConverter> source,
+			Func<ConverterBuilder, IConverter> converterDelegate)
+		{
+			return source.Constant(converterDelegate(BuildRoutine.Converter()));
 		}
 
 		public static ConventionBase<TFrom, List<IInterceptor<TContext>>> Interceptor<TFrom, TContext>(
@@ -378,6 +396,16 @@ namespace Routine
 
 		#endregion
 
+		#region ConverterByCasting
+
+		public static ConventionBase<IType, IConverter> ConverterByCasting(
+			this ConventionBuilder<IType, IConverter> source)
+		{
+			return source.By(t => BuildRoutine.Converter().ByCastingFrom(t));
+		}
+
+		#endregion
+
 		#endregion
 
 		#region PatternBuilder
@@ -392,9 +420,9 @@ namespace Routine
 			return source.Merge(pattern(BuildRoutine.InterceptionPattern()));
 		}
 
-		public static ConventionalSoaConfiguration Use(this ConventionalSoaConfiguration source, Func<PatternBuilder<ConventionalSoaConfiguration>, ConventionalSoaConfiguration> pattern)
+		public static ConventionalServiceConfiguration Use(this ConventionalServiceConfiguration source, Func<PatternBuilder<ConventionalServiceConfiguration>, ConventionalServiceConfiguration> pattern)
 		{
-			return source.Merge(pattern(BuildRoutine.SoaPattern()));
+			return source.Merge(pattern(BuildRoutine.ServicePattern()));
 		}
 
 		public static ConventionalApiConfiguration Use(this ConventionalApiConfiguration source, Func<PatternBuilder<ConventionalApiConfiguration>, ConventionalApiConfiguration> pattern)
@@ -407,9 +435,9 @@ namespace Routine
 			return source.Merge(pattern(BuildRoutine.MvcPattern()));
 		}
 
-		public static ConventionalSoaClientConfiguration Use(this ConventionalSoaClientConfiguration source, Func<PatternBuilder<ConventionalSoaClientConfiguration>, ConventionalSoaClientConfiguration> pattern)
+		public static ConventionalServiceClientConfiguration Use(this ConventionalServiceClientConfiguration source, Func<PatternBuilder<ConventionalServiceClientConfiguration>, ConventionalServiceClientConfiguration> pattern)
 		{
-			return source.Merge(pattern(BuildRoutine.SoaClientPattern()));
+			return source.Merge(pattern(BuildRoutine.ServiceClientPattern()));
 		}
 
 		#endregion
@@ -419,6 +447,15 @@ namespace Routine
 		public static ConventionalCodingStyle AddTypes(this ConventionalCodingStyle source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
 		{
 			return source.AddTypes(typeBuilders.Select(builder => builder(BuildRoutine.VirtualType())));
+		}
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, VirtualType> source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
+		{
+			return source.Add(
+				typeBuilders.Select(builder => 
+					builder(BuildRoutine.VirtualType())
+				)
+			);
 		}
 
 		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IOperation> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
@@ -453,6 +490,15 @@ namespace Routine
 		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IOperation> builder)
 		{
 			return source.By(t => new List<IOperation> { builder(BuildRoutine.Operation(t)) });
+		}
+
+		#endregion
+
+		#region Response Header Processor
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IResponseHeaderProcessor> source, Func<ResponseHeaderProcessorBuilder, IResponseHeaderProcessor> builder)
+		{
+			return source.Add(builder(BuildRoutine.ResponseHeaderProcessor()));
 		}
 
 		#endregion

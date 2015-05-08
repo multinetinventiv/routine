@@ -73,5 +73,13 @@ namespace Routine.Engine
 				Parameters = Parameters.Select(p => p.GetModel()).ToList()
 			};
 		}
+
+		internal void LoadSubTypes()
+		{
+			foreach (var parameter in Parameters)
+			{
+				parameter.LoadSubTypes();
+			}
+		}
 	}
 }

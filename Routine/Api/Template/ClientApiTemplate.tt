@@ -24,7 +24,13 @@ namespace <#= model.GetNamespace(Mode.Interface) #>
 		<# } #>
 	<# } #>
 
+	<# foreach(var viewModel in model.ViewModels) { #>
+
+		<#= viewModel.GetFullName() #> As<#= viewModel.GetName(Mode.Interface) #>();
+	<# } #>
+
 		void Invalidate();
+		<#= Application.DefaultNamespace #>.ObjectIdentifier GetIdentifier();
 	}
 }
 
@@ -44,9 +50,9 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		{
 			get
 			{
-				var result = Robject["<#= member.Id #>"].Get();
+				var __result = Robject["<#= member.Id #>"].Get();
 				
-				return <#= member.ReturnModel.RenderRvariableToObject("result", "Robject.Application") #>;
+				return <#= member.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
 			}
 		}
 	<# } #>
@@ -75,14 +81,29 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		<# } #>
 	<# } #>
 
+	<# foreach(var viewModel in model.ViewModels) { #>
+
+		<#= viewModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.As<#= viewModel.GetName(Mode.Interface) #>() 
+		{
+			var __result = Robject.As(Robject.Application["<#= viewModel.Id #>"]);
+
+			return <#= viewModel.RenderRobjectToObject("__result", "Robject.Application") #>;
+		}
+	<# } #>
+
 		void <#= model.GetFullName(Mode.Interface) #>.Invalidate()
 		{
 			Robject.Invalidate();
 		}
+
+		<#= Application.DefaultNamespace #>.ObjectIdentifier <#= model.GetFullName(Mode.Interface) #>.GetIdentifier()
+		{
+			return new <#= Application.DefaultNamespace #>.ObjectIdentifier(Robject.Id);
+		}
 		
 		public override string ToString()
 		{
-			return string.Format("{0} ({1})", Robject.Value, Robject.Id);
+			return Robject.Value;
 		}
 
 		public override bool Equals(object obj)
@@ -259,6 +280,39 @@ namespace <#= model.GetNamespace(Mode.EnumConverter) #>
 
 namespace <#= Application.DefaultNamespace #>
 {
+	public class ObjectIdentifier : System.IEquatable<ObjectIdentifier>
+	{
+		public string Value { get; private set; }
+
+		internal ObjectIdentifier(string value)
+		{
+			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((ObjectIdentifier)obj);
+		}
+
+		public bool Equals(ObjectIdentifier other)
+		{
+			return Equals(Value, other.Value);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Value != null ? Value.GetHashCode() : 0);
+		}
+	}
+
 	public interface I<#= ApiName#>
 	{
 		T Get<T>(string instanceId);

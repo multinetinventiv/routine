@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core.Configuration;
+using Routine.Engine.Virtual;
 
 namespace Routine.Engine.Configuration.Conventional
 {
 	public class ConventionalCodingStyle : LayeredBase<ConventionalCodingStyle>, ICodingStyle
 	{
 		private readonly List<IType> types;
+
+		public SingleConfiguration<ConventionalCodingStyle, int> MaxFetchDepth { get; private set; }
 
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, string> TypeId { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, object, IType> Type { get; private set; }
@@ -16,8 +19,10 @@ namespace Routine.Engine.Configuration.Conventional
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, bool> TypeIsView { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, IIdExtractor> IdExtractor { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, IValueExtractor> ValueExtractor { get; private set; }
-		public ConventionalConfiguration<ConventionalCodingStyle, IType, ILocator> ObjectLocator { get; private set; }
+		public ConventionalConfiguration<ConventionalCodingStyle, IType, ILocator> Locator { get; private set; }
+		public ConventionalConfiguration<ConventionalCodingStyle, IType, IConverter> Converter { get; private set; }
 		public ConventionalConfiguration<ConventionalCodingStyle, IType, List<object>> StaticInstances { get; private set; }
+		public ConventionalListConfiguration<ConventionalCodingStyle, IType, IType> ViewTypes { get; private set; }
 		public ConventionalListConfiguration<ConventionalCodingStyle, IType, IInitializer> Initializers { get; private set; }
 		public ConventionalListConfiguration<ConventionalCodingStyle, IType, IMember> Members { get; private set; }
 		public ConventionalListConfiguration<ConventionalCodingStyle, IType, IOperation> Operations { get; private set; }
@@ -34,6 +39,8 @@ namespace Routine.Engine.Configuration.Conventional
 		{
 			types = new List<IType>();
 
+			MaxFetchDepth = new SingleConfiguration<ConventionalCodingStyle, int>(this, "MaxFetchDepth", true);
+
 			TypeId = new ConventionalConfiguration<ConventionalCodingStyle, IType, string>(this, "TypeId", true);
 			Type = new ConventionalConfiguration<ConventionalCodingStyle, object, IType>(this, "Type");
 			Module = new ConventionalConfiguration<ConventionalCodingStyle, IType, string>(this, "Module");
@@ -41,8 +48,10 @@ namespace Routine.Engine.Configuration.Conventional
 			TypeIsView = new ConventionalConfiguration<ConventionalCodingStyle, IType, bool>(this, "TypeIsView");
 			IdExtractor = new ConventionalConfiguration<ConventionalCodingStyle, IType, IIdExtractor>(this, "IdExtractor");
 			ValueExtractor = new ConventionalConfiguration<ConventionalCodingStyle, IType, IValueExtractor>(this, "ValueExtractor");
-			ObjectLocator = new ConventionalConfiguration<ConventionalCodingStyle, IType, ILocator>(this, "ObjectLocator");
+			Locator = new ConventionalConfiguration<ConventionalCodingStyle, IType, ILocator>(this, "Locator");
+			Converter = new ConventionalConfiguration<ConventionalCodingStyle, IType, IConverter>(this, "Converter");
 			StaticInstances = new ConventionalConfiguration<ConventionalCodingStyle, IType, List<object>>(this, "StaticInstances");
+			ViewTypes = new ConventionalListConfiguration<ConventionalCodingStyle, IType, IType>(this, "ViewTypes");
 			Initializers = new ConventionalListConfiguration<ConventionalCodingStyle, IType, IInitializer>(this, "Initializers");
 			Members = new ConventionalListConfiguration<ConventionalCodingStyle, IType, IMember>(this, "Members");
 			Operations = new ConventionalListConfiguration<ConventionalCodingStyle, IType, IOperation>(this, "Operations");
@@ -67,8 +76,10 @@ namespace Routine.Engine.Configuration.Conventional
 			TypeIsView.Merge(other.TypeIsView);
 			IdExtractor.Merge(other.IdExtractor);
 			ValueExtractor.Merge(other.ValueExtractor);
-			ObjectLocator.Merge(other.ObjectLocator);
+			Locator.Merge(other.Locator);
+			Converter.Merge(other.Converter);
 			StaticInstances.Merge(other.StaticInstances);
+			ViewTypes.Merge(other.ViewTypes);
 			Initializers.Merge(other.Initializers);
 			Members.Merge(other.Members);
 			Operations.Merge(other.Operations);
@@ -115,10 +126,9 @@ namespace Routine.Engine.Configuration.Conventional
 			{
 				var type = this.types[i];
 
-				if (!(type is TypeInfo)) { continue; }
-
 				var typeInfo = type as TypeInfo;
-
+				if (typeInfo == null) { continue; }
+				
 				this.types[i] = TypeInfo.Get(typeInfo.GetActualType());
 			}
 			return AddTypes(types.Select(t => TypeInfo.Get(t) as IType));
@@ -127,23 +137,44 @@ namespace Routine.Engine.Configuration.Conventional
 		public ConventionalCodingStyle AddTypes(params IType[] types) { return AddTypes(types.AsEnumerable()); }
 		public ConventionalCodingStyle AddTypes(IEnumerable<IType> types)
 		{
-			this.types.AddRange(types.Where(t => !this.types.Contains(t)));
+			foreach (var type in types)
+			{
+				AddType(type);
+			}
 
 			return this;
 		}
 
+		private void AddType(IType type)
+		{
+			if (types.Contains(type)) { return; }
+
+			types.Add(type);
+
+			if (type is VirtualType)
+			{
+				AddTypes(type.AssignableTypes);
+			}
+		}
+
 		#region ICodingStyle implementation
 
+		int ICodingStyle.GetMaxFetchDepth() { return MaxFetchDepth.Get(); }
+
 		List<IType> ICodingStyle.GetTypes() { return types; }
+
 		IType ICodingStyle.GetType(object @object) { return Type.Get(@object); }
+
 		string ICodingStyle.GetTypeId(IType type) { return TypeId.Get(type); }
 		string ICodingStyle.GetModuleName(IType type) { return Module.Get(type); }
 		bool ICodingStyle.IsValue(IType type) { return TypeIsValue.Get(type); }
 		bool ICodingStyle.IsView(IType type) { return TypeIsView.Get(type); }
 		IIdExtractor ICodingStyle.GetIdExtractor(IType type) { return IdExtractor.Get(type); }
 		IValueExtractor ICodingStyle.GetValueExtractor(IType type) { return ValueExtractor.Get(type); }
-		ILocator ICodingStyle.GetObjectLocator(IType type) { return ObjectLocator.Get(type); }
+		ILocator ICodingStyle.GetLocator(IType type) { return Locator.Get(type); }
+		IConverter ICodingStyle.GetConverter(IType type) { return Converter.Get(type); }
 		List<object> ICodingStyle.GetStaticInstances(IType type) { return StaticInstances.Get(type); }
+		List<IType> ICodingStyle.GetViewTypes(IType type) { return ViewTypes.Get(type); }
 		List<IInitializer> ICodingStyle.GetInitializers(IType type) { return Initializers.Get(type); }
 		List<IMember> ICodingStyle.GetMembers(IType type) { return Members.Get(type); }
 		List<IOperation> ICodingStyle.GetOperations(IType type) { return Operations.Get(type); }

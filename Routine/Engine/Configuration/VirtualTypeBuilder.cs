@@ -7,7 +7,7 @@ namespace Routine.Engine.Configuration
 		public VirtualType FromBasic()
 		{
 			return new VirtualType()
-				.ToStringMethod.Set(o => typeof(VirtualType).FullName)
+				.ToStringMethod.Set(o => string.Format("{0} ({1})", o.Id, o.Type))
 			;
 		}
 	}

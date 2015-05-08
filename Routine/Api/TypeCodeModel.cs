@@ -17,6 +17,7 @@ namespace Routine.Api
 
 		public Rtype Type { get; private set; }
 		public IType ReferencedType { get; private set; }
+		public List<TypeCodeModel> ViewModels { get; private set; } 
 		public InitializerCodeModel Initializer { get { return actual != null ? actual.Initializer : initializer; } }
 		public List<MemberCodeModel> Members { get { return actual != null ? actual.Members : members; } }
 		public List<OperationCodeModel> Operations { get { return actual != null ? actual.Operations : operations; } }
@@ -46,12 +47,18 @@ namespace Routine.Api
 			Type = type;
 			ReferencedType = referencedType;
 
+			ViewModels = new List<TypeCodeModel>();
+
 			members = new List<MemberCodeModel>();
 			operations = new List<OperationCodeModel>();
 		}
 
 		internal void Load()
 		{
+			ViewModels.AddRange(Type.ViewTypes
+				.Where(t => application.ValidateType(t))
+				.Select(t => application.GetModel(t)));
+
 			if (Type.Initializer != null && application.Configuration.IsRendered(Type.Initializer) && Type.Initializer.Parameters.All(p => application.ValidateType(p.ParameterType)))
 			{
 				initializer = new InitializerCodeModel(application, Type.Initializer);
@@ -142,14 +149,19 @@ namespace Routine.Api
 			{
 				return string.Format("{0}.AsList(o => {1})",
 					rvariableExpression,
-					GetTypeConversionTemplate(mode).RenderRobjectToObject(this, "o", GetRtypeExpression(rapplicationExpression))
+					RenderRobjectToObject(mode, "o", rapplicationExpression)
 				);
 			}
 
 			return string.Format("{0}.As(o => {1})",
 				rvariableExpression,
-				GetTypeConversionTemplate(mode).RenderRobjectToObject(this, "o", GetRtypeExpression(rapplicationExpression))
+				RenderRobjectToObject(mode, "o", rapplicationExpression)
 			);
+		}
+
+		public string RenderRobjectToObject(int mode, string robjectExpression, string rapplicationExpression)
+		{
+			return GetTypeConversionTemplate(mode).RenderRobjectToObject(this, robjectExpression, GetRtypeExpression(rapplicationExpression));
 		}
 
 		public string RenderObjectToRvariable(int mode, string rvariableName, string objectExpression, string rapplicationExpression)
@@ -172,7 +184,7 @@ namespace Routine.Api
 			);
 		}
 
-		private string RenderObjectToRobject(int mode, string objectExpression, string rapplicationExpression)
+		public string RenderObjectToRobject(int mode, string objectExpression, string rapplicationExpression)
 		{
 			return GetTypeConversionTemplate(mode).RenderObjectToRobject(this, objectExpression, GetRtypeExpression(rapplicationExpression));
 		}

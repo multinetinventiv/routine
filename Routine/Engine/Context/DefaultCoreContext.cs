@@ -11,6 +11,8 @@ namespace Routine.Engine.Context
 		private readonly ICodingStyle codingStyle;
 		private readonly ICache cache;
 
+		private bool initialized;
+
 		private Dictionary<string, DomainType> DomainTypes
 		{
 			get { return cache[Constants.DOMAIN_TYPES_CACHE_KEY] as Dictionary<string, DomainType>; }
@@ -29,6 +31,7 @@ namespace Routine.Engine.Context
 			this.cache = cache;
 
 			DomainTypes = new Dictionary<string, DomainType>();
+			initialized = false;
 		}
 
 		public ICodingStyle CodingStyle { get { return codingStyle; } }
@@ -46,9 +49,15 @@ namespace Routine.Engine.Context
 
 		public DomainType GetDomainType(IType type)
 		{
+			return CreateDomainType(type);
+		}
+
+		public DomainType CreateDomainType(IType type)
+		{
 			var typeId = codingStyle.GetTypeId(type);
 
 			DomainType result;
+
 			if (!DomainTypes.TryGetValue(typeId, out result))
 			{
 				lock (DomainTypes)
@@ -71,6 +80,26 @@ namespace Routine.Engine.Context
 
 		public List<DomainType> GetDomainTypes()
 		{
+			if (!initialized)
+			{
+				foreach (var type in CodingStyle.GetTypes())
+				{
+					CreateDomainType(type);
+				}
+
+				foreach (var domainType in DomainTypes.Values.ToList())
+				{
+					domainType.LoadSubTypes();
+				}
+
+				foreach (var domainType in DomainTypes.Values.ToList())
+				{
+					domainType.LoadCrossTypeRelations();
+				}
+
+				initialized = true;
+			}
+
 			return DomainTypes.Values.ToList();
 		}
 

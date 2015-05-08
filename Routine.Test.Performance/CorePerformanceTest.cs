@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Fasterflect;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
 using Routine.Core.Cache;
-using Routine.Core.Reflection;
 using Routine.Engine;
 using Routine.Test.Performance.Domain;
 
@@ -129,7 +127,7 @@ namespace Routine.Test.Performance
 						.MemberFetchedEagerly.Set(true)
 						.Operations.Add(c => c.Operations(o => !o.IsInherited(true, true)).When(t => t.IsDomainType))
 						.IdExtractor.Set(c => c.IdByMember(m => m.Returns<int>("Id")))
-						.ObjectLocator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
+						.Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
 						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
 				);
 

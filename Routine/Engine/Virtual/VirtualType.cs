@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Routine.Core.Configuration;
 
 namespace Routine.Engine.Virtual
@@ -12,6 +13,7 @@ namespace Routine.Engine.Virtual
 		public SingleConfiguration<VirtualType, bool> IsInterface { get; private set; }
 		public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; private set; }
 		public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; private set; }
+		public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; private set; }
 		public ListConfiguration<VirtualType, IOperation> Operations { get; private set; }
 
 		public VirtualType()
@@ -21,7 +23,29 @@ namespace Routine.Engine.Virtual
 			IsInterface = new SingleConfiguration<VirtualType, bool>(this, "IsInterface");
 			DefaultInstanceId = new SingleConfiguration<VirtualType, string>(this, "DefaultInstanceId", true);
 			ToStringMethod = new SingleConfiguration<VirtualType, Func<VirtualObject, string>>(this, "ToStringMethod");
+			AssignableTypes = new ListConfiguration<VirtualType, VirtualType>(this, "AssignableTypes");
 			Operations = new ListConfiguration<VirtualType, IOperation>(this, "Operations");
+		}
+
+		private object Cast(object @object, IType otherType)
+		{
+			var vobject = @object as VirtualObject;
+			if (vobject == null)
+			{
+				throw new InvalidCastException(string.Format("Cannot cast a real object to a virtual type. {0} as {1} -> {2}", @object, ToString(), otherType));
+			}
+
+			if (!CanBe(otherType))
+			{
+				throw new InvalidCastException(string.Format("Cannot cast object to given type. {0} as {1} -> {2}", vobject, ToString(), otherType));
+			}
+
+			return @object;
+		}
+
+		private bool CanBe(IType otherType)
+		{
+			return Equals(this, otherType) || Equals(type.of<object>(), otherType) || AssignableTypes.Get().Contains(otherType);
 		}
 
 		public override string ToString()
@@ -78,7 +102,7 @@ namespace Routine.Engine.Virtual
 		string IType.FullName { get { return string.Format("{0}.{1}", Namespace.Get(), Name.Get()); } }
 		string IType.Namespace { get { return Namespace.Get(); } }
 		IType IType.BaseType { get { return type.of<object>(); } }
-		List<IType> IType.ConvertibleTypes { get { return new List<IType>(); } }
+		List<IType> IType.AssignableTypes { get { return AssignableTypes.Get().Cast<IType>().ToList(); } }
 		List<IInitializer> IType.Initializers { get { return new List<IInitializer>(); } }
 		List<IMember> IType.Members { get { return new List<IMember>(); } }
 		List<IOperation> IType.Operations { get { return Operations.Get(); } }
@@ -88,8 +112,8 @@ namespace Routine.Engine.Virtual
 		List<string> IType.GetEnumNames() { return new List<string>(); }
 		List<object> IType.GetEnumValues() { return new List<object>(); }
 		IType IType.GetEnumUnderlyingType() { return null; }
-		bool IType.CanBe(IType otherType) { return Equals(this, otherType) || Equals(type.of<object>(), otherType); }
-		object IType.Convert(object target, IType otherType) { return target; }
+		bool IType.CanBe(IType otherType) { return CanBe(otherType); }
+		object IType.Cast(object @object, IType otherType){return Cast(@object, otherType);}
 		object IType.CreateInstance() { return new VirtualObject(DefaultInstanceId.Get(), this); }
 		IList IType.CreateListInstance(int length) { throw new NotSupportedException("Virtual types does not support list type"); }
 

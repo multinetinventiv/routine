@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright © 2014")]
 [assembly: AssemblyTrademark("routineframework.org")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.6.6.*")]
+[assembly: AssemblyVersion("0.6.8.*")]
 
 [assembly: InternalsVisibleTo("Routine.Test")]
 [assembly: InternalsVisibleTo("Routine.Test.Performance")]

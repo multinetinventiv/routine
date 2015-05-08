@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting;
 using NUnit.Framework;
+using Routine.Engine;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterDomainNamespace;
+using RoutineTest.OuterNamespace;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -240,6 +242,22 @@ namespace Routine.Test.Engine.Reflection
 			Assert.AreEqual(TypeInfo.Get(typeof(TestClass_OOP)), TypeInfo.Get(typeof(TestProxyClass_OOP)),
 				TypeInfo.Get(typeof(TestClass_OOP)) + "(" + TypeInfo.Get(typeof(TestClass_OOP)).GetType() + "), " +
 				TypeInfo.Get(typeof(TestProxyClass_OOP)) + "(" + TypeInfo.Get(typeof(TestProxyClass_OOP)).GetType() + "), ");
+		}
+
+		[Test]
+		public void TypeInfo_lists_assignable_types()
+		{
+			IType testClassOop = type.of<TestClass_OOP>();
+
+			var actual = testClassOop.AssignableTypes;
+
+			Assert.IsTrue(actual.Any(t => Equals(t, type.of<TestAbstractClass_OOP>())), "TestClass_OOP is assignable to TestAbstractClass_OOP, but it is not found in assignable types");
+			Assert.IsTrue(actual.Any(t => Equals(t, type.of<object>())), "TestClass_OOP is assignable to object, but it is not found in assignable types");
+
+			Assert.IsTrue(actual.Any(t => Equals(t, type.of<TestInterface_OOP>())), "TestClass_OOP is assignable to TestInterface_OOP, but it is not found in assignable types");
+			Assert.IsTrue(actual.Any(t => Equals(t, type.of<TestBaseInterface_OOP>())), "TestClass_OOP is assignable to TestBaseInterface_OOP, but it is not found in assignable types");
+
+			Assert.IsTrue(actual.Any(t => Equals(t, type.of<TestOuterInterface_OOP>())), "TestClass_OOP is assignable to TestOuterInterface_OOP, but it is not found in assignable types");
 		}
 
 		[Test]

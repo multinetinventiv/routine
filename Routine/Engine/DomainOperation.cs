@@ -113,5 +113,43 @@ namespace Routine.Engine
 
 			return ctx.CreateValueData(resultValue, ResultIsList, ResultType, true);
 		}
+
+		internal void LoadSubTypes()
+		{
+			foreach (var parameter in Parameters)
+			{
+				parameter.LoadSubTypes();
+			}
+
+			//to force type to load
+			var type = lazyResultType.Value;
+		}
+
+		#region Formatting & Equality
+
+		protected bool Equals(DomainOperation other)
+		{
+			return string.Equals(Id, other.Id);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((DomainOperation)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Id != null ? Id.GetHashCode() : 0);
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Id: {0}", Id);
+		}
+
+		#endregion
 	}
 }

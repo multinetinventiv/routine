@@ -20,7 +20,7 @@ namespace Routine.Engine
 		{
 			this.ctx = ctx;
 			this.member = member;
-			
+
 			Id = member.Name;
 			Marks = new Marks(ctx.CodingStyle.GetMarks(member));
 			IsList = member.ReturnType.CanBeCollection();
@@ -56,9 +56,44 @@ namespace Routine.Engine
 		}
 
 		public ValueData CreateData(object target) { return CreateData(target, FetchedEagerly); }
-		public ValueData CreateData(object target, bool eager)
+		public ValueData CreateData(object target, bool eager) { return CreateData(target, Constants.FIRST_DEPTH, eager); }
+		internal ValueData CreateData(object target, int currentDepth) { return CreateData(target, currentDepth, FetchedEagerly); }
+		internal ValueData CreateData(object target, int currentDepth, bool eager)
 		{
-			return ctx.CreateValueData(member.FetchFrom(target), IsList, MemberType, eager);
+			return ctx.CreateValueData(member.FetchFrom(target), IsList, MemberType, currentDepth, eager);
 		}
+
+		internal void LoadSubTypes()
+		{
+			//to force type to load
+			var type = lazyMemberType.Value;
+		}
+
+		#region Formatting & Equality
+
+		protected bool Equals(DomainMember other)
+		{
+			return string.Equals(Id, other.Id);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((DomainMember) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Id != null ? Id.GetHashCode() : 0);
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Id: {0}", Id);
+		}
+
+		#endregion
 	}
 }

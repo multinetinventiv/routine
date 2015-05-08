@@ -25,7 +25,7 @@ using NHibernate;
 using Routine.Engine;
 using Routine.Engine.Virtual;
 using Routine.Interception;
-using Routine.Soa;
+using Routine.Service;
 using Routine.Test.Common;
 using Routine.Test.Domain.NHibernate;
 using Routine.Test.Domain.Windsor;
@@ -39,7 +39,7 @@ namespace Routine.Test.Domain.Configuration
 	public static class Configurer
 	{
 		public static void ConfigureMvcApplication(Mvc.ThemeConfiguration themeConfig) { new Configuration().MvcApplication(themeConfig); }
-		public static void ConfigureSoaApplication() { new Configuration().SoaApplication(); }
+		public static void ConfigureServiceApplication() { new Configuration().ServiceApplication(); }
 
 		public static class Mvc
 		{
@@ -117,7 +117,7 @@ namespace Routine.Test.Domain.Configuration
 				DataAccess();
 			}
 
-			public void SoaApplication()
+			public void ServiceApplication()
 			{
 				AreaRegistration.RegisterAllAreas();
 
@@ -125,19 +125,19 @@ namespace Routine.Test.Domain.Configuration
 				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 				container.Register(
-					Component.For<ISoaContext>()
+					Component.For<IServiceContext>()
 						.Instance(BuildRoutine.Context()
 							.UsingInterception(ServerInterceptionConfiguration())
-							.AsSoaApplication(SoaConfiguration(), CodingStyle()))
+							.AsServiceApplication(ServiceConfiguration(), CodingStyle()))
 						.LifestyleSingleton(),
 
-					Component.For<SoaController>().ImplementedBy<SoaController>().LifestylePerWebRequest()
+					Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
 				);
 
 				RouteTable.Routes.MapRoute(
 					"Default",
 					"",
-					new { controller = SoaController.ControllerName, action = SoaController.DefaultAction, id = "" }
+					new { controller = ServiceController.ControllerName, action = ServiceController.DefaultAction, id = "" }
 				);
 
 				Logging();
@@ -215,10 +215,11 @@ namespace Routine.Test.Domain.Configuration
 						.Use(p => p.ShortModelIdPattern("System", "s"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
 						.Use(p => p.ShortModelIdPattern("Routine.Test.Module", "m"))
+						.Use(p => p.PolymorphismPattern(t => t.IsDomainType))
 						.Use(p => p.ParseableValueTypePattern())
 						.Use(p => p.EnumPattern(false))
 						.Use(p => p.SingletonPattern(container, "Instance"))
-						.Use(p => p.AutoMarkWithAttributesPattern())
+						.Use(p => p.AutoMarkWithAttributesPattern(o => o.GetType().Namespace != null && o.GetType().Namespace.StartsWith("Routine")))
 
 						.TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
 						.TypeMarks.Add("Search", t => t.CanBe<IQuery>())
@@ -233,8 +234,8 @@ namespace Routine.Test.Domain.Configuration
 
 						.Operations.Add(c => c.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
 											  .When(t => t.IsDomainType))
-						.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
-						.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
+						//.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
+						//.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
 
 						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
 						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Name")))
@@ -245,18 +246,21 @@ namespace Routine.Test.Domain.Configuration
 						.Use(p => p.FromEmpty()
 							.IdExtractor.Set(c => c.Id(e => e.By(o => container.Resolve<ISession>().GetIdentifier(o).ToString()))
 												   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
-							.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
-													 .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
+							.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
+											   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
 							)
 						;
 			}
 
-			private ISoaConfiguration SoaConfiguration()
+			private IServiceConfiguration ServiceConfiguration()
 			{
-				return BuildRoutine.SoaConfig()
+				return BuildRoutine.ServiceConfig()
 						.FromBasic()
 						.RootPath.Set("Service")
-						.Headers.Add("language_code")
+						.RequestHeaders.Add("language_code")
+						.ResponseHeaders.Add("code", "message", "always-empty")
+						.ResponseHeaderValue.Set("0", "code")
+						.ResponseHeaderValue.Set("success", "message")
 						.MaxResultLength.Set(100000000)
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
 						;

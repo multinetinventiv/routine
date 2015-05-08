@@ -51,6 +51,15 @@ namespace <#= model.GetNamespace(mode) #>
 		}
 		<# } #>
 
+        <# foreach(var viewModel in model.ViewModels.Where(vm => vm.HasMode(mode))) { #>
+
+		public <#= viewModel.GetFullName(mode) #> As<#= viewModel.GetName(mode) #>()
+		{
+			var __result = robject.As(robject.Application["<#= viewModel.Id #>"]);
+			return <#= viewModel.RenderRobjectToObject(mode, "__result", "robject.Application") #>;
+		}
+        <# } #>
+
 		public override string ToString()
 		{
 			return robject.Id;

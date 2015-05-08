@@ -38,6 +38,11 @@ namespace Routine.Test.Core.Configuration
 			layeredMock.Setup(o => o.CurrentLayer).Returns(currentLayer.MoreSpecific());
 		}
 
+		private void SetOverrideMode()
+		{
+			layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.MostSpecific);
+		}
+
 		#endregion
 
 		[Test]
@@ -177,7 +182,7 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void When_layer_is_changed_conventions_are_ordered_first_by_their_layer_order_then_by_the_given_order()
+		public void When_layer_is_changed__conventions_are_ordered_first_by_their_layer_order_then_by_the_given_order()
 		{
 			testing.Set("out1", "in1");
 
@@ -189,7 +194,7 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void When_merging_conventions_remain_sorted_by_their_layer()
+		public void When_merging__conventions_remain_sorted_by_their_layer()
 		{
 			testing.Set("out1", "in1");
 
@@ -203,7 +208,7 @@ namespace Routine.Test.Core.Configuration
 		}
 
 		[Test]
-		public void When_merging_conventions_from_different_configuration_current_layer_is_added_to_given_conventions()
+		public void When_merging_conventions_from_different_configuration__current_layer_is_added_to_given_conventions()
 		{
 			testing.Set("out1", "in1");
 
@@ -225,6 +230,20 @@ namespace Routine.Test.Core.Configuration
 			testing.Merge(testingOtherConfig);
 
 			Assert.AreEqual("out1", testing.Get("in1"));
+		}
+
+		[Test]
+		public void When_merging__if_configuration_is_in_override_layer__other_conventions_added_in_override_layer_and_to_the_end()
+		{
+			testing.Set("out1", "in1");
+
+			SetOverrideMode();
+
+			testingOtherConfig.Set("out2", "in1");
+
+			testing.Merge(testingOtherConfig);
+
+			Assert.AreEqual("out2", testing.Get("in1"));
 		}
 
 		[Test]

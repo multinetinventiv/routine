@@ -24,7 +24,7 @@ namespace Routine.Engine
 			this.parameter = parameter;
 
 			Groups = new List<int>();
-
+			
 			Id = parameter.Name;
 			Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
 			Groups.Add(initialGroupIndex);
@@ -77,6 +77,12 @@ namespace Routine.Engine
 			};
 		}
 
+		internal void LoadSubTypes()
+		{
+			//to force type to load
+			var type = lazyParameterType.Value;
+		}
+
 		internal object Locate(ParameterValueData parameterValueData)
 		{
 			if (!IsList)
@@ -126,7 +132,7 @@ namespace Routine.Engine
 
 			var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
 
-			if (domainTypes.Any(dt => dt != ParameterType))
+			if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
 			{
 				for (int i = 0; i < parameterValueData.Values.Count; i++)
 				{
@@ -155,5 +161,32 @@ namespace Routine.Engine
 
 			return domainType;
 		}
+
+		#region Formatting & Equality
+
+		protected bool Equals(DomainParameter other)
+		{
+			return string.Equals(Id, other.Id);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((DomainParameter)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Id != null ? Id.GetHashCode() : 0);
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Id: {0}", Id);
+		}
+
+		#endregion
 	}
 }

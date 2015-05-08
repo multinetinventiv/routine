@@ -228,6 +228,26 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void View_types_can_be_used_to_render_conversion_methods()
+		{
+			ModelsAre(
+				Model("ViewClass").Module("Module").Name("ViewClass").IsView("ActualClass"),
+				Model("ActualClass").Module("Module").Name("ActualClass").ViewModelIds("ViewClass")
+			);
+
+			var testing = Generator();
+			var assembly = testing.Generate(new TestTemplate());
+
+			var viewClass = assembly.GetTypes().Single(t => t.Name == "ViewClass");
+			var actualClass = assembly.GetTypes().Single(t => t.Name == "ActualClass");
+
+			var actual = actualClass.GetMethod("AsViewClass");
+
+			Assert.IsNotNull(actual);
+			Assert.AreEqual(viewClass, actual.ReturnType);
+		}
+
+		[Test]
 		public void Initializer_is_rendered_only_when_it_is_configured_so()
 		{
 			ModelsAre(
@@ -563,10 +583,11 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void Skips_initializers__members_and_operations_needing_a_type_that_is_neither_rendered_nor_referenced()
+		public void Skips_view_types__initializers__members_and_operations_needing_a_type_that_is_neither_rendered_nor_referenced()
 		{
 			ModelsAre(
 				Model("Included-TestClass1").Module("Included").Name("TestClass1")
+				.ViewModelIds("Excluded-ViewClass")
 				.Initializer(PModel("parameterExcluded", "Excluded-TestClass2"))
 				.Member("PropertyExcluded", "Excluded-TestClass2")
 				.Member("PropertyIncluded", "s-string")
@@ -574,6 +595,7 @@ namespace Routine.Test.Api
 				.Operation("MethodExcludedBecauseOfParameter", "s-string", PModel("excludeReason", "Excluded-TestClass2"))
 				.Operation("MethodIncluded", "s-string"),
 				Model("Excluded-TestClass2").Module("Excluded").Name("TestClass2"),
+				Model("Excluded-ViewClass").Module("Excluded").Name("ViewClass").IsView("Included-TestClass1"),
 				Model("s-string").IsValue()
 			);
 
@@ -587,6 +609,8 @@ namespace Routine.Test.Api
 			Assert.IsFalse(types.Any(t => t.Name == "TestClass2"), "TestClass2 was found");
 
 			var testClass1 = types.Single(t => t.Name == "TestClass1");
+
+			Assert.IsNull(testClass1.GetMethod("AsViewClass"));
 
 			Assert.IsFalse(testClass1.GetConstructors().Any(c => c.GetParameters().Any(p => p.Name == "parameterExcluded")), "Initializer should be excluded but was found");
 
@@ -868,6 +892,12 @@ namespace Routine.Test.Api
 			Assert.AreEqual(mode2, mode2.GetMethod("Mode2Operation").ReturnType);
 			Assert.AreEqual("mode2Parameter", mode2.GetMethod("Mode2Operation").GetParameters()[0].Name);
 			Assert.AreEqual(mode2, mode2.GetMethod("Mode2Operation").GetParameters()[0].ParameterType);
+		}
+
+		[Test][Ignore]
+		public void Application_model_is_integrated_so_that_further_usage_of_the_api_does_not_require_application_model_to_be_loaded()
+		{
+			Assert.Fail();
 		}
 	}
 }

@@ -11,12 +11,13 @@ using Routine.Test.Engine.Ignored;
 
 namespace Routine.Test.Engine.Ignored
 {
+	public interface IIgnoredModel { }
 	public class IgnoredModel { }
 }
 
 namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 {
-	public class BusinessModel : IBusinessModel
+	public class BusinessModel : IBusinessModel, IIgnoredModel
 	{
 		public int Id { get; set; }
 		public List<string> List { get; set; }
@@ -87,6 +88,7 @@ namespace Routine.Test.Engine
 		private const string TESTED_DM_ID = "r-object-service-test-_-get-object-model--business-data-model";
 		private const string TESTED_EM_ID = "r-object-service-test-_-get-object-model--business-enum";
 		private const string TESTED_VOM_ID = "r-object-service-test-_-get-object-model--virtual";
+		private const string TESTED_VVIM_ID = "r-object-service-test-_-get-object-model--i-virtual";
 
 		protected override string DefaultModelId { get { return TESTED_OM_ID; } }
 		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel"; } }
@@ -177,6 +179,69 @@ namespace Routine.Test.Engine
 			var actual = testing.GetObjectModel(TESTED_VIM_ID);
 
 			Assert.IsTrue(actual.IsViewModel);
+		}
+
+		[Test]
+		public void Object_model_can_be_configured_to_have_view_models()
+		{
+			codingStyle.ViewTypes.Add(c => c.By(t => t.AssignableTypes)
+											.When(t => t.IsDomainType));
+
+			testing.GetApplicationModel();
+
+			var actual = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsTrue(actual.ViewModelIds.Contains(TESTED_VIM_ID));
+		}
+
+		[Test]
+		public void When_a_configured_view_type_is_not_configured_to_have_a_type_id__then_it_is_not_included_in_view_models()
+		{
+			codingStyle.ViewTypes.Add(type.of<IIgnoredModel>(), t => t.IsDomainType);
+
+			testing.GetApplicationModel();
+
+			var actual = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsEmpty(actual.ViewModelIds);
+		}
+
+		[Test]
+		public void When_configured_to_have_a_view_model__object_model_is_automatically_included_in_actual_model_list_of_that_view_model()
+		{
+			codingStyle.ViewTypes.Add(c => c.By(t => t.AssignableTypes).When(t => t.IsDomainType));
+
+			testing.GetApplicationModel();
+
+			var actual = testing.GetObjectModel(TESTED_VIM_ID);
+
+			Assert.IsTrue(actual.ActualModelIds.Contains(TESTED_OM_ID));
+		}
+
+		[Test]
+		public void A_view_model_cannot_be_in_an_actual_model_ids_list_of_another_view_model()
+		{
+			codingStyle.ViewTypes.Add(c => c.By(t => t.AssignableTypes).When(t => t.IsDomainType));
+
+			testing.GetApplicationModel();
+
+			var actual = testing.GetObjectModel(TESTED_VIM_ID);
+
+			Assert.IsFalse(actual.ActualModelIds.Contains(TESTED_VIM_ID));
+		}
+
+		[Test]
+		public void A_model_cannot_be_in_its_own_actual_model_nor_in_its_own_view_models()
+		{
+			codingStyle.ViewTypes.Add(c => c.By(t => t.AssignableTypes)
+											.When(t => t.IsDomainType));
+
+			testing.GetApplicationModel();
+
+			var actual = testing.GetObjectModel(TESTED_OM_ID);
+
+			Assert.IsFalse(actual.ViewModelIds.Contains(TESTED_OM_ID));
+			Assert.IsFalse(actual.ActualModelIds.Contains(TESTED_OM_ID));
 		}
 
 		[Test]
@@ -627,6 +692,38 @@ namespace Routine.Test.Engine
 
 			Assert.AreEqual(1, om.StaticInstances.Count);
 			Assert.AreEqual("Instance", om.StaticInstances[0].Reference.Id);
+		}
+
+		[Test]
+		public void Virtual_types_can_have_virtual_view_types()
+		{
+			codingStyle
+				.Use(p => p.VirtualTypePattern())
+				.Use(p => p.PolymorphismPattern())
+				.AddTypes(v => v
+					.FromBasic()
+					.Name.Set("Virtual")
+					.Namespace.Set(RootNamespace)
+					.AssignableTypes.Add(iv => iv
+						.FromBasic()
+						.IsInterface.Set(true)
+						.Name.Set("IVirtual")
+						.Namespace.Set(RootNamespace)
+					)
+				)
+			;
+
+			testing.GetApplicationModel();
+
+			var vom = testing.GetObjectModel(TESTED_VOM_ID);
+
+			Assert.AreEqual(1, vom.ViewModelIds.Count);
+			Assert.AreEqual(TESTED_VVIM_ID, vom.ViewModelIds[0]);
+			
+			var vvim = testing.GetObjectModel(TESTED_VVIM_ID);
+
+			Assert.AreEqual(1, vvim.ActualModelIds.Count);
+			Assert.AreEqual(TESTED_VOM_ID, vvim.ActualModelIds[0]);
 		}
 
 		[Test]

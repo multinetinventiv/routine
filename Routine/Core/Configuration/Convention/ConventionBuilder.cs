@@ -9,7 +9,6 @@ namespace Routine.Core.Configuration.Convention
 			return new DelegateBasedConvention<TFrom, TData>();
 		}
 
-		//facade
 		public DelegateBasedConvention<TFrom, TData> By(Func<TFrom, TData> converterDelegate)
 		{
 			return By().Return(converterDelegate);

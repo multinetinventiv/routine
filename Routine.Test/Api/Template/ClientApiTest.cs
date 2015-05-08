@@ -44,7 +44,7 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Rendered_types_override_ToString_method_returning_value_and_id()
+		public void Rendered_types_override_ToString_method_returning_value()
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
 
@@ -52,7 +52,7 @@ namespace Routine.Test.Api.Template
 
 			var testObj1 = CreateInstance("test", "TestClass");
 
-			Assert.AreEqual("test_value (test)", testObj1.ToString());
+			Assert.AreEqual("test_value", testObj1.ToString());
 		}
 
 		[Test]
@@ -206,6 +206,37 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
+		public void Interfaces_include_GetIdentifier_method_to_provide_id_value()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+				.Operation("Dummy", true)
+			);
+
+			ObjectsAre(
+				Object(Id("test_id", "TestClass"))
+			);
+
+			var testing = Generator();
+
+			var assembly = testing.Generate(DefaultTestTemplate);
+
+			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var getIdentifier = iTestClass.GetMethod("GetIdentifier");
+
+			Assert.IsNotNull(getIdentifier);
+
+			var testObj = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
+			var actual = getIdentifier.Invoke(testObj, new object[0]);
+
+			Assert.AreEqual("test_id", actual.ToString());
+
+			var actual2 = getIdentifier.Invoke(testObj, new object[0]);
+			
+			Assert.IsTrue(Equals(actual, actual2), "Two identifiers should be equal.");
+		}
+
+		[Test]
 		public void Property_values_are_fetched_via_client_api()
 		{
 			ModelsAre(
@@ -258,7 +289,7 @@ namespace Routine.Test.Api.Template
 			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
 
 			var otherValue = other.GetValue(testObj1, new object[0]);
-			Assert.AreEqual("test2_value (test2)", otherValue.ToString());
+			Assert.AreEqual("test2_value", otherValue.ToString());
 
 			var invalidate = iTestClass1.GetMethod("Invalidate");
 
@@ -267,7 +298,7 @@ namespace Routine.Test.Api.Template
 			invalidate.Invoke(testObj1, new object[0]);
 
 			otherValue = other.GetValue(testObj1, new object[0]);
-			Assert.AreEqual("test2_value (test2)", otherValue.ToString());
+			Assert.AreEqual("test2_value", otherValue.ToString());
 
 			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
 		}

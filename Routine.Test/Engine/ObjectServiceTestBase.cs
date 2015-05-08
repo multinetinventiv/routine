@@ -37,7 +37,7 @@ namespace Routine.Test.Engine
 				.Operations.Add(c => c.PublicOperations(m => !m.IsInherited()).When(t => t.IsDomainType))
 
 				.IdExtractor.Set(c => c.IdByMember(p => p.Returns<string>("Id")).When(t => t.IsDomainType))
-				.ObjectLocator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.IsDomainType))
+				.Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.IsDomainType && t.Members.Any(m => m.Returns<string>("Id"))))
 
 				.NextLayer()
 				;

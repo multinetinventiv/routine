@@ -48,6 +48,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectManagement", "Projec
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Todo", "Todo", "{EBDFE343-B1AE-4587-A061-E5FB274A76E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Ui.Themes.Default", "Routine.Ui.Themes.Default\Routine.Ui.Themes.Default.csproj", "{65CE8300-E663-4FFD-98D8-1057C0B80FF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Ui.Themes.TopMenu", "Routine.Ui.Themes.TopMenu\Routine.Ui.Themes.TopMenu.csproj", "{1075C285-A096-418B-B372-9257024108B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -122,6 +126,18 @@ Global
 		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Test|Any CPU.Build.0 = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Test|Any CPU.Build.0 = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +160,8 @@ Global
 		{96006665-E28F-45D2-941B-34F5130FDBDE} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{2554B23B-F6E8-4E75-ABA2-778A53273250} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{EBDFE343-B1AE-4587-A061-E5FB274A76E0} = {476E8A7A-400A-4122-8EB3-44AED8576289}
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8} = {980FD305-549A-4EAE-A357-A7DB9B91FD70}
+		{1075C285-A096-418B-B372-9257024108B5} = {980FD305-549A-4EAE-A357-A7DB9B91FD70}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Routine.Test.Business.Service\Routine.Test.Business.Service.csproj

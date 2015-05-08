@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Ui.Configuration
 {
 	public class MvcConfigurationBuilder
@@ -10,6 +8,8 @@ namespace Routine.Ui.Configuration
 				.NullDisplayValue.Set("-")
 				.ListValueSeparator.Set(',')
 				.DefaultObjectId.Set("default")
+
+				.StaticFileExtensions.Add("css", "js", "gif", "jpg", "png")
 
 				.CachePolicyAction.Set(hcp => { })
 
@@ -32,28 +32,6 @@ namespace Routine.Ui.Configuration
 
 				.NextLayer()
 			;
-		}
-
-		public ConventionalMvcConfiguration DefaultTheme(Func<ObjectViewModel, bool> searchViewModelPredicate)
-		{
-			return FromBasic()
-				.ThemeAssembly.Set(typeof(MvcPatterns).Assembly)
-				.ThemeNamespace.Set("Routine.Ui.Themes.Default")
-				.ViewNameSeparator.Set('.')
-				.ViewName.Set("Search", vm => vm is ObjectViewModel && searchViewModelPredicate(((ObjectViewModel)vm)))
-				.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
-				;
-		}
-
-		public ConventionalMvcConfiguration TopMenuTheme(Func<ObjectViewModel, bool> searchViewModelPredicate)
-		{
-			return FromBasic()
-				.ThemeAssembly.Set(typeof(MvcPatterns).Assembly)
-				.ThemeNamespace.Set("Routine.Ui.Themes.TopMenu")
-				.ViewNameSeparator.Set('.')
-				.ViewName.Set("Search", vm => vm is ObjectViewModel && searchViewModelPredicate(((ObjectViewModel)vm)))
-				.ViewName.Set(c => c.By(vm => vm.GetType().Name.Before("ViewModel")))
-				;
 		}
 	}
 }

@@ -71,10 +71,10 @@ namespace Routine.Test.Module.ProjectManagement
 		public void CreateTestData()
 		{
 			var ikinoktabir = NewCustomer("ikinoktabir");
-			NewProject(ikinoktabir, "Routine").NewFeature("UI");
+			NewProject(ikinoktabir, "Routine").NewFeature(new NewFeature("UI"));
 
 			var multinet = NewCustomer("Multinet");
-			NewProject(multinet, "Multinet.Framework").NewFeature("Dependency Injection");
+			NewProject(multinet, "Multinet.Framework").NewFeature(new NewFeature("Dependency Injection"));
 		}
 
 		public string TestRequestCache(Project project, string name)
@@ -100,6 +100,16 @@ namespace Routine.Test.Module.ProjectManagement
 			op.Projects.AddRange(projects);
 
 			return op.Create();
+		}
+
+		public Project CreateProject(NewProject project)
+		{
+			var op = new CreateProjectsOperation(ctx);
+
+			op.DefaultDeadline = DateTime.Now;
+			op.Projects.Add(project);
+
+			return op.Create()[0];
 		}
 	}
 

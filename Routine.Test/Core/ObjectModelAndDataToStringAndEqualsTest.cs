@@ -232,6 +232,7 @@ namespace Routine.Test.Core
 				IsValueModel = true,
 				IsViewModel = false,
 				ViewModelIds = new List<string> { "interface" },
+				ActualModelIds = new List<string> { "implementation" },
 				Initializer = new InitializerModel { GroupCount = 2 },
 				Members = new List<MemberModel> { new MemberModel { Id = "member" } },
 				Operations = new List<OperationModel> { new OperationModel { Id = "operation" } },
@@ -250,6 +251,7 @@ namespace Routine.Test.Core
 			AssertToStringHasPropertyAndItsValue(testing, "IsValueModel", testing.IsValueModel);
 			AssertToStringHasPropertyAndItsValue(testing, "IsViewModel", testing.IsViewModel);
 			AssertToStringHasPropertyAndItsValue(testing, "ViewModelIds", testing.ViewModelIds[0].SurroundWith("[", "]"));
+			AssertToStringHasPropertyAndItsValue(testing, "ActualModelIds", testing.ActualModelIds[0].SurroundWith("[", "]"));
 
 			AssertToStringHasProperty(testing, "Initializer");
 			AssertToStringHasPropertyAndItsValue(testing, "GroupCount", testing.Initializer.GroupCount);
@@ -273,6 +275,7 @@ namespace Routine.Test.Core
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsValueModel = false));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsViewModel = true));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.ViewModelIds[0] = "different"));
+			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.ActualModelIds[0] = "different"));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Initializer.GroupCount = 3));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Members[0].Id = "different"));
 			AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Operations[0].Id = "different"));

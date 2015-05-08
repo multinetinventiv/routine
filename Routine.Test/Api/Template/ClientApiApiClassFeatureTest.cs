@@ -68,8 +68,8 @@ namespace Routine.Test.Api.Template
 			Assert.IsInstanceOf(testClass1, instance1);
 			Assert.IsInstanceOf(testClass1, instance2);
 
-			Assert.AreEqual("instance1_value (instance1)", instance1.ToString());
-			Assert.AreEqual("instance2_value (instance2)", instance2.ToString());
+			Assert.AreEqual("instance1_value", instance1.ToString());
+			Assert.AreEqual("instance2_value", instance2.ToString());
 		}
 
 		[Test]
@@ -106,7 +106,7 @@ namespace Routine.Test.Api.Template
 
 			var instance1 = getTestClass1.Invoke(apiObj, new object[0]);
 
-			Assert.AreEqual("instance1_value (instance1)", instance1.ToString());
+			Assert.AreEqual("instance1_value", instance1.ToString());
 
 			var getTestClass2 = get.MakeGenericMethod(testClass2);
 			try

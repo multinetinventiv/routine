@@ -21,12 +21,23 @@ namespace Routine
 					.TypeIsValue.Set(true, t => t.CanParse() && t.IsValueType)
 
 					.IdExtractor.Set(c => c.Id(e => e.By(o => string.Format("{0}", o))).When(t => t.CanParse() && t.IsValueType))
-					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse() && t.IsValueType))
+					.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse() && t.IsValueType))
 
 					.Members.AddNoneWhen(t => t.CanParse() && t.IsValueType)
 					.Operations.AddNoneWhen(t => t.CanParse() && t.IsValueType)
 
 					.StaticInstances.Set(c => c.Constant(true, false).When(t => t.CanBe<bool>()))
+					;
+		}
+
+		public static ConventionalCodingStyle PolymorphismPattern(this PatternBuilder<ConventionalCodingStyle> source) { return source.PolymorphismPattern(t => true); }
+		public static ConventionalCodingStyle PolymorphismPattern(this PatternBuilder<ConventionalCodingStyle> source, Func<IType, bool> viewTypePredicate)
+		{
+			return source
+					.FromEmpty()
+
+					.Converter.Set(c => c.ConverterByCasting().When(t => t.IsDomainType))
+					.ViewTypes.Add(c => c.By(t => t.AssignableTypes.Where(viewTypePredicate).ToList()).When(t => t.IsDomainType))
 					;
 		}
 
@@ -40,7 +51,7 @@ namespace Routine
 					.TypeIsValue.Set(c => c.Constant(true).When(t => t.IsEnum))
 					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
 					.IdExtractor.Set(c => c.Id(e => e.By(o => o.ToString())).When(t => t.IsEnum))
-					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.GetEnumValues()[t.GetEnumNames().IndexOf(id)]).AcceptNullResult(false)).When(t => t.IsEnum))
+					.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.GetEnumValues()[t.GetEnumNames().IndexOf(id)]).AcceptNullResult(false)).When(t => t.IsEnum))
 					.Members.AddNoneWhen(t => t.IsEnum)
 					.Operations.AddNoneWhen(t => t.IsEnum)
 					;
@@ -52,7 +63,7 @@ namespace Routine
 					.StaticInstances.Set(c => c.By(t => t.GetEnumValues()).When(t => t.IsEnum))
 					.IdExtractor.Set(c => c.Id(e => e.By(o => ((int)o).ToString(CultureInfo.InvariantCulture))).When(t => t.IsEnum))
 					.ValueExtractor.Set(c => c.Value(e => e.By(o => o.ToString())).When(t => t.IsEnum))
-					.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) =>
+					.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) =>
 					{
 						var value = int.Parse(id);
 						var type = t as TypeInfo;
@@ -89,15 +100,16 @@ namespace Routine
 			return shortPrefix.Append(source.After(actualPrefix).SplitCamelCase('-').Replace("-.-", "--").ToLowerInvariant());
 		}
 
-		public static ConventionalCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionalCodingStyle> source)
+		public static ConventionalCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionalCodingStyle> source) { return source.AutoMarkWithAttributesPattern(t => true); }
+		public static ConventionalCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionalCodingStyle> source, Func<object, bool> attributeFilter)
 		{
 			return source
 				.FromEmpty()
-				.TypeMarks.Add(c => c.By(t => t.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
-				.InitializerMarks.Add(s => s.By(i => i.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
-				.MemberMarks.Add(s => s.By(m => m.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
-				.OperationMarks.Add(s => s.By(o => o.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
-				.ParameterMarks.Add(s => s.By(p => p.GetCustomAttributes().Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.TypeMarks.Add(c => c.By(t => t.GetCustomAttributes().Where(attributeFilter).Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.InitializerMarks.Add(s => s.By(i => i.GetCustomAttributes().Where(attributeFilter).Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.MemberMarks.Add(s => s.By(m => m.GetCustomAttributes().Where(attributeFilter).Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.OperationMarks.Add(s => s.By(o => o.GetCustomAttributes().Where(attributeFilter).Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
+				.ParameterMarks.Add(s => s.By(p => p.GetCustomAttributes().Where(attributeFilter).Select(a => a.GetType().Name.BeforeLast("Attribute")).ToList()))
 				;
 		}
 
@@ -108,7 +120,7 @@ namespace Routine
 				.FromEmpty()
 				.Type.Set(c => c.By(o => ((VirtualObject)o).Type).When(o => o is VirtualObject))
 				.IdExtractor.Set(c => c.Id(e => e.By(o => (o as VirtualObject).Id)).When(t => t is VirtualType))
-				.ObjectLocator.Set(c => c.Locator(l => l.SingleBy((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
+				.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
 				.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))).When(t => t is VirtualType))
 				.TypeMarks.Add(virtualMark, t => t is VirtualType)
 			;

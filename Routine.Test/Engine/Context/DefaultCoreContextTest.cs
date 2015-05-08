@@ -26,7 +26,7 @@ namespace Routine.Test.Engine.Context
 					.AddTypes(GetType().Assembly, t => t.Namespace.StartsWith("Routine.Test.Engine.Context.Domain"))
 					.TypeId.Set(c => c.By(t => t.FullName))
 					.IdExtractor.Set(c => c.IdByMember(m => m.Returns<string>("Id")))
-					.ObjectLocator.Set(c => c.Locator(l => l.Constant(null)))
+					.Locator.Set(c => c.Locator(l => l.Constant(null)))
 					.ValueExtractor.Set(c => c.Value(e => e.By(obj => string.Format("{0}", obj))));
 
 			var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());

@@ -17,6 +17,7 @@ namespace Routine.Ui
 		Assembly GetThemeAssembly();
 		string GetThemeNamespace();
 		List<Assembly> GetUiAssemblies();
+		List<string> GetStaticFileExtensions();
 
 		Action<HttpCachePolicy> GetCachePolicyAction(string virtualPath);
 		IInterceptor<InterceptionContext> GetInterceptor(InterceptionTarget target);

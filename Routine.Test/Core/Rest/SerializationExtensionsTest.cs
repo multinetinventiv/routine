@@ -42,11 +42,15 @@ namespace Routine.Test.Core.Rest
 		}
 
 		[Test]
-		public void When_serializing__ObjectReferenceData_serializes_id_with_escape_character()
+		public void When_serializing__ObjectReferenceData_serializes_id__actual_model_id_and_view_model_id_with_escape_character()
 		{
-			var testing = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid" };
+			var testing = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid#2", ViewModelId = "vmid#2"};
 
-			Assert.AreEqual("id##2#amid", testing.ToSerializable());
+			Assert.AreEqual("id##2#amid##2#vmid##2", testing.ToSerializable());
+
+			testing = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid#2"};
+
+			Assert.AreEqual("id##2#amid##2", testing.ToSerializable());
 		}
 
 		[Test]
@@ -262,6 +266,14 @@ namespace Routine.Test.Core.Rest
 		}
 
 		[Test]
+		public void When_serializing__ParameterData_uses_escape_character_on_reference_id_and_object_model_id_with_ref_splitter()
+		{
+			var testing = new ParameterData { ReferenceId = "id#2", ObjectModelId = "omid#2" };
+
+			Assert.AreEqual("id##2#omid##2", testing.ToSerializable());
+		}
+
+		[Test]
 		public void When_serializing_ParameterValueData_it_serializes_directly_ParameterData_when_it_is_not_list()
 		{
 			var testing = new ParameterValueData
@@ -427,10 +439,15 @@ namespace Routine.Test.Core.Rest
 		}
 
 		[Test]
-		public void When_deserializing__ObjectReferenceData_deserializes_id_with_escape_character()
+		public void When_deserializing__ObjectReferenceData_deserializes_id__actual_model_id_and_view_model_id_with_escape_character()
 		{
-			var expected = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid", ViewModelId = "amid" };
-			var actual = SerializationExtensions.DeserializeObjectReferenceData("id##2#amid");
+			var expected = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid#2", ViewModelId = "vmid#2" };
+			var actual = SerializationExtensions.DeserializeObjectReferenceData("id##2#amid##2#vmid##2");
+
+			Assert.AreEqual(expected, actual);
+
+			expected = new ObjectReferenceData { Id = "id#2", ActualModelId = "amid#2", ViewModelId = "amid#2" };
+			actual = SerializationExtensions.DeserializeObjectReferenceData("id##2#amid##2");
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -454,6 +471,8 @@ namespace Routine.Test.Core.Rest
 		public void When_deserializing__ObjectReferenceData_throws_ArgumentException_when_ActualModelId_is_not_specified()
 		{
 			Assert.Throws<ArgumentException>(() => SerializationExtensions.DeserializeObjectReferenceData("id"));
+			Assert.Throws<ArgumentException>(() => SerializationExtensions.DeserializeObjectReferenceData("id##"));
+			Assert.Throws<ArgumentException>(() => SerializationExtensions.DeserializeObjectReferenceData("id##2"));
 		}
 
 		[Test]
@@ -652,6 +671,15 @@ namespace Routine.Test.Core.Rest
 		}
 
 		[Test]
+		public void When_deserializing__ParameterData_skips_escape_character_on_ids()
+		{
+			var expected = new ParameterData { ReferenceId = "id#2", ObjectModelId = "omid#" };
+			var actual = SerializationExtensions.DeserializeParameterData("id##2#omid##");
+
+			Assert.AreEqual(expected, actual);
+		}
+
+		[Test]
 		public void When_deserializing__ParameterData_sets_IsNull_when_given_object_is_null()
 		{
 			var expected = new ParameterData { IsNull = true };
@@ -716,6 +744,7 @@ namespace Routine.Test.Core.Rest
 		public void When_deserializing__ParameterData_throws_ArgumentException_when_given_string_does_not_contain_ref_splitter()
 		{
 			Assert.Throws<ArgumentException>(() => SerializationExtensions.DeserializeParameterData("id/omid"));
+			Assert.Throws<ArgumentException>(() => SerializationExtensions.DeserializeParameterData("id##omid"));
 		}
 
 		[Test]

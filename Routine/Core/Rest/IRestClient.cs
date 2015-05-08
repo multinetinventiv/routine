@@ -2,8 +2,8 @@
 {
 	public interface IRestClient
 	{
-		string Get(string url, params RestParameter[] parameters);
-		string Post(string url, params RestParameter[] parameters);
+		RestResponse Get(string url, params RestParameter[] parameters);
+		RestResponse Post(string url, params RestParameter[] parameters);
 	}
 }
 

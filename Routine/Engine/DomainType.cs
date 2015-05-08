@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
 using Routine.Core.Configuration;
+using Routine.Core.Rest;
 
 namespace Routine.Engine
 {
@@ -12,6 +13,9 @@ namespace Routine.Engine
 
 		public IType Type { get; private set; }
 
+		private readonly List<DomainType> actualTypes;
+		private readonly List<DomainType> viewTypes;
+
 		public DomainObjectInitializer Initializer { get; private set; }
 
 		public Dictionary<string, DomainMember> Member { get; private set; }
@@ -20,20 +24,23 @@ namespace Routine.Engine
 		public Dictionary<string, DomainOperation> Operation { get; private set; }
 		public ICollection<DomainOperation> Operations { get { return Operation.Values; } }
 
-		private ILocator Locator { get; set; }
+		private readonly ILocator locator;
 		public IIdExtractor IdExtractor { get; private set; }
 		public IValueExtractor ValueExtractor { get; private set; }
+		private readonly IConverter converter;
 
 		private readonly List<object> staticInstances;
 
+		public int MaxFetchDepth { get; private set; }
 		public string Id { get; private set; }
 		public Marks Marks { get; private set; }
 		public string Name { get; private set; }
 		public string Module { get; private set; }
 		public bool IsValueModel { get; private set; }
 		public bool IsViewModel { get; private set; }
+
 		public bool Initializable { get { return Initializer != null; } }
-		public bool Locatable { get { return Locator != null; } }
+		public bool Locatable { get { return locator != null; } }
 
 		public DomainType(ICoreContext ctx, IType type)
 		{
@@ -44,15 +51,28 @@ namespace Routine.Engine
 			Operation = new Dictionary<string, DomainOperation>();
 
 			Id = ctx.CodingStyle.GetTypeId(type);
-			Locator = ctx.CodingStyle.GetObjectLocator(Type);
+			MaxFetchDepth = ctx.CodingStyle.GetMaxFetchDepth();
+
+			if (Id.StartsWith(SerializationExtensions.REF_SPLITTER))
+			{
+				throw new ConfigurationException("TypeId", type, new Exception(string.Format("TypeId cannot start with the escape character '{0}', but configured TypeId is {1}", SerializationExtensions.REF_SPLITTER, Id)));
+			}
+
+			locator = ctx.CodingStyle.GetLocator(Type);
 			IdExtractor = ctx.CodingStyle.GetIdExtractor(Type);
 			ValueExtractor = ctx.CodingStyle.GetValueExtractor(Type);
+			converter = ctx.CodingStyle.GetConverter(Type);
+
 			staticInstances = ctx.CodingStyle.GetStaticInstances(Type);
+
 			Marks = new Marks(ctx.CodingStyle.GetMarks(Type));
 			Name = Type != null ? Type.Name : null;
 			Module = ctx.CodingStyle.GetModuleName(Type);
 			IsValueModel = ctx.CodingStyle.IsValue(Type);
 			IsViewModel = ctx.CodingStyle.IsView(Type);
+
+			actualTypes = new List<DomainType>();
+			viewTypes = new List<DomainType>();
 
 			foreach (var initializer in ctx.CodingStyle.GetInitializers(Type))
 			{
@@ -141,6 +161,44 @@ namespace Routine.Engine
 			}
 		}
 
+		internal void LoadSubTypes()
+		{
+			if (Initializable) { Initializer.LoadSubTypes(); }
+
+			foreach (var operation in Operations)
+			{
+				operation.LoadSubTypes();
+			}
+
+			foreach (var member in Members)
+			{
+				member.LoadSubTypes();
+			}
+		}
+
+		internal void LoadCrossTypeRelations()
+		{
+			foreach (var viewType in ctx.CodingStyle.GetViewTypes(Type).Where(t => !Equals(t, Type)))
+			{
+				try
+				{
+					var dt = ctx.GetDomainType(viewType);
+
+					if (!IsViewModel)
+					{
+						dt.actualTypes.Add(this);
+					}
+
+					viewTypes.Add(dt);
+				}
+				catch (ConfigurationException)
+				{
+					Console.WriteLine("View type is skipped. {0} does not have TypeId configured", viewType);
+					Console.WriteLine();
+				}
+			}
+		}
+
 		public bool MarkedAs(string mark)
 		{
 			return Marks.Has(mark);
@@ -156,6 +214,8 @@ namespace Routine.Engine
 				Module = Module,
 				IsViewModel = IsViewModel,
 				IsValueModel = IsValueModel,
+				ActualModelIds = actualTypes.Select(t => t.Id).ToList(),
+				ViewModelIds = viewTypes.Select(t => t.Id).ToList(),
 				Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
 				Members = Members.Select(m => m.GetModel()).ToList(),
 				Operations = Operations.Select(o => o.GetModel()).ToList(),
@@ -244,8 +304,53 @@ namespace Routine.Engine
 
 			var notNullIds = ids.Select(id => id ?? string.Empty).ToList();
 
-			return Locator.Locate(Type, notNullIds);
+			return locator.Locate(Type, notNullIds);
 		}
+
+		public object Convert(object target, DomainType viewDomainType)
+		{
+			if (Equals(viewDomainType)) { return target; }
+			if (Id == Constants.NULL_MODEL_ID) { return target; }
+
+			if (!viewTypes.Contains(viewDomainType))
+			{
+				throw new CannotConvertException(target, viewDomainType.Type);
+			}
+
+			if (converter == null)
+			{
+				throw new ConfigurationException("Converter", Type);
+			}
+
+			return converter.Convert(target, viewDomainType.Type);
+		}
+
+		#region Formatting & Equality
+
+		protected bool Equals(DomainType other)
+		{
+			return string.Equals(Id, other.Id);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((DomainType)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Id != null ? Id.GetHashCode() : 0);
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Id: {0}", Id);
+		}
+
+		#endregion
 	}
 
 	internal class TypeNotConfiguredException : Exception

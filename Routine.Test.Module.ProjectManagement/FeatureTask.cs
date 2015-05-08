@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Routine.Test.Common;
 using Routine.Test.Domain;
 using Routine.Test.Module.ProjectManagement.Api;
@@ -10,8 +8,8 @@ namespace Routine.Test.Module.ProjectManagement
 {
 	public class FeatureTask
 	{
-		private IRepository<FeatureTask> repository;
-		private IDomainContext ctx;
+		private readonly IRepository<FeatureTask> repository;
+		private readonly IDomainContext ctx;
 
 		private FeatureTask() { }
 		public FeatureTask(IRepository<FeatureTask> repository, IDomainContext ctx)
@@ -45,6 +43,19 @@ namespace Routine.Test.Module.ProjectManagement
 		public List<FeatureTask> ByFeature(Feature feature)
 		{
 			return By(f => f.FeatureUid == feature.Uid);
+		}
+	}
+
+	public struct TempTask : ITask
+	{
+		public Guid Uid { get { return Guid.Empty; } }
+		public string Text { get; private set; }
+		public string State { get; private set; }
+
+		public TempTask(string text, string state) : this()
+		{
+			Text = text;
+			State = state;
 		}
 	}
 }

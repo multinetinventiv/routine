@@ -16,8 +16,10 @@ namespace Routine.Test.Api.Template
 		public void View_models_are_rendered_as_interfaces_with_concrete_classes()
 		{
 			ModelsAre(
-				Model("TestView").Name("TestView").IsView()
-				.Operation("Dummy", true)
+				Model("TestView").Name("TestView").IsView("TestClass")
+				.Operation("Dummy", true),
+				Model("TestClass").Name("TestClass")
+				.ViewModelIds("TestView")
 			);
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
@@ -35,9 +37,10 @@ namespace Routine.Test.Api.Template
 		public void Potential_actual_interface_name_and_client_interface_name_conflict_is_resolved_by_adding_impl_suffix_to_their_concrete_classes()
 		{
 			ModelsAre(
-				Model("ITestClass").Name("ITestClass").IsView()
+				Model("ITestClass").Name("ITestClass").IsView("TestClass")
 				.Operation("Dummy", true),
 				Model("TestClass").Name("TestClass")
+				.ViewModelIds("ITestClass")
 				.Operation("Dummy", true)
 			);
 
@@ -57,9 +60,10 @@ namespace Routine.Test.Api.Template
 		public void View_model_instances_keep_actual_model_to_perform_operations()
 		{
 			ModelsAre(
-				Model("ITestClass").Name("ITestClass").IsView()
+				Model("ITestClass").Name("ITestClass").IsView("TestClass")
 				.Operation("Operation", "s-string"),
-				Model("TestClass").Name("TestClass"),
+				Model("TestClass").Name("TestClass")
+				.ViewModelIds("ITestClass"),
 				Model("s-string").IsValue()
 			);
 
@@ -89,6 +93,12 @@ namespace Routine.Test.Api.Template
 			Assert.AreEqual("success", actual);
 		}
 
+		[Test][Ignore]
+		public void Static_instance_support()
+		{
+			Assert.Fail("to be designed");
+		}
+
 		/// <summary>
 		/// Accessing static instance of a view model requires its actual model to be given along with the id.
 		/// This is not yet supported due to the complexity of inter client api reference feature. 
@@ -99,10 +109,12 @@ namespace Routine.Test.Api.Template
 		public void There_is_no_instance_support_for_view_models()
 		{
 			ModelsAre(
-				Model("ITestClass").Name("ITestClass").IsView()
+				Model("ITestClass").Name("ITestClass").IsView("TestClass")
 				.Operation("Operation", true)
-				.StaticInstanceIds("instance1", "instance2"),
+				.StaticInstanceId("instance1", "TestClass")
+				.StaticInstanceId("instance2", "TestClass"),
 				Model("TestClass").Name("TestClass")
+				.ViewModelIds("ITestClass")
 			);
 
 			ObjectsAre(
@@ -134,10 +146,11 @@ namespace Routine.Test.Api.Template
 		public void Singleton_support()
 		{
 			ModelsAre(
-				Model("ITestClass").Name("ITestClass").IsView()
+				Model("ITestClass").Name("ITestClass").IsView("TestClass")
 				.Operation("Operation", true)
 				.StaticInstanceId("instance", "TestClass"),
 				Model("TestClass").Name("TestClass")
+				.ViewModelIds("ITestClass")
 			);
 
 			ObjectsAre(
@@ -154,37 +167,59 @@ namespace Routine.Test.Api.Template
 
 			var instance = get.Invoke(testApiObj, new object[] { iITestClass });
 
-			Assert.AreEqual("instance (instance)", instance.ToString());
+			Assert.AreEqual("instance", instance.ToString());
 		}
 
 		[Test]
-		[Ignore]
-		public void Client_types_have_a_conversion_method_for_each_of_their_view_model()
+		public void Client_type_interfaces_have_conversion_methods_for_their_view_models()
 		{
-			Assert.Fail("waiting for polymorphism support");
-		}
+			ModelsAre(
+				Model("ITestClass").Name("ITestClass").IsView("TestClass")
+				.Operation("Operation", true),
+				Model("TestClass").Name("TestClass").ViewModelIds("ITestClass")
+				.Operation("Operation", true)
+			);
 
-		[Test]
-		[Ignore]
-		public void Static_instance_support()
-		{
-			Assert.Fail("to be designed");
+			ObjectsAre(
+				Object(Id("instance", "TestClass")).Value("instance"),
+				Object(Id("instance", "TestClass", "ITestClass")).Value("view instance")
+			);
+
+			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
+
+			var testClass = GetRenderedType(assembly, "TestClass");
+			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iITestClass = GetRenderedType(assembly, "IITestClass");
+
+			var asIITestClass = iTestClass.GetMethod("AsIITestClass");
+
+			Assert.IsNotNull(asIITestClass);
+			Assert.AreEqual(iITestClass, asIITestClass.ReturnType);
+			Assert.AreEqual(0, asIITestClass.GetParameters().Length);
+
+			var instance = CreateInstance(testClass, "instance", "TestClass");
+			var viewInstance = asIITestClass.Invoke(instance, new object[0]);
+
+			Assert.AreEqual("view instance", viewInstance.ToString());
 		}
 
 		protected override void Referenced_client_api_support_case()
 		{
 			ModelsAre(
-				Model("Module2-ITestClass2").Module("Module2").Name("ITestClass2").IsView()
+				Model("Module2-ITestClass1").Module("Module2").Name("ITestClass1").IsView("Module1-TestClass1")
 				.Operation("Dummy", true),
-				Model("Module2-TestClass2").Module("Module2").Name("TestClass2"),
-				Model("Module1-TestClass1").Module("Module1").Name("TestClass1")
+				Model("Module2-ITestClass2").Module("Module2").Name("ITestClass2").IsView("Module2-TestClass2")
+				.Operation("Dummy", true),
+				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").ViewModelIds("Module2-ITestClass2"),
+				Model("Module1-TestClass1").Module("Module1").Name("TestClass1").ViewModelIds("Module2-ITestClass1")
 				.Operation("Operation", "Module2-ITestClass2", PModel("arg1", "Module2-ITestClass2"))
 			);
 
 			ObjectsAre(
 				Object(Id("test2_1", "Module2-TestClass2", "Module2-ITestClass2")).Value("test2_1_value"),
 				Object(Id("test2_2", "Module2-TestClass2", "Module2-ITestClass2")).Value("test2_2_value"),
-				Object(Id("obj", "Module1-TestClass1"))
+				Object(Id("obj", "Module1-TestClass1")),
+				Object(Id("obj", "Module1-TestClass1", "Module2-ITestClass1")).Value("view obj")
 			);
 
 			When(Id("obj", "Module1-TestClass1"))
@@ -215,6 +250,13 @@ namespace Routine.Test.Api.Template
 			var assembly = testing.Generate(DefaultTestTemplate);
 
 			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iITestClass1 = GetRenderedType(otherAssembly, "IITestClass1");
+
+			var asIITestClass1 = iTestClass1.GetMethod("AsIITestClass1");
+			
+			Assert.IsNotNull(asIITestClass1);
+			Assert.AreEqual(iITestClass1, asIITestClass1.ReturnType);
+			Assert.AreEqual(0, asIITestClass1.GetParameters().Length);
 
 			var operation = iTestClass1.GetMethod("Operation");
 
@@ -224,14 +266,17 @@ namespace Routine.Test.Api.Template
 
 			var actual = operation.Invoke(obj, new[] { testObj2_1 });
 			Assert.AreEqual(testObj2_2, actual);
+
+			var viewObj = asIITestClass1.Invoke(obj, new object[0]);
+			Assert.AreEqual("view obj", viewObj.ToString());
 		}
 
 		protected override void List_input_and_output_case()
 		{
 			ModelsAre(
-				Model("ITestClass1").Name("ITestClass1").IsView()
+				Model("ITestClass1").Name("ITestClass1").IsView("TestClass1")
 				.Operation("Dummy", true),
-				Model("TestClass1").Name("TestClass1"),
+				Model("TestClass1").Name("TestClass1").ViewModelIds("ITestClass1"),
 				Model("TestClass2").Name("TestClass2")
 				.Operation("ListOperation", "ITestClass1", true, PModel("arg1", "ITestClass1", true))
 			);

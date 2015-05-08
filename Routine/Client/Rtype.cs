@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Web.UI.WebControls;
 using Routine.Core;
 
 namespace Routine.Client
@@ -12,6 +13,8 @@ namespace Routine.Client
 
 		public Rapplication Application { get; private set; }
 
+		public List<Rtype> ViewTypes { get; private set; }
+		public List<Rtype> ActualTypes { get; private set; }
 		public Rinitializer Initializer { get; private set; }
 		public Dictionary<string, Rmember> Member { get; private set; }
 		public Dictionary<string, Roperation> Operation { get; private set; }
@@ -22,6 +25,8 @@ namespace Routine.Client
 			Application = application;
 			this.model = model;
 
+			ViewTypes = new List<Rtype>();
+			ActualTypes = new List<Rtype>();
 			Initializer = null;
 			Member = new Dictionary<string, Rmember>();
 			Operation = new Dictionary<string, Roperation>();
@@ -29,6 +34,16 @@ namespace Routine.Client
 
 		internal void Load()
 		{
+			foreach (var viewModelId in model.ViewModelIds)
+			{
+				ViewTypes.Add(Application[viewModelId]);
+			}
+
+			foreach (var actualModelId in model.ActualModelIds)
+			{
+				ActualTypes.Add(Application[actualModelId]);
+			}
+
 			if (model.Initializer.GroupCount > 0)
 			{
 				Initializer = new Rinitializer(model.Initializer, this);
@@ -60,6 +75,13 @@ namespace Routine.Client
 		public bool MarkedAs(string mark)
 		{
 			return model.Marks.Contains(mark);
+		}
+
+		public bool CanBe(Rtype viewType)
+		{
+			if (Equals(this, viewType)) { return true; }
+
+			return ViewTypes.Contains(viewType);
 		}
 
 		public List<Robject> StaticInstances

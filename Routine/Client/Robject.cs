@@ -33,10 +33,15 @@ namespace Routine.Client
 		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(new List<Rvariable>(), objectData, actualType, viewType) { }
 		private Robject(List<Rvariable> initializationParameters, ObjectData objectData, Rtype actualType, Rtype viewType)
 		{
-			//if (actualType != null && actualType.IsViewType)
-			//{
-			//	throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
-			//}
+			if (actualType != null && actualType.IsViewType)
+			{
+				throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
+			}
+
+			if (actualType != null && !actualType.CanBe(viewType))
+			{
+				throw new CannotCreateRobjectException(string.Format("{0} cannot be {1}", actualType, viewType));
+			}
 
 			ActualType = actualType;
 			ViewType = viewType;
@@ -141,6 +146,11 @@ namespace Routine.Client
 
 		public MemberValue this[string memberModelId] { get { LoadMembersIfNecessary(); return members[memberModelId]; } }
 		public List<MemberValue> MemberValues { get { LoadMembersIfNecessary(); return members.Values.ToList(); } }
+
+		public Robject As(Rtype viewType)
+		{
+			return Type.Get(Id, viewType);
+		}
 
 		public Rvariable Perform(string operationModelId, params Rvariable[] parameters) { return Perform(operationModelId, parameters.ToList()); }
 		public Rvariable Perform(string operationModelId, List<Rvariable> parameters)

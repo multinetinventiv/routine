@@ -1,35 +1,36 @@
+using System;
 using System.Collections.Generic;
 using Routine.Core;
-using Routine.Core.Configuration;
 
 namespace Routine.Engine
 {
 	public class DomainObject
 	{
-		private readonly object target;
 		private readonly DomainType actualDomainType;
 		private readonly DomainType viewDomainType;
+		private readonly object actualTarget;
+		private readonly object viewTarget;
 
 		public DomainObject(object target, DomainType actualDomainType, DomainType viewDomainType)
 		{
-			this.target = target;
+			if (actualDomainType == null) { throw new ArgumentNullException("actualDomainType"); }
+			if (viewDomainType == null) { throw new ArgumentNullException("viewDomainType"); }
+
 			this.actualDomainType = actualDomainType;
 			this.viewDomainType = viewDomainType;
+
+			actualTarget = target;
+			viewTarget = actualDomainType.Convert(target, viewDomainType);
 		}
 
 		public string GetId()
 		{
-			if (target == null || viewDomainType.IdExtractor == null)
+			if (actualDomainType.IdExtractor == null)
 			{
-				if (actualDomainType.IdExtractor == null)
-				{
-					throw new ConfigurationException("Id", target);
-				}
-
-				return actualDomainType.IdExtractor.GetId(target);
+				return string.Empty;
 			}
 
-			return viewDomainType.IdExtractor.GetId(target);
+			return actualDomainType.IdExtractor.GetId(actualTarget);
 		}
 
 		public string GetValue()
@@ -39,24 +40,24 @@ namespace Routine.Engine
 				return GetId();
 			}
 
-			if (target == null || viewDomainType.ValueExtractor == null)
+			if (actualTarget == null || viewDomainType.ValueExtractor == null)
 			{
 				if (actualDomainType.ValueExtractor == null)
 				{
-					throw new ConfigurationException("Value", target);
+					return string.Empty;
 				}
 
-				return actualDomainType.ValueExtractor.GetValue(target);
+				return actualDomainType.ValueExtractor.GetValue(actualTarget);
 			}
 
-			return viewDomainType.ValueExtractor.GetValue(target);
+			return viewDomainType.ValueExtractor.GetValue(viewTarget);
 		}
 
 		public ObjectReferenceData GetReferenceData()
 		{
 			var result = new ObjectReferenceData();
 
-			result.IsNull = target == null;
+			result.IsNull = actualTarget == null;
 			result.ActualModelId = actualDomainType.Id;
 			result.ViewModelId = viewDomainType.Id;
 			result.Id = GetId();
@@ -64,7 +65,8 @@ namespace Routine.Engine
 			return result;
 		}
 
-		public ObjectData GetObjectData(bool eager)
+		public ObjectData GetObjectData(bool eager) { return GetObjectData(Constants.FIRST_DEPTH, eager); }
+		internal ObjectData GetObjectData(int currentDepth, bool eager)
 		{
 			var result = new ObjectData
 			{
@@ -72,12 +74,17 @@ namespace Routine.Engine
 				Value = GetValue()
 			};
 
-			if (target == null) { return result; }
-			if (!eager) { return result; }
+			if (actualTarget == null) { return result; }
+			if (!eager && actualDomainType.Locatable) { return result; }
+
+			if (currentDepth > actualDomainType.MaxFetchDepth)
+			{
+				throw new MaxFetchDepthExceededException(actualDomainType.MaxFetchDepth, actualTarget);
+			}
 
 			foreach (var member in viewDomainType.Members)
 			{
-				result.Members.Add(member.Id, member.CreateData(target));
+				result.Members.Add(member.Id, member.CreateData(viewTarget, currentDepth + 1));
 			}
 
 			return result;
@@ -91,7 +98,7 @@ namespace Routine.Engine
 				throw new MemberDoesNotExistException(viewDomainType.Id, memberModelId);
 			}
 
-			return member.CreateData(target, true);
+			return member.CreateData(viewTarget, true);
 		}
 
 		public ValueData Perform(string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
@@ -102,7 +109,7 @@ namespace Routine.Engine
 				throw new OperationDoesNotExistException(viewDomainType.Id, operationModelId);
 			}
 
-			return operation.Perform(target, parameterValues);
+			return operation.Perform(viewTarget, parameterValues);
 		}
 	}
 }

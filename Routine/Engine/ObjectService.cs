@@ -25,23 +25,10 @@ namespace Routine.Engine
 				{
 					if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
 					{
-						var applicationModel = new ApplicationModel();
-
-						foreach (var type in ctx.CodingStyle.GetTypes())
+						cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, new ApplicationModel
 						{
-							if (applicationModel.Models.Any(m => m.Id == ctx.CodingStyle.GetTypeId(type))) { continue; }
-
-							applicationModel.Models.Add(ctx.GetDomainType(type).GetModel());
-						}
-
-						foreach (var domainType in ctx.GetDomainTypes())
-						{
-							if (applicationModel.Models.Any(m => m.Id == domainType.Id)) { continue; }
-
-							applicationModel.Models.Add(domainType.GetModel());
-						}
-
-						cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, applicationModel);
+							Models = ctx.GetDomainTypes().Select(dt => dt.GetModel()).ToList()
+						});
 					}
 				}
 			}

@@ -5,13 +5,13 @@ namespace Routine.Api
 {
 	public class ParameterCodeModel
 	{
-		private readonly ApplicationCodeModel application;
+		public ApplicationCodeModel Application { get; private set; }
 		public Rparameter Parameter { get; private set; }
 		public TypeCodeModel ParameterModel { get; private set; }
 
 		public ParameterCodeModel(ApplicationCodeModel application, Rparameter parameter)
 		{
-			this.application = application;
+			Application = application;
 			Parameter = parameter;
 
 			ParameterModel = application.GetModel(parameter.ParameterType, parameter.IsList);
@@ -19,11 +19,10 @@ namespace Routine.Api
 
 		public string Id { get { return Parameter.Id; } }
 		public List<int> Groups { get { return Parameter.Groups; } }
-		public ApplicationCodeModel Application { get { return application; } }
 
 		public string GetName(int mode)
 		{
-			return application.Configuration.GetName(this, mode);
+			return Application.Configuration.GetName(this, mode);
 		}
 
 		public bool MarkedAs(string mark)

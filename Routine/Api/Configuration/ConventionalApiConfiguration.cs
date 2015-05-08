@@ -53,7 +53,7 @@ namespace Routine.Api.Configuration
 
 			Modes = new ConventionalListConfiguration<ConventionalApiConfiguration, TypeCodeModel, int>(this, "Modes", true);
 			RenderedTypeNamespace = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, string>(this, "RenderedTypeNamespace", true);
-			RenderedTypeTemplate = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, ITypeConversionTemplate>(this, "ReferencedTypeTemplate", true);
+			RenderedTypeTemplate = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, ITypeConversionTemplate>(this, "RenderedTypeTemplate", true);
 
 			RenderedTypeName = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, string>(this, "RenderedTypeName", true);
 			RenderedMemberName = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<MemberCodeModel>, string>(this, "RenderedMemberName", true);
@@ -131,6 +131,11 @@ namespace Routine.Api.Configuration
 		{
 			Model = model;
 			Mode = mode;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Model: {0}, Mode: {1}", Model, Mode);
 		}
 	}
 

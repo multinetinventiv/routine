@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using Routine.Core.Configuration;
 using Routine.Test.Engine.Domain.LaterAdded;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel;
 
@@ -87,6 +88,15 @@ namespace Routine.Test.Engine
 			var actual = testing.GetApplicationModel().Models.First(m => m.Name == "BusinessModel1");
 
 			Assert.IsTrue(actual.Members.Any(m => m.Id == "PropertyWithLaterAddedType"));
+		}
+
+		[Test]
+		public void Model_ids_are_not_allowed_to_start_with_the_ref_splitter_character_to_prevent_deserialization_problems()
+		{
+			codingStyle
+				.Override(c => c.TypeId.Set("#test", type.of<string>()))
+				;
+			Assert.Throws<ConfigurationException>(() => testing.GetApplicationModel());
 		}
 	}
 }

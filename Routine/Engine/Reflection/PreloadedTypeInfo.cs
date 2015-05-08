@@ -13,7 +13,7 @@ namespace Routine.Engine.Reflection
 		private TypeInfo baseType;
 		private TypeInfo[] genericArguments;
 		private TypeInfo[] interfaces;
-		private TypeInfo[] canBeList;
+		private TypeInfo[] assignableTypes;
 		private object[] customAttributes;
 
 		public override string Name { get { return name; } }
@@ -33,49 +33,19 @@ namespace Routine.Engine.Reflection
 
 			genericArguments = type.GetGenericArguments().Select(t => Get(t)).ToArray();
 			interfaces = type.GetInterfaces().Select(t => Get(t)).ToArray();
-			canBeList = LoadCanBeList();
+			assignableTypes = base.GetAssignableTypes();
 
 			customAttributes = type.GetCustomAttributes(true);
 		}
 
-		private TypeInfo[] LoadCanBeList()
+		protected override TypeInfo[] GetAssignableTypes()
 		{
-			var result = new List<TypeInfo>();
-
-			result.Add(Get<object>());
-
-			FillInheritance(this, result);
-
-			foreach (var typeInfo in GetInterfaces())
-			{
-				FillInheritance(typeInfo, result);
-			}
-
-			return result.ToArray();
-		}
-
-		private static void FillInheritance(TypeInfo root, List<TypeInfo> state)
-		{
-			var cur = root;
-			while (cur != null)
-			{
-				if (!state.Contains(cur))
-				{
-					state.Add(cur);
-				}
-
-				cur = cur.BaseType;
-			}
-		}
-
-		protected override TypeInfo[] GetConvertibleTypes()
-		{
-			return canBeList;
+			return assignableTypes;
 		}
 
 		protected override TypeInfo[] GetGenericArguments() { return genericArguments; }
 		protected override TypeInfo[] GetInterfaces() { return interfaces; }
-		public override bool CanBe(TypeInfo other) { return canBeList.Any(t => t == other); }
+		public override bool CanBe(TypeInfo other) { return assignableTypes.Any(t => t == other); }
 		protected override TypeInfo GetElementType() { return null; }
 		public override ConstructorInfo[] GetAllConstructors() { return new ConstructorInfo[0]; }
 		public override PropertyInfo[] GetAllProperties() { return new PropertyInfo[0]; }

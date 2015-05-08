@@ -3,11 +3,11 @@ using Routine.Test.Domain.Configuration;
 
 namespace Routine.Test.Business.Service
 {
-	public class SoaApplication : HttpApplication
+	public class ServiceApplication : HttpApplication
 	{
 		protected void Application_Start()
 		{
-			Configurer.ConfigureSoaApplication();
+			Configurer.ConfigureServiceApplication();
 		}
 	}
 }

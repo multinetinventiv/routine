@@ -21,7 +21,7 @@ namespace Routine.Engine
 		string Namespace { get; }
 		IType BaseType { get; }
 
-		List<IType> ConvertibleTypes { get; }
+		List<IType> AssignableTypes { get; }
 		List<IInitializer> Initializers { get; }
 		List<IMember> Members { get; }
 		List<IOperation> Operations { get; }
@@ -35,7 +35,7 @@ namespace Routine.Engine
 		IType GetEnumUnderlyingType();
 		
 		bool CanBe(IType otherType);
-		object Convert(object target, IType otherType);
+		object Cast(object @object, IType otherType);
 
 		object CreateInstance();
 		IList CreateListInstance(int length);

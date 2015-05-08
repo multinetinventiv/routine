@@ -6,9 +6,18 @@ namespace Routine.Core.Rest
 {
 	public static class SerializationExtensions
 	{
+		#region Encode & Decode
+
 		private const string TEMP_ESCAPE = "__r!s@e_";
-		private const string REF_SPLITTER = "#";
 		private const string ESCAPED_REF_SPLITTER = "##";
+		private static string Encode(string str) { return str.Replace(REF_SPLITTER, ESCAPED_REF_SPLITTER); }
+		private static string StartDecode(string str) { return str.Replace(ESCAPED_REF_SPLITTER, TEMP_ESCAPE); }
+		private static string EndDecode(string str) { return str.Replace(TEMP_ESCAPE, REF_SPLITTER); }
+
+		#endregion
+
+		internal const string REF_SPLITTER = "#";
+
 		private const string OMID_KEY = "Id";
 		private const string PARAMS_KEY = "Params";
 		private const string REF_KEY = "Ref";
@@ -19,11 +28,11 @@ namespace Routine.Core.Rest
 		{
 			if (source.IsNull) { return null; }
 
-			var result = source.Id.Replace(REF_SPLITTER, ESCAPED_REF_SPLITTER);
-			result += REF_SPLITTER + source.ActualModelId;
+			var result = Encode(source.Id);
+			result += REF_SPLITTER + Encode(source.ActualModelId);
 			if (!string.IsNullOrEmpty(source.ViewModelId) && source.ViewModelId != source.ActualModelId)
 			{
-				result += REF_SPLITTER + source.ViewModelId;
+				result += REF_SPLITTER + Encode(source.ViewModelId);
 			}
 
 			return result;
@@ -92,7 +101,7 @@ namespace Routine.Core.Rest
 				return result;
 			}
 
-			return source.ReferenceId + REF_SPLITTER + source.ObjectModelId;
+			return Encode(source.ReferenceId) + REF_SPLITTER + Encode(source.ObjectModelId);
 		}
 
 		public static object ToSerializable(this ParameterValueData source)
@@ -111,26 +120,25 @@ namespace Routine.Core.Rest
 		{
 			if (@object == null) { return new ObjectReferenceData { IsNull = true }; }
 
-			if (!(@object is string)) { throw new ArgumentException("Given parameter value should be null or string, but was " + @object, "object"); }
+			if (!(@object is string)) { throw new ArgumentException(string.Format("Given parameter value should be null or string, but was {0}", @object), "object"); }
 
-			var refString = @object as string;
+			var refString = StartDecode(@object as string);
 
 			if (!refString.Contains(REF_SPLITTER)) { throw new ArgumentException(string.Format("Given string should contain at least one '{0}' to split id and actual model id", REF_SPLITTER), "object"); }
 
 			var result = new ObjectReferenceData();
-			refString = refString.Replace(ESCAPED_REF_SPLITTER, TEMP_ESCAPE);
-			result.Id = refString.Before(REF_SPLITTER).Replace(TEMP_ESCAPE, REF_SPLITTER);
+			result.Id = EndDecode(refString.Before(REF_SPLITTER));
 
 			var midString = refString.After(REF_SPLITTER);
 			if (midString.Contains(REF_SPLITTER))
 			{
-				result.ActualModelId = midString.Before(REF_SPLITTER);
-				result.ViewModelId = midString.After(REF_SPLITTER);
+				result.ActualModelId = EndDecode(midString.Before(REF_SPLITTER));
+				result.ViewModelId = EndDecode(midString.After(REF_SPLITTER));
 			}
 			else
 			{
-				result.ActualModelId = midString;
-				result.ViewModelId = midString;
+				result.ActualModelId = EndDecode(midString);
+				result.ViewModelId = result.ActualModelId;
 			}
 
 			return result;
@@ -204,14 +212,14 @@ namespace Routine.Core.Rest
 
 			if (@object is string)
 			{
-				var refString = @object as string;
+				var refString = StartDecode(@object as string);
 
-				if (!refString.Contains(REF_SPLITTER)) { throw new ArgumentException(string.Format("Given string should contain '{0}' to split id and object model id", REF_SPLITTER), "object"); }
+				if (!refString.Contains(REF_SPLITTER)) { throw new ArgumentException(string.Format("Given string {0} should contain '{1}' to split id and object model id", @object, REF_SPLITTER), "object"); }
 
 				return new ParameterData
 				{
-					ReferenceId = refString.Before(REF_SPLITTER),
-					ObjectModelId = refString.After(REF_SPLITTER)
+					ReferenceId = EndDecode(refString.Before(REF_SPLITTER)),
+					ObjectModelId = EndDecode(refString.After(REF_SPLITTER))
 				};
 			}
 
@@ -230,7 +238,7 @@ namespace Routine.Core.Rest
 			if (!dict.ContainsKey(PARAMS_KEY)) { throw new ArgumentException(string.Format("Given dictionary should contain parameters with key '{0}'", PARAMS_KEY), "object"); }
 			var parameters = dict[PARAMS_KEY];
 			if (!(parameters is Dictionary<string, object>)) { throw new ArgumentException(string.Format("Given parameters should be Dictionary<string, object>, but was '{0}'", parameters), "object"); }
-			
+
 			var paramsDict = parameters as Dictionary<string, object>;
 
 			result.InitializationParameters = paramsDict.ToDictionary(kvp => kvp.Key, kvp => DeserializeParameterValueData(kvp.Value));
