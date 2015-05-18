@@ -47,7 +47,7 @@ namespace Routine.Test.Api
 		protected object CreateInstance(ApiGenerator generator, string id, string modelId) { return CreateInstance(generator, id, modelId, modelId); }
 		protected object CreateInstance(ApiGenerator generator, string id, string actualModelId, string viewModelId)
 		{
-			return CreateInstance(GetRenderedType(generator.Generate(DefaultTestTemplate), viewModelId), id, actualModelId, viewModelId);
+			return CreateInstance(GetRenderedType(generator.Generate(DefaultTestTemplate), viewModelId.Append("Impl")), id, actualModelId, viewModelId);
 		}
 
 		protected object CreateInstance(Type renderedType, string id, string modelId) { return CreateInstance(renderedType, id, modelId, modelId); }

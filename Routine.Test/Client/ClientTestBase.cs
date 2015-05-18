@@ -96,6 +96,7 @@ namespace Routine.Test.Client
 			}
 
 			public ObjectModelBuilder Mark(params string[] marks) { result.Marks.AddRange(marks); return this; }
+			public ObjectModelBuilder MarkInitializer(params string[] marks) { result.Initializer.Marks.AddRange(marks); return this; }
 			public ObjectModelBuilder MarkMember(string memberId, params string[] marks) { result.Members.Single(m => m.Id == memberId).Marks.AddRange(marks); return this; }
 			public ObjectModelBuilder MarkOperation(string operationId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Marks.AddRange(marks); return this; }
 			public ObjectModelBuilder MarkParameter(string operationId, string parameterId, params string[] marks) { result.Operations.Single(o => o.Id == operationId).Parameters.Single(p => p.Id == parameterId).Marks.AddRange(marks); return this; }
@@ -142,7 +143,7 @@ namespace Routine.Test.Client
 				return this;
 			}
 
-			public ObjectModelBuilder Operation(string operationId, params ParameterModel[] parameters) { return Operation(operationId, false, parameters); }
+			public ObjectModelBuilder Operation(string operationId, params ParameterModel[] parameters) { return Operation(operationId, true, parameters); }
 			public ObjectModelBuilder Operation(string operationId, bool isVoid, params ParameterModel[] parameters) { return Operation(operationId, isVoid ? null : defaultObjectModelId, parameters); }
 			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, params ParameterModel[] parameters) { return Operation(operationId, resultViewModelId, false, parameters); }
 			public ObjectModelBuilder Operation(string operationId, string resultViewModelId, bool isList, params ParameterModel[] parameters)

@@ -63,13 +63,13 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var sub = iTestClass1.GetProperty("Sub");
 			var operation = iTestClass1.GetMethod("Operation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "Module1-TestClass1");
-			var testObj2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2", "Module2-TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "Module1-TestClass1");
+			var testObj2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2", "Module2-TestClass2");
 
 			var subObj = sub.GetValue(testObj1, new object[0]);
 			Assert.AreEqual(testObj2, subObj);
@@ -140,19 +140,19 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
-			var iTestClass2 = GetRenderedType(otherAssembly, "ITestClass2");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
+			var iTestClass2 = GetRenderedType(otherAssembly, "TestClass2");
 
 			var subList = iTestClass1.GetProperty("SubList");
 			var listOperation = iTestClass1.GetMethod("ListOperation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "Module1-TestClass1");
-			var testObj2_1 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_1", "Module2-TestClass2");
-			var testObj2_2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_2", "Module2-TestClass2");
-			var testObj2_3 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_3", "Module2-TestClass2");
-			var testObj2_4 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_4", "Module2-TestClass2");
-			var testObj2_5 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_5", "Module2-TestClass2");
-			var testObj2_6 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_6", "Module2-TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "Module1-TestClass1");
+			var testObj2_1 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_1", "Module2-TestClass2");
+			var testObj2_2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_2", "Module2-TestClass2");
+			var testObj2_3 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_3", "Module2-TestClass2");
+			var testObj2_4 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_4", "Module2-TestClass2");
+			var testObj2_5 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_5", "Module2-TestClass2");
+			var testObj2_6 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_6", "Module2-TestClass2");
 			
 			var subListObj = (IList)subList.GetValue(testObj1, new object[0]);
 			Assert.AreEqual(testObj2_1, subListObj[0]);
@@ -165,6 +165,11 @@ namespace Routine.Test.Api.Template
 			var listOperationResult = (IList)listOperation.Invoke(testObj1, new object[] { listOperationArg1 });
 			Assert.AreEqual(testObj2_5, listOperationResult[0]);
 			Assert.AreEqual(testObj2_6, listOperationResult[1]);
+		}
+
+		protected override void Attribute_case()
+		{
+			Assert.Pass("This feature has nothing to do with attribute case");
 		}
 	}
 }

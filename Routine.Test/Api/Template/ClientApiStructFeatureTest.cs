@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Routine.Api;
 using Routine.Api.Template;
 
 namespace Routine.Test.Api.Template
@@ -103,7 +102,7 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 			var testClass = GetRenderedType(assembly, "TestClass");
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
+			var iTestClass2 = GetRenderedType(assembly, "TestClass2");
 			var structInput = iTestClass2.GetMethod("StructInput");
 
 			Assert.AreEqual(testClass, structInput.GetParameters()[0].ParameterType);
@@ -143,9 +142,9 @@ namespace Routine.Test.Api.Template
 			var testClass = GetRenderedType(assembly, "TestClass");
 			var testClassObj = Activator.CreateInstance(testClass, "name", "surname");
 
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
+			var iTestClass2 = GetRenderedType(assembly, "TestClass2");
 			var structInput = iTestClass2.GetMethod("StructInput");
-			var test2 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2", "TestClass2");
+			var test2 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2", "TestClass2");
 
 			var actual = (string)structInput.Invoke(test2, new[] { testClassObj });
 
@@ -216,9 +215,9 @@ namespace Routine.Test.Api.Template
 			var testClass = GetRenderedType(assembly, "TestClass");
 			var testClassObj = Activator.CreateInstance(testClass, "name");
 
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
+			var iTestClass2 = GetRenderedType(assembly, "TestClass2");
 			var structInput = iTestClass2.GetMethod("StructInput");
-			var test2 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2", "TestClass2");
+			var test2 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2", "TestClass2");
 
 			var actual = (string)structInput.Invoke(test2, new[] { testClassObj });
 
@@ -270,14 +269,14 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 			var @struct = GetRenderedType(otherAssembly, "Struct");
 
 			var structOperation = iTestClass1.GetMethod("StructOperation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "Module1-TestClass1");
-			var testObj2_1 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_1", "Module2-TestClass2");
-			var testObj2_2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2"), "test2_2", "Module2-TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "Module1-TestClass1");
+			var testObj2_1 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_1", "Module2-TestClass2");
+			var testObj2_2 = CreateInstance(GetRenderedType(otherAssembly, "TestClass2Impl"), "test2_2", "Module2-TestClass2");
 
 			var structOperationArg1 = Activator.CreateInstance(@struct, testObj2_1);
 			var structOperationResult = structOperation.Invoke(testObj1, new[] { structOperationArg1 });
@@ -311,7 +310,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var testStruct = GetRenderedType(assembly, "TestStruct");
 
 			var structListOperation = iTestClass.GetMethod("StructListOperation");
@@ -319,7 +318,7 @@ namespace Routine.Test.Api.Template
 			var name1 = Activator.CreateInstance(testStruct, "name1");
 			var name2 = Activator.CreateInstance(testStruct, "name2");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass"), "obj", "TestClass");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "TestClass");
 
 			var arg1 = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(testStruct));
 			arg1.Add(name1);
@@ -328,6 +327,38 @@ namespace Routine.Test.Api.Template
 			var actual = structListOperation.Invoke(obj, new object[] { arg1 });
 
 			Assert.AreEqual("success", actual);
+		}
+
+		public class CustomAttribute : Attribute { }
+
+		protected override void Attribute_case()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+				.Initializer(PModel("parameter", "s-string")),
+				Model("s-string").IsValue()
+			);
+
+			var assembly =
+				Generator(c => c
+					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+					.Use(p => p.ParseableValueTypePattern())
+					.RenderedTypeAttributes.Add(type.of<CustomAttribute>())
+					.RenderedInitializerAttributes.Add(type.of<CustomAttribute>())
+					.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+					.AddReference<CustomAttribute>()
+					.Generate(DefaultTestTemplate)
+				;
+
+			var testClass = GetRenderedType(assembly, "TestClass");
+			var initializer = testClass.GetConstructors().Single(ci => ci.GetParameters().Any(p => p.Name == "parameter"));
+			var parameter = initializer.GetParameters().Single(p => p.Name == "parameter");
+			var parameterProperty = testClass.GetProperty("Parameter");
+
+			Assert.IsTrue(Attribute.IsDefined(testClass, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(initializer, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(parameter, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(parameterProperty, typeof(CustomAttribute)));
 		}
 	}
 }

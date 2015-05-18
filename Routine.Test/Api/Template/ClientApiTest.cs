@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -17,7 +18,7 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
 
-			var testClass = GetRenderedType("TestClass");
+			var testClass = GetRenderedType("TestClassImpl");
 
 			Assert.IsNotNull(testClass);
 		}
@@ -27,7 +28,7 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
 
-			var iTestClass = GetRenderedType("ITestClass");
+			var iTestClass = GetRenderedType("TestClass");
 
 			Assert.IsNotNull(iTestClass);
 			Assert.IsTrue(iTestClass.IsInterface);
@@ -38,7 +39,7 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
 
-			var testClass = GetRenderedType("TestClass");
+			var testClass = GetRenderedType("TestClassImpl");
 
 			Assert.IsTrue(testClass.IsNotPublic);
 		}
@@ -61,8 +62,8 @@ namespace Routine.Test.Api.Template
 			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
-			var testClass = GetRenderedType(assembly, "TestClass");
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var testClass = GetRenderedType(assembly, "TestClassImpl");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 
 			Assert.IsTrue(iTestClass.IsAssignableFrom(testClass));
 		}
@@ -79,7 +80,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern()));
 
-			var properties = GetRenderedType(testing.Generate(DefaultTestTemplate), "ITestClass").GetProperties();
+			var properties = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetProperties();
 
 			Assert.IsTrue(properties.Any(p => p.Name == "Name"), "Name property was not found");
 
@@ -97,7 +98,7 @@ namespace Routine.Test.Api.Template
 				Model("TestClass").Name("TestClass").Member("Self", "TestClass")
 			);
 
-			var iTestClass = GetRenderedType("ITestClass");
+			var iTestClass = GetRenderedType("TestClass");
 			var properties = iTestClass.GetProperties();
 
 			var self = properties.Single(p => p.Name == "Self");
@@ -113,7 +114,7 @@ namespace Routine.Test.Api.Template
 				.Operation("VoidMethod", true)
 			);
 
-			var methods = GetRenderedType("ITestClass").GetMethods();
+			var methods = GetRenderedType("TestClass").GetMethods();
 
 			Assert.IsTrue(methods.Any(m => m.Name == "VoidMethod"), "VoidMethod method was not found");
 
@@ -135,7 +136,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern()));
 
-			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "ITestClass").GetMethods();
+			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetMethods();
 
 			var stringMethod = methods.Single(m => m.Name == "StringMethod");
 
@@ -157,7 +158,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var methods = iTestClass.GetMethods();
 
 			var parameterMethod = methods.Single(m => m.Name == "ParameterMethod");
@@ -184,7 +185,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern()));
 
-			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "ITestClass").GetMethods();
+			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetMethods();
 
 			var overloadMethods = methods.Where(m => m.Name == "OverloadMethod").ToList();
 
@@ -205,6 +206,40 @@ namespace Routine.Test.Api.Template
 			Assert.AreEqual(typeof(int), overloadMethods[2].GetParameters()[0].ParameterType);
 		}
 
+		public class CustomAttribute : Attribute { }
+
+		[Test]
+		public void When_configured__types__initializers__members__operations_and_parameters_renders_attributes()
+		{
+			ModelsAre(
+				Model("TestClass")
+				.Name("TestClass")
+				.Member("Member", "TestClass")
+				.Operation("Operation", true, PModel("parameter", "TestClass"))
+			);
+
+			var assembly = Generator(c => c
+				.RenderedTypeAttributes.Add(type.of<CustomAttribute>())
+				.RenderedMemberAttributes.Add(type.of<CustomAttribute>())
+				.RenderedOperationAttributes.Add(type.of<CustomAttribute>())
+				.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+				.AddReference<CustomAttribute>()
+				.Generate(DefaultTestTemplate)
+				;
+
+			var testClass = GetRenderedType(assembly, "TestClass");
+
+			var member = testClass.GetProperty("Member");
+			var operation = testClass.GetMethod("Operation");
+			var parameter = operation.GetParameters().Single(p => p.Name == "parameter");
+
+			Assert.IsTrue(Attribute.IsDefined(testClass, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(member, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(operation, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(parameter, typeof(CustomAttribute)));
+
+		}
+
 		[Test]
 		public void Interfaces_include_GetIdentifier_method_to_provide_id_value()
 		{
@@ -221,12 +256,12 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var getIdentifier = iTestClass.GetMethod("GetIdentifier");
 
 			Assert.IsNotNull(getIdentifier);
 
-			var testObj = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
+			var testObj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "test_id", "TestClass");
 			var actual = getIdentifier.Invoke(testObj, new object[0]);
 
 			Assert.AreEqual("test_id", actual.ToString());
@@ -255,9 +290,9 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var testObj = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
+			var testObj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "test_id", "TestClass");
 
-			var actual = GetRenderedType(assembly, "ITestClass").GetProperty("Name").GetValue(testObj, new object[0]) as string;
+			var actual = GetRenderedType(assembly, "TestClass").GetProperty("Name").GetValue(testObj, new object[0]) as string;
 			Assert.AreEqual("test_name", actual);
 		}
 
@@ -282,11 +317,11 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var other = iTestClass1.GetProperty("Other");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
 
 			var otherValue = other.GetValue(testObj1, new object[0]);
 			Assert.AreEqual("test2_value", otherValue.ToString());
@@ -327,9 +362,9 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var testObj = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
+			var testObj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "test_id", "TestClass");
 
-			var actual = GetRenderedType(assembly, "ITestClass").GetMethod("Operation").Invoke(testObj, new object[] { "arg1_test", "arg2_test" }) as string;
+			var actual = GetRenderedType(assembly, "TestClass").GetMethod("Operation").Invoke(testObj, new object[] { "arg1_test", "arg2_test" }) as string;
 
 			Assert.AreEqual("result_test", actual);
 		}
@@ -355,13 +390,13 @@ namespace Routine.Test.Api.Template
 				.Returns(Result(Id("test2", "TestClass2")));
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var subProperty = iTestClass1.GetProperty("Sub");
 			var operationMethod = iTestClass1.GetMethod("Operation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
-			var testObj2 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2", "TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
+			var testObj2 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2", "TestClass2");
 
 			var subObj = subProperty.GetValue(testObj1, new object[0]);
 			Assert.AreEqual(testObj2, subObj);
@@ -392,12 +427,12 @@ namespace Routine.Test.Api.Template
 				.Returns(Void());
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var operationMethod = iTestClass1.GetMethod("Operation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
-			var testObj2 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2", "TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
+			var testObj2 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2", "TestClass2");
 
 			var operationResult = operationMethod.Invoke(testObj1, new[] { testObj2 });
 			Assert.IsNull(operationResult);
@@ -448,7 +483,7 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var testClass1 = GetRenderedType(assembly, "ITestClass1");
+			var testClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var subsProperty = testClass1.GetProperty("Subs");
 			var namesProperty = testClass1.GetProperty("Names");
@@ -456,11 +491,11 @@ namespace Routine.Test.Api.Template
 			var subListOperation = testClass1.GetMethod("SubListOperation");
 			var nameListOperation = testClass1.GetMethod("NameListOperation");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
-			var testObj2_1 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2.1", "TestClass2");
-			var testObj2_2 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2.2", "TestClass2");
-			var testObj2_3 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2.3", "TestClass2");
-			var testObj2_4 = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2.4", "TestClass2");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
+			var testObj2_1 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2.1", "TestClass2");
+			var testObj2_2 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2.2", "TestClass2");
+			var testObj2_3 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2.3", "TestClass2");
+			var testObj2_4 = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2.4", "TestClass2");
 
 			var subObjs = subsProperty.GetValue(testObj1, new object[0]) as IList;
 			Assert.AreEqual(testObj2_1, subObjs[0]);
@@ -501,12 +536,12 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var nameProperty = iTestClass1.GetProperty("Name");
 			var selfProperty = iTestClass1.GetProperty("Self");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
 
 			var name = nameProperty.GetValue(testObj1, new object[0]);
 			Assert.IsNull(name);
@@ -553,12 +588,12 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var operation = iTestClass1.GetMethod("Operation");
 			var operation2 = iTestClass1.GetMethod("Operation2");
 
-			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1"), "test1", "TestClass1");
+			var testObj1 = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "test1", "TestClass1");
 
 			var actual = operation.Invoke(testObj1, new object[]{null});
 			Assert.IsNull(actual);

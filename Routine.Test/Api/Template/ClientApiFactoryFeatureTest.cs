@@ -28,13 +28,13 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(new ClientApiTemplate("TestApi"));
 
-			var iTestClassFactory = GetRenderedType(assembly, "ITestClassFactory");
+			var iTestClassFactory = GetRenderedType(assembly, "TestClassFactory");
 
 			Assert.IsNotNull(iTestClassFactory);
 			Assert.IsTrue(iTestClassFactory.IsPublic);
 			Assert.IsTrue(iTestClassFactory.IsInterface);
 
-			var testClassFactory = GetRenderedType(assembly, "TestClassFactory");
+			var testClassFactory = GetRenderedType(assembly, "TestClassFactoryImpl");
 			Assert.IsNotNull(testClassFactory);
 			Assert.IsTrue(iTestClassFactory.IsAssignableFrom(testClassFactory));
 			Assert.IsTrue(testClassFactory.IsNotPublic);
@@ -62,8 +62,8 @@ namespace Routine.Test.Api.Template
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClassFactory = GetRenderedType(assembly, "ITestClassFactory");
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClassFactory = GetRenderedType(assembly, "TestClassFactory");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 
 			var @new = iTestClassFactory.GetMethod("New");
 
@@ -91,7 +91,7 @@ namespace Routine.Test.Api.Template
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClassFactory = GetRenderedType(assembly, "ITestClassFactory");
+			var iTestClassFactory = GetRenderedType(assembly, "TestClassFactory");
 
 			var news = iTestClassFactory.GetMethods().Where(mi => mi.Name == "New").ToList();
 
@@ -140,15 +140,15 @@ namespace Routine.Test.Api.Template
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
-			var iTestClassFactory = GetRenderedType(assembly, "ITestClassFactory");
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
+			var iTestClassFactory = GetRenderedType(assembly, "TestClassFactory");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
+			var iTestClass2 = GetRenderedType(assembly, "TestClass2");
 
 			var initializedParameter = iTestClass2.GetMethod("InitializedParameter");
 			var @new = iTestClassFactory.GetMethod("New");
 
-			var testClass2Obj = CreateInstance(GetRenderedType(assembly, "TestClass2"), "test2", "TestClass2");
-			var testClassFactoryObj = Activator.CreateInstance(GetRenderedType(assembly, "TestClassFactory"), testingRapplication);
+			var testClass2Obj = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "test2", "TestClass2");
+			var testClassFactoryObj = Activator.CreateInstance(GetRenderedType(assembly, "TestClassFactoryImpl"), testingRapplication);
 
 			var name1 = @new.Invoke(testClassFactoryObj, new object[] { "name1" });
 			var name2 = @new.Invoke(testClassFactoryObj, new object[] { "name2" });
@@ -170,6 +170,32 @@ namespace Routine.Test.Api.Template
 		protected override void List_input_and_output_case()
 		{
 			Assert.Pass("This feature has nothing to do with list input and output case");
+		}
+
+		public class CustomAttribute : Attribute { }
+
+		protected override void Attribute_case()
+		{
+			ModelsAre(
+				Model("TestClass").Name("TestClass")
+				.Member("Name", "TestClass")
+				.Initializer(PModel("parameter", "TestClass"))
+			);
+
+			var assembly =
+				Generator(c => c
+					.RenderedInitializerAttributes.Add(type.of<CustomAttribute>())
+					.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+				.AddReference<CustomAttribute>()
+				.Generate(DefaultTestTemplate);
+
+			var testClassFactory = GetRenderedType(assembly, "TestClassFactory");
+
+			var @new = testClassFactory.GetMethod("New");
+			var parameter = @new.GetParameters().Single(p => p.Name == "parameter");
+
+			Assert.IsTrue(Attribute.IsDefined(@new, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(parameter, typeof(CustomAttribute)));
 		}
 	}
 }

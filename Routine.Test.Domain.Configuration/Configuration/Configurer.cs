@@ -226,7 +226,7 @@ namespace Routine.Test.Domain.Configuration
 						.OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
 						.OperationMarks.Add("Virtual", o => o is VirtualOperation || o is ProxyOperation)
 
-						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".")).When(t => t.IsDomainType))
+						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".").Prepend("Test.")).When(t => t.IsDomainType))
 
 						.Initializers.Add(c => c.PublicInitializers().When(t => t.IsValueType && t.IsDomainType))
 						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())

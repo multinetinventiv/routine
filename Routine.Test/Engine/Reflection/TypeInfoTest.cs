@@ -159,6 +159,16 @@ namespace Routine.Test.Engine.Reflection
 		}
 
 		[Test]
+		public void TypeInfo_has_equals_operator_for_IType()
+		{
+			IType type = testing;
+			Assert.IsTrue(type == testing);
+			Assert.IsFalse(type != testing);
+			Assert.IsTrue(testing == type);
+			Assert.IsFalse(testing != type);
+		}
+
+		[Test]
 		public void TypeInfo_creates_instance_using_default_constructor()
 		{
 			var actual = (int)TypeInfo.Get(typeof(int)).CreateInstance();

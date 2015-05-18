@@ -249,7 +249,7 @@ namespace Routine.Test.Client
 		{
 			ModelsAre(
 				Model("view_model").IsView("actual_model")
-				.Operation("operation", PModel("param1"), PModel("param2")),
+				.Operation("operation", DefaultObjectModelId, PModel("param1"), PModel("param2")),
 				Model("actual_model").ViewModelIds("view_model"));
 
 			ObjectsAre(
@@ -282,7 +282,7 @@ namespace Routine.Test.Client
 				Model("data_model")
 					.Initializer(PModel("param1", "sub_data_model"), PModel("param2")),
 				Model("operational_model")
-					.Operation("data_input", PModel("data", "data_model"))
+					.Operation("data_input", DefaultObjectModelId, PModel("data", "data_model"))
 			);
 
 			ObjectsAre(

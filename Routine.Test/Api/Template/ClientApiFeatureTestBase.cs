@@ -19,5 +19,13 @@ namespace Routine.Test.Api.Template
 		}
 
 		protected abstract void List_input_and_output_case();
+
+		[Test]
+		public void Feature_supports_configured_attributes()
+		{
+			Attribute_case();
+		}
+
+		protected abstract void Attribute_case();
 	}
 }

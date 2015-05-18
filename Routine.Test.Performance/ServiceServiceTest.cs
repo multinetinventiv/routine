@@ -35,7 +35,7 @@ namespace Routine.Test.Performance
 					.RequestHeaders.Add("language_code")
 					.RequestHeaderValue.Set("tr-TR", "language_code")
 					.ResponseHeaderProcessors.Add(r => r.For("code", "message").Do((code, message) => Console.WriteLine("response -> {0} - {1}", code, message)))
-					.Use(p => p.FormattedExceptionPattern("{1} occured with message: {0}, handled:{2}"))
+					.Use(p => p.FormattedExceptionPattern("{0} occured with message: {1}, handled:{2}"))
 				);
 			
 			rapp = clientContext.Application;

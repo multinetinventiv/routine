@@ -329,6 +329,10 @@ namespace Routine
 
 		public static bool operator ==(TypeInfo l, TypeInfo r) { return Equals(l, r); }
 		public static bool operator !=(TypeInfo l, TypeInfo r) { return !(l == r); }
+		public static bool operator ==(TypeInfo l, IType r) { return Equals(l, r); }
+		public static bool operator !=(TypeInfo l, IType r) { return !(l == r); }
+		public static bool operator ==(IType l, TypeInfo r) { return Equals(l, r); }
+		public static bool operator !=(IType l, TypeInfo r) { return !(l == r); }
 
 		public override bool Equals(object obj)
 		{

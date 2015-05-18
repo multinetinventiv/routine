@@ -10,23 +10,31 @@
 
 namespace <#= model.GetNamespace(Mode.Interface) #>
 {
+	<#= model.RenderAttributes(Mode.Interface) #>
 	public interface <#= model.GetName(Mode.Interface) #>
 	{
 	<# foreach(var member in model.Members) { #>
 
+		<#= member.RenderAttributes(Mode.Interface) #>
 		<#= member.ReturnModel.GetFullName() #> <#= member.GetName(Mode.Interface) #> { get; }
 	<# } #>
 
 	<# foreach(var operation in model.Operations) { #>
 		<# foreach(var group in operation.Groups) { #>
 
-		<#= operation.ReturnModel.GetFullName() #> <#= operation.GetName(Mode.Interface) #>(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>);
+		<#= operation.RenderAttributes(Mode.Interface) #>
+		<#= operation.ReturnModel.GetFullName() #> <#= operation.GetName(Mode.Interface) #>(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.Interface) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>);
 		<# } #>
 	<# } #>
 
 	<# foreach(var viewModel in model.ViewModels) { #>
 
 		<#= viewModel.GetFullName() #> As<#= viewModel.GetName(Mode.Interface) #>();
+	<# } #>
+
+	<# foreach(var actualModel in model.ActualModels) { #>
+
+		bool Is<#= actualModel.GetName(Mode.Interface) #>();
 	<# } #>
 
 		void Invalidate();
@@ -91,6 +99,14 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		}
 	<# } #>
 
+	<# foreach(var actualModel in model.ActualModels) { #>
+
+		bool <#= model.GetFullName(Mode.Interface) #>.Is<#= actualModel.GetName(Mode.Interface) #>() 
+		{
+			return Robject.ActualType.Id == "<#= actualModel.Id #>";
+		}
+	<# } #>
+
 		void <#= model.GetFullName(Mode.Interface) #>.Invalidate()
 		{
 			Robject.Invalidate();
@@ -137,8 +153,9 @@ namespace <#= model.GetNamespace(Mode.FactoryInterface) #>
 	{
 		<# foreach(var group in model.Initializer.Groups) { #>
 
+		<#= model.Initializer.RenderAttributes(Mode.FactoryInterface) #>
 		<#= model.GetFullName(Mode.Interface) #> New
-			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>);
+			(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.FactoryInterface) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>);
 		<# } #>
 
 	}
@@ -181,20 +198,23 @@ namespace <#= model.GetNamespace(Mode.Factory) #>
 
 namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 {
+	<#= model.RenderAttributes(Mode.InitializeOnlyStruct) #>
 	public struct <#= model.GetName(Mode.InitializeOnlyStruct) #>
 	{
 		private readonly int group;
 		<# foreach(var parameter in model.Initializer.Parameters) { #>
-
+		
+		<#= parameter.RenderAttributes(Mode.InitializeOnlyStruct) #>
 		public <#= parameter.ParameterModel.GetFullName() #> <#= parameter.GetName(Mode.InitializeOnlyStructProperty) #> { get; private set; }
 		<# } #>
 
 		<# var groups = model.Initializer.Groups; #>
 		<# for(int i = 0; i < groups.Count; i++) { #>
 			<# var group = groups[i]; #>
-
+		
+		<#= model.Initializer.RenderAttributes(Mode.InitializeOnlyStruct) #>
 		public <#= model.GetName(Mode.InitializeOnlyStruct) #>
-			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.InitializeOnlyStruct))) #>) : this()
+			(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.InitializeOnlyStruct) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.InitializeOnlyStruct))) #>) : this()
 		{
 			this.group = <#= i #>;
 			<# foreach(var parameter in group) { #>
@@ -233,11 +253,13 @@ namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 
 namespace <#= model.GetNamespace(Mode.Enum) #>
 {
+	<#= model.RenderAttributes(Mode.Enum) #>
 	public enum <#= model.GetName(Mode.Enum) #>
 	{
-	<# foreach(var staticInstance in model.Type.StaticInstances) { #>
+	<# var staticInstances = model.Type.StaticInstances; #>
+	<# for(int i = 0; i<staticInstances.Count; i++) { #>
 	
-		<#= staticInstance.GetEnumMemberName() #>,
+		<#= staticInstances[i].GetEnumMemberName() #> = <#= i + 1 #>,
 	<# } #>
 
 	}
@@ -266,6 +288,11 @@ namespace <#= model.GetNamespace(Mode.EnumConverter) #>
 
 		internal static <#= Type<Robject>() #> ToRobject(<#= model.GetFullName(Mode.Enum) #> value, <#= Type<Rtype>() #> rtype)
 		{
+			if(value == default(<#= model.GetFullName(Mode.Enum) #>))
+			{
+				return rtype.Application.NullObject();
+			}
+
 			return rtype.Get(ids[value]);
 		}
 
@@ -313,7 +340,7 @@ namespace <#= Application.DefaultNamespace #>
 		}
 	}
 
-	public interface I<#= ApiName#>
+	public interface I<#= ApiClassName#>
 	{
 		T Get<T>(string instanceId);
 		object Get(<#= Type<Type>() #> type, string instanceId);
@@ -322,18 +349,18 @@ namespace <#= Application.DefaultNamespace #>
 		object Get(<#= Type<Type>() #> type);
 	}
 
-	public class <#= ApiName #> : I<#= ApiName #>
+	public class <#= ApiClassName #> : I<#= ApiClassName #>
 	{
 		private readonly <#= Type<Rapplication>() #> rapplication;
 
-		public <#= ApiName #>(<#= Type<Rapplication>() #> rapplication)
+		public <#= ApiClassName #>(<#= Type<Rapplication>() #> rapplication)
 		{
 			this.rapplication = rapplication;
 		}
 
 
-		T I<#= ApiName #>.Get<T>(string instanceId) { return (T)((I<#= ApiName #>)this).Get(typeof(T), instanceId); }
-		object I<#= ApiName#>.Get(<#= Type<Type>() #> type, string instanceId)
+		T I<#= ApiClassName #>.Get<T>(string instanceId) { return (T)((I<#= ApiClassName #>)this).Get(typeof(T), instanceId); }
+		object I<#= ApiClassName#>.Get(<#= Type<Type>() #> type, string instanceId)
 		{
 	<# foreach(var model in GetInstanceModels) { #>
 			
@@ -346,8 +373,8 @@ namespace <#= Application.DefaultNamespace #>
 			throw new GetInstanceException(type);
 		}
 
-		T I<#= ApiName #>.Get<T>() { return (T)((I<#= ApiName #>)this).Get(typeof(T)); }
-		object I<#= ApiName #>.Get(<#= Type<Type>() #> type)
+		T I<#= ApiClassName #>.Get<T>() { return (T)((I<#= ApiClassName #>)this).Get(typeof(T)); }
+		object I<#= ApiClassName #>.Get(<#= Type<Type>() #> type)
 		{
 	<# foreach(var model in SingletonModels) { #>
 

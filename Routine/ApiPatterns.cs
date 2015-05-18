@@ -24,6 +24,17 @@ namespace Routine
 			;
 		}
 
+		public static ConventionalApiConfiguration ObsoletePattern(this PatternBuilder<ConventionalApiConfiguration> source, string obsoleteMark)
+		{
+			return source
+				.FromEmpty()
+				.RenderedTypeAttributes.Add(type.of<ObsoleteAttribute>(), mm => mm.Model.MarkedAs(obsoleteMark))
+				.RenderedInitializerAttributes.Add(type.of<ObsoleteAttribute>(), mm => mm.Model.MarkedAs(obsoleteMark))
+				.RenderedMemberAttributes.Add(type.of<ObsoleteAttribute>(), mm => mm.Model.MarkedAs(obsoleteMark))
+				.RenderedOperationAttributes.Add(type.of<ObsoleteAttribute>(), mm => mm.Model.MarkedAs(obsoleteMark))
+			;
+		}
+
 		private static string NormalizeModelId(this string source, string actualPrefix, string shortPrefix)
 		{
 			shortPrefix = shortPrefix.Append("-");

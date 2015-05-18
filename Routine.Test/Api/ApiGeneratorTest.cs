@@ -248,6 +248,46 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
+		public void Actual_types_can_be_used_to_find_implementations()
+		{
+			ModelsAre(
+				Model("ViewClass").Module("Module").Name("ViewClass").IsView("ActualClass"),
+				Model("ActualClass").Module("Module").Name("ActualClass").ViewModelIds("ViewClass")
+			);
+
+			var testing = Generator();
+			var assembly = testing.Generate(new TestTemplate());
+
+			var viewClass = assembly.GetTypes().Single(t => t.Name == "ViewClass");
+
+			var actual = viewClass.GetMethod("IsActualClass");
+
+			Assert.IsNotNull(actual);
+			Assert.AreEqual(typeof(bool), actual.ReturnType);
+		}
+		
+		[Test]
+		public void When_a_keyword_is_used_for_parameter_name__escape_character_is_added_automatically()
+		{
+			ModelsAre(
+				Model("TestClass").Module("Module").Name("TestClass")
+				.Operation("Test", PModel("event", "TestClass"), PModel("object", "TestClass"), PModel("class", "TestClass"))
+			);
+
+			var testing = Generator();
+			var assembly = testing.Generate(new TestTemplate());
+
+			var viewClass = assembly.GetTypes().Single(t => t.Name == "TestClass");
+
+			var actual = viewClass.GetMethod("Test");
+
+			Assert.IsNotNull(actual);
+			Assert.IsTrue(actual.GetParameters().Any(p => p.Name == "event"));
+			Assert.IsTrue(actual.GetParameters().Any(p => p.Name == "object"));
+			Assert.IsTrue(actual.GetParameters().Any(p => p.Name == "class"));
+		}
+
+		[Test]
 		public void Initializer_is_rendered_only_when_it_is_configured_so()
 		{
 			ModelsAre(
@@ -399,13 +439,13 @@ namespace Routine.Test.Api
 					p["uid"].Values[0].ObjectModelId == "Guid"
 				).Returns(Result(Id(expectedGuid.ToString(), "Guid")));
 
-			var testing = Generator(c => c
+			var assembly = Generator(c => c
 				.TypeIsRendered.Set(false, t => t.Id == "Guid")
 				.ReferencedType.Set(type.of<Guid>(), t => t.Id == "Guid")
 				.ReferencedTypeTemplate.Set(new SimpleTypeConversionTemplate("System.Guid.Parse({robject}.Id)", "{rtype}.Get({object}.ToString())"))
-			);
+			).Generate(DefaultTestTemplate);
 
-			var target = CreateInstance(testing, "test_id", "TestClass");
+			var target = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
 
 			var actualGuid = (Guid)target.GetType().GetMethod("Uid").Invoke(target, new object[] { inputGuid });
 
@@ -432,12 +472,12 @@ namespace Routine.Test.Api
 					p["uid"].Values[0].ObjectModelId == "Guid"
 				).Returns(Result(Id(expectedGuid.ToString(), "Guid")));
 
-			var testing = Generator(c => c
+			var assembly = Generator(c => c
 				.TypeIsRendered.Set(false, t => t.Id == "Guid")
 				.ReferencedType.Set(type.of<string>(), t => t.Id == "Guid")
-			);
+			).Generate(DefaultTestTemplate);
 
-			var testObj = CreateInstance(testing, "test_id", "TestClass");
+			var testObj = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
 
 			var actualGuid = (string)testObj.GetType().GetMethod("Uid").Invoke(testObj, new object[] { inputGuid.ToString() });
 			Assert.AreEqual(expectedGuid.ToString(), actualGuid);
@@ -531,13 +571,13 @@ namespace Routine.Test.Api
 					p["uid"].Values[0].ObjectModelId == "s-guid"
 				).Returns(Result(Id(expectedInt.ToString(CultureInfo.InvariantCulture), "s-int-32")));
 
-			var testing =
+			var assembly =
 				Generator(c => c
 					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 					.Use(p => p.ParseableValueTypePattern())
-				);
+				).Generate(DefaultTestTemplate);
 
-			var testClassInstance = CreateInstance(testing, "test_id", "TestClass");
+			var testClassInstance = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
 
 			var actualInt = (int)testClassInstance.GetType().GetMethod("ParseableValueTypes").Invoke(testClassInstance, new object[] { expectedGuid });
 			Assert.AreEqual(expectedInt, actualInt);
@@ -566,13 +606,13 @@ namespace Routine.Test.Api
 					p["uid"].Values[0].IsNull
 				).Returns(Result(Null("s-int-32?")));
 
-			var testing =
+			var assembly =
 				Generator(c => c
 					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 					.Use(p => p.ParseableValueTypePattern())
-				);
+				).Generate(DefaultTestTemplate);
 
-			var testClassInstance = CreateInstance(testing, "test_id", "TestClass");
+			var testClassInstance = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
 
 			var actual = (int?)testClassInstance.GetType().GetMethod("NullableTypes").Invoke(testClassInstance, new object[] { null });
 			Assert.IsNull(actual);
@@ -730,11 +770,12 @@ namespace Routine.Test.Api
 					p["strs"].Values[1].ReferenceId == "str2"
 				).Returns(Result(Id("str_out1", "s-string"), Id("str_out2", "s-string")));
 
-			var testing = Generator(c => c
+			var assembly = Generator(c => c
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
-				.Use(p => p.ParseableValueTypePattern()));
+				.Use(p => p.ParseableValueTypePattern()))
+				.Generate(DefaultTestTemplate);
 
-			var instance = CreateInstance(testing, "test_id", "TestClass");
+			var instance = CreateInstance(GetRenderedType(assembly, "TestClass"), "test_id", "TestClass");
 
 			var actual = (List<string>)instance.GetType().GetMethod("StringListParameterMethod").Invoke(instance, new object[] { new List<string> { "str1", "str2" } });
 
@@ -892,6 +933,68 @@ namespace Routine.Test.Api
 			Assert.AreEqual(mode2, mode2.GetMethod("Mode2Operation").ReturnType);
 			Assert.AreEqual("mode2Parameter", mode2.GetMethod("Mode2Operation").GetParameters()[0].Name);
 			Assert.AreEqual(mode2, mode2.GetMethod("Mode2Operation").GetParameters()[0].ParameterType);
+		}
+
+		public class CustomAttribute : Attribute { }
+
+		[Test]
+		public void Types__initializers__members__operations_and_parameters_can_be_decorated_with_configured_attributes()
+		{
+			ModelsAre(
+				Model("TestClass").Module("Module").Name("TestClass")
+				.Initializer()
+				.Member("Member", "TestClass")
+				.Operation("Operation", "TestClass", PModel("parameter", "TestClass"))
+			);
+
+			var testing = Generator(cfg => cfg
+				.RenderedTypeAttributes.Add(type.of<CustomAttribute>())
+				.RenderedInitializerAttributes.Add(type.of<CustomAttribute>())
+				.RenderedMemberAttributes.Add(type.of<CustomAttribute>())
+				.RenderedOperationAttributes.Add(type.of<CustomAttribute>())
+				.RenderedParameterAttributes.Add(type.of<CustomAttribute>())
+			).AddReference<CustomAttribute>();
+
+			var assembly = testing.Generate(DefaultTestTemplate);
+
+			var testClass = GetRenderedType(assembly, "TestClass");
+			var initializer = testClass.GetConstructor(new Type[0]);
+			var member = testClass.GetProperty("Member");
+			var operation = testClass.GetMethod("Operation");
+			var parameter = operation.GetParameters().Single(p => p.Name == "parameter");
+
+			Assert.IsTrue(Attribute.IsDefined(testClass, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(initializer, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(member, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(operation, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(parameter, typeof(CustomAttribute)));
+		}
+
+		[Test]
+		public void Obsolete_pattern_test()
+		{
+			ModelsAre(
+				Model("TestClass").Module("Module").Name("TestClass").Mark("obsolete")
+				.Initializer().MarkInitializer("obsolete")
+				.Member("Member", "TestClass").MarkMember("Member", "obsolete")
+				.Operation("Operation", "TestClass", PModel("parameter", "TestClass")).MarkOperation("Operation", "obsolete")
+			);
+
+			var testing = Generator(cfg => cfg
+				.Use(p => p.ObsoletePattern("obsolete"))
+			);
+
+			var assembly = testing.Generate(DefaultTestTemplate);
+
+			var testClass = GetRenderedType(assembly, "TestClass");
+			var initializer = testClass.GetConstructor(new Type[0]);
+			var member = testClass.GetProperty("Member");
+			var operation = testClass.GetMethod("Operation");
+
+			Assert.IsTrue(Attribute.IsDefined(testClass, typeof(ObsoleteAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(initializer, typeof(ObsoleteAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(member, typeof(ObsoleteAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(operation, typeof(ObsoleteAttribute)));
 		}
 
 		[Test][Ignore]

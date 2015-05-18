@@ -11,7 +11,7 @@ namespace Routine.Test.Api.Template
 	public class ClientApiViewModelFeatureTest : ClientApiFeatureTestBase
 	{
 		protected override string DefaultNamespace { get { return "Routine.Test.Api.Template.ClientApiViewModelFeatureTest_Generated"; } }
-
+		
 		[Test]
 		public void View_models_are_rendered_as_interfaces_with_concrete_classes()
 		{
@@ -24,7 +24,7 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iTestView = GetRenderedType(assembly, "ITestView");
+			var iTestView = GetRenderedType(assembly, "TestView");
 			var testView = GetRenderedType(assembly, "TestViewImpl");
 
 			Assert.IsNotNull(iTestView);
@@ -34,7 +34,7 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Potential_actual_interface_name_and_client_interface_name_conflict_is_resolved_by_adding_impl_suffix_to_their_concrete_classes()
+		public void Potential_actual_interface_name_and_client_interface_name_conflict_is_resolved()
 		{
 			ModelsAre(
 				Model("ITestClass").Name("ITestClass").IsView("TestClass")
@@ -46,11 +46,11 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iITestClass = GetRenderedType(assembly, "IITestClass");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
 			var iTestClassImpl = GetRenderedType(assembly, "ITestClassImpl");
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
-			var testClass = GetRenderedType(assembly, "TestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
+			var testClass = GetRenderedType(assembly, "TestClassImpl");
 
 			Assert.IsTrue(iITestClass.IsAssignableFrom(iTestClassImpl));
 			Assert.IsTrue(iTestClass.IsAssignableFrom(testClass));
@@ -82,7 +82,7 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iITestClass = GetRenderedType(assembly, "IITestClass");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
 
 			var operation = iITestClass.GetMethod("Operation");
 
@@ -125,7 +125,7 @@ namespace Routine.Test.Api.Template
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
 
 			var iTestApi = GetRenderedType(assembly, "ITestApi");
-			var iITestClass = GetRenderedType(assembly, "IITestClass");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
 			var get = iTestApi.GetMethod("Get", new[] { typeof(Type), typeof(string) });
 
 			var testApiObj = Activator.CreateInstance(GetRenderedType(assembly, "TestApi"), testingRapplication);
@@ -160,7 +160,7 @@ namespace Routine.Test.Api.Template
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
 
 			var iTestApi = GetRenderedType(assembly, "ITestApi");
-			var iITestClass = GetRenderedType(assembly, "IITestClass");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
 			var get = iTestApi.GetMethod("Get", new[] { typeof(Type) });
 
 			var testApiObj = Activator.CreateInstance(GetRenderedType(assembly, "TestApi"), testingRapplication);
@@ -187,11 +187,11 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
 
-			var testClass = GetRenderedType(assembly, "TestClass");
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
-			var iITestClass = GetRenderedType(assembly, "IITestClass");
+			var testClass = GetRenderedType(assembly, "TestClassImpl");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
 
-			var asIITestClass = iTestClass.GetMethod("AsIITestClass");
+			var asIITestClass = iTestClass.GetMethod("AsITestClass");
 
 			Assert.IsNotNull(asIITestClass);
 			Assert.AreEqual(iITestClass, asIITestClass.ReturnType);
@@ -201,6 +201,57 @@ namespace Routine.Test.Api.Template
 			var viewInstance = asIITestClass.Invoke(instance, new object[0]);
 
 			Assert.AreEqual("view instance", viewInstance.ToString());
+		}
+
+		[Test]
+		public void Client_type_interfaces_have_is_methods_for_their_actual_models()
+		{
+			ModelsAre(
+				Model("ITestClass").Name("ITestClass").IsView("TestClass", "TestClass2")
+				.Operation("Operation", true),
+				Model("TestClass").Name("TestClass").ViewModelIds("ITestClass")
+				.Operation("Operation", true),
+				Model("TestClass2").Name("TestClass2").ViewModelIds("ITestClass")
+				.Operation("Operation", true)
+			);
+
+			ObjectsAre(
+				Object(Id("instance", "TestClass")).Value("instance"),
+				Object(Id("instance", "TestClass", "ITestClass")).Value("view instance"),
+				Object(Id("instance2", "TestClass2")).Value("instance 2"),
+				Object(Id("instance2", "TestClass2", "ITestClass")).Value("view instance 2")
+			);
+
+			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
+
+			var iTestClass = GetRenderedType(assembly, "ITestClassImpl");
+			var iITestClass = GetRenderedType(assembly, "ITestClass");
+
+			var isITestClass = iITestClass.GetMethod("IsTestClass");
+			Assert.IsNotNull(isITestClass);
+			Assert.AreEqual(typeof(bool), isITestClass.ReturnType);
+			Assert.AreEqual(0, isITestClass.GetParameters().Length);
+
+			var isITestClass2 = iITestClass.GetMethod("IsTestClass2");
+			Assert.IsNotNull(isITestClass2);
+			Assert.AreEqual(typeof(bool), isITestClass2.ReturnType);
+			Assert.AreEqual(0, isITestClass2.GetParameters().Length);
+
+			var instance = CreateInstance(iTestClass, "instance", "TestClass", "ITestClass");
+			var instance2 = CreateInstance(iTestClass, "instance2", "TestClass2", "ITestClass");
+
+			Assert.IsTrue((bool)isITestClass.Invoke(instance, new object[0]));
+			Assert.IsFalse((bool)isITestClass2.Invoke(instance, new object[0]));
+
+			Assert.IsFalse((bool)isITestClass.Invoke(instance2, new object[0]));
+			Assert.IsTrue((bool)isITestClass2.Invoke(instance2, new object[0]));
+		}
+
+		[Test][Ignore]
+		public void Struct_support()
+		{
+			//When an interface parameter has struct implementation, client structs should be able to convert to interface parameter
+			Assert.Fail();
 		}
 
 		protected override void Referenced_client_api_support_case()
@@ -249,10 +300,10 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
-			var iITestClass1 = GetRenderedType(otherAssembly, "IITestClass1");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
+			var iITestClass1 = GetRenderedType(otherAssembly, "ITestClass1");
 
-			var asIITestClass1 = iTestClass1.GetMethod("AsIITestClass1");
+			var asIITestClass1 = iTestClass1.GetMethod("AsITestClass1");
 			
 			Assert.IsNotNull(asIITestClass1);
 			Assert.AreEqual(iITestClass1, asIITestClass1.ReturnType);
@@ -260,7 +311,7 @@ namespace Routine.Test.Api.Template
 
 			var operation = iTestClass1.GetMethod("Operation");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass1"), "obj", "Module1-TestClass1");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClass1Impl"), "obj", "Module1-TestClass1");
 			var testObj2_1 = CreateInstance(GetRenderedType(otherAssembly, "ITestClass2Impl"), "test2_1", "Module2-TestClass2", "Module2-ITestClass2");
 			var testObj2_2 = CreateInstance(GetRenderedType(otherAssembly, "ITestClass2Impl"), "test2_2", "Module2-TestClass2", "Module2-ITestClass2");
 
@@ -299,8 +350,8 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iTestClass2 = GetRenderedType(assembly, "ITestClass2");
-			var iITestClass1 = GetRenderedType(assembly, "IITestClass1");
+			var iTestClass2 = GetRenderedType(assembly, "TestClass2");
+			var iITestClass1 = GetRenderedType(assembly, "ITestClass1");
 
 			var listOperation = iTestClass2.GetMethod("ListOperation");
 
@@ -309,7 +360,7 @@ namespace Routine.Test.Api.Template
 			var test3 = CreateInstance(GetRenderedType(assembly, "ITestClass1Impl"), "test3", "TestClass1", "ITestClass1");
 			var test4 = CreateInstance(GetRenderedType(assembly, "ITestClass1Impl"), "test4", "TestClass1", "ITestClass1");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass2"), "obj", "TestClass2");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClass2Impl"), "obj", "TestClass2");
 
 			var arg1 = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(iITestClass1));
 			arg1.Add(test1);
@@ -319,6 +370,11 @@ namespace Routine.Test.Api.Template
 
 			Assert.AreEqual(test3, actual[0]);
 			Assert.AreEqual(test4, actual[1]);
+		}
+
+		protected override void Attribute_case()
+		{
+			Assert.Pass("This feature has nothing to do with attribute case");
 		}
 	}
 }

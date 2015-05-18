@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -62,6 +63,26 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
+		public void Enum_values_starts_from_1_so_that_it_enables_default_value_to_be_sent()
+		{
+			ModelsAre(
+				Model("TestEnum").Name("TestEnum")
+				.StaticInstanceIds("10", "20")
+			);
+
+			ObjectsAre(
+				Object(Id("10", "TestEnum")).Value("Instance1"),
+				Object(Id("20", "TestEnum")).Value("Instance2")
+			);
+
+			var testEnum = GetRenderedType("TestEnum");
+
+			Assert.IsFalse(testEnum.GetEnumValues().Cast<int>().Contains(0));
+			Assert.IsTrue(testEnum.GetEnumValues().Cast<int>().Contains(1));
+			Assert.IsTrue(testEnum.GetEnumValues().Cast<int>().Contains(2));
+		}
+
+		[Test]
 		public void Enums_are_converted_to_robject_using_internal_converter_classes()
 		{
 			ModelsAre(
@@ -86,15 +107,52 @@ namespace Routine.Test.Api.Template
 				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
 				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var testEnum = GetRenderedType(assembly, "TestEnum");
 
 			var enumOperation = iTestClass.GetMethod("EnumOperation");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass"), "obj", "TestClass");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "TestClass");
 			var instance1 = Enum.GetValues(testEnum).GetValue(0);
 
 			var actual = enumOperation.Invoke(obj, new[] { instance1 });
+
+			Assert.AreEqual("success", actual);
+		}
+
+		[Test]
+		public void When_default_enum_value_is_sent__service_receives_null()
+		{
+			ModelsAre(
+				Model("TestEnum").Name("TestEnum")
+				.StaticInstanceIds("1"),
+				Model("TestClass").Name("TestClass")
+				.Operation("EnumOperation", "s-string", PModel("arg1", "TestEnum")),
+				Model("s-string").IsValue()
+			);
+
+			ObjectsAre(
+				Object(Id("1", "TestEnum")).Value("Instance1"),
+				Object(Id("obj", "TestClass"))
+			);
+
+			When(Id("obj", "TestClass")).Performs("EnumOperation", p =>
+				p["arg1"].Values[0].IsNull
+			).Returns(Result(Id("success", "s-string")));
+
+			var assembly = Generator(c => c
+				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
+
+			var iTestClass = GetRenderedType(assembly, "TestClass");
+			var testEnum = GetRenderedType(assembly, "TestEnum");
+
+			var enumOperation = iTestClass.GetMethod("EnumOperation");
+
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "TestClass");
+			var @default = Enum.ToObject(testEnum, 0);
+
+			var actual = enumOperation.Invoke(obj, new[] { @default });
 
 			Assert.AreEqual("success", actual);
 		}
@@ -118,12 +176,12 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var testEnum = GetRenderedType(assembly, "TestEnum");
 
 			var enumResultOperation = iTestClass.GetMethod("EnumResultOperation");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass"), "obj", "TestClass");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "TestClass");
 
 			var actual = enumResultOperation.Invoke(obj, new object[0]);
 
@@ -220,12 +278,12 @@ namespace Routine.Test.Api.Template
 
 			var assembly = testing.Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var testEnum = GetRenderedType(otherAssembly, "TestEnum");
 
 			var enumOperation = iTestClass.GetMethod("EnumOperation");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass"), "obj", "Module1-TestClass");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "Module1-TestClass");
 
 			var arg1 = Enum.GetValues(testEnum).GetValue(0);
 
@@ -263,12 +321,12 @@ namespace Routine.Test.Api.Template
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 
-			var iTestClass = GetRenderedType(assembly, "ITestClass");
+			var iTestClass = GetRenderedType(assembly, "TestClass");
 			var testEnum = GetRenderedType(assembly, "TestEnum");
 
 			var enumOperation = iTestClass.GetMethod("EnumOperation");
 
-			var obj = CreateInstance(GetRenderedType(assembly, "TestClass"), "obj", "TestClass");
+			var obj = CreateInstance(GetRenderedType(assembly, "TestClassImpl"), "obj", "TestClass");
 
 			var arg1 = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(testEnum));
 			arg1.Add(Enum.GetValues(testEnum).GetValue(0));
@@ -281,6 +339,30 @@ namespace Routine.Test.Api.Template
 
 			Assert.AreEqual(instance3, actual[0]);
 			Assert.AreEqual(instance4, actual[1]);
+		}
+
+		public class CustomAttribute : Attribute { }
+
+		protected override void Attribute_case()
+		{
+			ModelsAre(
+				Model("TestEnum").Name("TestEnum")
+				.StaticInstanceIds("1")
+			);
+
+			ObjectsAre(
+				Object(Id("1", "TestEnum")).Value("Instance1")
+			);
+
+			var assembly = Generator(c => c
+				.RenderedTypeAttributes.Add(type.of<CustomAttribute>()))
+				.AddReference<CustomAttribute>()
+				.Generate(DefaultTestTemplate)
+				;
+
+			var testEnum = GetRenderedType(assembly, "TestEnum");
+
+			Assert.IsTrue(Attribute.IsDefined(testEnum, typeof(CustomAttribute)));
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
+using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -45,6 +46,16 @@ namespace Routine.Api
 		public string GetName(int mode)
 		{
 			return application.Configuration.GetName(this, mode);
+		}
+
+		public List<IType> GetAttributes(int mode)
+		{
+			return application.Configuration.GetAttributes(this, mode);
+		}
+
+		public string RenderAttributes(int mode)
+		{
+			return string.Join("\r\n", GetAttributes(mode).Select(t => string.Format("[{0}]", t.ToCSharpString())));
 		}
 
 		public bool MarkedAs(string mark)

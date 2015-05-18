@@ -12,6 +12,7 @@ using System;
 
 namespace <#= model.GetNamespace(mode) #>
 {
+	<#= model.RenderAttributes(mode) #>
 	public class <#= model.GetName(mode) #>
 	{
 		private readonly <#= typeof(Robject).FullName #> robject;
@@ -23,15 +24,18 @@ namespace <#= model.GetNamespace(mode) #>
 		}
 		<# if(model.Initializable) { #>
 
+		<#= model.Initializer.RenderAttributes(mode) #>
 		public <#= model.GetName(mode) #>(<#= string.Join(", ", model.Initializer.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) { }
 		<# } #>
 		<# foreach(var member in model.Members) { #>
 
+		<#= member.RenderAttributes(mode) #>
 		public <#= member.ReturnModel.GetFullName(mode) #> <#= member.GetName(mode) #> { get { return default(<#= member.ReturnModel.GetFullName(mode) #>); } }
 		<# } #>
 		<# foreach(var operation in model.Operations) { #>
 
-		public <#= operation.ReturnModel.GetFullName(mode) #> <#= operation.GetName(mode) #>(<#= string.Join(", ", operation.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) 
+		<#= operation.RenderAttributes(mode) #>
+		public <#= operation.ReturnModel.GetFullName(mode) #> <#= operation.GetName(mode) #>(<#= string.Join(", ", operation.Parameters.Select(p => p.RenderAttributes(mode) + " " + p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) 
 		{
 			var __result = Robject.Perform
 				(
@@ -57,6 +61,14 @@ namespace <#= model.GetNamespace(mode) #>
 		{
 			var __result = robject.As(robject.Application["<#= viewModel.Id #>"]);
 			return <#= viewModel.RenderRobjectToObject(mode, "__result", "robject.Application") #>;
+		}
+        <# } #>
+
+        <# foreach(var actualModel in model.ActualModels.Where(vm => vm.HasMode(mode))) { #>
+
+		public bool Is<#= actualModel.GetName(mode) #>()
+		{
+			return robject.ActualType.Id == "<#= actualModel.Id #>";
 		}
         <# } #>
 

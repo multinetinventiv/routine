@@ -58,8 +58,8 @@ namespace Routine.Test.Api.Template
 
 			var apiObj = Activator.CreateInstance(testApi, testingRapplication);
 
-			var testClass1 = GetRenderedType(assembly, "TestClass1");
-			var iTestClass1 = GetRenderedType(assembly, "ITestClass1");
+			var testClass1 = GetRenderedType(assembly, "TestClass1Impl");
+			var iTestClass1 = GetRenderedType(assembly, "TestClass1");
 
 			var getTestClass1 = get.MakeGenericMethod(iTestClass1);
 			var instance1 = getTestClass1.Invoke(apiObj, new object[] { "instance1" });
@@ -129,6 +129,11 @@ namespace Routine.Test.Api.Template
 		protected override void List_input_and_output_case()
 		{
 			Assert.Pass("This feature has nothing to do with list input and output case");
+		}
+
+		protected override void Attribute_case()
+		{
+			Assert.Pass("This feature has nothing to do with attribute case");
 		}
 	}
 }

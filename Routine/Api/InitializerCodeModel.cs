@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
+using Routine.Engine;
 
 namespace Routine.Api
 {
 	public class InitializerCodeModel
 	{
+		private readonly ApplicationCodeModel application;
+
 		public Rinitializer Initializer { get; private set; }
 
 		public List<ParameterCodeModel> Parameters { get; private set; }
@@ -13,6 +16,7 @@ namespace Routine.Api
 
 		public InitializerCodeModel(ApplicationCodeModel application, Rinitializer initializer)
 		{
+			this.application = application;
 			Initializer = initializer;
 
 			Parameters = initializer.Parameters.Select(p => new ParameterCodeModel(application, p)).ToList();
@@ -25,6 +29,16 @@ namespace Routine.Api
 					Groups[group].Add(param);
 				}
 			}
+		}
+
+		public List<IType> GetAttributes(int mode)
+		{
+			return application.Configuration.GetAttributes(this, mode);
+		}
+
+		public string RenderAttributes(int mode)
+		{
+			return string.Join("\r\n", GetAttributes(mode).Select(t => string.Format("[{0}]", t.ToCSharpString())));
 		}
 
 		public bool MarkedAs(string mark)

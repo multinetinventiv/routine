@@ -32,6 +32,12 @@ namespace Routine.Api.Configuration
 		public ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<OperationCodeModel>, string> RenderedOperationName { get; private set; }
 		public ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<ParameterCodeModel>, string> RenderedParameterName { get; private set; }
 
+		public ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, IType> RenderedTypeAttributes { get; private set; }
+		public ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<InitializerCodeModel>, IType> RenderedInitializerAttributes { get; private set; }
+		public ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<MemberCodeModel>, IType> RenderedMemberAttributes { get; private set; }
+		public ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<OperationCodeModel>, IType> RenderedOperationAttributes { get; private set; }
+		public ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<ParameterCodeModel>, IType> RenderedParameterAttributes { get; private set; }
+
 		public ConventionalConfiguration<ConventionalApiConfiguration, Rtype, IType> ReferencedType { get; private set; }
 		public ConventionalConfiguration<ConventionalApiConfiguration, IType, ITypeConversionTemplate> ReferencedTypeTemplate { get; private set; }
 
@@ -60,6 +66,12 @@ namespace Routine.Api.Configuration
 			RenderedOperationName = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<OperationCodeModel>, string>(this, "RenderedOperationName", true);
 			RenderedParameterName = new ConventionalConfiguration<ConventionalApiConfiguration, ModedModel<ParameterCodeModel>, string>(this, "RenderedParameterName", true);
 
+			RenderedTypeAttributes = new ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<TypeCodeModel>, IType>(this, "RenderedTypeAttributes", true);
+			RenderedInitializerAttributes = new ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<InitializerCodeModel>, IType>(this, "RenderedInitializerAttributes", true);
+			RenderedMemberAttributes = new ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<MemberCodeModel>, IType>(this, "RenderedMemberAttributes", true);
+			RenderedOperationAttributes = new ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<OperationCodeModel>, IType>(this, "RenderedOperationAttributes", true);
+			RenderedParameterAttributes = new ConventionalListConfiguration<ConventionalApiConfiguration, ModedModel<ParameterCodeModel>, IType>(this, "RenderedParameterAttributes", true);
+
 			ReferencedType = new ConventionalConfiguration<ConventionalApiConfiguration, Rtype, IType>(this, "ReferencedType", true);
 			ReferencedTypeTemplate = new ConventionalConfiguration<ConventionalApiConfiguration, IType, ITypeConversionTemplate>(this, "ReferencedTypeTemplate", true);
 		}
@@ -84,6 +96,12 @@ namespace Routine.Api.Configuration
 			RenderedMemberName.Merge(other.RenderedMemberName);
 			RenderedOperationName.Merge(other.RenderedOperationName);
 			RenderedParameterName.Merge(other.RenderedParameterName);
+
+			RenderedTypeAttributes.Merge(other.RenderedTypeAttributes);
+			RenderedInitializerAttributes.Merge(other.RenderedInitializerAttributes);
+			RenderedMemberAttributes.Merge(other.RenderedMemberAttributes);
+			RenderedOperationAttributes.Merge(other.RenderedOperationAttributes);
+			RenderedParameterAttributes.Merge(other.RenderedParameterAttributes);
 
 			ReferencedType.Merge(other.ReferencedType);
 			ReferencedTypeTemplate.Merge(other.ReferencedTypeTemplate);
@@ -115,6 +133,12 @@ namespace Routine.Api.Configuration
 		string IApiConfiguration.GetName(MemberCodeModel memberCodeModel, int mode) { return RenderedMemberName.Get(memberCodeModel.WithMode(mode)); }
 		string IApiConfiguration.GetName(OperationCodeModel operationCodeModel, int mode) { return RenderedOperationName.Get(operationCodeModel.WithMode(mode)); }
 		string IApiConfiguration.GetName(ParameterCodeModel parameterCodeModel, int mode) { return RenderedParameterName.Get(parameterCodeModel.WithMode(mode)); }
+
+		List<IType> IApiConfiguration.GetAttributes(TypeCodeModel typeCodeModel, int mode) { return RenderedTypeAttributes.Get(typeCodeModel.WithMode(mode)); }
+		List<IType> IApiConfiguration.GetAttributes(InitializerCodeModel initializerCodeModel, int mode) { return RenderedInitializerAttributes.Get(initializerCodeModel.WithMode(mode)); }
+		List<IType> IApiConfiguration.GetAttributes(MemberCodeModel memberCodeModel, int mode) { return RenderedMemberAttributes.Get(memberCodeModel.WithMode(mode)); }
+		List<IType> IApiConfiguration.GetAttributes(OperationCodeModel operationCodeModel, int mode) { return RenderedOperationAttributes.Get(operationCodeModel.WithMode(mode)); }
+		List<IType> IApiConfiguration.GetAttributes(ParameterCodeModel parameterCodeModel, int mode) { return RenderedParameterAttributes.Get(parameterCodeModel.WithMode(mode)); }
 
 		IType IApiConfiguration.GetReferencedType(Rtype type) { return ReferencedType.Get(type); }
 		ITypeConversionTemplate IApiConfiguration.GetReferencedTypeTemplate(IType type) { return ReferencedTypeTemplate.Get(type); }

@@ -18,6 +18,7 @@ namespace Routine.Api
 		public Rtype Type { get; private set; }
 		public IType ReferencedType { get; private set; }
 		public List<TypeCodeModel> ViewModels { get; private set; } 
+		public List<TypeCodeModel> ActualModels { get; private set; }
 		public InitializerCodeModel Initializer { get { return actual != null ? actual.Initializer : initializer; } }
 		public List<MemberCodeModel> Members { get { return actual != null ? actual.Members : members; } }
 		public List<OperationCodeModel> Operations { get { return actual != null ? actual.Operations : operations; } }
@@ -48,6 +49,7 @@ namespace Routine.Api
 			ReferencedType = referencedType;
 
 			ViewModels = new List<TypeCodeModel>();
+			ActualModels = new List<TypeCodeModel>();
 
 			members = new List<MemberCodeModel>();
 			operations = new List<OperationCodeModel>();
@@ -58,6 +60,10 @@ namespace Routine.Api
 			ViewModels.AddRange(Type.ViewTypes
 				.Where(t => application.ValidateType(t))
 				.Select(t => application.GetModel(t)));
+			ActualModels.AddRange(Type.ActualTypes
+				.Where(t => application.ValidateType(t))
+				.Select(t => application.GetModel(t)));
+
 
 			if (Type.Initializer != null && application.Configuration.IsRendered(Type.Initializer) && Type.Initializer.Parameters.All(p => application.ValidateType(p.ParameterType)))
 			{
@@ -119,6 +125,16 @@ namespace Routine.Api
 			}
 
 			return application.Configuration.GetName(this, mode);
+		}
+
+		public List<IType> GetAttributes(int mode)
+		{
+			return application.Configuration.GetAttributes(this, mode);
+		}
+
+		public string RenderAttributes(int mode)
+		{
+			return string.Join("\r\n", GetAttributes(mode).Select(t => string.Format("[{0}]", t.ToCSharpString())));
 		}
 
 		public bool Initializable { get { return Initializer != null; } }

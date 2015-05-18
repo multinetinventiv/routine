@@ -12,11 +12,11 @@ namespace Routine.Api.Template
 {
 	public partial class ClientApiTemplate : IApiTemplate
 	{
-		public string ApiName { get; private set; }
+		public string ApiClassName { get; private set; }
 
-		public ClientApiTemplate(string apiName)
+		public ClientApiTemplate(string apiClassName)
 		{
-			ApiName = apiName;
+			ApiClassName = apiClassName;
 		}
 
 		private ApplicationCodeModel applicationCodeModel;
@@ -105,14 +105,11 @@ namespace Routine.Api.Template
 
 				.RenderedTypeTemplate.Set(new ClientApiInterfaceConversionTemplate(), mm => mm.Mode == ClientApiTemplate.Mode.Interface)
 
-				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "Impl").When(mm => mm.Mode == ClientApiTemplate.Mode.Concrete && mm.Model.Type.IsViewType))
-				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "FactoryImpl").When(mm => mm.Mode == ClientApiTemplate.Mode.Factory && mm.Model.Type.IsViewType))
+				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.Interface))
+				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "Impl").When(mm => mm.Mode == ClientApiTemplate.Mode.Concrete))
 
-				.RenderedTypeName.Set(c => c.By(mm => "I" + mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.Interface))
-				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.Concrete))
-
-				.RenderedTypeName.Set(c => c.By(mm => "I" + mm.Model.Type.Name + "Factory").When(mm => mm.Mode == ClientApiTemplate.Mode.FactoryInterface))
-				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "Factory").When(mm => mm.Mode == ClientApiTemplate.Mode.Factory))
+				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "Factory").When(mm => mm.Mode == ClientApiTemplate.Mode.FactoryInterface))
+				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name + "FactoryImpl").When(mm => mm.Mode == ClientApiTemplate.Mode.Factory))
 
 				.RenderedTypeTemplate.Set(new ClientApiEnumConversionTemplate(), mm => mm.Mode == ClientApiTemplate.Mode.Enum)
 				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.Enum))

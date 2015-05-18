@@ -197,7 +197,7 @@
             }, "json");
 
             function getModuleDiv(moduleName) {
-                var result = $("div[data-module=" + moduleName + "]");
+            	var result = $("div[data-module=" + moduleName.replace(/[.]/g, "\\.") + "]");
                 if (result.length == 0) {
                     return $(tmp_module.replace(/@name/g, moduleName))
                         .removeAttr("id").removeClass("template").addClass("module")

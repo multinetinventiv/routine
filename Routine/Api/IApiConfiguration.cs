@@ -28,6 +28,12 @@ namespace Routine.Api
 		string GetName(OperationCodeModel operationCodeModel, int mode);
 		string GetName(MemberCodeModel memberCodeModel, int mode);
 		string GetName(ParameterCodeModel parameterCodeModel, int mode);
+
+		List<IType> GetAttributes(TypeCodeModel typeCodeModel, int mode);
+		List<IType> GetAttributes(InitializerCodeModel parameterCodeModel, int mode);
+		List<IType> GetAttributes(OperationCodeModel operationCodeModel, int mode);
+		List<IType> GetAttributes(MemberCodeModel memberCodeModel, int mode);
+		List<IType> GetAttributes(ParameterCodeModel parameterCodeModel, int mode);
 		
 		IType GetReferencedType(Rtype type);
 		ITypeConversionTemplate GetReferencedTypeTemplate(IType type);
