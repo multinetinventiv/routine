@@ -74,6 +74,7 @@
     <Compile Include="Core\Rest\JsonRestSerializerTest.cs" />
     <Compile Include="Engine\Configuration\ConventionalCodingStyleTest.cs" />
     <Compile Include="Engine\Converter\DelegateBasedConverterTest.cs" />
+    <Compile Include="Engine\Converter\NullableConverterTest.cs" />
     <Compile Include="Engine\Converter\TypeCastConverterTest.cs" />
     <Compile Include="Engine\Extractor\IdExtractorTest.cs" />
     <Compile Include="Engine\Extractor\ValueExtractorTest.cs" />

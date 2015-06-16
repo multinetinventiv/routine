@@ -396,12 +396,22 @@ namespace Routine
 
 		#endregion
 
-		#region ConverterByCasting
+		#region ConvertByCasting
 
-		public static ConventionBase<IType, IConverter> ConverterByCasting(
+		public static ConventionBase<IType, IConverter> ConvertByCasting(
 			this ConventionBuilder<IType, IConverter> source)
 		{
-			return source.By(t => BuildRoutine.Converter().ByCastingFrom(t));
+			return source.By(t => BuildRoutine.Converter().ByCasting(t));
+		}
+
+		#endregion
+
+		#region ConvertToNullable
+
+		public static ConventionBase<IType, IConverter> ConvertToNullable(
+			this ConventionBuilder<IType, IConverter> source)
+		{
+			return source.By(t => BuildRoutine.Converter().ToNullable((TypeInfo)t)).When(t => t is TypeInfo);
 		}
 
 		#endregion

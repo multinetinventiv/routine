@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Routine.Core.Reflection;
 
 namespace Routine.Engine.Reflection
 {
@@ -13,7 +14,7 @@ namespace Routine.Engine.Reflection
 
 		public override object Invoke(params object[] parameters)
 		{
-			return constructorInfo.Invoke(parameters);
+			return new ReflectionMethodInvoker(constructorInfo).Invoke(null, parameters);
 		}
 
 		public override bool IsPublic { get { return constructorInfo.IsPublic; } }

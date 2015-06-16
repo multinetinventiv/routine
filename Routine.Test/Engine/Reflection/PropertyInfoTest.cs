@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
+using RoutineTest.OuterDomainNamespace;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -152,6 +154,64 @@ namespace Routine.Test.Engine.Reflection
 			actual = testing.GetReturnTypeCustomAttributes();
 
 			Assert.AreEqual(0, actual.Length);
+		}
+
+		[Test]
+		public void When_exception_occurs_during_invocation__preloaded_and_reflected_implementations_behave_the_same()
+		{
+			var preloaded = type.of<TestClass_OOP>().GetProperty("ExceptionProperty");
+			var reflected = type.of<TestOuterDomainType_OOP>().GetProperty("ExceptionProperty");
+
+			Assert.IsInstanceOf<PreloadedPropertyInfo>(preloaded);
+			Assert.IsInstanceOf<ReflectedPropertyInfo>(reflected);
+
+			var expectedException = new Exception("expected");
+
+			var testSubject1 = new TestClass_OOP();
+			testSubject1.Exception = expectedException;
+
+			try
+			{
+				preloaded.GetValue(testSubject1);
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
+
+			try
+			{
+				preloaded.SetValue(testSubject1, string.Empty);
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
+
+			var testSubject2 = new TestOuterDomainType_OOP();
+			testSubject2.Exception = expectedException;
+
+			try
+			{
+				reflected.GetValue(testSubject2);
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
+
+			try
+			{
+				reflected.SetValue(testSubject2, string.Empty);
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
 		}
 
 		[Test]

@@ -1,3 +1,5 @@
+using Routine.Core.Runtime;
+
 namespace Routine.Core.Reflection
 {
 	public class ReflectionMethodInvoker : IMethodInvoker
@@ -13,7 +15,6 @@ namespace Routine.Core.Reflection
 		{
 			try
 			{
-
 				if (method.IsConstructor)
 				{
 					var ctor = method as System.Reflection.ConstructorInfo;
@@ -25,6 +26,8 @@ namespace Routine.Core.Reflection
 			}
 			catch (System.Reflection.TargetInvocationException ex)
 			{
+				ex.InnerException.PreserveStackTrace();
+
 				throw ex.InnerException;
 			}
 		}

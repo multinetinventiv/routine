@@ -971,7 +971,7 @@ namespace Routine.Test.Api
 		}
 
 		[Test]
-		public void Obsolete_pattern_test()
+		public void ObsoletePattern__Types__initializers__members_and_operations_are_added_ObsoleteAttribute_when_has_given_mark()
 		{
 			ModelsAre(
 				Model("TestClass").Module("Module").Name("TestClass").Mark("obsolete")

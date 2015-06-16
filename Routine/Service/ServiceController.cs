@@ -96,6 +96,24 @@ namespace Routine.Service
 
 		public JsonResult PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
 		{
+			var keys = parameterValues.Keys.Where(k => parameterValues[k] == null).ToList();
+			foreach (var key in keys)
+			{
+				parameterValues[key] = new ParameterValueData();
+			}
+
+			return PerformInner(targetReference, operationModelId, parameterValues);
+		}
+
+		public JsonResult Perform(ObjectReferenceData targetReference, string operationModelId, string parameters)
+		{
+			var parameterValues = serializer.Deserialize<Dictionary<string, ParameterValueData>>(parameters);
+
+			return PerformInner(targetReference, operationModelId, parameterValues);
+		}
+
+		private JsonResult PerformInner(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
+		{
 			var result = context.ObjectService.PerformOperation(targetReference, operationModelId, parameterValues);
 
 			foreach (var responseHeader in context.ServiceConfiguration.GetResponseHeaders())
@@ -108,13 +126,6 @@ namespace Routine.Service
 			}
 
 			return LargeJson(result);
-		}
-
-		public JsonResult Perform(ObjectReferenceData targetReference, string operationModelId, string parameters)
-		{
-			var parameterValues = serializer.Deserialize<Dictionary<string, ParameterValueData>>(parameters);
-
-			return PerformOperation(targetReference, operationModelId, parameterValues);
 		}
 
 		#region MaxJsonLength extension

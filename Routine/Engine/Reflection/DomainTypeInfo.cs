@@ -8,8 +8,58 @@ namespace Routine.Engine.Reflection
 {
 	internal class DomainTypeInfo : PreloadedTypeInfo
 	{
-		private IMethodInvoker defaultConstructorInvoker;
-		private IMethodInvoker listConstructorInvoker;
+		private System.Reflection.MethodBase defaultConstructor;
+		#region private IMethodInvoker defaultConstructorInvoker;
+		private readonly object defaultConstructorInvokerLock = new object();
+		private IMethodInvoker _defaultConstructorInvoker;
+		private IMethodInvoker defaultConstructorInvoker
+		{
+			get
+			{
+				if (defaultConstructor == null) { return null; }
+
+				if (_defaultConstructorInvoker == null)
+				{
+					lock (defaultConstructorInvokerLock)
+					{
+						if (_defaultConstructorInvoker == null)
+						{
+							_defaultConstructorInvoker = defaultConstructor.CreateInvoker();
+						}
+					}
+				}
+
+				return _defaultConstructorInvoker;
+			}
+		}
+		#endregion
+
+		private System.Reflection.MethodBase listConstructor;
+		#region private IMethodInvoker listConstructorInvoker;
+		private readonly object listConstructorInvokerLock = new object();
+		private IMethodInvoker _listConstructorInvoker;
+		private IMethodInvoker listConstructorInvoker
+		{
+			get
+			{
+				if (listConstructor == null) { return null; }
+
+				if (_listConstructorInvoker == null)
+				{
+					lock (listConstructorInvokerLock)
+					{
+						if (_listConstructorInvoker == null)
+						{
+							_listConstructorInvoker = listConstructor.CreateInvoker();
+						}
+					}
+				}
+
+				return _listConstructorInvoker;
+			}
+		}
+		#endregion
+
 		private ConstructorInfo[] allConstructors;
 		private PropertyInfo[] allProperties;
 		private PropertyInfo[] allStaticProperties;
@@ -34,17 +84,8 @@ namespace Routine.Engine.Reflection
 
 			if (!type.IsAbstract)
 			{
-				var constructor = type.GetConstructor(new Type[0]);
-				if (constructor != null)
-				{
-					defaultConstructorInvoker = constructor.CreateInvoker();
-				}
-
-				var listConstructor = type.GetConstructor(new[] { typeof(int) });
-				if (listConstructor != null)
-				{
-					listConstructorInvoker = listConstructor.CreateInvoker();
-				}
+				defaultConstructor = type.GetConstructor(new Type[0]);
+				listConstructor = type.GetConstructor(new[] { typeof(int) });
 			}
 
 			allConstructors = type.GetConstructors(ALL_INSTANCE).Select(c => ConstructorInfo.Preloaded(c)).ToArray();

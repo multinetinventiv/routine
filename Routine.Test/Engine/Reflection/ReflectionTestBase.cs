@@ -48,9 +48,10 @@ namespace Routine.Test.Engine.Reflection.Domain
 	{
 		public TestClass_OOP() { }
 		public TestClass_OOP(string str) { }
+		public TestClass_OOP(Exception ex) { throw ex; }
 		private TestClass_OOP(int i) { }
 
-		public string this[int i, string str] { get { return null; } }
+		public string this[int i, string str] { get { return null; } set { } }
 
 		public string PublicProperty { get; set; }
 		private string PrivateProperty { get; set; }
@@ -87,6 +88,10 @@ namespace Routine.Test.Engine.Reflection.Domain
 
 		public static string PublicStaticPingMethod(string message) { return "static " + message; }
 		public string PublicPingMethod(string message) { return "instance " + message; }
+
+		public void ExceptionMethod(Exception ex) { throw ex; }
+		public Exception Exception;
+		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
 	}
 
 	public class TestProxyClass_OOP : TestClass_OOP { }
@@ -241,10 +246,18 @@ namespace RoutineTest.OuterDomainNamespace
 {
 	public class TestOuterDomainType_OOP
 	{
+		public TestOuterDomainType_OOP() { }
+		public TestOuterDomainType_OOP(Exception ex) { throw ex; }
+		public void ExceptionMethod(Exception ex) { throw ex; }
+
+		public Exception Exception;
+		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
+
 		public TestOuterLaterAddedDomainType_OOP LaterAddedDomainTypeProperty { get; set; }
 	}
+
 	public class TestOuterLaterAddedDomainType_OOP
-	{ 
+	{
 	}
 }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Routine.Engine.Configuration.Conventional;
 
@@ -14,6 +15,10 @@ namespace Routine.Engine.Configuration
 
 				.Module.Set(string.Empty)
 				.TypeIsValue.Set(false)
+
+				.ViewTypes.Add(c => c.By(t => typeof(Nullable<>).MakeGenericType(((TypeInfo)t).GetActualType()).ToTypeInfo())
+									 .When(t => t is TypeInfo && t.IsValueType && !t.IsVoid && !t.IsGenericType))
+				.Converter.Set(c => c.ConvertToNullable().When(t => t.IsValueType))
 
 				.TypeIsView.Set(true, t => t.IsAbstract || t.IsInterface)
 				.TypeIsView.Set(false)

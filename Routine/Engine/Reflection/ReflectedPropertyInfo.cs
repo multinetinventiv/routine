@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using Routine.Core.Reflection;
 
 namespace Routine.Engine.Reflection
 {
@@ -42,22 +45,38 @@ namespace Routine.Engine.Reflection
 
 		public override object GetValue(object target, params object[] index)
 		{
-			return propertyInfo.GetValue(target, index);
+			return new ReflectionMethodInvoker(propertyInfo.GetGetMethod()).Invoke(target, index);
 		}
 
 		public override object GetStaticValue(params object[] index)
 		{
-			return propertyInfo.GetValue(null, index);
+			return new ReflectionMethodInvoker(propertyInfo.GetGetMethod()).Invoke(null, index);
 		}
 
 		public override void SetValue(object target, object value, params object[] index)
 		{
-			propertyInfo.SetValue(target, value, index);
+			new ReflectionMethodInvoker(propertyInfo.GetSetMethod()).Invoke(target, Merge(value, index));
 		}
 
 		public override void SetStaticValue(object value, params object[] index)
 		{
-			propertyInfo.SetValue(null, value, index);
+			new ReflectionMethodInvoker(propertyInfo.GetSetMethod()).Invoke(null, Merge(value, index));
+		}
+
+		private object[] Merge(object value, object[] index)
+		{
+			if (index == null) { index = new object[0]; }
+
+			var result = new object[index.Length + 1];
+
+			result[0] = value;
+
+			for (int i = 0; i < index.Length; i++)
+			{
+				result[i + 1] = index[i];
+			}
+
+			return result;
 		}
 
 		public override string Name { get { return propertyInfo.Name; } }

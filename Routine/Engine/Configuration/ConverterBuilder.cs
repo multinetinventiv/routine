@@ -15,9 +15,14 @@ namespace Routine.Engine.Configuration
 			return new DelegateBasedConverter(converterDelegate);
 		}
 
-		public TypeCastConverter ByCastingFrom(IType type)
+		public TypeCastConverter ByCasting(IType type)
 		{
 			return new TypeCastConverter(type);
+		}
+
+		public NullableConverter ToNullable(TypeInfo type)
+		{
+			return new NullableConverter(type);
 		}
 	}
 }

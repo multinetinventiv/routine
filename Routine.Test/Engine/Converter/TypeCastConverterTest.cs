@@ -16,7 +16,7 @@ namespace Routine.Test.Engine.Converter
 			typeMock.Setup(t => t.Cast(It.IsAny<object>(), It.IsAny<IType>())).Returns("success");
 			typeMock.Setup(t => t.CanBe(It.IsAny<IType>())).Returns(true);
 
-			IConverter converter = BuildRoutine.Converter().ByCastingFrom(typeMock.Object);
+			IConverter converter = BuildRoutine.Converter().ByCasting(typeMock.Object);
 
 			Assert.AreEqual("success", converter.Convert(0, type.of<string>()));
 		}
@@ -24,7 +24,7 @@ namespace Routine.Test.Engine.Converter
 		[Test]
 		public void Throws_ArgumentNullException_when_given_type_is_null()
 		{
-			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().ByCastingFrom(null));
+			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().ByCasting(null));
 		}
 
 		[Test]
@@ -34,7 +34,7 @@ namespace Routine.Test.Engine.Converter
 
 			typeMock.Setup(t => t.CanBe(It.IsAny<IType>())).Returns(false);
 
-			IConverter converter = BuildRoutine.Converter().ByCastingFrom(typeMock.Object);
+			IConverter converter = BuildRoutine.Converter().ByCasting(typeMock.Object);
 
 			Assert.Throws<CannotConvertException>(() => converter.Convert(0, type.of<string>()));
 		}

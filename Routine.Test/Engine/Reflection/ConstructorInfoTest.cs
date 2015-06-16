@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
+using RoutineTest.OuterDomainNamespace;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -60,7 +62,7 @@ namespace Routine.Test.Engine.Reflection
 			testing = Members_Constructor(type.of<string>(), type.of<int>());
 
 			var actual = testing.Invoke("test", 1) as TestClass_Members;
-			
+
 			Assert.AreEqual("test", actual.StringProperty);
 			Assert.AreEqual(1, actual.IntProperty);
 		}
@@ -81,6 +83,38 @@ namespace Routine.Test.Engine.Reflection
 
 			Assert.AreEqual(1, actual.Length);
 			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+		}
+
+		[Test]
+		public void When_exception_occurs_during_invocation__preloaded_and_reflected_implementations_behave_the_same()
+		{
+			var preloaded = type.of<TestClass_OOP>().GetConstructor(new[] { type.of<Exception>() });
+			var reflected = type.of<TestOuterDomainType_OOP>().GetConstructor(new[] { type.of<Exception>() });
+
+			Assert.IsInstanceOf<PreloadedConstructorInfo>(preloaded);
+			Assert.IsInstanceOf<ReflectedConstructorInfo>(reflected);
+
+			var expectedException = new Exception("expected");
+
+			try
+			{
+				preloaded.Invoke(new object[] { expectedException });
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
+
+			try
+			{
+				reflected.Invoke(new object[] { expectedException });
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
 		}
 	}
 }

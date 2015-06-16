@@ -36,7 +36,7 @@ namespace Routine
 			return source
 					.FromEmpty()
 
-					.Converter.Set(c => c.ConverterByCasting().When(t => t.IsDomainType))
+					.Converter.Set(c => c.ConvertByCasting().When(t => t.IsDomainType))
 					.ViewTypes.Add(c => c.By(t => t.AssignableTypes.Where(viewTypePredicate).ToList()).When(t => t.IsDomainType))
 					;
 		}

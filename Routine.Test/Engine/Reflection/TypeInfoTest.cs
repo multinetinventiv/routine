@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting;
 using NUnit.Framework;
 using Routine.Engine;
 using Routine.Engine.Reflection;
@@ -63,13 +62,13 @@ namespace Routine.Test.Engine.Reflection
 		{
 			TypeInfo.AddDomainTypes(typeof(TestOuterDomainType_OOP));
 
-			var property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First();
+			var property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
 
 			Assert.IsInstanceOf<ReflectedTypeInfo>(property.PropertyType);
 
 			TypeInfo.AddDomainTypes(typeof(TestOuterLaterAddedDomainType_OOP));
 
-			property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First();
+			property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
 
 			Assert.IsInstanceOf<DomainTypeInfo>(property.PropertyType);
 		}

@@ -118,6 +118,24 @@ namespace Routine.Test.Interception
 		}
 
 		[Test]
+		public void When_exception_is_not_changed__preserves_stack_trace()
+		{
+			testingInterface = testing = new TestAroundInterceptor();
+
+			InvocationFailsWith(new ArgumentNullException());
+
+			try
+			{
+				testingInterface.Intercept(context, invocation);
+			}
+			catch (ArgumentNullException ex)
+			{
+				Console.WriteLine(ex.StackTrace);
+				Assert.IsTrue(ex.StackTrace.Contains(ExceptionStackTraceLookupText), ex.StackTrace);
+			}
+		}
+
+		[Test]
 		public void When_an_exception_is_thrown_OnBefore__OnFail_is_still_called()
 		{
 			testingInterface = testing = new TestAroundInterceptor();

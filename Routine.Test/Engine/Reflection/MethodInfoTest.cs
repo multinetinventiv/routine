@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
+using RoutineTest.OuterDomainNamespace;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -120,6 +122,38 @@ namespace Routine.Test.Engine.Reflection
 			
 			Assert.AreEqual(1, actual.Length);
 			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+		}
+
+		[Test]
+		public void When_exception_occurs_during_invocation__preloaded_and_reflected_implementations_behave_the_same()
+		{
+			var preloaded = type.of<TestClass_OOP>().GetMethod("ExceptionMethod");
+			var reflected = type.of<TestOuterDomainType_OOP>().GetMethod("ExceptionMethod");
+
+			Assert.IsInstanceOf<PreloadedMethodInfo>(preloaded);
+			Assert.IsInstanceOf<ReflectedMethodInfo>(reflected);
+
+			var expectedException = new Exception("expected");
+
+			try
+			{
+				preloaded.Invoke(new TestClass_OOP(), new object[] { expectedException });
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
+
+			try
+			{
+				reflected.Invoke(new TestOuterDomainType_OOP(), new object[] { expectedException });
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception ex)
+			{
+				Assert.AreSame(expectedException, ex);
+			}
 		}
 
 		[Test]

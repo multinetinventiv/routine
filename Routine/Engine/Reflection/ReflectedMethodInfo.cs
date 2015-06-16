@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Routine.Core.Reflection;
 
 namespace Routine.Engine.Reflection
 {
@@ -20,12 +21,12 @@ namespace Routine.Engine.Reflection
 
 		public override object Invoke(object target, params object[] parameters)
 		{
-			return methodInfo.Invoke(target, parameters);
+			return new ReflectionMethodInvoker(methodInfo).Invoke(target, parameters);
 		}
 
 		public override object InvokeStatic(params object[] parameters)
 		{
-			return methodInfo.Invoke(null, parameters);
+			return new ReflectionMethodInvoker(methodInfo).Invoke(null, parameters);
 		}
 
 		public override string Name { get { return methodInfo.Name; } }

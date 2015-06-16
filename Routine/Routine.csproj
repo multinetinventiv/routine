@@ -77,6 +77,7 @@
     <Compile Include="Core\MaxFetchDepthExceededException.cs" />
     <Compile Include="Core\Rest\IJsonSerializer.cs" />
     <Compile Include="Core\Rest\RestResponse.cs" />
+    <Compile Include="Core\Runtime\SystemExtensions.cs" />
     <Compile Include="Engine\Configuration\ConverterBuilder.cs" />
     <Compile Include="Engine\Converter\DelegateBasedConverter.cs" />
     <Compile Include="Engine\Configuration\OperationBuilder.cs" />
@@ -87,6 +88,7 @@
     </Compile>
     <Compile Include="Engine\Configuration\ParameterBuilder.cs" />
     <Compile Include="Engine\Configuration\ProxyOperationBuilder.cs" />
+    <Compile Include="Engine\Converter\NullableConverter.cs" />
     <Compile Include="Engine\Converter\TypeCastConverter.cs" />
     <Compile Include="Engine\Configuration\VirtualTypeBuilder.cs" />
     <Compile Include="Engine\Converter\ConverterBase.cs" />

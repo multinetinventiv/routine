@@ -29,5 +29,25 @@ namespace Routine.Test.Core.Reflection
 				Assert.AreSame(expected, actual);
 			}
 		}
+
+		[Test]
+		public void When_throwing_actual_exception_it_preserves_stack_trace()
+		{
+			var expected = new Exception("message");
+
+			var testing = new ReflectionMethodInvoker(GetType().GetMethod("Throw"));
+
+			try
+			{
+				testing.Invoke(this, expected);
+				Assert.Fail("exception not thrown");
+			}
+			catch (Exception actual)
+			{
+				Console.WriteLine(actual.StackTrace);
+
+				Assert.IsTrue(actual.StackTrace.Contains("ReflectionMethodInvokerTest.Throw"), actual.StackTrace);
+			}
+		}
 	}
 }
