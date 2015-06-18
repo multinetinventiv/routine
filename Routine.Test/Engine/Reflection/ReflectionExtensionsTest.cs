@@ -64,6 +64,13 @@ namespace Routine.Test.Engine.Reflection
 		#endregion
 
 		[Test]
+		public void Test_ToCSharpString()
+		{
+			Assert.AreEqual("System.Nullable<System.Int32>", typeof(int?).ToCSharpString());
+			Assert.AreEqual("Nullable<Int32>", typeof(int?).ToCSharpString(false));
+		}
+
+		[Test]
 		public void Test_IParametric_HasParameters()
 		{
 			Assert.IsTrue(Operation(type.ofvoid()).HasNoParameters());

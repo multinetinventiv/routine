@@ -86,10 +86,15 @@ namespace Routine
 					.FromEmpty()
 					.TypeId.Set(c => c
 						.By(t => t.GetGenericArguments()[0].FullName.ShortenModelId(prefix, shortPrefix) + "?")
-						.When(t => typeFilter(t) && t.IsGenericType && t.Name.StartsWith("Nullable`1")))
+						.When(t => t.IsGenericType && t.Name.StartsWith("Nullable`1") && ShortModelIdPatternTypeFilter(t.GetGenericArguments()[0], prefix, typeFilter)))
 					.TypeId.Set(c => c
 						.By(t => t.FullName.ShortenModelId(prefix, shortPrefix))
-						.When(t => typeFilter(t) && t.FullName.StartsWith(prefix + ".") && t.IsPublic));
+						.When(t => !t.IsGenericType && ShortModelIdPatternTypeFilter(t, prefix, typeFilter)));
+		}
+
+		private static bool ShortModelIdPatternTypeFilter(IType type, string prefix, Func<IType, bool> typeFilter)
+		{
+			return typeFilter(type) && type.FullName.StartsWith(prefix + ".") && type.IsPublic;
 		}
 
 		private static string ShortenModelId(this string source, string actualPrefix, string shortPrefix)

@@ -46,8 +46,10 @@ namespace Routine
 
 		#region internal Type
 
-		public static string ToCSharpString(this Type source) { return source.ToTypeInfo().ToCSharpString(); }
-		public static string ToCSharpString(this IType source)
+		public static string ToCSharpString(this Type source) { return source.ToCSharpString(true); }
+		public static string ToCSharpString(this IType source) { return source.ToCSharpString(true); }
+		public static string ToCSharpString(this Type source, bool useFullName) { return source.ToTypeInfo().ToCSharpString(useFullName); }
+		public static string ToCSharpString(this IType source, bool useFullName)
 		{
 			if (source.IsVoid)
 			{
@@ -56,17 +58,21 @@ namespace Routine
 
 			if (!source.IsGenericType)
 			{
-				return source.FullName.Replace("+", ".");
+				if (useFullName)
+				{
+					return source.FullName.Replace("+", ".");
+				}
+
+				return source.Name;
 			}
 
-			var result = (source.Namespace != null) ? source.Namespace + "." : "";
+			var result = (source.Namespace != null && useFullName) ? source.Namespace + "." : "";
 			result += source.Name.Before("`");
 
-			result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString())) + ">";
+			result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName))) + ">";
 
 			return result.Replace("+", ".");
 		}
-
 
 		#endregion
 

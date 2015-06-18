@@ -66,7 +66,7 @@ namespace Routine.Engine
 			staticInstances = ctx.CodingStyle.GetStaticInstances(Type);
 
 			Marks = new Marks(ctx.CodingStyle.GetMarks(Type));
-			Name = Type != null ? Type.Name : null;
+			Name = Type != null ? Type.ToCSharpString(false) : null;
 			Module = ctx.CodingStyle.GetModuleName(Type);
 			IsValueModel = ctx.CodingStyle.IsValue(Type);
 			IsViewModel = ctx.CodingStyle.IsView(Type);

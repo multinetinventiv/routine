@@ -423,8 +423,8 @@ namespace Routine.Test.Domain.Configuration
 			{
 				var result = ReflectionUtil.GetAssemblies(ModuleDirectory);
 
-#if DEBUG
 				var moduleAssemblies = result.ToList();
+#if DEBUG
 				Debug.WriteLine("assembly count: " + moduleAssemblies.Count());
 				foreach (var item in moduleAssemblies)
 				{
@@ -439,8 +439,8 @@ namespace Routine.Test.Domain.Configuration
 			{
 				var result = ReflectionUtil.GetAssemblies(UiDirectory);
 
-#if DEBUG
 				var uiAssemblies = result.ToList();
+#if DEBUG
 				Debug.WriteLine("assembly count: " + uiAssemblies.Count());
 				foreach (var item in uiAssemblies)
 				{
