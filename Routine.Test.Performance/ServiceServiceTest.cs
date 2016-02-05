@@ -22,12 +22,12 @@ namespace Routine.Test.Performance
 				.UsingInterception(BuildRoutine.InterceptionConfig()
 					.FromBasic()
 					.ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()
-						.Before(ctx => Console.WriteLine("before - " + ctx.OperationModelId))
+						.Before(ctx => Console.WriteLine("before - " + ctx.OperationName))
 						.Success(ctx => Console.WriteLine("success - " + ctx.Result))
 						.Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
-						.After(ctx => Console.WriteLine("after - " + ctx.OperationModelId))
-						.When(ctx => ctx.OperationModelId != "TestMaxLength" && ctx.OperationModelId != "TestBigInput"))))
-				.UsingSerializer(int.MaxValue)
+						.After(ctx => Console.WriteLine("after - " + ctx.OperationName))
+						.When(ctx => ctx.OperationName != "TestMaxLength" && ctx.OperationName != "TestBigInput"))))
+				.UsingJavaScriptSerializer(int.MaxValue)
 				.UsingRestClient(request => request.Timeout = Timeout.Infinite)
 				.AsServiceClient(BuildRoutine.ServiceClientConfig()
 					.FromBasic()
@@ -45,53 +45,53 @@ namespace Routine.Test.Performance
 		[Ignore]
 		public void ServiceClientTest()
 		{
-			var todoModule = rapp.Get("Instance", "m-todo--todo-module");
+			var todoModule = rapp.Get("Instance", "Test.Todo.TodoModule");
 
 			Console.WriteLine("Id: " + todoModule.Id);
-			Console.WriteLine("Value: " + todoModule.Value);
-			Console.WriteLine("Members:");
-			foreach (var memberValue in todoModule.MemberValues)
+			Console.WriteLine("Value: " + todoModule.Display);
+			Console.WriteLine("Datas:");
+			foreach (var dataValue in todoModule.DataValues)
 			{
-				Console.WriteLine("\t" + memberValue.Member.Id + (memberValue.Member.IsList ? " (List)" : ""));
-				var value = memberValue.Get();
+				Console.WriteLine("\t" + dataValue.Data.Name + (dataValue.Data.IsList ? " (List)" : ""));
+				var value = dataValue.Get();
 				foreach (var item in value.List)
 				{
 					Console.WriteLine("\t\tId: " + item.Id);
-					Console.WriteLine("\t\tValue: " + item.Value);
+					Console.WriteLine("\t\tValue: " + item.Display);
 				}
 			}
-			var instances = rapp["m-todo--assignees"].StaticInstances;
-			Console.WriteLine("Available objects for m-todo--assignees:");
+			var instances = rapp["Test.Todo.Assignees"].StaticInstances;
+			Console.WriteLine("Available objects for Test.Todo.Assignees:");
 			foreach (var instance in instances)
 			{
 				Console.WriteLine("\t" + instance.Id);
 			}
 
 			var assignees = instances[0];
-			var testAssignee = assignees.Perform("SingleByName", rapp.NewVar("name", "test", "s-string"));
+			var testAssignee = assignees.Perform("SingleByName", rapp.NewVar("name", "test", "System.String"));
 
 			Console.WriteLine("SingleByName(test):");
 
 			Console.WriteLine("\tId: " + testAssignee.Object.Id);
-			Console.WriteLine("\tValue: " + testAssignee.Object.Value);
-			Console.WriteLine("\tMembers:");
-			foreach (var memberValue in testAssignee.Object.MemberValues)
+			Console.WriteLine("\tValue: " + testAssignee.Object.Display);
+			Console.WriteLine("\tData:");
+			foreach (var dataValue in testAssignee.Object.DataValues)
 			{
-				Console.WriteLine("\t\t" + memberValue.Member.Id + (memberValue.Member.IsList ? " (List)" : ""));
-				var value = memberValue.Get();
+				Console.WriteLine("\t\t" + dataValue.Data.Name + (dataValue.Data.IsList ? " (List)" : ""));
+				var value = dataValue.Get();
 				foreach (var item in value.List)
 				{
 					Console.WriteLine("\t\t\tId: " + item.Id);
-					Console.WriteLine("\t\t\tValue: " + item.Value);
+					Console.WriteLine("\t\t\tValue: " + item.Display);
 				}
 			}
 
 			Console.WriteLine("\tUpdating object...");
-			var updateResult = testAssignee.Object.Perform("Update", rapp.NewVar("name", "test", "s-string"));
+			var updateResult = testAssignee.Object.Perform("Update", rapp.NewVar("name", "test", "System.String"));
 			Console.WriteLine("\tUpdate result is void: " + updateResult.IsVoid);
 
 			Console.WriteLine("----------");
-			var projectManagementModule = rapp.Get("Instance", "m-project-management--project-management-module");
+			var projectManagementModule = rapp.Get("Instance", "Test.ProjectManagement.ProjectManagementModule");
 			try
 			{
 				projectManagementModule.Perform("TestError");
@@ -107,35 +107,35 @@ namespace Routine.Test.Performance
 			Console.WriteLine("-----------");
 
 			Console.WriteLine("Performing singleton operation (Customers.All)");
-			var customers = rapp.Get("Instance", "m-project-management--customers").Perform("All");
+			var customers = rapp.Get("Instance", "Test.ProjectManagement.Customers").Perform("All");
 
 			Console.WriteLine("Sending data input... (ProjectManagementModule.CreateProjects)");
 			var bulkProjects = projectManagementModule.Perform("CreateProjects",
-				rapp.NewVar("defaultDeadline", DateTime.Now.AddDays(7), "s-date-time"),
+				rapp.NewVar("defaultDeadline", DateTime.Now.AddDays(7), "System.DateTime"),
 				rapp.NewVarList("projects",
-					rapp.Init("m-project-management--new-project",
+					rapp.Init("Test.ProjectManagement.NewProject",
 						rapp.NewVar("customer", customers.List[0]),
-						rapp.NewVar("deadline", DateTime.Now.AddDays(14), "s-date-time"),
-						rapp.NewVar("name", "project 1", "s-string"),
+						rapp.NewVar("deadline", DateTime.Now.AddDays(14), "System.DateTime"),
+						rapp.NewVar("name", "project 1", "System.String"),
 						rapp.NewVarList("features",
-							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar("name", "project 1 - feature 1", "s-string"),
-								rapp.NewVar("someBool", true, "s-boolean")
+							rapp.Init("Test.ProjectManagement.NewFeature",
+								rapp.NewVar("name", "project 1 - feature 1", "System.String"),
+								rapp.NewVar("someBool", true, "System.Boolean")
 							),
-							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar("name", "project 1 - feature 2", "s-string"),
-								rapp.NewVar("someBool", false, "s-boolean")
+							rapp.Init("Test.ProjectManagement.NewFeature",
+								rapp.NewVar("name", "project 1 - feature 2", "System.String"),
+								rapp.NewVar("someBool", false, "System.Boolean")
 							)
 						)
 					),
-					rapp.Init("m-project-management--new-project",
+					rapp.Init("Test.ProjectManagement.NewProject",
 						rapp.NewVar("customer", customers.List[0]),
-						rapp.NewVar("deadline", DateTime.Now.AddDays(21), "s-date-time"),
-						rapp.NewVar("name", "project 2", "s-string"),
+						rapp.NewVar("deadline", DateTime.Now.AddDays(21), "System.DateTime"),
+						rapp.NewVar("name", "project 2", "System.String"),
 						rapp.NewVarList("features",
-							rapp.Init("m-project-management--new-feature",
-								rapp.NewVar("name", "project 2 - feature 1", "s-string"),
-								rapp.NewVar("someBool", false, "s-boolean")
+							rapp.Init("Test.ProjectManagement.NewFeature",
+								rapp.NewVar("name", "project 2 - feature 1", "System.String"),
+								rapp.NewVar("someBool", false, "System.Boolean")
 							)
 						)
 					)
@@ -144,14 +144,14 @@ namespace Routine.Test.Performance
 			Console.WriteLine("bulk projects created;");
 			foreach (var bulkProject in bulkProjects.List)
 			{
-				Console.WriteLine("\tbulk project: {0} - {1}", bulkProject.Id, bulkProject.Value);
+				Console.WriteLine("\tbulk project: {0} - {1}", bulkProject.Id, bulkProject.Display);
 			}
 			Console.WriteLine("------------");
 
 
 			Console.WriteLine("testing max length;");
 			var stopwatch = Stopwatch.StartNew();
-			var maxLengthResult = projectManagementModule.Perform("TestMaxLength", rapp.NewVar("count", 1000, "s-int-32"));
+			var maxLengthResult = projectManagementModule.Perform("TestMaxLength", rapp.NewVar("count", 1000, "System.Int32"));
 			stopwatch.Stop();
 			Console.WriteLine("Total {0} items fetched successfully in {1:c}", maxLengthResult.List.Count, stopwatch.Elapsed);
 			Console.WriteLine("------------");
@@ -162,15 +162,15 @@ namespace Routine.Test.Performance
 			var bulkProjectCount = projectManagementModule.Perform("TestBigInput",
 				rapp.NewVarList("projects",
 					Enumerable.Range(0, bulk_count).Select(i =>
-						rapp.Init("m-project-management--new-project",
+						rapp.Init("Test.ProjectManagement.NewProject",
 							rapp.NewVar("customer", customers.List[0]),
-							rapp.NewVar("deadline", DateTime.Now.AddDays(21), "s-date-time"),
-							rapp.NewVar("name", "project " + i, "s-string"),
+							rapp.NewVar("deadline", DateTime.Now.AddDays(21), "System.DateTime"),
+							rapp.NewVar("name", "project " + i, "System.String"),
 							rapp.NewVarList("features",
 								Enumerable.Range(0, 3).Select(j =>
-									rapp.Init("m-project-management--new-feature",
-										rapp.NewVar("name", "project " + i + " - feature " + j, "s-string"),
-										rapp.NewVar("someBool", false, "s-boolean")
+									rapp.Init("Test.ProjectManagement.NewFeature",
+										rapp.NewVar("name", "project " + i + " - feature " + j, "System.String"),
+										rapp.NewVar("someBool", false, "System.Boolean")
 										)
 									)
 								)

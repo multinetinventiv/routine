@@ -12,6 +12,8 @@ namespace Routine.Engine.Reflection
 		private ParameterInfo[] parameters;
 		private object[] customAttributes;
 
+		private IMethodInvoker invoker;
+
 		internal PreloadedConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
 			: base(constructorInfo) { }
 
@@ -24,6 +26,8 @@ namespace Routine.Engine.Reflection
 			parameters = constructorInfo.GetParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
 			customAttributes = constructorInfo.GetCustomAttributes(true);
 
+			invoker = constructorInfo.CreateInvoker();
+
 			return this;
 		}
 
@@ -34,29 +38,10 @@ namespace Routine.Engine.Reflection
 		public override ParameterInfo[] GetParameters() { return parameters; }
 		public override object[] GetCustomAttributes() { return customAttributes; }
 
-		private readonly object invokerLock = new object();
-		private IMethodInvoker _invoker;
-		private IMethodInvoker Invoker
-		{
-			get
-			{
-				if (_invoker == null)
-				{
-					lock (invokerLock)
-					{
-						if (_invoker == null)
-						{
-							_invoker = constructorInfo.CreateInvoker();
-						}
-					}
-				}
-
-				return _invoker;
-			}
-		}
+		
 		public override object Invoke(params object[] parameters)
 		{
-			return Invoker.Invoke(null, parameters);
+			return invoker.Invoke(null, parameters);
 		}
 	}
 }

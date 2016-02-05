@@ -28,16 +28,15 @@ namespace Routine.Test.Client
 		public void Client_can_access_a_business_object_by_creating_a_Robject_using_model_and_id_information()
 		{
 			ModelsAre(Model("actualModel").ViewModelIds("viewModel"), Model("viewModel").IsView("actualModel"));
-			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
+			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Display("value"));
 
 			var testingRobject = Robj("id", "actualModel", "viewModel");
 
-			Assert.AreEqual("value", testingRobject.Value);
-			objectServiceMock.Verify(o => o.GetObjectModel(It.IsAny<string>()), Times.Never());
+			Assert.AreEqual("value", testingRobject.Display);
 		}
 
 		[Test]
-		public void When_creating_Robject__GetObjectModel_is_not_called__cached_application_model_is_used()
+		public void When_creating_Robject__Cached_application_model_is_used()
 		{
 			ModelsAre(Model("actualModel"));
 			ObjectsAre(Object(Id("id", "actualModel")));
@@ -46,8 +45,7 @@ namespace Routine.Test.Client
 			Robj("id", "actualModel");
 			Robj("id", "actualModel");
 
-			objectServiceMock.Verify(o => o.GetObjectModel(It.IsAny<string>()), Times.Never());
-			objectServiceMock.Verify(o => o.GetApplicationModel(), Times.Once());
+			objectServiceMock.Verify(o => o.ApplicationModel, Times.Once());
 		}
 
 		[Test]
@@ -100,67 +98,66 @@ namespace Routine.Test.Client
 				Model("actualModel").Module("actualModule").ViewModelIds("viewModel"), 
 				Model("viewModel").Module("viewModule").IsView("actualModel")
 			);
-			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Value("value"));
+			ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Display("value"));
 
 			var testingRobject = Robj("id", "actualModel", "viewModel");
 
 			Assert.AreEqual("id", testingRobject.Id);
 			Assert.AreEqual("actualModel", testingRobject.ActualType.Id);
-			Assert.AreEqual("value", testingRobject.Value);
+			Assert.AreEqual("value", testingRobject.Display);
 			Assert.AreEqual("viewModel", testingRobject.ViewType.Id);
 			Assert.AreEqual("viewModule", testingRobject.Type.Module);
 		}
 
 		[Test]
-		public void Robjects_fetch_member_data_only_when_asked()
+		public void Robjects_fetch_data_only_when_asked()
 		{
 			ModelsAre(
 				Model("model")
-				.Member("member1")
-				.Member("member2"));
+				.Data("data1")
+				.Data("data2"));
 
 			ObjectsAre(
 				Object(Id("id1")),
 				Object(Id("id2")));
 			ObjectsAre(
 				Object(Id("id", "model"))
-				.Member("member1", Id("id1"))
-				.Member("member2", Id("id2")));
+				.Data("data1", Id("id1"))
+				.Data("data2", Id("id2")));
 
 			var testingRobject = Robj("id", "model");
 
-			var membersFirstFetch = testingRobject.MemberValues;
-			Assert.AreEqual("member1", membersFirstFetch[0].Member.Id);
-			Assert.AreEqual("id1", membersFirstFetch[0].Get().Object.Id);
+			var datasFirstFetch = testingRobject.DataValues;
+			Assert.AreEqual("data1", datasFirstFetch[0].Data.Name);
+			Assert.AreEqual("id1", datasFirstFetch[0].Get().Object.Id);
 
-			Assert.AreEqual("member2", membersFirstFetch[1].Member.Id);
-			Assert.AreEqual("id2", membersFirstFetch[1].Get().Object.Id);
+			Assert.AreEqual("data2", datasFirstFetch[1].Data.Name);
+			Assert.AreEqual("id2", datasFirstFetch[1].Get().Object.Id);
 
-			var membersSecondFetch = testingRobject.MemberValues;
-			Assert.AreEqual("member1", membersSecondFetch[0].Member.Id);
-			Assert.AreEqual("id1", membersSecondFetch[0].Get().Object.Id);
+			var datasSecondFetch = testingRobject.DataValues;
+			Assert.AreEqual("data1", datasSecondFetch[0].Data.Name);
+			Assert.AreEqual("id1", datasSecondFetch[0].Get().Object.Id);
 
-			Assert.AreEqual("member2", membersSecondFetch[1].Member.Id);
-			Assert.AreEqual("id2", membersSecondFetch[1].Get().Object.Id);
+			Assert.AreEqual("data2", datasSecondFetch[1].Data.Name);
+			Assert.AreEqual("id2", datasSecondFetch[1].Get().Object.Id);
 
-			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Once());
+			objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Once());
 		}
 
 		[Test]
-		public void Robjects_fetch_value_along_with_member_data()
+		public void Robjects_fetch_value_along_with_data()
 		{
-			ModelsAre(Model("model").Member("member1"));
+			ModelsAre(Model("model").Data("data1"));
 			ObjectsAre(
-				Object(Id("id1")).Value("value1"),
+				Object(Id("id1")).Display("value1"),
 				Object(Id("id", "model"))
-				.Value("value")
-				.Member("member1", Id("id1")));
+				.Display("value")
+				.Data("data1", Id("id1")));
 
 			var testingRobject = Robj("id", "model");
-			testingRobject.MemberValues[0].Get();
+			testingRobject.DataValues[0].Get();
 
-			Assert.AreEqual("value", testingRobject.Value);
-			objectServiceMock.Verify(o => o.GetValue(It.IsAny<ObjectReferenceData>()), Times.Never());
+			Assert.AreEqual("value", testingRobject.Display);
 		}
 
 		[Test]
@@ -205,12 +202,12 @@ namespace Routine.Test.Client
 		[Test]
 		public void Rvariable_can_be_null()
 		{
-			ModelsAre(Model("model").Member("member"));
+			ModelsAre(Model("model").Data("data"));
 
-			ObjectsAre(Object(Id("id", "model")).Member("member", Null()));
+			ObjectsAre(Object(Id("id", "model")).Data("data", Null()));
 
 			var robj = Robj("id", "model");
-			var testingRvariable = robj.MemberValues[0].Get();
+			var testingRvariable = robj.DataValues[0].Get();
 
 			Assert.IsTrue(testingRvariable.IsNull);
 			Assert.IsTrue(testingRvariable.ToList().IsNull);
@@ -219,12 +216,12 @@ namespace Routine.Test.Client
 		[Test]
 		public void Robject_can_be_null()
 		{
-			ModelsAre(Model("model").Member("member"));
+			ModelsAre(Model("model").Data("data"));
 
-			ObjectsAre(Object(Id("id", "model")).Member("member", Null()));
+			ObjectsAre(Object(Id("id", "model")).Data("data", Null()));
 
 			var robj = Robj("id", "model");
-			var testingRvariable = robj.MemberValues[0].Get();
+			var testingRvariable = robj.DataValues[0].Get();
 
 			Assert.IsTrue(testingRvariable.Object.IsNull);
 		}
@@ -232,14 +229,14 @@ namespace Routine.Test.Client
 		[Test]
 		public void Robject_behaves_optimistic_when_it_is_null()
 		{
-			ModelsAre(Model("model").Member("member"));
+			ModelsAre(Model("model").Data("data"));
 
-			ObjectsAre(Object(Id("id", "model")).Member("member", Null()));
+			ObjectsAre(Object(Id("id", "model")).Data("data", Null()));
 
 			var robj = Robj("id", "model");
-			var testingRobject = robj.MemberValues[0].Get().Object;
+			var testingRobject = robj.DataValues[0].Get().Object;
 
-			Assert.AreEqual(0, testingRobject.MemberValues.Count);
+			Assert.AreEqual(0, testingRobject.DataValues.Count);
 			Assert.IsNull(testingRobject.Type);
 			Assert.IsTrue(testingRobject.Perform("some non existing operation").IsNull);
 		}
@@ -260,8 +257,8 @@ namespace Routine.Test.Client
 
 			When(Id("id", "actual_model", "view_model"))
 				.Performs("operation", p =>
-					p["param1"].Values[0].ReferenceId == "id_param1" &&
-					p["param2"].Values[0].ReferenceId == "id_param2")
+					p["param1"].Values[0].Id == "id_param1" &&
+					p["param2"].Values[0].Id == "id_param2")
 				.Returns(Result(Id("id_result")));
 
 			var testingRobject = Robj("id", "actual_model", "view_model");
@@ -294,12 +291,12 @@ namespace Routine.Test.Client
 
 			When(Id("id", "operational_model"))
 				.Performs("data_input", p =>
-					p["data"].Values[0].ObjectModelId == "data_model" &&
-					p["data"].Values[0].ReferenceId == null &&
-					p["data"].Values[0].InitializationParameters["param1"].Values[0].ObjectModelId == "sub_data_model" &&
-					p["data"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == null &&
-					p["data"].Values[0].InitializationParameters["param1"].Values[0].InitializationParameters["param1"].Values[0].ReferenceId == "id_sub_data_param1" &&
-					p["data"].Values[0].InitializationParameters["param2"].Values[0].ReferenceId == "id_data_param2")
+					p["data"].Values[0].ModelId == "data_model" &&
+					p["data"].Values[0].Id == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].ModelId == "sub_data_model" &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].Id == null &&
+					p["data"].Values[0].InitializationParameters["param1"].Values[0].InitializationParameters["param1"].Values[0].Id == "id_sub_data_param1" &&
+					p["data"].Values[0].InitializationParameters["param2"].Values[0].Id == "id_data_param2")
 				.Returns(Result(Id("id_result")));
 
 			var testingRobject = Robj("id", "operational_model");
@@ -334,7 +331,7 @@ namespace Routine.Test.Client
 							Rvar("param1", Robj("id_data_param1"))
 						);
 
-			Assert.Throws<RobjectIsInitializedOnClientException>(() => { var val = robj.Value; }, "exception not thrown");
+			Assert.Throws<RobjectIsInitializedOnClientException>(() => { var val = robj.Display; }, "exception not thrown");
 		}
 
 		[Test]
@@ -445,7 +442,7 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
-		public void Robject_does_not_fetch_value_if_model_is_value()
+		public void Robject_does_not_fetch_object_data_if_model_is_value()
 		{
 			ModelsAre(Model("model").IsValue());
 
@@ -453,10 +450,10 @@ namespace Routine.Test.Client
 
 			var robj = Robj("value", "model");
 
-			var actual = robj.Value;
+			var actual = robj.Display;
 
 			Assert.AreEqual("value", actual);
-			objectServiceMock.Verify(o => o.GetValue(It.IsAny<ObjectReferenceData>()), Times.Never());
+			objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Never());
 		}
 
 		[Test]
@@ -476,16 +473,16 @@ namespace Routine.Test.Client
 			ModelsAre(
 				Model("string").IsValue(),
 				Model("view").IsView("actual")
-				.Member("Text", "string"),
+				.Data("Text", "string"),
 				Model("actual").ViewModelIds("view")
-				.Member("Text", "string")
+				.Data("Text", "string")
 			);
 
 			ObjectsAre(
 				Object(Id("id", "actual"))
-				.Member("Text", Id("from actual", "string")),
+				.Data("Text", Id("from actual", "string")),
 				Object(Id("id", "actual", "view"))
-				.Member("Text", Id("from view", "string"))
+				.Data("Text", Id("from view", "string"))
 			);
 
 			var robjActual = Robj("id", "actual");
@@ -518,7 +515,7 @@ namespace Routine.Test.Client
 		[Test]
 		public void When_no_model_is_found_TypeNotFoundException_is_thrown()
 		{
-			objectServiceMock.Setup(o => o.GetApplicationModel()).Returns(new ApplicationModel());
+			objectServiceMock.Setup(o => o.ApplicationModel).Returns(new ApplicationModel());
 
 			ObjectsAre(Object(Id("value", "model")));
 
@@ -531,16 +528,16 @@ namespace Routine.Test.Client
 			ModelsAre(Model("model").StaticInstanceIds("id1", "id2"));
 
 			ObjectsAre(
-				Object(Id("id1", "model")).Value("value 1"),
-				Object(Id("id2", "model")).Value("value 2"));
+				Object(Id("id1", "model")).Display("value 1"),
+				Object(Id("id2", "model")).Display("value 2"));
 
 			var actual = Rtyp("model").StaticInstances;
 
 			Assert.AreEqual(2, actual.Count);
 			Assert.AreEqual("id1", actual[0].Id);
-			Assert.AreEqual("value 1", actual[0].Value);
+			Assert.AreEqual("value 1", actual[0].Display);
 			Assert.AreEqual("id2", actual[1].Id);
-			Assert.AreEqual("value 2", actual[1].Value);
+			Assert.AreEqual("value 2", actual[1].Display);
 		}
 
 		[Test]
@@ -548,33 +545,32 @@ namespace Routine.Test.Client
 		{
 			ModelsAre(
 				Model("model")
-				.Member("member1")
-				.Member("member2"));
+				.Data("data1")
+				.Data("data2"));
 
 			ObjectsAre(
 				Object(Id("id1")),
 				Object(Id("id2")));
 			ObjectsAre(
-				Object(Id("id", "model")).Value("value")
-				.Member("member1", Id("id1"))
-				.Member("member2", Id("id2")));
+				Object(Id("id", "model")).Display("value")
+				.Data("data1", Id("id1"))
+				.Data("data2", Id("id2")));
 
 			var testingRobject = Robj("id", "model");
-			var value1 = testingRobject.Value;
-			testingRobject["member1"].Get();
-			testingRobject["member2"].Get();
+			var value1 = testingRobject.Display;
+			testingRobject["data1"].Get();
+			testingRobject["data2"].Get();
 
 			Assert.AreEqual("value", value1);
 
 			testingRobject.Invalidate();
 
-			var value2 = testingRobject.Value;
-			testingRobject["member1"].Get();
-			testingRobject["member2"].Get();
+			var value2 = testingRobject.Display;
+			testingRobject["data1"].Get();
+			testingRobject["data2"].Get();
 
 			Assert.AreEqual("value", value2);
-			objectServiceMock.Verify(o => o.GetValue(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
-			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
+			objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Exactly(2));
 		}
 
 		[Test]
@@ -593,24 +589,24 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
-		public void Rmember_can_check_if_its_model_is_marked_as_given_mark()
+		public void Rdata_can_check_if_its_model_is_marked_as_given_mark()
 		{
 			ModelsAre(
 				Model("model")
-				.Member("member")
-				.MarkMember("member", "mark"));
+				.Data("data")
+				.MarkData("data", "mark"));
 
 			ObjectsAre(
 				Object(Id("id")));
 
 			ObjectsAre(
 				Object(Id("id1", "model"))
-				.Member("member", Id("id")));
+				.Data("data", Id("id")));
 
-			var testingRmember = Robj("id", "model")["member"];
+			var testingRdata = Robj("id", "model")["data"];
 
-			Assert.IsTrue(testingRmember.Member.MarkedAs("mark"));
-			Assert.IsFalse(testingRmember.Member.MarkedAs("nonexistingmark"));
+			Assert.IsTrue(testingRdata.Data.MarkedAs("mark"));
+			Assert.IsFalse(testingRdata.Data.MarkedAs("nonexistingmark"));
 		}
 
 		[Test]
@@ -624,7 +620,7 @@ namespace Routine.Test.Client
 			ObjectsAre(
 				Object(Id("id1", "model")));
 
-			var testingRoperation = Robj("id", "model").Type.Operations.Single(o => o.Id == "operation");
+			var testingRoperation = Robj("id", "model").Type.Operations.Single(o => o.Name == "operation");
 
 			Assert.IsTrue(testingRoperation.MarkedAs("mark"));
 			Assert.IsFalse(testingRoperation.MarkedAs("nonexistingmark"));
@@ -638,7 +634,7 @@ namespace Routine.Test.Client
 					.Operation(new OperationModel
 					{
 						GroupCount = 1,
-						Id = "operation",
+						Name = "operation",
 						Result = new ResultModel {IsVoid = true},
 						Parameters = new List<ParameterModel> {PModel("id", 0, 1)}
 					})
@@ -663,10 +659,10 @@ namespace Routine.Test.Client
 			var groups = rop.Groups;
 
 			Assert.AreEqual(3, groups.Count);
-			Assert.AreEqual("param1", groups[0][0].Id);
-			Assert.AreEqual("param1", groups[1][0].Id);
-			Assert.AreEqual("param2", groups[1][1].Id);
-			Assert.AreEqual("param2", groups[2][0].Id);
+			Assert.AreEqual("param1", groups[0][0].Name);
+			Assert.AreEqual("param1", groups[1][0].Name);
+			Assert.AreEqual("param2", groups[1][1].Name);
+			Assert.AreEqual("param2", groups[2][0].Name);
 		}
 
 		[Test]
@@ -712,7 +708,7 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
-		public void Rinitializer_implements_formatting_and_equality_members()
+		public void Rinitializer_implements_formatting_and_equality_datas()
 		{
 			ModelsAre(Model("model").Initializer(), Model("model2").Initializer());
 
@@ -729,13 +725,13 @@ namespace Routine.Test.Client
 		}
 
 		[Test]
-		public void Rmember_implements_formatting_and_equality_members()
+		public void Rdata_implements_formatting_and_equality_members()
 		{
-			ModelsAre(Model("model").Member("member"), Model("model2").Member("member2"));
+			ModelsAre(Model("model").Data("data"), Model("model2").Data("data2"));
 
-			var left = new Rapplication(objectServiceMock.Object)["model"].Member["member"];
-			var right = new Rapplication(objectServiceMock.Object)["model"].Member["member"];
-			var other = new Rapplication(objectServiceMock.Object)["model2"].Member["member2"];
+			var left = new Rapplication(objectServiceMock.Object)["model"].Data["data"];
+			var right = new Rapplication(objectServiceMock.Object)["model"].Data["data"];
+			var other = new Rapplication(objectServiceMock.Object)["model2"].Data["data2"];
 
 			Assert.AreEqual(left, right);
 			Assert.AreNotSame(left, right);
@@ -801,7 +797,7 @@ namespace Routine.Test.Client
 		{
 			ModelsAre(Model("s-int-32").IsValue());
 
-			int result = Rvar("value", Robj("10", "s-int-32")).As(robj => int.Parse(robj.Value));
+			int result = Rvar("value", Robj("10", "s-int-32")).As(robj => int.Parse(robj.Display));
 
 			Assert.AreEqual(10, result);
 		}
@@ -809,11 +805,11 @@ namespace Routine.Test.Client
 		[Test]
 		public void Facade_Rvariable_As_Returns_default_when_value_is_null()
 		{
-			int intResult = Rvar("value", RobjNull()).As(robj => int.Parse(robj.Value));
+			int intResult = Rvar("value", RobjNull()).As(robj => int.Parse(robj.Display));
 
 			Assert.AreEqual(0, intResult);
 
-			string stringResult = Rvar("value", RobjNull()).As(robj => robj.Value);
+			string stringResult = Rvar("value", RobjNull()).As(robj => robj.Display);
 
 			Assert.IsNull(stringResult);
 		}
@@ -823,7 +819,7 @@ namespace Routine.Test.Client
 		{
 			ModelsAre(Model("s-int-32").IsValue());
 
-			List<int> result = Rvarlist("value", new[] { Robj("10", "s-int-32"), Robj("11", "s-int-32") }).AsList(robj => int.Parse(robj.Value));
+			List<int> result = Rvarlist("value", new[] { Robj("10", "s-int-32"), Robj("11", "s-int-32") }).AsList(robj => int.Parse(robj.Display));
 
 			Assert.AreEqual(10, result[0]);
 			Assert.AreEqual(11, result[1]);
@@ -832,11 +828,11 @@ namespace Routine.Test.Client
 		[Test]
 		public void Facade_Rvariable_AsList_Puts_default_value_when_an_item_is_null()
 		{
-			List<int> intResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => int.Parse(robj.Value));
+			List<int> intResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => int.Parse(robj.Display));
 
 			Assert.AreEqual(0, intResult[0]);
 
-			List<string> stringResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => robj.Value);
+			List<string> stringResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => robj.Display);
 
 			Assert.IsNull(stringResult[0]);
 		}

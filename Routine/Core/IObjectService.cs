@@ -4,11 +4,9 @@ namespace Routine.Core
 {
 	public interface IObjectService
 	{
-		ApplicationModel GetApplicationModel();
-		ObjectModel GetObjectModel(string objectModelId);
+		ApplicationModel ApplicationModel { get; }
 
-		string GetValue(ObjectReferenceData reference);
-		ObjectData Get(ObjectReferenceData reference);
-		ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues);
+		ObjectData Get(ReferenceData reference);
+		VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters);
 	}
 }

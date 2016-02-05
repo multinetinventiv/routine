@@ -130,35 +130,35 @@ namespace Routine.Test.Api
             this.Write("\t\t");
             
             #line 30 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
- foreach(var member in model.Members) { 
+ foreach(var data in model.Datas) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t");
             
             #line 32 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.RenderAttributes(mode)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.RenderAttributes(mode)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\tpublic ");
             
             #line 33 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName(mode)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.ReturnModel.GetFullName(mode)));
             
             #line default
             #line hidden
             this.Write(" ");
             
             #line 33 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.GetName(mode)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.GetName(mode)));
             
             #line default
             #line hidden
             this.Write(" { get { return default(");
             
             #line 33 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName(mode)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.ReturnModel.GetFullName(mode)));
             
             #line default
             #line hidden
@@ -207,7 +207,7 @@ namespace Routine.Test.Api
             this.Write(") \r\n\t\t{\r\n\t\t\tvar __result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
             
             #line 42 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
+            this.Write(this.ToStringHelper.ToStringWithCulture(operation.Name));
             
             #line default
             #line hidden
@@ -221,7 +221,7 @@ namespace Routine.Test.Api
             this.Write("\r\n\t\t\t\t, ");
             
             #line 45 "D:\Projects\routine\routine\Routine.Test\Api\TestTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Name, parameter.GetName(mode), "robject.Application")));
             
             #line default
             #line hidden

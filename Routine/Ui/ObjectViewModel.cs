@@ -53,7 +53,7 @@ namespace Routine.Ui
 					return Configuration.GetNullDisplayValue();
 				}
 
-				return Object.Value;
+				return Object.Display;
 			}
 		}
 
@@ -84,22 +84,22 @@ namespace Routine.Ui
 		}
 
 		public bool HasOperation { get { return GetOperations().Any(); } }
-		public bool HasMember { get { return GetMembers().Any(); } }
+		public bool HasData { get { return GetDatas().Any(); } }
 
-		public List<MemberViewModel> GetMembers()
+		public List<DataViewModel> GetDatas()
 		{
-			return Object.MemberValues
-					.Select(m => new MemberViewModel(Configuration, m))
+			return Object.DataValues
+					.Select(m => new DataViewModel(Configuration, m))
 					.Where(m => m.IsRendered)
 					.OrderBy(m => m.GetOrder())
 					.ToList();
 		}
 
-		public List<MemberViewModel> GetMembers(MemberTypes memberTypes)
+		public List<DataViewModel> GetDatas(DataLocations dataLocations)
 		{
-			return GetMembers()
-					.Where(m => m.Is(memberTypes))
-					.OrderBy(m => m.GetOrder(memberTypes))
+			return GetDatas()
+					.Where(m => m.Is(dataLocations))
+					.OrderBy(m => m.GetOrder(dataLocations))
 					.ToList();
 		}
 
@@ -132,7 +132,7 @@ namespace Routine.Ui
 			return Object.Type.MarkedAs(mark);
 		}
 
-		public VariableViewModel Perform(string operationModelId, Dictionary<string, string> parameterDictionary)
+		public VariableViewModel Perform(string operationName, Dictionary<string, string> parameterDictionary)
 		{
 			if (parameterDictionary == null) { parameterDictionary = new Dictionary<string, string>(); }
 			if (Object.IsNull)
@@ -140,34 +140,22 @@ namespace Routine.Ui
 				return new VariableViewModel(Configuration, new Rvariable());
 			}
 
-			var rop = Object.Type.Operations.Single(o => o.Id == operationModelId);
+			var rop = Object.Type.Operations.Single(o => o.Name == operationName);
 			var rparams = rop.Parameters;
 
 			var parameters = new List<Rvariable>();
 			foreach (var item in parameterDictionary)
 			{
-				var rparam = rparams.SingleOrDefault(p => p.Id == item.Key);
+				var rparam = rparams.SingleOrDefault(p => p.Name == item.Key);
 
 				if (rparam == null) { continue; }
 
-				var robjs = item.Value.Trim().Split(Configuration.GetListValueSeparator()).Select(id =>
-				{
-					try
-					{
-						var ord = SerializationExtensions.DeserializeObjectReferenceData(id);
-
-						return Object.Type.Application.Get(ord.Id, ord.ActualModelId);
-					}
-					catch (ArgumentException)
-					{
-						return Object.Type.Application.Get(id, rparam.ParameterType.Id);
-					}
-				});
+				var robjs = item.Value.Trim().Split(Configuration.GetListValueSeparator()).Select(id => Object.Type.Application.Get(id, rparam.ParameterType.Id));
 
 				parameters.Add(rparam.CreateVariable(robjs.ToArray()));
 			}
 
-			var result = Object.Perform(operationModelId, parameters);
+			var result = Object.Perform(operationName, parameters);
 
 			return new VariableViewModel(Configuration, result);
 		}

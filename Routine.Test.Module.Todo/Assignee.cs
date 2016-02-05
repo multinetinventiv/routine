@@ -15,7 +15,7 @@ namespace Routine.Test.Module.Todo
 
 		public Guid Uid{get; private set;}
 		public string Name{get; private set;}
-		public FatString Address { get; private set; }
+		public Text Address { get; private set; }
 
 		private Assignee() {}
 		public Assignee(IDomainContext ctx, IRepository<Assignee> repository)
@@ -24,7 +24,7 @@ namespace Routine.Test.Module.Todo
 			this.repository = repository;
 		}
 
-		internal Assignee With(string name, FatString address)
+		internal Assignee With(string name, Text address)
 		{
 			Name = name;
 			Address = address;

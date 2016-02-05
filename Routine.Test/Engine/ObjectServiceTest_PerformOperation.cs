@@ -141,11 +141,9 @@ namespace Routine.Test.Engine
 			base.SetUp();
 
 			codingStyle
-				.TypeId.Set(c => c.By(t => t.FullName).When(t => t.IsDomainType))
-				.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
+				.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
 				.Locator.SetDefault(type.of<BusinessInputData>())
 				.Locator.SetDefault(type.of<BusinessMasterInputData>())
-				.Use(p => p.PolymorphismPattern(t => t.IsDomainType))
 				;
 
 			businessMock = new Mock<IBusinessOperation>();
@@ -161,7 +159,7 @@ namespace Routine.Test.Engine
 			AddToRepository(businessObj);
 		}
 
-		protected override ObjectReferenceData Id(string id)
+		protected override ReferenceData Id(string id)
 		{
 			return Id(id, ACTUAL_OMID, VIEW_OMID);
 		}
@@ -173,7 +171,7 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "Void", Params());
+			testing.Do(Id("id"), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once());
 		}
@@ -185,7 +183,7 @@ namespace Routine.Test.Engine
 			var convertedBusinessObj = new BusinessOperation(convertedBusinessMock.Object);
 
 			codingStyle.Override(cs => cs
-				.Converter.Set(c => c.Converter(cb => cb.By((o, t) =>
+				.Converters.Add(c => c.Convert(cb => cb.By(() => type.of<IBusinessOperation>(),(o, t) =>
 															{
 																Assert.AreSame(businessObj, o);
 
@@ -196,7 +194,7 @@ namespace Routine.Test.Engine
 
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "Void", Params());
+			testing.Do(Id("id"), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Never());
 			convertedBusinessMock.Verify(o => o.Void(), Times.Once());
@@ -209,7 +207,7 @@ namespace Routine.Test.Engine
 
 			try
 			{
-				testing.PerformOperation(Id("id"), "NonExistingOperation", Params());
+				testing.Do(Id("id"), "NonExistingOperation", Params());
 				Assert.Fail("exception not thrown");
 			}
 			catch (OperationDoesNotExistException) { }
@@ -222,13 +220,12 @@ namespace Routine.Test.Engine
 
 			businessMock.Setup(o => o.GetResult()).Returns(businessObj);
 
-			var result = testing.PerformOperation(Id("id"), "GetResult", Params());
+			var result = testing.Do(Id("id"), "GetResult", Params());
 
-			Assert.AreEqual("title", result.Values[0].Value);
-			Assert.AreEqual("id", result.Values[0].Reference.Id);
-			Assert.AreEqual(ACTUAL_OMID, result.Values[0].Reference.ActualModelId);
-			Assert.AreEqual(VIEW_OMID, result.Values[0].Reference.ViewModelId);
-			Assert.IsFalse(result.Values[0].Reference.IsNull);
+			Assert.IsNotNull(result.Values[0]);
+			Assert.AreEqual("title", result.Values[0].Display);
+			Assert.AreEqual("id", result.Values[0].Id);
+			Assert.AreEqual(ACTUAL_OMID, result.Values[0].ModelId);
 		}
 
 		[Test]
@@ -238,9 +235,9 @@ namespace Routine.Test.Engine
 
 			businessMock.Setup(o => o.GetResult()).Returns((IBusinessOperation)null);
 
-			var result = testing.PerformOperation(Id("id"), "GetResult", Params());
+			var result = testing.Do(Id("id"), "GetResult", Params());
 
-			Assert.IsTrue(result.Values[0].Reference.IsNull);
+			Assert.IsNull(result);
 		}
 
 		[Test]
@@ -250,17 +247,16 @@ namespace Routine.Test.Engine
 
 			businessMock.Setup(o => o.GetListResult()).Returns(new List<string> { "a", "b" });
 
-			var result = testing.PerformOperation(Id("id"), "GetListResult", Params());
+			var result = testing.Do(Id("id"), "GetListResult", Params());
 
 			Assert.IsTrue(result.IsList);
 			Assert.AreEqual(2, result.Values.Count);
 
-			Assert.AreEqual("a", result.Values[0].Reference.Id);
-			Assert.AreEqual("a", result.Values[0].Value);
-			Assert.AreEqual("s-string", result.Values[0].Reference.ActualModelId);
-			Assert.AreEqual("s-string", result.Values[0].Reference.ViewModelId);
+			Assert.AreEqual("a", result.Values[0].Id);
+			Assert.AreEqual("a", result.Values[0].Display);
+			Assert.AreEqual("System.String", result.Values[0].ModelId);
 
-			Assert.AreEqual("b", result.Values[1].Reference.Id);
+			Assert.AreEqual("b", result.Values[1].Id);
 		}
 
 		[Test]
@@ -270,17 +266,16 @@ namespace Routine.Test.Engine
 
 			businessMock.Setup(o => o.GetArrayResult()).Returns(new[] { "a", "b" });
 
-			var result = testing.PerformOperation(Id("id"), "GetArrayResult", Params());
+			var result = testing.Do(Id("id"), "GetArrayResult", Params());
 
 			Assert.IsTrue(result.IsList);
 			Assert.AreEqual(2, result.Values.Count);
 
-			Assert.AreEqual("a", result.Values[0].Reference.Id);
-			Assert.AreEqual("a", result.Values[0].Value);
-			Assert.AreEqual("s-string", result.Values[0].Reference.ActualModelId);
-			Assert.AreEqual("s-string", result.Values[0].Reference.ViewModelId);
+			Assert.AreEqual("a", result.Values[0].Id);
+			Assert.AreEqual("a", result.Values[0].Display);
+			Assert.AreEqual("System.String", result.Values[0].ModelId);
 
-			Assert.AreEqual("b", result.Values[1].Reference.Id);
+			Assert.AreEqual("b", result.Values[1].Id);
 		}
 
 		[Test]
@@ -288,7 +283,7 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "Void", null);
+			testing.Do(Id("id"), "Void", null);
 
 			businessMock.Verify(o => o.Void(), Times.Once());
 		}
@@ -298,9 +293,9 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoParameterizedOperation",
+			testing.Do(Id("id"), "DoParameterizedOperation",
 				Params(
-					Param("str", Id("str_value", "s-string")),
+					Param("str", Id("str_value", "System.String")),
 					Param("obj", Id("id"))
 				));
 
@@ -312,7 +307,7 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoParameterizedOperation", Params(Param("obj", Id("id"))));
+			testing.Do(Id("id"), "DoParameterizedOperation", Params(Param("obj", Id("id"))));
 
 			businessMock.Verify(o => o.DoParameterizedOperation(null, businessObj));
 		}
@@ -322,10 +317,10 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoParameterizedOperation",
+			testing.Do(Id("id"), "DoParameterizedOperation",
 				Params(
 					Param("nonExistingParameter", Id("id")),
-					Param("str", Id("str_value", "s-string")),
+					Param("str", Id("str_value", "System.String")),
 					Param("obj", Id("id"))
 				));
 
@@ -337,9 +332,9 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoParameterizedOperation",
+			testing.Do(Id("id"), "DoParameterizedOperation",
 				Params(
-					Param("str", Id(null, "s-string"))
+					Param("str", Id(null, "System.String"))
 				));
 
 			businessMock.Verify(o => o.DoParameterizedOperation(string.Empty, null));
@@ -350,7 +345,7 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoParameterizedOperation",
+			testing.Do(Id("id"), "DoParameterizedOperation",
 				Params(
 					Param("str", IdNull()),
 					Param("obj", IdNull())
@@ -364,9 +359,9 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoOperationWithList",
+			testing.Do(Id("id"), "DoOperationWithList",
 				Params(
-					Param("list", Id("a", "s-string"), Id("b", "s-string"))
+					Param("list", Id("a", "System.String"), Id("b", "System.String"))
 				));
 
 			businessMock.Verify(o => o.DoOperationWithList(new List<string> { "a", "b" }));
@@ -377,9 +372,9 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoOperationWithArray",
+			testing.Do(Id("id"), "DoOperationWithArray",
 				Params(
-					Param("array", Id("a", "s-string"), Id("b", "s-string"))
+					Param("array", Id("a", "System.String"), Id("b", "System.String"))
 				));
 
 			businessMock.Verify(o => o.DoOperationWithArray(new[] { "a", "b" }));
@@ -390,9 +385,9 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoOperationWithParamsArray",
+			testing.Do(Id("id"), "DoOperationWithParamsArray",
 				Params(
-					Param("paramsArray", Id("a", "s-string"), Id("b", "s-string"))
+					Param("paramsArray", Id("a", "System.String"), Id("b", "System.String"))
 				));
 
 			businessMock.Verify(o => o.DoOperationWithParamsArray(new[] { "a", "b" }));
@@ -403,7 +398,7 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DataInput",
+			testing.Do(Id("id"), "DataInput",
 				Params(
 					Param("input",
 						Init(MASTER_DATA_OMID,
@@ -411,12 +406,12 @@ namespace Routine.Test.Engine
 								Param("datas",
 									Init(DATA_OMID,
 										Params(
-											Param("data", Id("test1", "s-string"))
+											Param("data", Id("test1", "System.String"))
 										)
 									),
 									Init(DATA_OMID,
 										Params(
-											Param("data", Id("test2", "s-string"))
+											Param("data", Id("test2", "System.String"))
 										)
 									)
 								)
@@ -442,9 +437,9 @@ namespace Routine.Test.Engine
 
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "DoOperationWithIntList",
+			testing.Do(Id("id"), "DoOperationWithIntList",
 				Params(
-					Param("list", Id("1", "s-int-32"), Id("2", "s-int-32"))
+					Param("list", Id("1", "System.Int32"), Id("2", "System.Int32"))
 				));
 
 			businessMock.Verify(o => o.DoOperationWithIntList(new List<int> { 101, 102 }));
@@ -454,19 +449,19 @@ namespace Routine.Test.Engine
 		public void When_multiple_locating__null_and_initialized_arguments_are_not_sent_to_locator_but_their_index_are_kept()
 		{
 			codingStyle
-				.Initializers.Add(c => c.PublicInitializers().When(type.of<BusinessInitializableLocatable>()))
+				.Initializers.Add(c => c.PublicConstructors().When(type.of<BusinessInitializableLocatable>()))
 				.Locator.Set(c => c.Locator(l => l.By(ids => ids.Select(id => BusinessInitializableLocatable.Get(id + " test")))).When(type.of<BusinessInitializableLocatable>()))
 			;
 
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "InitLocateInput",
+			testing.Do(Id("id"), "InitLocateInput",
 				Params(
 					Param("input",
 						PD(Id("1", INIT_LOCATE_OMID)),
 						Init(INIT_LOCATE_OMID,
 							Params(
-								Param("value", Id("2", "s-int-32"))
+								Param("value", Id("2", "System.Int32"))
 							)
 						),
 						PD(Id("3", INIT_LOCATE_OMID)),
@@ -497,10 +492,10 @@ namespace Routine.Test.Engine
 
 			businessMock.Setup(o => o.GetResult()).Returns(businessObj);
 
-			var result = testing.PerformOperation(Id("id"), "GetResult", Params());
+			var result = testing.Do(Id("id"), "GetResult", Params());
 
-			Assert.IsTrue(result.Values[0].Members.ContainsKey("Title"));
-			Assert.AreEqual("title", result.Values[0].Members["Title"].Values[0].Reference.Id);
+			Assert.IsTrue(result.Values[0].Data.ContainsKey("Title"));
+			Assert.AreEqual("title", result.Values[0].Data["Title"].Values[0].Id);
 		}
 
 		[Test]
@@ -508,24 +503,24 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("i", Id("1", "s-int-32"))
+					Param("i", Id("1", "System.Int32"))
 				)
 			);
 			businessMock.Verify(o => o.OverloadOp(1), Times.Once());
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("s", Id("s_value", "s-string"))
+					Param("s", Id("s_value", "System.String"))
 				)
 			);
 			businessMock.Verify(o => o.OverloadOp("s_value"), Times.Once());
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("s", Id("s_value2", "s-string")),
-					Param("i", Id("2", "s-int-32"))
+					Param("s", Id("s_value2", "System.String")),
+					Param("i", Id("2", "System.Int32"))
 				)
 			);
 			businessMock.Verify(o => o.OverloadOp("s_value2", 2), Times.Once());
@@ -536,10 +531,10 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("s", Id("s_value", "s-string")),
-					Param("s1", Id("s_value1", "s-string"))
+					Param("s", Id("s_value", "System.String")),
+					Param("s1", Id("s_value1", "System.String"))
 				)
 			);
 
@@ -556,11 +551,11 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("s", Id("s_value", "s-string")),
-					Param("i", Id("1", "s-int-32")),
-					Param("s1", Id("s_value1", "s-string"))
+					Param("s", Id("s_value", "System.String")),
+					Param("i", Id("1", "System.Int32")),
+					Param("s1", Id("s_value1", "System.String"))
 				)
 			);
 
@@ -571,9 +566,9 @@ namespace Routine.Test.Engine
 			//group 3 -> match 2 (s1, s) --> non-match 1 (i1)
 			businessMock.Verify(o => o.OverloadOp("s_value", 1), Times.Once());
 
-			testing.PerformOperation(Id("id"), "OverloadOp",
+			testing.Do(Id("id"), "OverloadOp",
 				Params(
-					Param("a", Id("dummy", "s-string"))
+					Param("a", Id("dummy", "System.String"))
 				)
 			);
 
@@ -590,10 +585,10 @@ namespace Routine.Test.Engine
 		{
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "OverloadArray",
+			testing.Do(Id("id"), "OverloadArray",
 				Params(
-					Param("s", Id("s_value", "s-string")),
-					Param("i", Id("1", "s-int-32"), Id("2", "s-int-32"))
+					Param("s", Id("s_value", "System.String")),
+					Param("i", Id("1", "System.Int32"), Id("2", "System.Int32"))
 				)
 			);
 
@@ -608,12 +603,12 @@ namespace Routine.Test.Engine
 				.AddTypes(v => v.FromBasic()
 					.Name.Set("VirtualOperation")
 					.Namespace.Set(RootNamespace)
-					.Operations.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj)))
+					.Methods.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj)))
 			;
 
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "Void", Params());
+			testing.Do(Id("virtual", VIRTUAL_OMID), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once);
 		}
@@ -631,14 +626,14 @@ namespace Routine.Test.Engine
 						.IsInterface.Set(true)
 						.Name.Set("IVirtualOperation")
 						.Namespace.Set(RootNamespace)
-						.Operations.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj))
+						.Methods.Add(p => p.Proxy<IBusinessOperation>("Void").Target(businessObj))
 					)
 				)
 			;
 
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID, VIRTUAL_VIMID), "Void", Params());
+			testing.Do(Id("virtual", VIRTUAL_OMID, VIRTUAL_VIMID), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once);
 		}
@@ -651,30 +646,30 @@ namespace Routine.Test.Engine
 				.AddTypes(v => v.FromBasic()
 					.Name.Set("VirtualOperation")
 					.Namespace.Set(RootNamespace)
-					.Operations.Add(o => o.Proxy<IBusinessOperation>("OverloadOp").Target(businessObj)))
+					.Methods.Add(o => o.Proxy<IBusinessOperation>("OverloadOp").Target(businessObj)))
 			;
 
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params());
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params());
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
-				Param("s", Id("s_value", "s-string"))
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s", Id("s_value", "System.String"))
 			));
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
-				Param("i", Id("1", "s-int-32"))
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("i", Id("1", "System.Int32"))
 			));
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
-				Param("s", Id("s_value", "s-string")),
-				Param("i", Id("1", "s-int-32"))
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s", Id("s_value", "System.String")),
+				Param("i", Id("1", "System.Int32"))
 			));
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
-				Param("s1", Id("s1_value", "s-string")),
-				Param("s", Id("s_value", "s-string")),
-				Param("i1", Id("2", "s-int-32"))
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+				Param("s1", Id("s1_value", "System.String")),
+				Param("s", Id("s_value", "System.String")),
+				Param("i1", Id("2", "System.Int32"))
 			));
 
 			businessMock.Verify(o => o.OverloadOp(), Times.Once);
@@ -692,16 +687,16 @@ namespace Routine.Test.Engine
 				.AddTypes(v => v.FromBasic()
 					.Name.Set("VirtualOperation")
 					.Namespace.Set(RootNamespace)
-					.Operations.Add(p => p.Proxy<IBusinessOperation>("OverloadOp").TargetByParameter("objId")))
+					.Methods.Add(p => p.Proxy<IBusinessOperation>("OverloadOp").TargetByParameter("objId")))
 			;
 
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
+			testing.Do(Id("virtual", VIRTUAL_OMID), "OverloadOp", Params(
 				Param("objId", Id("id")),
-				Param("s1", Id("s1_value", "s-string")),
-				Param("s", Id("s_value", "s-string")),
-				Param("i1", Id("2", "s-int-32"))
+				Param("s1", Id("s1_value", "System.String")),
+				Param("s", Id("s_value", "System.String")),
+				Param("i1", Id("2", "System.Int32"))
 			));
 
 			businessMock.Verify(o => o.OverloadOp("s1_value", "s_value", 2), Times.Once);
@@ -716,7 +711,7 @@ namespace Routine.Test.Engine
 
 			SetUpObject("id");
 
-			testing.PerformOperation(Id("id"), "Void", Params());
+			testing.Do(Id("id"), "Void", Params());
 
 			businessMock.Verify(o => o.Void(), Times.Once);
 		}
@@ -729,16 +724,16 @@ namespace Routine.Test.Engine
 				.AddTypes(v => v.FromBasic()
 					.Name.Set("VirtualOperation")
 					.Namespace.Set(RootNamespace)
-					.Operations.Add(o => o.Virtual("Ping", (string input) => "ping: " + input)))
+					.Methods.Add(o => o.Virtual("Ping", (string input) => "ping: " + input)))
 			;
 
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
-			var result = testing.PerformOperation(Id("virtual", VIRTUAL_OMID), "Ping", Params(
-				Param("input", Id("test", "s-string"))
+			var result = testing.Do(Id("virtual", VIRTUAL_OMID), "Ping", Params(
+				Param("input", Id("test", "System.String"))
 			));
 
-			Assert.AreEqual("ping: test", result.Values[0].Reference.Id);
+			Assert.AreEqual("ping: test", result.Values[0].Id);
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -45,7 +45,7 @@ namespace Routine.Test.Api.Template
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -97,7 +97,7 @@ namespace Routine.Test.Api.Template
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -125,17 +125,17 @@ namespace Routine.Test.Api.Template
 
 			When(Id("test2", "TestClass2"))
 				.Performs("StructInput", p =>
-					p["arg1"].Values[0].ObjectModelId == "TestClass" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ObjectModelId == "s-string" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ReferenceId == "name" &&
-					p["arg1"].Values[0].InitializationParameters["surname"].Values[0].ObjectModelId == "s-string" &&
-					p["arg1"].Values[0].InitializationParameters["surname"].Values[0].ReferenceId == "surname"
+					p["arg1"].Values[0].ModelId == "TestClass" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ModelId == "s-string" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].Id == "name" &&
+					p["arg1"].Values[0].InitializationParameters["surname"].Values[0].ModelId == "s-string" &&
+					p["arg1"].Values[0].InitializationParameters["surname"].Values[0].Id == "surname"
 				).Returns(Result(Id("success", "s-string")));
 
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -162,7 +162,7 @@ namespace Routine.Test.Api.Template
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -200,15 +200,15 @@ namespace Routine.Test.Api.Template
 
 			When(Id("test2", "TestClass2"))
 				.Performs("StructInput", p =>
-					p["arg1"].Values[0].ObjectModelId == "TestClass" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ObjectModelId == "s-string" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ReferenceId == "name" &&
+					p["arg1"].Values[0].ModelId == "TestClass" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ModelId == "s-string" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].Id == "name" &&
 					p["arg1"].Values[0].InitializationParameters.ContainsKey("surname") == false
 				).Returns(Result(Id("success", "s-string")));
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -227,15 +227,15 @@ namespace Routine.Test.Api.Template
 		protected override void Referenced_client_api_support_case()
 		{
 			ModelsAre(
-				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Member("Self", "Module2-TestClass2"),
+				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Data("Self", "Module2-TestClass2"),
 				Model("Module2-Struct").Module("Module2").Name("Struct").Initializer(PModel("arg1", "Module2-TestClass2")),
 				Model("Module1-TestClass1").Module("Module1").Name("TestClass1")
 				.Operation("StructOperation", "Module2-TestClass2", PModel("arg1", "Module2-Struct"))
 			);
 
 			ObjectsAre(
-				Object(Id("test2_1", "Module2-TestClass2")).Value("test2_1_value"),
-				Object(Id("test2_2", "Module2-TestClass2")).Value("test2_2_value")
+				Object(Id("test2_1", "Module2-TestClass2")).Display("test2_1_value"),
+				Object(Id("test2_2", "Module2-TestClass2")).Display("test2_2_value")
 			);
 			ObjectsAre(
 				Object(Id("test1", "Module1-TestClass1"))
@@ -243,9 +243,9 @@ namespace Routine.Test.Api.Template
 
 			When(Id("test1", "Module1-TestClass1"))
 				.Performs("StructOperation", p =>
-					p["arg1"].Values[0].ObjectModelId == "Module2-Struct" &&
-					p["arg1"].Values[0].InitializationParameters["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
-					p["arg1"].Values[0].InitializationParameters["arg1"].Values[0].ReferenceId == "test2_1"
+					p["arg1"].Values[0].ModelId == "Module2-Struct" &&
+					p["arg1"].Values[0].InitializationParameters["arg1"].Values[0].ModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].InitializationParameters["arg1"].Values[0].Id == "test2_1"
 				).Returns(Result(Id("test2_2", "Module2-TestClass2"))
 			);
 
@@ -299,15 +299,15 @@ namespace Routine.Test.Api.Template
 
 			When(Id("obj", "TestClass")).Performs("StructListOperation", p =>
 				p["arg1"].IsList &&
-				p["arg1"].Values[0].ObjectModelId == "TestStruct" &&
-				p["arg1"].Values[0].InitializationParameters["name"].Values[0].ObjectModelId == "s-string" &&
-				p["arg1"].Values[0].InitializationParameters["name"].Values[0].ReferenceId == "name1" &&
-				p["arg1"].Values[1].InitializationParameters["name"].Values[0].ObjectModelId == "s-string" &&
-				p["arg1"].Values[1].InitializationParameters["name"].Values[0].ReferenceId == "name2"
+				p["arg1"].Values[0].ModelId == "TestStruct" &&
+				p["arg1"].Values[0].InitializationParameters["name"].Values[0].ModelId == "s-string" &&
+				p["arg1"].Values[0].InitializationParameters["name"].Values[0].Id == "name1" &&
+				p["arg1"].Values[1].InitializationParameters["name"].Values[0].ModelId == "s-string" &&
+				p["arg1"].Values[1].InitializationParameters["name"].Values[0].Id == "name2"
 			).Returns(Result(Id("success", "s-string")));
 
 			var assembly = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
 
 			var iTestClass = GetRenderedType(assembly, "TestClass");
@@ -341,11 +341,11 @@ namespace Routine.Test.Api.Template
 
 			var assembly =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+					.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern())
-					.RenderedTypeAttributes.Add(type.of<CustomAttribute>())
-					.RenderedInitializerAttributes.Add(type.of<CustomAttribute>())
-					.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+					.RenderedTypeAttributes.Add(typeof(CustomAttribute))
+					.RenderedInitializerAttributes.Add(typeof(CustomAttribute))
+					.RenderedParameterAttributes.Add(typeof(CustomAttribute)))
 					.AddReference<CustomAttribute>()
 					.Generate(DefaultTestTemplate)
 				;

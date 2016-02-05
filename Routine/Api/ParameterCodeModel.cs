@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
-using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -19,7 +19,7 @@ namespace Routine.Api
 			ParameterModel = application.GetModel(parameter.ParameterType, parameter.IsList);
 		}
 
-		public string Id { get { return Parameter.Id; } }
+		public string Name { get { return Parameter.Name; } }
 		public List<int> Groups { get { return Parameter.Groups; } }
 
 		public string GetName(int mode)
@@ -27,7 +27,7 @@ namespace Routine.Api
 			return string.Format("@{0}", Application.Configuration.GetName(this, mode));
 		}
 
-		public List<IType> GetAttributes(int mode)
+		public List<Type> GetAttributes(int mode)
 		{
 			return Application.Configuration.GetAttributes(this, mode);
 		}

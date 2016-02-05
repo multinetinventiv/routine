@@ -1,12 +1,12 @@
 ﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<ObjectViewModel>" %>
 
 <% var operations = Model.GetOperations(OperationTypes.Page); %>
-<% var nameValueMembers = Model.GetMembers(MemberTypes.PageNameValue); %>
-<% var tableMembers = Model.GetMembers(MemberTypes.PageTable); %>
+<% var nameValueMembers = Model.GetDatas(DataLocations.PageNameValue); %>
+<% var tableMembers = Model.GetDatas(DataLocations.PageTable); %>
 <fieldset class="object-data">
 	<legend class="object-data"><%: Model.Title %></legend>
 	<% if(operations.Any()) { %>
-		<div class="operation-tabs<%: Model.HasMember?" collapsible-tabs":"" %>">
+		<div class="operation-tabs<%: Model.HasData?" collapsible-tabs":"" %>">
 			<ul>
 				<% foreach(var operation in operations) { %>
 					<li><%: operation.Text %></li>

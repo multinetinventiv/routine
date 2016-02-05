@@ -1,26 +1,31 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Engine.Converter
 {
 	public class TypeCastConverter : ConverterBase<TypeCastConverter>
 	{
-		private readonly IType type;
+		private readonly Func<IType, bool> viewTypePredicate;
 
-		public TypeCastConverter(IType type)
+		public TypeCastConverter(Func<IType, bool> viewTypePredicate)
 		{
-			if (type == null) { throw new ArgumentNullException("type"); }
-
-			this.type = type;
+			this.viewTypePredicate = viewTypePredicate;
 		}
 
-		protected override object Convert(object @object, IType targetType)
+		protected override List<IType> GetTargetTypes(IType type)
 		{
-			if (!type.CanBe(targetType))
+			return type.AssignableTypes.Where(viewTypePredicate).ToList();
+		}
+
+		protected override object Convert(object @object, IType from, IType to)
+		{
+			if (!viewTypePredicate(to))
 			{
-				throw new CannotConvertException(@object, targetType);
+				throw new CannotConvertException(@object, to);
 			}
-			
-			return type.Cast(@object, targetType);
+
+			return from.Cast(@object, to);
 		}
 	}
 }

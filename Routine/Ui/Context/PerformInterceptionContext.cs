@@ -5,11 +5,11 @@ namespace Routine.Ui.Context
 {
 	public class PerformInterceptionContext : InterceptionContext
 	{
-		public PerformInterceptionContext(string target, ObjectViewModel objectViewModel, string operationModelId, Dictionary<string, string> parameters)
+		public PerformInterceptionContext(string target, ObjectViewModel objectViewModel, string operationName, Dictionary<string, string> parameters)
 			: base(target)
 		{
 			ObjectViewModel = objectViewModel;
-			OperationModelId = operationModelId;
+			OperationName = operationName;
 			Parameters = parameters;
 		}
 
@@ -19,10 +19,10 @@ namespace Routine.Ui.Context
 			set { this["ObjectViewModel"] = value; }
 		}
 
-		public string OperationModelId
+		public string OperationName
 		{
-			get { return this["OperationModelId"] as string; }
-			set { this["OperationModelId"] = value; }
+			get { return this["OperationName"] as string; }
+			set { this["OperationName"] = value; }
 		}
 
 		public Dictionary<string, string> Parameters

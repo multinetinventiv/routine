@@ -7,8 +7,10 @@ namespace Routine.Service
 	{
 		IServiceConfiguration ServiceConfiguration { get; }
 		IObjectService ObjectService { get; }
-		ObjectReferenceData GetObjectReference(object @object);
-		object GetObject(ObjectReferenceData reference);
+		ReferenceData GetObjectReference(object @object);
+		object GetObject(ReferenceData reference);
 		object GetObject(IType type, string id);
+		string GetModelId(IType type);
+		IType GetType(string modelId);
 	}
 }

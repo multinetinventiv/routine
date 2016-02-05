@@ -7,18 +7,181 @@ using Microsoft.CSharp;
 
 namespace Routine.Core.Reflection
 {
-	public static class SystemReflectionFacadeExtensions
+	internal class ReflectionOptimizer
 	{
-		public static IMethodInvoker CreateInvoker(this System.Reflection.MethodBase source)
+		private static readonly object OPTIMIZE_LIST_LOCK = new object();
+		private static readonly object INVOKERS_LOCK = new object();
+
+		private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new Dictionary<System.Reflection.MethodBase, bool>();
+		private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new Dictionary<System.Reflection.MethodBase, IMethodInvoker>();
+
+		public static void AddToOptimizeList(System.Reflection.MethodBase method)
 		{
-			return new ReflectionOptimizer().CreateInvoker(source);
+			if (method == null) { throw new ArgumentNullException("method"); }
+			if (invokers.ContainsKey(method)) { return; }
+
+			lock (OPTIMIZE_LIST_LOCK)
+			{
+				optimizeList[method] = true;
+			}
 		}
-	}
-	public class ReflectionOptimizer
-	{
+
+		public static IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
+		{
+			if (method == null) { throw new ArgumentNullException("method"); }
+
+			OptimizeTheListFor(method);
+
+			return invokers[method];
+		}
+
+		//TODO refactor, use a class instance for each optimization - hint: use method object
+		private static void OptimizeTheListFor(System.Reflection.MethodBase method)
+		{
+			AddToOptimizeList(method);
+
+			lock (OPTIMIZE_LIST_LOCK)
+			{
+				var localOptimizeList = new List<System.Reflection.MethodBase>(optimizeList.Keys);
+
+				lock (INVOKERS_LOCK)
+				{
+					var provider = new CSharpCodeProvider();
+					var compilerParameters = new CompilerParameters();
+					compilerParameters.GenerateExecutable = false;
+					compilerParameters.GenerateInMemory = true;
+					compilerParameters.ReferencedAssemblies.Add(typeof(IMethodInvoker).Assembly.Location);
+
+					var willOptimize = new List<System.Reflection.MethodBase>();
+					var sources = new List<string>();
+					foreach (var current in localOptimizeList)
+					{
+						try
+						{
+							if (current.ContainsGenericParameters) { throw new InvalidOperationException(MissingGenericParametersMessage(current)); }
+
+							if (!current.IsPublic)
+							{
+								invokers.Add(current, new ReflectionMethodInvoker(current));
+							}
+							else if (!current.ReflectedType.IsPublic && !current.ReflectedType.IsNestedPublic)
+							{
+								invokers.Add(current, new ReflectionMethodInvoker(current));
+							}
+							else if (current.GetParameters().Any(pi => pi.IsIn || pi.IsOut || pi.ParameterType.IsPointer))
+							{
+								invokers.Add(current, new ReflectionMethodInvoker(current));
+							}
+							else if(current.ReflectedType.IsValueType && current.IsSpecialName)
+							{
+								invokers.Add(current, new ReflectionMethodInvoker(current));
+							}
+							else
+							{
+								AddReferences(current, compilerParameters);
+								sources.Add(Method(current));
+								willOptimize.Add(current);
+							}
+						}
+						catch (Exception ex)
+						{
+							if (current == method)
+							{
+								throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+							}
+#if DEBUG					
+							Console.WriteLine("Optimization skipped, cannot optimize {0} {1}, exception is; {2}", current.ReflectedType, current, ex);
+#endif
+						}
+					}
+
+					if (willOptimize.Any())
+					{
+						var code = string.Join(Environment.NewLine, sources);
+
+						var results = provider.CompileAssemblyFromSource(compilerParameters, code);
+
+						ValidateCompilerResults(results, code);
+
+						foreach (var current in willOptimize)
+						{
+							try
+							{
+								string typeName = InvokerTypeName(current);
+
+								var type = results.CompiledAssembly.GetType(typeName);
+
+								invokers.Add(current, (IMethodInvoker)Activator.CreateInstance(type));
+							}
+							catch (Exception ex)
+							{
+								if (current == method)
+								{
+									throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+								}
+								
+#if DEBUG					
+								Console.WriteLine("Optimization skipped, cannot optimize {0} {1}, exception is; {2}", current.ReflectedType, current, ex);
+#endif
+							}
+						}
+					}
+				}
+
+				foreach (var current in localOptimizeList)
+				{
+					optimizeList.Remove(current);
+				}
+			}
+		}
+
+		private static void ValidateCompilerResults(CompilerResults results, string code)
+		{
+			if (results.Errors.HasErrors)
+			{
+				var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
+				foreach (CompilerError error in results.Errors)
+				{
+					errors.AppendFormat("Line {0},{1}\t: {2}", error.Line, error.Column, error.ErrorText);
+					errors.AppendLine();
+				}
+#if DEBUG
+				Console.WriteLine("Generated Source Code:");
+				Console.WriteLine();
+				Console.WriteLine(code);
+#endif
+
+				throw new Exception(string.Format("{0}; \r\n {1}", errors, code));
+			}
+#if DEBUG
+			Console.WriteLine("generated code:");
+			Console.WriteLine(code);
+#endif
+		}
+
+		private static void AddReferences(System.Reflection.MethodBase current, CompilerParameters compilerParameters)
+		{
+			AddTypeReference(current.ReflectedType, compilerParameters);
+			AddTypeReference(current.DeclaringType, compilerParameters);
+			if (current is System.Reflection.MethodInfo)
+			{
+				AddTypeReference(((System.Reflection.MethodInfo)current).ReturnType, compilerParameters);
+			}
+
+			foreach (var parameter in current.GetParameters())
+			{
+				AddTypeReference(parameter.ParameterType, compilerParameters);
+			}
+		}
+
+		private static string InvokerTypeName(System.Reflection.MethodBase current)
+		{
+			return current.ReflectedType.Namespace + "." + TypeName(current.ReflectedType) + "_" + MethodName(current) + "_Invoker_" + current.GetHashCode();
+		}
+
 		private const string methodInvokerTemplate =
 			"namespace $Namespace$ {\n" +
-			"\tpublic class $ReflectedTypeName$_$MethodName$Invoker : $BaseInterface$ {\n" +
+			"\tpublic class $ReflectedTypeName$_$MethodName$_Invoker_$HashCode$ : $BaseInterface$ {\n" +
 			"\t\tpublic object Invoke(object target, params object[] args) {\n" +
 			"$Invocation$" +
 			"\t\t}\n" +
@@ -135,57 +298,8 @@ namespace Routine.Core.Reflection
 					.Replace("$Parameters$", Parameters(parameters))
 					.Replace("$LastParameter$", Parameter(lastParameter))
 					.Replace("$ParametersExceptLast$", Parameters(parametersExceptLast))
+					.Replace("$HashCode$", method.GetHashCode().ToString())
 					.Replace("$Namespace$", method.ReflectedType.Namespace);
-		}
-
-		public IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
-		{
-			if (method == null) { throw new ArgumentNullException("method"); }
-			if (method.ContainsGenericParameters) { throw new ArgumentException(MissingGenericParametersMessage(method), "method"); }
-			if (!method.IsPublic) { return new ReflectionMethodInvoker(method); }
-			if (!method.ReflectedType.IsPublic && !method.ReflectedType.IsNestedPublic) { return new ReflectionMethodInvoker(method); }
-
-			var provider = new CSharpCodeProvider();
-			var compilerParameters = new CompilerParameters();
-			compilerParameters.GenerateExecutable = false;
-			compilerParameters.GenerateInMemory = true;
-			compilerParameters.ReferencedAssemblies.Add(typeof(IMethodInvoker).Assembly.Location);
-			AddTypeReference(method.ReflectedType, compilerParameters);
-			AddTypeReference(method.DeclaringType, compilerParameters);
-
-			if (method is System.Reflection.MethodInfo)
-			{
-				AddTypeReference(((System.Reflection.MethodInfo)method).ReturnType, compilerParameters);
-			}
-
-			foreach (var parameter in method.GetParameters())
-			{
-				AddTypeReference(parameter.ParameterType, compilerParameters);
-			}
-
-			string typeName = method.ReflectedType.Namespace + "." + TypeName(method.ReflectedType) + "_" + MethodName(method) + "Invoker";
-
-			string code = Method(method);
-
-			var results = provider.CompileAssemblyFromSource(compilerParameters, code);
-			if (results.Errors.HasErrors)
-			{
-				var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
-				foreach (CompilerError error in results.Errors)
-				{
-					errors.AppendFormat("Line {0},{1}\t: {2}", error.Line, error.Column, error.ErrorText);
-					errors.AppendLine();
-				}
-				Console.WriteLine("Generated Source Code:");
-				Console.WriteLine();
-				Console.WriteLine(code);
-				throw new Exception(errors.ToString());
-			}
-
-			var type = results.CompiledAssembly.GetType(typeName);
-			var result = (IMethodInvoker)Activator.CreateInstance(type);
-
-			return result;
 		}
 
 		private static string MissingGenericParametersMessage(System.Reflection.MethodBase method)
@@ -217,7 +331,6 @@ namespace Routine.Core.Reflection
 			{
 				AddTypeReference(interfaceType, compilerParameters, visits);
 			}
-
 		}
 
 		private static void SafeAddReference(System.Reflection.Assembly assembly, CompilerParameters compilerParameters)

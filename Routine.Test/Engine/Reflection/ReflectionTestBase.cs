@@ -271,7 +271,7 @@ namespace Routine.Test.Engine.Reflection
 		{
 			base.SetUp();
 
-			TypeInfo.AddDomainTypes(GetType().Assembly
+			TypeInfo.Optimize(GetType().Assembly
 				.GetTypes()
 				.Where(t =>
 					t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||

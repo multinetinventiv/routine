@@ -4,9 +4,9 @@ namespace Routine.Service.Configuration
 {
 	public class ServiceClientConfigurationBuilder
 	{
-		public ConventionalServiceClientConfiguration FromBasic()
+		public ConventionBasedServiceClientConfiguration FromBasic()
 		{
-			return new ConventionalServiceClientConfiguration()
+			return new ConventionBasedServiceClientConfiguration()
 				.Exception.Set(new Exception())
 				.RequestHeaderValue.Set(string.Empty)
 

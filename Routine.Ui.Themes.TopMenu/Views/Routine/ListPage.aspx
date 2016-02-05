@@ -7,7 +7,7 @@
 		<% headerOk = true; %>
 	<thead>
 		<tr>
-		<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
+		<% foreach(var col in obj.GetDatas(DataLocations.TableColumn)) { %>
 			<th class="data-column"><%: col.Text %></th>
 		<% } %>
 		</tr>
@@ -15,7 +15,7 @@
 	<tbody>
 	<% } %>
 		<tr>
-	<% foreach(var col in obj.GetMembers(MemberTypes.TableColumn)) { %>
+	<% foreach(var col in obj.GetDatas(DataLocations.TableColumn)) { %>
 		<td><%: Html.Partial(col) %></td>
 	<% } %>
 		</tr>

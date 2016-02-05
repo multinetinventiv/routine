@@ -13,10 +13,10 @@ namespace <#= model.GetNamespace(Mode.Interface) #>
 	<#= model.RenderAttributes(Mode.Interface) #>
 	public interface <#= model.GetName(Mode.Interface) #>
 	{
-	<# foreach(var member in model.Members) { #>
+	<# foreach(var data in model.Datas) { #>
 
-		<#= member.RenderAttributes(Mode.Interface) #>
-		<#= member.ReturnModel.GetFullName() #> <#= member.GetName(Mode.Interface) #> { get; }
+		<#= data.RenderAttributes(Mode.Interface) #>
+		<#= data.ReturnModel.GetFullName() #> <#= data.GetName(Mode.Interface) #> { get; }
 	<# } #>
 
 	<# foreach(var operation in model.Operations) { #>
@@ -52,15 +52,15 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 			Robject = robject;
 		}
 
-	<# foreach(var member in model.Members) { #>
+	<# foreach(var data in model.Datas) { #>
 
-		<#= member.ReturnModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.<#= member.GetName(Mode.Interface) #>
+		<#= data.ReturnModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.<#= data.GetName(Mode.Interface) #>
 		{
 			get
 			{
-				var __result = Robject["<#= member.Id #>"].Get();
+				var __result = Robject["<#= data.Name #>"].Get();
 				
-				return <#= member.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
+				return <#= data.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
 			}
 		}
 	<# } #>
@@ -73,9 +73,9 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		{
 			var __result = Robject.Perform
 				(
-				"<#= operation.Id #>"
+				"<#= operation.Name #>"
 			<# foreach(var parameter in group) { #>
-				, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application") #>
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.Interface), "Robject.Application") #>
 			<# } #>
 
 				)
@@ -119,7 +119,7 @@ namespace <#= model.GetNamespace(Mode.Concrete) #>
 		
 		public override string ToString()
 		{
-			return Robject.Value;
+			return Robject.Display;
 		}
 
 		public override bool Equals(object obj)
@@ -181,7 +181,7 @@ namespace <#= model.GetNamespace(Mode.Factory) #>
 				.Init("<#= model.Id #>"
 			<# foreach(var parameter in group) { #>
 
-					, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.FactoryInterface), "Rapplication") #>
+					, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.FactoryInterface), "Rapplication") #>
 			<# } #>
 
 				);
@@ -236,7 +236,7 @@ namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
 			{
 				<# foreach(var parameter in group) { #>
 			
-				initParams.Add(<#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application") #>);
+				initParams.Add(<#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application") #>);
 				<# } #>
 
 			}

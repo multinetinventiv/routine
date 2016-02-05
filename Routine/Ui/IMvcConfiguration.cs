@@ -40,15 +40,15 @@ namespace Routine.Ui
 
 		int GetOrder(OperationViewModel operationViewModel, OperationTypes operationTypes);
 		int GetOrder(OptionViewModel optionViewModel);
-		int GetOrder(MemberViewModel memberViewModel, MemberTypes memberTypes);
+		int GetOrder(DataViewModel dataViewModel, DataLocations dataLocations);
 
 		bool IsAvailable(OperationViewModel operationViewModel);
 		bool IsRendered(OperationViewModel operationViewModel);
 		OperationTypes GetOperationTypes(OperationViewModel operationViewModel);
 		bool GetConfirmationRequired(OperationViewModel operationViewModel);
 
-		bool IsRendered(MemberViewModel memberViewModel);
-		MemberTypes GetMemberTypes(MemberViewModel memberViewModel);
+		bool IsRendered(DataViewModel dataViewModel);
+		DataLocations GetDataLocations(DataViewModel dataViewModel);
 	}
 
 	[Flags]
@@ -61,7 +61,7 @@ namespace Routine.Ui
 	}
 
 	[Flags]
-	public enum MemberTypes
+	public enum DataLocations
 	{
 		None = 0,
 		PageNameValue = 1,

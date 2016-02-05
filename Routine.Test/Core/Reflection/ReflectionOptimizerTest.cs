@@ -27,6 +27,9 @@ namespace Routine.Test.Core.Reflection
 
 		string StringProperty { get; set; }
 
+		void Overload();
+		void Overload(int i);
+
 		string this[string key, int index] { get; set; }
 
 		void GenericParameterMethod(T param);
@@ -66,6 +69,10 @@ namespace Routine.Test.Core.Reflection
 		private void NonPublicVoidMethod() { }
 
 		public string StringProperty { get { return real.StringProperty; } set { real.StringProperty = value; } }
+
+		public void Overload() { real.Overload(); }
+		public void Overload(int i) { real.Overload(i); }
+
 		public string this[string key, int index] { get { return real[key, index]; } set { real[key, index] = value; } }
 
 		public void GenericParameterMethod(string param) { real.GenericParameterMethod(param); }
@@ -75,6 +82,11 @@ namespace Routine.Test.Core.Reflection
 		void IOptimizedInterface<string>.PrivateVoidMethod() { PrivateVoidMethod(); }
 	}
 
+	public struct Struct
+	{
+		public string Property { get; set; }
+	}
+
 	#endregion
 
 	[TestFixture]
@@ -82,9 +94,11 @@ namespace Routine.Test.Core.Reflection
 	{
 		#region Setup & Helpers
 
+		private const BindingFlags ALL_MEMBERS = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+		private const BindingFlags ALL_INSTANCE_MEMBERS = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+
 		private Mock<IOptimizedInterface<string>> mock;
 		private OptimizedClass target;
-		private ReflectionOptimizer testing;
 
 		public override void SetUp()
 		{
@@ -93,32 +107,33 @@ namespace Routine.Test.Core.Reflection
 			mock = new Mock<IOptimizedInterface<string>>();
 
 			target = new OptimizedClass(mock.Object);
-
-			testing = new ReflectionOptimizer();
 		}
 
-		private IMethodInvoker InvokerFor<T>(string methodName)
+		private IMethodInvoker InvokerFor<T>(string methodName) { return InvokerFor<T>(methodName, null); }
+		private IMethodInvoker InvokerFor<T>(string methodName, int? parameterCount)
 		{
 			if (methodName.StartsWith("get:"))
 			{
-				return testing
-							.CreateInvoker(typeof(T).GetProperty(methodName.After("get:"), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
-							.GetGetMethod());
+				return typeof(T).GetProperty(methodName.After("get:"), ALL_MEMBERS)
+							.GetGetMethod().CreateInvoker();
 			}
 
 			if (methodName.StartsWith("set:"))
 			{
-				return testing
-							.CreateInvoker(typeof(T).GetProperty(methodName.After("set:"), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
-							.GetSetMethod());
+				return typeof(T).GetProperty(methodName.After("set:"), ALL_MEMBERS)
+							.GetSetMethod().CreateInvoker();
 			}
 
 			if (methodName == "new")
 			{
-				return testing.CreateInvoker(typeof(T).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault());
+				return typeof(T).GetConstructors(ALL_INSTANCE_MEMBERS)
+					.FirstOrDefault(ci => parameterCount == null || ci.GetParameters().Length == parameterCount)
+					.CreateInvoker();
 			}
 
-			return testing.CreateInvoker(typeof(T).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static));
+			return typeof(T).GetMethods(ALL_MEMBERS)
+				.FirstOrDefault(mi => mi.Name == methodName && (parameterCount == null || mi.GetParameters().Length == parameterCount))
+				.CreateInvoker();
 		}
 
 		#endregion
@@ -144,7 +159,7 @@ namespace Routine.Test.Core.Reflection
 			}
 			catch (ArgumentNullException ex)
 			{
-				Assert.AreEqual("method", ex.ParamName);
+				Assert.AreEqual("method", ex.ParamName, ex.ToString());
 			}
 		}
 
@@ -264,6 +279,15 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
+		public void Struct_property_setters_are_not_optimized_because_they_are_value_type_and_we_are_not_allowed_to_unbox_a_value_type_and_set_its_property()
+		{
+			var invoker = typeof(Struct).GetProperty("Property").GetSetMethod().CreateInvoker() as ProxyMethodInvoker;
+
+			Assert.IsNotNull(invoker);
+			Assert.IsInstanceOf<ReflectionMethodInvoker>(invoker.Real);
+		}
+
+		[Test]
 		public void Test_property_get_by_index()
 		{
 			mock.Setup(o => o["key", 0]).Returns("result");
@@ -291,8 +315,15 @@ namespace Routine.Test.Core.Reflection
 		[Test]
 		public void For_non_public_methods_ReflectionInvoker_is_created()
 		{
-			Assert.IsInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("NonPublicVoidMethod"));
-			Assert.IsNotInstanceOf<ReflectionMethodInvoker>(InvokerFor<OptimizedClass>("VoidMethod"));
+			var proxy = InvokerFor<OptimizedClass>("NonPublicVoidMethod") as ProxyMethodInvoker;
+
+			Assert.IsNotNull(proxy);
+			Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+
+			proxy = InvokerFor<OptimizedClass>("VoidMethod") as ProxyMethodInvoker;
+
+			Assert.IsNotNull(proxy);
+			Assert.IsNotInstanceOf<ReflectionMethodInvoker>(proxy.Real);
 		}
 
 		[Test]
@@ -305,13 +336,43 @@ namespace Routine.Test.Core.Reflection
 			InvokerFor<OptimizedClass.InnerClass>("new").Invoke(target);
 		}
 
-		[Test][Ignore]
+		[Test]
+		public void ReflectionOptimizer_collects_methods_and_compiles_at_once()
+		{
+			var invokers = new List<IMethodInvoker>
+			{
+				InvokerFor<OptimizedClass>("ListParameterVoidMethod"),
+				InvokerFor<OptimizedClass>("PrivateVoidMethod"),
+				InvokerFor<OptimizedClass>("get:StringProperty"),
+				InvokerFor<OptimizedClass>("set:StringProperty"),
+				InvokerFor<OptimizedClass>("Overload", 0),
+				InvokerFor<OptimizedClass>("Overload", 1),
+			};
+
+			invokers[0].Invoke(target, new List<string>());
+			invokers[1].Invoke(target);
+			invokers[2].Invoke(target);
+			invokers[3].Invoke(target, "test");
+			invokers[4].Invoke(target);
+			invokers[5].Invoke(target, 1);
+
+			mock.Verify(o => o.ListParameterVoidMethod(It.IsAny<List<string>>()), Times.Once());
+			mock.Verify(o => o.PrivateVoidMethod(), Times.Once());
+			mock.VerifyGet(o => o.StringProperty, Times.Once());
+			mock.VerifySet(o => o.StringProperty = It.IsAny<string>(), Times.Once());
+			mock.Verify(o => o.Overload(), Times.Once());
+			mock.Verify(o => o.Overload(It.IsAny<int>()), Times.Once());
+		}
+
+		[Test]
+		[Ignore]
 		public void Generic_method_invoker_interface_support()
 		{
 			Assert.Fail("not implemented");
 		}
 
-		[Test][Ignore]
+		[Test]
+		[Ignore]
 		public void Test_the_case_where_somehow_other_method_s_parameter_type_causes_an_extra_dll_reference()
 		{
 			Assert.Fail();

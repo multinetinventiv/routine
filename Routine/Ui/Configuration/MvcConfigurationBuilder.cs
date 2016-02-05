@@ -2,9 +2,9 @@ namespace Routine.Ui.Configuration
 {
 	public class MvcConfigurationBuilder
 	{
-		public ConventionalMvcConfiguration FromBasic()
+		public ConventionBasedMvcConfiguration FromBasic()
 		{
-			return new ConventionalMvcConfiguration()
+			return new ConventionBasedMvcConfiguration()
 				.NullDisplayValue.Set("-")
 				.ListValueSeparator.Set(',')
 				.DefaultObjectId.Set("default")
@@ -16,19 +16,19 @@ namespace Routine.Ui.Configuration
 				.ParameterDefault.SetDefault()
 				.ParameterSearcher.SetDefault()
 
-				.ObjectHasDetail.Set(c => c.By(ovm => ovm.HasMember || ovm.HasOperation))
+				.ObjectHasDetail.Set(c => c.By(ovm => ovm.HasData || ovm.HasOperation))
 
 				.OperationOrder.Set(0)
 				.OptionOrder.Set(0)
-				.MemberOrder.Set(0)
+				.DataOrder.Set(0)
 
 				.OperationIsAvailable.Set(true)
 				.OperationIsRendered.Set(true)
 				.OperationTypes.Set(OperationTypes.Page)
 				.ConfirmationRequired.Set(true)
 
-				.MemberIsRendered.Set(true)
-				.MemberTypes.Set(MemberTypes.PageNameValue)
+				.DataIsRendered.Set(true)
+				.DataLocations.Set(DataLocations.PageNameValue)
 
 				.NextLayer()
 			;

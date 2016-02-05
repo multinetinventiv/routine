@@ -12,7 +12,7 @@ namespace Routine.Test.Api
 	public abstract class ApiTestBase : ClientTestBase
 	{
 		protected ApiGenerator Generator() { return Generator(c => c); }
-		protected ApiGenerator Generator(Func<ConventionalApiConfiguration, ConventionalApiConfiguration> config)
+		protected ApiGenerator Generator(Func<ConventionBasedApiConfiguration, ConventionBasedApiConfiguration> config)
 		{
 			return EmptyGenerator(c =>
 				config(c
@@ -23,12 +23,12 @@ namespace Routine.Test.Api
 			);
 		}
 
-		protected virtual ConventionalApiConfiguration BaseConfiguration()
+		protected virtual ConventionBasedApiConfiguration BaseConfiguration()
 		{
 			return BuildRoutine.ApiConfig().FromBasic();
 		}
 
-		protected ApiGenerator EmptyGenerator(Func<ConventionalApiConfiguration, ConventionalApiConfiguration> config)
+		protected ApiGenerator EmptyGenerator(Func<ConventionBasedApiConfiguration, ConventionBasedApiConfiguration> config)
 		{
 			var cfg = config(BaseConfiguration());
 

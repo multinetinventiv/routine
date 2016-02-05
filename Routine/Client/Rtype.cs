@@ -15,7 +15,7 @@ namespace Routine.Client
 		public List<Rtype> ViewTypes { get; private set; }
 		public List<Rtype> ActualTypes { get; private set; }
 		public Rinitializer Initializer { get; private set; }
-		public Dictionary<string, Rmember> Member { get; private set; }
+		public Dictionary<string, Rdata> Data { get; private set; }
 		public Dictionary<string, Roperation> Operation { get; private set; }
 
 		private Rtype() : this(null, new ObjectModel { Id = Constants.VOID_MODEL_ID, IsValueModel = true }) { }
@@ -27,7 +27,7 @@ namespace Routine.Client
 			ViewTypes = new List<Rtype>();
 			ActualTypes = new List<Rtype>();
 			Initializer = null;
-			Member = new Dictionary<string, Rmember>();
+			Data = new Dictionary<string, Rdata>();
 			Operation = new Dictionary<string, Roperation>();
 		}
 
@@ -48,14 +48,14 @@ namespace Routine.Client
 				Initializer = new Rinitializer(model.Initializer, this);
 			}
 
-			foreach (var member in model.Members)
+			foreach (var data in model.Datas)
 			{
-				Member.Add(member.Id, new Rmember(member, this));
+				Data.Add(data.Name, new Rdata(data, this));
 			}
 
 			foreach (var operation in model.Operations)
 			{
-				Operation.Add(operation.Id, new Roperation(operation, this));
+				Operation.Add(operation.Name, new Roperation(operation, this));
 			}
 		}
 
@@ -66,7 +66,7 @@ namespace Routine.Client
 		public bool IsViewType { get { return model.IsViewModel; } }
 		public bool IsVoid { get { return Id == Constants.VOID_MODEL_ID; } }
 		public bool Initializable { get { return Initializer != null; } }
-		public List<Rmember> Members { get { return Member.Values.ToList(); } }
+		public List<Rdata> Datas { get { return Data.Values.ToList(); } }
 		public List<Roperation> Operations { get { return Operation.Values.ToList(); } }
 
 		public List<string> Marks { get { return model.Marks; } }
@@ -89,7 +89,7 @@ namespace Routine.Client
 			{
 				return model
 					.StaticInstances
-					.Select(od => new Robject(od, Application[od.Reference.ActualModelId], Application[od.Reference.ViewModelId]))
+					.Select(od => new Robject(od, Application[od.ModelId], this))
 					.ToList();
 			}
 		}
@@ -112,7 +112,7 @@ namespace Routine.Client
 
 		public override string ToString()
 		{
-			return string.Format("{0}({1}.{2})", model.Id, model.Module, model.Name);
+			return model.Id;
 		}
 
 		#region Equality & Hashcode

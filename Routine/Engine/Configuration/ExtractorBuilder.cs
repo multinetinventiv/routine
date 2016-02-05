@@ -5,9 +5,9 @@ namespace Routine.Engine.Configuration
 {
 	public abstract class ExtractorBuilder
 	{
-		internal MemberValueExtractor ByMemberValue(IMember member)
+		internal PropertyValueExtractor ByPropertyValue(IProperty property)
 		{
-			return new MemberValueExtractor(member);
+			return new PropertyValueExtractor(property);
 		}
 
 		public DelegateBasedExtractor By(Func<object, string> converterDelegate)

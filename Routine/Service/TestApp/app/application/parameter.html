@@ -1,0 +1,53 @@
+﻿<div class="panel panel-default">
+	<div class="panel-heading panel-heading-btn">
+		{{::pmodel.Name.splitCamelCase()}}
+		<span class="badge" 
+			  ng-repeat="mark in ::pmodel.Marks"
+			  ng-show="mark | test:'^(?!__routine).+'">{{::mark.splitCamelCase()}}</span>
+		<button type="button"
+				class="btn btn-default btn-xs pull-right"
+		        ng-show="data.hasOwnProperty(pmodel.Name)"
+		        ng-click="removeValue()">
+			<i class="glyphicon glyphicon-minus"></i>
+		</button>
+		<button type="button"
+				class="btn btn-default btn-xs pull-right"
+				ng-show="!data.hasOwnProperty(pmodel.Name) || pmodel.IsList"
+				ng-click="addValue()">
+			<i class="glyphicon glyphicon-plus"></i>
+		</button>
+	</div>
+	<div class="panel-body" ng-show="getItems().length > 0">
+		<div class="row"
+		     ng-repeat="item in getItems() track by $index">
+			<div class="col-xs-12" ng-show="$index > 0"><hr /></div>
+			<div class="col-xs-12" ng-show="viewmodel.IsViewModel && item != null">
+				<div class="form-group">
+					<select class="form-control"
+							ng-show="viewmodel.ActualModelIds.length > 1"
+					        ng-model="item.ModelId">
+						<option value="{{modelId}}"
+								ng-repeat="modelId in viewmodel.ActualModelIds">
+							{{modelOf({obj:modelId}).Name.splitCamelCase()}}
+						</option>
+					</select>
+					<p class="form-control"
+					   ng-show="viewmodel.ActualModelIds.length === 1">
+						<span>{{modelOf({obj:viewmodel.ActualModelIds[0]}).Name.splitCamelCase()}}</span>
+					</p>
+				</div>
+			</div>
+			<div class="col-xs-12">
+				<div class="form-group nopad-b">
+					<div parameter-value
+						 data="item"
+						 i="$index"
+						 set-value="addValue(i)"
+						 unset-value="removeValue(i)"
+						 model="currentModel(item)"
+						 model-of="modelOfW(obj)"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

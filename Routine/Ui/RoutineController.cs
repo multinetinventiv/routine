@@ -41,24 +41,24 @@ namespace Routine.Ui
 			) as ActionResult;
 		}
 
-		public ActionResult Perform(string id, string modelId, string operationModelId, Dictionary<string, string> parameters)
+		public ActionResult Perform(string id, string modelId, string operationName, Dictionary<string, string> parameters)
 		{
-			return Perform_Inner(application.Get(id, modelId), operationModelId, parameters);
+			return Perform_Inner(application.Get(id, modelId), operationName, parameters);
 		}
 
-		public ActionResult PerformAs(string id, string actualModelId, string viewModelId, string operationModelId, Dictionary<string, string> parameters)
+		public ActionResult PerformAs(string id, string actualModelId, string viewModelId, string operationName, Dictionary<string, string> parameters)
 		{
-			return Perform_Inner(application.Get(id, actualModelId, viewModelId), operationModelId, parameters);
+			return Perform_Inner(application.Get(id, actualModelId, viewModelId), operationName, parameters);
 		}
 
-		private ActionResult Perform_Inner(ObjectViewModel target, string operationModelId, Dictionary<string, string> parameters)
+		private ActionResult Perform_Inner(ObjectViewModel target, string operationName, Dictionary<string, string> parameters)
 		{
-			var context = new PerformInterceptionContext(InterceptionTarget.Perform.ToString(), target, operationModelId, parameters);
+			var context = new PerformInterceptionContext(InterceptionTarget.Perform.ToString(), target, operationName, parameters);
 			var result = configuration.GetInterceptor(InterceptionTarget.Perform).Intercept(
 					context,
 				() =>
 				{
-					var innerResult = target.Perform(context.OperationModelId, context.Parameters);
+					var innerResult = target.Perform(context.OperationName, context.Parameters);
 
 					if (innerResult.IsList)
 					{

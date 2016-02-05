@@ -15,26 +15,26 @@ namespace Routine.Test.Api.Template
 		public void When_a_rendered_type_from_another_assembly_is_referenced__then_interfaces_used_in_interfaces__internal_classes_are_used_via_friendly_assembly_feature()
 		{
 			ModelsAre(
-				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Member("Self", "Module2-TestClass2"),
+				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Data("Self", "Module2-TestClass2"),
 				Model("Module1-TestClass1").Module("Module1").Name("TestClass1")
-				.Member("Sub", "Module2-TestClass2")
+				.Data("Sub", "Module2-TestClass2")
 				.Operation("Operation", "Module2-TestClass2", PModel("arg1", "Module2-TestClass2"))
 			);
 
 			ObjectsAre(
-				Object(Id("test2", "Module2-TestClass2")).Value("test2_value")
+				Object(Id("test2", "Module2-TestClass2")).Display("test2_value")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "Module1-TestClass1"))
-				.Value("test1_value")
-				.Member("Sub", Id("test2", "Module2-TestClass2"))
+				.Display("test1_value")
+				.Data("Sub", Id("test2", "Module2-TestClass2"))
 			);
 
 			When(Id("test1", "Module1-TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
-					p["arg1"].Values[0].ReferenceId == "test2"
+					p["arg1"].Values[0].ModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].Id == "test2"
 				).Returns(Result(Id("test2", "Module2-TestClass2"))
 			);
 
@@ -86,32 +86,32 @@ namespace Routine.Test.Api.Template
 		protected override void List_input_and_output_case()
 		{
 			ModelsAre(
-				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Member("Self", "Module2-TestClass2"),
+				Model("Module2-TestClass2").Module("Module2").Name("TestClass2").Data("Self", "Module2-TestClass2"),
 				Model("Module1-TestClass1").Module("Module1").Name("TestClass1")
-				.Member("SubList", "Module2-TestClass2", true)
+				.Data("SubList", "Module2-TestClass2", true)
 				.Operation("ListOperation", "Module2-TestClass2", true, PModel("arg1", "Module2-TestClass2", true))
 			);
 
 			ObjectsAre(
-				Object(Id("test2_1", "Module2-TestClass2")).Value("test2_1_value"),
-				Object(Id("test2_2", "Module2-TestClass2")).Value("test2_2_value"),
-				Object(Id("test2_3", "Module2-TestClass2")).Value("test2_3_value"),
-				Object(Id("test2_4", "Module2-TestClass2")).Value("test2_4_value"),
-				Object(Id("test2_5", "Module2-TestClass2")).Value("test2_5_value"),
-				Object(Id("test2_6", "Module2-TestClass2")).Value("test2_6_value")
+				Object(Id("test2_1", "Module2-TestClass2")).Display("test2_1_value"),
+				Object(Id("test2_2", "Module2-TestClass2")).Display("test2_2_value"),
+				Object(Id("test2_3", "Module2-TestClass2")).Display("test2_3_value"),
+				Object(Id("test2_4", "Module2-TestClass2")).Display("test2_4_value"),
+				Object(Id("test2_5", "Module2-TestClass2")).Display("test2_5_value"),
+				Object(Id("test2_6", "Module2-TestClass2")).Display("test2_6_value")
 			);
 			ObjectsAre(
 				Object(Id("test1", "Module1-TestClass1"))
-				.Value("test1_value")
-				.Member("SubList", Id("test2_1", "Module2-TestClass2"), Id("test2_2", "Module2-TestClass2"))
+				.Display("test1_value")
+				.Data("SubList", Id("test2_1", "Module2-TestClass2"), Id("test2_2", "Module2-TestClass2"))
 			);
 
 			When(Id("test1", "Module1-TestClass1"))
 				.Performs("ListOperation", p =>
-					p["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
-					p["arg1"].Values[0].ReferenceId == "test2_3" &&
-					p["arg1"].Values[1].ObjectModelId == "Module2-TestClass2" &&
-					p["arg1"].Values[1].ReferenceId == "test2_4"
+					p["arg1"].Values[0].ModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].Id == "test2_3" &&
+					p["arg1"].Values[1].ModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[1].Id == "test2_4"
 				).Returns(Result(Id("test2_5", "Module2-TestClass2"), Id("test2_6", "Module2-TestClass2"))
 			);
 

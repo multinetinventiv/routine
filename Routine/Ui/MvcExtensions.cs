@@ -46,7 +46,7 @@ namespace Routine.Ui
 		public static RouteValueDictionary GetRouteValues(this OperationViewModel source)
 		{
 			var result = source.Target.GetRouteValues(false);
-			result.Add("operationModelId", source.Operation.Id);
+			result.Add("operationName", source.Operation.Name);
 			return result;
 		}
 

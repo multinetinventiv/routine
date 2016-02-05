@@ -1,9 +1,9 @@
-﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<MemberViewModel>" %>
+﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<DataViewModel>" %>
 				
 <table>
 <% bool headerOk = false; %>
 <% foreach(var obj in Model.List) { %>
-	<% var columns = obj.GetMembers(MemberTypes.TableColumn); %>
+	<% var columns = obj.GetDatas(DataLocations.TableColumn); %>
 	<% if(!headerOk) { %>
 		<% headerOk = true; %>
 	<thead>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
@@ -26,24 +25,20 @@ namespace Routine.Core.Rest
 			this.requestFactory = requestFactory;
 		}
 
-		public RestResponse Get(string url, params RestParameter[] parameters)
+		public RestResponse Get(string url, RestRequest request)
 		{
-			url += "?" + string.Join("&", parameters.Select(p => p.Name + "=" + HttpUtility.UrlEncode(p.Value)));
+			var response = CreateRestRequest(url, request, "GET").GetResponse();
 
-			var req = requestFactory(url);
-			req.Method = "GET";
-
-			return CreateRestResponse(req.GetResponse());
+			return CreateRestResponse(response);
 		}
 
-		public RestResponse Post(string url, params RestParameter[] parameters)
+		public RestResponse Post(string url, RestRequest request)
 		{
-			var req = requestFactory(url);
-			req.Method = "POST";
+			var req = CreateRestRequest(url, request, "POST");
 
-			string postData = string.Join("&", parameters.Select(p => p.Name + "=" + HttpUtility.UrlEncode(p.Value)));
-			byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-			req.ContentType = "application/x-www-form-urlencoded";
+			req.ContentType = "application/json";
+
+			byte[] byteArray = Encoding.UTF8.GetBytes(request.Body);
 			req.ContentLength = byteArray.Length;
 			using (var dataStream = req.GetRequestStream())
 			{
@@ -51,6 +46,25 @@ namespace Routine.Core.Rest
 			}
 
 			return CreateRestResponse(req.GetResponse());
+		}
+
+		private WebRequest CreateRestRequest(string url, RestRequest request, string method)
+		{
+			if (request.UrlParameters.Count > 0)
+			{
+				url += "?" + request.BuildUrlParameters();
+			}
+
+			var req = requestFactory(url);
+
+			req.Method = method;
+
+			foreach (var header in request.Headers)
+			{
+				req.Headers.Add(header.Key, HttpUtility.UrlEncode(header.Value));
+			}
+
+			return req;
 		}
 
 		private static RestResponse CreateRestResponse(WebResponse webResponse)
@@ -71,10 +85,7 @@ namespace Routine.Core.Rest
 			var result = new RestResponse(body);
 			foreach (var headerKey in webResponse.Headers.AllKeys)
 			{
-				if (headerKey.Contains(Constants.SERVICE_RESPONSE_HEADER_PREFIX))
-				{
-					result.Headers.Add(headerKey.After(Constants.SERVICE_RESPONSE_HEADER_PREFIX), webResponse.Headers[headerKey]);
-				}
+				result.Headers.Add(headerKey, HttpUtility.UrlDecode(webResponse.Headers[headerKey]));
 			}
 			return result;
 		}

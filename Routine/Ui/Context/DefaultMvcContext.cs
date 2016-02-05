@@ -28,13 +28,13 @@ namespace Routine.Ui.Context
 			
 			RouteTable.Routes.MapRoute(
 				Constants.MVC_PERFORM_AS_ROUTE_NAME,
-				Path("{actualModelId}/{id}/{viewModelId}/Perform/{operationModelId}"),
+				Path("{actualModelId}/{id}/{viewModelId}/Perform/{operationName}"),
 				new { controller = RoutineController.ControllerName, action = RoutineController.PerformAsAction }
 			);
 
 			RouteTable.Routes.MapRoute(
 				Constants.MVC_PERFORM_ROUTE_NAME,
-				Path("{modelId}/{id}/Perform/{operationModelId}"),
+				Path("{modelId}/{id}/Perform/{operationName}"),
 				new { controller = RoutineController.ControllerName, action = RoutineController.PerformAction }
 			);
 

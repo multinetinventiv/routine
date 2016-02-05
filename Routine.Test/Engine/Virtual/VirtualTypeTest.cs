@@ -20,14 +20,6 @@ namespace Routine.Test.Engine.Virtual
 		}
 
 		[Test]
-		public void Virtual_types_are_domain_type()
-		{
-			IType testing = BuildRoutine.VirtualType().FromBasic();
-
-			Assert.IsTrue(testing.IsDomainType);
-		}
-
-		[Test]
 		public void Virtual_types_cannot_be_array()
 		{
 			IType testing = BuildRoutine.VirtualType().FromBasic();
@@ -120,20 +112,20 @@ namespace Routine.Test.Engine.Virtual
 
 			var actual = testing.CreateInstance();
 
-			Assert.AreEqual("default (v-Namespace.Name)", actual.ToString());
+			Assert.AreEqual("default (Namespace.Name)", actual.ToString());
 		}
 
 		[Test]
-		public void Operations_are_created_externally_and_added_to_type()
+		public void Methods_are_created_externally_and_added_to_type()
 		{
-			var operationMock = new Mock<IOperation>();
+			var mockMethod = new Mock<IMethod>();
 
 			IType testing = BuildRoutine.VirtualType().FromBasic()
-				.Operations.Add(operationMock.Object)
+				.Methods.Add(mockMethod.Object)
 			;
 
-			Assert.AreEqual(1, testing.Operations.Count);
-			Assert.AreSame(operationMock.Object, testing.Operations[0]);
+			Assert.AreEqual(1, testing.Methods.Count);
+			Assert.AreSame(mockMethod.Object, testing.Methods[0]);
 		}
 
 		[Test]
@@ -153,7 +145,7 @@ namespace Routine.Test.Engine.Virtual
 				.Namespace.Set("Routine")
 			;
 
-			Assert.AreEqual("v-Routine.Virtual", testing.ToString());
+			Assert.AreEqual("Routine.Virtual", testing.ToString());
 
 			IType clone = BuildRoutine.VirtualType().FromBasic()
 				.Name.Set("Virtual")
@@ -295,13 +287,13 @@ namespace Routine.Test.Engine.Virtual
 			Assert.AreEqual(type.of<object>(), testing.BaseType);
 			Assert.AreEqual(0, testing.GetGenericArguments().Count);
 			Assert.IsNull(testing.GetElementType());
-			Assert.IsNull(testing.GetParseOperation());
+			Assert.IsNull(testing.GetParseMethod());
 			Assert.AreEqual(0, testing.GetEnumNames().Count);
 			Assert.AreEqual(0, testing.GetEnumValues().Count);
 			Assert.IsNull(testing.GetEnumUnderlyingType());
 			Assert.Throws<NotSupportedException>(() => testing.CreateListInstance(10));
-			Assert.AreEqual(0, testing.Initializers.Count);
-			Assert.AreEqual(0, testing.Members.Count);
+			Assert.AreEqual(0, testing.Constructors.Count);
+			Assert.AreEqual(0, testing.Properties.Count);
 		}
 	}
 }

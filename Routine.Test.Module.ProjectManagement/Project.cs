@@ -92,6 +92,7 @@ namespace Routine.Test.Module.ProjectManagement
 		#region IProjects implementation
 
 		List<IProject> IProjects.All() { return All().Cast<IProject>().ToList(); }
+		List<IProject> IProjects.AllByOther(IProjects otherProjects) { return otherProjects.All(); }
 
 		#endregion
 	}

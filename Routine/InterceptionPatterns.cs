@@ -5,6 +5,6 @@ namespace Routine
 {
 	public static class InterceptionPatterns
 	{
-		public static ConventionalInterceptionConfiguration FromEmpty(this PatternBuilder<ConventionalInterceptionConfiguration> source) { return new ConventionalInterceptionConfiguration(); }
+		public static ConventionBasedInterceptionConfiguration FromEmpty(this PatternBuilder<ConventionBasedInterceptionConfiguration> source) { return new ConventionBasedInterceptionConfiguration(); }
 	}
 }

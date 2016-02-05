@@ -17,13 +17,13 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
-				.Member("Name", "s-string")
+				.Data("Name", "s-string")
 				.Initializer(PModel("name", "s-string")),
 				Model("s-string").IsValue()
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(new ClientApiTemplate("TestApi"));
@@ -51,14 +51,14 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
-				.Member("Name", "s-string")
+				.Data("Name", "s-string")
 				.Initializer(PModel("name", "s-string")),
 				Model("s-string").IsValue()
 			);
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -79,7 +79,7 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass")
-				.Member("Name", "s-string")
+				.Data("Name", "s-string")
 				.Name("TestClass")
 				.Initializer(PModel("name", "s-string", 0, 1), PModel("surname", "s-string", 1)),
 				Model("s-string").IsValue()
@@ -87,7 +87,7 @@ namespace Routine.Test.Api.Template
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -113,7 +113,7 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
-				.Member("Name", "s-string")
+				.Data("Name", "s-string")
 				.Initializer(PModel("name", "s-string")),
 				Model("TestClass2").Name("TestClass2")
 				.Operation("InitializedParameter", "s-string", PModel("arg1", "TestClass", true)),
@@ -126,17 +126,17 @@ namespace Routine.Test.Api.Template
 
 			When(Id("test2", "TestClass2"))
 				.Performs("InitializedParameter", p =>
-					p["arg1"].Values[0].ObjectModelId == "TestClass" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ReferenceId == "name1" &&
-					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ObjectModelId == "s-string" &&
-					p["arg1"].Values[1].ObjectModelId == "TestClass" &&
-					p["arg1"].Values[1].InitializationParameters["name"].Values[0].ReferenceId == "name2" &&
-					p["arg1"].Values[1].InitializationParameters["name"].Values[0].ObjectModelId == "s-string"
+					p["arg1"].Values[0].ModelId == "TestClass" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].Id == "name1" &&
+					p["arg1"].Values[0].InitializationParameters["name"].Values[0].ModelId == "s-string" &&
+					p["arg1"].Values[1].ModelId == "TestClass" &&
+					p["arg1"].Values[1].InitializationParameters["name"].Values[0].Id == "name2" &&
+					p["arg1"].Values[1].InitializationParameters["name"].Values[0].ModelId == "s-string"
 				).Returns(Result(Id("success", "s-string")));
 
 			var testing =
 				Generator(c => c
-					.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+					.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 					.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -178,14 +178,14 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass").Name("TestClass")
-				.Member("Name", "TestClass")
+				.Data("Name", "TestClass")
 				.Initializer(PModel("parameter", "TestClass"))
 			);
 
 			var assembly =
 				Generator(c => c
-					.RenderedInitializerAttributes.Add(type.of<CustomAttribute>())
-					.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+					.RenderedInitializerAttributes.Add(typeof(CustomAttribute))
+					.RenderedParameterAttributes.Add(typeof(CustomAttribute)))
 				.AddReference<CustomAttribute>()
 				.Generate(DefaultTestTemplate);
 

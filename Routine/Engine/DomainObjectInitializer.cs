@@ -7,39 +7,39 @@ namespace Routine.Engine
 	public class DomainObjectInitializer
 	{
 		private readonly ICoreContext ctx;
-		private readonly List<DomainParameterGroup<IInitializer>> groups;
+		private readonly List<DomainParameterGroup<IConstructor>> groups;
 
 		public Dictionary<string, DomainParameter> Parameter { get; private set; }
 		public ICollection<DomainParameter> Parameters { get { return Parameter.Values; } }
 
 		public Marks Marks { get; private set; }
 
-		public DomainObjectInitializer(ICoreContext ctx, IInitializer initializer)
+		public DomainObjectInitializer(ICoreContext ctx, IConstructor constructor)
 		{
 			this.ctx = ctx;
 
-			groups = new List<DomainParameterGroup<IInitializer>>();
+			groups = new List<DomainParameterGroup<IConstructor>>();
 			Parameter = new Dictionary<string, DomainParameter>();
 
 			Marks = new Marks();
 
-			AddGroup(initializer);
+			AddGroup(constructor);
 		}
 
-		public void AddGroup(IInitializer initializer)
+		public void AddGroup(IConstructor constructor)
 		{
 			if (groups.Any() &&
-			    !initializer.InitializedType.Equals(groups.Last().Parametric.InitializedType))
+			    !constructor.InitializedType.Equals(groups.Last().Parametric.InitializedType))
 			{
-				throw new InitializedTypeDoNotMatchException(initializer, groups.Last().Parametric.InitializedType, initializer.InitializedType);
+				throw new InitializedTypeDoNotMatchException(constructor, groups.Last().Parametric.InitializedType, constructor.InitializedType);
 			}
 
-			if (groups.Any(g => g.ContainsSameParameters(initializer)))
+			if (groups.Any(g => g.ContainsSameParameters(constructor)))
 			{
-				throw new IdenticalSignatureAlreadyAddedException(initializer);
+				throw new IdenticalSignatureAlreadyAddedException(constructor);
 			}
 
-			foreach (var parameter in initializer.Parameters)
+			foreach (var parameter in constructor.Parameters)
 			{
 				if (Parameter.ContainsKey(parameter.Name))
 				{
@@ -51,14 +51,14 @@ namespace Routine.Engine
 				}
 			}
 
-			groups.Add(new DomainParameterGroup<IInitializer>(initializer, Parameters.Where(p => p.Groups.Contains(groups.Count)), groups.Count));
+			groups.Add(new DomainParameterGroup<IConstructor>(constructor, Parameters.Where(p => p.Groups.Contains(groups.Count)), groups.Count));
 
-			Marks.Join(ctx.CodingStyle.GetMarks(initializer));
+			Marks.Join(ctx.CodingStyle.GetMarks(constructor));
 		}
 
 		public object Initialize(Dictionary<string, ParameterValueData> parameterValues)
 		{
-			var resolution = new DomainParameterResolver<IInitializer>(groups, parameterValues).Resolve();
+			var resolution = new DomainParameterResolver<IConstructor>(groups, parameterValues).Resolve();
 
 			var result = resolution.Result.Initialize(resolution.Parameters);
 
@@ -72,14 +72,6 @@ namespace Routine.Engine
 				GroupCount = groups.Count,
 				Parameters = Parameters.Select(p => p.GetModel()).ToList()
 			};
-		}
-
-		internal void LoadSubTypes()
-		{
-			foreach (var parameter in Parameters)
-			{
-				parameter.LoadSubTypes();
-			}
 		}
 	}
 }

@@ -12,7 +12,7 @@
     </div>
     <% } %>
 	
-	<% var nameValueMembers = Model.GetMembers(MemberTypes.PageNameValue); %>
+	<% var nameValueMembers = Model.GetDatas(DataLocations.PageNameValue); %>
     <% if (nameValueMembers.Any()) { %>
     <dl class="data-list<%: operations.Any()?"":" no-operation" %>">
         <% foreach (var member in nameValueMembers) { %>
@@ -24,7 +24,7 @@
     </dl>
     <% } %>
 	
-	<% var tableMembers = Model.GetMembers(MemberTypes.PageTable); %>
+	<% var tableMembers = Model.GetDatas(DataLocations.PageTable); %>
     <% if (tableMembers.Any()) { %>
     <div class="data-tabs tabs">
         <ul>

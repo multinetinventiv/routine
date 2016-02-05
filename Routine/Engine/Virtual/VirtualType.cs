@@ -14,7 +14,7 @@ namespace Routine.Engine.Virtual
 		public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; private set; }
 		public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; private set; }
 		public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; private set; }
-		public ListConfiguration<VirtualType, IOperation> Operations { get; private set; }
+		public ListConfiguration<VirtualType, IMethod> Methods { get; private set; }
 
 		public VirtualType()
 		{
@@ -24,7 +24,7 @@ namespace Routine.Engine.Virtual
 			DefaultInstanceId = new SingleConfiguration<VirtualType, string>(this, "DefaultInstanceId", true);
 			ToStringMethod = new SingleConfiguration<VirtualType, Func<VirtualObject, string>>(this, "ToStringMethod");
 			AssignableTypes = new ListConfiguration<VirtualType, VirtualType>(this, "AssignableTypes");
-			Operations = new ListConfiguration<VirtualType, IOperation>(this, "Operations");
+			Methods = new ListConfiguration<VirtualType, IMethod>(this, "Methods");
 		}
 
 		private object Cast(object @object, IType otherType)
@@ -50,7 +50,7 @@ namespace Routine.Engine.Virtual
 
 		public override string ToString()
 		{
-			return string.Format("v-{0}.{1}", Namespace.Get(), Name.Get());
+			return string.Format("{0}.{1}", Namespace.Get(), Name.Get());
 		}
 
 		#region Equality & Hashcode
@@ -98,17 +98,16 @@ namespace Routine.Engine.Virtual
 		bool IType.IsVoid { get { return false; } }
 		bool IType.IsEnum { get { return false; } }
 		bool IType.IsArray { get { return false; } }
-		bool IType.IsDomainType { get { return true; } }
 		string IType.FullName { get { return string.Format("{0}.{1}", Namespace.Get(), Name.Get()); } }
 		string IType.Namespace { get { return Namespace.Get(); } }
 		IType IType.BaseType { get { return type.of<object>(); } }
 		List<IType> IType.AssignableTypes { get { return AssignableTypes.Get().Cast<IType>().ToList(); } }
-		List<IInitializer> IType.Initializers { get { return new List<IInitializer>(); } }
-		List<IMember> IType.Members { get { return new List<IMember>(); } }
-		List<IOperation> IType.Operations { get { return Operations.Get(); } }
+		List<IConstructor> IType.Constructors { get { return new List<IConstructor>(); } }
+		List<IProperty> IType.Properties { get { return new List<IProperty>(); } }
+		List<IMethod> IType.Methods { get { return Methods.Get(); } }
 		List<IType> IType.GetGenericArguments() { return new List<IType>(); }
 		IType IType.GetElementType() { return null; }
-		IOperation IType.GetParseOperation() { return null; }
+		IMethod IType.GetParseMethod() { return null; }
 		List<string> IType.GetEnumNames() { return new List<string>(); }
 		List<object> IType.GetEnumValues() { return new List<object>(); }
 		IType IType.GetEnumUnderlyingType() { return null; }

@@ -10,13 +10,13 @@
 		internal ExceptionResult(ExceptionResultData data) : this(data.Type, data.Message, data.IsHandled) { }
 		public ExceptionResult() : this("NaN", "NaN", false) { }
 		public ExceptionResult(string type, string message) : this(type, message, true) { }
-		public ExceptionResult(string type, string message, bool handled)
+		public ExceptionResult(string type, string message, bool isHandled)
 		{
 			Type = type;
 			Message = message;
-			IsHandled = handled;
+			IsHandled = isHandled;
 		}
-		}
+	}
 
 	internal class ExceptionResultData
 	{

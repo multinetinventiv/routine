@@ -10,7 +10,7 @@ namespace Routine.Core.Rest
 		public Dictionary<string, string> Headers { get; private set; }
 
 		public RestResponse(string body) : this(body, new Dictionary<string, string>()) { }
-		public RestResponse(string body, Dictionary<string, string> headers)
+		public RestResponse(string body, IDictionary<string, string> headers)
 		{
 			Body = body;
 			Headers = new Dictionary<string, string>(headers);
@@ -20,19 +20,20 @@ namespace Routine.Core.Rest
 
 		public override string ToString()
 		{
-			return string.Format("[RestResponse: Body={0}, Headers={1}]", Body, Headers);
+			return string.Format("[RestResponse: Body={0}, Headers={1}]", Body, Headers.ToKeyValueString());
 		}
 
 		protected bool Equals(RestResponse other)
 		{
-			return string.Equals(Body, other.Body) && Equals(Headers, other.Headers);
+			return string.Equals(Body, other.Body) && Headers.KeyValueEquals(other.Headers);
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
+			if (obj.GetType() != GetType()) return false;
+
 			return Equals((RestResponse)obj);
 		}
 
@@ -40,7 +41,7 @@ namespace Routine.Core.Rest
 		{
 			unchecked
 			{
-				return ((Body != null ? Body.GetHashCode() : 0) * 397) ^ (Headers != null ? Headers.GetHashCode() : 0);
+				return ((Body != null ? Body.GetHashCode() : 0) * 397) ^ (Headers != null ? Headers.GetKeyValueHashCode() : 0);
 			}
 		} 
 

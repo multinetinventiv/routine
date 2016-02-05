@@ -15,19 +15,17 @@ namespace Routine.Client
 			Service = service;
 		}
 
-		private readonly object modelLock = new object();
-		private volatile ApplicationModel model;
+		private readonly object typesLock = new object();
 		private Dictionary<string, Rtype> types;
 		private void FetchModelIfNecessary()
 		{
-			if (model != null) { return; }
+			if (types != null) { return; }
 
-			lock (modelLock)
+			lock (typesLock)
 			{
-				if (model != null) { return; }
+				if (types != null) { return; }
 
-				model = Service.GetApplicationModel();
-				types = model.Models.Select(m => new Rtype(this, m)).ToDictionary(t => t.Id);
+				types = Service.ApplicationModel.Models.Select(m => new Rtype(this, m)).ToDictionary(t => t.Id);
 
 				foreach (var type in Types)
 				{
@@ -149,7 +147,7 @@ namespace Routine.Client
 
 		protected bool Equals(Rapplication other)
 		{
-			return Equals(model, other.model);
+			return Equals(Service.ApplicationModel, other.Service.ApplicationModel);
 		}
 
 		public override bool Equals(object obj)
@@ -162,7 +160,7 @@ namespace Routine.Client
 
 		public override int GetHashCode()
 		{
-			return (model != null ? model.GetHashCode() : 0);
+			return (Service.ApplicationModel != null ? Service.ApplicationModel.GetHashCode() : 0);
 		}
 
 		#endregion

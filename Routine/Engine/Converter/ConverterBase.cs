@@ -1,22 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Routine.Engine.Converter
 {
 	public abstract class ConverterBase<TConcrete> : IConverter
 		where TConcrete : ConverterBase<TConcrete>
 	{
-		private object ConvertInner(object @object, IType targetType)
+		private object ConvertInner(object @object, IType from, IType to)
 		{
-			var result = Convert(@object, targetType);
+			try
+			{
+				return Convert(@object, from, to);
+			}
+			catch (CannotConvertException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				if (!GetTargetTypes(from).Any(t => Equals(t, to)))
+				{
+					throw new CannotConvertException(@object, to, ex);
+				}
 
-			return result;
+				throw;
+			}
 		}
 
-		protected abstract object Convert(object @object, IType targetType);
+		protected abstract List<IType> GetTargetTypes(IType type);
+		protected abstract object Convert(object @object, IType from, IType to);
 
 		#region IConverter implementation
 
-		object IConverter.Convert(object @object, IType targetType) { return ConvertInner(@object, targetType); }
+		object IConverter.Convert(object @object, IType from, IType to) { return ConvertInner(@object, from, to); }
 
 		#endregion
+
+		List<IType> IConverter.GetTargetTypes(IType type) { return GetTargetTypes(type); }
 	}
 
 }

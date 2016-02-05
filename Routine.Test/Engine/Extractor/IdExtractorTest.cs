@@ -9,9 +9,9 @@ namespace Routine.Test.Engine.Extractor
 	[TestFixture]
 	public class IdExtractorTest : ExtractorContract<IIdExtractor>
 	{
-		protected override IConvention<IType, IIdExtractor> CreateConventionByPublicOperation(Func<IOperation, bool> operationFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		protected override IConvention<IType, IIdExtractor> CreateConventionByPublicMethod(Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
-			return BuildRoutine.Convention<IType, IIdExtractor>().IdByPublicOperation(operationFilter, configurationDelegate);
+			return BuildRoutine.Convention<IType, IIdExtractor>().IdByPublicMethod(filter, configurationDelegate);
 		}
 
 		protected override IConvention<IType, IIdExtractor> CreateConventionByDelegate(Func<object, string> extractorDelegate)

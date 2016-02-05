@@ -18,8 +18,8 @@ namespace Routine.Ui
 		}
 
 		public string DataType { get { return Parameter.ParameterType.Id; } }
-		public string Id { get { return Parameter.Id; } }
-		public string Text { get { return Configuration.GetDisplayName(Parameter.Id); } }
+		public string Id { get { return Parameter.Name; } }
+		public string Text { get { return Configuration.GetDisplayName(Parameter.Name); } }
 		public bool IsList { get { return Parameter.IsList; } }
 		public bool IsValue { get { return Parameter.ParameterType.IsValueType; } }
 
@@ -76,7 +76,7 @@ namespace Routine.Ui
 			var result = "";
 			foreach (var robj in source.List)
 			{
-				result += robj.Value + separator;
+				result += robj.Display + separator;
 			}
 			return result.BeforeLast(separator);
 		}

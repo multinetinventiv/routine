@@ -1,6 +1,6 @@
 namespace Routine.Engine.Reflection
 {
-	public abstract class PropertyInfo : MemberInfo, IMember
+	public abstract class PropertyInfo : MemberInfo, IProperty
 	{
 		internal static PropertyInfo Reflected(System.Reflection.PropertyInfo propertyInfo)
 		{
@@ -57,7 +57,7 @@ namespace Routine.Engine.Reflection
 
 		#region IMember implementation
 
-		object IMember.FetchFrom(object target)
+		object IProperty.FetchFrom(object target)
 		{
 			if (target == null)
 			{
@@ -67,8 +67,8 @@ namespace Routine.Engine.Reflection
 			return GetValue(target);
 		}
 
-		IType IMember.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
-		bool IMember.IsPublic { get { return IsPubliclyReadable; } }
+		IType IProperty.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
+		bool IProperty.IsPublic { get { return IsPubliclyReadable; } }
 
 		#endregion
 	}

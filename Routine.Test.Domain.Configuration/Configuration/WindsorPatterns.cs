@@ -1,15 +1,14 @@
-using System.Collections.Generic;
 using Castle.Core;
 using Castle.Windsor;
 using Routine.Core.Configuration;
 using Routine.Engine;
-using Routine.Engine.Configuration.Conventional;
+using Routine.Engine.Configuration.ConventionBased;
 
 namespace Routine.Test.Domain.Configuration
 {
 	internal static class WindsorPatterns
 	{
-		public static ConventionalCodingStyle SingletonPattern(this PatternBuilder<ConventionalCodingStyle> source, IWindsorContainer container, string singletonId)
+		public static ConventionBasedCodingStyle SingletonPattern(this PatternBuilder<ConventionBasedCodingStyle> source, IWindsorContainer container, string singletonId)
 		{
 			return source
 					.FromEmpty()
@@ -18,7 +17,7 @@ namespace Routine.Test.Domain.Configuration
 					.Locator.Set(c => c.Locator(l => l.Singleton(t => container.Resolve(t))
 															.AcceptNullResult(false))
 											 .When(t => container.TypeIsSingleton(t)))
-					.StaticInstances.Set(c => c.By(t => container.Resolve(t))
+					.StaticInstances.Add(c => c.By(t => container.Resolve(t))
 											   .When(t => container.TypeIsSingleton(t)))
 					;
 		}

@@ -32,7 +32,6 @@ using Routine.Test.Domain.Windsor;
 using Routine.Ui;
 using Routine.Ui.Configuration;
 using InterceptionTarget = Routine.Ui.InterceptionTarget;
-using MemberTypes = Routine.Ui.MemberTypes;
 
 namespace Routine.Test.Domain.Configuration
 {
@@ -55,12 +54,12 @@ namespace Routine.Test.Domain.Configuration
 
 			public class ThemeConfiguration
 			{
-				internal ThemeConfiguration(Func<ConventionalMvcConfiguration> themeDelegate)
+				internal ThemeConfiguration(Func<ConventionBasedMvcConfiguration> themeDelegate)
 				{
 					BuildMvcConfig = themeDelegate;
 				}
 
-				internal Func<ConventionalMvcConfiguration> BuildMvcConfig { get; private set; }
+				internal Func<ConventionBasedMvcConfiguration> BuildMvcConfig { get; private set; }
 			}
 		}
 
@@ -137,7 +136,7 @@ namespace Routine.Test.Domain.Configuration
 				RouteTable.Routes.MapRoute(
 					"Default",
 					"",
-					new { controller = ServiceController.ControllerName, action = ServiceController.DefaultAction, id = "" }
+					new { controller = ServiceController.ControllerName, action = ServiceController.IndexAction, id = "" }
 				);
 
 				Logging();
@@ -203,19 +202,18 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.CodingStyle()
 						.FromBasic()
+						.AddCommonSystemTypes()
+						.AddTypes(typeof(Text).Assembly, t => t.IsPublic)
 						.AddTypes(ModuleAssemblies(), t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
 						.Use(p => p.VirtualTypePattern())
 						.AddTypes(v => v.FromBasic()
+							.ToStringMethod.Set(o => o.Id)
 							.Namespace.Set("Routine.Test.Module.Virtual")
 							.Name.Set("VirtualType")
-							.Operations.Add(o => o.Proxy<int>().TargetByParameter("i"))
-							.Operations.Add(o => o.Virtual("VirtualService", (string str, int i) => string.Join(",", Enumerable.Range(0, i).Select(ix => str))))
+							.Methods.Add(o => o.Proxy<int>().TargetByParameter("i"))
+							.Methods.Add(o => o.Virtual("VirtualService", (string str, int i) => string.Join(",", Enumerable.Range(0, i).Select(ix => str))))
 						)
-						.StaticInstances.Set(c => c.By(t => new VirtualObject("Instance", t as VirtualType)).When(t => t is VirtualType))
-						.Use(p => p.ShortModelIdPattern("System", "s"))
-						.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
-						.Use(p => p.ShortModelIdPattern("Routine.Test.Module", "m"))
-						.Use(p => p.PolymorphismPattern(t => t.IsDomainType))
+						.StaticInstances.Add(c => c.By(t => new VirtualObject("Instance", t as VirtualType)).When(t => t is VirtualType))
 						.Use(p => p.ParseableValueTypePattern())
 						.Use(p => p.EnumPattern(false))
 						.Use(p => p.SingletonPattern(container, "Instance"))
@@ -224,21 +222,22 @@ namespace Routine.Test.Domain.Configuration
 						.TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
 						.TypeMarks.Add("Search", t => t.CanBe<IQuery>())
 						.OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
-						.OperationMarks.Add("Virtual", o => o is VirtualOperation || o is ProxyOperation)
+						.OperationMarks.Add("Virtual", o => o is VirtualMethod || o is ProxyMethod)
+						.ParameterMarks.Add("Interface", p => p.ParameterType.IsInterface)
 
-						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".").Prepend("Test.")).When(t => t.IsDomainType))
+						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".").Prepend("Test.")).When(t => t.Namespace.StartsWith("Routine")))
 
-						.Initializers.Add(c => c.PublicInitializers().When(t => t.IsValueType && t.IsDomainType))
-						.Members.Add(c => c.PublicMembers(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
-										   .When(t => t.IsDomainType))
+						.Initializers.Add(c => c.PublicConstructors().When(t => t.IsValueType && t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
+						.Datas.Add(c => c.PublicProperties(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
+										   .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
 
-						.Operations.Add(c => c.PublicOperations(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
-											  .When(t => t.IsDomainType))
-						//.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
-						//.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsDomainType && !t.IsValueType && !t.IsInterface))
+						.Operations.Add(c => c.PublicMethods(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
+											  .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
+					//.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
+					//.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
 
-						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
-						.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Name")))
+						.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
+						.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Name")))
 						.ValueExtractor.Set(c => c.Value(e => e.By(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial()))
 												  .When(t => t is TypeInfo && container.TypeIsSingleton(t)))
 						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
@@ -257,11 +256,18 @@ namespace Routine.Test.Domain.Configuration
 				return BuildRoutine.ServiceConfig()
 						.FromBasic()
 						.RootPath.Set("Service")
+						.AllowGet.Set(true, m => m.ObjectModel.Marks.Contains("Search"))
 						.RequestHeaders.Add("language_code")
+						.RequestHeaderProcessors.Add(c => c
+							.For("language_code")
+							.Do(languageCode =>
+							{
+								Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(languageCode ?? "en-US");
+							}))
 						.ResponseHeaders.Add("code", "message", "always-empty")
 						.ResponseHeaderValue.Set("0", "code")
 						.ResponseHeaderValue.Set("success", "message")
-						.MaxResultLength.Set(100000000)
+						.MaxResultLength.Set(int.MaxValue)
 						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
 						;
 			}
@@ -270,16 +276,15 @@ namespace Routine.Test.Domain.Configuration
 			{
 				return BuildRoutine.InterceptionConfig()
 						.FromBasic()
-						.Interceptors.Add(c => c.Interceptor(i => i.Before(() => Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(HttpContext.Current.Request["language_code"] ?? "en-US"))))
 						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
-						.Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(ctx => container.Resolve<ISession>().BeginTransaction())
+						.Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())
 																   .Fail(t => t.Rollback())))
 
-						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationModelId)))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationName)))
 																		  .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
 																		  .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-																		  .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationModelId)))))
+																		  .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationName)))))
 						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); }))
 													   .When(iom => iom.OperationModel.Marks.Contains("Hidden")))
 						;
@@ -294,14 +299,14 @@ namespace Routine.Test.Domain.Configuration
 						.CachePolicyAction.Set(hcp =>
 						{
 							hcp.SetCacheability(HttpCacheability.Private);
-							hcp.AppendCacheExtension("max-age=" + TimeSpan.FromHours(1).TotalSeconds);	
+							hcp.AppendCacheExtension("max-age=" + TimeSpan.FromHours(1).TotalSeconds);
 						}, vp => !vp.EndsWith(".aspx") && !vp.EndsWith(".ascx"))
 						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
 						.Interceptors.Add(c => c.Interceptor(i => i.Do()
-													.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx["OperationModelId"])))
+													.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx["OperationName"])))
 													.Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
 													.Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-													.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx["OperationModelId"]))))
+													.After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx["OperationName"]))))
 												.When(s => s == InterceptionTarget.Perform))
 						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
 																   .Success(t => t.Commit())
@@ -313,14 +318,14 @@ namespace Routine.Test.Domain.Configuration
 
 
 						.ParameterDefault.Set(c => c.By(p => p.Target[p.Id.ToUpperInitial()].Get())
-													.When(p => p.Parameter.Owner.IsOperation() && p.Parameter.Owner.Operation.Id.Matches("Update.*") && p.Parameter.Type.Members.Any(m => m.Id == p.Id.ToUpperInitial())))
+													.When(p => p.Parameter.Owner.IsOperation() && p.Parameter.Owner.Operation.Name.Matches("Update.*") && p.Parameter.Type.Datas.Any(m => m.Name == p.Id.ToUpperInitial())))
 
-						.ParameterOptions.Set(c => c.By(p => p.Target.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Id).List)
-													.When(p => p.Parameter.Owner.IsOperation() && 
-															   p.Parameter.Type.Operations.Any(o => o.Id == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Id &&
+						.ParameterOptions.Set(c => c.By(p => p.Target.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Name).List)
+													.When(p => p.Parameter.Owner.IsOperation() &&
+															   p.Parameter.Type.Operations.Any(o => o.Name == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Name &&
 																									o.ResultIsList && !o.Parameters.Any())))
 						.ParameterOptions.Set(c => c.By(p => p.Parameter.Application.Get("Instance", p.Parameter.ParameterType.Id + "s").Perform("All").List)
-													.When(p => p.Parameter.Application.Types.Any(t => t.Id == p.Parameter.ParameterType.Id + "s" && t.Operations.Any(o => o.Id == "All"))))
+													.When(p => p.Parameter.Application.Types.Any(t => t.Id == p.Parameter.ParameterType.Id + "s" && t.Operations.Any(o => o.Name == "All"))))
 
 						.ParameterOptions.Set(c => c.By(p => p.Parameter.ParameterType.StaticInstances))
 
@@ -338,7 +343,7 @@ namespace Routine.Test.Domain.Configuration
 
 						.DisplayName.Set(c => c.By(s => s.SplitCamelCase().ToUpperInitial()))
 						.OperationOrder.Set(c => c.By(ovm => ovm.ViewModel.HasParameter ? 0 : 1))
-						.MemberOrder.Set(-1, m => m.ViewModel.Member.Id == "UndoneItems" && m.Type == MemberTypes.PageTable)
+						.DataOrder.Set(-1, m => m.ViewModel.Data.Name == "UndoneItems" && m.Type == DataLocations.PageTable)
 
 						.OperationIsRendered.Set(false, o => o.MarkedAs("ParamOptions"))
 						.OperationIsRendered.Set(false, o => o.MarkedAs("Virtual"))
@@ -347,9 +352,9 @@ namespace Routine.Test.Domain.Configuration
 						.ConfirmationRequired.Set(false, o => o.Id.StartsWith("Test"))
 						.ConfirmationRequired.Set(false, o => o.Id.StartsWith("Mark"))
 
-						.MemberIsRendered.Set(false, m => m.MarkedAs("Virtual"))
-						.MemberTypes.Set(MemberTypes.PageTable, m => m.IsList)
-						.MemberTypes.Set(MemberTypes.PageNameValue | MemberTypes.TableColumn, m => !m.IsList)
+						.DataIsRendered.Set(false, m => m.MarkedAs("Virtual"))
+						.DataLocations.Set(DataLocations.PageTable, m => m.IsList)
+						.DataLocations.Set(DataLocations.PageNameValue | DataLocations.TableColumn, m => !m.IsList)
 						;
 			}
 
@@ -380,8 +385,8 @@ namespace Routine.Test.Domain.Configuration
 			{
 				get
 				{
-					return BinDirectory.FilterByName(n => 
-						n.Name.StartsWith("Routine.Test.Module") && 
+					return BinDirectory.FilterByName(n =>
+						n.Name.StartsWith("Routine.Test.Module") &&
 						!n.Name.EndsWith("Ui"));
 				}
 			}
@@ -389,8 +394,8 @@ namespace Routine.Test.Domain.Configuration
 			{
 				get
 				{
-					return BinDirectory.FilterByName(n => 
-						n.Name.StartsWith("Routine.Test.Module") && 
+					return BinDirectory.FilterByName(n =>
+						n.Name.StartsWith("Routine.Test.Module") &&
 						n.Name.EndsWith("Ui"));
 				}
 			}

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Routine.Core;
 using Routine.Core.Rest;
 
@@ -9,124 +11,194 @@ namespace Routine.Service
 	{
 		private readonly IServiceClientConfiguration serviceClientConfiguration;
 		private readonly IRestClient restClient;
-		private readonly SerializerHelper serializer;
+		private readonly IJsonSerializer serializer;
+		private readonly Lazy<ApplicationModel> applicationModel;
 
 		public RestClientObjectService(IServiceClientConfiguration serviceClientConfiguration, IRestClient restClient, IJsonSerializer serializer)
 		{
 			this.serviceClientConfiguration = serviceClientConfiguration;
 			this.restClient = restClient;
-			this.serializer = new SerializerHelper(serializer);
+			this.serializer = serializer;
+
+			applicationModel = new Lazy<ApplicationModel>(FetchApplicationModel);
 		}
 
-		private T Result<T>(RestResponse response)
+		private ApplicationModel FetchApplicationModel()
 		{
-			try
+			return new ApplicationModel((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
+		}
+
+		public ApplicationModel ApplicationModel { get { return applicationModel.Value; } }
+
+		public ObjectData Get(ReferenceData reference)
+		{
+			if (reference == null) { return null; }
+
+			var helper = new DataCompressor(ApplicationModel, reference.ViewModelId);
+
+			return helper.DecompressObjectData(Result(Get(Url(reference))));
+		}
+
+		public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+		{
+			if (target == null) { return new VariableData(); }
+
+			var operationModel = GetOperationModel(target, operation);
+
+			var body = serializer.Serialize(parameters.ToDictionary(kvp => kvp.Key, kvp =>
+				new DataCompressor(ApplicationModel, operationModel.Parameter[kvp.Key].ViewModelId)
+					.Compress(kvp.Value)
+				));
+
+			var result = Result(Post(Url(target, operation), body));
+
+			var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
+
+			return helper.DecompressValueData(result);
+		}
+
+		private ObjectModel GetObjectModel(ReferenceData target)
+		{
+			ObjectModel objectModel;
+
+			if (!ApplicationModel.Model.TryGetValue(target.ViewModelId, out objectModel))
 			{
-				return serializer.Deserialize<T>(response.Body);
+				throw TypeNotFound(target.ViewModelId);
 			}
-			catch (Exception)
+
+			return objectModel;
+		}
+
+		private OperationModel GetOperationModel(ReferenceData target, string operation)
+		{
+			OperationModel operationModel;
+
+			if (!GetObjectModel(target).Operation.TryGetValue(operation, out operationModel))
 			{
-				ExceptionResult exceptionResult = null;
-
-				var isExceptionResult = true;
-				try
-				{
-					//assume it is an exception
-					exceptionResult = new ExceptionResult(serializer.Deserialize<ExceptionResultData>(response.Body));
-				} 
-				catch (Exception) { isExceptionResult = false; }
-				
-				if (!isExceptionResult) { throw; } //assumption was wrong, throw first exception
-
-				throw serviceClientConfiguration.GetException(exceptionResult);
-			}
-		}
-
-		private string Url(string serviceName)
-		{
-			return serviceClientConfiguration.GetServiceUrlBase() + "/" + serviceName;
-		}
-
-		private RestParameter Param(string name, string value)
-		{
-			return new RestParameter(name, value);
-		}
-
-		private RestParameter[] BuildParameters(RestParameter[] parameters)
-		{
-			var result = new List<RestParameter>();
-
-			foreach (var parameter in serviceClientConfiguration.GetRequestHeaders())
-			{
-				result.Add(Param(parameter, serviceClientConfiguration.GetRequestHeaderValue(parameter)));
+				throw OperationNotFound(target.ViewModelId, operation);
 			}
 
-			result.AddRange(parameters);
-
-			return result.ToArray();
+			return operationModel;
 		}
 
-		private RestResponse Post(string serviceName, params RestParameter[] parameters)
+		private object Result(RestResponse response)
 		{
-			return restClient.Post(Url(serviceName), BuildParameters(parameters));
-		}
-
-		private RestResponse Get(string serviceName, params RestParameter[] parameters)
-		{
-			return restClient.Get(Url(serviceName), BuildParameters(parameters));
-		}
-
-		public ApplicationModel GetApplicationModel()
-		{
-			return Result<ApplicationModel>(Get("GetApplicationModel"));
-		}
-
-		public ObjectModel GetObjectModel(string objectModelId)
-		{
-			return Result<ObjectModel>(Get("GetObjectModel",
-				Param("objectModelId", objectModelId)));
-		}
-
-		public string GetValue(ObjectReferenceData reference)
-		{
-			return Result<string>(Get("GetValue",
-				Param("reference.Id", reference.Id),
-				Param("reference.ActualModelId", reference.ActualModelId),
-				Param("reference.ViewModelId", reference.ViewModelId),
-				Param("reference.IsNull", reference.IsNull.ToString())));
-		}
-
-		public ObjectData Get(ObjectReferenceData reference)
-		{
-			return Result<ObjectData>(Get("Get",
-				Param("reference.Id", reference.Id),
-				Param("reference.ActualModelId", reference.ActualModelId),
-				Param("reference.ViewModelId", reference.ViewModelId),
-				Param("reference.IsNull", reference.IsNull.ToString())));
-		}
-
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
-		{
-			var paramList = new List<RestParameter>();
-
-			paramList.Add(Param("targetReference.Id", targetReference.Id));
-			paramList.Add(Param("targetReference.ActualModelId", targetReference.ActualModelId));
-			paramList.Add(Param("targetReference.ViewModelId", targetReference.ViewModelId));
-			paramList.Add(Param("targetReference.IsNull", targetReference.IsNull.ToString()));
-
-			paramList.Add(Param("operationModelId", operationModelId));
-
-			paramList.Add(Param("parameters", serializer.Serialize(parameterValues)));
-
-			var response = Post("Perform", paramList.ToArray());
-			var result = Result<ValueData>(response);
-
 			foreach (var processor in serviceClientConfiguration.GetResponseHeaderProcessors())
 			{
 				processor.Process(response.Headers);
 			}
 
+			var result = serializer.DeserializeObject(response.Body);
+
+			var resultDictionary = result as IDictionary<string, object>;
+
+			if (resultDictionary != null && resultDictionary.ContainsKey("IsException"))
+			{
+				var exceptionResult = new ExceptionResult(serializer.Deserialize<ExceptionResultData>(response.Body));
+
+				throw serviceClientConfiguration.GetException(exceptionResult);
+			}
+
 			return result;
 		}
+
+		private string Url(string action)
+		{
+			return string.Format("{0}/{1}",
+				serviceClientConfiguration.GetServiceUrlBase(),
+				action);
+		}
+
+		private string Url(ReferenceData referenceData)
+		{
+			if (referenceData.ModelId == referenceData.ViewModelId)
+			{
+				return Url(string.Format("{0}/{1}",
+					referenceData.ModelId,
+					referenceData.Id));
+			}
+
+			return Url(string.Format("{0}/{1}/{2}",
+				referenceData.ModelId,
+				referenceData.Id,
+				referenceData.ViewModelId));
+		}
+
+		private string Url(ReferenceData referenceData, string operation)
+		{
+			return string.Format("{0}/{1}", Url(referenceData), operation);
+		}
+
+		private RestResponse Post(string url, string body)
+		{
+			try
+			{
+				return restClient.Post(url, BuildRequest(body));
+			}
+			catch (WebException ex)
+			{
+				var res = ex.Response as HttpWebResponse;
+				if (res == null)
+				{
+					throw;
+				}
+
+				return Wrap(res);
+			}
+		}
+
+		private RestResponse Get(string url)
+		{
+			try
+			{
+				return restClient.Get(url, BuildRequest(string.Empty));
+			}
+			catch (WebException ex)
+			{
+				var res = ex.Response as HttpWebResponse;
+				if (res == null)
+				{
+					throw;
+				}
+
+				return Wrap(res);
+			}
+		}
+
+		private RestRequest BuildRequest(string body)
+		{
+			return new RestRequest(body)
+				.WithHeaders(
+					serviceClientConfiguration.GetRequestHeaders()
+						.ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
+				);
+		}
+
+		#region Exceptions
+
+		private RestResponse Wrap(HttpWebResponse res)
+		{
+			return new RestResponse(
+				serializer.Serialize(new ExceptionResult(string.Format("Http.{0}", res.StatusCode), res.StatusDescription, false))
+				);
+		}
+
+		private Exception OperationNotFound(string modelId, string operation)
+		{
+			return serviceClientConfiguration.GetException(new ExceptionResult("OperationNotFound",
+				string.Format(
+					"Given operation ({0}) was not found in given model ({1}). Make sure you are connecting to the correct endpoint.",
+					operation, modelId), false));
+		}
+
+		private Exception TypeNotFound(string modelId)
+		{
+			return serviceClientConfiguration.GetException(new ExceptionResult("TypeNotFound",
+				string.Format(
+					"Given model id ({0}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
+					modelId), false));
+		}
+
+		#endregion
 	}
 }

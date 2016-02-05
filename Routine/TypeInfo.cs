@@ -12,7 +12,7 @@ namespace Routine
 		#region Factory Methods
 
 		private static readonly Dictionary<Type, TypeInfo> typeCache;
-		private static readonly List<Type> domainTypes;
+		private static readonly List<Type> optimizedTypes;
 
 		private static Func<Type, bool> proxyMatcher;
 		private static Func<Type, Type> actualTypeGetter;
@@ -20,7 +20,7 @@ namespace Routine
 		static TypeInfo()
 		{
 			typeCache = new Dictionary<Type, TypeInfo>();
-			domainTypes = new List<Type>();
+			optimizedTypes = new List<Type>();
 
 			SetProxyMatcher(null, null);
 		}
@@ -28,19 +28,19 @@ namespace Routine
 		public static void Clear()
 		{
 			typeCache.Clear();
-			domainTypes.Clear();
+			optimizedTypes.Clear();
 
 			SetProxyMatcher(null, null);
 		}
 
-		public static List<TypeInfo> GetDomainTypes()
+		public static List<TypeInfo> GetOptimizedTypes()
 		{
-			return domainTypes.Select(t => t.ToTypeInfo()).ToList();
+			return optimizedTypes.Select(t => t.ToTypeInfo()).ToList();
 		}
 
-		public static void AddDomainTypes(params Type[] newDomainTypes)
+		public static void Optimize(params Type[] newDomainTypes)
 		{
-			domainTypes.AddRange(newDomainTypes.Where(t => !domainTypes.Contains(t)));
+			optimizedTypes.AddRange(newDomainTypes.Where(t => !optimizedTypes.Contains(t)));
 			
 			typeCache.Clear();
 		}
@@ -136,9 +136,9 @@ namespace Routine
 			{
 				result = new ReflectedTypeInfo(type);
 			}
-			else if (domainTypes.Contains(type))
+			else if (optimizedTypes.Contains(type))
 			{
-				result = new DomainTypeInfo(type);
+				result = new OptimizedTypeInfo(type);
 			}
 			else
 			{
@@ -175,7 +175,6 @@ namespace Routine
 		public bool IsVoid { get; protected set; }
 		public bool IsEnum { get; protected set; }
 		public bool IsArray { get; protected set; }
-		public bool IsDomainType { get; protected set; }
 
 		public abstract string Name { get; }
 		public abstract string FullName { get; }
@@ -363,13 +362,13 @@ namespace Routine
 		IType IType.BaseType { get { return BaseType; } }
 
 		List<IType> IType.AssignableTypes { get { return GetAssignableTypes().Cast<IType>().ToList(); } }
-		List<IInitializer> IType.Initializers { get { return GetAllConstructors().Cast<IInitializer>().ToList(); } }
-		List<IMember> IType.Members { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IMember>().ToList(); } }
-		List<IOperation> IType.Operations { get { return GetAllMethods().Cast<IOperation>().ToList(); } }
+		List<IConstructor> IType.Constructors { get { return GetAllConstructors().Cast<IConstructor>().ToList(); } }
+		List<IProperty> IType.Properties { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IProperty>().ToList(); } }
+		List<IMethod> IType.Methods { get { return GetAllMethods().Cast<IMethod>().ToList(); } }
 
 		List<IType> IType.GetGenericArguments() { return GetGenericArguments().Cast<IType>().ToList(); }
 		IType IType.GetElementType() { return GetElementType(); }
-		IOperation IType.GetParseOperation() { return GetParseMethod(); }
+		IMethod IType.GetParseMethod() { return GetParseMethod(); }
 		IType IType.GetEnumUnderlyingType() { return GetEnumUnderlyingType(); }
 
 		bool IType.CanBe(IType otherType)

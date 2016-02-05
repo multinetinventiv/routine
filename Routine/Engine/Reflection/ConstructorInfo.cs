@@ -1,6 +1,6 @@
 ﻿namespace Routine.Engine.Reflection
 {
-	public abstract class ConstructorInfo : MethodBase, IInitializer
+	public abstract class ConstructorInfo : MethodBase, IConstructor
 	{
 		internal static ConstructorInfo Reflected(System.Reflection.ConstructorInfo constructor)
 		{
@@ -32,8 +32,8 @@
 
 		#region IInitializer implementation
 
-		IType IInitializer.InitializedType { get { return ReflectedType; } }
-		object IInitializer.Initialize(params object[] parameters) { return Invoke(parameters); } 
+		IType IConstructor.InitializedType { get { return ReflectedType; } }
+		object IConstructor.Initialize(params object[] parameters) { return Invoke(parameters); } 
 
 		#endregion
 	}

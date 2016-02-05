@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using Routine.Engine;
@@ -13,18 +14,12 @@ namespace Routine.Test.Engine.Converter
 		{
 			var typeMock = new Mock<IType>();
 
-			typeMock.Setup(t => t.Cast(It.IsAny<object>(), It.IsAny<IType>())).Returns("success");
-			typeMock.Setup(t => t.CanBe(It.IsAny<IType>())).Returns(true);
+			typeMock.Setup(t => t.Cast(It.IsAny<object>(), type.of<string>())).Returns("success");
+			typeMock.Setup(t => t.AssignableTypes).Returns(new List<IType>{type.of<string>()});
 
-			IConverter converter = BuildRoutine.Converter().ByCasting(typeMock.Object);
+			IConverter converter = BuildRoutine.Converter().ByCasting();
 
-			Assert.AreEqual("success", converter.Convert(0, type.of<string>()));
-		}
-
-		[Test]
-		public void Throws_ArgumentNullException_when_given_type_is_null()
-		{
-			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().ByCasting(null));
+			Assert.AreEqual("success", converter.Convert(0, typeMock.Object, type.of<string>()));
 		}
 
 		[Test]
@@ -32,11 +27,26 @@ namespace Routine.Test.Engine.Converter
 		{
 			var typeMock = new Mock<IType>();
 
-			typeMock.Setup(t => t.CanBe(It.IsAny<IType>())).Returns(false);
+			typeMock.Setup(t => t.AssignableTypes).Returns(new List<IType>());
+			typeMock.Setup(t => t.Cast(It.IsAny<object>(), type.of<string>())).Throws<InvalidCastException>();
 
-			IConverter converter = BuildRoutine.Converter().ByCasting(typeMock.Object);
+			IConverter converter = BuildRoutine.Converter().ByCasting();
 
-			Assert.Throws<CannotConvertException>(() => converter.Convert(0, type.of<string>()));
+			Assert.Throws<CannotConvertException>(() => converter.Convert(0, typeMock.Object, type.of<string>()));
+		}
+
+		[Test]
+		public void View_types_can_be_filtered_so_that_only_appropriate_types_will_be_used()
+		{
+			IConverter converter = BuildRoutine.Converter().ByCasting(t => !t.CanBe<object>());
+
+			Assert.Throws<CannotConvertException>(() => converter.Convert("test", type.of<string>(), type.of<object>()));
+		}
+
+		[Test]
+		public void Throws_ArgumentNullException_when_given_view_type_predicate_is_null()
+		{
+			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().ByCasting(null));
 		}
 	}
 }

@@ -6,9 +6,9 @@ namespace Routine
 {
 	public static class ServicePatterns
 	{
-		public static ConventionalServiceConfiguration FromEmpty(this PatternBuilder<ConventionalServiceConfiguration> source) { return new ConventionalServiceConfiguration(); }
+		public static ConventionBasedServiceConfiguration FromEmpty(this PatternBuilder<ConventionBasedServiceConfiguration> source) { return new ConventionBasedServiceConfiguration(); }
 
-		public static ConventionalServiceConfiguration ExceptionsWrappedAsUnhandledPattern(this PatternBuilder<ConventionalServiceConfiguration> source)
+		public static ConventionBasedServiceConfiguration ExceptionsWrappedAsUnhandledPattern(this PatternBuilder<ConventionBasedServiceConfiguration> source)
 		{
 			return source.FromEmpty()
 				.ExceptionResult.Set(e => e.By(ex => new ExceptionResult(ex.GetType().FullName, ex.Message, false)))

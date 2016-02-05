@@ -72,10 +72,10 @@ namespace Routine.Test.Engine
 	{
 		#region Setup & Helpers
 
-		private const string ACTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData.BusinessData";
-		private const string VIEW_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData.IBusinessData";
-		private const string VIEW_WITH_NO_IMPLEMENTOR_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData.IBusinessDataWithNoImplementor";
-		private const string VALUE_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData.BusinessValue";
+		private const string ACTUAL_OMID = "Test.BusinessData";
+		private const string VIEW_OMID = "Test.IBusinessData";
+		private const string VIEW_WITH_NO_IMPLEMENTOR_OMID = "Test.IBusinessDataWithNoImplementor";
+		private const string VALUE_OMID = "Test.BusinessValue";
 
 		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
 		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData"; } }
@@ -86,9 +86,8 @@ namespace Routine.Test.Engine
 			base.SetUp();
 
 			codingStyle
-				.TypeId.Set(c => c.By(t => t.FullName))
-				.ValueExtractor.Set(c => c.ValueByMember(m => m.Returns<string>("Title")))
-				.Use(p => p.PolymorphismPattern(t => t.IsDomainType))
+				.Module.Set("Test", t => t.Namespace.StartsWith("Routine.Test"))
+				.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
 				;
 		}
 
@@ -101,26 +100,23 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj"));
 
-			Assert.AreEqual("obj", actual.Reference.Id);
+			Assert.AreEqual("obj", actual.Id);
 		}
 
 		[Test]
-		public void When_it_is_given_a_view_model_that_is_not_in_the_list_of_given_actual_model__cannot_convert_exception_is_thrown()
+		public void When_given_actual_model_does_not_have_a_converter_for_its_view_model__configuration_exception_is_thrown_with_cannot_convert_exception_in_it()
 		{
 			AddToRepository(new BusinessData { Id = "obj" });
 
-			Assert.Throws<CannotConvertException>(() => testing.Get(Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID)));
-		}
-		[Test]
-		public void When_it_given_actual_model_does_not_have_a_converter_for_its_view_model__configuration_exception_is_thrown()
-		{
-			codingStyle.Override(cs => cs
-				.Converter.SetDefault()
-			);
-
-			AddToRepository(new BusinessData { Id = "obj" });
-
-			Assert.Throws<ConfigurationException>(() => testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID)));
+			try
+			{
+				testing.Get(Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
+				Assert.Fail("exception not thrown");
+			}
+			catch (ConfigurationException ex)
+			{
+				Assert.IsInstanceOf<CannotConvertException>(ex.InnerException);
+			}
 		}
 
 		[Test]
@@ -136,7 +132,7 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.AreEqual("obj", actual.Reference.Id);
+			Assert.AreEqual("obj", actual.Id);
 		}
 
 		[Test]
@@ -146,7 +142,7 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj"));
 
-			Assert.AreEqual("Obj Title", actual.Value);
+			Assert.AreEqual("Obj Title", actual.Display);
 		}
 
 		[Test]
@@ -160,7 +156,7 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.AreEqual("view value", actual.Value);
+			Assert.AreEqual("view value", actual.Display);
 		}
 
 		[Test]
@@ -173,29 +169,29 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.AreEqual("Obj Title", actual.Value);
+			Assert.AreEqual("Obj Title", actual.Display);
 		}
 
 		[Test]
 		public void Value_is_id_when_model_is_value_type()
 		{
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
 			var actual = testing.Get(Id("sample", VALUE_OMID));
 
-			Assert.AreEqual("sample", actual.Reference.Id);
-			Assert.AreEqual("sample", actual.Value);
+			Assert.AreEqual("sample", actual.Id);
+			Assert.AreEqual("sample", actual.Display);
 		}
 
 		[Test]
 		public void When_value_extractor_of_view_type_is_used__view_target_is_used()
 		{
-			var obj = new BusinessData {Id = "obj"};
-			var obj_converted = new BusinessData {Id = "obj_converted", Title = "Converted Obj Title"};
+			var obj = new BusinessData { Id = "obj" };
+			var obj_converted = new BusinessData { Id = "obj_converted", Title = "Converted Obj Title" };
 
 			codingStyle
 				.Override(cs => cs
-					.Converter.Set(c => c.Converter(cb => cb.Constant(obj_converted))
+					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (o, t) => obj_converted))
 										 .When(type.of<BusinessData>()))
 					.ValueExtractor.Set(c => c.Value(v => v.By(o => string.Format("{0}", o)))
 											  .When(type.of<IBusinessData>()))
@@ -206,7 +202,7 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.AreEqual("Converted Obj Title", actual.Value);
+			Assert.AreEqual("Converted Obj Title", actual.Display);
 		}
 
 		[Test]
@@ -216,7 +212,7 @@ namespace Routine.Test.Engine
 			var obj_converted = new BusinessData { Id = "obj_converted" };
 
 			codingStyle
-				.Converter.Set(c => c.Converter(cb => cb.Constant(obj_converted))
+				.Converters.Add(c => c.Convert(cb => cb.ToConstant(obj_converted))
 									 .When(type.of<BusinessData>()))
 				.ValueExtractor.Set(null, type.of<IBusinessData>())
 			;
@@ -225,28 +221,28 @@ namespace Routine.Test.Engine
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.AreEqual("Obj Title", actual.Value);
+			Assert.AreEqual("Obj Title", actual.Display);
 		}
 
 		[Test]
-		public void Members_are_fetched_using_given_view_model_id()
+		public void Datas_are_fetched_using_given_view_model_id()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-			Assert.IsTrue(actual.Members.ContainsKey("SubData"));
+			Assert.IsTrue(actual.Data.ContainsKey("SubData"));
 		}
 
 		[Test]
-		public void Members_are_fetched_using_view_target()
+		public void Datas_are_fetched_using_view_target()
 		{
-			var obj = new BusinessData { Id = "obj", Title = "Obj Title" };
-			var obj_converted = new BusinessData { Id = "obj_converted", Title = "Converted Obj Title" };
+			var obj = new BusinessData { Id = "obj" };
+			var obj_converted = new BusinessData { Id = "obj_converted" };
 
 			codingStyle
 				.Override(cs => cs
-					.Converter.Set(c => c.Converter(cb => cb.Constant(obj_converted))
+					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (o, t) => obj_converted))
 										 .When(type.of<BusinessData>()))
 				)
 			;
@@ -254,39 +250,39 @@ namespace Routine.Test.Engine
 			AddToRepository(obj);
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
-			var actual_subdata = actual.Members["SubData"].Values[0];
+			var actual_subdata = actual.Data["SubData"].Values[0];
 
-			Assert.AreEqual("sub_obj_converted", actual_subdata.Reference.Id);
+			Assert.AreEqual("sub_obj_converted", actual_subdata.Id);
 		}
 
 		[Test]
-		public void Member_display_values_are_fetched_along_with_their_ids()
+		public void Data_display_values_are_fetched_along_with_their_ids()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
 			var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
-			var actualMember = actual.Members["SubData"];
+			var actualData = actual.Data["SubData"];
 
-			Assert.AreEqual("sub_obj", actualMember.Values[0].Reference.Id);
-			Assert.AreEqual("Sub Obj Title", actualMember.Values[0].Value);
+			Assert.AreEqual("sub_obj", actualData.Values[0].Id);
+			Assert.AreEqual("Sub Obj Title", actualData.Values[0].Display);
 		}
 
 		[Test]
-		public void Object_is_marked_as_null_if_it_is_null()
+		public void Null_objects_represented_as_null()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = null });
 
 			var actual = testing.Get(Id("obj"));
-			var actualMember = actual.Members["Title"];
+			var actualData = actual.Data["Title"];
 
-			Assert.IsTrue(actualMember.Values[0].Reference.IsNull);
+			Assert.IsTrue(actualData == null);
 		}
 
 		[Test]
-		public void Members_are_fetched_eagerly_when_configured_so()
+		public void Datas_are_fetched_eagerly_when_configured_so()
 		{
 			codingStyle
-				.MemberFetchedEagerly.Set(true, m => m.Name == "SubDatas")
+				.DataFetchedEagerly.Set(true, m => m.Name == "SubDatas")
 				;
 
 			AddToRepository(new BusinessData { Id = "sub1", Items = new List<string> { "sub1_1", "sub1_2" } });
@@ -301,33 +297,33 @@ namespace Routine.Test.Engine
 			});
 
 			var actual = testing.Get(Id("obj"));
-			var actualMember = actual.Members["SubDatas"];
+			var actualData = actual.Data["SubDatas"];
 
-			Assert.AreEqual("sub1_1", actualMember.Values[0].Members["Items"].Values[0].Reference.Id);
-			Assert.AreEqual("sub1_2", actualMember.Values[0].Members["Items"].Values[1].Reference.Id);
-			Assert.AreEqual("sub2_1", actualMember.Values[1].Members["Items"].Values[0].Reference.Id);
-			Assert.AreEqual("sub2_2", actualMember.Values[1].Members["Items"].Values[1].Reference.Id);
+			Assert.AreEqual("sub1_1", actualData.Values[0].Data["Items"].Values[0].Id);
+			Assert.AreEqual("sub1_2", actualData.Values[0].Data["Items"].Values[1].Id);
+			Assert.AreEqual("sub2_1", actualData.Values[1].Data["Items"].Values[0].Id);
+			Assert.AreEqual("sub2_2", actualData.Values[1].Data["Items"].Values[1].Id);
 		}
 
 		[Test]
-		public void When_member_type_cannot_be_located__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
+		public void When_data_type_cannot_be_located__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
 		{
-			codingStyle.MemberFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
+			codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
 
 			AddToRepository(new BusinessData { Id = "obj", NotLocatable = new NotLocatable { Title = "fetched eagerly" } });
 
 			var actual = testing.Get(Id("obj"));
-			var actualMemberValue = actual.Members["NotLocatable"].Values[0];
+			var actualDataValue = actual.Data["NotLocatable"].Values[0];
 
-			Assert.IsTrue(actualMemberValue.Members.ContainsKey("Title"), "Member was not fetched eagerly");
-			Assert.AreEqual("fetched eagerly", actualMemberValue.Members["Title"].Values[0].Reference.Id);
-			Assert.AreEqual(string.Empty, actualMemberValue.Reference.Id);
+			Assert.IsTrue(actualDataValue.Data.ContainsKey("Title"), "Member was not fetched eagerly");
+			Assert.AreEqual("fetched eagerly", actualDataValue.Data["Title"].Values[0].Id);
+			Assert.AreEqual(string.Empty, actualDataValue.Id);
 		}
 
 		[Test]
-		public void When_member_type_is_locatable_but_actual_type_of_that_member_is_not_locatable__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
+		public void When_data_type_is_locatable_but_actual_type_of_that_data_is_not_locatable__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
 		{
-			codingStyle.MemberFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
+			codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
 
 			var sub_businessdata = new BusinessData { Id = "sub_businessdata" };
 			var sub_notlocatable = new NotLocatable { SubData = sub_businessdata, Title = "sub not locatable" };
@@ -338,17 +334,17 @@ namespace Routine.Test.Engine
 			AddToRepository(root_businessdata);
 
 			var actual_root_businessdata = testing.Get(Id("root_businessdata"));
-			var actual_notlocatable = actual_root_businessdata.Members["NotLocatable"].Values[0];
+			var actual_notlocatable = actual_root_businessdata.Data["NotLocatable"].Values[0];
 
-			var actual_sub_notlocatable = actual_notlocatable.Members["SubData"].Values[0];
+			var actual_sub_notlocatable = actual_notlocatable.Data["SubData"].Values[0];
 
-			Assert.AreEqual("sub not locatable", actual_sub_notlocatable.Value);
-			Assert.IsTrue(actual_sub_notlocatable.Members.ContainsKey("SubData"), "Member was not fetched eagerly, instance was not locatable and supposed to be fetched eagerly");
+			Assert.AreEqual("sub not locatable", actual_sub_notlocatable.Display);
+			Assert.IsTrue(actual_sub_notlocatable.Data.ContainsKey("SubData"), "Member was not fetched eagerly, instance was not locatable and supposed to be fetched eagerly");
 
-			var actual_sub_businessdata = actual_sub_notlocatable.Members["SubData"].Values[0];
+			var actual_sub_businessdata = actual_sub_notlocatable.Data["SubData"].Values[0];
 
-			Assert.AreEqual("sub_businessdata", actual_sub_businessdata.Reference.Id);
-			Assert.IsFalse(actual_sub_businessdata.Members.ContainsKey("SubData"), "Member was fetched eagerly, instance was locatable and not supposed to be fetched eagerly");
+			Assert.AreEqual("sub_businessdata", actual_sub_businessdata.Id);
+			Assert.IsFalse(actual_sub_businessdata.Data.ContainsKey("SubData"), "Member was fetched eagerly, instance was locatable and not supposed to be fetched eagerly");
 		}
 
 		[Test]

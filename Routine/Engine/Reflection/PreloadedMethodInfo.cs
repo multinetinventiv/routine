@@ -7,6 +7,7 @@ namespace Routine.Engine.Reflection
 	{
 		private string name;
 		private bool isPublic;
+		private bool isStatic;
 		private TypeInfo declaringType;
 		private TypeInfo reflectedType;
 		private TypeInfo returnType;
@@ -15,6 +16,8 @@ namespace Routine.Engine.Reflection
 		private object[] customAttributes;
 		private object[] returnTypeCustomAttributes;
 
+		private IMethodInvoker invoker;
+
 		internal PreloadedMethodInfo(System.Reflection.MethodInfo methodInfo)
 			: base(methodInfo) {}
 
@@ -22,6 +25,7 @@ namespace Routine.Engine.Reflection
 		{
 			name = methodInfo.Name;
 			isPublic = methodInfo.IsPublic;
+			isStatic = methodInfo.IsStatic;
 			declaringType = TypeInfo.Get(methodInfo.DeclaringType);
 			reflectedType = TypeInfo.Get(methodInfo.ReflectedType);
 			returnType = TypeInfo.Get(methodInfo.ReturnType);
@@ -30,11 +34,14 @@ namespace Routine.Engine.Reflection
 			customAttributes = methodInfo.GetCustomAttributes(true);
 			returnTypeCustomAttributes = methodInfo.ReturnTypeCustomAttributes.GetCustomAttributes(true);
 
+			invoker = methodInfo.CreateInvoker();
+
 			return this;
 		}
 
 		public override string Name { get { return name; } }
 		public override bool IsPublic { get { return isPublic; } }
+		public override bool IsStatic { get { return isStatic; } }
 		public override TypeInfo DeclaringType { get { return declaringType; } }
 		public override TypeInfo ReflectedType { get { return reflectedType; } }
 		public override TypeInfo ReturnType { get { return returnType; } }
@@ -42,31 +49,6 @@ namespace Routine.Engine.Reflection
 		public override ParameterInfo[] GetParameters() {return parameters;}
 		public override object[] GetCustomAttributes() { return customAttributes; }
 		public override object[] GetReturnTypeCustomAttributes() { return returnTypeCustomAttributes; }
-
-		#region private IMethodInvoker invoker;
-		// ReSharper disable InconsistentNaming
-		private readonly object invokerLock = new object();
-		private IMethodInvoker _invoker;
-		private IMethodInvoker invoker
-		{
-			get
-			{
-				if (_invoker == null)
-				{
-					lock (invokerLock)
-					{
-						if (_invoker == null)
-						{
-							_invoker = methodInfo.CreateInvoker();
-						}
-					}
-				}
-
-				return _invoker;
-			}
-		}
-		// ReSharper restore InconsistentNaming
-		#endregion
 
 		public override object Invoke(object target, params object[] parameters)
 		{

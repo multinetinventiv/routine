@@ -12,7 +12,7 @@ namespace Routine.Engine
 		public DomainParameterGroup(T parametric, IEnumerable<DomainParameter> parameters, int groupIndex)
 		{
 			Parametric = parametric;
-			Parameters = parameters.OrderBy(p => parametric.Parameters.Single(p2 => p2.Name == p.Id).Index).ToList();
+			Parameters = parameters.OrderBy(p => parametric.Parameters.Single(p2 => p2.Name == p.Name).Index).ToList();
 			GroupIndex = groupIndex;
 		}
 

@@ -1,52 +1,62 @@
 using System;
-using System.Collections.Generic;
-using Routine.Engine.Configuration.Conventional;
+using Routine.Engine.Configuration.ConventionBased;
 
 namespace Routine.Engine.Configuration
 {
 	public class CodingStyleBuilder
 	{
-		public ConventionalCodingStyle FromBasic()
+		public ConventionBasedCodingStyle FromBasic()
 		{
-			return new ConventionalCodingStyle()
+			return new ConventionBasedCodingStyle()
 				.MaxFetchDepth.Set(Constants.DEFAULT_MAX_FETCH_DEPTH)
 
 				.Type.Set(c => c.By(o => o.GetTypeInfo()))
 
-				.Module.Set(string.Empty)
+				.Module.Set(c => c
+					.By(t => ((TypeInfo)t).GetActualType().GetGenericArguments()[0].Namespace)
+					.When(t => t is TypeInfo && t.IsValueType && t.IsGenericType && ((TypeInfo)t).GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
+				.TypeName.Set(c => c
+					.By(t => ((TypeInfo)t).GetActualType().GetGenericArguments()[0].Name + "?")
+					.When(t => t is TypeInfo && t.IsValueType && t.IsGenericType && ((TypeInfo)t).GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
+
+				.Module.Set(c => c.By(t => t.Namespace))
+				.TypeName.Set(c => c.By(t => t.ToCSharpString(false)))
+				.DataName.Set(c => c.By(m => m.Name))
+				.OperationName.Set(c => c.By(o => o.Name))
+				.ParameterName.Set(c => c.By(p => p.Name))
+
 				.TypeIsValue.Set(false)
 
-				.ViewTypes.Add(c => c.By(t => typeof(Nullable<>).MakeGenericType(((TypeInfo)t).GetActualType()).ToTypeInfo())
-									 .When(t => t is TypeInfo && t.IsValueType && !t.IsVoid && !t.IsGenericType))
-				.Converter.Set(c => c.ConvertToNullable().When(t => t.IsValueType))
+				.Converters.Add(c => c.Convert(b => b.ToNullable()).When(t => t.IsValueType))
+				.Converters.Add(c => c.Convert(b => b.ByCasting()))
 
 				.TypeIsView.Set(true, t => t.IsAbstract || t.IsInterface)
 				.TypeIsView.Set(false)
 
-				.StaticInstances.Set(new List<object>())
-				.MemberFetchedEagerly.Set(false)
+				.DataFetchedEagerly.Set(false)
 
 				.IdExtractor.SetDefault()
 				.ValueExtractor.SetDefault()
 				.Locator.SetDefault()
-				.Converter.SetDefault()
 
 				.Override(cfg => cfg
-					.TypeId.Set(Constants.NULL_MODEL_ID, t => t == null)
+					.AddTypes((IType)null)
 					.TypeIsValue.Set(true, t => t == null)
 					.TypeIsView.Set(true, t => t == null)
 					.Locator.Set(c => c.Locator(l => l.Constant(null)).WhenDefault())
 					.IdExtractor.Set(c => c.Id(e => e.Constant(null)).WhenDefault())
-					.Converter.Set(c => c.Converter(cv => cv.Constant(null)).WhenDefault())
+					.Converters.AddNoneWhen(t => t == null)
 					.ValueExtractor.Set(c => c.Value(e => e.Constant(string.Empty)).WhenDefault())
-					.Module.Set(null, t => t == null)
 					.TypeMarks.AddNoneWhen(t => t == null)
 					.Initializers.AddNoneWhen(t => t == null)
 					.Operations.AddNoneWhen(t => t == null)
-					.Members.AddNoneWhen(t => t == null)
-					.StaticInstances.Set(c => c.Constant(new List<object>()).WhenDefault())
+					.Datas.AddNoneWhen(t => t == null)
+					.StaticInstances.AddNoneWhen(t => t == null)
+					.Module.Set(null, t => t == null)
+					.TypeName.Set(Constants.NULL_MODEL_NAME, t => t == null)
 
-					.TypeId.Set(c => c.By(t => Constants.VOID_MODEL_ID).When(t => t.IsVoid))
+					.Module.Set(null, t => t.IsVoid)
+					.TypeName.Set(c => c.By(t => Constants.VOID_MODEL_NAME).When(t => t.IsVoid))
 					.TypeIsValue.Set(true, t => t.IsVoid)
 				)
 					
@@ -56,7 +66,7 @@ namespace Routine.Engine.Configuration
 					.IdExtractor.Set(c => c.Id(e => e.By(o => o as string)).When(type.of<string>()))
 					.Locator.Set(c => c.Locator(l => l.SingleBy(o => o)).When(type.of<string>()))
 
-					.Members.AddNoneWhen(type.of<string>())
+					.Datas.AddNoneWhen(type.of<string>())
 					.Operations.AddNoneWhen(type.of<string>())
 				)
 

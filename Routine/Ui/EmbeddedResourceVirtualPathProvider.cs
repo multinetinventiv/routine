@@ -54,12 +54,12 @@ namespace Routine.Ui
 
 		public override bool FileExists(string virtualPath)
 		{
-			return ResourcesContains(virtualPath) || previous.FileExists(virtualPath);
+			return previous.FileExists(virtualPath) || ResourcesContains(virtualPath);
 		}
 
 		public override VirtualFile GetFile(string virtualPath)
 		{
-			if (!ResourcesContains(virtualPath))
+			if (previous.FileExists(virtualPath) || !ResourcesContains(virtualPath))
 			{
 				return previous.GetFile(virtualPath);
 			}
@@ -69,7 +69,7 @@ namespace Routine.Ui
 
 		public override CacheDependency GetCacheDependency(string virtualPath, IEnumerable virtualPathDependencies, DateTime utcStart)
 		{
-			if (!ResourcesContains(virtualPath))
+			if (previous.FileExists(virtualPath) || !ResourcesContains(virtualPath))
 			{
 				return previous.GetCacheDependency(virtualPath, virtualPathDependencies, utcStart);
 			}

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Routine.Client;
-using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -17,7 +16,7 @@ namespace Routine.Api
 		
 		bool IsRendered(Rtype type);
 		bool IsRendered(Rinitializer initializer);
-		bool IsRendered(Rmember member);
+		bool IsRendered(Rdata data);
 		bool IsRendered(Roperation operation);
 
 		List<int> GetModes(TypeCodeModel typeCodeModel);
@@ -26,16 +25,16 @@ namespace Routine.Api
 
 		string GetName(TypeCodeModel typeCodeModel, int mode);
 		string GetName(OperationCodeModel operationCodeModel, int mode);
-		string GetName(MemberCodeModel memberCodeModel, int mode);
+		string GetName(DataCodeModel dataCodeModel, int mode);
 		string GetName(ParameterCodeModel parameterCodeModel, int mode);
 
-		List<IType> GetAttributes(TypeCodeModel typeCodeModel, int mode);
-		List<IType> GetAttributes(InitializerCodeModel parameterCodeModel, int mode);
-		List<IType> GetAttributes(OperationCodeModel operationCodeModel, int mode);
-		List<IType> GetAttributes(MemberCodeModel memberCodeModel, int mode);
-		List<IType> GetAttributes(ParameterCodeModel parameterCodeModel, int mode);
-		
-		IType GetReferencedType(Rtype type);
-		ITypeConversionTemplate GetReferencedTypeTemplate(IType type);
+		List<Type> GetAttributes(TypeCodeModel typeCodeModel, int mode);
+		List<Type> GetAttributes(InitializerCodeModel parameterCodeModel, int mode);
+		List<Type> GetAttributes(OperationCodeModel operationCodeModel, int mode);
+		List<Type> GetAttributes(DataCodeModel dataCodeModel, int mode);
+		List<Type> GetAttributes(ParameterCodeModel parameterCodeModel, int mode);
+
+		Type GetReferencedType(Rtype type);
+		ITypeConversionTemplate GetReferencedTypeTemplate(Type type);
 	}
 }

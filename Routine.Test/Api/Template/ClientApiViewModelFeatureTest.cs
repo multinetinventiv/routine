@@ -77,7 +77,7 @@ namespace Routine.Test.Api.Template
 
 			var testing = Generator(c => c
 				.TypeIsRendered.Set(false, rt => rt.Id == "s-string")
-				.ReferencedType.Set(typeof(string).ToTypeInfo(), rt => rt.Id == "s-string")
+				.ReferencedType.Set(typeof(string), rt => rt.Id == "s-string")
 			);
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -154,7 +154,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("instance", "TestClass", "ITestClass")).Value("instance")
+				Object(Id("instance", "TestClass", "ITestClass")).Display("instance")
 			);
 
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
@@ -181,8 +181,8 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("instance", "TestClass")).Value("instance"),
-				Object(Id("instance", "TestClass", "ITestClass")).Value("view instance")
+				Object(Id("instance", "TestClass")).Display("instance"),
+				Object(Id("instance", "TestClass", "ITestClass")).Display("view instance")
 			);
 
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
@@ -216,10 +216,10 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("instance", "TestClass")).Value("instance"),
-				Object(Id("instance", "TestClass", "ITestClass")).Value("view instance"),
-				Object(Id("instance2", "TestClass2")).Value("instance 2"),
-				Object(Id("instance2", "TestClass2", "ITestClass")).Value("view instance 2")
+				Object(Id("instance", "TestClass")).Display("instance"),
+				Object(Id("instance", "TestClass", "ITestClass")).Display("view instance"),
+				Object(Id("instance2", "TestClass2")).Display("instance 2"),
+				Object(Id("instance2", "TestClass2", "ITestClass")).Display("view instance 2")
 			);
 
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
@@ -267,16 +267,16 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("test2_1", "Module2-TestClass2", "Module2-ITestClass2")).Value("test2_1_value"),
-				Object(Id("test2_2", "Module2-TestClass2", "Module2-ITestClass2")).Value("test2_2_value"),
+				Object(Id("test2_1", "Module2-TestClass2", "Module2-ITestClass2")).Display("test2_1_value"),
+				Object(Id("test2_2", "Module2-TestClass2", "Module2-ITestClass2")).Display("test2_2_value"),
 				Object(Id("obj", "Module1-TestClass1")),
-				Object(Id("obj", "Module1-TestClass1", "Module2-ITestClass1")).Value("view obj")
+				Object(Id("obj", "Module1-TestClass1", "Module2-ITestClass1")).Display("view obj")
 			);
 
 			When(Id("obj", "Module1-TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].Values[0].ObjectModelId == "Module2-TestClass2" &&
-					p["arg1"].Values[0].ReferenceId == "test2_1"
+					p["arg1"].Values[0].ModelId == "Module2-TestClass2" &&
+					p["arg1"].Values[0].Id == "test2_1"
 				).Returns(Result(Id("test2_2", "Module2-TestClass2", "Module2-ITestClass2"))
 			);
 
@@ -342,10 +342,10 @@ namespace Routine.Test.Api.Template
 
 			When(Id("obj", "TestClass2")).Performs("ListOperation", p =>
 				p["arg1"].IsList &&
-				p["arg1"].Values[0].ObjectModelId == "TestClass1" &&
-				p["arg1"].Values[0].ReferenceId == "test1" &&
-				p["arg1"].Values[1].ObjectModelId == "TestClass1" &&
-				p["arg1"].Values[1].ReferenceId == "test2"
+				p["arg1"].Values[0].ModelId == "TestClass1" &&
+				p["arg1"].Values[0].Id == "test1" &&
+				p["arg1"].Values[1].ModelId == "TestClass1" &&
+				p["arg1"].Values[1].Id == "test2"
 			).Returns(Result(Id("test3", "TestClass1", "ITestClass1"), Id("test4", "TestClass1", "ITestClass1")));
 
 			var assembly = Generator().Generate(DefaultTestTemplate);

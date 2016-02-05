@@ -12,21 +12,27 @@ namespace Routine
 
 		public static bool ItemEquals(this IEnumerable source, IEnumerable other)
 		{
-			if(source == null && other == null)
+			if (source == null && other == null)
 				return true;
 
-			if(source == null || other == null)
+			if (source == null || other == null)
 				return false;
 
-			var sourceGen = source.Cast<object>();
-			var otherGen = other.Cast<object>();
+			var sourceAsObject = source.Cast<object>().ToList();
+			var otherAsObject = other.Cast<object>().ToList();
 
-			if(sourceGen.All(s => otherGen.Any(o => object.Equals(s, o))) &&
-				otherGen.All(o => sourceGen.Any(s => object.Equals(o, s)))) {
-				return true;
+			if (sourceAsObject.Count != otherAsObject.Count)
+				return false;
+
+			for (int i = 0; i < sourceAsObject.Count; i++)
+			{
+				if (!Equals(sourceAsObject[i], otherAsObject[i]))
+				{
+					return false;
+				}
 			}
 
-			return false;
+			return true;
 		}
 
 		public static int GetItemHashCode(this IEnumerable source)
@@ -34,9 +40,9 @@ namespace Routine
 			int result = 0;
 			unchecked
 			{
-				foreach(var item in source)
+				foreach (var item in source)
 				{
-					result ^= (item != null)?item.GetHashCode():0;
+					result = (result * 397) ^ ((item != null) ? item.GetHashCode() : 0);
 				}
 			}
 			return result;

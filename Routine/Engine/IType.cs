@@ -15,20 +15,19 @@ namespace Routine.Engine
 		bool IsVoid { get; }
 		bool IsEnum { get; }
 		bool IsArray { get; }
-		bool IsDomainType { get; }
 
 		string FullName { get; }
 		string Namespace { get; }
 		IType BaseType { get; }
 
 		List<IType> AssignableTypes { get; }
-		List<IInitializer> Initializers { get; }
-		List<IMember> Members { get; }
-		List<IOperation> Operations { get; }
+		List<IConstructor> Constructors { get; }
+		List<IProperty> Properties { get; }
+		List<IMethod> Methods { get; }
 
 		List<IType> GetGenericArguments();
 		IType GetElementType();
-		IOperation GetParseOperation();
+		IMethod GetParseMethod();
 
 		List<string> GetEnumNames();
 		List<object> GetEnumValues();

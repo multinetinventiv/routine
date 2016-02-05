@@ -17,65 +17,57 @@ namespace Routine.Engine
 			this.ctx = ctx;
 		}
 
-		public ApplicationModel GetApplicationModel()
+		public ApplicationModel ApplicationModel
 		{
-			if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
+			get
 			{
-				lock (cache)
+				if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
 				{
-					if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
+					lock (cache)
 					{
-						cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, new ApplicationModel
+						if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
 						{
-							Models = ctx.GetDomainTypes().Select(dt => dt.GetModel()).ToList()
-						});
+							cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, new ApplicationModel
+							{
+								Models = ctx.GetDomainTypes().Select(dt => dt.GetModel()).ToList()
+							});
+						}
 					}
 				}
+
+				return cache[Constants.APPLICATION_MODEL_CACHE_KEY] as ApplicationModel;
 			}
-
-			return cache[Constants.APPLICATION_MODEL_CACHE_KEY] as ApplicationModel;
 		}
 
-		public ObjectModel GetObjectModel(string objectModelId)
-		{
-			return ctx.GetDomainType(objectModelId).GetModel();
-		}
-
-		public string GetValue(ObjectReferenceData reference)
-		{
-			return ctx.CreateDomainObject(reference)
-					  .GetValue();
-		}
-
-		public ObjectData Get(ObjectReferenceData reference)
+		public ObjectData Get(ReferenceData reference)
 		{
 			return ctx.CreateDomainObject(reference)
 					  .GetObjectData(true);
 		}
 
-		public ValueData PerformOperation(ObjectReferenceData targetReference, string operationModelId, Dictionary<string, ParameterValueData> parameters)
+		public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
 		{
-			return ctx.CreateDomainObject(targetReference)
-					  .Perform(operationModelId, parameters);
+			return ctx.CreateDomainObject(target)
+					  .Perform(operation, parameters);
 		}
 	}
 
-	public class MemberDoesNotExistException : Exception
+	public class DataDoesNotExistException : Exception
 	{
-		public MemberDoesNotExistException(string objectModelId, string memberModelId)
-			: base("Member '" + memberModelId + "' does not exist on Object '" + objectModelId + "'") { }
+		public DataDoesNotExistException(string objectModelId, string dataName)
+			: base("Data '" + dataName + "' does not exist on Object '" + objectModelId + "'") { }
 	}
 
 	public class OperationDoesNotExistException : Exception
 	{
-		public OperationDoesNotExistException(string objectModelId, string operationModelId)
-			: base("Operation '" + operationModelId + "' does not exist on Object '" + objectModelId + "'") { }
+		public OperationDoesNotExistException(string objectModelId, string operationName)
+			: base("Operation '" + operationName + "' does not exist on Object '" + objectModelId + "'") { }
 	}
 
 	public class MissingParameterException : Exception
 	{
-		public MissingParameterException(string objectModelId, string operationModelId, string parameterModelId)
-			: base("Parameter '" + parameterModelId + "' was not given for Operation '" + operationModelId + " on Object '" + objectModelId + "'") { }
+		public MissingParameterException(string objectModelId, string operationName, string parameterName)
+			: base("Parameter '" + parameterName + "' was not given for Operation '" + operationName + " on Object '" + objectModelId + "'") { }
 	}
 }
 

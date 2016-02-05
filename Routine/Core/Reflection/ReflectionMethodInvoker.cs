@@ -1,3 +1,4 @@
+using System;
 using Routine.Core.Runtime;
 
 namespace Routine.Core.Reflection
@@ -20,6 +21,11 @@ namespace Routine.Core.Reflection
 					var ctor = method as System.Reflection.ConstructorInfo;
 
 					return ctor.Invoke(args);
+				}
+
+				if (target == null)
+				{
+					throw new NullReferenceException();
 				}
 
 				return method.Invoke(target, args);

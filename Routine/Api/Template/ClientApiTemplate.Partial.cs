@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using Routine.Api.Configuration;
 using Routine.Client;
 using Routine.Core.Configuration;
-using Routine.Engine;
 
 namespace Routine.Api.Template
 {
@@ -56,14 +55,14 @@ namespace Routine.Api.Template
 
 	public static class ClientApiTemplateExtensions
 	{
-		public static ConventionalApiConfiguration ClientApi(this ApiConfigurationBuilder source)
+		public static ConventionBasedApiConfiguration ClientApi(this ApiConfigurationBuilder source)
 		{
 			return source.ClientApi(
-				tcm => tcm.Members.Any() || tcm.Operations.Any()
+				tcm => tcm.Datas.Any() || tcm.Operations.Any()
 			);
 		}
 
-		public static ConventionalApiConfiguration ClientApi(this ApiConfigurationBuilder source, Func<TypeCodeModel, bool> interfaceModePredicate)
+		public static ConventionBasedApiConfiguration ClientApi(this ApiConfigurationBuilder source, Func<TypeCodeModel, bool> interfaceModePredicate)
 		{
 			return source.ClientApi(
 				interfaceModePredicate,
@@ -71,7 +70,7 @@ namespace Routine.Api.Template
 			);
 		}
 
-		public static ConventionalApiConfiguration ClientApi(this ApiConfigurationBuilder source,
+		public static ConventionBasedApiConfiguration ClientApi(this ApiConfigurationBuilder source,
 			Func<TypeCodeModel, bool> interfaceModePredicate,
 			Func<TypeCodeModel, bool> initializeOnlyStructModePredicate
 			)
@@ -82,7 +81,7 @@ namespace Routine.Api.Template
 				tcm => !interfaceModePredicate(tcm)
 			);
 		}
-		public static ConventionalApiConfiguration ClientApi(this ApiConfigurationBuilder source,
+		public static ConventionBasedApiConfiguration ClientApi(this ApiConfigurationBuilder source,
 			Func<TypeCodeModel, bool> interfaceModePredicate,
 			Func<TypeCodeModel, bool> initializeOnlyStructModePredicate,
 			Func<TypeCodeModel, bool> enumPredicate
@@ -117,37 +116,32 @@ namespace Routine.Api.Template
 
 				.RenderedTypeTemplate.Set(new ClientApiStructConversionTemplate(), mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStruct)
 				.RenderedTypeName.Set(c => c.By(mm => mm.Model.Type.Name).When(mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStruct))
-				.RenderedParameterName.Set(c => c.By(mm => mm.Model.Id.ToUpperInitial()).When(mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStructProperty))
+				.RenderedParameterName.Set(c => c.By(mm => mm.Model.Name.ToUpperInitial()).When(mm => mm.Mode == ClientApiTemplate.Mode.InitializeOnlyStructProperty))
 
 				.NextLayer()
 			;
 		}
 
-		public static ConventionalApiConfiguration ReferenceOtherClientApiPattern(this PatternBuilder<ConventionalApiConfiguration> source, Assembly otherApiAssembly, IApiContext otherApiContext)
+		public static ConventionBasedApiConfiguration ReferenceOtherClientApiPattern(this PatternBuilder<ConventionBasedApiConfiguration> source, Assembly otherApiAssembly, IApiContext otherApiContext)
 		{
 			return source
 				.FromEmpty()
 
 				.TypeIsRendered.Set(false, rt => otherApiContext.Configuration.IsRendered(rt))
 				.ReferencedType.Set(c => c
-					.By(rt => otherApiAssembly.GetTypes().Single(t => t.FullName == otherApiContext.Application.GetModel(rt).GetFullName()).ToTypeInfo())
+					.By(rt => otherApiAssembly.GetTypes().Single(t => t.FullName == otherApiContext.Application.GetModel(rt).GetFullName()))
 					.When(rt => otherApiContext.Configuration.IsRendered(rt)))
 
 				.ReferencedTypeTemplate.Set(c => c
 					.By(t => new ClientApiReferencedEnumConversionTemplate(otherApiContext.Application.Models.Single(tcm => tcm.GetFullName(ClientApiTemplate.Mode.Enum) == t.FullName)))
-					.When(t => t.IsInAssembly(otherApiAssembly) && t.IsEnum)
+					.When(t => t.Assembly == otherApiAssembly && t.IsEnum)
 				)
-				.ReferencedTypeTemplate.Set(new ClientApiStructConversionTemplate(), t => t.IsInAssembly(otherApiAssembly) && t.IsValueType && !t.IsEnum)
+				.ReferencedTypeTemplate.Set(new ClientApiStructConversionTemplate(), t => t.Assembly == otherApiAssembly && t.IsValueType && !t.IsEnum)
 				.ReferencedTypeTemplate.Set(c => c
 					.By(t => new ClientApiReferencedInterfaceConversionTemplate(otherApiContext.Application.Models.Single(tcm => tcm.GetFullName(ClientApiTemplate.Mode.Interface) == t.FullName)))
-					.When(t => t.IsInAssembly(otherApiAssembly) && t.IsInterface)
+					.When(t => t.Assembly == otherApiAssembly && t.IsInterface)
 				)
 			;
-		}
-
-		private static bool IsInAssembly(this IType source, Assembly assembly)
-		{
-			return source is TypeInfo && ((TypeInfo)source).GetActualType().Assembly == assembly;
 		}
 
 		private class ClientApiStructConversionTemplate : TypeConversionTemplateBase
@@ -261,12 +255,12 @@ namespace Routine.Api.Template
 
 		public static string GetEnumMemberName(this Robject source)
 		{
-			var result = source.Value
+			var result = source.Display
 				.Replace(" ", "_")
 				.SnakeCaseToCamelCase()
 				.ToUpperInitial();
 
-			if (Char.IsNumber(result[0]))
+			if (char.IsNumber(result[0]))
 			{
 				result = "_" + result;
 			}

@@ -16,7 +16,7 @@ namespace Routine.Test.Api.Template
 		[Test]
 		public void Rendered_types_are_concrete_classes()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
+			ModelsAre(Model("TestClass").Name("TestClass").Data("Self", "TestClass"));
 
 			var testClass = GetRenderedType("TestClassImpl");
 
@@ -26,7 +26,7 @@ namespace Routine.Test.Api.Template
 		[Test]
 		public void Interfaces_are_generated_for_all_rendered_types_to_enable_mocking()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
+			ModelsAre(Model("TestClass").Name("TestClass").Data("Self", "TestClass"));
 
 			var iTestClass = GetRenderedType("TestClass");
 
@@ -37,7 +37,7 @@ namespace Routine.Test.Api.Template
 		[Test]
 		public void Concrete_classes_are_rendered_as_internal()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
+			ModelsAre(Model("TestClass").Name("TestClass").Data("Self", "TestClass"));
 
 			var testClass = GetRenderedType("TestClassImpl");
 
@@ -47,9 +47,9 @@ namespace Routine.Test.Api.Template
 		[Test]
 		public void Rendered_types_override_ToString_method_returning_value()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
+			ModelsAre(Model("TestClass").Name("TestClass").Data("Self", "TestClass"));
 
-			ObjectsAre(Object(Id("test", "TestClass")).Value("test_value"));
+			ObjectsAre(Object(Id("test", "TestClass")).Display("test_value"));
 
 			var testObj1 = CreateInstance("test", "TestClass");
 
@@ -59,7 +59,7 @@ namespace Routine.Test.Api.Template
 		[Test]
 		public void Concrete_classes_implement_their_interfaces()
 		{
-			ModelsAre(Model("TestClass").Name("TestClass").Member("Self", "TestClass"));
+			ModelsAre(Model("TestClass").Name("TestClass").Data("Self", "TestClass"));
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
 			var testClass = GetRenderedType(assembly, "TestClassImpl");
@@ -69,15 +69,15 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Members_are_rendered_as_read_only_interface_properties_implemented_explicitly_by_concrete_classes()
+		public void Datas_are_rendered_as_read_only_interface_properties_implemented_explicitly_by_concrete_classes()
 		{
 			ModelsAre(
-				Model("TestClass").Name("TestClass").Member("Name", "s-string"),
+				Model("TestClass").Name("TestClass").Data("Name", "s-string"),
 				Model("s-string").IsValue()
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var properties = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetProperties();
@@ -95,7 +95,7 @@ namespace Routine.Test.Api.Template
 		public void Rendered_types_are_bound_via_interfaces()
 		{
 			ModelsAre(
-				Model("TestClass").Name("TestClass").Member("Self", "TestClass")
+				Model("TestClass").Name("TestClass").Data("Self", "TestClass")
 			);
 
 			var iTestClass = GetRenderedType("TestClass");
@@ -133,7 +133,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetMethods();
@@ -154,7 +154,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -182,7 +182,8 @@ namespace Routine.Test.Api.Template
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
+				.Use(p => p.ReferencedTypesPattern(t => "s-int-32", typeof(int)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var methods = GetRenderedType(testing.Generate(DefaultTestTemplate), "TestClass").GetMethods();
@@ -209,32 +210,32 @@ namespace Routine.Test.Api.Template
 		public class CustomAttribute : Attribute { }
 
 		[Test]
-		public void When_configured__types__initializers__members__operations_and_parameters_renders_attributes()
+		public void When_configured__types__initializers__datas__operations_and_parameters_renders_attributes()
 		{
 			ModelsAre(
 				Model("TestClass")
 				.Name("TestClass")
-				.Member("Member", "TestClass")
+				.Data("Data", "TestClass")
 				.Operation("Operation", true, PModel("parameter", "TestClass"))
 			);
 
 			var assembly = Generator(c => c
-				.RenderedTypeAttributes.Add(type.of<CustomAttribute>())
-				.RenderedMemberAttributes.Add(type.of<CustomAttribute>())
-				.RenderedOperationAttributes.Add(type.of<CustomAttribute>())
-				.RenderedParameterAttributes.Add(type.of<CustomAttribute>()))
+				.RenderedTypeAttributes.Add(typeof(CustomAttribute))
+				.RenderedDataAttributes.Add(typeof(CustomAttribute))
+				.RenderedOperationAttributes.Add(typeof(CustomAttribute))
+				.RenderedParameterAttributes.Add(typeof(CustomAttribute)))
 				.AddReference<CustomAttribute>()
 				.Generate(DefaultTestTemplate)
 				;
 
 			var testClass = GetRenderedType(assembly, "TestClass");
 
-			var member = testClass.GetProperty("Member");
+			var data = testClass.GetProperty("Data");
 			var operation = testClass.GetMethod("Operation");
 			var parameter = operation.GetParameters().Single(p => p.Name == "parameter");
 
 			Assert.IsTrue(Attribute.IsDefined(testClass, typeof(CustomAttribute)));
-			Assert.IsTrue(Attribute.IsDefined(member, typeof(CustomAttribute)));
+			Assert.IsTrue(Attribute.IsDefined(data, typeof(CustomAttribute)));
 			Assert.IsTrue(Attribute.IsDefined(operation, typeof(CustomAttribute)));
 			Assert.IsTrue(Attribute.IsDefined(parameter, typeof(CustomAttribute)));
 
@@ -277,15 +278,15 @@ namespace Routine.Test.Api.Template
 			ModelsAre(
 				Model("s-string").IsValue(),
 				Model("TestClass").Name("TestClass")
-				.Member("Name", "s-string"));
+				.Data("Name", "s-string"));
 
 			ObjectsAre(
 				Object(Id("test_id", "TestClass"))
-				.Value("test_value")
-				.Member("Name", Id("test_name", "s-string")));
+				.Display("test_value")
+				.Data("Name", Id("test_name", "s-string")));
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -297,22 +298,22 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Rendered_types_have_Invalidate_method_which_invalidates_member_values()
+		public void Rendered_types_have_Invalidate_method_which_invalidates_data_values()
 		{
 			ModelsAre(
 				Model("TestClass1").Name("TestClass1")
-				.Member("Other", "TestClass1")
+				.Data("Other", "TestClass1")
 			);
 
 			ObjectsAre(
 				Object(Id("test2", "TestClass1"))
-				.Value("test2_value")
+				.Display("test2_value")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "TestClass1"))
-				.Value("test1_value")
-				.Member("Other", Id("test2", "TestClass1"))
+				.Display("test1_value")
+				.Data("Other", Id("test2", "TestClass1"))
 			);
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
@@ -335,7 +336,7 @@ namespace Routine.Test.Api.Template
 			otherValue = other.GetValue(testObj1, new object[0]);
 			Assert.AreEqual("test2_value", otherValue.ToString());
 
-			objectServiceMock.Verify(o => o.Get(It.IsAny<ObjectReferenceData>()), Times.Exactly(2));
+			objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Exactly(2));
 		}
 
 		[Test]
@@ -348,16 +349,16 @@ namespace Routine.Test.Api.Template
 
 			ObjectsAre(
 				Object(Id("test_id", "TestClass"))
-				.Value("test_value"));
+				.Display("test_value"));
 
 			When(Id("test_id", "TestClass"))
 				.Performs("Operation", p =>
-					p["arg1"].Values[0].ReferenceId == "arg1_test" &&
-					p["arg2"].Values[0].ReferenceId == "arg2_test")
+					p["arg1"].Values[0].Id == "arg1_test" &&
+					p["arg2"].Values[0].Id == "arg2_test")
 				.Returns(Result(Id("result_test", "s-string")));
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -373,17 +374,17 @@ namespace Routine.Test.Api.Template
 		public void Rendered_type_instances_are_created_using_robject_constructors()
 		{
 			ModelsAre(
-				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2"),
+				Model("TestClass2").Name("TestClass2").Data("Self", "TestClass2"),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Sub", "TestClass2")
+				.Data("Sub", "TestClass2")
 				.Operation("Operation", "TestClass2"));
 
 			ObjectsAre(
 				Object(Id("test2", "TestClass2"))
-				.Value("test2_value"),
+				.Display("test2_value"),
 				Object(Id("test1", "TestClass1"))
-				.Value("test1_value")
-				.Member("Sub", Id("test2", "TestClass2")));
+				.Display("test1_value")
+				.Data("Sub", Id("test2", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation")
@@ -409,21 +410,21 @@ namespace Routine.Test.Api.Template
 		public void Parameters_of_rendered_types_are_casted_to_their_concrete_types()
 		{
 			ModelsAre(
-				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2"),
+				Model("TestClass2").Name("TestClass2").Data("Self", "TestClass2"),
 				Model("TestClass1").Name("TestClass1")
 				.Operation("Operation", true, PModel("arg1", "TestClass2")));
 
 			ObjectsAre(
 				Object(Id("test2", "TestClass2"))
-				.Value("test2_value"),
+				.Display("test2_value"),
 				Object(Id("test1", "TestClass1"))
-				.Value("test1_value")
+				.Display("test1_value")
 			);
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p =>
-					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
-					p["arg1"].Values[0].ReferenceId == "test2")
+					p["arg1"].Values[0].ModelId == "TestClass2" &&
+					p["arg1"].Values[0].Id == "test2")
 				.Returns(Void());
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
@@ -439,47 +440,47 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void List_member__parameter_and_operation_result_support()
+		public void List_data__parameter_and_operation_result_support()
 		{
 			ModelsAre(
 				Model("s-string").IsValue(),
-				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2"),
+				Model("TestClass2").Name("TestClass2").Data("Self", "TestClass2"),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Subs", "TestClass2", true)
-				.Member("Names", "s-string", true)
+				.Data("Subs", "TestClass2", true)
+				.Data("Names", "s-string", true)
 				.Operation("SubListOperation", "TestClass2", true, PModel("arg1", "TestClass2", true))
 				.Operation("NameListOperation", "s-string", true, PModel("arg1", "s-string", true))
 			);
 
 			ObjectsAre(
-				Object(Id("test2.1", "TestClass2")).Value("test2.1_value"),
-				Object(Id("test2.2", "TestClass2")).Value("test2.2_value"),
-				Object(Id("test2.3", "TestClass2")).Value("test2.3_value"),
-				Object(Id("test2.4", "TestClass2")).Value("test2.4_value"),
+				Object(Id("test2.1", "TestClass2")).Display("test2.1_value"),
+				Object(Id("test2.2", "TestClass2")).Display("test2.2_value"),
+				Object(Id("test2.3", "TestClass2")).Display("test2.3_value"),
+				Object(Id("test2.4", "TestClass2")).Display("test2.4_value"),
 				Object(Id("test1", "TestClass1"))
-				.Value("test1_value")
-				.Member("Subs", Id("test2.1", "TestClass2"), Id("test2.2", "TestClass2"))
-				.Member("Names", Id("name1", "s-string"), Id("name2", "s-string"))
+				.Display("test1_value")
+				.Data("Subs", Id("test2.1", "TestClass2"), Id("test2.2", "TestClass2"))
+				.Data("Names", Id("name1", "s-string"), Id("name2", "s-string"))
 			);
 
 			When(Id("test1", "TestClass1"))
 				.Performs("SubListOperation", p =>
-					p["arg1"].Values[0].ObjectModelId == "TestClass2" &&
-					p["arg1"].Values[0].ReferenceId == "test2.1" &&
-					p["arg1"].Values[1].ObjectModelId == "TestClass2" &&
-					p["arg1"].Values[1].ReferenceId == "test2.2")
+					p["arg1"].Values[0].ModelId == "TestClass2" &&
+					p["arg1"].Values[0].Id == "test2.1" &&
+					p["arg1"].Values[1].ModelId == "TestClass2" &&
+					p["arg1"].Values[1].Id == "test2.2")
 				.Returns(Result(Id("test2.3", "TestClass2"), Id("test2.4", "TestClass2")));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("NameListOperation", p =>
-					p["arg1"].Values[0].ObjectModelId == "s-string" &&
-					p["arg1"].Values[0].ReferenceId == "name1" &&
-					p["arg1"].Values[1].ObjectModelId == "s-string" &&
-					p["arg1"].Values[1].ReferenceId == "name2")
+					p["arg1"].Values[0].ModelId == "s-string" &&
+					p["arg1"].Values[0].Id == "name1" &&
+					p["arg1"].Values[1].ModelId == "s-string" &&
+					p["arg1"].Values[1].Id == "name2")
 				.Returns(Result(Id("name3", "s-string"), Id("name4", "s-string")));
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -515,24 +516,24 @@ namespace Routine.Test.Api.Template
 		}
 
 		[Test]
-		public void Null_member_value_support()
+		public void Null_data_value_support()
 		{
 			ModelsAre(
 				Model("s-string").IsValue(),
 				Model("TestClass1").Name("TestClass1")
-				.Member("Name", "s-string")
-				.Member("Self", "TestClass1")
+				.Data("Name", "s-string")
+				.Data("Self", "TestClass1")
 			);
 
 			ObjectsAre(
 				Object(Id("test1", "TestClass1"))
-				.Value("test1_value")
-				.Member("Name", Null("s-string"))
-				.Member("Self", Null("TestClass1"))
+				.Display("test1_value")
+				.Data("Name", Null("s-string"))
+				.Data("Self", Null("TestClass1"))
 			);
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);
@@ -561,7 +562,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("test1", "TestClass1")).Value("test1_value"),
+				Object(Id("test1", "TestClass1")).Display("test1_value"),
 				Object(Id("fail", "TestClass1"))
 			);
 
@@ -575,16 +576,16 @@ namespace Routine.Test.Api.Template
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation", p => 
-					p["arg"].Values[0].IsNull
+					p["arg"].Values[0] == null
 				).Returns(Result(Null("s-string")));
 
 			When(Id("test1", "TestClass1"))
 				.Performs("Operation2", p => 
-					p["arg"].Values[0].IsNull
+					p["arg"].Values[0] == null
 				).Returns(Result(Null("TestClass")));
 
 			var testing = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern()));
 
 			var assembly = testing.Generate(DefaultTestTemplate);

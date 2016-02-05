@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
-using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -31,7 +31,7 @@ namespace Routine.Api
 			}
 		}
 
-		public List<IType> GetAttributes(int mode)
+		public List<Type> GetAttributes(int mode)
 		{
 			return application.Configuration.GetAttributes(this, mode);
 		}

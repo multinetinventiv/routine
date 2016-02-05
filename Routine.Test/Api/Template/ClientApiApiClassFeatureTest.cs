@@ -33,13 +33,13 @@ namespace Routine.Test.Api.Template
 		{
 			ModelsAre(
 				Model("TestClass1").Name("TestClass1")
-				.Member("Name", "TestClass2"),
-				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2")
+				.Data("Name", "TestClass2"),
+				Model("TestClass2").Name("TestClass2").Data("Self", "TestClass2")
 			);
 
 			ObjectsAre(
-				Object(Id("instance1", "TestClass1")).Value("instance1_value"),
-				Object(Id("instance2", "TestClass1")).Value("instance2_value")
+				Object(Id("instance1", "TestClass1")).Display("instance1_value"),
+				Object(Id("instance2", "TestClass1")).Display("instance2_value")
 			);
 
 			var assembly = Generator().Generate(new ClientApiTemplate("TestApi"));
@@ -78,15 +78,15 @@ namespace Routine.Test.Api.Template
 			ModelsAre(
 				Model("TestClass1").Name("TestClass1")
 				.StaticInstanceIds("instance1")
-				.Member("Name", "TestClass2"),
-				Model("TestClass2").Name("TestClass2").Member("Self", "TestClass2")
+				.Data("Name", "TestClass2"),
+				Model("TestClass2").Name("TestClass2").Data("Self", "TestClass2")
 				.StaticInstanceIds("instance2", "instance3")
 			);
 
 			ObjectsAre(
-				Object(Id("instance1", "TestClass1")).Value("instance1_value"),
-				Object(Id("instance2", "TestClass2")).Value("instance2_value"),
-				Object(Id("instance3", "TestClass2")).Value("instance3_value")
+				Object(Id("instance1", "TestClass1")).Display("instance1_value"),
+				Object(Id("instance2", "TestClass2")).Display("instance2_value"),
+				Object(Id("instance3", "TestClass2")).Display("instance3_value")
 			);
 
 			var testing = Generator();

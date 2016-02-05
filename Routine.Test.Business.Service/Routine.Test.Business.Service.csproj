@@ -116,6 +116,14 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
+    <ProjectReference Include="..\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj">
+      <Project>{75480479-b00b-4919-85e7-199706a6d923}</Project>
+      <Name>Routine.Test.Module.ProjectManagement.Api</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj">
+      <Project>{300b819c-ee59-4879-8a97-fb2c317e38d2}</Project>
+      <Name>Routine.Test.Module.Todo.Api</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>

@@ -17,15 +17,15 @@ namespace Routine.Client
 		internal Rvariable() : this(false) { }
 		internal Rvariable(bool @void) : this(ANONYMOUS, new List<Robject>(), false, @void) { }
 		internal Rvariable(string name) : this(name, new Robject()) { }
-		internal Rvariable(Rapplication application, ValueData data)
+		internal Rvariable(Rapplication application, VariableData data, string viewModelId)
 			: this(ANONYMOUS, data.Values.Select(od =>
 				{
-					if (od.Reference.IsNull)
+					if (od == null)
 					{
 						return new Robject();
 					}
 
-					return new Robject(od, application[od.Reference.ActualModelId], application[od.Reference.ViewModelId]);
+					return new Robject(od, application[od.ModelId], application[viewModelId]);
 				}), data.IsList, false) { }
 		public Rvariable(string name, Robject single) : this(name, new[] { single }, false, false) { }
 		public Rvariable(string name, IEnumerable<Robject> list) : this(name, list, true, false) { }
@@ -37,15 +37,15 @@ namespace Routine.Client
 			this.@void = @void;
 		}
 
-		internal ValueData GetValueData()
+		internal VariableData GetValueData()
 		{
-			return new ValueData
+			return new VariableData
 			{
 				IsList = list,
 				Values = value.Select(robj => new ObjectData
 				{
-					Reference = robj.ObjectReferenceData,
-					Value = robj.Value
+					Id = robj.Id,
+					Display = robj.Display
 				}).ToList()
 			};
 		}

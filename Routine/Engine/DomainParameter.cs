@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
-using Routine.Core.Configuration;
 
 namespace Routine.Engine
 {
@@ -10,13 +9,12 @@ namespace Routine.Engine
 	{
 		private readonly ICoreContext ctx;
 		private readonly IParameter parameter;
-		private readonly Lazy<DomainType> lazyParameterType;
 
-		public string Id { get; private set; }
+		public string Name { get; private set; }
 		public Marks Marks { get; private set; }
 		public List<int> Groups { get; private set; }
 		public bool IsList { get; private set; }
-		public DomainType ParameterType { get { return lazyParameterType.Value; } }
+		public DomainType ParameterType { get; private set; }
 
 		public DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
 		{
@@ -25,22 +23,19 @@ namespace Routine.Engine
 
 			Groups = new List<int>();
 			
-			Id = parameter.Name;
+			Name = ctx.CodingStyle.GetName(parameter);
 			Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
 			Groups.Add(initialGroupIndex);
 			IsList = parameter.ParameterType.CanBeCollection();
 
 			var parameterType = IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType;
 
-			try
+			if (!ctx.CodingStyle.ContainsType(parameterType))
 			{
-				ctx.CodingStyle.GetTypeId(parameterType); //To eagerly check if type is configured
-				lazyParameterType = new Lazy<DomainType>(() => ctx.GetDomainType(parameterType));
+				throw new TypeNotConfiguredException(parameterType);
 			}
-			catch (ConfigurationException ex)
-			{
-				throw new TypeNotConfiguredException(parameterType, ex);
-			}
+
+			ParameterType = ctx.GetDomainType(parameterType);
 		}
 
 		public void AddGroup(IParameter parameter, int groupIndex)
@@ -69,18 +64,12 @@ namespace Routine.Engine
 		{
 			return new ParameterModel
 			{
-				Id = Id,
+				Name = Name,
 				Marks = Marks.List,
 				Groups = Groups,
 				IsList = IsList,
 				ViewModelId = ParameterType.Id
 			};
-		}
-
-		internal void LoadSubTypes()
-		{
-			//to force type to load
-			var type = lazyParameterType.Value;
 		}
 
 		internal object Locate(ParameterValueData parameterValueData)
@@ -152,11 +141,16 @@ namespace Routine.Engine
 
 		private DomainType GetDomainType(ParameterData parameterData)
 		{
+			if (parameterData == null)
+			{
+				return ctx.GetDomainType((IType)null);
+			}
+
 			var domainType = ParameterType;
 
-			if (parameterData.ObjectModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ObjectModelId))
+			if (parameterData.ModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ModelId))
 			{
-				domainType = ctx.GetDomainType(parameterData.ObjectModelId);
+				domainType = ctx.GetDomainType(parameterData.ModelId);
 			}
 
 			return domainType;
@@ -166,7 +160,7 @@ namespace Routine.Engine
 
 		protected bool Equals(DomainParameter other)
 		{
-			return string.Equals(Id, other.Id);
+			return string.Equals(Name, other.Name);
 		}
 
 		public override bool Equals(object obj)
@@ -174,17 +168,18 @@ namespace Routine.Engine
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != GetType()) return false;
+
 			return Equals((DomainParameter)obj);
 		}
 
 		public override int GetHashCode()
 		{
-			return (Id != null ? Id.GetHashCode() : 0);
+			return (Name != null ? Name.GetHashCode() : 0);
 		}
 
 		public override string ToString()
 		{
-			return string.Format("Id: {0}", Id);
+			return string.Format("{1} {0}", Name, ParameterType);
 		}
 
 		#endregion

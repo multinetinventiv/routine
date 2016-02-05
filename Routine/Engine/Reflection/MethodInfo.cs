@@ -1,6 +1,6 @@
 namespace Routine.Engine.Reflection
 {
-	public abstract class MethodInfo : MethodBase, IOperation
+	public abstract class MethodInfo : MethodBase, IMethod
 	{
 		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo)
 		{
@@ -26,6 +26,7 @@ namespace Routine.Engine.Reflection
 
 		protected abstract MethodInfo Load();
 
+		public abstract bool IsStatic { get; }
 		public abstract TypeInfo ReturnType { get; }
 
 		public abstract TypeInfo GetFirstDeclaringType();
@@ -71,11 +72,11 @@ namespace Routine.Engine.Reflection
 
 		#endregion
 
-		#region IOperation implementation
+		#region IMethod implementation
 
-		object IOperation.PerformOn(object target, params object[] parameters)
+		object IMethod.PerformOn(object target, params object[] parameters)
 		{
-			if (target == null)
+			if (IsStatic)
 			{
 				return InvokeStatic(parameters);
 			}
@@ -83,7 +84,7 @@ namespace Routine.Engine.Reflection
 			return Invoke(target, parameters);
 		}
 
-		IType IOperation.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
+		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
 
 		#endregion
 	}

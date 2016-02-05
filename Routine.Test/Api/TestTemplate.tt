@@ -27,10 +27,10 @@ namespace <#= model.GetNamespace(mode) #>
 		<#= model.Initializer.RenderAttributes(mode) #>
 		public <#= model.GetName(mode) #>(<#= string.Join(", ", model.Initializer.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) { }
 		<# } #>
-		<# foreach(var member in model.Members) { #>
+		<# foreach(var data in model.Datas) { #>
 
-		<#= member.RenderAttributes(mode) #>
-		public <#= member.ReturnModel.GetFullName(mode) #> <#= member.GetName(mode) #> { get { return default(<#= member.ReturnModel.GetFullName(mode) #>); } }
+		<#= data.RenderAttributes(mode) #>
+		public <#= data.ReturnModel.GetFullName(mode) #> <#= data.GetName(mode) #> { get { return default(<#= data.ReturnModel.GetFullName(mode) #>); } }
 		<# } #>
 		<# foreach(var operation in model.Operations) { #>
 
@@ -39,10 +39,10 @@ namespace <#= model.GetNamespace(mode) #>
 		{
 			var __result = Robject.Perform
 				(
-				"<#= operation.Id #>"
+				"<#= operation.Name #>"
 			<# foreach(var parameter in operation.Parameters) { #>
 
-				, <#= parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Id, parameter.GetName(mode), "robject.Application") #>
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Name, parameter.GetName(mode), "robject.Application") #>
 			<# } #>
 				
 				)

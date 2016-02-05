@@ -10,7 +10,7 @@ namespace Routine.Client
 		public Rtype ResultType { get; private set; }
 
 		public Roperation(OperationModel model, Rtype type)
-			: base(model.Id, model.GroupCount, model.Parameters, model.Marks, type)
+			: base(model.Name, model.GroupCount, model.Parameters, model.Marks, type)
 		{
 			this.model = model;
 
@@ -24,7 +24,7 @@ namespace Routine.Client
 			}
 		}
 
-		public string Id { get { return model.Id; } }
+		public string Name { get { return model.Name; } }
 		public bool ResultIsVoid { get { return model.Result.IsVoid; } }
 		public bool ResultIsList { get { return model.Result.IsList; } }
 
@@ -35,17 +35,17 @@ namespace Routine.Client
 			{
 				var rparam = Parameter[parameterVariable.Name];
 				var parameterValue = rparam.CreateParameterValueData(parameterVariable.List);
-				parameterValues.Add(rparam.Id, parameterValue);
+				parameterValues.Add(rparam.Name, parameterValue);
 			}
 
-			var resultData = Application.Service.PerformOperation(target.ObjectReferenceData, model.Id, parameterValues);
+			var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
 
 			if (ResultIsVoid)
 			{
 				return new Rvariable(true);
 			}
 
-			return new Rvariable(Application, resultData);
+			return new Rvariable(Application, resultData, ResultType.Id);
 		}
 
 		#region Equality & Hashcode

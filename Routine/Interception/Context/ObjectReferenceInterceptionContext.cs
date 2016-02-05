@@ -6,7 +6,7 @@ namespace Routine.Interception.Context
 	{
 		protected readonly IObjectService objectService;
 
-		public ObjectReferenceInterceptionContext(string target, IObjectService objectService, ObjectReferenceData targetReference)
+		public ObjectReferenceInterceptionContext(string target, IObjectService objectService, ReferenceData targetReference)
 			: base(target)
 		{
 			this.objectService = objectService;
@@ -14,13 +14,13 @@ namespace Routine.Interception.Context
 			TargetReference = targetReference;
 		}
 
-		public ObjectReferenceData TargetReference
+		public ReferenceData TargetReference
 		{
-			get { return this["TargetReference"] as ObjectReferenceData; }
+			get { return this["TargetReference"] as ReferenceData; }
 			set { this["TargetReference"] = value; }
 		}
 
-		public ObjectModel GetActualModel() { return objectService.GetObjectModel(TargetReference.ActualModelId); }
-		public ObjectModel GetViewModel() { return objectService.GetObjectModel(TargetReference.ViewModelId); }
+		public ObjectModel Model { get { return objectService.ApplicationModel.Model[TargetReference.ModelId]; } }
+		public ObjectModel ViewModel { get { return objectService.ApplicationModel.Model[TargetReference.ViewModelId]; } }
 	}
 }

@@ -6,7 +6,7 @@ namespace Routine
 {
 	public static class ConfigurationExtension_TopMenuTheme
 	{
-		public static ConventionalMvcConfiguration TopMenuTheme(this MvcConfigurationBuilder source, Func<ObjectViewModel, bool> searchViewModelPredicate)
+		public static ConventionBasedMvcConfiguration TopMenuTheme(this MvcConfigurationBuilder source, Func<ObjectViewModel, bool> searchViewModelPredicate)
 		{
 			return source.FromBasic()
 				.ThemeAssembly.Set(typeof(ConfigurationExtension_TopMenuTheme).Assembly)

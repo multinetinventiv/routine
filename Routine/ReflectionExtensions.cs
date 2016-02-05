@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Routine.Engine;
 
 namespace Routine
@@ -60,18 +61,36 @@ namespace Routine
 			{
 				if (useFullName)
 				{
-					return source.FullName.Replace("+", ".");
+					return "global::" + source.FullName.Replace("+", ".");
 				}
 
 				return source.Name;
 			}
 
-			var result = (source.Namespace != null && useFullName) ? source.Namespace + "." : "";
+			var result = (source.Namespace != null && useFullName) ? "global::" + source.Namespace + "." : "";
 			result += source.Name.Before("`");
 
 			result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName))) + ">";
 
 			return result.Replace("+", ".");
+		}
+
+		public static bool IsNullable(this Type source)
+		{
+			return source.IsGenericType && source.GetGenericTypeDefinition() == typeof (Nullable<>);
+		}
+
+		public static bool CanParse(this Type source)
+		{
+			var parse = source.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new[]{typeof(string)}, null);
+
+			if (parse == null) { return false;}
+
+			var parameters = parse.GetParameters();
+
+			if (parameters.Length != 1) { return false;}
+
+			return parameters[0].ParameterType == typeof (string) && parse.ReturnType == source;
 		}
 
 		#endregion
@@ -98,8 +117,8 @@ namespace Routine
 			throw new NotSupportedException();
 		}
 
-		public static bool CanParse(this IType source) { return source.GetParseOperation() != null; }
-		public static object Parse(this IType source, string value) { return source.GetParseOperation().PerformOn(null, value); }
+		public static bool CanParse(this IType source) { return source.GetParseMethod() != null; }
+		public static object Parse(this IType source, string value) { return source.GetParseMethod().PerformOn(null, value); }
 
 		#endregion
 
@@ -144,19 +163,19 @@ namespace Routine
 
 		#endregion
 
-		#region IOperation
+		#region IMethod
 
-		public static bool ReturnsVoid(this IOperation operation)
+		public static bool ReturnsVoid(this IMethod method)
 		{
-			return operation.ReturnType.IsVoid;
+			return method.ReturnType.IsVoid;
 		}
 
-		public static bool IsInherited(this IOperation operation) { return operation.IsInherited(false); }
-		public static bool IsInherited(this IOperation operation, bool ignoreSameRootNamespace) { return operation.IsInherited(ignoreSameRootNamespace, false); }
-		public static bool IsInherited(this IOperation operation, bool ignoreSameRootNamespace, bool useFirstDeclaration)
+		public static bool IsInherited(this IMethod method) { return method.IsInherited(false); }
+		public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace) { return method.IsInherited(ignoreSameRootNamespace, false); }
+		public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace, bool useFirstDeclaration)
 		{
-			var parent = operation.ParentType;
-			var declaring = operation.GetDeclaringType(useFirstDeclaration);
+			var parent = method.ParentType;
+			var declaring = method.GetDeclaringType(useFirstDeclaration);
 
 			if (!ignoreSameRootNamespace)
 			{
@@ -171,14 +190,14 @@ namespace Routine
 
 		#endregion
 
-		#region IMember
+		#region IProperty
 
-		public static bool IsInherited(this IMember member) { return member.IsInherited(false); }
-		public static bool IsInherited(this IMember member, bool ignoreSameRootNamespace) { return member.IsInherited(ignoreSameRootNamespace, false); }
-		public static bool IsInherited(this IMember member, bool ignoreSameRootNamespace, bool useFirstDeclaration)
+		public static bool IsInherited(this IProperty property) { return property.IsInherited(false); }
+		public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace) { return property.IsInherited(ignoreSameRootNamespace, false); }
+		public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace, bool useFirstDeclaration)
 		{
-			var parent = member.ParentType;
-			var declaring = member.GetDeclaringType(useFirstDeclaration);
+			var parent = property.ParentType;
+			var declaring = property.GetDeclaringType(useFirstDeclaration);
 
 			if (!ignoreSameRootNamespace)
 			{

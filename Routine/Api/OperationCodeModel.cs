@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
-using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -40,7 +40,7 @@ namespace Routine.Api
 			}
 		}
 
-		public string Id { get { return Operation.Id; } }
+		public string Name { get { return Operation.Name; } }
 		public ApplicationCodeModel Application { get { return application; } }
 
 		public string GetName(int mode)
@@ -48,7 +48,7 @@ namespace Routine.Api
 			return application.Configuration.GetName(this, mode);
 		}
 
-		public List<IType> GetAttributes(int mode)
+		public List<Type> GetAttributes(int mode)
 		{
 			return application.Configuration.GetAttributes(this, mode);
 		}

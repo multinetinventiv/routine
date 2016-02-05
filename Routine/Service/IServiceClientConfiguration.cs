@@ -11,7 +11,7 @@ namespace Routine.Service
 
 		List<string> GetRequestHeaders();
 		string GetRequestHeaderValue(string requestHeader);
-		List<IResponseHeaderProcessor> GetResponseHeaderProcessors();
+		List<IHeaderProcessor> GetResponseHeaderProcessors();
 	}
 }
 

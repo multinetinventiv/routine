@@ -31,6 +31,7 @@ namespace Routine.Engine.Reflection
 
 		public override string Name { get { return methodInfo.Name; } }
 		public override bool IsPublic { get { return methodInfo.IsPublic; } }
+		public override bool IsStatic { get { return methodInfo.IsStatic; } }
 
 		public override TypeInfo DeclaringType { get { return TypeInfo.Get(methodInfo.DeclaringType); } }
 		public override TypeInfo ReflectedType { get { return TypeInfo.Get(methodInfo.ReflectedType); } }

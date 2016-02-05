@@ -6,7 +6,7 @@ using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
 using Routine.Engine;
 using Routine.Engine.Configuration;
-using Routine.Engine.Configuration.Conventional;
+using Routine.Engine.Configuration.ConventionBased;
 using Routine.Engine.Extractor;
 using Routine.Engine.Virtual;
 using Routine.Interception;
@@ -29,9 +29,9 @@ namespace Routine
 			return new CodingStyleBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalCodingStyle> CodingStylePattern()
+		internal static PatternBuilder<ConventionBasedCodingStyle> CodingStylePattern()
 		{
-			return new PatternBuilder<ConventionalCodingStyle>();
+			return new PatternBuilder<ConventionBasedCodingStyle>();
 		}
 
 		public static InterceptionConfigurationBuilder InterceptionConfig()
@@ -39,9 +39,9 @@ namespace Routine
 			return new InterceptionConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalInterceptionConfiguration> InterceptionPattern()
+		internal static PatternBuilder<ConventionBasedInterceptionConfiguration> InterceptionPattern()
 		{
-			return new PatternBuilder<ConventionalInterceptionConfiguration>();
+			return new PatternBuilder<ConventionBasedInterceptionConfiguration>();
 		}
 
 		public static ApiConfigurationBuilder ApiConfig()
@@ -49,9 +49,9 @@ namespace Routine
 			return new ApiConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalApiConfiguration> ApiGenerationPattern()
+		internal static PatternBuilder<ConventionBasedApiConfiguration> ApiGenerationPattern()
 		{
-			return new PatternBuilder<ConventionalApiConfiguration>();
+			return new PatternBuilder<ConventionBasedApiConfiguration>();
 		}
 
 		public static MvcConfigurationBuilder MvcConfig()
@@ -59,9 +59,9 @@ namespace Routine
 			return new MvcConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalMvcConfiguration> MvcPattern()
+		internal static PatternBuilder<ConventionBasedMvcConfiguration> MvcPattern()
 		{
-			return new PatternBuilder<ConventionalMvcConfiguration>();
+			return new PatternBuilder<ConventionBasedMvcConfiguration>();
 		}
 
 		public static ServiceConfigurationBuilder ServiceConfig()
@@ -69,9 +69,9 @@ namespace Routine
 			return new ServiceConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalServiceConfiguration> ServicePattern()
+		internal static PatternBuilder<ConventionBasedServiceConfiguration> ServicePattern()
 		{
-			return new PatternBuilder<ConventionalServiceConfiguration>();
+			return new PatternBuilder<ConventionBasedServiceConfiguration>();
 		}
 
 		public static ServiceClientConfigurationBuilder ServiceClientConfig()
@@ -79,9 +79,9 @@ namespace Routine
 			return new ServiceClientConfigurationBuilder();
 		}
 
-		internal static PatternBuilder<ConventionalServiceClientConfiguration> ServiceClientPattern()
+		internal static PatternBuilder<ConventionBasedServiceClientConfiguration> ServiceClientPattern()
 		{
-			return new PatternBuilder<ConventionalServiceClientConfiguration>();
+			return new PatternBuilder<ConventionBasedServiceClientConfiguration>();
 		}
 
 		public static LocatorBuilder Locator()
@@ -120,9 +120,9 @@ namespace Routine
 			return new VirtualTypeBuilder();
 		}
 
-		public static OperationBuilder Operation(IType parentType)
+		public static MethodBuilder Method(IType parentType)
 		{
-			return new OperationBuilder(parentType);
+			return new MethodBuilder(parentType);
 		}
 
 		public static ParameterBuilder Parameter(IParametric owner)
@@ -130,9 +130,9 @@ namespace Routine
 			return new ParameterBuilder(owner);
 		}
 
-		public static ResponseHeaderProcessorBuilder ResponseHeaderProcessor()
+		public static HeaderProcessorBuilder HeaderProcessor()
 		{
-			return new ResponseHeaderProcessorBuilder();
+			return new HeaderProcessorBuilder();
 		}
 	}
 
@@ -141,87 +141,87 @@ namespace Routine
 		#region Convention
 
 		public static TConfiguration Set<TConfiguration, TFrom, TResult>(
-			this ConventionalConfiguration<TConfiguration, TFrom, TResult> source,
+			this ConventionBasedConfiguration<TConfiguration, TFrom, TResult> source,
 			Func<ConventionBuilder<TFrom, TResult>, IConvention<TFrom, TResult>> conventionDelegate) where TConfiguration : ILayered
 		{
 			return source.Set(conventionDelegate(BuildRoutine.Convention<TFrom, TResult>()));
 		}
 
 		public static TConfiguration Add<TConfiguration, TFrom, TItem>(
-			this ConventionalListConfiguration<TConfiguration, TFrom, TItem> source,
-			Func<ConventionBuilder<TFrom, List<TItem>>, IConvention<TFrom, List<TItem>>> conventionDelegate)
+			this ConventionBasedListConfiguration<TConfiguration, TFrom, TItem> source,
+			Func<ConventionBuilder<TFrom, List<TItem>>, IConvention<TFrom, List<TItem>>> conventionDelegate) where TConfiguration : ILayered
 		{
 			return source.Add(conventionDelegate(BuildRoutine.Convention<TFrom, List<TItem>>()));
 		}
 
-		public static ConventionBase<IType, List<IInitializer>> Initializers(this ConventionBuilder<IType, List<IInitializer>> source) { return source.Initializers(i => true); }
-		public static ConventionBase<IType, List<IInitializer>> Initializers(this ConventionBuilder<IType, List<IInitializer>> source, Func<IInitializer, bool> initializerFilter)
+		public static ConventionBase<IType, List<IConstructor>> Constructors(this ConventionBuilder<IType, List<IConstructor>> source) { return source.Constructors(i => true); }
+		public static ConventionBase<IType, List<IConstructor>> Constructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter)
 		{
-			return source.By(t => t.Initializers.Where(initializerFilter).ToList());
+			return source.By(t => t.Constructors.Where(filter).ToList());
 		}
 
-		public static ConventionBase<IType, List<IInitializer>> PublicInitializers(this ConventionBuilder<IType, List<IInitializer>> source) { return source.PublicInitializers(i => true); }
-		public static ConventionBase<IType, List<IInitializer>> PublicInitializers(this ConventionBuilder<IType, List<IInitializer>> source, Func<IInitializer, bool> initializerFilter)
+		public static ConventionBase<IType, List<IConstructor>> PublicConstructors(this ConventionBuilder<IType, List<IConstructor>> source) { return source.PublicConstructors(i => true); }
+		public static ConventionBase<IType, List<IConstructor>> PublicConstructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter)
 		{
-			return source.Initializers(i => i.IsPublic && initializerFilter(i));
+			return source.Constructors(i => i.IsPublic && filter(i));
 		}
 
-		public static ConventionBase<IType, List<IMember>> Members(this ConventionBuilder<IType, List<IMember>> source) { return source.Members(m => true); }
-		public static ConventionBase<IType, List<IMember>> Members(this ConventionBuilder<IType, List<IMember>> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, List<IProperty>> Properties(this ConventionBuilder<IType, List<IProperty>> source) { return source.Properties(m => true); }
+		public static ConventionBase<IType, List<IProperty>> Properties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter)
 		{
-			return source.By(t => t.Members.Where(memberFilter).ToList());
+			return source.By(t => t.Properties.Where(filter).ToList());
 		}
 
-		public static ConventionBase<IType, List<IMember>> PublicMembers(this ConventionBuilder<IType, List<IMember>> source) { return source.PublicMembers(m => true); }
-		public static ConventionBase<IType, List<IMember>> PublicMembers(this ConventionBuilder<IType, List<IMember>> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, List<IProperty>> PublicProperties(this ConventionBuilder<IType, List<IProperty>> source) { return source.PublicProperties(m => true); }
+		public static ConventionBase<IType, List<IProperty>> PublicProperties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter)
 		{
-			return source.Members(m => m.IsPublic && memberFilter(m));
+			return source.Properties(m => m.IsPublic && filter(m));
 		}
 
-		public static ConventionBase<IType, List<IMember>> Operations(this ConventionBuilder<IType, List<IMember>> source, Func<IOperation, bool> operationFilter) { return source.Operations(string.Empty, operationFilter); }
-		public static ConventionBase<IType, List<IMember>> Operations(this ConventionBuilder<IType, List<IMember>> source, string ignorePrefix, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, List<IProperty>> Methods(this ConventionBuilder<IType, List<IProperty>> source, Func<IMethod, bool> filter) { return source.Methods(string.Empty, filter); }
+		public static ConventionBase<IType, List<IProperty>> Methods(this ConventionBuilder<IType, List<IProperty>> source, string ignorePrefix, Func<IMethod, bool> filter)
 		{
 			return source.By(t => t
-				.Operations
-				.Where(operationFilter)
-				.Select(m => new OperationMember(m, ignorePrefix) as IMember)
+				.Methods
+				.Where(filter)
+				.Select(m => new MethodAsProperty(m, ignorePrefix) as IProperty)
 				.ToList()
 			);
 		}
 
-		public static ConventionBase<IType, List<IMember>> PublicOperations(this ConventionBuilder<IType, List<IMember>> source, Func<IOperation, bool> operationFilter) { return source.PublicOperations(string.Empty, operationFilter); }
-		public static ConventionBase<IType, List<IMember>> PublicOperations(this ConventionBuilder<IType, List<IMember>> source, string ignorePrefix, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, List<IProperty>> PublicMethods(this ConventionBuilder<IType, List<IProperty>> source, Func<IMethod, bool> filter) { return source.PublicMethods(string.Empty, filter); }
+		public static ConventionBase<IType, List<IProperty>> PublicMethods(this ConventionBuilder<IType, List<IProperty>> source, string ignorePrefix, Func<IMethod, bool> filter)
 		{
-			return source.Operations(o => o.IsPublic && operationFilter(o));
+			return source.Methods(o => o.IsPublic && filter(o));
 		}
 
-		public static ConventionBase<IType, List<IOperation>> Operations(this ConventionBuilder<IType, List<IOperation>> source) { return source.Operations(o => true); }
-		public static ConventionBase<IType, List<IOperation>> Operations(this ConventionBuilder<IType, List<IOperation>> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, List<IMethod>> Methods(this ConventionBuilder<IType, List<IMethod>> source) { return source.Methods(o => true); }
+		public static ConventionBase<IType, List<IMethod>> Methods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter)
 		{
-			return source.By(t => t.Operations.Where(operationFilter).ToList());
+			return source.By(t => t.Methods.Where(filter).ToList());
 		}
 
-		public static ConventionBase<IType, List<IOperation>> PublicOperations(this ConventionBuilder<IType, List<IOperation>> source) { return source.PublicOperations(o => true); }
-		public static ConventionBase<IType, List<IOperation>> PublicOperations(this ConventionBuilder<IType, List<IOperation>> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, List<IMethod>> PublicMethods(this ConventionBuilder<IType, List<IMethod>> source) { return source.PublicMethods(o => true); }
+		public static ConventionBase<IType, List<IMethod>> PublicMethods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter)
 		{
-			return source.Operations(o => o.IsPublic && operationFilter(o));
+			return source.Methods(o => o.IsPublic && filter(o));
 		}
 
-		public static ConventionBase<IType, List<IOperation>> Members(this ConventionBuilder<IType, List<IOperation>> source, Func<IMember, bool> memberFilter) { return source.Members(Constants.PROPERTY_OPERATION_DEFAULT_PREFIX, memberFilter); }
-		public static ConventionBase<IType, List<IOperation>> Members(this ConventionBuilder<IType, List<IOperation>> source, string operationNamePrefix, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, List<IMethod>> Properties(this ConventionBuilder<IType, List<IMethod>> source, Func<IProperty, bool> filter) { return source.Properties(Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX, filter); }
+		public static ConventionBase<IType, List<IMethod>> Properties(this ConventionBuilder<IType, List<IMethod>> source, string namePrefix, Func<IProperty, bool> propertyFilter)
 		{
 			return source.By(t => t
-				.Members
-				.Where(memberFilter)
-				.Select(m => new MemberOperation(m, operationNamePrefix) as IOperation)
+				.Properties
+				.Where(propertyFilter)
+				.Select(m => new PropertyAsMethod(m, namePrefix) as IMethod)
 				.ToList()
 			);
 		}
 
-		public static ConventionBase<IType, List<IOperation>> PublicMembers(this ConventionBuilder<IType, List<IOperation>> source, Func<IMember, bool> memberFilter) { return source.PublicMembers(Constants.PROPERTY_OPERATION_DEFAULT_PREFIX, memberFilter); }
-		public static ConventionBase<IType, List<IOperation>> PublicMembers(this ConventionBuilder<IType, List<IOperation>> source, string operationNamePrefix, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, List<IMethod>> PublicProperties(this ConventionBuilder<IType, List<IMethod>> source, Func<IProperty, bool> filter) { return source.PublicProperties(Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX, filter); }
+		public static ConventionBase<IType, List<IMethod>> PublicProperties(this ConventionBuilder<IType, List<IMethod>> source, string namePrefix, Func<IProperty, bool> filter)
 		{
-			return source.Members(operationNamePrefix, m => m.IsPublic && memberFilter(m));
+			return source.Properties(namePrefix, m => m.IsPublic && filter(m));
 		}
 
 		public static ConventionBase<TFrom, List<TResultItem>> Constant<TFrom, TResultItem>(
@@ -259,8 +259,8 @@ namespace Routine
 			return source.Constant(valueExtractorDelegate(BuildRoutine.ValueExtractor()));
 		}
 
-		public static ConventionBase<TFrom, IConverter> Converter<TFrom>(
-			this ConventionBuilder<TFrom, IConverter> source,
+		public static ConventionBase<TFrom, List<IConverter>> Convert<TFrom>(
+			this ConventionBuilder<TFrom, List<IConverter>> source,
 			Func<ConverterBuilder, IConverter> converterDelegate)
 		{
 			return source.Constant(converterDelegate(BuildRoutine.Converter()));
@@ -274,144 +274,124 @@ namespace Routine
 			return source.Constant(interceptorDelegate(BuildRoutine.Interceptor<TContext>()));
 		}
 
-		#region IdByMember
+		#region IdByProperty
 
-		public static ConventionBase<IType, IIdExtractor> IdByPublicMember(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, IIdExtractor> IdByPublicProperty(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IProperty, bool> filter)
 		{
-			return source.IdByPublicMember(memberFilter, e => e);
+			return source.IdByPublicProperty(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByPublicMember(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IMember, bool> memberFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IIdExtractor> IdByPublicProperty(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IProperty, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
-			return source.IdByMember(memberFilter.And(m => m.IsPublic), configurationDelegate);
+			return source.IdByProperty(filter.And(m => m.IsPublic), configurationDelegate);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByMember(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, IIdExtractor> IdByProperty(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IProperty, bool> filter)
 		{
-			return source.IdByMember(memberFilter, e => e);
+			return source.IdByProperty(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByMember(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IMember, bool> memberFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IIdExtractor> IdByProperty(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IProperty, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
 			return source
-				.By(t => configurationDelegate(BuildRoutine.IdExtractor().ByMemberValue(t.Members.First(memberFilter))))
-				.When(t => t.Members.Any(memberFilter));
+				.By(t => configurationDelegate(BuildRoutine.IdExtractor().ByPropertyValue(t.Properties.First(filter))))
+				.When(t => t.Properties.Any(filter));
 		}
 
 		#endregion
 
-		#region IdByOperation
+		#region IdByMethod
 
-		public static ConventionBase<IType, IIdExtractor> IdByPublicOperation(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, IIdExtractor> IdByPublicMethod(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IMethod, bool> filter)
 		{
-			return source.IdByPublicOperation(operationFilter, e => e);
+			return source.IdByPublicMethod(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByPublicOperation(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IOperation, bool> operationFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IIdExtractor> IdByPublicMethod(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
-			return source.IdByOperation(operationFilter.And(o => o.IsPublic), configurationDelegate);
+			return source.IdByMethod(filter.And(o => o.IsPublic), configurationDelegate);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByOperation(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, IIdExtractor> IdByMethod(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IMethod, bool> filter)
 		{
-			return source.IdByOperation(operationFilter, e => e);
+			return source.IdByMethod(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IIdExtractor> IdByOperation(
-			this ConventionBuilder<IType, IIdExtractor> source, Func<IOperation, bool> operationFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IIdExtractor> IdByMethod(
+			this ConventionBuilder<IType, IIdExtractor> source, Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
 			return source
 				.By(t => configurationDelegate(BuildRoutine.IdExtractor()
-					.ByMemberValue(new OperationMember(t.Operations.First(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
-				.When(t => t.Operations.Any(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))) as DelegateBasedConvention<IType, IIdExtractor>;
+					.ByPropertyValue(new MethodAsProperty(t.Methods.First(filter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
+				.When(t => t.Methods.Any(filter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))) as DelegateBasedConvention<IType, IIdExtractor>;
 		}
 
 		#endregion
 
-		#region ValueByMember
+		#region ValueByProperty
 
-		public static ConventionBase<IType, IValueExtractor> ValueByPublicMember(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, IValueExtractor> ValueByPublicProperty(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IProperty, bool> filter)
 		{
-			return source.ValueByPublicMember(memberFilter, e => e);
+			return source.ValueByPublicProperty(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByPublicMember(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IMember, bool> memberFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IValueExtractor> ValueByPublicProperty(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IProperty, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
-			return source.ValueByMember(memberFilter.And(m => m.IsPublic), configurationDelegate);
+			return source.ValueByProperty(filter.And(m => m.IsPublic), configurationDelegate);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByMember(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IMember, bool> memberFilter)
+		public static ConventionBase<IType, IValueExtractor> ValueByProperty(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IProperty, bool> filter)
 		{
-			return source.ValueByMember(memberFilter, e => e);
+			return source.ValueByProperty(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByMember(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IMember, bool> memberFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IValueExtractor> ValueByProperty(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IProperty, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
 			return source
-				.By(t => configurationDelegate(BuildRoutine.ValueExtractor().ByMemberValue(t.Members.First(memberFilter))))
-				.When(t => t.Members.Any(memberFilter));
+				.By(t => configurationDelegate(BuildRoutine.ValueExtractor().ByPropertyValue(t.Properties.First(filter))))
+				.When(t => t.Properties.Any(filter));
 		}
 
 		#endregion
 
-		#region ValueByOperation
+		#region ValueByMethod
 
-		public static ConventionBase<IType, IValueExtractor> ValueByPublicOperation(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, IValueExtractor> ValueByPublicMethod(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IMethod, bool> filter)
 		{
-			return source.ValueByPublicOperation(operationFilter.And(o => o.IsPublic), e => e);
+			return source.ValueByPublicMethod(filter.And(o => o.IsPublic), e => e);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByPublicOperation(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IOperation, bool> operationFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IValueExtractor> ValueByPublicMethod(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
-			return source.ValueByOperation(operationFilter.And(o => o.IsPublic), configurationDelegate);
+			return source.ValueByMethod(filter.And(o => o.IsPublic), configurationDelegate);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByOperation(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IOperation, bool> operationFilter)
+		public static ConventionBase<IType, IValueExtractor> ValueByMethod(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IMethod, bool> filter)
 		{
-			return source.ValueByOperation(operationFilter, e => e);
+			return source.ValueByMethod(filter, e => e);
 		}
 
-		public static ConventionBase<IType, IValueExtractor> ValueByOperation(
-			this ConventionBuilder<IType, IValueExtractor> source, Func<IOperation, bool> operationFilter, Func<MemberValueExtractor, MemberValueExtractor> configurationDelegate)
+		public static ConventionBase<IType, IValueExtractor> ValueByMethod(
+			this ConventionBuilder<IType, IValueExtractor> source, Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
 		{
 			return source
 				.By(t => configurationDelegate(BuildRoutine.ValueExtractor()
-					.ByMemberValue(new OperationMember(t.Operations.First(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
-				.When(t => t.Operations.Any(operationFilter.And(o => o.HasNoParameters() && !o.ReturnsVoid())));
-		}
-
-		#endregion
-
-		#region ConvertByCasting
-
-		public static ConventionBase<IType, IConverter> ConvertByCasting(
-			this ConventionBuilder<IType, IConverter> source)
-		{
-			return source.By(t => BuildRoutine.Converter().ByCasting(t));
-		}
-
-		#endregion
-
-		#region ConvertToNullable
-
-		public static ConventionBase<IType, IConverter> ConvertToNullable(
-			this ConventionBuilder<IType, IConverter> source)
-		{
-			return source.By(t => BuildRoutine.Converter().ToNullable((TypeInfo)t)).When(t => t is TypeInfo);
+					.ByPropertyValue(new MethodAsProperty(t.Methods.First(filter.And(o => o.HasNoParameters() && !o.ReturnsVoid()))))))
+				.When(t => t.Methods.Any(filter.And(o => o.HasNoParameters() && !o.ReturnsVoid())));
 		}
 
 		#endregion
@@ -420,32 +400,32 @@ namespace Routine
 
 		#region PatternBuilder
 
-		public static ConventionalCodingStyle Use(this ConventionalCodingStyle source, Func<PatternBuilder<ConventionalCodingStyle>, ConventionalCodingStyle> pattern)
+		public static ConventionBasedCodingStyle Use(this ConventionBasedCodingStyle source, Func<PatternBuilder<ConventionBasedCodingStyle>, ConventionBasedCodingStyle> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.CodingStylePattern()));
 		}
 
-		public static ConventionalInterceptionConfiguration Use(this ConventionalInterceptionConfiguration source, Func<PatternBuilder<ConventionalInterceptionConfiguration>, ConventionalInterceptionConfiguration> pattern)
+		public static ConventionBasedInterceptionConfiguration Use(this ConventionBasedInterceptionConfiguration source, Func<PatternBuilder<ConventionBasedInterceptionConfiguration>, ConventionBasedInterceptionConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.InterceptionPattern()));
 		}
 
-		public static ConventionalServiceConfiguration Use(this ConventionalServiceConfiguration source, Func<PatternBuilder<ConventionalServiceConfiguration>, ConventionalServiceConfiguration> pattern)
+		public static ConventionBasedServiceConfiguration Use(this ConventionBasedServiceConfiguration source, Func<PatternBuilder<ConventionBasedServiceConfiguration>, ConventionBasedServiceConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ServicePattern()));
 		}
 
-		public static ConventionalApiConfiguration Use(this ConventionalApiConfiguration source, Func<PatternBuilder<ConventionalApiConfiguration>, ConventionalApiConfiguration> pattern)
+		public static ConventionBasedApiConfiguration Use(this ConventionBasedApiConfiguration source, Func<PatternBuilder<ConventionBasedApiConfiguration>, ConventionBasedApiConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
 		}
 
-		public static ConventionalMvcConfiguration Use(this ConventionalMvcConfiguration source, Func<PatternBuilder<ConventionalMvcConfiguration>, ConventionalMvcConfiguration> pattern)
+		public static ConventionBasedMvcConfiguration Use(this ConventionBasedMvcConfiguration source, Func<PatternBuilder<ConventionBasedMvcConfiguration>, ConventionBasedMvcConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.MvcPattern()));
 		}
 
-		public static ConventionalServiceClientConfiguration Use(this ConventionalServiceClientConfiguration source, Func<PatternBuilder<ConventionalServiceClientConfiguration>, ConventionalServiceClientConfiguration> pattern)
+		public static ConventionBasedServiceClientConfiguration Use(this ConventionBasedServiceClientConfiguration source, Func<PatternBuilder<ConventionBasedServiceClientConfiguration>, ConventionBasedServiceClientConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ServiceClientPattern()));
 		}
@@ -454,7 +434,7 @@ namespace Routine
 
 		#region Virtual
 
-		public static ConventionalCodingStyle AddTypes(this ConventionalCodingStyle source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
+		public static ConventionBasedCodingStyle AddTypes(this ConventionBasedCodingStyle source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
 		{
 			return source.AddTypes(typeBuilders.Select(builder => builder(BuildRoutine.VirtualType())));
 		}
@@ -468,16 +448,16 @@ namespace Routine
 			);
 		}
 
-		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IOperation> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IMethod> source, Func<MethodBuilder, IEnumerable<IMethod>> builder)
 			where TConfiguration : IType
 		{
-			return source.Add(t => builder(BuildRoutine.Operation(t)));
+			return source.Add(t => builder(BuildRoutine.Method(t)));
 		}
 
-		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IOperation> source, Func<OperationBuilder, IOperation> builder)
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IMethod> source, Func<MethodBuilder, IMethod> builder)
 			where TConfiguration : IType
 		{
-			return source.Add(t => builder(BuildRoutine.Operation(t)));
+			return source.Add(t => builder(BuildRoutine.Method(t)));
 		}
 
 		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IParameter> source, Func<ParameterBuilder, IEnumerable<IParameter>> builder)
@@ -492,23 +472,49 @@ namespace Routine
 			return source.Add(o => builder(BuildRoutine.Parameter(o)));
 		}
 
-		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IEnumerable<IOperation>> builder)
+		public static ConventionBase<IType, List<IMethod>> Build(this ConventionBuilder<IType, List<IMethod>> source, Func<MethodBuilder, IEnumerable<IMethod>> builder)
 		{
-			return source.By(t => builder(BuildRoutine.Operation(t)).ToList());
+			return source.By(t => builder(BuildRoutine.Method(t)).ToList());
 		}
 
-		public static ConventionBase<IType, List<IOperation>> Build(this ConventionBuilder<IType, List<IOperation>> source, Func<OperationBuilder, IOperation> builder)
+		public static ConventionBase<IType, List<IMethod>> Build(this ConventionBuilder<IType, List<IMethod>> source, Func<MethodBuilder, IMethod> builder)
 		{
-			return source.By(t => new List<IOperation> { builder(BuildRoutine.Operation(t)) });
+			return source.By(t => new List<IMethod> { builder(BuildRoutine.Method(t)) });
 		}
 
 		#endregion
 
-		#region Response Header Processor
+		#region Add System Types
 
-		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IResponseHeaderProcessor> source, Func<ResponseHeaderProcessorBuilder, IResponseHeaderProcessor> builder)
+		public static ConventionBasedCodingStyle AddCommonSystemTypes(this ConventionBasedCodingStyle source)
 		{
-			return source.Add(builder(BuildRoutine.ResponseHeaderProcessor()));
+			return source.AddTypes(
+				typeof(void),
+				typeof(bool), 
+				typeof(byte),
+				typeof(short),
+				typeof(ushort),
+				typeof(int),
+				typeof(uint),
+				typeof(long),
+				typeof(ulong),
+				typeof(float), 
+				typeof(double), 
+				typeof(decimal), 
+				typeof(TimeSpan), 
+				typeof(DateTime), 
+				typeof(Guid), 
+				typeof(string)
+			);
+		}
+
+		#endregion
+
+		#region Header Processor
+
+		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, IHeaderProcessor> source, Func<HeaderProcessorBuilder, IHeaderProcessor> builder)
+		{
+			return source.Add(builder(BuildRoutine.HeaderProcessor()));
 		}
 
 		#endregion

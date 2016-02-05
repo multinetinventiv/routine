@@ -61,28 +61,28 @@ namespace Routine.Api.Template
             this.Write("\r\n\t{\r\n\t");
             
             #line 16 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
- foreach(var member in model.Members) { 
+ foreach(var data in model.Datas) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t");
             
             #line 18 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.RenderAttributes(Mode.Interface)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.RenderAttributes(Mode.Interface)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t");
             
             #line 19 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.ReturnModel.GetFullName()));
             
             #line default
             #line hidden
             this.Write(" ");
             
             #line 19 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.GetName(Mode.Interface)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.GetName(Mode.Interface)));
             
             #line default
             #line hidden
@@ -250,14 +250,14 @@ namespace Routine.Api.Template
             this.Write(" robject)\r\n\t\t{\r\n\t\t\tRobject = robject;\r\n\t\t}\r\n\r\n\t");
             
             #line 55 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
- foreach(var member in model.Members) { 
+ foreach(var data in model.Datas) { 
             
             #line default
             #line hidden
             this.Write("\r\n\t\t");
             
             #line 57 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.GetFullName()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.ReturnModel.GetFullName()));
             
             #line default
             #line hidden
@@ -271,21 +271,21 @@ namespace Routine.Api.Template
             this.Write(".");
             
             #line 57 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.GetName(Mode.Interface)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.GetName(Mode.Interface)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\r\n\t\t\tget\r\n\t\t\t{\r\n\t\t\t\tvar __result = Robject[\"");
             
             #line 61 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.Id));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.Name));
             
             #line default
             #line hidden
             this.Write("\"].Get();\r\n\t\t\t\t\r\n\t\t\t\treturn ");
             
             #line 63 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(member.ReturnModel.RenderRvariableToObject("__result", "Robject.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(data.ReturnModel.RenderRvariableToObject("__result", "Robject.Application")));
             
             #line default
             #line hidden
@@ -341,7 +341,7 @@ namespace Routine.Api.Template
             this.Write(")\r\n\t\t{\r\n\t\t\tvar __result = Robject.Perform\r\n\t\t\t\t(\r\n\t\t\t\t\"");
             
             #line 76 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(operation.Id));
+            this.Write(this.ToStringHelper.ToStringWithCulture(operation.Name));
             
             #line default
             #line hidden
@@ -355,7 +355,7 @@ namespace Routine.Api.Template
             this.Write("\t\t\t\t, ");
             
             #line 78 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.Interface), "Robject.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.Interface), "Robject.Application")));
             
             #line default
             #line hidden
@@ -518,7 +518,7 @@ namespace Routine.Api.Template
 		
 		public override string ToString()
 		{
-			return Robject.Value;
+			return Robject.Display;
 		}
 
 		public override bool Equals(object obj)
@@ -692,7 +692,7 @@ namespace Routine.Api.Template
             this.Write("\r\n\t\t\t\t\t, ");
             
             #line 184 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.FactoryInterface), "Rapplication")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.FactoryInterface), "Rapplication")));
             
             #line default
             #line hidden
@@ -930,7 +930,7 @@ namespace Routine.Api.Template
             this.Write("\t\t\t\r\n\t\t\t\tinitParams.Add(");
             
             #line 239 "D:\Projects\routine\routine\Routine\Api\Template\ClientApiTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Id, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application")));
             
             #line default
             #line hidden

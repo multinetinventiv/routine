@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Routine.Client;
-using Routine.Engine;
 
 namespace Routine.Api
 {
@@ -12,15 +12,15 @@ namespace Routine.Api
 		private readonly bool isList;
 
 		private InitializerCodeModel initializer;
-		private readonly List<MemberCodeModel> members;
+		private readonly List<DataCodeModel> datas;
 		private readonly List<OperationCodeModel> operations;
 
 		public Rtype Type { get; private set; }
-		public IType ReferencedType { get; private set; }
+		public Type ReferencedType { get; private set; }
 		public List<TypeCodeModel> ViewModels { get; private set; } 
 		public List<TypeCodeModel> ActualModels { get; private set; }
 		public InitializerCodeModel Initializer { get { return actual != null ? actual.Initializer : initializer; } }
-		public List<MemberCodeModel> Members { get { return actual != null ? actual.Members : members; } }
+		public List<DataCodeModel> Datas { get { return actual != null ? actual.Datas : datas; } }
 		public List<OperationCodeModel> Operations { get { return actual != null ? actual.Operations : operations; } }
 
 		private ITypeConversionTemplate GetTypeConversionTemplate(int mode)
@@ -36,10 +36,10 @@ namespace Routine.Api
 		internal TypeCodeModel(ApplicationCodeModel application, TypeCodeModel model, bool isList)
 			: this(application, model, isList, model.Type, model.ReferencedType) { }
 
-		internal TypeCodeModel(ApplicationCodeModel application, Rtype type, IType referencedType)
+		internal TypeCodeModel(ApplicationCodeModel application, Rtype type, Type referencedType)
 			: this(application, null, false, type, referencedType) { }
 
-		private TypeCodeModel(ApplicationCodeModel application, TypeCodeModel actual, bool isList, Rtype type, IType referencedType)
+		private TypeCodeModel(ApplicationCodeModel application, TypeCodeModel actual, bool isList, Rtype type, Type referencedType)
 		{
 			this.application = application;
 			this.actual = actual;
@@ -51,7 +51,7 @@ namespace Routine.Api
 			ViewModels = new List<TypeCodeModel>();
 			ActualModels = new List<TypeCodeModel>();
 
-			members = new List<MemberCodeModel>();
+			datas = new List<DataCodeModel>();
 			operations = new List<OperationCodeModel>();
 		}
 
@@ -70,9 +70,9 @@ namespace Routine.Api
 				initializer = new InitializerCodeModel(application, Type.Initializer);
 			}
 
-			members.AddRange(Type.Members
-				.Where(m => application.Configuration.IsRendered(m) && application.ValidateType(m.MemberType))
-				.Select(m => new MemberCodeModel(application, m)));
+			datas.AddRange(Type.Datas
+				.Where(m => application.Configuration.IsRendered(m) && application.ValidateType(m.DataType))
+				.Select(m => new DataCodeModel(application, m)));
 
 			operations.AddRange(Type.Operations
 				.Where(o => application.Configuration.IsRendered(o) && (o.ResultIsVoid || application.ValidateType(o.ResultType)) && o.Parameters.All(p => application.ValidateType(p.ParameterType)))
@@ -127,7 +127,7 @@ namespace Routine.Api
 			return application.Configuration.GetName(this, mode);
 		}
 
-		public List<IType> GetAttributes(int mode)
+		public List<Type> GetAttributes(int mode)
 		{
 			return application.Configuration.GetAttributes(this, mode);
 		}

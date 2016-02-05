@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
 using Routine.Core.Configuration;
-using Routine.Core.Rest;
 
 namespace Routine.Engine
 {
@@ -18,8 +17,8 @@ namespace Routine.Engine
 
 		public DomainObjectInitializer Initializer { get; private set; }
 
-		public Dictionary<string, DomainMember> Member { get; private set; }
-		public ICollection<DomainMember> Members { get { return Member.Values; } }
+		public Dictionary<string, DomainData> Data { get; private set; }
+		public ICollection<DomainData> Datas { get { return Data.Values; } }
 
 		public Dictionary<string, DomainOperation> Operation { get; private set; }
 		public ICollection<DomainOperation> Operations { get { return Operation.Values; } }
@@ -27,7 +26,7 @@ namespace Routine.Engine
 		private readonly ILocator locator;
 		public IIdExtractor IdExtractor { get; private set; }
 		public IValueExtractor ValueExtractor { get; private set; }
-		private readonly IConverter converter;
+		private readonly Dictionary<IType, IConverter> converter;
 
 		private readonly List<object> staticInstances;
 
@@ -47,38 +46,67 @@ namespace Routine.Engine
 			this.ctx = ctx;
 
 			Type = type;
-			Member = new Dictionary<string, DomainMember>();
+			Data = new Dictionary<string, DomainData>();
 			Operation = new Dictionary<string, DomainOperation>();
 
-			Id = ctx.CodingStyle.GetTypeId(type);
-			MaxFetchDepth = ctx.CodingStyle.GetMaxFetchDepth();
+			Marks = new Marks(ctx.CodingStyle.GetMarks(Type));
 
-			if (Id.StartsWith(SerializationExtensions.REF_SPLITTER))
-			{
-				throw new ConfigurationException("TypeId", type, new Exception(string.Format("TypeId cannot start with the escape character '{0}', but configured TypeId is {1}", SerializationExtensions.REF_SPLITTER, Id)));
-			}
+			Name = ctx.CodingStyle.GetName(Type);
+			Module = ctx.CodingStyle.GetModule(Type);
+
+			Id = ctx.BuildTypeId(Module, Name);
+
+			MaxFetchDepth = ctx.CodingStyle.GetMaxFetchDepth();
 
 			locator = ctx.CodingStyle.GetLocator(Type);
 			IdExtractor = ctx.CodingStyle.GetIdExtractor(Type);
 			ValueExtractor = ctx.CodingStyle.GetValueExtractor(Type);
-			converter = ctx.CodingStyle.GetConverter(Type);
 
+			converter = new Dictionary<IType, IConverter>();
+			var converters = ctx.CodingStyle.GetConverters(Type);
+			foreach (var converterInstance in converters)
+			{
+				foreach (var targetType in converterInstance.GetTargetTypes(Type))
+				{
+					if (converter.ContainsKey(targetType))
+					{
+#if DEBUG
+						Console.WriteLine("{0} has more than one way to be converted to {1}", type, targetType);
+#endif
+						continue;
+					}
+
+					converter.Add(targetType, converterInstance);
+				}
+			}
+			
 			staticInstances = ctx.CodingStyle.GetStaticInstances(Type);
 
-			Marks = new Marks(ctx.CodingStyle.GetMarks(Type));
-			Name = Type != null ? Type.ToCSharpString(false) : null;
-			Module = ctx.CodingStyle.GetModuleName(Type);
 			IsValueModel = ctx.CodingStyle.IsValue(Type);
 			IsViewModel = ctx.CodingStyle.IsView(Type);
 
 			actualTypes = new List<DomainType>();
 			viewTypes = new List<DomainType>();
+		}
 
+		internal void Initialize()
+		{
+			LoadInitializers();
+			LoadDatas();
+			LoadOperations();
+			LoadCrossTypeRelations();
+		}
+
+		private void LoadInitializers()
+		{
 			foreach (var initializer in ctx.CodingStyle.GetInitializers(Type))
 			{
 				try
 				{
-					if (!type.Equals(initializer.InitializedType)) { throw new InitializedTypeDoNotMatchException(initializer, type, initializer.InitializedType); }
+					if (!Type.Equals(initializer.InitializedType))
+					{
+						throw new InitializedTypeDoNotMatchException(initializer, Type, initializer.InitializedType);
+					}
 
 					if (Initializer == null)
 					{
@@ -91,40 +119,62 @@ namespace Routine.Engine
 				}
 				catch (TypeNotConfiguredException)
 				{
-					Console.WriteLine("{0}.{1} initializer is skipped. All parameter types and return type should be configured.", Type.Name, initializer.Name);
+#if DEBUG
+					Console.WriteLine("{0}.{1} initializer is skipped. All parameter types and return type should be configured.",
+						Type.Name, initializer.Name);
 					Console.WriteLine();
+#endif
 				}
 				catch (InitializedTypeDoNotMatchException ex)
 				{
-					Console.WriteLine("{0}.{1} initializer is skipped. Given initializer should initialize the expected type ({2}) but it initializes another type ({3}). Exception is; {4}",
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} initializer is skipped. Given initializer should initialize the expected type ({2}) but it initializes another type ({3}). Exception is; {4}",
 						Type.Name, initializer.Name, Name, initializer.InitializedType.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 				catch (ParameterTypesDoNotMatchException ex)
 				{
-					Console.WriteLine("{0}.{1} initializer is skipped. On initialier groups (constructor overloading) parameters with the same name but different types are not allowed. Exception is; {2}", Type.Name, initializer.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} initializer is skipped. On initialier groups (constructor overloading) parameters with the same name but different types are not allowed. Exception is; {2}",
+						Type.Name, initializer.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 				catch (IdenticalSignatureAlreadyAddedException ex)
 				{
-					Console.WriteLine("{0}.{1} initializer is skipped. An initializer with same signature is already added. Exception is; {2}", Type.Name, initializer.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} initializer is skipped. An initializer with same signature is already added. Exception is; {2}", Type.Name,
+						initializer.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 			}
+		}
 
-			foreach (var member in ctx.CodingStyle.GetMembers(Type))
+		private void LoadDatas()
+		{
+			foreach (var data in ctx.CodingStyle.GetDatas(Type))
 			{
 				try
 				{
-					Member.Add(member.Name, new DomainMember(ctx, member));
+					Data.Add(data.Name, new DomainData(ctx, data));
 				}
 				catch (TypeNotConfiguredException)
 				{
-					Console.WriteLine("{0}.{1} member is skipped. Member type should be configured.", Type.Name, member.Name);
+#if DEBUG
+					Console.WriteLine("{0}.{1} data is skipped. Data type should be configured.", Type.Name, data.Name);
 					Console.WriteLine();
+#endif
 				}
 			}
+		}
 
+		private void LoadOperations()
+		{
 			foreach (var operation in ctx.CodingStyle.GetOperations(Type))
 			{
 				try
@@ -140,62 +190,59 @@ namespace Routine.Engine
 				}
 				catch (TypeNotConfiguredException ex)
 				{
-					Console.WriteLine("{0}.{1} operation is skipped. All parameter types and return type should be configured. Exception is; {2}", Type.Name, operation.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} operation is skipped. All parameter types and return type should be configured. Exception is; {2}",
+						Type.Name, operation.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 				catch (ReturnTypesDoNotMatchException ex)
 				{
-					Console.WriteLine("{0}.{1} operation is skipped. Return type should be the same with the others. Exception is; {2}", Type.Name, operation.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine("{0}.{1} operation is skipped. Return type should be the same with the others. Exception is; {2}",
+						Type.Name, operation.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 				catch (ParameterTypesDoNotMatchException ex)
 				{
-					Console.WriteLine("{0}.{1} operation is skipped. On operation groups (method overloading) parameters with the same name but different types are not allowed. Exception is; {2}", Type.Name, operation.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} operation is skipped. On operation groups (method overloading) parameters with the same name but different types are not allowed. Exception is; {2}",
+						Type.Name, operation.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 				catch (IdenticalSignatureAlreadyAddedException ex)
 				{
-					Console.WriteLine("{0}.{1} operation is skipped. An operation with same signature is already added. Exception is; {2}", Type.Name, operation.Name, ex.Message);
+#if DEBUG
+					Console.WriteLine(
+						"{0}.{1} operation is skipped. An operation with same signature is already added. Exception is; {2}", Type.Name,
+						operation.Name, ex.Message);
 					Console.WriteLine();
+#endif
 				}
 			}
 		}
 
-		internal void LoadSubTypes()
+		private void LoadCrossTypeRelations()
 		{
-			if (Initializable) { Initializer.LoadSubTypes(); }
-
-			foreach (var operation in Operations)
+			foreach (var viewType in converter.Keys.Where(t => !Equals(t, Type)))
 			{
-				operation.LoadSubTypes();
-			}
-
-			foreach (var member in Members)
-			{
-				member.LoadSubTypes();
-			}
-		}
-
-		internal void LoadCrossTypeRelations()
-		{
-			foreach (var viewType in ctx.CodingStyle.GetViewTypes(Type).Where(t => !Equals(t, Type)))
-			{
-				try
+				if (!ctx.CodingStyle.ContainsType(viewType))
 				{
-					var dt = ctx.GetDomainType(viewType);
-
-					if (!IsViewModel)
-					{
-						dt.actualTypes.Add(this);
-					}
-
-					viewTypes.Add(dt);
+					continue;
 				}
-				catch (ConfigurationException)
+
+				var dt = ctx.GetDomainType(viewType);
+
+				if (!IsViewModel)
 				{
-					Console.WriteLine("View type is skipped. {0} does not have TypeId configured", viewType);
-					Console.WriteLine();
+					dt.actualTypes.Add(this);
 				}
+
+				viewTypes.Add(dt);
 			}
 		}
 
@@ -217,7 +264,7 @@ namespace Routine.Engine
 				ActualModelIds = actualTypes.Select(t => t.Id).ToList(),
 				ViewModelIds = viewTypes.Select(t => t.Id).ToList(),
 				Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
-				Members = Members.Select(m => m.GetModel()).ToList(),
+				Datas = Datas.Select(m => m.GetModel()).ToList(),
 				Operations = Operations.Select(o => o.GetModel()).ToList(),
 				StaticInstances = staticInstances.Select(o => ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
 			};
@@ -237,17 +284,17 @@ namespace Routine.Engine
 			for (int i = 0; i < parameterDatas.Count; i++)
 			{
 				var parameterData = parameterDatas[i];
-				if (Initializable && !parameterData.IsNull && string.IsNullOrEmpty(parameterData.ReferenceId))
+				if (Initializable && parameterData != null && string.IsNullOrEmpty(parameterData.Id))
 				{
 					result[i] = Initializer.Initialize(parameterData.InitializationParameters);
 				}
-				else if (parameterData.IsNull)
+				else if (parameterData == null)
 				{
 					result[i] = null;
 				}
 				else
 				{
-					locateIdsWithOriginalIndex.Add(new Tuple<int, string>(i, parameterData.ReferenceId));
+					locateIdsWithOriginalIndex.Add(new Tuple<int, string>(i, parameterData.Id));
 				}
 			}
 
@@ -275,14 +322,14 @@ namespace Routine.Engine
 			return result.ToList();
 		}
 
-		public object Locate(ObjectReferenceData objectReferenceData)
+		public object Locate(ReferenceData referenceData)
 		{
-			if (objectReferenceData.IsNull)
+			if (referenceData == null)
 			{
 				return null;
 			}
 
-			return Locate(objectReferenceData.Id);
+			return Locate(referenceData.Id);
 		}
 
 		public object Locate(string id)
@@ -314,15 +361,15 @@ namespace Routine.Engine
 
 			if (!viewTypes.Contains(viewDomainType))
 			{
-				throw new CannotConvertException(target, viewDomainType.Type);
+				throw new ConfigurationException("Converter", Type, new CannotConvertException(target, viewDomainType.Type));
 			}
 
-			if (converter == null)
+			if (!converter.ContainsKey(viewDomainType.Type))
 			{
 				throw new ConfigurationException("Converter", Type);
 			}
 
-			return converter.Convert(target, viewDomainType.Type);
+			return converter[viewDomainType.Type].Convert(target, Type, viewDomainType.Type);
 		}
 
 		#region Formatting & Equality
@@ -336,7 +383,8 @@ namespace Routine.Engine
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
+			if (obj.GetType() != GetType()) return false;
+
 			return Equals((DomainType)obj);
 		}
 
@@ -347,7 +395,7 @@ namespace Routine.Engine
 
 		public override string ToString()
 		{
-			return string.Format("Id: {0}", Id);
+			return Id;
 		}
 
 		#endregion
@@ -355,8 +403,8 @@ namespace Routine.Engine
 
 	internal class TypeNotConfiguredException : Exception
 	{
-		public TypeNotConfiguredException(IType type, ConfigurationException configurationException)
-			: base(string.Format("Type '{0}' is not configured.", type), configurationException) { }
+		public TypeNotConfiguredException(IType type)
+			: base(string.Format("Type '{0}' is not configured.", type == null ? "null" : type.ToString())) { }
 	}
 }
 

@@ -33,7 +33,7 @@ namespace Routine.Engine
 			return actualDomainType.IdExtractor.GetId(actualTarget);
 		}
 
-		public string GetValue()
+		public string GetDisplay()
 		{
 			if (viewDomainType.IsValueModel)
 			{
@@ -53,12 +53,16 @@ namespace Routine.Engine
 			return viewDomainType.ValueExtractor.GetValue(viewTarget);
 		}
 
-		public ObjectReferenceData GetReferenceData()
+		public ReferenceData GetReferenceData()
 		{
-			var result = new ObjectReferenceData();
+			if (actualTarget == null)
+			{
+				return null;
+			}
 
-			result.IsNull = actualTarget == null;
-			result.ActualModelId = actualDomainType.Id;
+			var result = new ReferenceData();
+
+			result.ModelId = actualDomainType.Id;
 			result.ViewModelId = viewDomainType.Id;
 			result.Id = GetId();
 
@@ -68,10 +72,16 @@ namespace Routine.Engine
 		public ObjectData GetObjectData(bool eager) { return GetObjectData(Constants.FIRST_DEPTH, eager); }
 		internal ObjectData GetObjectData(int currentDepth, bool eager)
 		{
+			if (actualTarget == null)
+			{
+				return null;
+			}
+
 			var result = new ObjectData
 			{
-				Reference = GetReferenceData(),
-				Value = GetValue()
+				Id = GetId(),
+				ModelId = actualDomainType.Id,
+				Display = GetDisplay()
 			};
 
 			if (actualTarget == null) { return result; }
@@ -82,31 +92,31 @@ namespace Routine.Engine
 				throw new MaxFetchDepthExceededException(actualDomainType.MaxFetchDepth, actualTarget);
 			}
 
-			foreach (var member in viewDomainType.Members)
+			foreach (var data in viewDomainType.Datas)
 			{
-				result.Members.Add(member.Id, member.CreateData(viewTarget, currentDepth + 1));
+				result.Data.Add(data.Name, data.CreateData(viewTarget, currentDepth + 1));
 			}
 
 			return result;
 		}
 
-		public ValueData GetMemberData(string memberModelId)
+		public VariableData GetData(string dataName)
 		{
-			DomainMember member;
-			if (!viewDomainType.Member.TryGetValue(memberModelId, out member))
+			DomainData data;
+			if (!viewDomainType.Data.TryGetValue(dataName, out data))
 			{
-				throw new MemberDoesNotExistException(viewDomainType.Id, memberModelId);
+				throw new DataDoesNotExistException(viewDomainType.Id, dataName);
 			}
 
-			return member.CreateData(viewTarget, true);
+			return data.CreateData(viewTarget, true);
 		}
 
-		public ValueData Perform(string operationModelId, Dictionary<string, ParameterValueData> parameterValues)
+		public VariableData Perform(string operationName, Dictionary<string, ParameterValueData> parameterValues)
 		{
 			DomainOperation operation;
-			if (!viewDomainType.Operation.TryGetValue(operationModelId, out operation))
+			if (!viewDomainType.Operation.TryGetValue(operationName, out operation))
 			{
-				throw new OperationDoesNotExistException(viewDomainType.Id, operationModelId);
+				throw new OperationDoesNotExistException(viewDomainType.Id, operationName);
 			}
 
 			return operation.Perform(viewTarget, parameterValues);

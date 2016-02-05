@@ -20,7 +20,7 @@ namespace Routine.Test.Module.Todo
 		public List<Assignee> Assignees { get { return ctx.Query<Assignees>().All(); } }
 		public List<TodoItem> UndoneItems { get { return ctx.Query<TodoItems>().UndoneItems(); } }
 
-		public Assignee NewAssignee(string name, FatString address)
+		public Assignee NewAssignee(string name, Text address)
 		{
 			return ctx.New<Assignee>().With(name, address);
 		}
@@ -54,9 +54,9 @@ namespace Routine.Test.Module.Todo
 		public void CreateTestData()
 		{
 			NewTodoList(DateTime.Now, 7, "Toplanti", 10);
-			NewAssignee("Cihan Deniz", new FatString("Suadiye"));
-			NewAssignee("Zafer Tokcanli", new FatString("Maslak"));
-			NewAssignee("Caglayan Yildirim", new FatString("Maltepe"));
+			NewAssignee("Cihan Deniz", new Text("Suadiye"));
+			NewAssignee("Zafer Tokcanli", new Text("Maslak"));
+			NewAssignee("Caglayan Yildirim", new Text("Maltepe"));
 
 			UndoneItems[0].Assign(Assignees[0]);
 			UndoneItems[1].Assign(Assignees[1]);

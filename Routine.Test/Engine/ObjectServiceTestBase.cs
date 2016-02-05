@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Routine.Core;
 using Routine.Core.Cache;
 using Routine.Engine;
-using Routine.Engine.Configuration.Conventional;
+using Routine.Engine.Configuration.ConventionBased;
 using Routine.Engine.Context;
 using Routine.Test.Core;
 
@@ -15,7 +15,7 @@ namespace Routine.Test.Engine
 		protected Dictionary<string, object> objectRepository;
 
 		protected ICoreContext ctx;
-		protected ConventionalCodingStyle codingStyle;
+		protected ConventionBasedCodingStyle codingStyle;
 
 		protected ObjectService testing;
 
@@ -27,17 +27,16 @@ namespace Routine.Test.Engine
 			objectRepository = new Dictionary<string, object>();
 
 			codingStyle = BuildRoutine.CodingStyle().FromBasic()
-				.AddTypes(GetType().Assembly, t => t.IsPublic && t.Namespace.StartsWith(RootNamespace))
-				.Use(p => p.ShortModelIdPattern("System", "s"))
-				.Use(p => p.ShortModelIdPattern("Routine.Test.Common", "c"))
+				.AddCommonSystemTypes()
+				.AddTypes(GetType().Assembly, t => t.IsPublic && t.Namespace != null && t.Namespace.StartsWith(RootNamespace))
 				.Use(p => p.ParseableValueTypePattern())
 
-				.Initializers.Add(c => c.Initializers().When(t => t.IsValueType && t.IsDomainType))
-				.Members.Add(c => c.PublicMembers(m => !m.IsInherited()).When(t => t.IsDomainType))
-				.Operations.Add(c => c.PublicOperations(m => !m.IsInherited()).When(t => t.IsDomainType))
+				.Initializers.Add(c => c.Constructors().When(t => t.IsValueType && t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
+				.Datas.Add(c => c.PublicProperties(m => !m.IsInherited()).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
+				.Operations.Add(c => c.PublicMethods(m => !m.IsInherited()).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
 
-				.IdExtractor.Set(c => c.IdByMember(p => p.Returns<string>("Id")).When(t => t.IsDomainType))
-				.Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.IsDomainType && t.Members.Any(m => m.Returns<string>("Id"))))
+				.IdExtractor.Set(c => c.IdByProperty(p => p.Returns<string>("Id")).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
+				.Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace) && t.Properties.Any(m => m.Returns<string>("Id"))))
 
 				.NextLayer()
 				;
@@ -50,20 +49,22 @@ namespace Routine.Test.Engine
 
 		protected void AddToRepository(object obj)
 		{
-			testing.GetApplicationModel();
+			var dummy = testing.ApplicationModel;
 
 			var idExtractor = ctx.CodingStyle.GetIdExtractor(obj.GetTypeInfo());
 			var id = idExtractor.GetId(obj);
 			objectRepository.Add(id, obj);
 		}
 
-		protected ObjectReferenceData IdNull() { return Id(null, null, null, true); }
-		protected virtual ObjectReferenceData Id(string id) { return Id(id, DefaultModelId); }
-		protected ObjectReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
-		protected ObjectReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
-		protected ObjectReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
+		protected ReferenceData IdNull() { return Id(null, null, null, true); }
+		protected virtual ReferenceData Id(string id) { return Id(id, DefaultModelId); }
+		protected ReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
+		protected ReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
+		protected ReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
 		{
-			return new ObjectReferenceData { Id = id, ActualModelId = actualModelId, ViewModelId = viewModelId, IsNull = isNull };
+			if (isNull) { return null; }
+
+			return new ReferenceData { Id = id, ModelId = actualModelId, ViewModelId = viewModelId };
 		}
 
 		protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters)
@@ -82,7 +83,7 @@ namespace Routine.Test.Engine
 		{
 			return new ParameterData
 			{
-				ObjectModelId = objectModelId,
+				ModelId = objectModelId,
 				InitializationParameters = initializationParameters
 			};
 		}
@@ -99,15 +100,16 @@ namespace Routine.Test.Engine
 			);
 		}
 
-		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ObjectReferenceData[] references) { return Param(modelId, references.Length > 1, references); }
-		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ObjectReferenceData[] references)
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ReferenceData[] references) { return Param(modelId, references.Length > 1, references); }
+		protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ReferenceData[] references)
 		{
 			return new KeyValuePair<string, ParameterValueData>(modelId, new ParameterValueData { IsList = isList, Values = references.Select(r => PD(r)).ToList() });
 		}
 
-		protected ParameterData PD(ObjectReferenceData reference)
+		protected ParameterData PD(ReferenceData reference)
 		{
-			return new ParameterData { ObjectModelId = reference.ActualModelId, IsNull = reference.IsNull, ReferenceId = reference.Id };
+			if (reference == null) { return null; }
+			return new ParameterData { ModelId = reference.ModelId, Id = reference.Id };
 		}
 
 		protected abstract string DefaultModelId { get; }

@@ -5,7 +5,7 @@ namespace Routine
 {
 	public static class MvcPatterns
 	{
-		public static ConventionalMvcConfiguration FromEmpty(this PatternBuilder<ConventionalMvcConfiguration> source) { return new ConventionalMvcConfiguration(); }
+		public static ConventionBasedMvcConfiguration FromEmpty(this PatternBuilder<ConventionBasedMvcConfiguration> source) { return new ConventionBasedMvcConfiguration(); }
 	}
 }
 

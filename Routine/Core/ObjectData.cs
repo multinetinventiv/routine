@@ -1,43 +1,62 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Core
 {
 	public class ObjectData
 	{
-		public ObjectReferenceData Reference { get; set; }
-		public string Value { get; set; }
-		public Dictionary<string, ValueData> Members { get; set; }
+		public string Id { get; set; }
+		public string ModelId { get; set; }
+		public string Display { get; set; }
+		public Dictionary<string, VariableData> Data { get; set; }
 
 		public ObjectData()
+			: this(new Dictionary<string, object>
+			{
+				{"Id", null},
+				{"ModelId", null},
+				{"Display", null},
+				{"Data", new Dictionary<string ,object>()}
+			}) { }
+		public ObjectData(IDictionary<string, object> data)
 		{
-			Reference = new ObjectReferenceData();
-			Members = new Dictionary<string, ValueData>();
+			Id = (string)data["Id"];
+			ModelId = (string)data["ModelId"];
+			Display = (string)data["Display"];
+
+			Data = ((IDictionary<string, object>)data["Data"]).ToDictionary(kvp => kvp.Key, kvp => new VariableData((IDictionary<string, object>)kvp.Value));
 		}
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[ObjectData: Reference={0}, Value={1}, Members={2}]", Reference, Value, Members.ToKeyValueString());
+			return string.Format("[ObjectData: [Id: {0}, ModelId: {1}, Display: {2}, Data: {3}]]", Id, ModelId, Display, Data.ToKeyValueString());
+		}
+
+		protected bool Equals(ObjectData other)
+		{
+			return string.Equals(Id, other.Id) && string.Equals(ModelId, other.ModelId) && string.Equals(Display, other.Display) && Data.KeyValueEquals(other.Data);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (obj == null)
-				return false;
-			if (ReferenceEquals(this, obj))
-				return true;
-			if (obj.GetType() != typeof(ObjectData))
-				return false;
-			ObjectData other = (ObjectData)obj;
-			return object.Equals(Reference, other.Reference) && Value == other.Value && Members.KeyValueEquals(other.Members);
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+
+			return Equals((ObjectData)obj);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return (Reference != null ? Reference.GetHashCode() : 0) ^ (Value != null ? Value.GetHashCode() : 0) ^ (Members != null ? Members.GetKeyValueHashCode() : 0);
+				var hashCode = (Id != null ? Id.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (ModelId != null ? ModelId.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Display != null ? Display.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Data != null ? Data.GetKeyValueHashCode() : 0);
+				return hashCode;
 			}
 		}
 

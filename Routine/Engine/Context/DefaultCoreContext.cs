@@ -49,33 +49,10 @@ namespace Routine.Engine.Context
 
 		public DomainType GetDomainType(IType type)
 		{
-			return CreateDomainType(type);
-		}
-
-		public DomainType CreateDomainType(IType type)
-		{
-			var typeId = codingStyle.GetTypeId(type);
-
-			DomainType result;
-
-			if (!DomainTypes.TryGetValue(typeId, out result))
-			{
-				lock (DomainTypes)
-				{
-					if (!DomainTypes.ContainsKey(typeId))
-					{
-						result = new DomainType(this, type);
-
-						DomainTypes.Add(typeId, result);
-					}
-					else
-					{
-						result = DomainTypes[typeId];
-					}
-				}
-			}
-
-			return result;
+			return GetDomainType(this.BuildTypeId(
+				CodingStyle.GetModule(type),
+				CodingStyle.GetName(type)
+			));
 		}
 
 		public List<DomainType> GetDomainTypes()
@@ -84,17 +61,21 @@ namespace Routine.Engine.Context
 			{
 				foreach (var type in CodingStyle.GetTypes())
 				{
-					CreateDomainType(type);
+					var domainType = new DomainType(this, type);
+
+					try
+					{
+						DomainTypes.Add(domainType.Id, domainType);
+					}
+					catch (ArgumentException ex)
+					{
+						throw new InvalidOperationException(string.Format("{0} was attempted to be added more than once.", domainType.Id), ex);
+					}
 				}
 
 				foreach (var domainType in DomainTypes.Values.ToList())
 				{
-					domainType.LoadSubTypes();
-				}
-
-				foreach (var domainType in DomainTypes.Values.ToList())
-				{
-					domainType.LoadCrossTypeRelations();
+					domainType.Initialize();
 				}
 
 				initialized = true;
@@ -113,37 +94,46 @@ namespace Routine.Engine.Context
 			return new DomainObject(@object, actualDomainType, viewDomainType);
 		}
 
-		public DomainObject CreateDomainObject(ObjectReferenceData objectReferenceData)
+		public DomainObject CreateDomainObject(ReferenceData referenceData)
 		{
-			var actualDomainType = GetActualDomainType(objectReferenceData);
-			var viewDomainType = objectReferenceData.ActualModelId != objectReferenceData.ViewModelId
-				? GetDomainType(objectReferenceData.ViewModelId)
+			var actualDomainType = GetActualDomainType(referenceData);
+			var viewDomainType = referenceData.ModelId != referenceData.ViewModelId
+				? GetDomainType(referenceData.ViewModelId)
 				: actualDomainType;
 
-			return new DomainObject(actualDomainType.Locate(objectReferenceData), actualDomainType, viewDomainType);
+			return new DomainObject(actualDomainType.Locate(referenceData), actualDomainType, viewDomainType);
 		}
 
-		private DomainType GetActualDomainType(ObjectReferenceData aReference)
+		private DomainType GetActualDomainType(ReferenceData aReference)
 		{
-			if (aReference.IsNull)
+			if (aReference == null)
 			{
 				return GetDomainType((IType)null);
 			}
 
-			return GetDomainType(aReference.ActualModelId);
+			return GetDomainType(aReference.ModelId);
 		}
 
-		public object GetObject(ObjectReferenceData aReference)
+		public object GetObject(ReferenceData aReference)
 		{
 			return GetActualDomainType(aReference).Locate(aReference);
-		}
+		} 
 	}
 
 	public class TypeNotFoundException : Exception
 	{
+		public string TypeId { get; private set; }
+
 		public TypeNotFoundException(string typeId)
-			: base(string.Format("Type could not be found with given type id: '{0}'. Make sure type id is correct and configured. " +
-								 "Also make sure that ObjectService.GetApplicationModel is called before any other ObjectService methods are called." +
-								 "(This is because domain type of the expected type should be accessed via IType before trying to access via type id.)", typeId)) { }
+			: base(
+				string.Format(
+					"Type could not be found with given type id: '{0}'. Make sure type id is correct and corresponding type is configured. " +
+					"This can occur when a client with old version of service model tries to connect to server with a new version of service model. " +
+					"Also make sure that ObjectService.GetApplicationModel is called before any other ObjectService methods are called " +
+					"(This is because domain type of the expected type should be accessed via IType before trying to access via type id).",
+					typeId))
+		{
+			TypeId = typeId;
+		}
 	}
 }

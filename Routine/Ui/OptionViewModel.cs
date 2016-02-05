@@ -20,8 +20,8 @@ namespace Routine.Ui
 			Object = robj;
 		}
 
-		public string Id { get { return Object.ObjectReferenceData.ToSerializable().ToString(); } }
-		public string Value { get { return Object.Value; } }
+		public string Id { get { return Object.Id; } }
+		public string Value { get { return Object.Display; } }
 		public int Order { get { return configuration.GetOrder(this); } }
 	}
 }

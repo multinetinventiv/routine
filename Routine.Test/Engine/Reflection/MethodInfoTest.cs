@@ -81,6 +81,18 @@ namespace Routine.Test.Engine.Reflection
 		}
 
 		[Test]
+		public void RoutineMethodInfo_throws_null_exception_when_target_is_null()
+		{
+			testing = OOP_Method("PublicPingMethod");
+
+			Assert.Throws<NullReferenceException>(()  => testing.Invoke(null, "test"));
+
+			testing = OOP_Method("PrivateMethod");
+
+			Assert.Throws<NullReferenceException>(()  => testing.Invoke(null, "test"));
+		}
+
+		[Test]
 		public void Routine_MethodInfo_lists_custom_attributes_with_inherit_behaviour()
 		{
 			testing = Attribute_Method("Class");

@@ -1,23 +1,33 @@
-﻿using System;
-using NUnit.Framework;
-using Routine.Engine.Converter;
+﻿using NUnit.Framework;
+using Routine.Engine;
 
 namespace Routine.Test.Engine.Converter
 {
-	[TestFixture][Ignore]
+	[TestFixture]
 	public class NullableConverterTest
 	{
 		[Test]
-		public void Write_tests()
+		public void Converts_value_types_to_their_nullable_types()
 		{
-			Assert.Fail();
+			IConverter converter = BuildRoutine.Converter().ToNullable();
+
+			Assert.AreEqual(type.of<int?>(), converter.GetTargetTypes(type.of<int>())[0]);
+			
+			var actual = converter.Convert(3, type.of<int>(), type.of<int?>());
+
+			int? expected = 3;
+
+			Assert.AreEqual(expected, actual);
 		}
 
 		[Test]
-		public void Test_given_type_is_nullable()
+		public void Does_not_cover_void__non_value_types_and_generic_types()
 		{
-			Assert.DoesNotThrow(() => new NullableConverter(type.of<int?>()));
-			Assert.Throws<ArgumentException>(() => new NullableConverter(type.of<int>()));
+			IConverter converter = BuildRoutine.Converter().ToNullable();
+
+			Assert.IsEmpty(converter.GetTargetTypes(type.ofvoid()));
+			Assert.IsEmpty(converter.GetTargetTypes(type.of<string>()));
+			Assert.IsEmpty(converter.GetTargetTypes(type.of<int?>()));
 		}
 	}
 }

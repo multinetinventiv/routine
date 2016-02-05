@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -15,7 +14,7 @@ namespace Routine.Test.Api.Template
 		protected override string DefaultNamespace { get { return "Routine.Test.Api.Template.ClientApiEnumFeatureTest_Generated"; } }
 
 		[Test]
-		public void Models_with_no_member__operation_and_initializer_but_static_instances_are_rendered_as_enum()
+		public void Models_with_no_data__operation_and_initializer_but_static_instances_are_rendered_as_enum()
 		{
 			ModelsAre(
 				Model("TestEnum").Name("TestEnum")
@@ -23,8 +22,8 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
-				Object(Id("2", "TestEnum")).Value("Instance2")
+				Object(Id("1", "TestEnum")).Display("Instance1"),
+				Object(Id("2", "TestEnum")).Display("Instance2")
 			);
 
 			var testEnum = GetRenderedType("TestEnum");
@@ -44,11 +43,11 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("instance value 1"),
-				Object(Id("2", "TestEnum")).Value("instance Value2"),
-				Object(Id("3", "TestEnum")).Value("instancevalue3"),
-				Object(Id("4", "TestEnum")).Value("4th instance"),
-				Object(Id("5", "TestEnum")).Value("5.!@ instance")
+				Object(Id("1", "TestEnum")).Display("instance value 1"),
+				Object(Id("2", "TestEnum")).Display("instance Value2"),
+				Object(Id("3", "TestEnum")).Display("instancevalue3"),
+				Object(Id("4", "TestEnum")).Display("4th instance"),
+				Object(Id("5", "TestEnum")).Display("5.!@ instance")
 			);
 
 			var testEnum = GetRenderedType("TestEnum");
@@ -71,8 +70,8 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("10", "TestEnum")).Value("Instance1"),
-				Object(Id("20", "TestEnum")).Value("Instance2")
+				Object(Id("10", "TestEnum")).Display("Instance1"),
+				Object(Id("20", "TestEnum")).Display("Instance2")
 			);
 
 			var testEnum = GetRenderedType("TestEnum");
@@ -94,17 +93,17 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
+				Object(Id("1", "TestEnum")).Display("Instance1"),
 				Object(Id("obj", "TestClass"))
 			);
 
 			When(Id("obj", "TestClass")).Performs("EnumOperation", p =>
-				p["arg1"].Values[0].ObjectModelId == "TestEnum" &&
-				p["arg1"].Values[0].ReferenceId == "1"
+				p["arg1"].Values[0].ModelId == "TestEnum" &&
+				p["arg1"].Values[0].Id == "1"
 			).Returns(Result(Id("success", "s-string")));
 
 			var assembly = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
 
 			var iTestClass = GetRenderedType(assembly, "TestClass");
@@ -132,16 +131,16 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
+				Object(Id("1", "TestEnum")).Display("Instance1"),
 				Object(Id("obj", "TestClass"))
 			);
 
 			When(Id("obj", "TestClass")).Performs("EnumOperation", p =>
-				p["arg1"].Values[0].IsNull
+				p["arg1"].Values[0] == null
 			).Returns(Result(Id("success", "s-string")));
 
 			var assembly = Generator(c => c
-				.Use(p => p.ReferencedTypeByShortModelIdPattern("System", "s"))
+				.Use(p => p.ReferencedTypesPattern(t => "s-string", typeof(string)))
 				.Use(p => p.ParseableValueTypePattern())).Generate(DefaultTestTemplate);
 
 			var iTestClass = GetRenderedType(assembly, "TestClass");
@@ -168,7 +167,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
+				Object(Id("1", "TestEnum")).Display("Instance1"),
 				Object(Id("obj", "TestClass"))
 			);
 
@@ -199,7 +198,7 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
+				Object(Id("1", "TestEnum")).Display("Instance1"),
 				Object(Id("obj", "TestClass"))
 			);
 
@@ -246,15 +245,15 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "Module2-TestEnum")).Value("instance 1"),
-				Object(Id("2", "Module2-TestEnum")).Value("instance 2"),
+				Object(Id("1", "Module2-TestEnum")).Display("instance 1"),
+				Object(Id("2", "Module2-TestEnum")).Display("instance 2"),
 				Object(Id("obj", "Module1-TestClass"))
 			);
 
 			When(Id("obj", "Module1-TestClass"))
 				.Performs("EnumOperation", p =>
-					p["arg1"].Values[0].ObjectModelId == "Module2-TestEnum" &&
-					p["arg1"].Values[0].ReferenceId == "1"
+					p["arg1"].Values[0].ModelId == "Module2-TestEnum" &&
+					p["arg1"].Values[0].Id == "1"
 				).Returns(Result(Id("2", "Module2-TestEnum"))
 			);
 
@@ -304,19 +303,19 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1"),
-				Object(Id("2", "TestEnum")).Value("Instance2"),
-				Object(Id("3", "TestEnum")).Value("Instance3"),
-				Object(Id("4", "TestEnum")).Value("Instance4"),
+				Object(Id("1", "TestEnum")).Display("Instance1"),
+				Object(Id("2", "TestEnum")).Display("Instance2"),
+				Object(Id("3", "TestEnum")).Display("Instance3"),
+				Object(Id("4", "TestEnum")).Display("Instance4"),
 				Object(Id("obj", "TestClass"))
 			);
 
 			When(Id("obj", "TestClass")).Performs("EnumOperation", p =>
 				p["arg1"].IsList &&
-				p["arg1"].Values[0].ObjectModelId == "TestEnum" &&
-				p["arg1"].Values[0].ReferenceId == "1" &&
-				p["arg1"].Values[1].ObjectModelId == "TestEnum" &&
-				p["arg1"].Values[1].ReferenceId == "2"
+				p["arg1"].Values[0].ModelId == "TestEnum" &&
+				p["arg1"].Values[0].Id == "1" &&
+				p["arg1"].Values[1].ModelId == "TestEnum" &&
+				p["arg1"].Values[1].Id == "2"
 			).Returns(Result(Id("3", "TestEnum"), Id("4", "TestEnum")));
 
 			var assembly = Generator().Generate(DefaultTestTemplate);
@@ -351,11 +350,11 @@ namespace Routine.Test.Api.Template
 			);
 
 			ObjectsAre(
-				Object(Id("1", "TestEnum")).Value("Instance1")
+				Object(Id("1", "TestEnum")).Display("Instance1")
 			);
 
 			var assembly = Generator(c => c
-				.RenderedTypeAttributes.Add(type.of<CustomAttribute>()))
+				.RenderedTypeAttributes.Add(typeof(CustomAttribute)))
 				.AddReference<CustomAttribute>()
 				.Generate(DefaultTestTemplate)
 				;

@@ -16,12 +16,10 @@ namespace Routine.Engine
 		DomainType GetDomainType(IType type);
 		List<DomainType> GetDomainTypes();
 
-		object GetObject(ObjectReferenceData aReference);
-
-		DomainType CreateDomainType(IType type);
+		object GetObject(ReferenceData aReference);
 
 		DomainObject CreateDomainObject(object @object, DomainType viewDomainType);
-		DomainObject CreateDomainObject(ObjectReferenceData objectReference);
+		DomainObject CreateDomainObject(ReferenceData reference);
 	}
 
 	public static class CoreContextFacade
@@ -31,12 +29,12 @@ namespace Routine.Engine
 			return source.CreateDomainObject(id, modelId, modelId);
 		}
 
-		public static DomainObject CreateDomainObject(this ICoreContext source, string id, string actualModelId, string viewModelId)
+		public static DomainObject CreateDomainObject(this ICoreContext source, string id, string modelId, string viewModelId)
 		{
-			return source.CreateDomainObject(new ObjectReferenceData
+			return source.CreateDomainObject(new ReferenceData
 			{
 				Id = id,
-				ActualModelId = actualModelId,
+				ModelId = modelId,
 				ViewModelId = viewModelId
 			});
 		}
@@ -46,10 +44,12 @@ namespace Routine.Engine
 			return source.CreateDomainObject(anObject, null);
 		}
 
-		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager) { return source.CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager); }
-		internal static ValueData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
+		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager) { return source.CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager); }
+		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
 		{
-			var result = new ValueData { IsList = isList };
+			if (anObject == null) { return null; }
+
+			var result = new VariableData { IsList = isList };
 
 			if (isList)
 			{
@@ -68,6 +68,16 @@ namespace Routine.Engine
 			}
 
 			return result;
+		}
+
+		internal static string BuildTypeId(this ICoreContext source, string module, string name)
+		{
+			if (string.IsNullOrEmpty(module))
+			{
+				return name;
+			}
+
+			return string.Format("{0}.{1}", module, name);
 		}
 	}
 }

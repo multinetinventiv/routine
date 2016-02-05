@@ -4,9 +4,8 @@ namespace Routine.Core
 {
 	public class ParameterData
 	{
-		public bool IsNull { get; set; }
-		public string ObjectModelId { get; set; }
-		public string ReferenceId { get; set; }
+		public string ModelId { get; set; }
+		public string Id { get; set; }
 		public Dictionary<string, ParameterValueData> InitializationParameters { get; set; }
 
 		public ParameterData() { InitializationParameters = new Dictionary<string, ParameterValueData>(); }
@@ -15,30 +14,31 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterData: ObjectModelId={0}, ReferenceId={1}, IsNull={2}, InitializationParameters={3}]", 
-												  ObjectModelId, ReferenceId, IsNull, InitializationParameters.ToKeyValueString());
+			return string.Format("[ParameterData: [ModelId: {0}, Id: {1}, InitializationParameters: {2}]]", ModelId, Id, InitializationParameters.ToKeyValueString());
+		}
+
+		protected bool Equals(ParameterData other)
+		{
+			return string.Equals(ModelId, other.ModelId) && string.Equals(Id, other.Id) && InitializationParameters.KeyValueEquals(other.InitializationParameters);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (obj == null)
-				return false;
-			if (ReferenceEquals(this, obj))
-				return true;
-			if (obj.GetType() != typeof(ParameterData))
-				return false;
-			ParameterData other = (ParameterData)obj;
-			return (IsNull && other.IsNull) ||
-					(!IsNull && !other.IsNull && ObjectModelId == other.ObjectModelId && ReferenceId == other.ReferenceId && InitializationParameters.KeyValueEquals(other.InitializationParameters));
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+
+			return Equals((ParameterData)obj);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				if (IsNull) { return IsNull.GetHashCode(); }
-
-				return (ObjectModelId != null ? ObjectModelId.GetHashCode() : 0) ^ (ReferenceId != null ? ReferenceId.GetHashCode() : 0) ^ (InitializationParameters != null ? InitializationParameters.GetKeyValueHashCode() : 0);
+				var hashCode = (ModelId != null ? ModelId.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Id != null ? Id.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (InitializationParameters != null ? InitializationParameters.GetKeyValueHashCode() : 0);
+				return hashCode;
 			}
 		}
 

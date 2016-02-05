@@ -116,17 +116,16 @@ namespace Routine.Test.Performance
 				.AsClientApplication(
 					codingStyle = BuildRoutine.CodingStyle()
 						.FromBasic()
+						.AddCommonSystemTypes()
 						.AddTypes(GetType().Assembly, t => t.Namespace.StartsWith("Routine.Test.Performance.Domain"))
 
-						.Use(p => p.ShortModelIdPattern("System", "s"))
 						.Use(p => p.ParseableValueTypePattern())
 
-						.TypeId.Set(c => c.By(t => t.FullName))
-						.Initializers.Add(c => c.PublicInitializers().When(type.of<BusinessPerformanceInput>()))
-						.Members.Add(c => c.Members(m => !m.IsInherited(true, true)).When(t => t.IsDomainType))
-						.MemberFetchedEagerly.Set(true)
-						.Operations.Add(c => c.Operations(o => !o.IsInherited(true, true)).When(t => t.IsDomainType))
-						.IdExtractor.Set(c => c.IdByMember(m => m.Returns<int>("Id")))
+						.Initializers.Add(c => c.PublicConstructors().When(type.of<BusinessPerformanceInput>()))
+						.Datas.Add(c => c.Properties(m => !m.IsInherited(true, true)))
+						.DataFetchedEagerly.Set(true)
+						.Operations.Add(c => c.Methods(o => !o.IsInherited(true, true)))
+						.IdExtractor.Set(c => c.IdByProperty(m => m.Returns<int>("Id")))
 						.Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
 						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
 				);
@@ -134,7 +133,7 @@ namespace Routine.Test.Performance
 			objectService = apiCtx.ObjectService;
 			rapp = apiCtx.Application;
 
-			var applicationModel = objectService.GetApplicationModel();
+			var applicationModel = objectService.ApplicationModel;
 		}
 
 		protected void AddToRepository(BusinessPerformance obj)
@@ -287,9 +286,9 @@ namespace Routine.Test.Performance
 			var sub_type = typeof(BusinessPerformanceSub).FullName;
 
 			AddToRepository(obj);
-			var dummyLoadToPrintMessagesBeforeManuelCoding = objectService.Get(new ObjectReferenceData
+			var dummyLoadToPrintMessagesBeforeManuelCoding = objectService.Get(new ReferenceData
 			{
-				ActualModelId = obj_type,
+				ModelId = obj_type,
 				ViewModelId = obj_type,
 				Id = obj_id.ToString(CultureInfo.InvariantCulture)
 			});
@@ -298,9 +297,9 @@ namespace Routine.Test.Performance
 			#region manuel
 			var manuel_time = Run("manuel", () =>
 					{
-						var ord = new ObjectReferenceData
+						var ord = new ReferenceData
 						{
-							ActualModelId = obj_type,
+							ModelId = obj_type,
 							ViewModelId = obj_type,
 							Id = obj_id.ToString(CultureInfo.InvariantCulture)
 						};
@@ -308,222 +307,175 @@ namespace Routine.Test.Performance
 						var foundObj = objectRepository[ord.Id] as BusinessPerformance;
 						var result = new ObjectData
 						{
-							Reference = new ObjectReferenceData
-							{
-								ActualModelId = ord.ActualModelId,
-								ViewModelId = ord.ViewModelId,
-								Id = foundObj.Id.ToString(CultureInfo.InvariantCulture),
-							},
-							Members = new Dictionary<string, ValueData>{
-							{"Items", new ValueData {
+							ModelId = ord.ModelId,
+							Id = foundObj.Id.ToString(CultureInfo.InvariantCulture),
+							Data = new Dictionary<string, VariableData>{
+							{"Items", new VariableData {
 									IsList = true,
 									Values = foundObj.Items.Select(sub => new ObjectData{
-										Reference = new ObjectReferenceData {
-											ActualModelId = sub_type,
-											ViewModelId = sub_type,
-											Id = sub.Id.ToString(CultureInfo.InvariantCulture),
-										},
-										Value = sub.ToString(),
+										ModelId = sub_type,
+										Id = sub.Id.ToString(CultureInfo.InvariantCulture),
+										Display = sub.ToString(),
 										
 										#region Prop1 - Prop10
-										Members = new Dictionary<string, ValueData>
+										Data = new Dictionary<string, VariableData>
 										{
 											{
 												"Prop1", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop1
-															},
-															Value = sub.Prop1
+															ModelId = "System.String",
+															Id = sub.Prop1,
+															Display = sub.Prop1
 														}
 													}
 												}
 											},
 											{
 												"Prop2", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop2
-															},
-															Value = sub.Prop2
+															ModelId = "System.String",
+															Id = sub.Prop2,
+															Display = sub.Prop2
 														}
 													}
 												}
 											},
 											{
 												"Prop3", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop3
-															},
-															Value = sub.Prop3
+															ModelId = "System.String",
+															Id = sub.Prop3,
+															Display = sub.Prop3
 														}
 													}
 												}
 											},
 											{
 												"Prop4", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop4
-															},
-															Value = sub.Prop4
+															ModelId = "System.String",
+															Id = sub.Prop4,
+															Display = sub.Prop4
 														}
 													}
 												}
 											},
 											{
 												"Prop5", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop5
-															},
-															Value = sub.Prop5
+															ModelId = "System.String",
+															Id = sub.Prop5,
+															Display = sub.Prop5
 														}
 													}
 												}
 											},
 											{
 												"Prop6", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop6
-															},
-															Value = sub.Prop6
+															ModelId = "System.String",
+															Id = sub.Prop6,
+															Display = sub.Prop6
 														}
 													}
 												}
 											},
 											{
 												"Prop7", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop7
-															},
-															Value = sub.Prop7
+															ModelId = "System.String",
+															Id = sub.Prop7,
+															Display = sub.Prop7
 														}
 													}
 												}
 											},
 											{
 												"Prop8", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop8
-															},
-															Value = sub.Prop8
+															ModelId = "System.String",
+															Id = sub.Prop8,
+															Display = sub.Prop8
 														}
 													}
 												}
 											},
 											{
 												"Prop9", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop9
-															},
-															Value = sub.Prop9
+															ModelId = "System.String",
+															Id = sub.Prop9,
+															Display = sub.Prop9
 														}
 													}
 												}
 											},
 											{
 												"Prop10", 
-												new ValueData
+												new VariableData
 												{
 													IsList =  false,
 													Values = new List<ObjectData>
 													{
 														new ObjectData
 														{
-															Reference = new ObjectReferenceData
-															{
-																ActualModelId = "System.String",
-																ViewModelId = "System.String",
-																Id = sub.Prop10
-															},
-															Value = sub.Prop10
+															ModelId = "System.String",
+															Id = sub.Prop10,
+															Display = sub.Prop10
 														}
 													}
 												}
@@ -542,9 +494,9 @@ namespace Routine.Test.Performance
 			#region engine
 			var engine_time = Run("engine", () =>
 					{
-						var result = objectService.Get(new ObjectReferenceData
+						var result = objectService.Get(new ReferenceData
 						{
-							ActualModelId = obj_type,
+							ModelId = obj_type,
 							ViewModelId = obj_type,
 							Id = obj_id.ToString(CultureInfo.InvariantCulture)
 						});
@@ -554,7 +506,7 @@ namespace Routine.Test.Performance
 			#region client
 			var client_time = Run("client api", () =>
 					{
-						var items = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type)["Items"].Get().List.Select(r => r.Value);
+						var items = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type)["Items"].Get().List.Select(r => r.Display);
 					}, load);
 			#endregion
 
@@ -587,225 +539,182 @@ namespace Routine.Test.Performance
 			#region manuel
 			var manuel_time = Run("manuel", () =>
 				{
-					var ord = new ObjectReferenceData
+					var ord = new ReferenceData
 					{
-						ActualModelId = obj_type,
+						ModelId = obj_type,
 						ViewModelId = obj_type,
 						Id = obj_id.ToString(CultureInfo.InvariantCulture)
 					};
 					var foundObj = objectRepository[ord.Id] as BusinessPerformance;
 
 					var sub = foundObj.GetSub(int.Parse("0"));
-					var returnResult = new ValueData
+					var returnResult = new VariableData
 					{
 						IsList = false,
 						Values = new List<ObjectData> {
 							new ObjectData {
-								Value = sub.ToString(),
-								Reference = new ObjectReferenceData {
-									ActualModelId = sub_type,
-									ViewModelId = sub_type,
-									Id = sub.Id.ToString(CultureInfo.InvariantCulture)
-								},
+								Display = sub.ToString(),
+								ModelId = sub_type,
+								Id = sub.Id.ToString(CultureInfo.InvariantCulture),
 								#region Prop1 - Prop10
-								Members = new Dictionary<string, ValueData>
+								Data = new Dictionary<string, VariableData>
 								{
 									{
 										"Prop1", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop1
-													},
-													Value = sub.Prop1
+													ModelId = "System.String",
+													Id = sub.Prop1,
+													Display = sub.Prop1
 												}
 											}
 										}
 									},
 									{
 										"Prop2", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop2
-													},
-													Value = sub.Prop2
+													ModelId = "System.String",
+													Id = sub.Prop2,
+													Display = sub.Prop2
 												}
 											}
 										}
 									},
 									{
 										"Prop3", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop3
-													},
-													Value = sub.Prop3
+													ModelId = "System.String",
+													Id = sub.Prop3,
+													Display = sub.Prop3
 												}
 											}
 										}
 									},
 									{
 										"Prop4", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop4
-													},
-													Value = sub.Prop4
+													ModelId = "System.String",
+													Id = sub.Prop4,
+													Display = sub.Prop4
 												}
 											}
 										}
 									},
 									{
 										"Prop5", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop5
-													},
-													Value = sub.Prop5
+													ModelId = "System.String",
+													Id = sub.Prop5,
+													Display = sub.Prop5
 												}
 											}
 										}
 									},
 									{
 										"Prop6", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop6
-													},
-													Value = sub.Prop6
+													ModelId = "System.String",
+													Id = sub.Prop6,
+													Display = sub.Prop6
 												}
 											}
 										}
 									},
 									{
 										"Prop7", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop7
-													},
-													Value = sub.Prop7
+													ModelId = "System.String",
+													Id = sub.Prop7,
+													Display = sub.Prop7
 												}
 											}
 										}
 									},
 									{
 										"Prop8", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop8
-													},
-													Value = sub.Prop8
+													ModelId = "System.String",
+													Id = sub.Prop8,
+													Display = sub.Prop8
 												}
 											}
 										}
 									},
 									{
 										"Prop9", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop9
-													},
-													Value = sub.Prop9
+													ModelId = "System.String",
+													Id = sub.Prop9,
+													Display = sub.Prop9
 												}
 											}
 										}
 									},
 									{
 										"Prop10", 
-										new ValueData
+										new VariableData
 										{
 											IsList =  false,
 											Values = new List<ObjectData>
 											{
 												new ObjectData
 												{
-													Reference = new ObjectReferenceData
-													{
-														ActualModelId = "System.String",
-														ViewModelId = "System.String",
-														Id = sub.Prop10
-													},
-													Value = sub.Prop10
+													ModelId = "System.String",
+													Id = sub.Prop10,
+													Display = sub.Prop10
 												}
 											}
 										}
@@ -821,19 +730,19 @@ namespace Routine.Test.Performance
 			#region engine
 			var engine_time = Run("engine", () =>
 				{
-					var ord = new ObjectReferenceData
+					var ord = new ReferenceData
 					{
-						ActualModelId = obj_type,
+						ModelId = obj_type,
 						ViewModelId = obj_type,
 						Id = obj_id.ToString(CultureInfo.InvariantCulture)
 					};
-					var returnResult = objectService.PerformOperation(ord, "GetSub", new Dictionary<string, ParameterValueData>{
+					var returnResult = objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
 					{"index", new ParameterValueData {
 							IsList = false,
 							Values = new List<ParameterData> {
 								new ParameterData {
-									ObjectModelId= "s-int-32",
-									ReferenceId = "0"
+									ModelId= "System.Int32",
+									Id = "0"
 								}
 							}
 						}
@@ -846,7 +755,7 @@ namespace Routine.Test.Performance
 			#region client
 			var client_time = Run("client api", () =>
 				{
-					var rvar = rapp.NewVar("index", rapp.Get("0", "s-int-32"));
+					var rvar = rapp.NewVar("index", rapp.Get("0", "System.Int32"));
 					var returnResult = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type).Perform("GetSub", rvar);
 				}, load);
 
@@ -899,7 +808,7 @@ namespace Routine.Test.Performance
 									#region parameter data
 									new ParameterData
 									{
-										ObjectModelId = input_type,
+										ModelId = input_type,
 										InitializationParameters = new Dictionary<string, ParameterValueData>
 										{
 											{
@@ -910,8 +819,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "s-string",
+															Id = str_in
 														}
 													}
 												}
@@ -924,8 +833,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-int-32",
-															ReferenceId = int_in
+															ModelId = "s-int-32",
+															Id = int_in
 														}
 													}
 												}
@@ -938,8 +847,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "s-string",
+															Id = str_in
 														}
 													}
 												}
@@ -952,8 +861,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "s-string",
+															Id = str_in
 														}
 													}
 												}
@@ -966,8 +875,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "s-string",
+															Id = str_in
 														}
 													}
 												}
@@ -981,9 +890,9 @@ namespace Routine.Test.Performance
 					}
 				};
 
-				var ord = new ObjectReferenceData
+				var ord = new ReferenceData
 				{
-					ActualModelId = obj_type,
+					ModelId = obj_type,
 					ViewModelId = obj_type,
 					Id = obj_id.ToString(CultureInfo.InvariantCulture)
 				};
@@ -995,11 +904,11 @@ namespace Routine.Test.Performance
 					.Create(Enumerable
 						.Range(0, input_count)
 						.Select(i => new BusinessPerformanceInput(
-							parameter.Values[i].InitializationParameters["s"].Values[0].ReferenceId,
-							int.Parse(parameter.Values[i].InitializationParameters["i"].Values[0].ReferenceId),
-							parameter.Values[i].InitializationParameters["s2"].Values[0].ReferenceId,
-							parameter.Values[i].InitializationParameters["s3"].Values[0].ReferenceId,
-							parameter.Values[i].InitializationParameters["s4"].Values[0].ReferenceId
+							parameter.Values[i].InitializationParameters["s"].Values[0].Id,
+							int.Parse(parameter.Values[i].InitializationParameters["i"].Values[0].Id),
+							parameter.Values[i].InitializationParameters["s2"].Values[0].Id,
+							parameter.Values[i].InitializationParameters["s3"].Values[0].Id,
+							parameter.Values[i].InitializationParameters["s4"].Values[0].Id
 						)).ToList())
 					.ToString(CultureInfo.InvariantCulture);
 
@@ -1022,7 +931,7 @@ namespace Routine.Test.Performance
 									#region parameter data
 									new ParameterData
 									{
-										ObjectModelId = input_type,
+										ModelId = input_type,
 										InitializationParameters = new Dictionary<string, ParameterValueData>
 										{
 											{
@@ -1033,8 +942,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "System.String",
+															Id = str_in
 														}
 													}
 												}
@@ -1047,8 +956,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-int-32",
-															ReferenceId = int_in
+															ModelId = "System.Int32",
+															Id = int_in
 														}
 													}
 												}
@@ -1061,8 +970,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "System.String",
+															Id = str_in
 														}
 													}
 												}
@@ -1075,8 +984,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "System.String",
+															Id = str_in
 														}
 													}
 												}
@@ -1089,8 +998,8 @@ namespace Routine.Test.Performance
 													{
 														new ParameterData
 														{
-															ObjectModelId = "s-string",
-															ReferenceId = str_in
+															ModelId = "System.String",
+															Id = str_in
 														}
 													}
 												}
@@ -1103,13 +1012,13 @@ namespace Routine.Test.Performance
 						}
 					}
 				};
-				var ord = new ObjectReferenceData
+				var ord = new ReferenceData
 				{
-					ActualModelId = obj_type,
+					ModelId = obj_type,
 					ViewModelId = obj_type,
 					Id = obj_id.ToString(CultureInfo.InvariantCulture)
 				};
-				var returnResult = objectService.PerformOperation(ord, "Create", parameters);
+				var returnResult = objectService.Do(ord, "Create", parameters);
 			}, load);
 			#endregion
 
@@ -1121,11 +1030,11 @@ namespace Routine.Test.Performance
 						.Range(0, input_count)
 						.Select(i =>
 							rapp.Init(input_type,
-								rapp.NewVar("s", str_in, "s-string"),
-								rapp.NewVar("i", int_in, "s-int-32"),
-								rapp.NewVar("s2", str_in, "s-string"),
-								rapp.NewVar("s3", str_in, "s-string"),
-								rapp.NewVar("s4", str_in, "s-string")
+								rapp.NewVar("s", str_in, "System.String"),
+								rapp.NewVar("i", int_in, "System.Int32"),
+								rapp.NewVar("s2", str_in, "System.String"),
+								rapp.NewVar("s3", str_in, "System.String"),
+								rapp.NewVar("s4", str_in, "System.String")
 							)
 						)
 					);

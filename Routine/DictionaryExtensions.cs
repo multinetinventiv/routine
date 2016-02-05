@@ -27,7 +27,7 @@ namespace Routine
 
 			if (source.Keys.Cast<object>().Any(k => !other.Contains(k)) ||
 			    other.Keys.Cast<object>().Any(k => !source.Contains(k)) ||
-			    source.Keys.Cast<object>().Any(k => !object.Equals(source[k], other[k])))
+			    source.Keys.Cast<object>().Any(k => !Equals(source[k], other[k])))
 			{
 				return false;
 			}
@@ -37,12 +37,12 @@ namespace Routine
 
 		public static int GetKeyValueHashCode(this IDictionary source)
 		{
-			int result = 0;
+			var result = 0;
 			unchecked
 			{
 				foreach(var key in source.Keys)
 				{
-					result ^= key.GetHashCode() ^ ((source[key] != null) ? source[key].GetHashCode() : 0);
+					result = (result * 397) ^ key.GetHashCode() ^ ((source[key] != null) ? source[key].GetHashCode() : 0);
 				}
 			}
 			return result;

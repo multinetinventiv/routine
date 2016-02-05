@@ -48,29 +48,29 @@ namespace Routine.Test.Engine.Reflection
 		}
 
 		[Test]
-		public void When_a_previously_cached_type_is_added_as_domain_type__previously_created_reflected_type_info_instance_is_invalidated()
+		public void When_a_previously_cached_type_is_being_optimized__previously_created_reflected_type_info_instance_is_invalidated()
 		{
 			Assert.IsInstanceOf<ReflectedTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
 
-			TypeInfo.AddDomainTypes(typeof(TestOuterDomainType_OOP));
+			TypeInfo.Optimize(typeof(TestOuterDomainType_OOP));
 
-			Assert.IsInstanceOf<DomainTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
+			Assert.IsInstanceOf<OptimizedTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
 		}
 
 		[Test]
-		public void When_a_domain_type_has_a_currently_non_domain_type_reference__that_type_reference_should_be_invalidated_after_adding_it_as_a_domain_type()
+		public void When_an_optimized_type_has_a_currently_non_optimized_type_reference__that_type_reference_should_be_invalidated_after_optimizing_it()
 		{
-			TypeInfo.AddDomainTypes(typeof(TestOuterDomainType_OOP));
+			TypeInfo.Optimize(typeof(TestOuterDomainType_OOP));
 
 			var property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
 
 			Assert.IsInstanceOf<ReflectedTypeInfo>(property.PropertyType);
 
-			TypeInfo.AddDomainTypes(typeof(TestOuterLaterAddedDomainType_OOP));
+			TypeInfo.Optimize(typeof(TestOuterLaterAddedDomainType_OOP));
 
 			property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
 
-			Assert.IsInstanceOf<DomainTypeInfo>(property.PropertyType);
+			Assert.IsInstanceOf<OptimizedTypeInfo>(property.PropertyType);
 		}
 
 		[Test]
@@ -301,13 +301,13 @@ namespace Routine.Test.Engine.Reflection
 		}
 
 		[Test]
-		public void Extension_IsDomainType()
+		public void Parseable_types_are_represented_by_ParseableTypeInfo_even_if_they_are_added_for_optimization()
 		{
-			Assert.IsFalse(type.of<int>().IsDomainType);
-			Assert.IsFalse(type.of<string>().IsDomainType);
-			Assert.IsFalse(type.of<DateTime>().IsDomainType);
+			Assert.IsFalse(type.of<int>() is OptimizedTypeInfo);
+			Assert.IsFalse(type.of<string>() is OptimizedTypeInfo);
+			Assert.IsFalse(type.of<DateTime>() is OptimizedTypeInfo);
 
-			Assert.IsTrue(type.of<TestClass_OOP>().IsDomainType);
+			Assert.IsTrue(type.of<TestClass_OOP>() is OptimizedTypeInfo);
 		}
 
 		[Test]

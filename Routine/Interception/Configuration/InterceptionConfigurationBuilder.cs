@@ -2,9 +2,9 @@
 {
 	public class InterceptionConfigurationBuilder
 	{
-		public ConventionalInterceptionConfiguration FromBasic()
+		public ConventionBasedInterceptionConfiguration FromBasic()
 		{
-			return new ConventionalInterceptionConfiguration()
+			return new ConventionBasedInterceptionConfiguration()
 				;
 		}
 	}

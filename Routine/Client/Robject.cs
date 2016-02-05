@@ -8,29 +8,30 @@ namespace Routine.Client
 	{
 		#region Data Adapter Methods
 
-		private static ObjectReferenceData Ord(string id, string amid, string vmid, bool isNull) { return new ObjectReferenceData { Id = id, ActualModelId = amid, ViewModelId = vmid, IsNull = isNull }; }
-		private static ObjectData Od(ObjectReferenceData ord) { return Od(ord, null); }
-		private static ObjectData Od(ObjectReferenceData ord, string value) { return new ObjectData { Reference = ord, Value = value }; }
+		private static ReferenceData Rd(bool isNull) { return Rd(null, null, null, isNull); }
+		private static ReferenceData Rd(string id, string mid, string vmid, bool isNull) { return isNull ? null : new ReferenceData { Id = id, ModelId = mid, ViewModelId = vmid }; }
+		private static ObjectData Od(ReferenceData rd) { return Od(rd, null); }
+		private static ObjectData Od(ReferenceData rd, string display) { return rd == null ? null : new ObjectData { Id = rd.Id, ModelId = rd.ModelId, Display = display }; }
 
 		#endregion
 
-		private readonly ObjectReferenceData objectReferenceData;
+		private readonly string id;
 		private readonly List<Rvariable> initializationParameters;
-		private readonly Dictionary<string, MemberValue> members;
+		private readonly Dictionary<string, DataValue> datas;
 
-		private string value;
+		private string display;
 
 		public Rtype ActualType { get; private set; }
 		public Rtype ViewType { get; private set; }
 		public Rtype Type { get { return ViewType ?? ActualType; } }
 
-		public Robject() : this(new ObjectReferenceData { IsNull = true }, null, null) { }
-		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Ord(null, type.Id, type.Id, false)), type, type) { }
+		public Robject() : this(Rd(true), null, null) { }
+		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Rd(null, type.Id, type.Id, false)), type, type) { }
 		public Robject(string id, Rtype type) : this(id, type, type) { }
-		public Robject(string id, Rtype actualType, Rtype viewType) : this(Ord(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
-		internal Robject(ObjectReferenceData objectReferenceData, Rtype actualType, Rtype viewType) : this(Od(objectReferenceData), actualType, viewType) { }
-		internal Robject(ObjectReferenceData objectReferenceData, Rtype actualType, Rtype viewType, string value) : this(Od(objectReferenceData, value), actualType, viewType) { }
-		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(new List<Rvariable>(), objectData, actualType, viewType) { }
+		public Robject(string id, Rtype actualType, Rtype viewType) : this(Rd(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
+		internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType) : this(Od(referenceData), actualType, viewType) { }
+		internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType, string value) : this(Od(referenceData, value), actualType, viewType) { }
+		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(null, objectData, actualType, viewType) { }
 		private Robject(List<Rvariable> initializationParameters, ObjectData objectData, Rtype actualType, Rtype viewType)
 		{
 			if (actualType != null && actualType.IsViewType)
@@ -43,14 +44,14 @@ namespace Routine.Client
 				throw new CannotCreateRobjectException(string.Format("{0} cannot be {1}", actualType, viewType));
 			}
 
+			this.initializationParameters = initializationParameters;
+			
+			id = objectData != null ? objectData.Id : null;
+
 			ActualType = actualType;
 			ViewType = viewType;
 
-			objectReferenceData = objectData.Reference;
-
-			this.initializationParameters = initializationParameters;
-
-			members = new Dictionary<string, MemberValue>();
+			datas = new Dictionary<string, DataValue>();
 
 			if (!IsNull)
 			{
@@ -58,46 +59,46 @@ namespace Routine.Client
 			}
 		}
 
-		private void FillObject(ObjectData data)
+		private void FillObject(ObjectData objectData)
 		{
-			value = data.Value;
+			display = objectData.Display;
 
-			if (data.Members.Count <= 0) { return; }
+			if (objectData.Data.Count <= 0) { return; }
 
-			LoadMembersIfNecessary();
+			LoadDataIfNecessary();
 
-			foreach (var memberModelId in data.Members.Keys)
+			foreach (var dataName in objectData.Data.Keys)
 			{
-				members[memberModelId].SetData(data.Members[memberModelId]);
+				datas[dataName].SetData(objectData.Data[dataName]);
 			}
 		}
 
-		private void LoadMembersIfNecessary()
+		private void LoadDataIfNecessary()
 		{
 			if (IsNull) { return; }
 			if (Type.IsValueType) { return; }
-			if (members.Any()) { return; }
+			if (datas.Any()) { return; }
 
-			foreach (var member in Type.Members)
+			foreach (var data in Type.Datas)
 			{
-				members.Add(member.Id, new MemberValue(this, member));
+				datas.Add(data.Name, new DataValue(this, data));
 			}
 		}
 
 		private void FetchValueIfNecessary()
 		{
-			if (value != null) { return; }
+			if (display != null) { return; }
 
 			if (IsNull)
 			{
-				value = "";
+				display = "";
 
 				return;
 			}
 
 			if (Type.IsValueType)
 			{
-				value = objectReferenceData.Id;
+				display = id;
 
 				return;
 			}
@@ -107,7 +108,7 @@ namespace Routine.Client
 				throw new RobjectIsInitializedOnClientException();
 			}
 
-			value = Application.Service.GetValue(objectReferenceData);
+			LoadObject();
 		}
 
 		internal void LoadObject()
@@ -115,19 +116,23 @@ namespace Routine.Client
 			if (IsNull) { return; }
 			if (Type.IsValueType) { return; }
 
-			FillObject(Application.Service.Get(objectReferenceData));
+			FillObject(Application.Service.Get(ReferenceData));
 		}
-
-		internal ObjectReferenceData ObjectReferenceData { get { return objectReferenceData; } }
 
 		internal ParameterData GetParameterData()
 		{
-			var result = new ParameterData
+			if (IsNull) { return null; }
+
+			if (!IsInitializedOnClient)
 			{
-				IsNull = IsNull,
-				ObjectModelId = objectReferenceData.ActualModelId,
-				ReferenceId = objectReferenceData.Id
-			};
+				return new ParameterData
+				{
+					ModelId = ActualType.Id,
+					Id = id
+				};
+			}
+
+			var result = new ParameterData { ModelId = ActualType.Id };
 
 			foreach (var initializationParameter in initializationParameters)
 			{
@@ -138,57 +143,58 @@ namespace Routine.Client
 		}
 
 		public Rapplication Application { get { return Type.Application; } }
-		public string Id { get { return objectReferenceData.Id; } }
-		public bool IsNull { get { return objectReferenceData.IsNull; } }
+		public string Id { get { return id; } }
+		public bool IsNull { get { return id == null && !IsInitializedOnClient; } }
 		public bool IsNaked { get { return Equals(ActualType, ViewType); } }
-		public bool IsInitializedOnClient { get { return string.IsNullOrEmpty(objectReferenceData.Id); } }
-		public string Value { get { FetchValueIfNecessary(); return value; } }
+		public bool IsInitializedOnClient { get { return initializationParameters != null; } }
+		public string Display { get { FetchValueIfNecessary(); return display; } }
+		internal ReferenceData ReferenceData { get { return Rd(id, ActualType.Id, ViewType.Id, IsNull); } }
 
-		public MemberValue this[string memberModelId] { get { LoadMembersIfNecessary(); return members[memberModelId]; } }
-		public List<MemberValue> MemberValues { get { LoadMembersIfNecessary(); return members.Values.ToList(); } }
+		public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
+		public List<DataValue> DataValues { get { LoadDataIfNecessary(); return datas.Values.ToList(); } }
 
 		public Robject As(Rtype viewType)
 		{
 			return Type.Get(Id, viewType);
 		}
 
-		public Rvariable Perform(string operationModelId, params Rvariable[] parameters) { return Perform(operationModelId, parameters.ToList()); }
-		public Rvariable Perform(string operationModelId, List<Rvariable> parameters)
+		public Rvariable Perform(string operationName, params Rvariable[] parameters) { return Perform(operationName, parameters.ToList()); }
+		public Rvariable Perform(string operationName, List<Rvariable> parameters)
 		{
 			if (IsNull) { return new Rvariable(); }
 
-			return Type.Operation[operationModelId].Perform(this, parameters);
+			return Type.Operation[operationName].Perform(this, parameters);
 		}
 
 		public void Invalidate()
 		{
-			value = null;
+			display = null;
 
-			foreach (var member in members.Values)
+			foreach (var data in datas.Values)
 			{
-				member.Invalidate();
+				data.Invalidate();
 			}
 		}
 
-		public class MemberValue
+		public class DataValue
 		{
 			public Robject Object { get; private set; }
-			public Rmember Member { get; private set; }
+			public Rdata Data { get; private set; }
 
-			internal MemberValue(Robject @object, Rmember member)
+			internal DataValue(Robject @object, Rdata data)
 			{
 				Object = @object;
-				Member = member;
+				Data = data;
 			}
 
 			private Rvariable value;
-			private ValueData data;
+			private VariableData data;
 
-			internal void SetData(ValueData data)
+			internal void SetData(VariableData data)
 			{
 				this.data = data;
 
-				value = new Rvariable(Object.Type.Application, data);
+				value = new Rvariable(Object.Type.Application, data, Data.DataType.Id);
 			}
 
 			public Rvariable Get()
@@ -217,23 +223,32 @@ namespace Routine.Client
 
 		protected bool Equals(Robject other)
 		{
-			if (IsInitializedOnClient || other.IsInitializedOnClient) { return false; }
+			if (IsInitializedOnClient || other.IsInitializedOnClient)
+			{
+				return false;
+			}
 
-			return Equals(objectReferenceData, other.objectReferenceData);
+			return string.Equals(id, other.id) && Equals(ActualType, other.ActualType) && Equals(ViewType, other.ViewType);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(null, obj)) { return false; }
-			if (ReferenceEquals(this, obj)) { return true; }
-			if (obj.GetType() != GetType()) { return false; }
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
 
 			return Equals((Robject)obj);
 		}
 
 		public override int GetHashCode()
 		{
-			return (objectReferenceData != null ? objectReferenceData.GetHashCode() : 0);
+			unchecked
+			{
+				var hashCode = (id != null ? id.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (ActualType != null ? ActualType.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (ViewType != null ? ViewType.GetHashCode() : 0);
+				return hashCode;
+			}
 		}
 
 		#endregion

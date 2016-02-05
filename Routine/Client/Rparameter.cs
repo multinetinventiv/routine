@@ -22,7 +22,7 @@ namespace Routine.Client
 
 		public Rapplication Application { get { return Owner.Type.Application; } }
 		public Rtype Type { get { return Owner.Type; } }
-		public string Id { get { return model.Id; } }
+		public string Name { get { return model.Name; } }
 		public bool IsList { get { return model.IsList; } }
 		internal List<int> Groups { get { return model.Groups; } }
 		public List<string> Marks { get { return model.Marks; } }
@@ -35,7 +35,7 @@ namespace Routine.Client
 		public Rvariable CreateVariable(params Robject[] robjs) { return CreateVariable(robjs.ToList()); }
 		public Rvariable CreateVariable(List<Robject> robjs)
 		{
-			var result = new Rvariable(Id, robjs);
+			var result = new Rvariable(Name, robjs);
 
 			if (!IsList)
 			{

@@ -6,7 +6,7 @@ namespace Routine
 {
 	public static class ConfigurationExtension_DefaultTheme
 	{
-		public static ConventionalMvcConfiguration DefaultTheme(this MvcConfigurationBuilder source, Func<ObjectViewModel, bool> searchViewModelPredicate)
+		public static ConventionBasedMvcConfiguration DefaultTheme(this MvcConfigurationBuilder source, Func<ObjectViewModel, bool> searchViewModelPredicate)
 		{
 			return source.FromBasic()
 				.ThemeAssembly.Set(typeof(ConfigurationExtension_DefaultTheme).Assembly)

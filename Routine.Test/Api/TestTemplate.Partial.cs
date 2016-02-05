@@ -26,7 +26,7 @@ namespace Routine.Test.Api
 
 	public static class TestTemplateExtensions
 	{
-		public static ConventionalApiConfiguration TestTemplate(this ApiConfigurationBuilder source)
+		public static ConventionBasedApiConfiguration TestTemplate(this ApiConfigurationBuilder source)
 		{
 			return source.FromBasic()
 				.RenderedTypeTemplate.Set(c => c.By(mm => new TestTypeConversionTemplate(mm.Mode)))

@@ -22,8 +22,8 @@ namespace Routine.Ui
 		}
 
 		public ObjectViewModel Target { get { return new ObjectViewModel(Configuration, Object); } }
-		public string Id { get { return Operation.Id; } }
-		public string Text { get { return Configuration.GetDisplayName(Operation.Id); } }
+		public string Id { get { return Operation.Name; } }
+		public string Text { get { return Configuration.GetDisplayName(Operation.Name); } }
 
 		public bool HasParameter { get { return Operation.Parameters.Any(); } }
 		public bool ReturnsList { get { return Operation.ResultIsList; } }
@@ -67,7 +67,7 @@ namespace Routine.Ui
 
 			var other = (OperationViewModel)obj;
 
-			return Operation.Id == other.Operation.Id;
+			return Operation.Name == other.Operation.Name;
 		}
 
 		public override int GetHashCode()

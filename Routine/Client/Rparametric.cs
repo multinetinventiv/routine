@@ -13,7 +13,7 @@ namespace Routine.Client
 		public List<List<Rparameter>> Groups { get; private set; }
 		public List<string> Marks { get; private set; }
 
-		protected Rparametric(string id, int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
+		protected Rparametric(string name, int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
 		{
 			Marks = new List<string>(marks);
 
@@ -24,7 +24,7 @@ namespace Routine.Client
 
 			foreach (var parameterModel in parameterModels)
 			{
-				parameters[parameterModel.Id] = new Rparameter(parameterModel, this);
+				parameters[parameterModel.Name] = new Rparameter(parameterModel, this);
 			}
 
 			foreach (var paramId in parameters.Keys)
@@ -35,7 +35,7 @@ namespace Routine.Client
 				{
 					if (group >= Groups.Count)
 					{
-						throw new InvalidOperationException(string.Format("Parameter '{0}' has a group '{1}' that does not exist on '{2}'. There only {3} groups.", param.Id, group, id, Groups.Count));
+						throw new InvalidOperationException(string.Format("Parameter '{0}' has a group '{1}' that does not exist on '{2}'. There only {3} groups.", param.Name, group, name, Groups.Count));
 					}
 
 					Groups[group].Add(param);

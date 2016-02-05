@@ -71,23 +71,28 @@
     <Compile Include="Core\Configuration\ILayered.cs" />
     <Compile Include="Core\Configuration\Layer.cs" />
     <Compile Include="Core\Configuration\LayeredBase.cs" />
+    <Compile Include="Core\Configuration\LayeredConvention.cs" />
     <Compile Include="Core\Configuration\ListConfiguration.cs" />
     <Compile Include="Core\Configuration\SingleConfiguration.cs" />
     <Compile Include="Core\InitializerModel.cs" />
     <Compile Include="Core\MaxFetchDepthExceededException.cs" />
+    <Compile Include="Core\ReferenceData.cs" />
+    <Compile Include="Core\Reflection\ProxyMethodInvoker.cs" />
     <Compile Include="Core\Rest\IJsonSerializer.cs" />
+    <Compile Include="Core\Rest\JavaScriptSerializerAdapter.cs" />
+    <Compile Include="Core\Rest\RestRequest.cs" />
     <Compile Include="Core\Rest\RestResponse.cs" />
     <Compile Include="Core\Runtime\SystemExtensions.cs" />
     <Compile Include="Engine\Configuration\ConverterBuilder.cs" />
-    <Compile Include="Engine\Converter\DelegateBasedConverter.cs" />
-    <Compile Include="Engine\Configuration\OperationBuilder.cs" />
-    <Compile Include="Engine\Configuration\OperationBuilder.Parameters.cs">
+    <Compile Include="Engine\Configuration\MethodBuilder.Parameters.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>OperationBuilder.Parameters.tt</DependentUpon>
+      <DependentUpon>MethodBuilder.Parameters.tt</DependentUpon>
     </Compile>
+    <Compile Include="Engine\Converter\DelegateBasedConverter.cs" />
+    <Compile Include="Engine\Configuration\MethodBuilder.cs" />
     <Compile Include="Engine\Configuration\ParameterBuilder.cs" />
-    <Compile Include="Engine\Configuration\ProxyOperationBuilder.cs" />
+    <Compile Include="Engine\Configuration\ProxyMethodBuilder.cs" />
     <Compile Include="Engine\Converter\NullableConverter.cs" />
     <Compile Include="Engine\Converter\TypeCastConverter.cs" />
     <Compile Include="Engine\Configuration\VirtualTypeBuilder.cs" />
@@ -102,26 +107,26 @@
     <Compile Include="Engine\ReturnTypesDoNotMatchException.cs" />
     <Compile Include="Engine\Virtual\ProxyParameter.cs" />
     <Compile Include="Engine\Virtual\VirtualObject.cs" />
-    <Compile Include="Engine\Virtual\ProxyOperation.cs" />
-    <Compile Include="Engine\Virtual\VirtualOperation.cs" />
+    <Compile Include="Engine\Virtual\ProxyMethod.cs" />
+    <Compile Include="Engine\Virtual\VirtualMethod.cs" />
     <Compile Include="Engine\Virtual\VirtualParameter.cs" />
     <Compile Include="Engine\Virtual\VirtualType.cs" />
+    <Compile Include="Core\OperationWithObjectModel.cs" />
     <Compile Include="Interception\InterceptionContext.cs" />
-    <Compile Include="Core\MemberModel.cs" />
+    <Compile Include="Core\DataModel.cs" />
     <Compile Include="Core\ObjectData.cs" />
     <Compile Include="Core\ObjectModel.cs" />
-    <Compile Include="Core\ObjectReferenceData.cs" />
     <Compile Include="Core\OperationModel.cs" />
     <Compile Include="Core\ParameterModel.cs" />
     <Compile Include="Core\ParameterValueData.cs" />
-    <Compile Include="Core\ValueData.cs" />
-    <Compile Include="Engine\Virtual\MemberOperation.cs" />
+    <Compile Include="Core\VariableData.cs" />
+    <Compile Include="Engine\Virtual\PropertyAsMethod.cs" />
     <Compile Include="Engine\DomainObjectInitializer.cs" />
     <Compile Include="Engine\DomainParameterResolver.cs" />
     <Compile Include="Engine\IIdExtractor.cs" />
-    <Compile Include="Engine\IInitializer.cs" />
-    <Compile Include="Engine\IMember.cs" />
-    <Compile Include="Engine\IOperation.cs" />
+    <Compile Include="Engine\IConstructor.cs" />
+    <Compile Include="Engine\IProperty.cs" />
+    <Compile Include="Engine\IMethod.cs" />
     <Compile Include="Engine\IParametric.cs" />
     <Compile Include="Engine\IReturnable.cs" />
     <Compile Include="Engine\IType.cs" />
@@ -137,11 +142,11 @@
     <Compile Include="Interception\Configuration\InterceptionConfigurationBuilder.cs" />
     <Compile Include="Client\Context\DefaultClientContext.cs" />
     <Compile Include="Api\Configuration\ApiConfigurationBuilder.cs" />
-    <Compile Include="Api\Configuration\ConventionalApiConfiguration.cs" />
+    <Compile Include="Api\Configuration\ConventionBasedApiConfiguration.cs" />
     <Compile Include="Api\ApplicationCodeModel.cs" />
     <Compile Include="Api\ParameterCodeModel.cs" />
     <Compile Include="Api\OperationCodeModel.cs" />
-    <Compile Include="Api\MemberCodeModel.cs" />
+    <Compile Include="Api\DataCodeModel.cs" />
     <Compile Include="Api\TypeCodeModel.cs" />
     <Compile Include="Api\IApiConfiguration.cs" />
     <Compile Include="Api\IApiTemplate.cs" />
@@ -149,10 +154,10 @@
     <Compile Include="Client\IClientContext.cs" />
     <Compile Include="ContextBuilder.cs" />
     <Compile Include="ApiPatterns.cs" />
-    <Compile Include="Interception\Configuration\ConventionalInterceptionConfiguration.cs" />
+    <Compile Include="Interception\Configuration\ConventionBasedInterceptionConfiguration.cs" />
     <Compile Include="Interception\IInterceptionConfiguration.cs" />
     <Compile Include="Interception\InterceptedObjectService.cs" />
-    <Compile Include="Core\Rest\SerializationExtensions.cs" />
+    <Compile Include="Core\Rest\DataCompressor.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="Interception\Configuration\InterceptorBuilder.cs" />
     <Compile Include="Interception\IInterceptor.cs" />
@@ -164,20 +169,19 @@
     <Compile Include="Interception\ChainInterceptor.cs" />
     <Compile Include="Interception\DecoratorInterceptor.cs" />
     <Compile Include="Engine\Marks.cs" />
-    <Compile Include="Service\Configuration\ResponseHeaderProcessorBuilder.cs" />
-    <Compile Include="Service\Configuration\ResponseHeaderProcessorBuilder.Predefined.cs">
+    <Compile Include="Service\Configuration\HeaderProcessorBuilder.Predefined.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ResponseHeaderProcessorBuilder.Predefined.tt</DependentUpon>
+      <DependentUpon>HeaderProcessorBuilder.Predefined.tt</DependentUpon>
     </Compile>
-    <Compile Include="Service\IResponseHeaderProcessor.cs" />
-    <Compile Include="Core\Rest\SerializerHelper.cs" />
-    <Compile Include="Service\ResponseHeaderProcessor\PredefinedResponseHeaderProcessorBase.cs" />
-    <Compile Include="Service\ResponseHeaderProcessor\PredefinedResponseHeaderProcessor.cs">
-      <DependentUpon>PredefinedResponseHeaderProcessor.tt</DependentUpon>
+    <Compile Include="Service\Configuration\HeaderProcessorBuilder.cs" />
+    <Compile Include="Service\IHeaderProcessor.cs" />
+    <Compile Include="Service\HeaderProcessor\PredefinedHeaderProcessor.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <DependentUpon>PredefinedHeaderProcessor.tt</DependentUpon>
     </Compile>
+    <Compile Include="Service\HeaderProcessor\PredefinedHeaderProcessorBase.cs" />
     <Compile Include="Ui\EmbeddedResourceVirtualFile.cs" />
     <Compile Include="Ui\EmbeddedResource.cs" />
     <Compile Include="Ui\EmbeddedResourceVirtualPathProvider.cs" />
@@ -189,14 +193,14 @@
     <Compile Include="Engine\Configuration\CodingStyleBuilder.cs" />
     <Compile Include="Engine\Configuration\ExtractorBuilder.cs" />
     <Compile Include="Engine\Configuration\LocatorBuilder.cs" />
-    <Compile Include="Engine\Configuration\Conventional\ConventionalCodingStyle.cs" />
+    <Compile Include="Engine\Configuration\ConventionBased\ConventionBasedCodingStyle.cs" />
     <Compile Include="Core\Configuration\Convention\ConventionBase.cs" />
     <Compile Include="Core\Configuration\Convention\DelegateBasedConvention.cs" />
-    <Compile Include="Core\Configuration\ConventionalConfiguration.cs" />
-    <Compile Include="Engine\Extractor\MemberValueExtractor.cs" />
+    <Compile Include="Core\Configuration\ConventionBasedConfiguration.cs" />
+    <Compile Include="Engine\Extractor\PropertyValueExtractor.cs" />
     <Compile Include="Engine\Locator\LocatorBase.cs" />
     <Compile Include="Engine\Locator\DelegateBasedLocator.cs" />
-    <Compile Include="Core\Configuration\ConventionalListConfiguration.cs" />
+    <Compile Include="Core\Configuration\ConventionBasedListConfiguration.cs" />
     <Compile Include="Engine\ICodingStyle.cs" />
     <Compile Include="Core\Configuration\Convention\IConvention.cs" />
     <Compile Include="Engine\ILocator.cs" />
@@ -204,7 +208,6 @@
     <Compile Include="Engine\DomainType.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="ServicePatterns.cs" />
-    <Compile Include="Interception\Context\ObjectModelInterceptionContext.cs" />
     <Compile Include="Interception\Context\ObjectReferenceInterceptionContext.cs" />
     <Compile Include="Interception\Context\ServiceInterceptionContext.cs" />
     <Compile Include="Service\IServiceContext.cs" />
@@ -214,11 +217,11 @@
     <Compile Include="Client\Rapplication.cs" />
     <Compile Include="Engine\IParameter.cs" />
     <Compile Include="Client\Robject.cs" />
-    <Compile Include="Client\Rmember.cs" />
+    <Compile Include="Client\Rdata.cs" />
     <Compile Include="Client\Roperation.cs" />
     <Compile Include="Client\Rparameter.cs" />
     <Compile Include="Client\Rvariable.cs" />
-    <Compile Include="Engine\Virtual\OperationMember.cs" />
+    <Compile Include="Engine\Virtual\MethodAsProperty.cs" />
     <Compile Include="Ui\ApplicationViewModel.cs" />
     <Compile Include="Ui\IMvcContext.cs" />
     <Compile Include="Ui\ObjectViewModel.cs" />
@@ -228,10 +231,10 @@
     <Compile Include="Ui\ViewModelBase.cs" />
     <Compile Include="Ui\MenuViewModel.cs" />
     <Compile Include="Ui\OperationViewModel.cs" />
-    <Compile Include="Ui\MemberViewModel.cs" />
+    <Compile Include="Ui\DataViewModel.cs" />
     <Compile Include="Ui\ParameterViewModel.cs" />
     <Compile Include="Ui\IMvcConfiguration.cs" />
-    <Compile Include="Ui\Configuration\ConventionalMvcConfiguration.cs" />
+    <Compile Include="Ui\Configuration\ConventionBasedMvcConfiguration.cs" />
     <Compile Include="Ui\Configuration\MvcConfigurationBuilder.cs" />
     <Compile Include="BuildRoutine.cs" />
     <Compile Include="Engine\ICoreContext.cs" />
@@ -252,7 +255,7 @@
     <Compile Include="Engine\Reflection\PropertyInfo.cs" />
     <Compile Include="Engine\Reflection\ParameterInfo.cs" />
     <Compile Include="Engine\Reflection\MemberIndex.cs" />
-    <Compile Include="Engine\Reflection\DomainTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\OptimizedTypeInfo.cs" />
     <Compile Include="Engine\Reflection\ArrayTypeInfo.cs" />
     <Compile Include="Engine\Reflection\ReflectedTypeInfo.cs" />
     <Compile Include="Engine\Reflection\VoidTypeInfo.cs" />
@@ -268,19 +271,18 @@
     <Compile Include="Core\Reflection\ReflectionOptimizer.cs" />
     <Compile Include="Core\Reflection\IMethodInvoker.cs" />
     <Compile Include="Core\Reflection\ReflectionMethodInvoker.cs" />
-    <Compile Include="Engine\DomainMember.cs" />
+    <Compile Include="Engine\DomainData.cs" />
     <Compile Include="Engine\DomainParameter.cs" />
     <Compile Include="Engine\DomainOperation.cs" />
     <Compile Include="Core\Rest\IRestClient.cs" />
-    <Compile Include="Core\Rest\RestParameter.cs" />
     <Compile Include="Ui\RoutineController.cs" />
     <Compile Include="Service\IServiceConfiguration.cs" />
     <Compile Include="Service\Configuration\ServiceConfigurationBuilder.cs" />
-    <Compile Include="Service\Configuration\ConventionalServiceConfiguration.cs" />
+    <Compile Include="Service\Configuration\ConventionBasedServiceConfiguration.cs" />
     <Compile Include="Service\ServiceController.cs" />
     <Compile Include="Service\RestClientObjectService.cs" />
     <Compile Include="Service\IServiceClientConfiguration.cs" />
-    <Compile Include="Service\Configuration\ConventionalServiceClientConfiguration.cs" />
+    <Compile Include="Service\Configuration\ConventionBasedServiceClientConfiguration.cs" />
     <Compile Include="Service\Configuration\ServiceClientConfigurationBuilder.cs" />
     <Compile Include="Core\Rest\WebRequestRestClient.cs" />
     <Compile Include="Api\ApiGenerator.cs" />
@@ -288,32 +290,96 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <EmbeddedResource Include="Service\View\ServiceTestPage.html" />
+    <EmbeddedResource Include="Service\TestApp\app\application\index.html" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Api\Template\ClientApiTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ClientApiTemplate.cs</LastGenOutput>
     </None>
-    <None Include="Engine\Configuration\OperationBuilder.Parameters.tt">
+    <None Include="Engine\Configuration\MethodBuilder.Parameters.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>OperationBuilder.Parameters.cs</LastGenOutput>
+      <LastGenOutput>MethodBuilder.Parameters.cs</LastGenOutput>
     </None>
     <None Include="Routine.nuspec" />
-    <None Include="Service\Configuration\ResponseHeaderProcessorBuilder.Predefined.tt">
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.eot" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.ttf" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff2" />
+    <None Include="Service\Configuration\HeaderProcessorBuilder.Predefined.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ResponseHeaderProcessorBuilder.Predefined.cs</LastGenOutput>
+      <LastGenOutput>HeaderProcessorBuilder.Predefined.cs</LastGenOutput>
     </None>
-    <None Include="Service\ResponseHeaderProcessor\PredefinedResponseHeaderProcessor.tt">
+    <None Include="Service\HeaderProcessor\PredefinedHeaderProcessor.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>PredefinedResponseHeaderProcessor.cs</LastGenOutput>
+      <LastGenOutput>PredefinedHeaderProcessor.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Service\TestApp\assets\img\" />
+    <Folder Include="Service\TestApp\assets\lib\" />
     <Folder Include="Ui\Themes\Default\" />
     <Folder Include="Ui\Themes\TopMenu\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\config.router.js" />
+    <EmbeddedResource Include="Service\TestApp\app\config.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\app.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\index.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.ui.router.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\indexService.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.filter.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\css\bootstrap.min.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\ui.bootstrap.tpls.0.14.3.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\css\master.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameter.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameter.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.js" />
   </ItemGroup>
 </Project>

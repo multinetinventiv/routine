@@ -11,10 +11,8 @@ namespace Routine.Interception
 
 	public enum InterceptionTarget
 	{
-		GetApplicationModel,
-		GetObjectModel,
-		GetValue,
+		ApplicationModel,
 		Get,
-		PerformOperation,
+		Do
 	}
 }
