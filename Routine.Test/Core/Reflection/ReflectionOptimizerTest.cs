@@ -327,6 +327,15 @@ namespace Routine.Test.Core.Reflection
 		}
 
 		[Test]
+		public void For_methods_with_ref_parameters_ReflectionInvoker_is_created()
+		{
+			var proxy = InvokerFor<Uri>("HexUnescape") as ProxyMethodInvoker;
+			
+			Assert.IsNotNull(proxy);
+			Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+		}
+
+		[Test]
 		public void ReflectionOptimizer_uses_reflection_when_given_method_is_not_public()
 		{
 			InvokerFor<OptimizedClass>("PrivateVoidMethod").Invoke(target);

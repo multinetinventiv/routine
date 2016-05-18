@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.CSharp;
 
@@ -62,19 +63,19 @@ namespace Routine.Core.Reflection
 
 							if (!current.IsPublic)
 							{
-								invokers.Add(current, new ReflectionMethodInvoker(current));
+								SafeAdd(current, new ReflectionMethodInvoker(current));
 							}
 							else if (!current.ReflectedType.IsPublic && !current.ReflectedType.IsNestedPublic)
 							{
-								invokers.Add(current, new ReflectionMethodInvoker(current));
+								SafeAdd(current, new ReflectionMethodInvoker(current));
 							}
-							else if (current.GetParameters().Any(pi => pi.IsIn || pi.IsOut || pi.ParameterType.IsPointer))
+							else if (current.GetParameters().Any(pi => pi.IsIn || pi.IsOut || pi.ParameterType.IsPointer || pi.ParameterType.IsByRef))
 							{
-								invokers.Add(current, new ReflectionMethodInvoker(current));
+								SafeAdd(current, new ReflectionMethodInvoker(current));
 							}
-							else if(current.ReflectedType.IsValueType && current.IsSpecialName)
+							else if (current.ReflectedType.IsValueType && current.IsSpecialName)
 							{
-								invokers.Add(current, new ReflectionMethodInvoker(current));
+								SafeAdd(current, new ReflectionMethodInvoker(current));
 							}
 							else
 							{
@@ -111,7 +112,7 @@ namespace Routine.Core.Reflection
 
 								var type = results.CompiledAssembly.GetType(typeName);
 
-								invokers.Add(current, (IMethodInvoker)Activator.CreateInstance(type));
+								SafeAdd(current, (IMethodInvoker)Activator.CreateInstance(type));
 							}
 							catch (Exception ex)
 							{
@@ -119,7 +120,7 @@ namespace Routine.Core.Reflection
 								{
 									throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
 								}
-								
+
 #if DEBUG					
 								Console.WriteLine("Optimization skipped, cannot optimize {0} {1}, exception is; {2}", current.ReflectedType, current, ex);
 #endif
@@ -133,6 +134,13 @@ namespace Routine.Core.Reflection
 					optimizeList.Remove(current);
 				}
 			}
+		}
+
+		private static void SafeAdd(MethodBase current, IMethodInvoker invoker)
+		{
+			if (invokers.ContainsKey(current)) { return; }
+
+			invokers.Add(current, invoker);
 		}
 
 		private static void ValidateCompilerResults(CompilerResults results, string code)

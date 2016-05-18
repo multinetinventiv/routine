@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Engine;
 using Routine.Engine.Context;
 
 namespace Routine.Core.Rest
@@ -245,13 +244,13 @@ namespace Routine.Core.Rest
 				var dataModel = GetDataModel(reference.ViewModelId, dataKey);
 				if (dataModel == null) { continue; }
 
-				result.Data.Add(dataKey, new DataCompressor(model, dataModel.ViewModelId).DecompressValueData(dataDict[dataKey]));
+				result.Data.Add(dataKey, new DataCompressor(model, dataModel.ViewModelId).DecompressVariableData(dataDict[dataKey]));
 			}
 
 			return result;
 		}
 
-		public VariableData DecompressValueData(object @object)
+		public VariableData DecompressVariableData(object @object)
 		{
 			if (@object == null || @object is string || @object is Dictionary<string, object>)
 			{

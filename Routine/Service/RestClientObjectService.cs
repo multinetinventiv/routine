@@ -54,7 +54,7 @@ namespace Routine.Service
 
 			var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
 
-			return helper.DecompressValueData(result);
+			return helper.DecompressVariableData(result);
 		}
 
 		private ObjectModel GetObjectModel(ReferenceData target)

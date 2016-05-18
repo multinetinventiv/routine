@@ -760,7 +760,7 @@ namespace Routine.Test.Core.Rest
 				}
 			};
 
-			var actual = Compressor().DecompressValueData(Deserialize("[{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}]"));
+			var actual = Compressor().DecompressVariableData(Deserialize("[{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}]"));
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -783,7 +783,7 @@ namespace Routine.Test.Core.Rest
 				}
 			};
 
-			var actual = Compressor().DecompressValueData(Deserialize("{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}"));
+			var actual = Compressor().DecompressVariableData(Deserialize("{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}"));
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -806,7 +806,7 @@ namespace Routine.Test.Core.Rest
 				}
 			};
 
-			var actual = Compressor("mid").DecompressValueData(Deserialize("\"id\""));
+			var actual = Compressor("mid").DecompressVariableData(Deserialize("\"id\""));
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -820,7 +820,7 @@ namespace Routine.Test.Core.Rest
 				Values = new List<ObjectData> { null }
 			};
 
-			var actual = Compressor().DecompressValueData(Deserialize("null"));
+			var actual = Compressor().DecompressVariableData(Deserialize("null"));
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -828,7 +828,7 @@ namespace Routine.Test.Core.Rest
 		[Test]
 		public void When_decompressing__VariableData_throws_ArgumentException_when_only_id_string_is_given_and_model_id_is_not_known()
 		{
-			Assert.Throws<ArgumentException>(() => Compressor().DecompressValueData(Deserialize("\"id\"")));
+			Assert.Throws<ArgumentException>(() => Compressor().DecompressVariableData(Deserialize("\"id\"")));
 		}
 
 		[Test]

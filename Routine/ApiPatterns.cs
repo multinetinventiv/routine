@@ -73,7 +73,10 @@ namespace Routine
 		private class NullableTypeConversionTemplate : TypeConversionTemplateBase
 		{
 			public NullableTypeConversionTemplate()
-				: base("({robject}.IsNull ? null : new {nullable-type}({type}.Parse({robject}.Id)))", "({object}.HasValue ? {rtype}.Get({object}.Value.ToString()) : new {robject-type}())") { }
+				: base(
+					"({robject}.IsNull ? null : new {nullable-type}({type}.Parse({robject}.Id)))",
+					"({object}.HasValue ? {rtype}.Get({object}.Value.ToString()) : new {robject-type}())"
+				) { }
 
 			public override string RenderRobjectToObject(TypeCodeModel model, string robjectExpression, string rtypeExpression)
 			{

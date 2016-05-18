@@ -268,14 +268,14 @@ namespace Routine.Test.Engine
 		}
 
 		[Test]
-		public void Null_objects_represented_as_null()
+		public void Null_objects_represented_as_empty_variable_data()
 		{
 			AddToRepository(new BusinessData { Id = "obj", Title = null });
 
 			var actual = testing.Get(Id("obj"));
 			var actualData = actual.Data["Title"];
 
-			Assert.IsTrue(actualData == null);
+			Assert.AreEqual(new VariableData(), actualData);
 		}
 
 		[Test]

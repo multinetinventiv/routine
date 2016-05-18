@@ -47,9 +47,9 @@ namespace Routine.Engine
 		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager) { return source.CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager); }
 		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
 		{
-			if (anObject == null) { return null; }
-
 			var result = new VariableData { IsList = isList };
+
+			if (anObject == null) { return result; }
 
 			if (isList)
 			{

@@ -237,7 +237,7 @@ namespace Routine.Test.Engine
 
 			var result = testing.Do(Id("id"), "GetResult", Params());
 
-			Assert.IsNull(result);
+			Assert.AreEqual(new VariableData(),  result);
 		}
 
 		[Test]
