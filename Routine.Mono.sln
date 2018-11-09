@@ -25,6 +25,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain.Configu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Api", "Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj", "{75480479-B00B-4919-85E7-199706A6D923}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Ui.Themes.TopMenu", "Routine.Ui.Themes.TopMenu\Routine.Ui.Themes.TopMenu.csproj", "{1075C285-A096-418B-B372-9257024108B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Ui.Themes.Default", "Routine.Ui.Themes.Default\Routine.Ui.Themes.Default.csproj", "{65CE8300-E663-4FFD-98D8-1057C0B80FF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Ui", "Routine.Test.Module.ProjectManagement.Ui\Routine.Test.Module.ProjectManagement.Ui.csproj", "{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +75,18 @@ Global
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9A92862-60E2-4C10-A74A-1B3FEE558035}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1075C285-A096-418B-B372-9257024108B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65CE8300-E663-4FFD-98D8-1057C0B80FF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F28456B9-CBB1-4A33-B6F8-933875DFA5BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Routine.Test.Web.Mvc\Routine.Test.Web.Mvc.csproj

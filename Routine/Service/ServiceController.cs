@@ -887,12 +887,12 @@ namespace Routine.Service
 
 		private ActionResult BadRequest(Exception ex)
 		{
-			return new HttpStatusCodeResult(HttpStatusCode.BadRequest, string.Format("Cannot resolve parameters from request body. The exception is; {0}", ex));
+            return new HttpStatusCodeResult((int)HttpStatusCode.BadRequest, string.Format("Cannot resolve parameters from request body. The exception is; {0}", ex));
 		}
 
 		private static ActionResult AmbiguousModel(string modelId, List<ObjectModel> availableModels)
 		{
-			return new HttpStatusCodeResult(HttpStatusCode.NotFound,
+			return new HttpStatusCodeResult((int)HttpStatusCode.NotFound,
 				string.Format(
 					"More than one model found with given modelId ({0}). " +
 					"Try sending full names. Available models are {1}.",
@@ -901,7 +901,7 @@ namespace Routine.Service
 
 		private static ActionResult TargetModelNotFound(string modelId)
 		{
-			return new HttpStatusCodeResult(HttpStatusCode.NotFound,
+			return new HttpStatusCodeResult((int)HttpStatusCode.NotFound,
 				string.Format(
 					"Could not resolve modelId or find an existing model from this modelId ({0}). " +
 					"Make sure given modelId has a corresponding model and url is in one of the following format; " +
@@ -916,17 +916,17 @@ namespace Routine.Service
 
 		private static ActionResult ModelNotFound(TypeNotFoundException ex)
 		{
-			return new HttpStatusCodeResult(HttpStatusCode.NotFound, string.Format("Specified model ({0}) was not found in service model. The exception is; {1}", ex.TypeId, ex));
+			return new HttpStatusCodeResult((int)HttpStatusCode.NotFound, string.Format("Specified model ({0}) was not found in service model. The exception is; {1}", ex.TypeId, ex));
 		}
 
 		private static ActionResult MethodNotAllowed(bool allowGet)
 		{
 			if (allowGet)
 			{
-				return new HttpStatusCodeResult(HttpStatusCode.MethodNotAllowed, "Only GET, POST and OPTIONS are supported");
+				return new HttpStatusCodeResult((int)HttpStatusCode.MethodNotAllowed, "Only GET, POST and OPTIONS are supported");
 			}
 
-			return new HttpStatusCodeResult(HttpStatusCode.MethodNotAllowed, "Only POST and OPTIONS are supported");
+			return new HttpStatusCodeResult((int)HttpStatusCode.MethodNotAllowed, "Only POST and OPTIONS are supported");
 		}
 
 		#endregion

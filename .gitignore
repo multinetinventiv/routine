@@ -11,3 +11,12 @@
 packages/**/*
 
 *.user
+*.lock
+
+*.ide
+
+.vs/Routine.Mono/xs/sqlite3/storage.ide-shm
+
+.vs/Routine.Mono/xs/sqlite3/storage.ide-wal
+
+.vs/Routine.Mono/xs/UserPrefs.xml
