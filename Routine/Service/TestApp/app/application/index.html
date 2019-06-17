@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html ng-app="testapp">
+<head>
+	<meta charset="utf-8" />
+	<title>Service Test UI</title>
+	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
+
+	<script src="$urlbase$/File?path=assets/js/angular.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/angular.filter.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/angular.ui.router.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/ui.bootstrap.tpls.0.14.3.min.js"></script>
+
+	<script src="$urlbase$/File?path=app/app.js"></script>
+	<script src="$urlbase$/File?path=app/config.js"></script>
+	<script src="$urlbase$/File?path=app/config.router.js"></script>
+
+	<script src="$urlbase$/File?path=app/application/index.js"></script>
+	<script src="$urlbase$/File?path=app/application/indexService.js"></script>
+
+	<script src="$urlbase$/File?path=app/application/parameter.js"></script>
+	<script src="$urlbase$/File?path=app/application/parameterValue.js"></script>
+
+	<script src="$urlbase$/File?path=app/application/jsonTable.js"></script>
+	<script src="$urlbase$/File?path=app/application/jsonCell.js"></script>
+</head>
+<body ng-controller="indexController">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="left-menu">
+				<div class="panel panel-info">
+					<div class="panel-heading"
+					     ng-click="headersState = !headersState">
+						<b>Request Headers</b>
+					</div>
+					<div class="panel-body"
+					     ng-show="headersState == true">
+						<div class="spinner" ng-show="headersloading">
+							<div class="bounce1"></div>
+							<div class="bounce2"></div>
+							<div class="bounce3"></div>
+						</div>
+						<div class="form-group" ng-repeat="(name, value) in headers">
+							<label class="control-label">{{::name}}</label>
+							<input type="text" ng-model="headers[name]"
+								   class="form-control nopad-b" />
+						</div>
+					</div>
+				</div>
+				<div class="spinner" ng-show="modelsloading">
+					<div class="bounce1"></div>
+					<div class="bounce2"></div>
+					<div class="bounce3"></div>
+				</div>
+				<div class="panel panel-info"
+					 ng-repeat="(module, moduleModels) in ::models | groupBy: 'Module' | orderBy: 'Module' track by $index"
+					 ng-show="moduleModels | some:'Operations.length > 0'">
+					<div class="panel-heading"
+						 ng-click="moduleMenuState[module] = !moduleMenuState[module]">
+						<b>{{::module.splitCamelCase()}}</b>
+					</div>
+					<div class="panel-body bg-info"
+						 ng-show="moduleMenuState[module] == true">
+						<div class="panel panel-default"
+							 ng-repeat="model in ::moduleModels | orderBy: 'Name' track by model.Id"
+							 ng-show="model.Operations.length > 0">
+							<div class="panel-heading"
+								 ng-click="modelMenuState[model.Name] = !modelMenuState[model.Name]">
+								<b>{{::model.Name.splitCamelCase()}}</b>
+								<span class="badge"
+									  ng-repeat="mark in ::model.Marks track by mark"
+									  ng-show="mark | test:'^(?!__routine).+'">{{::mark.splitCamelCase()}}</span>
+							</div>
+							<div class="panel-body"
+								 ng-show="modelMenuState[model.Name] == true">
+								<a class="text-left bg-default btn btn-default btn-block btn-xs"
+								   ng-repeat="operation in ::model.Operations | orderBy: 'Name' track by operation.Name"
+								   ng-click="showOperation(operation)">
+									{{::operation.Name.splitCamelCase()}}
+									<span class="badge"
+										  ng-repeat="mark in ::operation.Marks track by mark"
+										  ng-show="mark | test:'^(?!__routine).+'">{{::mark.splitCamelCase()}}</span>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="main-content">
+				<ul class="nav nav-tabs" ng-show="requests.length > 0">
+					<li ng-repeat="request in requests"
+						ng-class="{'active': request.active}">
+						<a href="javascript:void(0)" ng-click="activate(request, $event, $index)">
+							{{::request.name}}&nbsp;<i class="close glyphicon glyphicon-remove"
+													 ng-click="close($index)"></i>
+						</a>
+					</li>
+				</ul>
+				<div class="tab-content" ng-show="requests.length > 0">
+					<div class="tab-pane"
+						 ng-repeat="request in requests"
+						 ng-class="{'active': request.active}">
+						<div class="row nopad">
+							<div class="col-md-12">
+								<h4>
+									{{::request.name}}
+									<span class="badge"
+										  ng-repeat="mark in ::request.operation.Marks"
+										  ng-show="mark | test:'^(?!__routine).+'">{{::mark.splitCamelCase()}}</span>
+								</h4>
+								<span class="label label-info">URL</span>&nbsp;<span class="text-info">{{request.getUrl()}}</span>
+								<hr />
+							</div>
+						</div>
+						<div class="row row-tab-content nopad-l nopad-r">
+							<div class="col-md-3 request">
+								<form ng-submit="request.make()">
+									<div class="panel panel-default">
+										<div class="panel-heading panel-heading-btn">
+											Target
+											<button type="submit"
+													class="btn btn-primary btn-xs pull-right">
+												Call <i class="glyphicon glyphicon-play"></i>
+											</button>
+										</div>
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-xs-12"
+													 ng-show="modelOf(request.operation).IsViewModel">
+													<div class="form-group">
+														<select class="form-control"
+																ng-show="modelOf(request.operation).ActualModelIds.length > 1"
+																ng-model="request.target.ModelId"
+																ng-change="request.invalidateTargetId()">
+															<option value="{{modelId}}"
+																	ng-repeat="modelId in modelOf(request.operation).ActualModelIds">
+																{{modelOf(modelId).Name.splitCamelCase()}}
+															</option>
+														</select>
+														<p class="form-control"
+														   ng-show="modelOf(request.operation).ActualModelIds.length === 1">
+															<span>{{modelOf(request.target.ModelId).Name.splitCamelCase()}}</span>
+														</p>
+													</div>
+												</div>
+												<div class="col-xs-12">
+													<div class="form-group nopad-b">
+														<input type="text" class="form-control"
+															   ng-model="request.target.Id"
+															   placeholder="{{modelOf(request.operation).IsValueModel?'Value':'Id'}}"
+															   ng-show="modelOf(request.target.ModelId).StaticInstances.length <= 0" />
+														<p class="form-control"
+														   ng-show="modelOf(request.target.ModelId).StaticInstances.length === 1">
+															<span>{{modelOf(request.target.ModelId).StaticInstances[0].Display}}</span>
+														</p>
+														<select class="form-control"
+																ng-model="request.target.Id"
+																ng-show="modelOf(request.target.ModelId).StaticInstances.length > 1">
+															<option value="{{instance.Id}}"
+																	ng-repeat="instance in modelOf(request.target.ModelId).StaticInstances">
+																{{instance.Display}}
+															</option>
+														</select>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div parameter
+										 pmodel="parameter"
+										 viewmodel="modelOf(parameter.ViewModelId)"
+										 data="request.data"
+										 model-of="modelOf(obj)"
+										 ng-repeat="parameter in request.operation.Parameters">
+									</div>
+								</form>
+							</div>
+							<div class="col-md-9 response">
+								<div class="spinner" ng-show="request.loading">
+									<div class="bounce1"></div>
+									<div class="bounce2"></div>
+									<div class="bounce3"></div>
+								</div>
+								<div class="alert alert-danger"
+									 ng-show="!request.loading && request.response.data.IsException">
+									<i class="glyphicon glyphicon-exclamation-sign"></i>
+									<strong>{{request.response.data.Type}}</strong>
+									<hr />
+									<p>{{request.response.data.Message}}</p>
+								</div>
+								<div class="alert alert-success"
+									 ng-show="!request.loading && request.response != null && !request.response.data.IsException">
+									<i class="glyphicon glyphicon-ok"></i>&nbsp;
+									<span ng-repeat="(header, value) in request.response.headers"><span ng-show="$index > 0">, </span><strong>{{header}}:</strong> {{value}}</span>
+								</div>
+								<div json-table
+									 data="request.response.data"
+									 ng-show="!request.loading && request.response != null && !request.response.data.IsException"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

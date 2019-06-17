@@ -1,0 +1,13 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <title>$title$</title>
+    <iconUrl>http://nuget.multinet.com.tr/ResourceFiles/Img/routine-logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+  </metadata>
+</package>
