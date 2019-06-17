@@ -1,0 +1,385 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A597022C-F6DD-495F-A846-290EEDE08B9D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Routine</RootNamespace>
+    <AssemblyName>Routine</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
+    <OutputPath>bin\Test\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Api\Context\DefaultApiContext.cs" />
+    <Compile Include="Api\IApiContext.cs" />
+    <Compile Include="Api\InitializerCodeModel.cs" />
+    <Compile Include="Api\SimpleTypeConversionTemplate.cs" />
+    <Compile Include="Api\TypeConversionTemplateBase.cs" />
+    <Compile Include="Api\Template\ClientApiTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ClientApiTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Client\CannotCreateRobjectException.cs" />
+    <Compile Include="Client\Rinitializer.cs" />
+    <Compile Include="Client\Rparametric.cs" />
+    <Compile Include="Client\Rtype.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Client\RobjectIsNotInitializedException.cs" />
+    <Compile Include="Core\ApplicationModel.cs" />
+    <Compile Include="Core\Configuration\ConfigurationException.cs" />
+    <Compile Include="Core\Configuration\Convention\ConventionBuilder.cs" />
+    <Compile Include="Core\Configuration\ILayered.cs" />
+    <Compile Include="Core\Configuration\Layer.cs" />
+    <Compile Include="Core\Configuration\LayeredBase.cs" />
+    <Compile Include="Core\Configuration\LayeredConvention.cs" />
+    <Compile Include="Core\Configuration\ListConfiguration.cs" />
+    <Compile Include="Core\Configuration\SingleConfiguration.cs" />
+    <Compile Include="Core\InitializerModel.cs" />
+    <Compile Include="Core\MaxFetchDepthExceededException.cs" />
+    <Compile Include="Core\ReferenceData.cs" />
+    <Compile Include="Core\Reflection\ProxyMethodInvoker.cs" />
+    <Compile Include="Core\Rest\IJsonSerializer.cs" />
+    <Compile Include="Core\Rest\JavaScriptSerializerAdapter.cs" />
+    <Compile Include="Core\Rest\RestRequest.cs" />
+    <Compile Include="Core\Rest\RestResponse.cs" />
+    <Compile Include="Core\Runtime\SystemExtensions.cs" />
+    <Compile Include="Engine\Configuration\ConverterBuilder.cs" />
+    <Compile Include="Engine\Configuration\MethodBuilder.Parameters.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MethodBuilder.Parameters.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Engine\Converter\DelegateBasedConverter.cs" />
+    <Compile Include="Engine\Configuration\MethodBuilder.cs" />
+    <Compile Include="Engine\Configuration\ParameterBuilder.cs" />
+    <Compile Include="Engine\Configuration\ProxyMethodBuilder.cs" />
+    <Compile Include="Engine\Converter\NullableConverter.cs" />
+    <Compile Include="Engine\Converter\TypeCastConverter.cs" />
+    <Compile Include="Engine\Configuration\VirtualTypeBuilder.cs" />
+    <Compile Include="Engine\Converter\ConverterBase.cs" />
+    <Compile Include="Engine\DomainParameterGroup.cs" />
+    <Compile Include="Engine\Extractor\DelegateBasedExtractor.cs" />
+    <Compile Include="Engine\Extractor\ExtractorBase.cs" />
+    <Compile Include="Engine\IdenticalSignatureAlreadyAddedException.cs" />
+    <Compile Include="Engine\InitializedTypeDoNotMatchException.cs" />
+    <Compile Include="Engine\IConverter.cs" />
+    <Compile Include="Engine\ParameterTypesDoNotMatchException.cs" />
+    <Compile Include="Engine\ReturnTypesDoNotMatchException.cs" />
+    <Compile Include="Engine\Virtual\ProxyParameter.cs" />
+    <Compile Include="Engine\Virtual\VirtualObject.cs" />
+    <Compile Include="Engine\Virtual\ProxyMethod.cs" />
+    <Compile Include="Engine\Virtual\VirtualMethod.cs" />
+    <Compile Include="Engine\Virtual\VirtualParameter.cs" />
+    <Compile Include="Engine\Virtual\VirtualType.cs" />
+    <Compile Include="Core\OperationWithObjectModel.cs" />
+    <Compile Include="Interception\InterceptionContext.cs" />
+    <Compile Include="Core\DataModel.cs" />
+    <Compile Include="Core\ObjectData.cs" />
+    <Compile Include="Core\ObjectModel.cs" />
+    <Compile Include="Core\OperationModel.cs" />
+    <Compile Include="Core\ParameterModel.cs" />
+    <Compile Include="Core\ParameterValueData.cs" />
+    <Compile Include="Core\VariableData.cs" />
+    <Compile Include="Engine\Virtual\PropertyAsMethod.cs" />
+    <Compile Include="Engine\DomainObjectInitializer.cs" />
+    <Compile Include="Engine\DomainParameterResolver.cs" />
+    <Compile Include="Engine\IIdExtractor.cs" />
+    <Compile Include="Engine\IConstructor.cs" />
+    <Compile Include="Engine\IProperty.cs" />
+    <Compile Include="Engine\IMethod.cs" />
+    <Compile Include="Engine\IParametric.cs" />
+    <Compile Include="Engine\IReturnable.cs" />
+    <Compile Include="Engine\IType.cs" />
+    <Compile Include="Engine\ITypeComponent.cs" />
+    <Compile Include="Engine\IValueExtractor.cs" />
+    <Compile Include="Engine\Reflection\ConstructorInfo.cs" />
+    <Compile Include="Engine\Reflection\MemberInfo.cs" />
+    <Compile Include="Engine\Reflection\MethodBase.cs" />
+    <Compile Include="Engine\Reflection\PreloadedConstructorInfo.cs" />
+    <Compile Include="Engine\Reflection\ReflectedConstructorInfo.cs" />
+    <Compile Include="FuncExtensions.cs" />
+    <Compile Include="InterceptionPatterns.cs" />
+    <Compile Include="Interception\Configuration\InterceptionConfigurationBuilder.cs" />
+    <Compile Include="Client\Context\DefaultClientContext.cs" />
+    <Compile Include="Api\Configuration\ApiConfigurationBuilder.cs" />
+    <Compile Include="Api\Configuration\ConventionBasedApiConfiguration.cs" />
+    <Compile Include="Api\ApplicationCodeModel.cs" />
+    <Compile Include="Api\ParameterCodeModel.cs" />
+    <Compile Include="Api\OperationCodeModel.cs" />
+    <Compile Include="Api\DataCodeModel.cs" />
+    <Compile Include="Api\TypeCodeModel.cs" />
+    <Compile Include="Api\IApiConfiguration.cs" />
+    <Compile Include="Api\IApiTemplate.cs" />
+    <Compile Include="Api\Template\ClientApiTemplate.Partial.cs" />
+    <Compile Include="Client\IClientContext.cs" />
+    <Compile Include="ContextBuilder.cs" />
+    <Compile Include="ApiPatterns.cs" />
+    <Compile Include="Interception\Configuration\ConventionBasedInterceptionConfiguration.cs" />
+    <Compile Include="Interception\IInterceptionConfiguration.cs" />
+    <Compile Include="Interception\InterceptedObjectService.cs" />
+    <Compile Include="Core\Rest\DataCompressor.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="Interception\Configuration\InterceptorBuilder.cs" />
+    <Compile Include="Interception\IInterceptor.cs" />
+    <Compile Include="Interception\BaseAroundInterceptor.cs" />
+    <Compile Include="Interception\AdapterChainLinkInterceptor.cs" />
+    <Compile Include="Interception\LastChainLinkInterceptor.cs" />
+    <Compile Include="Interception\AroundInterceptor.cs" />
+    <Compile Include="Interception\IChainLinkInterceptor.cs" />
+    <Compile Include="Interception\ChainInterceptor.cs" />
+    <Compile Include="Interception\DecoratorInterceptor.cs" />
+    <Compile Include="Engine\Marks.cs" />
+    <Compile Include="Service\Configuration\HeaderProcessorBuilder.Predefined.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HeaderProcessorBuilder.Predefined.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Service\Configuration\HeaderProcessorBuilder.cs" />
+    <Compile Include="Service\IHeaderProcessor.cs" />
+    <Compile Include="Service\HeaderProcessor\PredefinedHeaderProcessor.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PredefinedHeaderProcessor.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Service\HeaderProcessor\PredefinedHeaderProcessorBase.cs" />
+    <Compile Include="Ui\EmbeddedResourceVirtualFile.cs" />
+    <Compile Include="Ui\EmbeddedResource.cs" />
+    <Compile Include="Ui\EmbeddedResourceVirtualPathProvider.cs" />
+    <Compile Include="Ui\Context\DefaultMvcContext.cs" />
+    <Compile Include="Ui\Context\GetAsInterceptionContext.cs" />
+    <Compile Include="Ui\Context\GetInterceptionContext.cs" />
+    <Compile Include="ServiceClientPatterns.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Engine\Configuration\CodingStyleBuilder.cs" />
+    <Compile Include="Engine\Configuration\ExtractorBuilder.cs" />
+    <Compile Include="Engine\Configuration\LocatorBuilder.cs" />
+    <Compile Include="Engine\Configuration\ConventionBased\ConventionBasedCodingStyle.cs" />
+    <Compile Include="Core\Configuration\Convention\ConventionBase.cs" />
+    <Compile Include="Core\Configuration\Convention\DelegateBasedConvention.cs" />
+    <Compile Include="Core\Configuration\ConventionBasedConfiguration.cs" />
+    <Compile Include="Engine\Extractor\PropertyValueExtractor.cs" />
+    <Compile Include="Engine\Locator\LocatorBase.cs" />
+    <Compile Include="Engine\Locator\DelegateBasedLocator.cs" />
+    <Compile Include="Core\Configuration\ConventionBasedListConfiguration.cs" />
+    <Compile Include="Engine\ICodingStyle.cs" />
+    <Compile Include="Core\Configuration\Convention\IConvention.cs" />
+    <Compile Include="Engine\ILocator.cs" />
+    <Compile Include="Engine\DomainObject.cs" />
+    <Compile Include="Engine\DomainType.cs" />
+    <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="ServicePatterns.cs" />
+    <Compile Include="Interception\Context\ObjectReferenceInterceptionContext.cs" />
+    <Compile Include="Interception\Context\ServiceInterceptionContext.cs" />
+    <Compile Include="Service\IServiceContext.cs" />
+    <Compile Include="Service\Context\DefaultServiceContext.cs" />
+    <Compile Include="Service\ExceptionResult.cs" />
+    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Client\Rapplication.cs" />
+    <Compile Include="Engine\IParameter.cs" />
+    <Compile Include="Client\Robject.cs" />
+    <Compile Include="Client\Rdata.cs" />
+    <Compile Include="Client\Roperation.cs" />
+    <Compile Include="Client\Rparameter.cs" />
+    <Compile Include="Client\Rvariable.cs" />
+    <Compile Include="Engine\Virtual\MethodAsProperty.cs" />
+    <Compile Include="Ui\ApplicationViewModel.cs" />
+    <Compile Include="Ui\IMvcContext.cs" />
+    <Compile Include="Ui\ObjectViewModel.cs" />
+    <Compile Include="Ui\OptionViewModel.cs" />
+    <Compile Include="Ui\MvcExtensions.cs" />
+    <Compile Include="Ui\VariableViewModel.cs" />
+    <Compile Include="Ui\ViewModelBase.cs" />
+    <Compile Include="Ui\MenuViewModel.cs" />
+    <Compile Include="Ui\OperationViewModel.cs" />
+    <Compile Include="Ui\DataViewModel.cs" />
+    <Compile Include="Ui\ParameterViewModel.cs" />
+    <Compile Include="Ui\IMvcConfiguration.cs" />
+    <Compile Include="Ui\Configuration\ConventionBasedMvcConfiguration.cs" />
+    <Compile Include="Ui\Configuration\MvcConfigurationBuilder.cs" />
+    <Compile Include="BuildRoutine.cs" />
+    <Compile Include="Engine\ICoreContext.cs" />
+    <Compile Include="Engine\Context\DefaultCoreContext.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Core\Cache\ICache.cs" />
+    <Compile Include="Core\Cache\WebCache.cs" />
+    <Compile Include="Core\Cache\DictionaryCache.cs" />
+    <Compile Include="Core\Configuration\PatternBuilder.cs" />
+    <Compile Include="CodingStylePatterns.cs" />
+    <Compile Include="MvcPatterns.cs" />
+    <Compile Include="Engine\ObjectService.cs" />
+    <Compile Include="Core\IObjectService.cs" />
+    <Compile Include="Core\ResultModel.cs" />
+    <Compile Include="Core\ParameterData.cs" />
+    <Compile Include="TypeInfo.cs" />
+    <Compile Include="Engine\Reflection\MethodInfo.cs" />
+    <Compile Include="Engine\Reflection\PropertyInfo.cs" />
+    <Compile Include="Engine\Reflection\ParameterInfo.cs" />
+    <Compile Include="Engine\Reflection\MemberIndex.cs" />
+    <Compile Include="Engine\Reflection\OptimizedTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\ArrayTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\ReflectedTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\VoidTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\EnumTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\PreloadedTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\ParseableTypeInfo.cs" />
+    <Compile Include="Engine\Reflection\PreloadedPropertyInfo.cs" />
+    <Compile Include="Engine\Reflection\ReflectedPropertyInfo.cs" />
+    <Compile Include="Engine\Reflection\PreloadedMethodInfo.cs" />
+    <Compile Include="Engine\Reflection\ReflectedMethodInfo.cs" />
+    <Compile Include="Engine\Reflection\ReflectedParameterInfo.cs" />
+    <Compile Include="Engine\Reflection\PreloadedParameterInfo.cs" />
+    <Compile Include="Core\Reflection\ReflectionOptimizer.cs" />
+    <Compile Include="Core\Reflection\IMethodInvoker.cs" />
+    <Compile Include="Core\Reflection\ReflectionMethodInvoker.cs" />
+    <Compile Include="Engine\DomainData.cs" />
+    <Compile Include="Engine\DomainParameter.cs" />
+    <Compile Include="Engine\DomainOperation.cs" />
+    <Compile Include="Core\Rest\IRestClient.cs" />
+    <Compile Include="Ui\RoutineController.cs" />
+    <Compile Include="Service\IServiceConfiguration.cs" />
+    <Compile Include="Service\Configuration\ServiceConfigurationBuilder.cs" />
+    <Compile Include="Service\Configuration\ConventionBasedServiceConfiguration.cs" />
+    <Compile Include="Service\ServiceController.cs" />
+    <Compile Include="Service\RestClientObjectService.cs" />
+    <Compile Include="Service\IServiceClientConfiguration.cs" />
+    <Compile Include="Service\Configuration\ConventionBasedServiceClientConfiguration.cs" />
+    <Compile Include="Service\Configuration\ServiceClientConfigurationBuilder.cs" />
+    <Compile Include="Core\Rest\WebRequestRestClient.cs" />
+    <Compile Include="Api\ApiGenerator.cs" />
+    <Compile Include="Ui\Context\PerformInterceptionContext.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Api\Template\ClientApiTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ClientApiTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="Engine\Configuration\MethodBuilder.Parameters.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MethodBuilder.Parameters.cs</LastGenOutput>
+    </None>
+    <None Include="Routine.nuspec" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.eot" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.ttf" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff" />
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff2" />
+    <None Include="Service\Configuration\HeaderProcessorBuilder.Predefined.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HeaderProcessorBuilder.Predefined.cs</LastGenOutput>
+    </None>
+    <None Include="Service\HeaderProcessor\PredefinedHeaderProcessor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PredefinedHeaderProcessor.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Service\TestApp\assets\img\" />
+    <Folder Include="Service\TestApp\assets\lib\" />
+    <Folder Include="Ui\Themes\Default\" />
+    <Folder Include="Ui\Themes\TopMenu\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\config.router.js" />
+    <EmbeddedResource Include="Service\TestApp\app\config.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\app.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\index.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.ui.router.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\indexService.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\angular.filter.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\css\bootstrap.min.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\js\ui.bootstrap.tpls.0.14.3.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\css\master.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameter.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameter.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.js" />
+  </ItemGroup>
+</Project>

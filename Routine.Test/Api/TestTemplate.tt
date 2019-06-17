@@ -1,0 +1,82 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Routine.Client" #>
+
+using System;
+
+<# foreach(var model in Application.Models) { #>
+	<# foreach(var mode in model.GetModes()) { #>
+
+namespace <#= model.GetNamespace(mode) #>
+{
+	<#= model.RenderAttributes(mode) #>
+	public class <#= model.GetName(mode) #>
+	{
+		private readonly <#= typeof(Robject).FullName #> robject;
+		public <#= typeof(Robject).FullName #> Robject { get { return robject; } }
+
+		public <#= model.GetName(mode) #>(<#= typeof(Robject).FullName #> robject)
+		{
+			this.robject = robject;
+		}
+		<# if(model.Initializable) { #>
+
+		<#= model.Initializer.RenderAttributes(mode) #>
+		public <#= model.GetName(mode) #>(<#= string.Join(", ", model.Initializer.Parameters.Select(p => p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) { }
+		<# } #>
+		<# foreach(var data in model.Datas) { #>
+
+		<#= data.RenderAttributes(mode) #>
+		public <#= data.ReturnModel.GetFullName(mode) #> <#= data.GetName(mode) #> { get { return default(<#= data.ReturnModel.GetFullName(mode) #>); } }
+		<# } #>
+		<# foreach(var operation in model.Operations) { #>
+
+		<#= operation.RenderAttributes(mode) #>
+		public <#= operation.ReturnModel.GetFullName(mode) #> <#= operation.GetName(mode) #>(<#= string.Join(", ", operation.Parameters.Select(p => p.RenderAttributes(mode) + " " + p.ParameterModel.GetFullName(mode) + " " + p.GetName(mode))) #>) 
+		{
+			var __result = Robject.Perform
+				(
+				"<#= operation.Name #>"
+			<# foreach(var parameter in operation.Parameters) { #>
+
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(mode, parameter.Name, parameter.GetName(mode), "robject.Application") #>
+			<# } #>
+				
+				)
+			;
+			<# if(!operation.ReturnModel.IsVoid) { #>
+
+			return <#= operation.ReturnModel.RenderRvariableToObject(mode, "__result", "robject.Application") #>;
+			<# } #>
+
+		}
+		<# } #>
+
+        <# foreach(var viewModel in model.ViewModels.Where(vm => vm.HasMode(mode))) { #>
+
+		public <#= viewModel.GetFullName(mode) #> As<#= viewModel.GetName(mode) #>()
+		{
+			var __result = robject.As(robject.Application["<#= viewModel.Id #>"]);
+			return <#= viewModel.RenderRobjectToObject(mode, "__result", "robject.Application") #>;
+		}
+        <# } #>
+
+        <# foreach(var actualModel in model.ActualModels.Where(vm => vm.HasMode(mode))) { #>
+
+		public bool Is<#= actualModel.GetName(mode) #>()
+		{
+			return robject.ActualType.Id == "<#= actualModel.Id #>";
+		}
+        <# } #>
+
+		public override string ToString()
+		{
+			return robject.Id;
+		}
+	}
+}
+	<# } #>
+<# } #>

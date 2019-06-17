@@ -1,0 +1,1317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{65CE8300-E663-4FFD-98D8-1057C0B80FF8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Routine.Ui.Themes.Default</RootNamespace>
+    <AssemblyName>Routine.Ui.Themes.Default</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ConfigurationExtension_DefaultTheme.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Master.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\animated-overlay.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\cross.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\horiz-bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\horiz-slider-bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\loading.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\page-first-gray.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\page-last-gray.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\page-next-gray.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\page-prev-gray.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\Refresh.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\sort_asc.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\sort_desc.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\sprite.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\tick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_flat_75_ffffff_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_glass_95_fef1ec_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_highlight-hard_75_dadada_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_highlight-soft_40_e6e6e6_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_highlight-soft_40_fbfbe4_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-bg_inset-hard_60_f6f6f6_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-icons_222222_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-icons_2e83ff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-icons_454545_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-icons_888888_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\ui-icons_cd0a0a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\vert-bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\images\vert-slider-bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\ui.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\ui\ui.grid.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\FormValidation.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jquery-1.11.1.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.cs-CZ.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.de-DE.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.en-CA.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.en-US.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.fr-FR.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.he-IL.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.hr-HR.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.hu-HU.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.it-IT.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.ja-JP.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.lt.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.ru-RU.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.culture.sa-IN.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\globalize.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\globalization\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqx-all.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxbuttongroup.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxbuttons.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxcalendar.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxchart.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxcheckbox.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxcolorpicker.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxcombobox.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxcore.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdata.export.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdata.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdatatable.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdatetimeinput.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdocking.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdockpanel.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdragdrop.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdropdownbutton.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxdropdownlist.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxexpander.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgauge.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.aggregates.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.columnsreorder.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.columnsresize.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.edit.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.export.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.filter.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.grouping.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.pager.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.selection.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.sort.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxgrid.storage.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxinput.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxknockout.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxlistbox.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxlistmenu.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxmaskedinput.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxmenu.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxnavigationbar.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxnumberinput.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxpanel.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxpasswordinput.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxprogressbar.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxradiobutton.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxrangeselector.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxrating.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxresponse.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxscrollbar.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxscrollview.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxslider.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxsplitter.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxswitchbutton.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtabs.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtooltip.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtouch.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtree.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtreegrid.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxtreemap.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxvalidator.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\jqxwindow.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\backgroundTop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\backImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_black_horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_blackhover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_blackhover_horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_blackpressed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_blackpressed_horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_blueenergy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_darkblue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_darkbluehover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\bg_darkbluepressed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\black_gradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\blackbackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_blue_indeterminate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_indeterminate_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_indeterminate_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_indeterminate_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_lightblue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_lightblue_indeterminate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\check_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\close_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\close_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\bar-hue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\bar-saturation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\map-hue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\map-saturation-overlay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\map-saturation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\colorpicker\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\crosshair-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\crosshair.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_flat_30_cccccc_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_flat_50_5c5c5c_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_glass_20_555555_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_glass_40_0078a3_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_glass_40_ffc73d_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_gloss-wave_25_333333_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_highlight-soft_80_eeeeee_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_inset-soft_25_000000_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-bg_inset-soft_30_f58400_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-icons_222222_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-icons_4b8e0b_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-icons_a83300_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-icons_cccccc_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkness\ui-icons_ffffff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\darkred_gradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\drag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\dragcancel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\filter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-calendar-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-calendar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-cancel-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-cancel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-delete-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-down-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-down-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-down-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-edit-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-first-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-first-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-first-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-first.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-last-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-last-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-last-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-last.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-left-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-left-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-left-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-menu-minimized-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-menu-minimized.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-right-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-right-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-right-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-save-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-showpassword-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-showpassword.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-up-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-up-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-up-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\icon-up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_diagonals-small_0_aaaaaa_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_diagonals-thick_15_444444_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_diagonals-thick_95_ffdc2e_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_glass_55_fbf5d0_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_highlight-hard_30_285c00_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_highlight-soft_33_3a8104_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_highlight-soft_50_4eb305_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_highlight-soft_60_4ca20b_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-bg_inset-soft_10_285c00_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-icons_4eb305_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-icons_72b42d_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-icons_cd0a0a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\le-frog\ui-icons_ffffff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\icon-first.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\icon-last.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_diagonals-thick_18_b81900_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_diagonals-thick_20_666666_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_flat_10_000000_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_glass_100_f6f6f6_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_glass_100_fdf5ce_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_glass_65_ffffff_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_gloss-wave_35_f6a828_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_highlight-soft_100_eeeeee_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-bg_highlight-soft_75_ffe45c_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-icons_222222_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-icons_228ef1_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-icons_ef8c08_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-icons_ffd27a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\lightness\ui-icons_ffffff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\loader.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\menubutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-down-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-first-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-first.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-last-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-last.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-left-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-right-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-right - Copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-up-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\metro-icon-up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\multi-arrow.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-first.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-last.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\office-icon-up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_flat_0_aaaaaa_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_flat_0_eeeeee_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_flat_55_c0402a_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_flat_55_eeeeee_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_glass_100_f8f8f8_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_glass_35_dddddd_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_glass_60_eeeeee_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_inset-hard_75_999999_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-bg_inset-soft_50_c9c9c9_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-icons_3383bb_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-icons_454545_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-icons_70b2e1_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-icons_999999_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\overcast\ui-icons_fbc856_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\plus_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\pointer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\rangebar_classic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\rangebar_darkblue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\rangebar_shinyblack.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\rangebar_summer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\red_arrow_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\red_arrow_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\red_gradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\icon-first.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\icon-last.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_flat_0_aaaaaa_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_flat_55_fbec88_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_glass_75_d0e5f5_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_glass_85_dfeffc_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_glass_95_fef1ec_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_gloss-wave_55_5c9ccc_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_inset-hard_100_f5f8f9_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-bg_inset-hard_100_fcfdfd_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_217bc0_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_2e83ff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_469bdd_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_6da8d5_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_cd0a0a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_d8e7f3_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\redmond\ui-icons_f9bd01_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_check_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_check_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_check_indeterminate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_check_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_classic_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_classic_normal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\roundbg_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\search_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_flat_0_aaaaaa_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_flat_75_ffffff_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_glass_55_fbf9ee_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_glass_65_ffffff_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_glass_75_dadada_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_glass_75_e6e6e6_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_glass_95_fef1ec_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-icons_222222_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-icons_2e83ff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-icons_454545_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-icons_888888_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\smoothness\ui-icons_cd0a0a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sortasc.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sortascbutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sortdesc.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sortdescbutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sortremove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\star.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\star_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\star_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_flat_55_999999_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_flat_75_aaaaaa_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_glass_45_0078ae_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_glass_55_f8da4e_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_glass_75_79c9ec_1x400.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_gloss-wave_45_e14f1c_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_gloss-wave_50_6eac2c_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_gloss-wave_75_2191c0_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-bg_inset-hard_100_fcfdfd_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_0078ae_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_056b93_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_d8e7f3_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_e0fdff_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_f5e175_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_f7a50d_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\start\ui-icons_fcd113_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_diagonals-medium_20_d34d17_40x40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_flat_30_cccccc_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_flat_50_5c5c5c_40x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_gloss-wave_45_817865_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_gloss-wave_60_fece2f_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_gloss-wave_70_ffdd57_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_gloss-wave_90_fff9e5_500x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_highlight-soft_100_feeebd_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-bg_inset-soft_30_ffffff_1x100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_3d3d3d_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_bd7b00_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_d19405_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_eb990f_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_ed9f26_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_fadc7a_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\sunny\ui-icons_ffe180_256x240.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\tick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\track_classic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\track_darkblue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\track_shinyblack.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\track_summer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\wp_check_indeterminate_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\images\wp_check_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.android.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.arctic.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.base.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.black.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.blackberry.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.bootstrap.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.classic.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.darkblue.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.energyblue.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.fresh.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.highcontrast.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.metro.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.metrodark.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.mobile.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.office.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.orange.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.shinyblack.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.summer.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-darkness.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-le-frog.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-lightness.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-overcast.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-redmond.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-smoothness.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-start.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.ui-sunny.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.web.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\jqwidgets\styles\jqx.windowsphone.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Master.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\ListPage.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Member.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Member.table.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Menu.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\ModalPage.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Object.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Object.link.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Operation.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Page.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Parameter.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Search.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Routine\Search.link.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Shared\Error.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Shared\Messages.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web.config" />
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Routine\Routine.csproj">
+      <Project>{a597022c-f6dd-495f-a846-290eede08b9d}</Project>
+      <Name>Routine</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

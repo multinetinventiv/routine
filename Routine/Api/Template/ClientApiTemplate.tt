@@ -1,0 +1,414 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Runtime.CompilerServices" #>
+<#@ import namespace="Routine.Client" #>
+
+<# foreach(var model in OperationalModels) { #>
+
+namespace <#= model.GetNamespace(Mode.Interface) #>
+{
+	<#= model.RenderAttributes(Mode.Interface) #>
+	public interface <#= model.GetName(Mode.Interface) #>
+	{
+	<# foreach(var data in model.Datas) { #>
+
+		<#= data.RenderAttributes(Mode.Interface) #>
+		<#= data.ReturnModel.GetFullName() #> <#= data.GetName(Mode.Interface) #> { get; }
+	<# } #>
+
+	<# foreach(var operation in model.Operations) { #>
+		<# foreach(var group in operation.Groups) { #>
+
+		<#= operation.RenderAttributes(Mode.Interface) #>
+		<#= operation.ReturnModel.GetFullName() #> <#= operation.GetName(Mode.Interface) #>(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.Interface) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>);
+		<# } #>
+	<# } #>
+
+	<# foreach(var viewModel in model.ViewModels) { #>
+
+		<#= viewModel.GetFullName() #> As<#= viewModel.GetName(Mode.Interface) #>();
+	<# } #>
+
+	<# foreach(var actualModel in model.ActualModels) { #>
+
+		bool Is<#= actualModel.GetName(Mode.Interface) #>();
+	<# } #>
+
+		void Invalidate();
+		<#= Application.DefaultNamespace #>.ObjectIdentifier GetIdentifier();
+	}
+}
+
+namespace <#= model.GetNamespace(Mode.Concrete) #>
+{
+	internal class <#= model.GetName(Mode.Concrete) #> : <#= model.GetFullName(Mode.Interface) #>
+	{
+		internal <#= Type<Robject>() #> Robject { get; private set; }
+		internal <#= model.GetName(Mode.Concrete) #>(<#= Type<Robject>() #> robject)
+		{
+			Robject = robject;
+		}
+
+	<# foreach(var data in model.Datas) { #>
+
+		<#= data.ReturnModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.<#= data.GetName(Mode.Interface) #>
+		{
+			get
+			{
+				var __result = Robject["<#= data.Name #>"].Get();
+				
+				return <#= data.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
+			}
+		}
+	<# } #>
+
+	<# foreach(var operation in model.Operations) { #>
+		<# foreach(var group in operation.Groups) { #>
+
+		<#= operation.ReturnModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.<#= operation.GetName(Mode.Interface) #>
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.Interface))) #>)
+		{
+			var __result = Robject.Perform
+				(
+				"<#= operation.Name #>"
+			<# foreach(var parameter in group) { #>
+				, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.Interface), "Robject.Application") #>
+			<# } #>
+
+				)
+			;
+			<# if(!operation.ReturnModel.IsVoid) { #>
+
+			return <#= operation.ReturnModel.RenderRvariableToObject("__result", "Robject.Application") #>;
+			<# } #>
+
+		}
+		<# } #>
+	<# } #>
+
+	<# foreach(var viewModel in model.ViewModels) { #>
+
+		<#= viewModel.GetFullName() #> <#= model.GetFullName(Mode.Interface) #>.As<#= viewModel.GetName(Mode.Interface) #>() 
+		{
+			var __result = Robject.As(Robject.Application["<#= viewModel.Id #>"]);
+
+			return <#= viewModel.RenderRobjectToObject("__result", "Robject.Application") #>;
+		}
+	<# } #>
+
+	<# foreach(var actualModel in model.ActualModels) { #>
+
+		bool <#= model.GetFullName(Mode.Interface) #>.Is<#= actualModel.GetName(Mode.Interface) #>() 
+		{
+			return Robject.ActualType.Id == "<#= actualModel.Id #>";
+		}
+	<# } #>
+
+		void <#= model.GetFullName(Mode.Interface) #>.Invalidate()
+		{
+			Robject.Invalidate();
+		}
+
+		<#= Application.DefaultNamespace #>.ObjectIdentifier <#= model.GetFullName(Mode.Interface) #>.GetIdentifier()
+		{
+			return new <#= Application.DefaultNamespace #>.ObjectIdentifier(Robject.Id);
+		}
+		
+		public override string ToString()
+		{
+			return Robject.Display;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if(obj == null)
+				return false;
+			if(ReferenceEquals(this, obj))
+				return true;
+			if(obj.GetType() != typeof(<#= model.GetName(Mode.Concrete) #>))
+				return false;
+
+			var other = (<#= model.GetName(Mode.Concrete) #>)obj;
+			
+			return Robject.Equals(other.Robject);
+		}
+		
+		public override int GetHashCode()
+		{
+			return Robject.GetHashCode();
+		}
+	}
+}
+
+<# } #>
+
+<# foreach(var model in InitializableOperationalModels) { #>
+
+namespace <#= model.GetNamespace(Mode.FactoryInterface) #>
+{
+	public interface <#= model.GetName(Mode.FactoryInterface) #>
+	{
+		<# foreach(var group in model.Initializer.Groups) { #>
+
+		<#= model.Initializer.RenderAttributes(Mode.FactoryInterface) #>
+		<#= model.GetFullName(Mode.Interface) #> New
+			(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.FactoryInterface) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>);
+		<# } #>
+
+	}
+}
+
+namespace <#= model.GetNamespace(Mode.Factory) #>
+{
+	internal class <#= model.GetName(Mode.Factory) #> : <#= model.GetFullName(Mode.FactoryInterface) #>
+	{
+		internal <#= Type<Rapplication>() #> Rapplication { get; private set; }
+
+		public <#= model.GetName(Mode.Factory) #>(<#= Type<Rapplication>() #> rapplication)
+		{
+			Rapplication = rapplication;
+		}
+		
+		<# foreach(var group in model.Initializer.Groups) { #>
+
+		<#= model.GetFullName(Mode.Interface) #> <#= model.GetFullName(Mode.FactoryInterface) #>.New
+			(<#= string.Join(", ", group.Select(p => p.ParameterModel.GetFullName() + " " + p.GetName(Mode.FactoryInterface))) #>)
+		{
+			var robject = Rapplication
+				.Init("<#= model.Id #>"
+			<# foreach(var parameter in group) { #>
+
+					, <#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.FactoryInterface), "Rapplication") #>
+			<# } #>
+
+				);
+
+			return new <#= model.GetFullName(Mode.Concrete) #>(robject);
+		}
+		<# } #>
+
+	}
+}
+<# } #>
+
+<# foreach(var model in InitializeOnlyStructModels) { #>
+
+namespace <#= model.GetNamespace(Mode.InitializeOnlyStruct) #>
+{
+	<#= model.RenderAttributes(Mode.InitializeOnlyStruct) #>
+	public struct <#= model.GetName(Mode.InitializeOnlyStruct) #>
+	{
+		private readonly int group;
+		<# foreach(var parameter in model.Initializer.Parameters) { #>
+		
+		<#= parameter.RenderAttributes(Mode.InitializeOnlyStruct) #>
+		public <#= parameter.ParameterModel.GetFullName() #> <#= parameter.GetName(Mode.InitializeOnlyStructProperty) #> { get; private set; }
+		<# } #>
+
+		<# var groups = model.Initializer.Groups; #>
+		<# for(int i = 0; i < groups.Count; i++) { #>
+			<# var group = groups[i]; #>
+		
+		<#= model.Initializer.RenderAttributes(Mode.InitializeOnlyStruct) #>
+		public <#= model.GetName(Mode.InitializeOnlyStruct) #>
+			(<#= string.Join(", ", group.Select(p => p.RenderAttributes(Mode.InitializeOnlyStruct) + " " + p.ParameterModel.GetFullName() + " " + p.GetName(Mode.InitializeOnlyStruct))) #>) : this()
+		{
+			this.group = <#= i #>;
+			<# foreach(var parameter in group) { #>
+			
+			<#= parameter.GetName(Mode.InitializeOnlyStructProperty) #> = <#= parameter.GetName(Mode.InitializeOnlyStruct) #>;
+			<# } #>
+
+		}
+		<# } #>
+
+		internal <#= Type<Robject>() #> ToRobject(<#= Type<Rtype>() #> rtype)
+		{
+			var initParams = new <#= Type<List<Rvariable>>() #>();
+			
+			<# for(int i = 0; i < groups.Count; i++) { #>
+				<# var group = groups[i]; #>
+			
+			<#= i > 0 ? "else " : string.Empty #>if(group == <#= i #>)
+			{
+				<# foreach(var parameter in group) { #>
+			
+				initParams.Add(<#= parameter.ParameterModel.RenderObjectToRvariable(parameter.Name, parameter.GetName(Mode.InitializeOnlyStructProperty), "rtype.Application") #>);
+				<# } #>
+
+			}
+			<# } #>
+			
+			return rtype.Init(initParams);
+		}
+	}
+}
+
+<# } #>
+
+<# foreach(var model in EnumModels) { #>
+
+namespace <#= model.GetNamespace(Mode.Enum) #>
+{
+	<#= model.RenderAttributes(Mode.Enum) #>
+	public enum <#= model.GetName(Mode.Enum) #>
+	{
+	<# var staticInstances = model.Type.StaticInstances; #>
+	<# for(int i = 0; i<staticInstances.Count; i++) { #>
+	
+		<#= staticInstances[i].GetEnumMemberName() #> = <#= i + 1 #>,
+	<# } #>
+
+	}
+}
+
+namespace <#= model.GetNamespace(Mode.EnumConverter) #>
+{
+	internal static class <#= model.GetName(Mode.EnumConverter) #>
+	{
+		private static readonly <#= Type<Dictionary<object, string>>() #> ids = new <#= Type<Dictionary<object, string>>() #>();
+		private static readonly <#= Type<Dictionary<string, object>>() #> values = new <#= Type<Dictionary<string, object>>() #>();
+
+		static <#= model.GetName(Mode.EnumConverter) #>()
+		{
+	<# foreach(var staticInstance in model.Type.StaticInstances) { #>
+	
+			ids.Add(<#= model.GetFullName(Mode.Enum) + "." + staticInstance.GetEnumMemberName() #>, "<#= staticInstance.Id #>");
+	<# } #>
+
+	<# foreach(var staticInstance in model.Type.StaticInstances) { #>
+	
+			values.Add("<#= staticInstance.Id #>", <#= model.GetFullName(Mode.Enum) + "." + staticInstance.GetEnumMemberName() #>);
+	<# } #>
+
+		}
+
+		internal static <#= Type<Robject>() #> ToRobject(<#= model.GetFullName(Mode.Enum) #> value, <#= Type<Rtype>() #> rtype)
+		{
+			if(value == default(<#= model.GetFullName(Mode.Enum) #>))
+			{
+				return rtype.Application.NullObject();
+			}
+
+			return rtype.Get(ids[value]);
+		}
+
+		internal static <#= model.GetFullName(Mode.Enum) #> ToEnum(<#= Type<Robject>() #> robject)
+		{
+			return (<#= model.GetFullName(Mode.Enum) #>)values[robject.Id];
+		}
+	}
+}
+
+<# } #>
+
+namespace <#= Application.DefaultNamespace #>
+{
+	public class ObjectIdentifier : System.IEquatable<ObjectIdentifier>
+	{
+		public string Value { get; private set; }
+
+		internal ObjectIdentifier(string value)
+		{
+			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
+			return Equals((ObjectIdentifier)obj);
+		}
+
+		public bool Equals(ObjectIdentifier other)
+		{
+			return Equals(Value, other.Value);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Value != null ? Value.GetHashCode() : 0);
+		}
+	}
+
+	public interface I<#= ApiClassName#>
+	{
+		T Get<T>(string instanceId);
+		object Get(<#= Type<Type>() #> type, string instanceId);
+
+		T Get<T>();
+		object Get(<#= Type<Type>() #> type);
+	}
+
+	public class <#= ApiClassName #> : I<#= ApiClassName #>
+	{
+		private readonly <#= Type<Rapplication>() #> rapplication;
+
+		public <#= ApiClassName #>(<#= Type<Rapplication>() #> rapplication)
+		{
+			this.rapplication = rapplication;
+		}
+
+
+		T I<#= ApiClassName #>.Get<T>(string instanceId) { return (T)((I<#= ApiClassName #>)this).Get(typeof(T), instanceId); }
+		object I<#= ApiClassName#>.Get(<#= Type<Type>() #> type, string instanceId)
+		{
+	<# foreach(var model in GetInstanceModels) { #>
+			
+			if(type.IsAssignableFrom(typeof(<#= model.GetFullName(Mode.Concrete) #>)))
+			{
+				return new <#= model.GetFullName(Mode.Concrete) #>(rapplication.Get(instanceId, "<#= model.Id #>"));
+			}
+	<# } #>
+	
+			throw new GetInstanceException(type);
+		}
+
+		T I<#= ApiClassName #>.Get<T>() { return (T)((I<#= ApiClassName #>)this).Get(typeof(T)); }
+		object I<#= ApiClassName #>.Get(<#= Type<Type>() #> type)
+		{
+	<# foreach(var model in SingletonModels) { #>
+
+			if(type.IsAssignableFrom(typeof(<#= model.GetFullName(Mode.Concrete) #>)))
+			{
+				return new <#= model.GetFullName(Mode.Concrete) #>(rapplication.Get("<#= model.Type.StaticInstances[0].Id #>", "<#= model.Type.StaticInstances[0].ActualType.Id #>", "<#= model.Type.StaticInstances[0].ViewType.Id #>"));
+			}
+	<# } #>
+	
+	<# foreach(var model in InitializableOperationalModels) { #>
+	
+			if(type.IsAssignableFrom(typeof(<#= model.GetFullName(Mode.Factory) #>)))
+			{
+				return new <#= model.GetFullName(Mode.Factory) #>(rapplication);
+			}
+	<# } #>
+
+			throw new SingletonException(type);
+		}
+	}
+	
+	public class GetInstanceException : <#= Type<Exception>() #>
+	{
+		public GetInstanceException(<#= Type<Type>() #> targetType) : base(string.Format("Cannot get instance for {0}. Given type should be non view type and rendered as interface.", targetType)) { }
+	}
+
+	public class SingletonException : <#= Type<Exception>() #>
+	{
+		public SingletonException(<#= Type<Type>() #> targetType) : base(string.Format("Given type {0} is not singleton", targetType)) { }
+	}
+}
+
+<#+ 
+
+protected string Type<T>() { return typeof(T).ToCSharpString(); }
+
+#>
