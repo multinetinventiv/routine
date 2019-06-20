@@ -1,0 +1,72 @@
+# configuration for "master" branch
+# build in Release mode and deploy to Nuget
+-
+  branches:
+    only:
+      - master
+  configuration: Release
+  platform: Any CPU
+  nuget:
+    disable_publish_on_pr: true
+  before_build:
+    - ps: nuget restore .\Routine.sln
+  after_build:
+    - ps: .\Tools\NuGet\BuildNugetPackage.ps1
+
+  build:
+    project: .\Routine.sln
+
+  # The following is the details allowing for appveyor to push the 
+  # new version of the package to myget.org.
+  deploy:
+  - provider: NuGet
+    server: https://www.myget.org/F/routine-test/api/v2/package
+    api_key:
+      secure: 7iuJD2yd5w35rmiRN5SHF4qW75FEMkoc+/U+z0Purm54fv3hf+jSvQ18YAtjD7Hd
+    skip_symbols: true
+    artifact: .\artifacts\**\*.nupkg
+    on:
+      branch: master
+    # The following is the details allowing for appveyor to push the 
+    # new version of the package to nuget.org.
+  - provider: NuGet
+    name: production
+    api_key: 
+      secure: j5g0Htw7zXZ/iAMHi68yb+9AZIO2bno642h/s/BtqG
+    artifact: /.*\.nupkg/
+    # Only deploy to nuget.org when the build was triggered by a tag.
+    on:
+      branch: master
+      APPVEYOR_REPO_TAG: true
+
+# configuration for "develop" branch
+# build in Release mode and create Nuget pack
+-
+  branches:
+    only:
+      - develop
+  configuration: Release
+  platform: Any CPU
+  nuget:
+    disable_publish_on_pr: true
+  before_build:
+    - ps: nuget restore .\Routine.sln
+  build:
+    project: .\Routine.sln
+    verbosity: detailed
+
+# configuration for all other branches except "master" and "develop"
+# build in Debug mode and deploy locally for testing
+-
+  branches:
+    except:
+      - master
+      - develop
+  configuration: Release
+  platform: Any CPU
+  before_build:
+    - ps: nuget restore .\Routine.sln
+  build:
+    project: .\Routine.sln
+  after_build:
+    - ps: .\Tools\NuGet\BuildNugetPackage.ps1
