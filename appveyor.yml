@@ -27,6 +27,7 @@
     artifact: .\artifacts\**\*.nupkg
     on:
       branch: master
+
     # The following is the details allowing for appveyor to push the 
     # new version of the package to nuget.org.
   - provider: NuGet
@@ -70,3 +71,10 @@
     project: .\Routine.sln
   after_build:
     - ps: .\Tools\NuGet\BuildNugetPackage.ps1
+  deploy:
+  - provider: NuGet
+    server: https://www.myget.org/F/routine-test/api/v2/package
+    api_key:
+        secure: 7iuJD2yd5w35rmiRN5SHF4qW75FEMkoc+/U+z0Purm54fv3hf+jSvQ18YAtjD7Hd
+    skip_symbols: true
+    artifact: .\artifacts\**\*.nupkg
