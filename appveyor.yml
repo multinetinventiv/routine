@@ -16,8 +16,7 @@
   build:
     project: .\Routine.sln
 
-  # The following is the details allowing for appveyor to push the 
-  # new version of the package to myget.org.
+
   deploy:
   - provider: NuGet
     server: https://www.myget.org/F/routine-test/api/v2/package
@@ -33,8 +32,8 @@
   - provider: NuGet
     name: production
     api_key: 
-      secure: j5g0Htw7zXZ/iAMHi68yb+9AZIO2bno642h/s/BtqG
-    artifact: /.*\.nupkg/
+      secure: TztsFHaGhIPL2k1ZLIsKg/PACVY7NxAIc8ZQQo20zK3YYj7ZUcdYJ9bsxQRHXOGA
+    artifact: .\artifacts\**\*.nupkg
     # Only deploy to nuget.org when the build was triggered by a tag.
     on:
       branch: master
@@ -55,6 +54,17 @@
   build:
     project: .\Routine.sln
     verbosity: detailed
+  # The following is the details allowing for appveyor to push the 
+  # new version of the package to myget.org.
+  deploy:
+  - provider: NuGet
+    server: https://www.myget.org/F/routine-test/api/v2/package
+    api_key:
+      secure: 7iuJD2yd5w35rmiRN5SHF4qW75FEMkoc+/U+z0Purm54fv3hf+jSvQ18YAtjD7Hd
+    skip_symbols: true
+    artifact: .\Artifacts\**\*.nupkg
+    on:
+      branch: develop
 
 # configuration for all other branches except "master" and "develop"
 # build in Debug mode and deploy locally for testing
@@ -77,4 +87,4 @@
     api_key:
         secure: 7iuJD2yd5w35rmiRN5SHF4qW75FEMkoc+/U+z0Purm54fv3hf+jSvQ18YAtjD7Hd
     skip_symbols: true
-    artifact: .\artifacts\**\*.nupkg
+    artifact: .\Artifacts\**\*.nupkg
