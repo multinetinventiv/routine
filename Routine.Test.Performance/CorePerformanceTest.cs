@@ -514,6 +514,7 @@ namespace Routine.Test.Performance
 			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
 		}
 
+        [Ignore]
 		[TestCase(1000)]
 		[TestCase(10000)]
 		[TestCase(100000)]
@@ -765,6 +766,7 @@ namespace Routine.Test.Performance
 			Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
 		}
 
+        [Ignore]
 		[TestCase(10, 10)]
 		[TestCase(10, 100)]
 		[TestCase(10, 1000)]

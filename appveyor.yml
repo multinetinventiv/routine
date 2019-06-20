@@ -10,7 +10,7 @@
     disable_publish_on_pr: true
   before_build:
     - ps: nuget restore .\Routine.sln
-  after_build:
+  after_test:
     - ps: .\Tools\NuGet\BuildNugetPackage.ps1
 
   build:
@@ -69,7 +69,7 @@
     - ps: nuget restore .\Routine.sln
   build:
     project: .\Routine.sln
-  after_build:
+  after_test:
     - ps: .\Tools\NuGet\BuildNugetPackage.ps1
   deploy:
   - provider: NuGet
