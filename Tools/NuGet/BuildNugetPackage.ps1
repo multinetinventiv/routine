@@ -1,23 +1,23 @@
-$nugetpath = resolve-path ".\Tools\NuGet\NuGet.exe"
+$nugetPath = resolve-path ".\Tools\NuGet\NuGet.exe"
 $publishPath = resolve-path ".\Routine\Routine.csproj"
 $outputDirectory = ".\Artifacts"
 
-if(Test-Path .\WebApplication1\Artifacts) 
-{ 
-	Remove-Item .\WebApplication1\artifacts -Force -Recurse 
+if(Test-Path .\Artifacts) 
+{
+	Remove-Item .\Artifacts -Force -Recurse 
 }
 
 function CreateNugetPackage(){
       
-    Write-Output "Nuget package is creating..."
+	Write-Output "Nuget package is creating..."
 	
 	New-Item -ItemType Directory -Force -Path $outputDirectory\Artifacts
 
-    $executionQuery = "& $nugetpath pack $publishPath -Verbose -OutputDirectory $outputDirectory -Build -Properties Configuration=Release"
+	$executionQuery = "& $nugetpath pack $publishPath -Verbose -OutputDirectory $outputDirectory -Build -Properties Configuration=Release"
 
-    Invoke-Expression $executionQuery
+	Invoke-Expression $executionQuery
 
-    Write-Output "Nuget package is created."
+	Write-Output "Nuget package is created."
 }
 
 CreateNugetPackage
