@@ -60,12 +60,3 @@
     project: .\Routine.sln
   after_test:
     - ps: .\Tools\NuGet\BuildNugetPackage.ps1
-  deploy:
-  - provider: NuGet
-    server: https://www.myget.org/F/routine-test/api/v2/package
-    api_key:
-        secure: 7iuJD2yd5w35rmiRN5SHF4qW75FEMkoc+/U+z0Purm54fv3hf+jSvQ18YAtjD7Hd
-    skip_symbols: true
-  artifacts:
-  - path: .\artifacts\**\*.nupkg
-    name: MyGet
