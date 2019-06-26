@@ -259,7 +259,7 @@ namespace Routine.Test.Core.Configuration
 			Assert.AreEqual("default", testing.Get("dummy"));
 		}
 
-        [Ignore]
+		[Ignore]
 		[Test]
 		public void BUG_when_pattern_uses_override_throws_argument_out_of_range()
 		{
