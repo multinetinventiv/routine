@@ -774,7 +774,7 @@ namespace Routine.Test.Performance
 		public void PerformOperation_HeavyParameter_LightLoad(int load, int input_count)
 		{
 			const double max_engine_overhead_ratio = 7.2;
-			const double max_client_overhead_ratio = 3;
+			const double max_client_overhead_ratio = 2;
 
 			#region setup
 			Console.WriteLine("Load -> " + load + "x" + input_count);
