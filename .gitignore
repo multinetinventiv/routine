@@ -15,16 +15,4 @@ packages/**/*
 
 *.ide
 
-.vs/Routine.Mono/xs/sqlite3/storage.ide-shm
-
-.vs/Routine.Mono/xs/sqlite3/storage.ide-wal
-
-.vs/Routine.Mono/xs/UserPrefs.xml
-
-/.vs/config/applicationhost.config
-
-/.vs/Routine/v15/Server/sqlite3/storage.ide-shm
-
-/.vs/Routine/v15/Server/sqlite3/storage.ide-wal
-
-/.vs/slnx.sqlite
+/.vs
