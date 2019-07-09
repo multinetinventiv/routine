@@ -73,11 +73,12 @@ namespace Routine.Api
 
 				throw new ApiGenerationException(string.Format("{0}\n\n Generated source code: \n\n{1}\n\n{2}", errors, assemblyCode, renderedCode));
 			}
-
+#if DEBUG
 			Console.WriteLine(assemblyCode);
 			Console.WriteLine(renderedCode);
+#endif
 
-			return results.CompiledAssembly;
+            return results.CompiledAssembly;
 		}
 
 		private CompilerParameters CreateCompilerParameters(string defaultNamespace)
