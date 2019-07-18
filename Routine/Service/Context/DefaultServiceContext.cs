@@ -6,136 +6,141 @@ using Routine.Engine;
 
 namespace Routine.Service.Context
 {
-	public class DefaultServiceContext : IServiceContext
-	{
-		public IServiceConfiguration ServiceConfiguration { get; private set; }
-		public IObjectService ObjectService { get; private set; }
-		public ICoreContext CoreContext { get; private set; }
+    public class DefaultServiceContext : IServiceContext
+    {
+        public IServiceConfiguration ServiceConfiguration { get; private set; }
+        public IObjectService ObjectService { get; private set; }
+        public ICoreContext CoreContext { get; private set; }
 
-		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService)
-		{
-			ServiceConfiguration = serviceConfiguration;
-			ObjectService = objectService;
-			CoreContext = coreContext;
+        public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService)
+        {
+            ServiceConfiguration = serviceConfiguration;
+            ObjectService = objectService;
+            CoreContext = coreContext;
 
-			RegisterRoutes();
-		}
+            RegisterRoutes();
+        }
 
-		private void RegisterRoutes()
-		{
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "index",
-				Path("Index"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.IndexAction
-				}
-			);
+        private void RegisterRoutes()
+        {
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "index",
+                Path("Index"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.IndexAction
+                }
+            );
 
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "configuration",
-				Path("Configuration"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.ConfigurationAction
-				}
-			);
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "configuration",
+                Path("Configuration"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.ConfigurationAction
+                }
+            );
 
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "file",
-				Path("File"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.FileAction
-				}
-			);
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "file",
+                Path("File"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.FileAction
+                }
+            );
 
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "fonts",
-				Path("Fonts/{fileName}/f"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.FontsAction
-				}
-			);
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "fonts",
+                Path("Fonts/{fileName}/f"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.FontsAction
+                }
+            );
 
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "applicationmodel",
-				Path("ApplicationModel"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.ApplicationModelAction
-				}
-			);
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "applicationmodel",
+                Path("ApplicationModel"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.ApplicationModelAction
+                }
+            );
 
-			RouteTable.Routes.MapRoute(
-				Constants.SERVICE_ROUTE_NAME_BASE + "handle",
-				Path("{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}"),
-				new
-				{
-					controller = ServiceController.ControllerName,
-					action = ServiceController.HandleAction,
-					idOrViewModelIdOrOperation = UrlParameter.Optional,
-					viewModelIdOrOperation = UrlParameter.Optional,
-					operation = UrlParameter.Optional
-				}
-			);
+            RouteTable.Routes.MapRoute(
+                Constants.SERVICE_ROUTE_NAME_BASE + "handle",
+                Path("{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}"),
+                new
+                {
+                    controller = ServiceController.ControllerName,
+                    action = ServiceController.HandleAction,
+                    idOrViewModelIdOrOperation = UrlParameter.Optional,
+                    viewModelIdOrOperation = UrlParameter.Optional,
+                    operation = UrlParameter.Optional
+                }
+            );
 
-			var jsonValueProviderFactory = ValueProviderFactories.Factories.OfType<JsonValueProviderFactory>().FirstOrDefault();
+            RouteTable.Routes.Add("ServiceHandler", new Route(url: "handler/{action}", defaults: new RouteValueDictionary()
+            {
+                { "action", string.Empty }
+            }, routeHandler: new ServiceRouteHandler(this)));
 
-			if (jsonValueProviderFactory != null) ValueProviderFactories.Factories.Remove(jsonValueProviderFactory);
-		}
+            var jsonValueProviderFactory = ValueProviderFactories.Factories.OfType<JsonValueProviderFactory>().FirstOrDefault();
 
-		public ReferenceData GetObjectReference(object @object)
-		{
-			return CoreContext.CreateDomainObject(@object).GetReferenceData();
-		}
+            if (jsonValueProviderFactory != null) ValueProviderFactories.Factories.Remove(jsonValueProviderFactory);
+        }
 
-		public string GetModelId(IType type)
-		{
-			return CoreContext.GetDomainType(type).Id;
-		}
+        public ReferenceData GetObjectReference(object @object)
+        {
+            return CoreContext.CreateDomainObject(@object).GetReferenceData();
+        }
 
-		public IType GetType(string modelId)
-		{
-			return CoreContext.GetDomainType(modelId).Type;
-		}
+        public string GetModelId(IType type)
+        {
+            return CoreContext.GetDomainType(type).Id;
+        }
 
-		public object GetObject(ReferenceData reference)
-		{
-			return CoreContext.GetObject(reference);
-		}
+        public IType GetType(string modelId)
+        {
+            return CoreContext.GetDomainType(modelId).Type;
+        }
 
-		public object GetObject(IType type, string id)
-		{
-			return CoreContext.GetDomainType(type).Locate(id);
-		}
+        public object GetObject(ReferenceData reference)
+        {
+            return CoreContext.GetObject(reference);
+        }
 
-		private string Path(string path)
-		{
-			var rootPath = ServiceConfiguration.GetRootPath() ?? string.Empty;
+        public object GetObject(IType type, string id)
+        {
+            return CoreContext.GetDomainType(type).Locate(id);
+        }
 
-			if (rootPath.StartsWith("/"))
-			{
-				rootPath = rootPath.After("/");
-			}
+        private string Path(string path)
+        {
+            var rootPath = ServiceConfiguration.GetRootPath() ?? string.Empty;
 
-			if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
-			{
-				rootPath += "/";
-			}
+            if (rootPath.StartsWith("/"))
+            {
+                rootPath = rootPath.After("/");
+            }
 
-			if (path.StartsWith("/"))
-			{
-				path = path.After("/");
-			}
+            if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
+            {
+                rootPath += "/";
+            }
 
-			return rootPath + path;
-		}
-	}
+            if (path.StartsWith("/"))
+            {
+                path = path.After("/");
+            }
+
+            return rootPath + path;
+        }
+    }
 }
