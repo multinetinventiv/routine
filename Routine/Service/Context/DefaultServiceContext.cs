@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Core;
@@ -8,9 +9,9 @@ namespace Routine.Service.Context
 {
     public class DefaultServiceContext : IServiceContext
     {
-        public IServiceConfiguration ServiceConfiguration { get; private set; }
-        public IObjectService ObjectService { get; private set; }
-        public ICoreContext CoreContext { get; private set; }
+        public IServiceConfiguration ServiceConfiguration { get; }
+        public IObjectService ObjectService { get; }
+        public ICoreContext CoreContext { get; }
 
         public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService)
         {
@@ -88,8 +89,14 @@ namespace Routine.Service.Context
 
             RouteTable.Routes.Add("ServiceHandler", new Route(url: "handler/{action}", defaults: new RouteValueDictionary()
             {
-                { "action", string.Empty }
-            }, routeHandler: new ServiceRouteHandler(this)));
+                { "action", "Index" }
+            }, routeHandler: new ServiceHttpHandler(this)));
+
+            RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-fonts", new Route(url: "handler/fonts/{fileName}/f", defaults: new RouteValueDictionary()
+            {
+                { "action", "Index" }
+            }, routeHandler: new ServiceHttpHandler(this)));
+
 
             var jsonValueProviderFactory = ValueProviderFactories.Factories.OfType<JsonValueProviderFactory>().FirstOrDefault();
 
