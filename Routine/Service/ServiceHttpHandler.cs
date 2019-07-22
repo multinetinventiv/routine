@@ -13,7 +13,7 @@ using Routine.Engine.Context;
 
 namespace Routine.Service
 {
-	public class ServiceHttpHandler : IHttpHandler, IRouteHandler
+    public class ServiceHttpHandler : IHttpHandler, IRouteHandler
 	{
 		private readonly IServiceContext serviceContext;
 		private readonly IJsonSerializer jsonSerializer;
@@ -65,12 +65,10 @@ namespace Routine.Service
 
 		public void ProcessRequest(HttpContext context)
 		{
-			if (context == null)
-			{
-				throw new ArgumentNullException(nameof(context));
-			}
+            httpContext = context;
+            context.ApplicationInstance.Error += ApplicationInstance_Error;
 
-			var routeData = context.Request.RequestContext.RouteData;
+            var routeData = context.Request.RequestContext.RouteData;
 
 			var action = routeData.Values["action"].ToString();
 
@@ -187,7 +185,7 @@ namespace Routine.Service
 
 			if (modelId == null) { throw new InvalidOperationException("Handle action does not handle request when modelId is null. Please check your route configuration, handle action should only be called when modelId is available."); }
 
-			httpContext = context;
+
 			var appModel = serviceContext.ObjectService.ApplicationModel;
 
 			ObjectModel model;
@@ -265,7 +263,17 @@ namespace Routine.Service
 			AddResponseHeaders(context);
 		}
 
-		private IDictionary<string, object> GetParameterDictionary(HttpContext context)
+        private void ApplicationInstance_Error(object sender, EventArgs e)
+        {
+            var exceptionResult = jsonSerializer.Serialize(serviceContext.ServiceConfiguration.GetExceptionResult(httpContext.Error));
+            httpContext.Server.ClearError();
+            httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+            httpContext.Response.ContentType = "application/json";
+            httpContext.Response.ContentEncoding = Encoding.UTF8;
+            httpContext.Response.Write(exceptionResult);
+        }
+
+        private IDictionary<string, object> GetParameterDictionary(HttpContext context)
 		{
 			if (IsGet)
 			{
@@ -406,7 +414,7 @@ namespace Routine.Service
 				var responseHeaderValue = serviceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
 				{
-					context.Request.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
+					context.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}
 		}
