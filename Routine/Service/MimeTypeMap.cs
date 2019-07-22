@@ -584,7 +584,7 @@ namespace Routine.Service
 		{
 			if (extension == null)
 			{
-				throw new ArgumentNullException(nameof(extension));
+				throw new ArgumentNullException("extension");
 			}
 
 			if (!extension.StartsWith("."))
@@ -592,7 +592,9 @@ namespace Routine.Service
 				extension = "." + extension;
 			}
 
-			return Mappings.Value.TryGetValue(extension, out var mime) ? mime : "application/octet-stream";
+			string mime;
+
+			return Mappings.Value.TryGetValue(extension, out mime) ? mime : "application/octet-stream";
 		}
 	}
 }
