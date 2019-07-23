@@ -12,6 +12,7 @@ using Castle.Core.Internal;
 using Castle.Core.Logging;
 using Castle.Facilities.FactorySupport;
 using Castle.Facilities.Logging;
+using Castle.Facilities.TypedFactory;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -123,14 +124,14 @@ namespace Routine.Test.Domain.Configuration
 				GlobalFilters.Filters.Add(new HandleErrorAttribute());
 				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-				container.Register(
+                container.Register(
 					Component.For<IServiceContext>()
 						.Instance(BuildRoutine.Context()
 							.UsingInterception(ServerInterceptionConfiguration())
-							.AsServiceApplication(ServiceConfiguration(), CodingStyle()))
+							.AsServiceApplication(ServiceConfiguration(), CodingStyle(), RouteHandlerFactory))
 						.LifestyleSingleton(),
 
-					Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
+                Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
 				);
 
 				RouteTable.Routes.MapRoute(
@@ -144,8 +145,13 @@ namespace Routine.Test.Domain.Configuration
 				DataAccess();
 			}
 
-			#region log4net
-			private void Logging()
+            private IRouteHandler RouteHandlerFactory(IServiceContext serviceContext)
+            {
+                return new ServiceHttpHandler(serviceContext);
+            }
+
+            #region log4net
+            private void Logging()
 			{
 				var root = ((Hierarchy)LogManager.GetRepository()).Root;
 

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -12,17 +13,19 @@ namespace Routine.Service.Context
 		public IServiceConfiguration ServiceConfiguration { get; }
 		public IObjectService ObjectService { get; }
 		public ICoreContext CoreContext { get; }
+        public Func<IServiceContext, IRouteHandler> HandlerFactory { get;  }
 
-		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService)
+		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService, Func<IServiceContext, IRouteHandler> handlerFactory)
 		{
 			ServiceConfiguration = serviceConfiguration;
 			ObjectService = objectService;
-			CoreContext = coreContext;
+            HandlerFactory = handlerFactory;
+            CoreContext = coreContext;
 
 			RegisterRoutes();
 		}
 
-		private void RegisterRoutes()
+		public void RegisterRoutes()
 		{
 			RouteTable.Routes.MapRoute(
 				Constants.SERVICE_ROUTE_NAME_BASE + "index",
@@ -93,28 +96,28 @@ namespace Routine.Service.Context
 			}, constraints: new RouteValueDictionary()
 			{
 				{ "action",ServiceHttpHandler.IndexAction }
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-application-model", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.ApplicationModelAction }
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-configuration", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.ConfigurationAction }
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-file", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.FileAction }
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-fonts", new Route(url: "handler/{action}/{fileName}/f", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.FontsAction }
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-handle", new Route(url: "handler/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}", defaults: new RouteValueDictionary()
 			{
@@ -125,7 +128,7 @@ namespace Routine.Service.Context
 			}, constraints: new RouteValueDictionary()
 			{
 				{ "modelId", ".*"},
-			}, routeHandler: new ServiceHttpHandler(this)));
+			}, routeHandler: HandlerFactory(this)));
 
 			var jsonValueProviderFactory = ValueProviderFactories.Factories.OfType<JsonValueProviderFactory>().FirstOrDefault();
 
