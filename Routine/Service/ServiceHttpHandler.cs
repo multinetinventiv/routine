@@ -66,11 +66,11 @@ namespace Routine.Service
 		public void ProcessRequest(HttpContext context)
 		{
             httpContext = context;
-            context.ApplicationInstance.Error += ApplicationInstance_Error;
+            httpContext.ApplicationInstance.Error += ApplicationInstance_Error;
 
             var routeData = context.Request.RequestContext.RouteData;
 
-			var action = routeData.Values["action"].ToString();
+			var action = $"{routeData.Values["action"]}";
 
 			if (string.Equals(action, nameof(ApplicationModel), StringComparison.InvariantCultureIgnoreCase))
 			{
@@ -84,7 +84,7 @@ namespace Routine.Service
 
 			else if (string.Equals(action, nameof(File), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var path = context.Request.QueryString["path"];
+				var path = $"{context.Request.QueryString["path"]}";
 				File(context, path);
 			}
 
@@ -95,16 +95,16 @@ namespace Routine.Service
 
 			else if (string.Equals(action, nameof(Fonts), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var fileName = routeData.Values["fileName"].ToString();
+				var fileName = $"{routeData.Values["fileName"]}";
 				Fonts(context, fileName);
 			}
 
 			else if (string.Equals(action, nameof(Handle), StringComparison.InvariantCultureIgnoreCase))
-			{
-				var modelId = routeData.Values["modelId"].ToString();
-				var idOrViewModelIdOrOperation = routeData.Values["idOrViewModelIdOrOperation"].ToString();
-				var viewModelIdOrOperation = routeData.Values["viewModelIdOrOperation"].ToString();
-				var operation = routeData.Values["operation"].ToString();
+            {
+				var modelId = $"{routeData.Values["modelId"]}";
+				var idOrViewModelIdOrOperation = $"{routeData.Values["idOrViewModelIdOrOperation"]}";
+				var viewModelIdOrOperation = $"{routeData.Values["viewModelIdOrOperation"]}";
+				var operation = $"{routeData.Values["operation"]}";
 
 				Handle(context, modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
 			}
