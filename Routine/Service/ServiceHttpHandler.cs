@@ -13,7 +13,7 @@ using Routine.Engine.Context;
 
 namespace Routine.Service
 {
-    public class ServiceHttpHandler : IHttpHandler, IRouteHandler
+	public class ServiceHttpHandler : IHttpHandler, IRouteHandler
 	{
 		private readonly IServiceContext serviceContext;
 		private readonly IJsonSerializer jsonSerializer;
@@ -65,10 +65,9 @@ namespace Routine.Service
 
 		public void ProcessRequest(HttpContext context)
 		{
-            httpContext = context;
-            httpContext.ApplicationInstance.Error += ApplicationInstance_Error;
+			httpContext = context;
 
-            var routeData = context.Request.RequestContext.RouteData;
+			var routeData = context.Request.RequestContext.RouteData;
 
 			var action = $"{routeData.Values["action"]}";
 
@@ -100,7 +99,7 @@ namespace Routine.Service
 			}
 
 			else if (string.Equals(action, nameof(Handle), StringComparison.InvariantCultureIgnoreCase))
-            {
+			{
 				var modelId = $"{routeData.Values["modelId"]}";
 				var idOrViewModelIdOrOperation = $"{routeData.Values["idOrViewModelIdOrOperation"]}";
 				var viewModelIdOrOperation = $"{routeData.Values["viewModelIdOrOperation"]}";
@@ -181,99 +180,98 @@ namespace Routine.Service
 
 		private void Handle(HttpContext context, string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
 		{
-			IndexApplicationModelIfNecessary();
-
-			if (modelId == null) { throw new InvalidOperationException("Handle action does not handle request when modelId is null. Please check your route configuration, handle action should only be called when modelId is available."); }
-
-
-			var appModel = serviceContext.ObjectService.ApplicationModel;
-
-			ObjectModel model;
-
 			try
 			{
-				model = FindModel(modelId);
-			}
-			catch (AmbiguousModelException ex)
-			{
-				AmbiguousModel(context, modelId, ex.AvailableModels);
-				return;
-			}
-			catch (ModelNotFoundException ex)
-			{
-				TargetModelNotFound(context, ex.ModelId);
-				return;
-			}
+				IndexApplicationModelIfNecessary();
 
-			var resolution = Resolve(appModel, model, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
+				if (modelId == null) { throw new InvalidOperationException("Handle action does not handle request when modelId is null. Please check your route configuration, handle action should only be called when modelId is available."); }
 
-			if (resolution.HasOperation)
-			{
-				var allowGet = serviceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
+				var appModel = serviceContext.ObjectService.ApplicationModel;
 
-				if (!IsPost && !IsGet) { MethodNotAllowed(context, allowGet); return; }
-				if (IsGet && !allowGet) { MethodNotAllowed(context, false); return; }
+				ObjectModel model;
 
-				Dictionary<string, ParameterValueData> parameterValues;
 				try
 				{
-					parameterValues = GetParameterDictionary(context)
-						.Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
-						.ToDictionary(kvp => kvp.Key, kvp =>
-							new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
-								.DecompressParameterValueData(kvp.Value)
-						);
+					model = FindModel(modelId);
 				}
-				catch (TypeNotFoundException ex)
+				catch (AmbiguousModelException ex)
 				{
-					ModelNotFound(context, ex);
+					AmbiguousModel(context, modelId, ex.AvailableModels);
 					return;
 				}
-				catch (Exception ex)
+				catch (ModelNotFoundException ex)
 				{
-					BadRequest(context, ex);
+					TargetModelNotFound(context, ex.ModelId);
 					return;
 				}
 
-				ProcessRequestHeaders(context);
+				var resolution = Resolve(appModel, model, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
 
-				var variableData = serviceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
-				var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
+				if (resolution.HasOperation)
+				{
+					var allowGet = serviceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
 
-				context.Response.ContentType = "application/json";
-				context.Response.ContentEncoding = Encoding.UTF8;
-				context.Response.Write(jsonSerializer.Serialize(compressor.Compress(variableData)));
+					if (!IsPost && !IsGet) { MethodNotAllowed(context, allowGet); return; }
+					if (IsGet && !allowGet) { MethodNotAllowed(context, false); return; }
 
+					Dictionary<string, ParameterValueData> parameterValues;
+					try
+					{
+						parameterValues = GetParameterDictionary(context)
+							.Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
+							.ToDictionary(kvp => kvp.Key, kvp =>
+								new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
+									.DecompressParameterValueData(kvp.Value)
+							);
+					}
+					catch (TypeNotFoundException ex)
+					{
+						ModelNotFound(context, ex);
+						return;
+					}
+					catch (Exception ex)
+					{
+						BadRequest(context, ex);
+						return;
+					}
+
+					ProcessRequestHeaders(context);
+
+					var variableData = serviceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
+					var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
+
+					context.Response.ContentType = "application/json";
+					context.Response.ContentEncoding = Encoding.UTF8;
+					context.Response.Write(jsonSerializer.Serialize(compressor.Compress(variableData)));
+				}
+				else
+				{
+					if (!IsPost && !IsGet) { MethodNotAllowed(context, true); }
+
+					ProcessRequestHeaders(context);
+
+					var objectData = serviceContext.ObjectService.Get(resolution.Reference);
+					var compressor = new DataCompressor(appModel, resolution.Reference.ViewModelId);
+
+					context.Response.ContentType = "application/json";
+					context.Response.ContentEncoding = Encoding.UTF8;
+					context.Response.Write(jsonSerializer.Serialize(compressor.Compress(objectData)));
+				}
+
+				AddResponseHeaders(context);
 			}
-			else
+			catch (Exception ex)
 			{
-				if (!IsPost && !IsGet) { MethodNotAllowed(context, true); }
-
-				ProcessRequestHeaders(context);
-
-				var objectData = serviceContext.ObjectService.Get(resolution.Reference);
-				var compressor = new DataCompressor(appModel, resolution.Reference.ViewModelId);
-
-				context.Response.ContentType = "application/json";
-				context.Response.ContentEncoding = Encoding.UTF8;
-				context.Response.Write(jsonSerializer.Serialize(compressor.Compress(objectData)));
-
+				var exceptionResult = jsonSerializer.Serialize(serviceContext.ServiceConfiguration.GetExceptionResult(ex));
+				httpContext.Server.ClearError();
+				httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+				httpContext.Response.ContentType = "application/json";
+				httpContext.Response.ContentEncoding = Encoding.UTF8;
+				httpContext.Response.Write(exceptionResult);
 			}
-
-			AddResponseHeaders(context);
 		}
 
-        private void ApplicationInstance_Error(object sender, EventArgs e)
-        {
-            var exceptionResult = jsonSerializer.Serialize(serviceContext.ServiceConfiguration.GetExceptionResult(httpContext.Error));
-            httpContext.Server.ClearError();
-            httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-            httpContext.Response.ContentType = "application/json";
-            httpContext.Response.ContentEncoding = Encoding.UTF8;
-            httpContext.Response.Write(exceptionResult);
-        }
-
-        private IDictionary<string, object> GetParameterDictionary(HttpContext context)
+		private IDictionary<string, object> GetParameterDictionary(HttpContext context)
 		{
 			if (IsGet)
 			{
