@@ -184,6 +184,7 @@
     <Compile Include="Service\HeaderProcessor\PredefinedHeaderProcessorBase.cs" />
     <Compile Include="Service\MimeTypeMap.cs" />
     <Compile Include="Service\ServiceHttpHandler.cs" />
+    <Compile Include="Service\ServiceRouteHandler.cs" />
     <Compile Include="Ui\EmbeddedResourceVirtualFile.cs" />
     <Compile Include="Ui\EmbeddedResource.cs" />
     <Compile Include="Ui\EmbeddedResourceVirtualPathProvider.cs" />

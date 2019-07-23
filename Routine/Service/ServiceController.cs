@@ -618,12 +618,13 @@ namespace Routine.Service
 		public static string FontsAction { get { return "Fonts"; } }
 
 		private const int DEFAULT_RECURSION_LIMIT = 100;
+        private const int DEFAULT_MAX_JSON_LENGTH = 1*1024*1024;
 
-		private static IJsonSerializer CreateDefaultSerializer(int maxResultLength)
+        private static IJsonSerializer CreateDefaultSerializer()
 		{
 			return new JavaScriptSerializerAdapter(new JavaScriptSerializer
 				{
-					MaxJsonLength = maxResultLength,
+					MaxJsonLength = DEFAULT_MAX_JSON_LENGTH,
 					RecursionLimit = DEFAULT_RECURSION_LIMIT
 				});
 		}
@@ -632,7 +633,7 @@ namespace Routine.Service
 		private readonly IJsonSerializer serializer;
 		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
 
-		public ServiceController(IServiceContext context) : this(context, CreateDefaultSerializer(context.ServiceConfiguration.GetMaxResultLength())) { }
+		public ServiceController(IServiceContext context) : this(context, CreateDefaultSerializer()) { }
 		public ServiceController(IServiceContext context, IJsonSerializer serializer)
 		{
 			this.context = context;

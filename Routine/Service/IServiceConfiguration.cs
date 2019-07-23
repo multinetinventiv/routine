@@ -7,7 +7,6 @@ namespace Routine.Service
 	public interface IServiceConfiguration
 	{
 		string GetRootPath();
-		int GetMaxResultLength();
 
 		bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
 

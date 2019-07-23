@@ -5,26 +5,25 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
-using System.Web.Routing;
-using System.Web.Script.Serialization;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 
 namespace Routine.Service
 {
-	public class ServiceHttpHandler : IHttpHandler, IRouteHandler
+	public class ServiceHttpHandler : IHttpHandler
 	{
-		private readonly IServiceContext serviceContext;
-		private readonly IJsonSerializer jsonSerializer;
-		private const int DEFAULT_RECURSION_LIMIT = 100;
-		private const int BUFFER_SIZE = 0x1000;
-		private HttpContext httpContext;
-		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
-		private string UrlBase => "/Handler";
+		#region Properties & Variables
 
-		private bool IsGet => "GET".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
-		private bool IsPost => "POST".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+		private const int BUFFER_SIZE = 0x1000;
+		private const string JSON_CONTENT_TYPE = "application/json";
+
+		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
+
+		private string UrlBase => "/Handler";
+		private bool IsGet(HttpContext httpContext) => "GET".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+		private bool IsPost(HttpContext httpContext) => "POST".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+		private Encoding DefaultContentEncoding => Encoding.UTF8;
 
 		public static string IndexAction => "Index";
 		public static string HandleAction => "Handle";
@@ -33,69 +32,57 @@ namespace Routine.Service
 		public static string FileAction => "File";
 		public static string FontsAction => "Fonts";
 
+		#endregion
 
-		private static IJsonSerializer CreateDefaultSerializer(int maxResultLength)
-		{
-			return new JavaScriptSerializerAdapter(new JavaScriptSerializer
-			{
-				MaxJsonLength = maxResultLength,
-				RecursionLimit = DEFAULT_RECURSION_LIMIT
-			});
-		}
+		#region Constructor
 
-		public ServiceHttpHandler(IServiceContext serviceContext) : this(serviceContext, CreateDefaultSerializer(serviceContext.ServiceConfiguration.GetMaxResultLength()))
-		{
-			this.serviceContext = serviceContext;
-		}
+		private readonly IServiceContext serviceContext;
+		private readonly IJsonSerializer jsonSerializer;
 
 		public ServiceHttpHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer)
 		{
 			this.serviceContext = serviceContext;
 			this.jsonSerializer = jsonSerializer;
+
 			modelIndex = new Dictionary<string, List<ObjectModel>>();
 		}
 
-		#region Interface Implemntations
+		#endregion
+
+		#region Interface Implementations
 		public bool IsReusable => false;
 
-		public IHttpHandler GetHttpHandler(RequestContext requestContext)
+		public void ProcessRequest(HttpContext httpContext)
 		{
-			return this;
-		}
-
-		public void ProcessRequest(HttpContext context)
-		{
-			httpContext = context;
-
-			var routeData = context.Request.RequestContext.RouteData;
+			var routeData = httpContext.Request.RequestContext.RouteData;
 
 			var action = $"{routeData.Values["action"]}";
 
 			if (string.Equals(action, nameof(ApplicationModel), StringComparison.InvariantCultureIgnoreCase))
 			{
-				ApplicationModel(context);
+				ApplicationModel(httpContext);
 			}
 
 			else if (string.Equals(action, nameof(Index), StringComparison.InvariantCultureIgnoreCase))
 			{
-				Index(context);
+				Index(httpContext);
 			}
 
 			else if (string.Equals(action, nameof(File), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var path = $"{context.Request.QueryString["path"]}";
-				File(context, path);
+				var path = $"{httpContext.Request.QueryString["path"]}";
+				File(httpContext, path);
 			}
 
 			else if (string.Equals(action, nameof(Configuration), StringComparison.InvariantCultureIgnoreCase))
 			{
-				Configuration(context);
+				Configuration(httpContext);
 			}
 
 			else if (string.Equals(action, nameof(Fonts), StringComparison.InvariantCultureIgnoreCase))
 			{
 				var fileName = $"{routeData.Values["fileName"]}";
-				Fonts(context, fileName);
+				Fonts(httpContext, fileName);
 			}
 
 			else if (string.Equals(action, nameof(Handle), StringComparison.InvariantCultureIgnoreCase))
@@ -105,26 +92,26 @@ namespace Routine.Service
 				var viewModelIdOrOperation = $"{routeData.Values["viewModelIdOrOperation"]}";
 				var operation = $"{routeData.Values["operation"]}";
 
-				Handle(context, modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
+				Handle(httpContext, modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
 			}
 		}
 		#endregion
 
-		private void ApplicationModel(HttpContext context)
+		#region Actions
+
+		private void ApplicationModel(HttpContext httpContext)
 		{
 			IndexApplicationModelIfNecessary();
 
-			context.Response.ContentType = "application/json";
-			context.Response.ContentEncoding = Encoding.UTF8;
-			context.Response.Write(jsonSerializer.Serialize(serviceContext.ObjectService.ApplicationModel));
+			Response(httpContext, jsonSerializer.Serialize(serviceContext.ObjectService.ApplicationModel));
 		}
 
-		private void Index(HttpContext context)
+		private void Index(HttpContext httpContext)
 		{
-			File(context, "app/application/index.html");
+			File(httpContext, "app/application/index.html");
 		}
 
-		private void File(HttpContext context, string path)
+		private void File(HttpContext httpContext, string path)
 		{
 			var stream = GetStream(path);
 
@@ -137,15 +124,13 @@ namespace Routine.Service
 			fileContent = fileContent.Replace("$urlbase$", UrlBase);
 
 			var file = Encoding.UTF8.GetBytes(fileContent);
-			context.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-			context.Response.BinaryWrite(file);
+			httpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
+			httpContext.Response.BinaryWrite(file);
 		}
 
-		private void Configuration(HttpContext context)
+		private void Configuration(HttpContext httpContext)
 		{
-			context.Response.ContentType = "application/json";
-			context.Response.ContentEncoding = Encoding.UTF8;
-			context.Response.Write(jsonSerializer.Serialize(new
+			Response(httpContext, jsonSerializer.Serialize(new
 			{
 				url = UrlBase,
 				requestHeaders = serviceContext.ServiceConfiguration.GetRequestHeaders(),
@@ -178,7 +163,7 @@ namespace Routine.Service
 			context.Response.End();
 		}
 
-		private void Handle(HttpContext context, string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
+		private void Handle(HttpContext httpContext, string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
 		{
 			try
 			{
@@ -196,12 +181,12 @@ namespace Routine.Service
 				}
 				catch (AmbiguousModelException ex)
 				{
-					AmbiguousModel(context, modelId, ex.AvailableModels);
+					AmbiguousModel(httpContext, modelId, ex.AvailableModels);
 					return;
 				}
 				catch (ModelNotFoundException ex)
 				{
-					TargetModelNotFound(context, ex.ModelId);
+					TargetModelNotFound(httpContext, ex.ModelId);
 					return;
 				}
 
@@ -211,13 +196,13 @@ namespace Routine.Service
 				{
 					var allowGet = serviceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
 
-					if (!IsPost && !IsGet) { MethodNotAllowed(context, allowGet); return; }
-					if (IsGet && !allowGet) { MethodNotAllowed(context, false); return; }
+					if (!IsPost(httpContext) && !IsGet(httpContext)) { MethodNotAllowed(httpContext, allowGet); return; }
+					if (IsGet(httpContext) && !allowGet) { MethodNotAllowed(httpContext, false); return; }
 
 					Dictionary<string, ParameterValueData> parameterValues;
 					try
 					{
-						parameterValues = GetParameterDictionary(context)
+						parameterValues = GetParameterDictionary(httpContext)
 							.Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
 							.ToDictionary(kvp => kvp.Key, kvp =>
 								new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
@@ -226,59 +211,63 @@ namespace Routine.Service
 					}
 					catch (TypeNotFoundException ex)
 					{
-						ModelNotFound(context, ex);
+						ModelNotFound(httpContext, ex);
 						return;
 					}
 					catch (Exception ex)
 					{
-						BadRequest(context, ex);
+						BadRequest(httpContext, ex);
 						return;
 					}
 
-					ProcessRequestHeaders(context);
+					ProcessRequestHeaders(httpContext);
 
 					var variableData = serviceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
 					var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
-					context.Response.ContentType = "application/json";
-					context.Response.ContentEncoding = Encoding.UTF8;
-					context.Response.Write(jsonSerializer.Serialize(compressor.Compress(variableData)));
+					Response(httpContext, jsonSerializer.Serialize(compressor.Compress(variableData)));
 				}
 				else
 				{
-					if (!IsPost && !IsGet) { MethodNotAllowed(context, true); }
+					if (!IsPost(httpContext) && !IsGet(httpContext)) { MethodNotAllowed(httpContext, true); }
 
-					ProcessRequestHeaders(context);
+					ProcessRequestHeaders(httpContext);
 
 					var objectData = serviceContext.ObjectService.Get(resolution.Reference);
 					var compressor = new DataCompressor(appModel, resolution.Reference.ViewModelId);
 
-					context.Response.ContentType = "application/json";
-					context.Response.ContentEncoding = Encoding.UTF8;
-					context.Response.Write(jsonSerializer.Serialize(compressor.Compress(objectData)));
+					Response(httpContext, jsonSerializer.Serialize(compressor.Compress(objectData)));
 				}
 
-				AddResponseHeaders(context);
+				AddResponseHeaders(httpContext);
 			}
 			catch (Exception ex)
 			{
 				var exceptionResult = jsonSerializer.Serialize(serviceContext.ServiceConfiguration.GetExceptionResult(ex));
 				httpContext.Server.ClearError();
-				httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-				httpContext.Response.ContentType = "application/json";
-				httpContext.Response.ContentEncoding = Encoding.UTF8;
-				httpContext.Response.Write(exceptionResult);
+				Response(httpContext, exceptionResult);
 			}
 		}
 
-		private IDictionary<string, object> GetParameterDictionary(HttpContext context)
+		#endregion
+		private void Response(HttpContext httpContext, string result) { Response(httpContext, result, HttpStatusCode.OK); }
+
+		private void Response(HttpContext httpContext, string result, HttpStatusCode statusCode)
 		{
-			if (IsGet)
+			httpContext.Response.StatusCode = (int)statusCode;
+			httpContext.Response.ContentType = JSON_CONTENT_TYPE;
+			httpContext.Response.ContentEncoding = DefaultContentEncoding;
+			httpContext.Response.Write(result);
+		}
+
+		private IDictionary<string, object> GetParameterDictionary(HttpContext httpContext)
+		{
+			if (IsGet(httpContext))
 			{
-				return context.Request.QueryString.AllKeys.ToDictionary(s => s, s => context.Request.QueryString[s] as object);
+				return httpContext.Request.QueryString.AllKeys.ToDictionary(s => s, s => httpContext.Request.QueryString[s] as object);
 			}
 
-			var req = context.Request.InputStream;
+			var req = httpContext.Request.InputStream;
 			req.Seek(0, SeekOrigin.Begin);
 			var requestBody = new StreamReader(req).ReadToEnd();
 
@@ -294,7 +283,6 @@ namespace Routine.Service
 				processor.Process(requestHeaders);
 			}
 		}
-
 
 		private static void BadRequest(HttpContext context, Exception ex)
 		{

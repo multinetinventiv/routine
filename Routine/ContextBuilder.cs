@@ -50,9 +50,9 @@ namespace Routine
             return ClientContext(ObjectService(codingStyle));
         }
 
-        public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle, Func<IServiceContext, IRouteHandler> handlerFactory)
+        public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
-            return ServiceContext(serviceConfiguration, codingStyle, handlerFactory);
+            return ServiceContext(serviceConfiguration, codingStyle);
         }
 
         private IApiContext ApiContext(IApiConfiguration apiConfiguration, IClientContext clientContext)
@@ -70,9 +70,9 @@ namespace Routine
             return new DefaultClientContext(objectService, new Rapplication(objectService));
         }
 
-        private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle, Func<IServiceContext, IRouteHandler> handlerFactory)
+        private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
-            return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle), handlerFactory);
+            return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle), HandlerFactory());
         }
 
         private IObjectService ObjectService(ICodingStyle codingStyle)
@@ -103,11 +103,19 @@ namespace Routine
             return coreContext;
         }
 
+
+        private Func<IServiceContext, IRouteHandler> handlerFactory;
+        public ContextBuilder UsingHandlerFactory(Func<IServiceContext, IRouteHandler> handlerFactory) { this.handlerFactory = handlerFactory; return this; }
+        private Func<IServiceContext, IRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new ServiceRouteHandler(sc, Serializer()));
+
         private IRestClient restClient = new WebRequestRestClient();
         public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
         private IRestClient RestClient() { return restClient; }
 
-        private IJsonSerializer serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer());
+
+        private const int DEFAULT_RECURSION_LIMIT = 100;
+        private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
+        private IJsonSerializer serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer { MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT });
         public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
         private IJsonSerializer Serializer() { return serializer; }
 
