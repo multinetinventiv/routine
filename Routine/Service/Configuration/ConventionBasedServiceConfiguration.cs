@@ -8,7 +8,6 @@ namespace Routine.Service.Configuration
 	public class ConventionBasedServiceConfiguration : LayeredBase<ConventionBasedServiceConfiguration>, IServiceConfiguration
 	{
 		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; private set; }
-		public SingleConfiguration<ConventionBasedServiceConfiguration, int> MaxResultLength { get; private set; }
 
 		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; private set; }
 
@@ -23,7 +22,6 @@ namespace Routine.Service.Configuration
 		public ConventionBasedServiceConfiguration()
 		{
 			RootPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, "RootPath", true);
-			MaxResultLength = new SingleConfiguration<ConventionBasedServiceConfiguration, int>(this, "MaxResultLength", true);
 
 			AllowGet = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool>(this, "AllowGet", true);
 
@@ -51,7 +49,6 @@ namespace Routine.Service.Configuration
 		#region IServiceConfiguration implementation
 
 		string IServiceConfiguration.GetRootPath() { return RootPath.Get(); }
-		int IServiceConfiguration.GetMaxResultLength() { return MaxResultLength.Get(); }
 		bool IServiceConfiguration.GetAllowGet(ObjectModel objectModel, OperationModel operationModel) { return AllowGet.Get(new OperationWithObjectModel(objectModel, operationModel)); }
 		List<string> IServiceConfiguration.GetRequestHeaders() { return RequestHeaders.Get(); }
 		List<IHeaderProcessor> IServiceConfiguration.GetRequestHeaderProcessors() { return RequestHeaderProcessors.Get(); }
