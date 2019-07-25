@@ -5,8 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Web.Mvc;
-using System.Web.Routing;
 using Castle.Core.Internal;
 using Castle.Core.Logging;
 using Castle.Facilities.FactorySupport;
@@ -53,11 +51,6 @@ namespace Routine.Test.Domain.Configuration
 
 			public void ServiceApplication()
 			{
-				AreaRegistration.RegisterAllAreas();
-
-				GlobalFilters.Filters.Add(new HandleErrorAttribute());
-				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
 				container.Register(
 					Component.For<IServiceContext>()
 						.Instance(BuildRoutine.Context()
@@ -67,12 +60,6 @@ namespace Routine.Test.Domain.Configuration
 						.LifestyleSingleton(),
 
 				Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
-				);
-
-				RouteTable.Routes.MapRoute(
-					"Default",
-					"",
-					new { controller = ServiceController.ControllerName, action = ServiceController.IndexAction, id = "" }
 				);
 
 				Logging();
