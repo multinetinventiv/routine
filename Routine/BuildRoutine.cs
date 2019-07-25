@@ -13,7 +13,6 @@ using Routine.Interception;
 using Routine.Interception.Configuration;
 using Routine.Service;
 using Routine.Service.Configuration;
-using Routine.Ui.Configuration;
 
 namespace Routine
 {
@@ -52,16 +51,6 @@ namespace Routine
 		internal static PatternBuilder<ConventionBasedApiConfiguration> ApiGenerationPattern()
 		{
 			return new PatternBuilder<ConventionBasedApiConfiguration>();
-		}
-
-		public static MvcConfigurationBuilder MvcConfig()
-		{
-			return new MvcConfigurationBuilder();
-		}
-
-		internal static PatternBuilder<ConventionBasedMvcConfiguration> MvcPattern()
-		{
-			return new PatternBuilder<ConventionBasedMvcConfiguration>();
 		}
 
 		public static ServiceConfigurationBuilder ServiceConfig()
@@ -235,7 +224,7 @@ namespace Routine
 			this ConventionBuilder<TFrom, List<TResultItem>> source,
 			Func<TFrom, TResultItem> converterDelegate)
 		{
-			return source.By(o => new List<TResultItem>{converterDelegate(o)});
+			return source.By(o => new List<TResultItem> { converterDelegate(o) });
 		}
 
 		public static ConventionBase<TFrom, ILocator> Locator<TFrom>(
@@ -420,11 +409,6 @@ namespace Routine
 			return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
 		}
 
-		public static ConventionBasedMvcConfiguration Use(this ConventionBasedMvcConfiguration source, Func<PatternBuilder<ConventionBasedMvcConfiguration>, ConventionBasedMvcConfiguration> pattern)
-		{
-			return source.Merge(pattern(BuildRoutine.MvcPattern()));
-		}
-
 		public static ConventionBasedServiceClientConfiguration Use(this ConventionBasedServiceClientConfiguration source, Func<PatternBuilder<ConventionBasedServiceClientConfiguration>, ConventionBasedServiceClientConfiguration> pattern)
 		{
 			return source.Merge(pattern(BuildRoutine.ServiceClientPattern()));
@@ -442,7 +426,7 @@ namespace Routine
 		public static TConfiguration Add<TConfiguration>(this ListConfiguration<TConfiguration, VirtualType> source, params Func<VirtualTypeBuilder, VirtualType>[] typeBuilders)
 		{
 			return source.Add(
-				typeBuilders.Select(builder => 
+				typeBuilders.Select(builder =>
 					builder(BuildRoutine.VirtualType())
 				)
 			);
@@ -490,7 +474,7 @@ namespace Routine
 		{
 			return source.AddTypes(
 				typeof(void),
-				typeof(bool), 
+				typeof(bool),
 				typeof(byte),
 				typeof(short),
 				typeof(ushort),
@@ -498,12 +482,12 @@ namespace Routine
 				typeof(uint),
 				typeof(long),
 				typeof(ulong),
-				typeof(float), 
-				typeof(double), 
-				typeof(decimal), 
-				typeof(TimeSpan), 
-				typeof(DateTime), 
-				typeof(Guid), 
+				typeof(float),
+				typeof(double),
+				typeof(decimal),
+				typeof(TimeSpan),
+				typeof(DateTime),
+				typeof(Guid),
 				typeof(string)
 			);
 		}
