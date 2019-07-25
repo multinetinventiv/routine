@@ -19,12 +19,14 @@ namespace Routine.Service
 		private const string JSON_CONTENT_TYPE = "application/json";
 
 		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
+		private HttpContextBase httpContextBase;
 
 		private string UrlBase => "/Handler";
-		private bool IsGet(HttpContext httpContext) => "GET".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
-		private bool IsPost(HttpContext httpContext) => "POST".Equals(httpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+		private bool IsGet => "GET".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+		private bool IsPost => "POST".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		private Encoding DefaultContentEncoding => Encoding.UTF8;
 
+		public static string HttpHandlerName => typeof(ServiceHttpHandler).Name.BeforeLast("HttpHandler");
 		public static string IndexAction => "Index";
 		public static string HandleAction => "Handle";
 		public static string ApplicationModelAction => "ApplicationModel";
@@ -54,35 +56,42 @@ namespace Routine.Service
 
 		public void ProcessRequest(HttpContext httpContext)
 		{
-			var routeData = httpContext.Request.RequestContext.RouteData;
+			ProcessRequestBase(new HttpContextWrapper(httpContext));
+		}
+		#endregion
 
+		private void ProcessRequestBase(HttpContextBase ctx)
+		{
+			httpContextBase = ctx;
+
+			var routeData = httpContextBase.Request.RequestContext.RouteData;
 			var action = $"{routeData.Values["action"]}";
 
 			if (string.Equals(action, nameof(ApplicationModel), StringComparison.InvariantCultureIgnoreCase))
 			{
-				ApplicationModel(httpContext);
+				ApplicationModel();
 			}
 
 			else if (string.Equals(action, nameof(Index), StringComparison.InvariantCultureIgnoreCase))
 			{
-				Index(httpContext);
+				Index();
 			}
 
 			else if (string.Equals(action, nameof(File), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var path = $"{httpContext.Request.QueryString["path"]}";
-				File(httpContext, path);
+				var path = $"{httpContextBase.Request.QueryString["path"]}";
+				File(path);
 			}
 
 			else if (string.Equals(action, nameof(Configuration), StringComparison.InvariantCultureIgnoreCase))
 			{
-				Configuration(httpContext);
+				Configuration();
 			}
 
 			else if (string.Equals(action, nameof(Fonts), StringComparison.InvariantCultureIgnoreCase))
 			{
 				var fileName = $"{routeData.Values["fileName"]}";
-				Fonts(httpContext, fileName);
+				Fonts(fileName);
 			}
 
 			else if (string.Equals(action, nameof(Handle), StringComparison.InvariantCultureIgnoreCase))
@@ -92,26 +101,25 @@ namespace Routine.Service
 				var viewModelIdOrOperation = $"{routeData.Values["viewModelIdOrOperation"]}";
 				var operation = $"{routeData.Values["operation"]}";
 
-				Handle(httpContext, modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
+				Handle(modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
 			}
 		}
-		#endregion
 
 		#region Actions
 
-		private void ApplicationModel(HttpContext httpContext)
+		private void ApplicationModel()
 		{
 			IndexApplicationModelIfNecessary();
 
-			Response(httpContext, jsonSerializer.Serialize(serviceContext.ObjectService.ApplicationModel));
+			Response(jsonSerializer.Serialize(serviceContext.ObjectService.ApplicationModel));
 		}
 
-		private void Index(HttpContext httpContext)
+		private void Index()
 		{
-			File(httpContext, "app/application/index.html");
+			File("app/application/index.html");
 		}
 
-		private void File(HttpContext httpContext, string path)
+		private void File(string path)
 		{
 			var stream = GetStream(path);
 
@@ -124,13 +132,13 @@ namespace Routine.Service
 			fileContent = fileContent.Replace("$urlbase$", UrlBase);
 
 			var file = Encoding.UTF8.GetBytes(fileContent);
-			httpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-			httpContext.Response.BinaryWrite(file);
+			httpContextBase.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
+			httpContextBase.Response.BinaryWrite(file);
 		}
 
-		private void Configuration(HttpContext httpContext)
+		private void Configuration()
 		{
-			Response(httpContext, jsonSerializer.Serialize(new
+			Response(jsonSerializer.Serialize(new
 			{
 				url = UrlBase,
 				requestHeaders = serviceContext.ServiceConfiguration.GetRequestHeaders(),
@@ -138,11 +146,11 @@ namespace Routine.Service
 			}));
 		}
 
-		private void Fonts(HttpContext context, string fileName)
+		private void Fonts(string fileName)
 		{
 			var stream = GetStream("assets/fonts/" + fileName);
 
-			var outputStream = context.Response.OutputStream;
+			var outputStream = httpContextBase.Response.OutputStream;
 			using (stream)
 			{
 				var buffer = new byte[BUFFER_SIZE];
@@ -158,12 +166,12 @@ namespace Routine.Service
 					outputStream.Write(buffer, 0, bytesRead);
 				}
 			}
-			context.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
-			context.Response.Flush();
-			context.Response.End();
+			httpContextBase.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
+			httpContextBase.Response.Flush();
+			httpContextBase.Response.End();
 		}
 
-		private void Handle(HttpContext httpContext, string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
+		public HttpContextBase Handle(string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
 		{
 			try
 			{
@@ -181,13 +189,13 @@ namespace Routine.Service
 				}
 				catch (AmbiguousModelException ex)
 				{
-					AmbiguousModel(httpContext, modelId, ex.AvailableModels);
-					return;
+					AmbiguousModel(modelId, ex.AvailableModels);
+					return httpContextBase;
 				}
 				catch (ModelNotFoundException ex)
 				{
-					TargetModelNotFound(httpContext, ex.ModelId);
-					return;
+					TargetModelNotFound(ex.ModelId);
+					return httpContextBase;
 				}
 
 				var resolution = Resolve(appModel, model, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
@@ -196,13 +204,13 @@ namespace Routine.Service
 				{
 					var allowGet = serviceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
 
-					if (!IsPost(httpContext) && !IsGet(httpContext)) { MethodNotAllowed(httpContext, allowGet); return; }
-					if (IsGet(httpContext) && !allowGet) { MethodNotAllowed(httpContext, false); return; }
+					if (!IsPost && !IsGet) { MethodNotAllowed(allowGet); return httpContextBase; }
+					if (IsGet && !allowGet) { MethodNotAllowed(false); return httpContextBase; }
 
 					Dictionary<string, ParameterValueData> parameterValues;
 					try
 					{
-						parameterValues = GetParameterDictionary(httpContext)
+						parameterValues = GetParameterDictionary()
 							.Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
 							.ToDictionary(kvp => kvp.Key, kvp =>
 								new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
@@ -211,72 +219,74 @@ namespace Routine.Service
 					}
 					catch (TypeNotFoundException ex)
 					{
-						ModelNotFound(httpContext, ex);
-						return;
+						ModelNotFound(ex);
+						return httpContextBase;
 					}
 					catch (Exception ex)
 					{
-						BadRequest(httpContext, ex);
-						return;
+						BadRequest(ex);
+						return httpContextBase;
 					}
 
-					ProcessRequestHeaders(httpContext);
+					ProcessRequestHeaders();
 
 					var variableData = serviceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
 					var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
-					Response(httpContext, jsonSerializer.Serialize(compressor.Compress(variableData)));
+					Response(jsonSerializer.Serialize(compressor.Compress(variableData)));
 				}
 				else
 				{
-					if (!IsPost(httpContext) && !IsGet(httpContext)) { MethodNotAllowed(httpContext, true); }
+					if (!IsPost && !IsGet) { MethodNotAllowed(true); }
 
-					ProcessRequestHeaders(httpContext);
+					ProcessRequestHeaders();
 
 					var objectData = serviceContext.ObjectService.Get(resolution.Reference);
 					var compressor = new DataCompressor(appModel, resolution.Reference.ViewModelId);
 
-					Response(httpContext, jsonSerializer.Serialize(compressor.Compress(objectData)));
+					Response(jsonSerializer.Serialize(compressor.Compress(objectData)));
 				}
 
-				AddResponseHeaders(httpContext);
+				AddResponseHeaders();
+				return httpContextBase;
 			}
 			catch (Exception ex)
 			{
 				var exceptionResult = jsonSerializer.Serialize(serviceContext.ServiceConfiguration.GetExceptionResult(ex));
-				httpContext.Server.ClearError();
-				Response(httpContext, exceptionResult);
+				httpContextBase.Server.ClearError();
+				Response(exceptionResult);
+				return httpContextBase;
 			}
 		}
 
 		#endregion
-		private void Response(HttpContext httpContext, string result) { Response(httpContext, result, HttpStatusCode.OK); }
+		private void Response(string result) { Response(result, HttpStatusCode.OK); }
 
-		private void Response(HttpContext httpContext, string result, HttpStatusCode statusCode)
+		private void Response(string result, HttpStatusCode statusCode)
 		{
-			httpContext.Response.StatusCode = (int)statusCode;
-			httpContext.Response.ContentType = JSON_CONTENT_TYPE;
-			httpContext.Response.ContentEncoding = DefaultContentEncoding;
-			httpContext.Response.Write(result);
+			httpContextBase.Response.StatusCode = (int)statusCode;
+			httpContextBase.Response.ContentType = JSON_CONTENT_TYPE;
+			httpContextBase.Response.ContentEncoding = DefaultContentEncoding;
+			httpContextBase.Response.Write(result);
 		}
 
-		private IDictionary<string, object> GetParameterDictionary(HttpContext httpContext)
+		private IDictionary<string, object> GetParameterDictionary()
 		{
-			if (IsGet(httpContext))
+			if (IsGet)
 			{
-				return httpContext.Request.QueryString.AllKeys.ToDictionary(s => s, s => httpContext.Request.QueryString[s] as object);
+				return httpContextBase.Request.QueryString.AllKeys.ToDictionary(s => s, s => httpContextBase.Request.QueryString[s] as object);
 			}
 
-			var req = httpContext.Request.InputStream;
+			var req = httpContextBase.Request.InputStream;
 			req.Seek(0, SeekOrigin.Begin);
 			var requestBody = new StreamReader(req).ReadToEnd();
 
 			return (IDictionary<string, object>)jsonSerializer.DeserializeObject(requestBody) ?? new Dictionary<string, object>();
 		}
 
-		private void ProcessRequestHeaders(HttpContext context)
+		private void ProcessRequestHeaders()
 		{
-			var requestHeaders = context.Request.Headers.AllKeys.ToDictionary(key => key, key => HttpUtility.HtmlDecode(context.Request.Headers[key]));
+			var requestHeaders = httpContextBase.Request.Headers.AllKeys.ToDictionary(key => key, key => HttpUtility.HtmlDecode(httpContextBase.Request.Headers[key]));
 
 			foreach (var processor in serviceContext.ServiceConfiguration.GetRequestHeaderProcessors())
 			{
@@ -284,41 +294,41 @@ namespace Routine.Service
 			}
 		}
 
-		private static void BadRequest(HttpContext context, Exception ex)
+		private void BadRequest(Exception ex)
 		{
-			context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-			context.Response.StatusDescription = string.Format("Cannot resolve parameters from request body. The exception is; {0}", ex);
+			httpContextBase.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+			httpContextBase.Response.StatusDescription = string.Format("Cannot resolve parameters from request body. The exception is; {0}", ex);
 		}
 
-		private static void ModelNotFound(HttpContext context, TypeNotFoundException ex)
+		private void ModelNotFound(TypeNotFoundException ex)
 		{
-			context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-			context.Response.StatusDescription = string.Format("Specified model ({0}) was not found in service model. The exception is; {1}", ex.TypeId, ex);
+			httpContextBase.Response.StatusCode = (int)HttpStatusCode.NotFound;
+			httpContextBase.Response.StatusDescription = string.Format("Specified model ({0}) was not found in service model. The exception is; {1}", ex.TypeId, ex);
 		}
 
-		private static void MethodNotAllowed(HttpContext context, bool allowGet)
+		private void MethodNotAllowed(bool allowGet)
 		{
-			context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+			httpContextBase.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 			if (allowGet)
 			{
-				context.Response.StatusDescription = "Only GET, POST and OPTIONS are supported";
+				httpContextBase.Response.StatusDescription = "Only GET, POST and OPTIONS are supported";
 			}
-			context.Response.StatusDescription = "Only POST and OPTIONS are supported";
+			httpContextBase.Response.StatusDescription = "Only POST and OPTIONS are supported";
 		}
 
-		private static void AmbiguousModel(HttpContext context, string modelId, List<ObjectModel> availableModels)
+		private void AmbiguousModel(string modelId, List<ObjectModel> availableModels)
 		{
-			context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-			context.Response.StatusDescription = string.Format(
+			httpContextBase.Response.StatusCode = (int)HttpStatusCode.NotFound;
+			httpContextBase.Response.StatusDescription = string.Format(
 				"More than one model found with given modelId ({0}). " +
 				"Try sending full names. Available models are {1}.",
 				modelId, string.Join(",", availableModels.Select(om => om.Id)));
 		}
 
-		private static void TargetModelNotFound(HttpContext context, string modelId)
+		private void TargetModelNotFound(string modelId)
 		{
-			context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-			context.Response.StatusDescription = string.Format(
+			httpContextBase.Response.StatusCode = (int)HttpStatusCode.NotFound;
+			httpContextBase.Response.StatusDescription = string.Format(
 				"Could not resolve modelId or find an existing model from this modelId ({0}). " +
 				"Make sure given modelId has a corresponding model and url is in one of the following format; " +
 				"- serviceurlbase/modelId " +
@@ -393,16 +403,21 @@ namespace Routine.Service
 			}
 		}
 
-		private void AddResponseHeaders(HttpContext context)
+		private void AddResponseHeaders()
 		{
 			foreach (var responseHeader in serviceContext.ServiceConfiguration.GetResponseHeaders())
 			{
 				var responseHeaderValue = serviceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
 				{
-					context.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
+					httpContextBase.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}
+		}
+
+		internal void SetHttpContextBase(HttpContextBase httpContextBase)
+		{
+			this.httpContextBase = httpContextBase;
 		}
 
 		#region Http status code responses

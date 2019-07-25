@@ -57,9 +57,7 @@ namespace Routine.Test.Domain.Configuration
 							.UsingInterception(ServerInterceptionConfiguration())
 							.UsingJavaScriptSerializer(maxJsonLength: int.MaxValue)
 							.AsServiceApplication(ServiceConfiguration(), CodingStyle()))
-						.LifestyleSingleton(),
-
-				Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
+						.LifestyleSingleton()
 				);
 
 				Logging();

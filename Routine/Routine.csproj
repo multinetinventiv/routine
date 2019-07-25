@@ -43,7 +43,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Extensions" />
@@ -260,7 +259,6 @@
     <Compile Include="Service\IServiceConfiguration.cs" />
     <Compile Include="Service\Configuration\ServiceConfigurationBuilder.cs" />
     <Compile Include="Service\Configuration\ConventionBasedServiceConfiguration.cs" />
-    <Compile Include="Service\ServiceController.cs" />
     <Compile Include="Service\RestClientObjectService.cs" />
     <Compile Include="Service\IServiceClientConfiguration.cs" />
     <Compile Include="Service\Configuration\ConventionBasedServiceClientConfiguration.cs" />
