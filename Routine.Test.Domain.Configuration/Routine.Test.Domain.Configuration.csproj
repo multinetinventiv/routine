@@ -95,14 +95,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Routine.Ui.Themes.Default\Routine.Ui.Themes.Default.csproj">
-      <Project>{65ce8300-e663-4ffd-98d8-1057c0b80ff8}</Project>
-      <Name>Routine.Ui.Themes.Default</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Routine.Ui.Themes.TopMenu\Routine.Ui.Themes.TopMenu.csproj">
-      <Project>{1075c285-a096-418b-b372-9257024108b5}</Project>
-      <Name>Routine.Ui.Themes.TopMenu</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
