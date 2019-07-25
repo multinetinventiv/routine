@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Web.Mvc;
 using System.Web.Routing;
 using Routine.Core;
 using Routine.Engine;
@@ -24,76 +22,9 @@ namespace Routine.Service.Context
 			RegisterRoutes();
 		}
 
-		public void RegisterRoutes()
+		private void RegisterRoutes()
 		{
-            #region Mvc
-
-            RouteTable.Routes.MapRoute(
-                    Constants.SERVICE_ROUTE_NAME_BASE + "index",
-                    Path("Index"),
-                    new
-                    {
-                        controller = ServiceController.ControllerName,
-                        action = ServiceController.IndexAction
-                    }
-                );
-
-            RouteTable.Routes.MapRoute(
-                Constants.SERVICE_ROUTE_NAME_BASE + "configuration",
-                Path("Configuration"),
-                new
-                {
-                    controller = ServiceController.ControllerName,
-                    action = ServiceController.ConfigurationAction
-                }
-            );
-
-            RouteTable.Routes.MapRoute(
-                Constants.SERVICE_ROUTE_NAME_BASE + "file",
-                Path("File"),
-                new
-                {
-                    controller = ServiceController.ControllerName,
-                    action = ServiceController.FileAction
-                }
-            );
-
-            RouteTable.Routes.MapRoute(
-                Constants.SERVICE_ROUTE_NAME_BASE + "fonts",
-                Path("Fonts/{fileName}/f"),
-                new
-                {
-                    controller = ServiceController.ControllerName,
-                    action = ServiceController.FontsAction
-                }
-            );
-
-            RouteTable.Routes.MapRoute(
-                Constants.SERVICE_ROUTE_NAME_BASE + "applicationmodel",
-                Path("ApplicationModel"),
-                new
-                {
-                    controller = ServiceController.ControllerName,
-                    action = ServiceController.ApplicationModelAction
-                }
-            );
-
-            RouteTable.Routes.MapRoute(
-                Constants.SERVICE_ROUTE_NAME_BASE + "handle",
-                Path("{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}"),
-                new
-                {
-                    controller = ServiceController.ControllerName,
-                    action = ServiceController.HandleAction,
-                    idOrViewModelIdOrOperation = UrlParameter.Optional,
-                    viewModelIdOrOperation = UrlParameter.Optional,
-                    operation = UrlParameter.Optional
-                }
-            ); 
-
-            #endregion
-
-            var routeHandler = HandlerFactory(this);
+			var routeHandler = HandlerFactory(this);
             RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-index", new Route(url: "handler/{action}", defaults: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.IndexAction }
@@ -101,7 +32,6 @@ namespace Routine.Service.Context
 			{
 				{ "action",ServiceHttpHandler.IndexAction }
 			}, routeHandler: routeHandler));
-
 
 			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-application-model", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
@@ -133,10 +63,6 @@ namespace Routine.Service.Context
 			{
 				{ "modelId", ".*"},
 			}, routeHandler: routeHandler));
-
-			var jsonValueProviderFactory = ValueProviderFactories.Factories.OfType<JsonValueProviderFactory>().FirstOrDefault();
-
-			if (jsonValueProviderFactory != null) ValueProviderFactories.Factories.Remove(jsonValueProviderFactory);
 		}
 
 		public ReferenceData GetObjectReference(object @object)
