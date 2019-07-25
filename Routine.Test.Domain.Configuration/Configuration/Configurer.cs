@@ -49,8 +49,6 @@ namespace Routine.Test.Domain.Configuration
 #if DEBUG
 				container.Kernel.ComponentRegistered += (k, h) => h.ComponentModel.Services.ForEach(t => Console.WriteLine(t.FullName + ", " + h.ComponentModel.Implementation.FullName));
 #endif
-
-				ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container.Kernel));
 			}
 
 			public void ServiceApplication()

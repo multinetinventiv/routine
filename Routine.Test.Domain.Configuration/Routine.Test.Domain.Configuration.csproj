@@ -83,7 +83,6 @@
     <Compile Include="NHibernate\UserType\ParseableValueUserType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Configurer.cs" />
-    <Compile Include="Configuration\WindsorControllerFactory.cs" />
     <Compile Include="Configuration\OrmConfiguration.cs" />
     <Compile Include="Configuration\WindsorPatterns.cs" />
     <Compile Include="Windsor\WindsorDomainContext.cs" />
