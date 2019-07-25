@@ -10,14 +10,14 @@ namespace Routine.Service.Context
 		public IServiceConfiguration ServiceConfiguration { get; }
 		public IObjectService ObjectService { get; }
 		public ICoreContext CoreContext { get; }
-        public Func<IServiceContext, IRouteHandler> HandlerFactory { get;  }
+		public Func<IServiceContext, IRouteHandler> HandlerFactory { get;  }
 
 		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService, Func<IServiceContext, IRouteHandler> handlerFactory)
 		{
 			ServiceConfiguration = serviceConfiguration;
 			ObjectService = objectService;
-            HandlerFactory = handlerFactory;
-            CoreContext = coreContext;
+			HandlerFactory = handlerFactory;
+			CoreContext = coreContext;
 
 			RegisterRoutes();
 		}
@@ -25,7 +25,7 @@ namespace Routine.Service.Context
 		private void RegisterRoutes()
 		{
 			var routeHandler = HandlerFactory(this);
-            RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-index", new Route(url: "handler/{action}", defaults: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "index", new Route(url: "{action}", defaults: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.IndexAction }
 			}, constraints: new RouteValueDictionary()
@@ -33,27 +33,27 @@ namespace Routine.Service.Context
 				{ "action",ServiceHttpHandler.IndexAction }
 			}, routeHandler: routeHandler));
 
-			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-application-model", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "applicationmodel", new Route(url: "service/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.ApplicationModelAction }
 			}, routeHandler: routeHandler));
 
-			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-configuration", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "configuration", new Route(url: "service/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.ConfigurationAction }
 			}, routeHandler: routeHandler));
 
-			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-file", new Route(url: "handler/{action}", defaults: null, constraints: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "file", new Route(url: "service/{action}", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.FileAction }
 			}, routeHandler: routeHandler));
 
-			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-fonts", new Route(url: "handler/{action}/{fileName}/f", defaults: null, constraints: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "fonts", new Route(url: "service/{action}/{fileName}/f", defaults: null, constraints: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.FontsAction }
 			}, routeHandler: routeHandler));
 
-			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handler-handle", new Route(url: "handler/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}", defaults: new RouteValueDictionary()
+			RouteTable.Routes.Add(Constants.SERVICE_ROUTE_NAME_BASE + "handle", new Route(url: "service/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}", defaults: new RouteValueDictionary()
 			{
 				{ "action", ServiceHttpHandler.HandleAction },
 				{ "idOrViewModelIdOrOperation", string.Empty },

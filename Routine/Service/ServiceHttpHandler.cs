@@ -21,7 +21,7 @@ namespace Routine.Service
 		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
 		private HttpContextBase httpContextBase;
 
-		private string UrlBase => "/Handler";
+		private string UrlBase => "/Service/REMOVE".BeforeLast("/REMOVE");
 		private bool IsGet => "GET".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		private bool IsPost => "POST".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		private Encoding DefaultContentEncoding => Encoding.UTF8;
