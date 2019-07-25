@@ -21,7 +21,7 @@ namespace Routine.Service
 		private readonly Dictionary<string, List<ObjectModel>> modelIndex;
 		private HttpContextBase httpContextBase;
 
-		private string UrlBase => "/Service/REMOVE".BeforeLast("/REMOVE");
+		private string UrlBase => Path(string.Empty);
 		private bool IsGet => "GET".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		private bool IsPost => "POST".Equals(httpContextBase.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		private Encoding DefaultContentEncoding => Encoding.UTF8;
@@ -418,6 +418,28 @@ namespace Routine.Service
 		internal void SetHttpContextBase(HttpContextBase httpContextBase)
 		{
 			this.httpContextBase = httpContextBase;
+		}
+
+		private string Path(string path)
+		{
+			var rootPath = serviceContext.ServiceConfiguration.GetRootPath() ?? string.Empty;
+
+			if (rootPath.StartsWith("/"))
+			{
+				rootPath = rootPath.After("/");
+			}
+
+			if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
+			{
+				rootPath += "/";
+			}
+
+			if (path.StartsWith("/"))
+			{
+				path = path.After("/");
+			}
+
+			return rootPath + path;
 		}
 
 		#region Http status code responses
