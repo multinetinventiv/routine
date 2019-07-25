@@ -5,14 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Castle.Core.Internal;
 using Castle.Core.Logging;
 using Castle.Facilities.FactorySupport;
 using Castle.Facilities.Logging;
-using Castle.Facilities.TypedFactory;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -31,438 +29,307 @@ using Routine.Service;
 using Routine.Test.Common;
 using Routine.Test.Domain.NHibernate;
 using Routine.Test.Domain.Windsor;
-using Routine.Ui;
-using Routine.Ui.Configuration;
-using InterceptionTarget = Routine.Ui.InterceptionTarget;
 
 namespace Routine.Test.Domain.Configuration
 {
-    public static class Configurer
-    {
-        public static void ConfigureMvcApplication(Mvc.ThemeConfiguration themeConfig) { new Configuration().MvcApplication(themeConfig); }
-        public static void ConfigureServiceApplication() { new Configuration().ServiceApplication(); }
+	public static class Configurer
+	{
+		public static void ConfigureServiceApplication() { new Configuration().ServiceApplication(); }
+		private class Configuration
+		{
+			private readonly IWindsorContainer container;
 
-        public static class Mvc
-        {
-            public static ThemeConfiguration DefaultTheme()
-            {
-                return new ThemeConfiguration(() => BuildRoutine.MvcConfig().DefaultTheme(ovm => ovm.MarkedAs("Search")));
-            }
-
-            public static ThemeConfiguration TopMenuTheme()
-            {
-                return new ThemeConfiguration(() => BuildRoutine.MvcConfig().TopMenuTheme(ovm => ovm.MarkedAs("Search")));
-            }
-
-            public class ThemeConfiguration
-            {
-                internal ThemeConfiguration(Func<ConventionBasedMvcConfiguration> themeDelegate)
-                {
-                    BuildMvcConfig = themeDelegate;
-                }
-
-                internal Func<ConventionBasedMvcConfiguration> BuildMvcConfig { get; private set; }
-            }
-        }
-
-        private class Configuration
-        {
-            private readonly IWindsorContainer container;
-
-            public Configuration()
-            {
-                container = new WindsorContainer();
-                container
-                    .AddFacility<FactorySupportFacility>()
-                    .AddFacility<LoggingFacility>(f => f.LogUsing(LoggerImplementation.Trace).WithLevel(LoggerLevel.Debug));
+			public Configuration()
+			{
+				container = new WindsorContainer();
+				container
+					.AddFacility<FactorySupportFacility>()
+					.AddFacility<LoggingFacility>(f => f.LogUsing(LoggerImplementation.Trace).WithLevel(LoggerLevel.Debug));
 
 #if DEBUG
-                container.Kernel.ComponentRegistered += (k, h) => h.ComponentModel.Services.ForEach(t => Console.WriteLine(t.FullName + ", " + h.ComponentModel.Implementation.FullName));
+				container.Kernel.ComponentRegistered += (k, h) => h.ComponentModel.Services.ForEach(t => Console.WriteLine(t.FullName + ", " + h.ComponentModel.Implementation.FullName));
 #endif
 
-                ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container.Kernel));
-            }
+				ControllerBuilder.Current.SetControllerFactory(new WindsorControllerFactory(container.Kernel));
+			}
 
-            public void MvcApplication(Mvc.ThemeConfiguration themeConfig)
-            {
-                AreaRegistration.RegisterAllAreas();
+			public void ServiceApplication()
+			{
+				AreaRegistration.RegisterAllAreas();
 
-                GlobalFilters.Filters.Add(new HandleErrorAttribute());
-                RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+				GlobalFilters.Filters.Add(new HandleErrorAttribute());
+				RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-                container.Register(
-                    Component.For<IMvcContext>()
-                        .Instance(BuildRoutine.Context()
-                            .AsMvcApplication(MvcConfiguration(themeConfig), CodingStyle()))
-                        .LifestyleSingleton(),
+				container.Register(
+					Component.For<IServiceContext>()
+						.Instance(BuildRoutine.Context()
+							.UsingInterception(ServerInterceptionConfiguration())
+							.UsingJavaScriptSerializer(maxJsonLength: int.MaxValue)
+							.AsServiceApplication(ServiceConfiguration(), CodingStyle()))
+						.LifestyleSingleton(),
 
-                    Component.For<RoutineController>().ImplementedBy<RoutineController>().LifestylePerWebRequest()
-                );
+				Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
+				);
 
-                container.Register(
-                    Classes
-                        .FromAssemblyInDirectory(UiDirectory)
-                        .BasedOn<Controller>()
-                        .WithServiceSelf()
-                        .LifestylePerWebRequest()
-                    );
+				RouteTable.Routes.MapRoute(
+					"Default",
+					"",
+					new { controller = ServiceController.ControllerName, action = ServiceController.IndexAction, id = "" }
+				);
 
-                RouteTable.Routes.MapRoute(
-                    "Index",
-                    "",
-                    new { controller = RoutineController.ControllerName, action = RoutineController.DefaultAction }
-                );
+				Logging();
+				Modules();
+				DataAccess();
+			}
 
-                Logging();
-                Modules();
-                DataAccess();
-            }
+			#region log4net
+			private void Logging()
+			{
+				var root = ((Hierarchy)LogManager.GetRepository()).Root;
 
-            public void ServiceApplication()
-            {
-                AreaRegistration.RegisterAllAreas();
+				root.AddAppender(DebugAppender());
 
-                GlobalFilters.Filters.Add(new HandleErrorAttribute());
-                RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+				SetLevel("NHibernate", Level.Warn);
+				SetLevel("NHibernate.SQL", Level.Debug);
+				SetLevel("NHibernate.Caches", Level.Debug);
 
-                container.Register(
-                    Component.For<IServiceContext>()
-                        .Instance(BuildRoutine.Context()
-                            .UsingInterception(ServerInterceptionConfiguration())
-                            .UsingJavaScriptSerializer(maxJsonLength: int.MaxValue)
-                            .AsServiceApplication(ServiceConfiguration(), CodingStyle()))
-                        .LifestyleSingleton(),
+				root.Repository.Configured = true;
+			}
 
-                Component.For<ServiceController>().ImplementedBy<ServiceController>().LifestylePerWebRequest()
-                );
+			private void SetLevel(string logger, Level level)
+			{
+				((Logger)LogManager.GetLogger(logger).Logger).Level = level;
+			}
 
-                RouteTable.Routes.MapRoute(
-                    "Default",
-                    "",
-                    new { controller = ServiceController.ControllerName, action = ServiceController.IndexAction, id = "" }
-                );
+			#region file appender sample
+			//private FileAppender FileAppender(string fileName, Level threshold)
+			//{
+			//	var appender = new RollingFileAppender
+			//	{
+			//		Name = "RollingFile",
+			//		AppendToFile = true,
+			//		File = @"logs\" + fileName,
+			//		Layout = new PatternLayout("%date %-5level %logger - %message%newline"),
+			//		Threshold = threshold,
+			//		RollingStyle = RollingFileAppender.RollingMode.Date,
+			//		DatePattern = ".yyyyMMdd",
+			//		StaticLogFileName = true,
+			//		MaximumFileSize = "2000KB"
+			//	};
 
-                Logging();
-                Modules();
-                DataAccess();
-            }
+			//	appender.ActivateOptions();
+			//	return appender;
+			//} 
+			#endregion
 
-            #region log4net
-            private void Logging()
-            {
-                var root = ((Hierarchy)LogManager.GetRepository()).Root;
+			private DebugAppender DebugAppender()
+			{
+				var appender = new DebugAppender
+				{
+					Name = "Debug",
+					Layout = new PatternLayout("%-5level - %message%newline"),
+					Threshold = Level.Debug
+				};
 
-                root.AddAppender(DebugAppender());
+				appender.ActivateOptions();
+				return appender;
+			}
+			#endregion
 
-                SetLevel("NHibernate", Level.Warn);
-                SetLevel("NHibernate.SQL", Level.Debug);
-                SetLevel("NHibernate.Caches", Level.Debug);
+			private ICodingStyle CodingStyle()
+			{
+				return BuildRoutine.CodingStyle()
+						.FromBasic()
+						.AddCommonSystemTypes()
+						.AddTypes(typeof(Text).Assembly, t => t.IsPublic)
+						.AddTypes(ModuleAssemblies(), t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
+						.Use(p => p.VirtualTypePattern())
+						.AddTypes(v => v.FromBasic()
+							.ToStringMethod.Set(o => o.Id)
+							.Namespace.Set("Routine.Test.Module.Virtual")
+							.Name.Set("VirtualType")
+							.Methods.Add(o => o.Proxy<int>().TargetByParameter("i"))
+							.Methods.Add(o => o.Virtual("VirtualService", (string str, int i) => string.Join(",", Enumerable.Range(0, i).Select(ix => str))))
+						)
+						.StaticInstances.Add(c => c.By(t => new VirtualObject("Instance", t as VirtualType)).When(t => t is VirtualType))
+						.Use(p => p.ParseableValueTypePattern())
+						.Use(p => p.EnumPattern(false))
+						.Use(p => p.SingletonPattern(container, "Instance"))
+						.Use(p => p.AutoMarkWithAttributesPattern(o => o.GetType().Namespace != null && o.GetType().Namespace.StartsWith("Routine")))
 
-                root.Repository.Configured = true;
-            }
+						.TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
+						.TypeMarks.Add("Search", t => t.CanBe<IQuery>())
+						.OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
+						.OperationMarks.Add("Virtual", o => o is VirtualMethod || o is ProxyMethod)
+						.ParameterMarks.Add("Interface", p => p.ParameterType.IsInterface)
 
-            private void SetLevel(string logger, Level level)
-            {
-                ((Logger)LogManager.GetLogger(logger).Logger).Level = level;
-            }
+						.Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".").Prepend("Test.")).When(t => t.Namespace.StartsWith("Routine")))
 
-            #region file appender sample
-            //private FileAppender FileAppender(string fileName, Level threshold)
-            //{
-            //	var appender = new RollingFileAppender
-            //	{
-            //		Name = "RollingFile",
-            //		AppendToFile = true,
-            //		File = @"logs\" + fileName,
-            //		Layout = new PatternLayout("%date %-5level %logger - %message%newline"),
-            //		Threshold = threshold,
-            //		RollingStyle = RollingFileAppender.RollingMode.Date,
-            //		DatePattern = ".yyyyMMdd",
-            //		StaticLogFileName = true,
-            //		MaximumFileSize = "2000KB"
-            //	};
+						.Initializers.Add(c => c.PublicConstructors().When(t => t.IsValueType && t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
+						.Datas.Add(c => c.PublicProperties(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
+										   .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
 
-            //	appender.ActivateOptions();
-            //	return appender;
-            //} 
-            #endregion
+						.Operations.Add(c => c.PublicMethods(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
+											  .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
+						//.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
+						//.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
 
-            private DebugAppender DebugAppender()
-            {
-                var appender = new DebugAppender
-                {
-                    Name = "Debug",
-                    Layout = new PatternLayout("%-5level - %message%newline"),
-                    Threshold = Level.Debug
-                };
+						.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
+						.ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Name")))
+						.ValueExtractor.Set(c => c.Value(e => e.By(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial()))
+												  .When(t => t is TypeInfo && container.TypeIsSingleton(t)))
+						.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
 
-                appender.ActivateOptions();
-                return appender;
-            }
-            #endregion
+						.Use(p => p.FromEmpty()
+							.IdExtractor.Set(c => c.Id(e => e.By(o => container.Resolve<ISession>().GetIdentifier(o).ToString()))
+												   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
+							.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
+											   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
+							)
+						;
+			}
 
-            private ICodingStyle CodingStyle()
-            {
-                return BuildRoutine.CodingStyle()
-                        .FromBasic()
-                        .AddCommonSystemTypes()
-                        .AddTypes(typeof(Text).Assembly, t => t.IsPublic)
-                        .AddTypes(ModuleAssemblies(), t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module") && t.IsPublic)
-                        .Use(p => p.VirtualTypePattern())
-                        .AddTypes(v => v.FromBasic()
-                            .ToStringMethod.Set(o => o.Id)
-                            .Namespace.Set("Routine.Test.Module.Virtual")
-                            .Name.Set("VirtualType")
-                            .Methods.Add(o => o.Proxy<int>().TargetByParameter("i"))
-                            .Methods.Add(o => o.Virtual("VirtualService", (string str, int i) => string.Join(",", Enumerable.Range(0, i).Select(ix => str))))
-                        )
-                        .StaticInstances.Add(c => c.By(t => new VirtualObject("Instance", t as VirtualType)).When(t => t is VirtualType))
-                        .Use(p => p.ParseableValueTypePattern())
-                        .Use(p => p.EnumPattern(false))
-                        .Use(p => p.SingletonPattern(container, "Instance"))
-                        .Use(p => p.AutoMarkWithAttributesPattern(o => o.GetType().Namespace != null && o.GetType().Namespace.StartsWith("Routine")))
+			private IServiceConfiguration ServiceConfiguration()
+			{
+				return BuildRoutine.ServiceConfig()
+						.FromBasic()
+						.RootPath.Set("Service")
+						.AllowGet.Set(true, m => m.ObjectModel.Marks.Contains("Search"))
+						.RequestHeaders.Add("language_code")
+						.RequestHeaderProcessors.Add(c => c
+							.For("language_code")
+							.Do(languageCode =>
+							{
+								Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(languageCode ?? "en-US");
+							}))
+						.ResponseHeaders.Add("code", "message", "always-empty")
+						.ResponseHeaderValue.Set("0", "code")
+						.ResponseHeaderValue.Set("success", "message")
+						.Use(p => p.ExceptionsWrappedAsUnhandledPattern())
+						;
+			}
 
-                        .TypeMarks.Add("Module", t => t is TypeInfo && container.TypeIsSingleton(t) && t.FullName.EndsWith("Module"))
-                        .TypeMarks.Add("Search", t => t.CanBe<IQuery>())
-                        .OperationMarks.Add("ParamOptions", o => o.HasNoParameters() && o.ReturnsCollection() && o.Name.Matches("GetAvailable.*sFor.*"))
-                        .OperationMarks.Add("Virtual", o => o is VirtualMethod || o is ProxyMethod)
-                        .ParameterMarks.Add("Interface", p => p.ParameterType.IsInterface)
+			private IInterceptionConfiguration ServerInterceptionConfiguration()
+			{
+				return BuildRoutine.InterceptionConfig()
+						.FromBasic()
+						.Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
+						.Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
+																   .Success(t => t.Commit())
+																   .Fail(t => t.Rollback())))
 
-                        .Module.Set(c => c.By(t => t.Namespace.After("Module.").BeforeLast(".").Prepend("Test.")).When(t => t.Namespace.StartsWith("Routine")))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationName)))
+																		  .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
+																		  .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
+																		  .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationName)))))
+						.ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); }))
+													   .When(iom => iom.OperationModel.Marks.Contains("Hidden")))
+						;
+			}
 
-                        .Initializers.Add(c => c.PublicConstructors().When(t => t.IsValueType && t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
-                        .Datas.Add(c => c.PublicProperties(m => !m.IsInherited(true, true) && !m.Returns<Guid>() && !m.Returns<TypedGuid>())
-                                           .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
+			private void Modules()
+			{
+				container.Register(
+					Component.For<IDomainContext>().ImplementedBy<WindsorDomainContext>().LifestyleSingleton(),
+					Classes
+						.FromAssemblyInDirectory(ModuleDirectory)
+						.AllowMultipleMatches()
+						.Where(TypeShouldBeSingleton)
+						.WithServiceSelf()
+						.WithServiceAllInterfaces()
+						.LifestyleSingleton(),
+					Classes
+						.FromAssemblyInDirectory(ModuleDirectory)
+						.AllowMultipleMatches()
+						.Where(TypeShouldBeTransient)
+						.WithServiceSelf()
+						.WithServiceAllInterfaces()
+						.LifestyleTransient()
+					);
+			}
 
-                        .Operations.Add(c => c.PublicMethods(o => !o.IsInherited(true, true) && o.Parameters.All(p => !p.ParameterType.Equals(type.of<Guid>()) && !p.ParameterType.Equals(type.of<TypedGuid>())))
-                                              .When(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test.Module")))
-                        //.Operations.Add(c => c.Build(o => o.Proxy<string>("Replace").TargetByParameter("str")).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
-                        //.Operations.Add(c => c.Build(o => o.Virtual("Concat", (string str1, string str2) => str1 + str2)).When(t => t.IsOptimized && !t.IsValueType && !t.IsInterface))
+			private AssemblyFilter BinDirectory { get { return new AssemblyFilter("bin"); } }
 
-                        .ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
-                        .ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Name")))
-                        .ValueExtractor.Set(c => c.Value(e => e.By(o => o.GetType().Name.BeforeLast("Module").SplitCamelCase().ToUpperInitial()))
-                                                  .When(t => t is TypeInfo && container.TypeIsSingleton(t)))
-                        .ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
+			private AssemblyFilter ModuleDirectory
+			{
+				get
+				{
+					return BinDirectory.FilterByName(n =>
+						n.Name.StartsWith("Routine.Test.Module") &&
+						!n.Name.EndsWith("Ui"));
+				}
+			}
+			private AssemblyFilter UiDirectory
+			{
+				get
+				{
+					return BinDirectory.FilterByName(n =>
+						n.Name.StartsWith("Routine.Test.Module") &&
+						n.Name.EndsWith("Ui"));
+				}
+			}
 
-                        .Use(p => p.FromEmpty()
-                            .IdExtractor.Set(c => c.Id(e => e.By(o => container.Resolve<ISession>().GetIdentifier(o).ToString()))
-                                                   .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
-                            .Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => container.Resolve<ISession>().Get(((TypeInfo)t).GetActualType(), Guid.Parse(id))).AcceptNullResult(false))
-                                               .When(t => t is TypeInfo && Orm.IsPersistent((TypeInfo)t)))
-                            )
-                        ;
-            }
+			private bool TypeShouldBeSingleton(Type type)
+			{
+				return (typeof(IQuery).IsAssignableFrom(type) || type.Name.EndsWith("Module")) &&
+					type.IsClass && !type.IsAbstract;
+			}
 
-            private IServiceConfiguration ServiceConfiguration()
-            {
-                return BuildRoutine.ServiceConfig()
-                        .FromBasic()
-                        .RootPath.Set("Service")
-                        .AllowGet.Set(true, m => m.ObjectModel.Marks.Contains("Search"))
-                        .RequestHeaders.Add("language_code")
-                        .RequestHeaderProcessors.Add(c => c
-                            .For("language_code")
-                            .Do(languageCode =>
-                            {
-                                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(languageCode ?? "en-US");
-                            }))
-                        .ResponseHeaders.Add("code", "message", "always-empty")
-                        .ResponseHeaderValue.Set("0", "code")
-                        .ResponseHeaderValue.Set("success", "message")
-                        .Use(p => p.ExceptionsWrappedAsUnhandledPattern())
-                        ;
-            }
+			private bool TypeShouldBeTransient(Type type) { return !TypeShouldBeSingleton(type); }
 
-            private IInterceptionConfiguration ServerInterceptionConfiguration()
-            {
-                return BuildRoutine.InterceptionConfig()
-                        .FromBasic()
-                        .Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
-                        .Interceptors.Add(p => p.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
-                                                                   .Success(t => t.Commit())
-                                                                   .Fail(t => t.Rollback())))
+			private void DataAccess()
+			{
+				container.Register(
+					Component.For<ISessionFactory>().Instance(BuildSessionFactory()).LifestyleSingleton(),
+					Component.For<ISession>().UsingFactoryMethod(OpenSession).LifestyleScoped(),
+					Component.For(typeof(IRepository<>)).ImplementedBy(typeof(NHibernateRepository<>)).LifestyleScoped(),
+					Component.For(typeof(ILookup<>)).ImplementedBy(typeof(NHibernateLookup<>)).LifestyleScoped());
+			}
 
-                        .ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx.OperationName)))
-                                                                          .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-                                                                          .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-                                                                          .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx.OperationName)))))
-                        .ServiceInterceptors.Add(c => c.Interceptor(i => i.Before(() => { throw new Exception("Cannot call hidden service"); }))
-                                                       .When(iom => iom.OperationModel.Marks.Contains("Hidden")))
-                        ;
-            }
+			private OrmConfiguration Orm { get { return OrmConfiguration.Instance; } }
 
-            private IMvcConfiguration MvcConfiguration(Mvc.ThemeConfiguration themeConfig)
-            {
-                return themeConfig.BuildMvcConfig()
-                        .RootPath.Set("auto")
-                        .DefaultObjectId.Set("Instance")
-                        .UiAssemblies.Add(UiAssemblies())
-                        .CachePolicyAction.Set(hcp =>
-                        {
-                            hcp.SetCacheability(HttpCacheability.Private);
-                            hcp.AppendCacheExtension("max-age=" + TimeSpan.FromHours(1).TotalSeconds);
-                        }, vp => !vp.EndsWith(".aspx") && !vp.EndsWith(".ascx"))
-                        .Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.BeginScope()).After(s => s.Dispose())))
-                        .Interceptors.Add(c => c.Interceptor(i => i.Do()
-                                                    .Before(ctx => Debug.WriteLine(string.Format("performing -> {0}", ctx["OperationName"])))
-                                                    .Success(ctx => Debug.WriteLine(string.Format("\treturns -> {0}", ctx.Result)))
-                                                    .Fail(ctx => Debug.WriteLine(string.Format("\tthrows -> {0}", ctx.Exception)))
-                                                    .After(ctx => Debug.WriteLine(string.Format("end of {0}", ctx["OperationName"]))))
-                                                .When(s => s == InterceptionTarget.Perform))
-                        .Interceptors.Add(c => c.Interceptor(i => i.ByDecorating(() => container.Resolve<ISession>().BeginTransaction())
-                                                                   .Success(t => t.Commit())
-                                                                   .Fail(t => t.Rollback())))
+			private ISessionFactory BuildSessionFactory()
+			{
+				return Orm.BuildSessionFactory(container.Resolve<IDomainContext>(), ModuleAssemblies());
+			}
 
-                        .IndexId.Set("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
-                        .MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Search"))
-                        .MenuIds.Add("Instance", om => !om.IsViewType && om.MarkedAs("Module"))
+			private IEnumerable<Assembly> ModuleAssemblies()
+			{
+				var result = ReflectionUtil.GetAssemblies(ModuleDirectory);
 
-
-                        .ParameterDefault.Set(c => c.By(p => p.Target[p.Id.ToUpperInitial()].Get())
-                                                    .When(p => p.Parameter.Owner.IsOperation() && p.Parameter.Owner.Operation.Name.Matches("Update.*") && p.Parameter.Type.Datas.Any(m => m.Name == p.Id.ToUpperInitial())))
-
-                        .ParameterOptions.Set(c => c.By(p => p.Target.Perform("GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Name).List)
-                                                    .When(p => p.Parameter.Owner.IsOperation() &&
-                                                               p.Parameter.Type.Operations.Any(o => o.Name == "GetAvailable" + p.Id.ToUpperInitial() + "sFor" + p.Parameter.Owner.Operation.Name &&
-                                                                                                    o.ResultIsList && !o.Parameters.Any())))
-                        .ParameterOptions.Set(c => c.By(p => p.Parameter.Application.Get("Instance", p.Parameter.ParameterType.Id + "s").Perform("All").List)
-                                                    .When(p => p.Parameter.Application.Types.Any(t => t.Id == p.Parameter.ParameterType.Id + "s" && t.Operations.Any(o => o.Name == "All"))))
-
-                        .ParameterOptions.Set(c => c.By(p => p.Parameter.ParameterType.StaticInstances))
-
-                        .ParameterSearcher.Set(c => c.By(p =>
-                        {
-                            var rtype = p.Application.Types.SingleOrDefault(t => t.Module == p.ParameterType.Module && t.Name == p.ParameterType.Name + "s");
-
-                            if (rtype == null)
-                            {
-                                return null;
-                            }
-
-                            return rtype.Get("Instance");
-                        }))
-
-                        .DisplayName.Set(c => c.By(s => s.SplitCamelCase().ToUpperInitial()))
-                        .OperationOrder.Set(c => c.By(ovm => ovm.ViewModel.HasParameter ? 0 : 1))
-                        .DataOrder.Set(-1, m => m.ViewModel.Data.Name == "UndoneItems" && m.Type == DataLocations.PageTable)
-
-                        .OperationIsRendered.Set(false, o => o.MarkedAs("ParamOptions"))
-                        .OperationIsRendered.Set(false, o => o.MarkedAs("Virtual"))
-                        .OperationTypes.Set(OperationTypes.Search, o => o.ReturnsList)
-                        .OperationTypes.Set(OperationTypes.Page | OperationTypes.Table)
-                        .ConfirmationRequired.Set(false, o => o.Id.StartsWith("Test"))
-                        .ConfirmationRequired.Set(false, o => o.Id.StartsWith("Mark"))
-
-                        .DataIsRendered.Set(false, m => m.MarkedAs("Virtual"))
-                        .DataLocations.Set(DataLocations.PageTable, m => m.IsList)
-                        .DataLocations.Set(DataLocations.PageNameValue | DataLocations.TableColumn, m => !m.IsList)
-                        ;
-            }
-
-            private void Modules()
-            {
-                container.Register(
-                    Component.For<IDomainContext>().ImplementedBy<WindsorDomainContext>().LifestyleSingleton(),
-                    Classes
-                        .FromAssemblyInDirectory(ModuleDirectory)
-                        .AllowMultipleMatches()
-                        .Where(TypeShouldBeSingleton)
-                        .WithServiceSelf()
-                        .WithServiceAllInterfaces()
-                        .LifestyleSingleton(),
-                    Classes
-                        .FromAssemblyInDirectory(ModuleDirectory)
-                        .AllowMultipleMatches()
-                        .Where(TypeShouldBeTransient)
-                        .WithServiceSelf()
-                        .WithServiceAllInterfaces()
-                        .LifestyleTransient()
-                    );
-            }
-
-            private AssemblyFilter BinDirectory { get { return new AssemblyFilter("bin"); } }
-
-            private AssemblyFilter ModuleDirectory
-            {
-                get
-                {
-                    return BinDirectory.FilterByName(n =>
-                        n.Name.StartsWith("Routine.Test.Module") &&
-                        !n.Name.EndsWith("Ui"));
-                }
-            }
-            private AssemblyFilter UiDirectory
-            {
-                get
-                {
-                    return BinDirectory.FilterByName(n =>
-                        n.Name.StartsWith("Routine.Test.Module") &&
-                        n.Name.EndsWith("Ui"));
-                }
-            }
-
-            private bool TypeShouldBeSingleton(Type type)
-            {
-                return (typeof(IQuery).IsAssignableFrom(type) || type.Name.EndsWith("Module")) &&
-                    type.IsClass && !type.IsAbstract;
-            }
-
-            private bool TypeShouldBeTransient(Type type) { return !TypeShouldBeSingleton(type); }
-
-            private void DataAccess()
-            {
-                container.Register(
-                    Component.For<ISessionFactory>().Instance(BuildSessionFactory()).LifestyleSingleton(),
-                    Component.For<ISession>().UsingFactoryMethod(OpenSession).LifestyleScoped(),
-                    Component.For(typeof(IRepository<>)).ImplementedBy(typeof(NHibernateRepository<>)).LifestyleScoped(),
-                    Component.For(typeof(ILookup<>)).ImplementedBy(typeof(NHibernateLookup<>)).LifestyleScoped());
-            }
-
-            private OrmConfiguration Orm { get { return OrmConfiguration.Instance; } }
-
-            private ISessionFactory BuildSessionFactory()
-            {
-                return Orm.BuildSessionFactory(container.Resolve<IDomainContext>(), ModuleAssemblies());
-            }
-
-            private IEnumerable<Assembly> ModuleAssemblies()
-            {
-                var result = ReflectionUtil.GetAssemblies(ModuleDirectory);
-
-                var moduleAssemblies = result.ToList();
+				var moduleAssemblies = result.ToList();
 #if DEBUG
-                Debug.WriteLine("assembly count: " + moduleAssemblies.Count());
-                foreach (var item in moduleAssemblies)
-                {
-                    Debug.WriteLine("module: " + item.FullName);
-                }
+				Debug.WriteLine("assembly count: " + moduleAssemblies.Count());
+				foreach (var item in moduleAssemblies)
+				{
+					Debug.WriteLine("module: " + item.FullName);
+				}
 #endif
 
-                return moduleAssemblies;
-            }
+				return moduleAssemblies;
+			}
 
-            private IEnumerable<Assembly> UiAssemblies()
-            {
-                var result = ReflectionUtil.GetAssemblies(UiDirectory);
+			private IEnumerable<Assembly> UiAssemblies()
+			{
+				var result = ReflectionUtil.GetAssemblies(UiDirectory);
 
-                var uiAssemblies = result.ToList();
+				var uiAssemblies = result.ToList();
 #if DEBUG
-                Debug.WriteLine("assembly count: " + uiAssemblies.Count());
-                foreach (var item in uiAssemblies)
-                {
-                    Debug.WriteLine("ui: " + item.FullName);
-                }
+				Debug.WriteLine("assembly count: " + uiAssemblies.Count());
+				foreach (var item in uiAssemblies)
+				{
+					Debug.WriteLine("ui: " + item.FullName);
+				}
 #endif
 
-                return uiAssemblies;
-            }
+				return uiAssemblies;
+			}
 
-            private ISession OpenSession(IKernel kernel)
-            {
-                return kernel.Resolve<ISessionFactory>().OpenSession();
-            }
-        }
-    }
+			private ISession OpenSession(IKernel kernel)
+			{
+				return kernel.Resolve<ISessionFactory>().OpenSession();
+			}
+		}
+	}
 }
 
