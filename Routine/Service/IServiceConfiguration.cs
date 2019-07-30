@@ -18,5 +18,30 @@ namespace Routine.Service
 
 		ExceptionResult GetExceptionResult(Exception exception);
 	}
+
+	public static class ServiceConfigurationFacade
+	{
+		public static string GetPath(this IServiceConfiguration source, string path)
+		{
+			var rootPath = source.GetRootPath() ?? string.Empty;
+
+			if (rootPath.StartsWith("/"))
+			{
+				rootPath = rootPath.After("/");
+			}
+
+			if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
+			{
+				rootPath += "/";
+			}
+
+			if (path.StartsWith("/"))
+			{
+				path = path.After("/");
+			}
+
+			return rootPath + path;
+		}
+	}
 }
 

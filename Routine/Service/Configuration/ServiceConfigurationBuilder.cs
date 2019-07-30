@@ -5,7 +5,7 @@
 		public ConventionBasedServiceConfiguration FromBasic()
 		{
 			return new ConventionBasedServiceConfiguration()
-				.RootPath.Set(ServiceHttpHandler.HttpHandlerName)
+				.RootPath.Set(nameof(ServiceHttpHandler).BeforeLast("HttpHandler"))
 				.AllowGet.Set(false)
 				.ExceptionResult.Set(new ExceptionResult())
 				.ResponseHeaderValue.SetDefault()

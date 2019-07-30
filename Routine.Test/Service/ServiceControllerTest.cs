@@ -83,8 +83,8 @@ namespace Routine.Test.Service
 
 			//https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
 			response.SetupAllProperties();
-
-			testing = new ServiceHttpHandler(serviceContext.Object, serializer);
+			
+			testing = new ServiceRouteHandler(serviceContext.Object, serializer).GetHttpHandler();
 			testing.ProcessRequest(httpContext.Object);
 		}
 
