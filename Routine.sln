@@ -42,14 +42,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProject", "TestProject", "{EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{492887D1-71FB-4037-A774-B8F6140443EC}"
-	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{E261905F-5417-436B-BF96-F1F755099B8B}"
 	ProjectSection(SolutionItems) = preProject
 		Tools\NuGet\BuildNugetPackage.ps1 = Tools\NuGet\BuildNugetPackage.ps1
 		Tools\NuGet\NuGet.exe = Tools\NuGet\NuGet.exe
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Appveyor", "Appveyor", "{22663953-CFC5-44B4-9068-98CE62ECA717}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		Tools\Appveyor\install_dotnet_devpack.ps1 = Tools\Appveyor\install_dotnet_devpack.ps1
 	EndProjectSection
 EndProject
 Global
@@ -141,6 +144,7 @@ Global
 		{E22545FD-A2CF-42A0-823C-823B5C30642D} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{E261905F-5417-436B-BF96-F1F755099B8B} = {492887D1-71FB-4037-A774-B8F6140443EC}
+		{22663953-CFC5-44B4-9068-98CE62ECA717} = {492887D1-71FB-4037-A774-B8F6140443EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B69E010-8A0E-4159-BB72-DFDED06B997B}
