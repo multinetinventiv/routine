@@ -3,13 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{A9E4ABC4-268C-48D4-9123-D6568FC67096}"
-	ProjectSection(SolutionItems) = preProject
-		NuGet\NuGet.exe = NuGet\NuGet.exe
-		NuGet\package.bat = NuGet\package.bat
-		NuGet\publish.config = NuGet\publish.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine", "Routine\Routine.csproj", "{A597022C-F6DD-495F-A846-290EEDE08B9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test", "Routine.Test\Routine.Test.csproj", "{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}"
