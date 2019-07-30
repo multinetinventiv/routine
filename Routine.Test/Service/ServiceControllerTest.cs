@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Web;
+using System.Web.Routing;
 using System.Web.Script.Serialization;
 using Moq;
 using Moq.Language.Flow;
@@ -27,6 +28,7 @@ namespace Routine.Test.Service
 		private Mock<IObjectService> objectService;
 		private Mock<HttpRequestBase> request;
 		private Mock<HttpResponseBase> response;
+		private Mock<RequestContext> requestContext;
 		private NameValueCollection requestHeaders;
 		private NameValueCollection responseHeaders;
 		private NameValueCollection requestQueryString;
@@ -46,6 +48,7 @@ namespace Routine.Test.Service
 			objectService = new Mock<IObjectService>();
 			request = new Mock<HttpRequestBase>();
 			response = new Mock<HttpResponseBase>();
+			requestContext = new Mock<RequestContext>();
 
 			requestHeaders = new NameValueCollection();
 			responseHeaders = new NameValueCollection();
@@ -70,6 +73,8 @@ namespace Routine.Test.Service
 			});
 			httpContext.Setup(hc => hc.Request).Returns(request.Object);
 			httpContext.Setup(hc => hc.Response).Returns(response.Object);
+			requestContext.Setup(rc => rc.RouteData).Returns(new RouteData());
+			request.Setup(r => r.RequestContext).Returns(requestContext.Object);
 			request.Setup(r => r.Headers).Returns(requestHeaders);
 			request.Setup(r => r.QueryString).Returns(requestQueryString);
 			request.Setup(r => r.HttpMethod).Returns("POST");
@@ -80,7 +85,7 @@ namespace Routine.Test.Service
 			response.SetupAllProperties();
 
 			testing = new ServiceHttpHandler(serviceContext.Object, serializer);
-			testing.SetHttpContextBase(httpContext.Object);
+			testing.ProcessRequest(httpContext.Object);
 		}
 
 		protected ObjectStubber When(ReferenceData referenceData)

@@ -51,20 +51,12 @@ namespace Routine.Service
 
 		#endregion
 
-		#region Interface Implementations
-		public bool IsReusable => false;
-
-		public void ProcessRequest(HttpContext httpContext)
-		{
-			ProcessRequestBase(new HttpContextWrapper(httpContext));
-		}
-		#endregion
-
-		private void ProcessRequestBase(HttpContextBase ctx)
+		internal void ProcessRequest(HttpContextBase ctx)
 		{
 			httpContextBase = ctx;
 
 			var routeData = httpContextBase.Request.RequestContext.RouteData;
+
 			var action = $"{routeData.Values["action"]}";
 
 			if (string.Equals(action, nameof(ApplicationModel), StringComparison.InvariantCultureIgnoreCase))
@@ -79,8 +71,7 @@ namespace Routine.Service
 
 			else if (string.Equals(action, nameof(File), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var path = $"{httpContextBase.Request.QueryString["path"]}";
-				File(path);
+				File($"{httpContextBase.Request.QueryString["path"]}");
 			}
 
 			else if (string.Equals(action, nameof(Configuration), StringComparison.InvariantCultureIgnoreCase))
@@ -90,18 +81,13 @@ namespace Routine.Service
 
 			else if (string.Equals(action, nameof(Fonts), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var fileName = $"{routeData.Values["fileName"]}";
-				Fonts(fileName);
+				Fonts($"{routeData.Values["fileName"]}");
 			}
 
 			else if (string.Equals(action, nameof(Handle), StringComparison.InvariantCultureIgnoreCase))
 			{
-				var modelId = $"{routeData.Values["modelId"]}";
-				var idOrViewModelIdOrOperation = $"{routeData.Values["idOrViewModelIdOrOperation"]}";
-				var viewModelIdOrOperation = $"{routeData.Values["viewModelIdOrOperation"]}";
-				var operation = $"{routeData.Values["operation"]}";
-
-				Handle(modelId, idOrViewModelIdOrOperation, viewModelIdOrOperation, operation);
+				Handle($"{routeData.Values["modelId"]}", $"{routeData.Values["idOrViewModelIdOrOperation"]}",
+					$"{routeData.Values["viewModelIdOrOperation"]}", $"{routeData.Values["operation"]}");
 			}
 		}
 
@@ -415,11 +401,6 @@ namespace Routine.Service
 			}
 		}
 
-		internal void SetHttpContextBase(HttpContextBase httpContextBase)
-		{
-			this.httpContextBase = httpContextBase;
-		}
-
 		private string Path(string path)
 		{
 			var rootPath = serviceContext.ServiceConfiguration.GetRootPath() ?? string.Empty;
@@ -553,6 +534,11 @@ namespace Routine.Service
 				model.ViewModelIds.FirstOrDefault(vmid => vmid.EndsWith(viewModelIdOrOperation));
 		}
 
+		#endregion
+
+		#region Http Handler Mappings
+		bool IHttpHandler.IsReusable => false;
+		void IHttpHandler.ProcessRequest(HttpContext httpContext) { ProcessRequest(new HttpContextWrapper(httpContext)); }
 		#endregion
 	}
 }
