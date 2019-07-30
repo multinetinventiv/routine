@@ -16,6 +16,10 @@
     - dotnet restore .\Routine.sln
   build_script:
     - dotnet build .\Routine.sln
+  test:
+    assemblies:
+      only:
+        - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
   after_test:
     - ps: .\Routine\Scripts\BuildNugetPackage.ps1
 
@@ -47,6 +51,10 @@
     - dotnet restore .\Routine.sln
   build_script:
     - dotnet build .\Routine.sln
+  test:
+    assemblies:
+      only:
+        - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
 
 # configuration for all other branches except "master" and "develop"
 # build in Debug mode and deploy locally for testing
@@ -66,6 +74,5 @@
     assemblies:
       only:
         - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
-        - .\Routine\Routine.Test.Performance\bin\Release\net48\Routine.Test.Performance.dll
   after_test:
     - ps: .\Routine\Scripts\BuildNugetPackage.ps1
