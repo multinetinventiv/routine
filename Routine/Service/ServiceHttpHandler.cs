@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -246,9 +247,8 @@ namespace Routine.Service
 		}
 
 		#endregion
-		private void Response(string result) { Response(result, HttpStatusCode.OK); }
 
-		private void Response(string result, HttpStatusCode statusCode)
+		private void Response(string result, HttpStatusCode statusCode = HttpStatusCode.OK)
 		{
 			httpContextBase.Response.StatusCode = (int)statusCode;
 			httpContextBase.Response.ContentType = JSON_CONTENT_TYPE;
@@ -537,8 +537,10 @@ namespace Routine.Service
 		#endregion
 
 		#region Http Handler Mappings
+
 		bool IHttpHandler.IsReusable => false;
 		void IHttpHandler.ProcessRequest(HttpContext httpContext) { ProcessRequest(new HttpContextWrapper(httpContext)); }
+
 		#endregion
 	}
 }
