@@ -5,7 +5,7 @@
 		public ConventionBasedServiceConfiguration FromBasic()
 		{
 			return new ConventionBasedServiceConfiguration()
-				.RootPath.Set(nameof(ServiceHttpHandler).BeforeLast("HttpHandler"))
+				.RootPath.Set(nameof(ProxyHttpHandler).BeforeLast("HttpHandler"))
 				.AllowGet.Set(false)
 				.ExceptionResult.Set(new ExceptionResult())
 				.ResponseHeaderValue.SetDefault()

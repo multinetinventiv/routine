@@ -3,14 +3,17 @@ using System.Linq;
 using System.Web;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
-using Routine.Service.HandlerActions.Exceptions;
+using Routine.Service.RequestHandlers.Exceptions;
 
-namespace Routine.Service.HandlerActions
+namespace Routine.Service.RequestHandlers
 {
-	public abstract class ObjectServiceHandlerActionBase : HandlerActionBase
+	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
-		protected ObjectServiceHandlerActionBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
 			: base(serviceContext, jsonSerializer, httpContext) { }
+
+		protected abstract bool AllowGet { get; }
+		protected abstract void Process();
 
 		public sealed override void WriteResponse()
 		{
@@ -67,8 +70,5 @@ namespace Routine.Service.HandlerActions
 				}
 			}
 		}
-
-		protected abstract bool AllowGet { get; }
-		protected abstract void Process();
 	}
 }

@@ -90,7 +90,7 @@ namespace Routine
 
 		private Func<IServiceContext, IRoutineRouteHandler> handlerFactory;
 		public ContextBuilder UsingHandlerFactory(Func<IServiceContext, IRoutineRouteHandler> handlerFactory) { this.handlerFactory = handlerFactory; return this; }
-		private Func<IServiceContext, IRoutineRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new ServiceRouteHandler(sc, Serializer()));
+		private Func<IServiceContext, IRoutineRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new RoutineRouteHandler(sc, Serializer()));
 
 		private IRestClient restClient = new WebRequestRestClient();
 		public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }

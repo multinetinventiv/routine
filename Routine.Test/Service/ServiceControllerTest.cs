@@ -14,6 +14,7 @@ using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service;
 using Routine.Service.Configuration;
+using Routine.Service.RequestHandlers;
 using Routine.Test.Core;
 
 namespace Routine.Test.Service
@@ -28,11 +29,12 @@ namespace Routine.Test.Service
 		private Mock<IObjectService> objectService;
 		private Mock<HttpRequestBase> request;
 		private Mock<HttpResponseBase> response;
+		private Mock<HttpApplicationStateBase> httpApplication;
 		private Mock<RequestContext> requestContext;
 		private NameValueCollection requestHeaders;
 		private NameValueCollection responseHeaders;
 		private NameValueCollection requestQueryString;
-		private ServiceHttpHandler testing;
+		private HandleRequestHandler testing;
 		private ConventionBasedServiceConfiguration config;
 
 		private const int DEFAULT_RECURSION_LIMIT = 100;
@@ -49,6 +51,7 @@ namespace Routine.Test.Service
 			request = new Mock<HttpRequestBase>();
 			response = new Mock<HttpResponseBase>();
 			requestContext = new Mock<RequestContext>();
+			httpApplication = new Mock<HttpApplicationStateBase>();
 
 			requestHeaders = new NameValueCollection();
 			responseHeaders = new NameValueCollection();
@@ -73,6 +76,7 @@ namespace Routine.Test.Service
 			});
 			httpContext.Setup(hc => hc.Request).Returns(request.Object);
 			httpContext.Setup(hc => hc.Response).Returns(response.Object);
+			httpContext.Setup(hc=>hc.Application).Returns(httpApplication.Object);
 			requestContext.Setup(rc => rc.RouteData).Returns(new RouteData());
 			request.Setup(r => r.RequestContext).Returns(requestContext.Object);
 			request.Setup(r => r.Headers).Returns(requestHeaders);
@@ -83,9 +87,12 @@ namespace Routine.Test.Service
 
 			//https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
 			response.SetupAllProperties();
-			
-			testing = new ServiceRouteHandler(serviceContext.Object, serializer).GetHttpHandler();
-			testing.ProcessRequest(httpContext.Object);
+
+			var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer);
+			routeHandler.RegisterRoutes();
+			testing = routeHandler.RequestHandlers["handle"](httpContext.Object) as HandleRequestHandler;
+
+			Assert.IsNotNull(testing);
 		}
 
 		protected ObjectStubber When(ReferenceData referenceData)
@@ -279,11 +286,11 @@ namespace Routine.Test.Service
 
 			objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
-			var postResult = testing.Handle("model", "3", "post", null);
+			testing.Handle("model", "3", "post", null);
 
 			objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-			Assert.IsNotNull(postResult);
-			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)postResult.Response.StatusCode);
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContext.Object.Response.StatusCode);
 		}
 
 		[Test]
@@ -294,14 +301,14 @@ namespace Routine.Test.Service
 			);
 
 			request.Setup(r => r.HttpMethod).Returns("DELETE");
-			var postResult = testing.Handle("model", "action", null, null);
-			Assert.IsNotNull(postResult);
-			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)postResult.Response.StatusCode);
+			testing.Handle("model", "action", null, null);
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContext.Object.Response.StatusCode);
 
 			request.Setup(r => r.HttpMethod).Returns("PUT");
-			postResult = testing.Handle("model", "action", null, null);
-			Assert.IsNotNull(postResult);
-			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)postResult.Response.StatusCode);
+			testing.Handle("model", "action", null, null);
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContext.Object.Response.StatusCode);
 
 			objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
 			objectService.Verify(os => os.Get(It.IsAny<ReferenceData>()), Times.Never());
@@ -310,11 +317,11 @@ namespace Routine.Test.Service
 		[Test]
 		public void When_given_model_id_does_not_exist__returns_404()
 		{
-			var actual = testing.Handle("nonexistingmodel", null, null, null);
+			testing.Handle("nonexistingmodel", null, null, null);
 
-			Assert.IsNotNull(actual);
-			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)actual.Response.StatusCode);
-			Assert.IsTrue(actual.Response.StatusDescription.Contains("nonexistingmodel"), "StatusDescription should contain given model id");
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContext.Object.Response.StatusCode);
+			Assert.IsTrue(httpContext.Object.Response.StatusDescription.Contains("nonexistingmodel"), "StatusDescription should contain given model id");
 		}
 
 		[Test]
@@ -322,11 +329,11 @@ namespace Routine.Test.Service
 		{
 			ModelsAre(Model("prefix1.model"), Model("prefix2.model"));
 
-			var actual = testing.Handle("model", null, null, null);
+			testing.Handle("model", null, null, null);
 
-			Assert.IsNotNull(actual);
-			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)actual.Response.StatusCode);
-			Assert.IsTrue(actual.Response.StatusDescription.Contains("prefix1.model") && actual.Response.StatusDescription.Contains("prefix2.model"),
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContext.Object.Response.StatusCode);
+			Assert.IsTrue(httpContext.Object.Response.StatusDescription.Contains("prefix1.model") && httpContext.Object.Response.StatusDescription.Contains("prefix2.model"),
 				"Status description should contain available model ids");
 		}
 
@@ -339,11 +346,11 @@ namespace Routine.Test.Service
 
 			SetUpRequestBody("{\"arg\":{\"ModelId\":\"nonexistingmodel\",\"Data\":{\"arg\":null}}}");
 
-			var actual = testing.Handle("model", "action", null, null);
+			testing.Handle("model", "action", null, null);
 
-			Assert.IsNotNull(actual);
-			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)actual.Response.StatusCode);
-			Assert.IsTrue(actual.Response.StatusDescription.Contains("nonexistingmodel"),
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContext.Object.Response.StatusCode);
+			Assert.IsTrue(httpContext.Object.Response.StatusDescription.Contains("nonexistingmodel"),
 				"Status description should contain given model id");
 		}
 
@@ -356,10 +363,10 @@ namespace Routine.Test.Service
 
 			SetUpRequestBody("{");
 
-			var actual = testing.Handle("model", "action", null, null);
+			testing.Handle("model", "action", null, null);
 
-			Assert.IsNotNull(actual);
-			Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)actual.Response.StatusCode);
+			Assert.IsNotNull(httpContext.Object.Response);
+			Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)httpContext.Object.Response.StatusCode);
 		}
 
 		[Test]

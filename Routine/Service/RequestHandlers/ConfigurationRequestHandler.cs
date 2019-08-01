@@ -1,11 +1,11 @@
 ﻿using System.Web;
 using Routine.Core.Rest;
 
-namespace Routine.Service.HandlerActions
+namespace Routine.Service.RequestHandlers
 {
-	public class ConfigurationHandlerAction : HandlerActionBase
+	public class ConfigurationRequestHandler : RequestHandlerBase
 	{
-		public ConfigurationHandlerAction(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+		public ConfigurationRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
 			: base(serviceContext, jsonSerializer, httpContext) { }
 
 		public override void WriteResponse()

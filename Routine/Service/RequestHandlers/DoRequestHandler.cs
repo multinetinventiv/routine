@@ -5,16 +5,17 @@ using System.Linq;
 using System.Web;
 using Routine.Core;
 using Routine.Core.Rest;
-using Routine.Service.HandlerActions.Exceptions;
-using Routine.Service.HandlerActions.Helper;
+using Routine.Engine.Context;
+using Routine.Service.RequestHandlers.Exceptions;
+using Routine.Service.RequestHandlers.Helper;
 
-namespace Routine.Service.HandlerActions
+namespace Routine.Service.RequestHandlers
 {
-	public class DoHandlerAction : ObjectServiceHandlerActionBase
+	public class DoRequestHandler : ObjectServiceRequestHandlerBase
 	{
 		private readonly Resolution resolution;
 
-		public DoHandlerAction(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, Resolution resolution)
+		public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, Resolution resolution)
 			: base(serviceContext, jsonSerializer, httpContext)
 		{
 			this.resolution = resolution;
@@ -35,6 +36,10 @@ namespace Routine.Service.HandlerActions
 							.DecompressParameterValueData(kvp.Value)
 					);
 
+			}
+			catch (TypeNotFoundException ex)
+			{
+				throw ex;
 			}
 			catch (Exception ex)
 			{

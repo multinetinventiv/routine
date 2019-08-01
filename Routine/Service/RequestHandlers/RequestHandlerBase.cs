@@ -11,9 +11,9 @@ using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 
-namespace Routine.Service.HandlerActions
+namespace Routine.Service.RequestHandlers
 {
-	public abstract class HandlerActionBase : IHandlerAction
+	public abstract class RequestHandlerBase : IRequestHandler
 	{
 		#region Constants
 
@@ -29,7 +29,7 @@ namespace Routine.Service.HandlerActions
 		protected IJsonSerializer JsonSerializer { get; }
 		protected HttpContextBase HttpContext { get; }
 
-		protected HandlerActionBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+		protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
 		{
 			ServiceContext = serviceContext;
 			JsonSerializer = jsonSerializer;
@@ -40,8 +40,6 @@ namespace Routine.Service.HandlerActions
 
 		public abstract void WriteResponse();
 
-		#region Helper Protected Properties
-
 		protected HttpApplicationStateBase Application => HttpContext.Application;
 		protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData;
 		protected NameValueCollection QueryString => HttpContext.Request.QueryString;
@@ -49,29 +47,34 @@ namespace Routine.Service.HandlerActions
 		protected bool IsGet => "GET".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		protected bool IsPost => "POST".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
 		protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
-
-		#endregion
-
-		#region Private Helpers
-
-		private Stream GetStream(string path)
+		protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
 		{
-			path = path.Replace("/", ".");
-			var stream = GetType().Assembly.GetManifestResourceStream(
-				GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith(path))
-			);
-
-			if (stream == null)
+			get
 			{
-				throw new InvalidOperationException("Could not get manifest resource stream for test page");
+				var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"];
+
+				if (result != null) { return result; }
+
+				HttpContext.Application.Lock();
+
+				result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
+
+				if (result != null)
+				{
+					HttpContext.Application.UnLock();
+
+					return result;
+				}
+
+				result = BuildModelIndex();
+
+				HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
+
+				HttpContext.Application.UnLock();
+
+				return result;
 			}
-
-			return stream;
 		}
-
-		#endregion
-
-		#region Responses
 
 		protected virtual void BadRequest(Exception ex)
 		{
@@ -152,6 +155,38 @@ namespace Routine.Service.HandlerActions
 			HttpContext.Response.Write(JsonSerializer.Serialize(result));
 		}
 
-		#endregion
+		private Dictionary<string, List<ObjectModel>> BuildModelIndex()
+		{
+			var result = new Dictionary<string, List<ObjectModel>>();
+			var appModel = ServiceContext.ObjectService.ApplicationModel;
+
+			foreach (var key in appModel.Model.Keys)
+			{
+				var shortModelId = key.AfterLast(".");
+				if (!result.ContainsKey(shortModelId))
+				{
+					result.Add(shortModelId, new List<ObjectModel>());
+				}
+
+				result[shortModelId].Add(appModel.Model[key]);
+			}
+
+			return result;
+		}
+
+		private Stream GetStream(string path)
+		{
+			path = path.Replace("/", ".");
+			var stream = GetType().Assembly.GetManifestResourceStream(
+				GetType().Assembly.GetManifestResourceNames().Single(s => s.EndsWith(path))
+			);
+
+			if (stream == null)
+			{
+				throw new InvalidOperationException("Could not get manifest resource stream for test page");
+			}
+
+			return stream;
+		}
 	}
 }

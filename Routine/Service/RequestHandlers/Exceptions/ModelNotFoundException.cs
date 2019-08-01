@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Routine.Service.HandlerActions.Exceptions
+namespace Routine.Service.RequestHandlers.Exceptions
 {
 	public class ModelNotFoundException : Exception
 	{

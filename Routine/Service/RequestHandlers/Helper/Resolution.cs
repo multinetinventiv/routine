@@ -1,6 +1,6 @@
 ﻿using Routine.Core;
 
-namespace Routine.Service.HandlerActions.Helper
+namespace Routine.Service.RequestHandlers.Helper
 {
 	public class Resolution
 	{

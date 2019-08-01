@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Routine.Core;
 
-namespace Routine.Service.HandlerActions.Exceptions
+namespace Routine.Service.RequestHandlers.Exceptions
 {
 	public class AmbiguousModelException : Exception
 	{

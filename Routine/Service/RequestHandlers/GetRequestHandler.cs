@@ -1,14 +1,14 @@
 ﻿using System.Web;
 using Routine.Core.Rest;
-using Routine.Service.HandlerActions.Helper;
+using Routine.Service.RequestHandlers.Helper;
 
-namespace Routine.Service.HandlerActions
+namespace Routine.Service.RequestHandlers
 {
-	public class GetHandlerAction : ObjectServiceHandlerActionBase
+	public class GetRequestHandler : ObjectServiceRequestHandlerBase
 	{
 		private readonly Resolution resolution;
 
-		public GetHandlerAction(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, Resolution resolution)
+		public GetRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, Resolution resolution)
 			: base(serviceContext, jsonSerializer, httpContext)
 		{
 			this.resolution = resolution;
