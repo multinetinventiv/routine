@@ -19,7 +19,7 @@
   test:
     assemblies:
       only:
-        - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
+        - Routine.Test.dll
   after_test:
     - ps: .\Routine\Scripts\BuildNugetPackage.ps1
 
@@ -54,7 +54,7 @@
   test:
     assemblies:
       only:
-        - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
+        - Routine.Test.dll
 
 # configuration for all other branches except "master" and "develop"
 # build in Debug mode and deploy locally for testing
@@ -73,6 +73,6 @@
   test:
     assemblies:
       only:
-        - .\Routine\Routine.Test\bin\Release\$(configuration)\Routine.Test.dll
+        - Routine.Test.dll
   after_test:
     - ps: .\Routine\Scripts\BuildNugetPackage.ps1
