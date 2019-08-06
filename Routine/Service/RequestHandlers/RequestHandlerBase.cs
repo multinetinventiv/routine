@@ -17,6 +17,7 @@ namespace Routine.Service.RequestHandlers
 	{
 		#region Constants
 
+		private const int CACHE_DURATION = 60;
 		private const int BUFFER_SIZE = 0x1000;
 		protected const string JSON_CONTENT_TYPE = "application/json";
 		protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
@@ -76,6 +77,14 @@ namespace Routine.Service.RequestHandlers
 			}
 		}
 
+		protected virtual void AddResponseCaching()
+		{
+			HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
+			HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
+			HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
+			HttpContext.Response.Cache.SetValidUntilExpires(true);
+		}
+
 		protected virtual void BadRequest(Exception ex)
 		{
 			HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -112,9 +121,9 @@ namespace Routine.Service.RequestHandlers
 
 			fileContent = fileContent.Replace("$urlbase$", UrlBase);
 
-			var file = Encoding.UTF8.GetBytes(fileContent);
+			AddResponseCaching();
 			HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-			HttpContext.Response.BinaryWrite(file);
+			HttpContext.Response.BinaryWrite(Encoding.UTF8.GetBytes(fileContent));
 		}
 
 		protected virtual void WriteFontResponse(string fileName)
@@ -137,6 +146,7 @@ namespace Routine.Service.RequestHandlers
 					outputStream.Write(buffer, 0, bytesRead);
 				}
 			}
+			AddResponseCaching();
 			HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
 			HttpContext.Response.Flush();
 			HttpContext.Response.End();
