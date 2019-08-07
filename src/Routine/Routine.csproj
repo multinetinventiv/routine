@@ -34,6 +34,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Service\TestApp\assets\js\axios.min.js" />
+	  <None Remove="Service\TestApp\assets\js\lodash.min.js" />
+	  <None Remove="Service\TestApp\vue\index.html" />
+	  <None Remove="Service\TestApp\vue\src\filters\string-filter.js" />
+	  <None Remove="Service\TestApp\vue\src\index.js" />
+	  <None Remove="Service\TestApp\vue\src\string-filter.js" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
 		<Reference Include="System.Data" />
@@ -44,6 +53,12 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Service\TestApp\app\application\index.html" />
+		<EmbeddedResource Include="Service\TestApp\assets\js\axios.min.js" />
+		<EmbeddedResource Include="Service\TestApp\assets\js\lodash.min.js" />
+		<EmbeddedResource Include="Service\TestApp\vue\index.html" />
+		<EmbeddedResource Include="Service\TestApp\assets\js\vue.min.js" />
+		<EmbeddedResource Include="Service\TestApp\vue\src\filters\string-filter.js" />
+		<EmbeddedResource Include="Service\TestApp\vue\src\index.js" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Api\Template\ClientApiTemplate.tt">

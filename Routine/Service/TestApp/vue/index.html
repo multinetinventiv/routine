@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Service Test UI</title>
+	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
+
+	<script src="$urlbase$/File?path=assets/js/vue.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
+</head>
+<body>
+	<div id="app">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="left-menu">
+					<div class="panel panel-info">
+						<div class="panel-heading"
+							 @click="headersState = !headersState">
+							<b>Request Headers</b>
+						</div>
+						<div class="panel-body" v-if="headersState">
+							<div class="spinner" v-if="headersloading">
+								<div class="bounce1"></div>
+								<div class="bounce2"></div>
+								<div class="bounce3"></div>
+							</div>
+							<div class="form-group" v-for="(value, name) in headers">
+								<label class="control-label" v-once>{{ name }}</label>
+								<input type="text" v-model="headers[name]" class="form-control nopad-b" />
+							</div>
+						</div>
+					</div>
+					<div class="spinner" v-if="modelsloading">
+						<div class="bounce1"></div>
+						<div class="bounce2"></div>
+						<div class="bounce3"></div>
+					</div>
+					<div class="panel panel-info" v-for="(moduleModels, module) in  getParentModules(_.groupBy(_.sortBy(models, ['Module']), 'Module'))">
+						<div class="panel-heading" @click="toggleModuleMenuState(module)">
+							<b v-once>{{module | splitCamelCase}}</b>
+						</div>
+						<div class="panel-body bg-info" v-if="moduleMenuState[module]">
+							<div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')">
+								<div class="panel-heading" @click="toggleModelMenuState(model.Name)">
+									<b v-once>{{model.Name | splitCamelCase}}</b>
+									<span class="badge" v-for="mark in getRealMarks(model.Marks)" v-once>{{mark | splitCamelCase}}</span>
+								</div>
+								<div class="panel-body" v-if="modelMenuState[model.Name]">
+									<a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" v-once>
+										{{operation.Name | splitCamelCase}}
+										<span class="badge" v-for="mark in getRealMarks(operation.Marks)" v-once>{{mark | splitCamelCase}}</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	</script>
+	<script src="$urlbase$/File?path=vue/src/index.js"></script>
+	<script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
+</body>
+</html>
