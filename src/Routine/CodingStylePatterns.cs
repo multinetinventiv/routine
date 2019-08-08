@@ -20,7 +20,7 @@ namespace Routine
 
 					.TypeIsValue.Set(true, t => t.CanParse() && t.IsValueType)
 
-					.IdExtractor.Set(c => c.Id(i => i.By(o => string.Format("{0}", o))).When(t => t.CanParse() && t.IsValueType))
+					.IdExtractor.Set(c => c.Id(i => i.By(o => $"{o}")).When(t => t.CanParse() && t.IsValueType))
 					.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => t.Parse(id))).When(t => t.CanParse() && t.IsValueType))
 
 					.Datas.AddNoneWhen(t => t.CanParse() && t.IsValueType)

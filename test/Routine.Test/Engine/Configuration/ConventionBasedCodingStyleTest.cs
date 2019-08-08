@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Engine;
-using Text = Routine.Test.Common.Text;
 
 namespace Routine.Test.Engine.Configuration
 {
@@ -20,7 +19,7 @@ namespace Routine.Test.Engine.Configuration
 			Assert.AreEqual("System", testing.GetModule(type.of<DateTime?>()));
 
 			Assert.AreEqual("Text?", testing.GetName(type.of<Text?>()));
-			Assert.AreEqual("Routine.Test.Common", testing.GetModule(type.of<Text?>()));
+			Assert.AreEqual("Routine.Test", testing.GetModule(type.of<Text?>()));
 		}
 
 		[Test]
