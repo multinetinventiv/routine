@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Appveyor", "Appveyor", "{22
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Samples.Basic", "samples\Routine.Samples.Basic\Routine.Samples.Basic.csproj", "{CEBBF932-7269-4435-A985-770929F4B3ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Samples.SmartObject", "samples\Routine.Samples.SmartObject\Routine.Samples.SmartObject.csproj", "{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,12 @@ Global
 		{CEBBF932-7269-4435-A985-770929F4B3ED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CEBBF932-7269-4435-A985-770929F4B3ED}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{CEBBF932-7269-4435-A985-770929F4B3ED}.Test|Any CPU.Build.0 = Release|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,6 +81,7 @@ Global
 		{E261905F-5417-436B-BF96-F1F755099B8B} = {492887D1-71FB-4037-A774-B8F6140443EC}
 		{22663953-CFC5-44B4-9068-98CE62ECA717} = {492887D1-71FB-4037-A774-B8F6140443EC}
 		{CEBBF932-7269-4435-A985-770929F4B3ED} = {EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}
+		{6B45DEE3-F96E-4C7D-8CBB-2EEEA5BCBA6E} = {EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B69E010-8A0E-4159-BB72-DFDED06B997B}

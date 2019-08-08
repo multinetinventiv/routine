@@ -1,26 +1,19 @@
-﻿using System;
+﻿using System.IO;
 
 namespace Routine.Samples.Basic.CustomDto
 {
 	public class CustomDtoService
 	{
-		public CustomDto GetCustomDto(string text, int number)
+		private static CustomDto customDto;
+
+		public CustomDto GetCustomDto()
 		{
-			return new CustomDto(text, number);
+			return customDto;
 		}
-	}
 
-	public class CustomDto
-	{
-		public Guid Id { get; }
-		public string Text { get; }
-		public int Number { get; }
-
-		public CustomDto(string text, int number)
+		public void SetCustomDto(CustomDto customDto)
 		{
-			Id = Guid.NewGuid();
-			Text = text;
-			Number = number;
+			CustomDtoService.customDto = customDto;
 		}
 	}
 }

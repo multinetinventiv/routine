@@ -41,6 +41,8 @@ namespace Routine.Engine.Configuration
 				.ValueExtractor.SetDefault()
 				.Locator.SetDefault()
 
+				.NextLayer()
+
 				.Use(p => p.ParseableValueTypePattern())
 
 				.Override(cfg => cfg

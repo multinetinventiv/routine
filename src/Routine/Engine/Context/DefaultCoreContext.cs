@@ -69,7 +69,7 @@ namespace Routine.Engine.Context
 					}
 					catch (ArgumentException ex)
 					{
-						throw new InvalidOperationException(string.Format("{0} was attempted to be added more than once.", domainType.Id), ex);
+						throw new InvalidOperationException($"{domainType.Id} was attempted to be added more than once.", ex);
 					}
 				}
 
@@ -117,7 +117,7 @@ namespace Routine.Engine.Context
 		public object GetObject(ReferenceData aReference)
 		{
 			return GetActualDomainType(aReference).Locate(aReference);
-		} 
+		}
 	}
 
 	public class TypeNotFoundException : Exception
