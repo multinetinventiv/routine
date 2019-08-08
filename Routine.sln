@@ -3,31 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine", "Routine\Routine.csproj", "{A597022C-F6DD-495F-A846-290EEDE08B9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine", "src\Routine\Routine.csproj", "{A597022C-F6DD-495F-A846-290EEDE08B9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test", "Routine.Test\Routine.Test.csproj", "{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Test", "test\Routine.Test\Routine.Test.csproj", "{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Business.Service", "Routine.Test.Business.Service\Routine.Test.Business.Service.csproj", "{17AE134B-F860-47F0-B571-88095EF423AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Business.Service", "samples\Routine.Test.Business.Service\Routine.Test.Business.Service.csproj", "{17AE134B-F860-47F0-B571-88095EF423AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo", "Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj", "{D9E33B5D-A0F4-4398-B6DD-094B14968901}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo", "samples\Routine.Test.Module.Todo\Routine.Test.Module.Todo.csproj", "{D9E33B5D-A0F4-4398-B6DD-094B14968901}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Performance", "Routine.Test.Performance\Routine.Test.Performance.csproj", "{4C8D74A3-FB73-4A8A-B223-149CBB53B8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Test.Performance", "test\Routine.Test.Performance\Routine.Test.Performance.csproj", "{4C8D74A3-FB73-4A8A-B223-149CBB53B8C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common", "Routine.Test.Common\Routine.Test.Common.csproj", "{0A8536E8-84A1-4D0D-8AF3-34785725E56B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Common", "samples\Routine.Test.Common\Routine.Test.Common.csproj", "{0A8536E8-84A1-4D0D-8AF3-34785725E56B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement", "Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj", "{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement", "samples\Routine.Test.Module.ProjectManagement\Routine.Test.Module.ProjectManagement.csproj", "{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo.Api", "Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj", "{300B819C-EE59-4879-8A97-FB2C317E38D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.Todo.Api", "samples\Routine.Test.Module.Todo.Api\Routine.Test.Module.Todo.Api.csproj", "{300B819C-EE59-4879-8A97-FB2C317E38D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Api", "Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj", "{75480479-B00B-4919-85E7-199706A6D923}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Module.ProjectManagement.Api", "samples\Routine.Test.Module.ProjectManagement.Api\Routine.Test.Module.ProjectManagement.Api.csproj", "{75480479-B00B-4919-85E7-199706A6D923}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain", "Routine.Test.Domain\Routine.Test.Domain.csproj", "{F9A92862-60E2-4C10-A74A-1B3FEE558035}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain", "samples\Routine.Test.Domain\Routine.Test.Domain.csproj", "{F9A92862-60E2-4C10-A74A-1B3FEE558035}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain.Configuration", "Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj", "{0DE7385D-C945-4166-B60F-54AD8C1534F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Test.Domain.Configuration", "samples\Routine.Test.Domain.Configuration\Routine.Test.Domain.Configuration.csproj", "{0DE7385D-C945-4166-B60F-54AD8C1534F1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{980FD305-549A-4EAE-A357-A7DB9B91FD70}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{980FD305-549A-4EAE-A357-A7DB9B91FD70}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{476E8A7A-400A-4122-8EB3-44AED8576289}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{476E8A7A-400A-4122-8EB3-44AED8576289}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Host", "Host", "{ECA16D2C-ADCF-4B1F-BE58-30224C9BA7AA}"
 EndProject
@@ -37,22 +37,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectManagement", "Projec
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Todo", "Todo", "{EBDFE343-B1AE-4587-A061-E5FB274A76E0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{E22545FD-A2CF-42A0-823C-823B5C30642D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProject", "TestProject", "{EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{492887D1-71FB-4037-A774-B8F6140443EC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{492887D1-71FB-4037-A774-B8F6140443EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{E261905F-5417-436B-BF96-F1F755099B8B}"
 	ProjectSection(SolutionItems) = preProject
-		Tools\NuGet\BuildNugetPackage.ps1 = Tools\NuGet\BuildNugetPackage.ps1
-		Tools\NuGet\NuGet.exe = Tools\NuGet\NuGet.exe
+		tools\NuGet\BuildNugetPackage.ps1 = tools\NuGet\BuildNugetPackage.ps1
+		tools\NuGet\NuGet.exe = tools\NuGet\NuGet.exe
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Appveyor", "Appveyor", "{22663953-CFC5-44B4-9068-98CE62ECA717}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
-		Tools\Appveyor\install_dotnet_devpack.ps1 = Tools\Appveyor\install_dotnet_devpack.ps1
+		tools\Appveyor\install_dotnet_devpack.ps1 = tools\Appveyor\install_dotnet_devpack.ps1
 	EndProjectSection
 EndProject
 Global
@@ -127,10 +125,10 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A597022C-F6DD-495F-A846-290EEDE08B9D} = {980FD305-549A-4EAE-A357-A7DB9B91FD70}
-		{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE} = {E22545FD-A2CF-42A0-823C-823B5C30642D}
+		{839ABE46-F8A7-41E1-9E6B-AED5BECE01DE} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{17AE134B-F860-47F0-B571-88095EF423AA} = {ECA16D2C-ADCF-4B1F-BE58-30224C9BA7AA}
 		{D9E33B5D-A0F4-4398-B6DD-094B14968901} = {EBDFE343-B1AE-4587-A061-E5FB274A76E0}
-		{4C8D74A3-FB73-4A8A-B223-149CBB53B8C4} = {E22545FD-A2CF-42A0-823C-823B5C30642D}
+		{4C8D74A3-FB73-4A8A-B223-149CBB53B8C4} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{0A8536E8-84A1-4D0D-8AF3-34785725E56B} = {96006665-E28F-45D2-941B-34F5130FDBDE}
 		{C6A4E7A1-6552-4D3C-A04D-385C869BB5F2} = {2554B23B-F6E8-4E75-ABA2-778A53273250}
 		{300B819C-EE59-4879-8A97-FB2C317E38D2} = {EBDFE343-B1AE-4587-A061-E5FB274A76E0}
@@ -141,8 +139,6 @@ Global
 		{96006665-E28F-45D2-941B-34F5130FDBDE} = {EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}
 		{2554B23B-F6E8-4E75-ABA2-778A53273250} = {EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}
 		{EBDFE343-B1AE-4587-A061-E5FB274A76E0} = {EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC}
-		{E22545FD-A2CF-42A0-823C-823B5C30642D} = {476E8A7A-400A-4122-8EB3-44AED8576289}
-		{EE63F61D-D19B-4D95-818C-9E5FF2EEC1DC} = {476E8A7A-400A-4122-8EB3-44AED8576289}
 		{E261905F-5417-436B-BF96-F1F755099B8B} = {492887D1-71FB-4037-A774-B8F6140443EC}
 		{22663953-CFC5-44B4-9068-98CE62ECA717} = {492887D1-71FB-4037-A774-B8F6140443EC}
 	EndGlobalSection
@@ -150,6 +146,6 @@ Global
 		SolutionGuid = {0B69E010-8A0E-4159-BB72-DFDED06B997B}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Routine.Test.Business.Service\Routine.Test.Business.Service.csproj
+		StartupItem = test\Routine.Test.Business.Service\Routine.Test.Business.Service.csproj
 	EndGlobalSection
 EndGlobal

@@ -136,7 +136,7 @@
       <Project>{300b819c-ee59-4879-8a97-fb2c317e38d2}</Project>
       <Name>Routine.Test.Module.Todo.Api</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Routine\Routine.csproj">
+    <ProjectReference Include="..\..\src\Routine\Routine.csproj">
       <Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
       <Name>Routine</Name>
     </ProjectReference>
