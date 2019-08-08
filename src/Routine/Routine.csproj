@@ -35,8 +35,11 @@
 
 	<ItemGroup>
 	  <None Remove="Service\TestApp\assets\js\axios.min.js" />
+	  <None Remove="Service\TestApp\assets\js\httpVueLoader.js" />
 	  <None Remove="Service\TestApp\assets\js\lodash.min.js" />
 	  <None Remove="Service\TestApp\vue\index.html" />
+	  <None Remove="Service\TestApp\vue\src\components\parameter-value.vue" />
+	  <None Remove="Service\TestApp\vue\src\components\Parameter.vue" />
 	  <None Remove="Service\TestApp\vue\src\filters\string-filter.js" />
 	  <None Remove="Service\TestApp\vue\src\index.js" />
 	  <None Remove="Service\TestApp\vue\src\string-filter.js" />
@@ -54,9 +57,12 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Service\TestApp\app\application\index.html" />
 		<EmbeddedResource Include="Service\TestApp\assets\js\axios.min.js" />
+		<EmbeddedResource Include="Service\TestApp\assets\js\httpVueLoader.js" />
 		<EmbeddedResource Include="Service\TestApp\assets\js\lodash.min.js" />
 		<EmbeddedResource Include="Service\TestApp\vue\index.html" />
 		<EmbeddedResource Include="Service\TestApp\assets\js\vue.min.js" />
+		<EmbeddedResource Include="Service\TestApp\vue\src\components\parameter.vue" />
+		<EmbeddedResource Include="Service\TestApp\vue\src\components\parameter-value.vue" />
 		<EmbeddedResource Include="Service\TestApp\vue\src\filters\string-filter.js" />
 		<EmbeddedResource Include="Service\TestApp\vue\src\index.js" />
 	</ItemGroup>

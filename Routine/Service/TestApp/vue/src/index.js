@@ -2,7 +2,6 @@
 	el: '#app',
 	data() {
 		return {
-			message: 'Hello Vue!',
 			headersState: true,
 			headers: {},
 			responseHeaders: [],
@@ -11,8 +10,13 @@
 			headersloading: true,
 			modelsloading: true,
 			moduleMenuState: {},
-			modelMenuState: {}
+			modelMenuState: {},
+			requests: []
 		}
+	},
+	components: {
+		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue'),
+		'parameter-value': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter-value.vue')
 	},
 	mounted() {
 		this.getConfiguration();
@@ -56,7 +60,71 @@
 					});
 				});
 			});
+		},
 
+		showOperation: function (operation) {
+			var request = {
+				name: this.$options.filters.splitCamelCase(this.modelOf(operation).Name) + " - " + this.$options.filters.splitCamelCase(operation.Name),
+				operation: operation,
+				active: false,
+				loading: false,
+				target: {
+					ViewModelId: operation.ModelId,
+					ModelId: !this.modelOf(operation).IsViewModel ? operation.ModelId :
+						this.modelOf(operation).ActualModelIds.length === 1 ? this.modelOf(operation.ModelId).ActualModelIds[0] : ""
+				},
+				data: {},
+				response: null,
+				getUrl: function () {
+					var result = '$urlbase$/' + this.target.ModelId;
+
+					if (!(this.target.Id == undefined) && this.target.Id !== '') {
+						result += '/' + this.target.Id;
+					}
+
+					if (this.target.ViewModelId !== this.target.ModelId) {
+						result += '/' + this.target.ViewModelId;
+					}
+
+					result += '/' + this.operation.Name;
+
+					return result;
+				},
+				invalidateTargetId: function () {
+					delete this.target.Id;
+				},
+				make: function () {
+					var self = this;
+					this.loading = true;
+
+					axios.post(this.getUrl(),
+						this.data,
+						{
+							headers: this.headers
+						}).then(response => {
+							//console.log(response);
+							self.loading = false;
+							self.response = {};
+							self.response.data = response.data;
+							self.response.headers = {};
+							app.responseHeaders.forEach(function (responseHeader) {
+								self.response.headers[responseHeader] = response.headers(responseHeader);
+							});
+						});
+
+					//indexService.do(this.getUrl(), $scope.headers, this.data).then(function (response, headers) {
+					//	self.loading = false;
+					//	self.response = {};
+					//	self.response.data = response.data;
+					//	self.response.headers = {};
+					//	app.responseHeaders.forEach(function (responseHeader) {
+					//		self.response.headers[responseHeader] = response.headers(responseHeader);
+					//	});
+					//});
+				}
+			};
+			app.requests.push(request);
+			this.activate(request);
 		},
 
 		getParentModules: function (modules) {
@@ -91,6 +159,47 @@
 		getModuleModelsByHasOperations: function (moduleModels) {
 			return moduleModels.filter(moduleModel => {
 				return moduleModel.Operations && moduleModel.Operations.length > 0;
+			});
+		},
+
+		activate: function (current, $event, $index) {
+			if ($event != undefined && ($event.which === 2 || ($event.which === 1 && ($event.metaKey || $event.ctrlKey)))) {
+				this.close($index);
+				$event.preventDefault();
+
+				return;
+			}
+
+			app.requests.forEach(function (request) {
+				request.active = false;
+			});
+
+			current.active = true;
+		},
+
+		close: function (index) {
+			var wasActive = app.requests[index].active;
+
+			app.requests.splice(index, 1);
+
+			if (wasActive && this.requests.length > 0) {
+				this.activate(app.requests[0]);
+			}
+		},
+
+		modelOf: function (obj) {
+			var id = obj;
+
+			if (id === undefined) {
+				return null;
+			}
+
+			if (!(typeof id === 'string')) {
+				id = obj.ModelId;
+			}
+
+			return _.find(app.models, function (item) {
+				return item['Id'] === id;
 			});
 		}
 	}

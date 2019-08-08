@@ -6,7 +6,8 @@
 	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
 
-	<script src="$urlbase$/File?path=assets/js/vue.min.js"></script>
+	<script src="https://unpkg.com/vue"></script>
+	<script src="$urlbase$/File?path=assets/js/httpVueLoader.js"></script>
 	<script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
 	<script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
 </head>
@@ -27,7 +28,7 @@
 								<div class="bounce3"></div>
 							</div>
 							<div class="form-group" v-for="(value, name) in headers">
-								<label class="control-label" v-once>{{ name }}</label>
+								<label class="control-label">{{ name }}</label>
 								<input type="text" v-model="headers[name]" class="form-control nopad-b" />
 							</div>
 						</div>
@@ -39,19 +40,100 @@
 					</div>
 					<div class="panel panel-info" v-for="(moduleModels, module) in  getParentModules(_.groupBy(_.sortBy(models, ['Module']), 'Module'))">
 						<div class="panel-heading" @click="toggleModuleMenuState(module)">
-							<b v-once>{{module | splitCamelCase}}</b>
+							<b>{{module | splitCamelCase}}</b>
 						</div>
 						<div class="panel-body bg-info" v-if="moduleMenuState[module]">
 							<div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')">
 								<div class="panel-heading" @click="toggleModelMenuState(model.Name)">
-									<b v-once>{{model.Name | splitCamelCase}}</b>
-									<span class="badge" v-for="mark in getRealMarks(model.Marks)" v-once>{{mark | splitCamelCase}}</span>
+									<b>{{model.Name | splitCamelCase}}</b>
+									<span class="badge" v-for="mark in getRealMarks(model.Marks)">{{mark | splitCamelCase}}</span>
 								</div>
 								<div class="panel-body" v-if="modelMenuState[model.Name]">
-									<a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" v-once>
+									<a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" @click="showOperation(operation)">
 										{{operation.Name | splitCamelCase}}
-										<span class="badge" v-for="mark in getRealMarks(operation.Marks)" v-once>{{mark | splitCamelCase}}</span>
+										<span class="badge" v-for="mark in getRealMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
 									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="main-content">
+					<ul class="nav nav-tabs" v-if="requests.length > 0">
+						<li v-for="(request,index) in requests" v-bind:class="{active: request.active}">
+							<a href="javascript:void(0)" @click="activate(request, $event, index)">
+								{{request.name}}&nbsp;<i class="close glyphicon glyphicon-remove" @click="close(index)"></i>
+							</a>
+						</li>
+					</ul>
+					<div class="tab-content" v-if="requests.length > 0">
+						<div class="tab-pane" v-for="request in requests" v-bind:class="{active: request.active}">
+							<div class="row nopad">
+								<div class="col-md-12">
+									<h4>
+										{{request.name}}
+										<span class="badge" v-for="mark in getRealMarks(request.operation.Marks)">{{mark | splitCamelCase()}}</span>
+									</h4>
+									<span class="label label-info">URL</span>&nbsp;<span class="text-info">{{request.getUrl()}}</span>
+									<hr />
+								</div>
+							</div>
+							<div class="row row-tab-content nopad-l nopad-r">
+								<div class="col-md-3 request">
+									<form v-on:submit="request.make()">
+										<div class="panel panel-default">
+											<div class="panel-heading panel-heading-btn">
+												Target
+												<button type="submit"
+												        class="btn btn-primary btn-xs pull-right">
+													Call <i class="glyphicon glyphicon-play"></i>
+												</button>
+											</div>
+											<div class="panel-body">
+												<div class="row">
+													<div class="col-xs-12" v-if="modelOf(request.operation) && modelOf(request.operation).IsViewModel">
+														<div class="form-group">
+															<select class="form-control"
+															        v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length > 1"
+															        v-model="request.target.ModelId"
+															        @change="request.invalidateTargetId">
+																<option v-bind:value="modelId" v-for="modelId in modelOf(request.operation).ActualModelIds">
+																	{{modelOf(modelId).Name | splitCamelCase}}
+																</option>
+															</select>
+															<p class="form-control" v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length === 1">
+																<span>{{modelOf(request.target.ModelId).Name | splitCamelCase}}</span>
+															</p>
+														</div>
+													</div>
+													<div class="col-xs-12">
+														<div class="form-group nopad-b">
+															<input type="text" class="form-control"
+															       v-model="request.target.Id"
+															       v-bind:placeholder="(modelOf(request.operation) && modelOf(request.operation).IsValueModel) ? 'Value':'Id'"
+															       v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length <= 0" />
+															<p class="form-control" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length === 1">
+																<span>{{modelOf(request.target.ModelId).StaticInstances[0].Display}}</span>
+															</p>
+															<select class="form-control" v-model="request.target.Id" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length > 1">
+																<option v-bind:value="instance.Id" v-for="instance in modelOf(request.target.ModelId).StaticInstances">
+																	{{instance.Display}}
+																</option>
+															</select>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<pre>{{request.data}}</pre>
+										<parameter v-for="parameter in request.operation.Parameters"
+												   :pmodel="parameter"
+												   :viewmodel="modelOf(parameter.ViewModelId)"
+												   :data="request.data"
+												   :marks="getRealMarks(parameter.Marks)"
+												   @modelOf="modelOf">
+										</parameter>
+									</form>
 								</div>
 							</div>
 						</div>
