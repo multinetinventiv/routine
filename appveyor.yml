@@ -11,7 +11,7 @@
   nuget:
     disable_publish_on_pr: true
   install:
-    - ps: .\Tools\Appveyor\install_dotnet_devpack.ps1
+    - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
   build_script:
@@ -21,7 +21,7 @@
       only:
         - Routine.Test.dll
   after_test:
-    - ps: .\Routine\Scripts\BuildNugetPackage.ps1
+    - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
   deploy:
     # The following is the details allowing for appveyor to push the 
@@ -46,7 +46,7 @@
   nuget:
     disable_publish_on_pr: true
   install:
-    - ps: .\Tools\Appveyor\install_dotnet_devpack.ps1
+    - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
   build_script:
@@ -65,7 +65,7 @@
       - develop
   configuration: Release
   install:
-    - ps: .\Tools\Appveyor\install_dotnet_devpack.ps1
+    - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
   build_script:
@@ -75,4 +75,4 @@
       only:
         - Routine.Test.dll
   after_test:
-    - ps: .\Routine\Scripts\BuildNugetPackage.ps1
+    - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
