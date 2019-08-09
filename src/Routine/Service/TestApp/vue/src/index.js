@@ -15,8 +15,7 @@
 		}
 	},
 	components: {
-		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue'),
-		'parameter-value': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter-value.vue')
+		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue')
 	},
 	mounted() {
 		this.getConfiguration();
