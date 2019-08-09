@@ -7,6 +7,8 @@
 	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
 
 	<script src="https://unpkg.com/vue"></script>
+	<script src="https://unpkg.com/vuex"></script>
+	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
 	<script src="$urlbase$/File?path=assets/js/httpVueLoader.js"></script>
 	<script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
 	<script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
@@ -61,7 +63,7 @@
 				<div class="main-content">
 					<ul class="nav nav-tabs" v-if="requests.length > 0">
 						<li v-for="(request,index) in requests" v-bind:class="{active: request.active}">
-							<a href="javascript:void(0)" @click="activate(request, $event, index)">
+							<a href="javascript:void(0)" @mousedown="activate(request, $event, index)" @click.self="activate(request, $event, index)">
 								{{request.name}}&nbsp;<i class="close glyphicon glyphicon-remove" @click="close(index)"></i>
 							</a>
 						</li>
@@ -142,8 +144,8 @@
 			</div>
 		</div>
 	</div>
+	<script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
 	<script src="$urlbase$/File?path=vue/src/index.js"></script>
 	<script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
-	<script src="$urlbase$/File?path=vue/src/bus/event-bus.js"></script>
 </body>
 </html>

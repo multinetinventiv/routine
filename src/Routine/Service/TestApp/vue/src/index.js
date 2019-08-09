@@ -1,68 +1,45 @@
 ﻿var app = new Vue({
 	el: '#app',
+	store,
+	computed: {
+		responseHeaders() {
+			return store.state.responseHeaders;
+		},
+		models() {
+			return store.state.models;
+		},
+		headers() {
+			return store.state.headers;
+		},
+		modelsloading() {
+			return store.state.modelsloading;
+		},
+		headersloading() {
+			return store.state.headersloading;
+		},
+		requests() {
+			return store.state.requests;
+		}
+	},
 	data() {
 		return {
 			headersState: true,
-			headers: {},
-			responseHeaders: [],
 			modules: {},
-			models: [],
-			headersloading: true,
-			modelsloading: true,
 			moduleMenuState: {},
-			modelMenuState: {},
-			requests: []
+			modelMenuState: {}
 		}
 	},
 	components: {
 		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue')
 	},
 	mounted() {
-		this.getConfiguration();
-		this.getApplicationModel();
+		this.$store.dispatch('loadConfiguration');
+		this.$store.dispatch('loadApplicationModel');
 	},
 	methods: {
-		getConfiguration: function () {
-
-			axios.get("http://localhost:32805/Service/Configuration").then(response => {
-				var data = response.data;
-				app.headersloading = false;
-
-				data.requestHeaders.forEach(function (requestHeader) {
-					app.headers[requestHeader] = "";
-				});
-				app.responseHeaders = data.responseHeaders;
-			});
-		},
-
-		getApplicationModel: function () {
-
-			axios.get("http://localhost:32805/Service/ApplicationModel").then(response => {
-				var data = response.data;
-				app.modelsloading = false;
-				app.models = data.Models;
-
-				app.models.forEach(function (model) {
-					model.Initializer.ModelId = model.Id;
-
-					model.Datas.forEach(function (data) {
-						data.ModelId = model.Id;
-					});
-
-					model.Operations.forEach(function (operation) {
-						operation.ModelId = model.Id;
-
-						operation.Parameters.forEach(function (parameter) {
-							parameter.ModelId = model.Id;
-							parameter.OperationName = operation.Name;
-						});
-					});
-				});
-			});
-		},
 
 		showOperation: function (operation) {
-			var request = {
+			const request = {
 				name: this.$options.filters.splitCamelCase(this.modelOf(operation).Name) + " - " + this.$options.filters.splitCamelCase(operation.Name),
 				operation: operation,
 				active: false,
@@ -122,7 +99,8 @@
 					//});
 				}
 			};
-			app.requests.push(request);
+			//this.$set(this.requests, i, request);
+			this.$store.dispatch('addRequest', request);
 			this.activate(request);
 		},
 
@@ -140,6 +118,46 @@
 			});
 			return newModules;
 		},
+
+
+		activate: function (current, $event, $index) {
+			if ($event != undefined && ($event.which === 2 || ($event.which === 1 && ($event.metaKey || $event.ctrlKey)))) {
+				this.close($index);
+				$event.preventDefault();
+				return;
+			}
+			this.requests.forEach(function (request) {
+				request.active = false;
+			});
+
+			current.active = true;
+		},
+
+		close: function (index) {
+			const wasActive = this.requests[index].active;
+			this.requests.splice(index, 1);
+
+			if (wasActive && this.requests.length > 0) {
+				this.activate(this.requests[0]);
+			}
+		},
+
+		modelOf: function (obj) {
+			var id = obj;
+
+			if (id === undefined) {
+				return null;
+			}
+
+			if (!(typeof id === "string")) {
+				id = obj.ModelId;
+			}
+
+			return _.find(store.state.models, function (item) {
+				return item["Id"] === id;
+			});
+		},
+
 
 		toggleModuleMenuState: function (module) {
 			this.$set(this.moduleMenuState, module, !this.moduleMenuState[module]);
@@ -159,47 +177,7 @@
 			return moduleModels.filter(moduleModel => {
 				return moduleModel.Operations && moduleModel.Operations.length > 0;
 			});
-		},
-
-		activate: function (current, $event, $index) {
-			if ($event != undefined && ($event.which === 2 || ($event.which === 1 && ($event.metaKey || $event.ctrlKey)))) {
-				this.close($index);
-				$event.preventDefault();
-
-				return;
-			}
-
-			app.requests.forEach(function (request) {
-				request.active = false;
-			});
-
-			current.active = true;
-		},
-
-		close: function (index) {
-			var wasActive = app.requests[index].active;
-
-			app.requests.splice(index, 1);
-
-			if (wasActive && this.requests.length > 0) {
-				this.activate(app.requests[0]);
-			}
-		},
-
-		modelOf: function (obj) {
-			var id = obj;
-
-			if (id === undefined) {
-				return null;
-			}
-
-			if (!(typeof id === 'string')) {
-				id = obj.ModelId;
-			}
-
-			return _.find(app.models, function (item) {
-				return item['Id'] === id;
-			});
 		}
+
 	}
 });

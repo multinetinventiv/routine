@@ -93,8 +93,20 @@
 			}
 		},
 		methods: {
-			modelOfW: function (obj) {
-				return this.$emit('modelOf', obj);
+			modelOf: function (obj) {
+				var id = obj;
+
+				if (id === undefined) {
+					return null;
+				}
+
+				if (!(typeof id === 'string')) {
+					id = obj.ModelId;
+				}
+
+				return _.find(this.$store.state.models, function (item) {
+					return item['Id'] === id;
+				});
 			}
 		},
 

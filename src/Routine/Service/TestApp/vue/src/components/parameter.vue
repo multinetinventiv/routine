@@ -152,10 +152,20 @@
 			},
 
 			modelOf: function (obj) {
-				console.log(obj);
-				var response = this.$emit('model-of', obj);
-				console.log(response);
-			},
+				var id = obj;
+
+				if (id === undefined) {
+					return null;
+				}
+
+				if (!(typeof id === 'string')) {
+					id = obj.ModelId;
+				}
+
+				return _.find(this.$store.state.models, function (item) {
+					return item['Id'] === id;
+				});
+			}
 		}
 	}
 </script>
