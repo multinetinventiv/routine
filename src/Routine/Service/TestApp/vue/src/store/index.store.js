@@ -9,22 +9,26 @@
 	},
 	actions: {
 
-		loadConfiguration({ commit, state }) {
+		loadConfiguration({ commit }) {
 
-			axios.get("http://localhost:32805/Service/Configuration").then(response => {
+			axios.get("$urlbase$/Configuration").then(response => {
 				let data = response.data;
 
 				commit('SET_HEADERS_LOADING', false);
 
+				let headers = {};
 				data.requestHeaders.forEach(function (requestHeader) {
-					state.headers[requestHeader] = "";
+					headers[requestHeader] = "";
 				});
+
+				commit('SET_REQUEST_HEADERS', headers);
+				commit('SET_RESPONSE_HEADERS', data.responseHeaders);
 			});
 		},
 
 		loadApplicationModel({ commit }) {
 
-			axios.get("http://localhost:32805/Service/ApplicationModel").then(response => {
+			axios.get("$urlbase$/ApplicationModel").then(response => {
 				let data = response.data;
 				let models = data.Models;
 
@@ -75,6 +79,10 @@
 		}
 	},
 	mutations: {
+		SET_REQUEST_HEADERS(state, headers) {
+			state.headers = headers;
+		},
+
 		SET_RESPONSE_HEADERS(state, responseHeaders) {
 			state.responseHeaders = responseHeaders;
 		},

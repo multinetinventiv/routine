@@ -41,16 +41,9 @@
 	module.exports = {
 		name: 'ParameterValue',
 		props: ['model', 'data', 'i'],
-		mounted() {
-			//this.addValue();
-			//console.log(this.model);
-			//console.log(this.data);
-			//console.log(this.i);
-		},
 		data() {
 			return {
 				recursiveDirectiveAdded: undefined,
-
 			}
 		},
 		watch: {
@@ -109,6 +102,5 @@
 				});
 			}
 		},
-
 	}
 </script>

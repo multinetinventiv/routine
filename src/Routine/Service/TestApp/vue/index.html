@@ -82,7 +82,7 @@
 							</div>
 							<div class="row row-tab-content nopad-l nopad-r">
 								<div class="col-md-3 request">
-									<form v-on:submit="request.make()">
+									<form @submit.prevent="request.make()">
 										<div class="panel panel-default">
 											<div class="panel-heading panel-heading-btn">
 												Target
@@ -127,7 +127,6 @@
 												</div>
 											</div>
 										</div>
-										<pre>{{request.data}}</pre>
 										<parameter v-for="parameter in request.operation.Parameters"
 												   :pmodel="parameter"
 												   :viewmodel="modelOf(parameter.ViewModelId)"
@@ -136,6 +135,28 @@
 												   @model-of="modelOf">
 										</parameter>
 									</form>
+								</div>
+								<div class="col-md-9 response">
+									<div class="spinner" v-if="request.loading">
+										<div class="bounce1"></div>
+										<div class="bounce2"></div>
+										<div class="bounce3"></div>
+									</div>
+									<div class="alert alert-danger"
+										 v-if="!request.loading && request.response!=null && request.response.data!=null &&  request.response.data.IsException">
+										<i class="glyphicon glyphicon-exclamation-sign"></i>
+										<strong>{{request.response.data.Type}}</strong>
+										<hr />
+										<p>{{request.response.data.Message}}</p>
+									</div>
+									<div class="alert alert-success"
+									     v-if="!request.loading && request.response != null && !request.response.data.IsException">
+										<i class="glyphicon glyphicon-ok"></i>&nbsp;
+										<span v-for="(value, header, index) in request.response.headers"><span v-if="index > 0">, </span><strong>{{header}}:</strong> {{value}}</span>
+									</div>
+									<json-table :data="request.response.data"
+												v-if="!request.loading && request.response != null && !request.response.data.IsException">
+									</json-table>
 								</div>
 							</div>
 						</div>

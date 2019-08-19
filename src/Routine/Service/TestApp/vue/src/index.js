@@ -30,7 +30,8 @@
 		}
 	},
 	components: {
-		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue')
+		'parameter': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter.vue'),
+		'json-table': httpVueLoader('$urlbase$/File?path=vue/src/components/json-table.vue')
 	},
 	mounted() {
 		this.$store.dispatch('loadConfiguration');
@@ -72,34 +73,18 @@
 				make: function () {
 					var self = this;
 					this.loading = true;
-
-					axios.post(this.getUrl(),
-						this.data,
-						{
-							headers: this.headers
-						}).then(response => {
-							//console.log(response);
+					axios.post(this.getUrl(), this.data, { headers: app.headers })
+						.then(response => {
 							self.loading = false;
 							self.response = {};
 							self.response.data = response.data;
 							self.response.headers = {};
 							app.responseHeaders.forEach(function (responseHeader) {
-								self.response.headers[responseHeader] = response.headers(responseHeader);
+								self.response.headers[responseHeader] = response.headers[responseHeader];
 							});
-						});
-
-					//indexService.do(this.getUrl(), $scope.headers, this.data).then(function (response, headers) {
-					//	self.loading = false;
-					//	self.response = {};
-					//	self.response.data = response.data;
-					//	self.response.headers = {};
-					//	app.responseHeaders.forEach(function (responseHeader) {
-					//		self.response.headers[responseHeader] = response.headers(responseHeader);
-					//	});
-					//});
+					});
 				}
 			};
-			//this.$set(this.requests, i, request);
 			this.$store.dispatch('addRequest', request);
 			this.activate(request);
 		},
