@@ -67,9 +67,9 @@
   install:
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
-    - dotnet restore .\Routine.sln
+    - nuget restore .\Routine.sln
   build_script:
-    - dotnet build .\Routine.sln
+    - .\Routine.sln
   test:
     assemblies:
       only:
