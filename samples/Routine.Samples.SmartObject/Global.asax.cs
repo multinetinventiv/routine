@@ -9,7 +9,6 @@ namespace Routine.Samples.SmartObject
 {
 	public class Global : System.Web.HttpApplication
 	{
-
 		protected void Application_Start(object sender, EventArgs e)
 		{
 			BuildRoutine.Context().AsServiceApplication(
@@ -39,6 +38,7 @@ namespace Routine.Samples.SmartObject
 			{
 				throw new MissingMethodException(queryType.Name, "Find");
 			}
+
 			return methodInfo.Invoke(Activator.CreateInstance(queryType), new object[] { name });
 		}
 	}
