@@ -1,11 +1,11 @@
-﻿const store = new Vuex.Store({
+﻿window.store = new Vuex.Store({
 	state: {
 		responseHeaders: [],
 		models: [],
 		headers: {},
 		modelsloading: true,
 		headersloading: true,
-		requests:[]
+		requests: []
 	},
 	actions: {
 
@@ -56,26 +56,6 @@
 
 		addRequest({ commit }, request) {
 			commit('ADD_REQUEST', request);
-		},
-
-
-		modelOf(obj) {
-			return new Promise((resolve, reject) => {
-				var id = obj;
-
-				if (id === undefined) {
-					resolve(null);
-				}
-
-				if (!(typeof id === 'string')) {
-					id = obj.ModelId;
-				}
-				console.log(state.models);
-				resolve(_.find(state.models,
-					function (item) {
-						return item['Id'] === id;
-					}));
-			});
 		}
 	},
 	mutations: {
@@ -101,6 +81,10 @@
 
 		ADD_REQUEST(state, request) {
 			state.requests.push(request);
+		},
+
+		CHANGE_MODELS_LOAIDING(state, modelsloading) {
+			state.modelsloading = modelsloading;
 		}
 	}
 });

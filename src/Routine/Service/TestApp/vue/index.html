@@ -6,9 +6,9 @@
 	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
 
-	<script src="https://unpkg.com/vue"></script>
-	<script src="https://unpkg.com/vuex"></script>
-	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
+	<script src="$urlbase$/File?path=assets/js/vue.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/vuex.min.js"></script>
+	<script src="$urlbase$/File?path=assets/js/es6-promise.auto.js"></script>
 	<script src="$urlbase$/File?path=assets/js/httpVueLoader.js"></script>
 	<script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
 	<script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
@@ -35,12 +35,22 @@
 							</div>
 						</div>
 					</div>
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<b>Search</b>
+						</div>
+						<div class="panel-body">
+							<div class="form-group">
+								<input class="form-control" type="text" v-model="search" placeholder="search" />
+							</div>
+						</div>
+					</div>
 					<div class="spinner" v-if="modelsloading">
 						<div class="bounce1"></div>
 						<div class="bounce2"></div>
 						<div class="bounce3"></div>
 					</div>
-					<div class="panel panel-info" v-for="(moduleModels, module) in  getParentModules(_.groupBy(_.sortBy(models, ['Module']), 'Module'))">
+					<div class="panel panel-info" v-for="(moduleModels, module) in  filteredModules">
 						<div class="panel-heading" @click="toggleModuleMenuState(module)">
 							<b>{{module | splitCamelCase}}</b>
 						</div>
@@ -150,7 +160,7 @@
 										<p>{{request.response.data.Message}}</p>
 									</div>
 									<div class="alert alert-success"
-									     v-if="!request.loading && request.response != null && !request.response.data.IsException">
+										 v-if="!request.loading && request.response != null && !request.response.data.IsException">
 										<i class="glyphicon glyphicon-ok"></i>&nbsp;
 										<span v-for="(value, header, index) in request.response.headers"><span v-if="index > 0">, </span><strong>{{header}}:</strong> {{value}}</span>
 									</div>
@@ -166,6 +176,7 @@
 		</div>
 	</div>
 	<script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
+	<script src="$urlbase$/File?path=vue/src/shared.js"></script>
 	<script src="$urlbase$/File?path=vue/src/index.js"></script>
 	<script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
 </body>

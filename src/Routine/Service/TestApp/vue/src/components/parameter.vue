@@ -104,7 +104,6 @@
 			removeValue: function (i) {
 				var pmodel = this.pmodel;
 				var data = this.data;
-				console.log(data);
 				if (pmodel.IsList) {
 					if (data[pmodel.Name] === undefined) {
 						return;
@@ -117,7 +116,7 @@
 						data[pmodel.Name].splice(data[pmodel.Name].length - 1, 1);
 
 					} else {
-						this.reactiveSet(data[pmodel.Name], i, null);
+						this.$set(data[pmodel.Name], i, null);
 					}
 				} else {
 					if (data.hasOwnProperty(pmodel.Name) && i === undefined) {
@@ -128,7 +127,7 @@
 						return;
 					}
 
-					this.reactiveSet(data, pmodel.Name, null);
+					this.$set(data, pmodel.Name, null);
 
 				}
 			},
@@ -147,18 +146,14 @@
 				return viewmodel;
 			},
 
-			reactiveSet: function (obj, key, value) {
-				this.$set(obj, key, value);
-			},
-
 			modelOf: function (obj) {
 				var id = obj;
 
-				if (id === undefined) {
+				if (_.isUndefined(id)) {
 					return null;
 				}
 
-				if (!(typeof id === 'string')) {
+				if (!_.isString(id)) {
 					id = obj.ModelId;
 				}
 

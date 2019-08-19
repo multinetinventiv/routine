@@ -67,7 +67,7 @@
 						delete this.data.Id;
 					}
 
-					if (this.recursiveDirectiveAdded === undefined) {
+					if (_.isUndefined(this.recursiveDirectiveAdded)) {
 						//element.append('<div parameter ' +
 						//	'pmodel="parameter" ' +
 						//	'viewmodel="modelOf({obj: parameter.ViewModelId})" ' +
@@ -87,19 +87,7 @@
 		},
 		methods: {
 			modelOf: function (obj) {
-				var id = obj;
-
-				if (id === undefined) {
-					return null;
-				}
-
-				if (!(typeof id === 'string')) {
-					id = obj.ModelId;
-				}
-
-				return _.find(this.$store.state.models, function (item) {
-					return item['Id'] === id;
-				});
+				return modelOf(obj);
 			}
 		},
 	}

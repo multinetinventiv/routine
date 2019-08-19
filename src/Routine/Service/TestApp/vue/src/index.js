@@ -19,14 +19,41 @@
 		},
 		requests() {
 			return store.state.requests;
+		},
+		filteredModules() {
+			const search = this.search;
+
+			const modules = _.groupBy(_.sortBy(this.models, ['Module']), 'Module');
+			let clonedModules = _.cloneDeep(modules, function () {
+				this.$store.commit('CHANGE_MODELS_LOAIDING', true);
+			});
+
+			let newModules = {};
+			Object.keys(clonedModules).forEach(moduleName => {
+				var modulesByModuleName = clonedModules[moduleName];
+				modulesByModuleName.forEach(module => {
+					if (search && search.length >= 3) {
+						module.Operations = _.filter(module.Operations, function (operation) {
+							return _.includes(operation.Name.toLowerCase(), search.toLowerCase());
+						});
+					}
+					if (module.Operations && module.Operations.length > 0) {
+						if (!newModules[moduleName]) {
+							newModules[moduleName] = modulesByModuleName;
+						}
+					}
+				});
+			});
+			return newModules;
 		}
 	},
 	data() {
 		return {
 			headersState: true,
-			modules: {},
 			moduleMenuState: {},
-			modelMenuState: {}
+			modelMenuState: {},
+			modules: [],
+			search: ""
 		}
 	},
 	components: {
@@ -82,28 +109,12 @@
 							app.responseHeaders.forEach(function (responseHeader) {
 								self.response.headers[responseHeader] = response.headers[responseHeader];
 							});
-					});
+						});
 				}
 			};
 			this.$store.dispatch('addRequest', request);
 			this.activate(request);
 		},
-
-		getParentModules: function (modules) {
-			var newModules = {};
-			Object.keys(modules).forEach(moduleName => {
-				var modulesByModuleName = modules[moduleName];
-				modulesByModuleName.forEach(module => {
-					if (module.Operations && module.Operations.length > 0) {
-						if (!newModules[moduleName]) {
-							newModules[moduleName] = modulesByModuleName;
-						}
-					}
-				});
-			});
-			return newModules;
-		},
-
 
 		activate: function (current, $event, $index) {
 			if ($event != undefined && ($event.which === 2 || ($event.which === 1 && ($event.metaKey || $event.ctrlKey)))) {
@@ -128,21 +139,8 @@
 		},
 
 		modelOf: function (obj) {
-			var id = obj;
-
-			if (id === undefined) {
-				return null;
-			}
-
-			if (!(typeof id === "string")) {
-				id = obj.ModelId;
-			}
-
-			return _.find(store.state.models, function (item) {
-				return item["Id"] === id;
-			});
+			return modelOf(obj);
 		},
-
 
 		toggleModuleMenuState: function (module) {
 			this.$set(this.moduleMenuState, module, !this.moduleMenuState[module]);
