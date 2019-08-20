@@ -7,8 +7,9 @@
 			return new ConventionBasedServiceConfiguration()
 				.RootPath.Set("Service")
 				.AllowGet.Set(false)
-				.ExceptionResult.Set(new ExceptionResult())
+				.ExceptionResult.Set(c => c.By(ex => new ExceptionResult(ex.GetType().Name, ex.ToString())))
 				.ResponseHeaderValue.SetDefault()
+
 				.NextLayer()
 			;
 		}

@@ -8,16 +8,18 @@ namespace Routine.Engine.Configuration
 		public ConventionBasedCodingStyle FromBasic()
 		{
 			return new ConventionBasedCodingStyle()
+				.AddCommonSystemTypes()
+
 				.MaxFetchDepth.Set(Constants.DEFAULT_MAX_FETCH_DEPTH)
 
 				.Type.Set(c => c.By(o => o.GetTypeInfo()))
 
 				.Module.Set(c => c
 					.By(t => ((TypeInfo)t).GetActualType().GetGenericArguments()[0].Namespace)
-					.When(t => t is TypeInfo && t.IsValueType && t.IsGenericType && ((TypeInfo)t).GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
+					.When(t => t is TypeInfo ti && ti.IsValueType && ti.IsGenericType && ti.GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
 				.TypeName.Set(c => c
 					.By(t => ((TypeInfo)t).GetActualType().GetGenericArguments()[0].Name + "?")
-					.When(t => t is TypeInfo && t.IsValueType && t.IsGenericType && ((TypeInfo)t).GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
+					.When(t => t is TypeInfo ti && ti.IsValueType && ti.IsGenericType && ti.GetActualType().GetGenericTypeDefinition() == typeof(Nullable<>)))
 
 				.Module.Set(c => c.By(t => t.Namespace))
 				.TypeName.Set(c => c.By(t => t.ToCSharpString(false)))
@@ -38,6 +40,10 @@ namespace Routine.Engine.Configuration
 				.IdExtractor.SetDefault()
 				.ValueExtractor.SetDefault()
 				.Locator.SetDefault()
+
+				.NextLayer()
+
+				.Use(p => p.ParseableValueTypePattern())
 
 				.Override(cfg => cfg
 					.AddTypes((IType)null)

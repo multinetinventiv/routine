@@ -127,6 +127,22 @@ namespace Routine
 
 	public static class BuildRoutineExtensions
 	{
+		#region ContextBuilder
+
+		public static IServiceContext AsServiceApplication(
+			this ContextBuilder source,
+			Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
+			Func<CodingStyleBuilder, ICodingStyle> codingStyle
+		)
+		{
+			return source.AsServiceApplication(
+				serviceConfiguration(BuildRoutine.ServiceConfig()),
+				codingStyle(BuildRoutine.CodingStyle())
+			);
+		}
+
+		#endregion
+
 		#region Convention
 
 		public static TConfiguration Set<TConfiguration, TFrom, TResult>(

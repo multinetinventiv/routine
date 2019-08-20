@@ -8,7 +8,6 @@ using NUnit.Framework;
 using Routine.Api;
 using Routine.Api.Configuration;
 using Routine.Core.Configuration;
-using Text = Routine.Test.Common.Text;
 
 namespace Routine.Test.Api
 {

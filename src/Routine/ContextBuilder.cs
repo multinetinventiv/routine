@@ -28,7 +28,6 @@ namespace Routine
 			return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(serviceClientConfiguration)));
 		}
 
-
 		public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
 		{
 			return ClientContext(ObjectServiceClient(serviceClientConfiguration));

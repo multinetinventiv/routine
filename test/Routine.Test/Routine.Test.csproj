@@ -61,9 +61,5 @@
 			<Project>{A597022C-F6DD-495F-A846-290EEDE08B9D}</Project>
 			<Name>Routine</Name>
 		</ProjectReference>
-		<ProjectReference Include="..\..\samples\Routine.Test.Common\Routine.Test.Common.csproj">
-			<Project>{0A8536E8-84A1-4D0D-8AF3-34785725E56B}</Project>
-			<Name>Routine.Test.Common</Name>
-		</ProjectReference>
 	</ItemGroup>
 </Project>
