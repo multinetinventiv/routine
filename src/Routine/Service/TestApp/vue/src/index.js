@@ -19,32 +19,6 @@
 		},
 		requests() {
 			return store.state.requests;
-		},
-		filteredModules() {
-			const search = this.search;
-
-			const modules = _.groupBy(_.sortBy(this.models, ['Module']), 'Module');
-			let clonedModules = _.cloneDeep(modules, function () {
-				this.$store.commit('CHANGE_MODELS_LOAIDING', true);
-			});
-
-			let newModules = {};
-			Object.keys(clonedModules).forEach(moduleName => {
-				var modulesByModuleName = clonedModules[moduleName];
-				modulesByModuleName.forEach(module => {
-					if (search && search.length >= 3) {
-						module.Operations = _.filter(module.Operations, function (operation) {
-							return _.includes(operation.Name.toLowerCase(), search.toLowerCase());
-						});
-					}
-					if (module.Operations && module.Operations.length > 0) {
-						if (!newModules[moduleName]) {
-							newModules[moduleName] = modulesByModuleName;
-						}
-					}
-				});
-			});
-			return newModules;
 		}
 	},
 	data() {
@@ -158,6 +132,9 @@
 
 		getModuleModelsByHasOperations: function (moduleModels) {
 			return moduleModels.filter(moduleModel => {
+				_.filter(moduleModel.Operations, function(operation) {
+					return _.includes(operation.Name, this.search);
+				})
 				return moduleModel.Operations && moduleModel.Operations.length > 0;
 			});
 		}

@@ -35,22 +35,15 @@
 							</div>
 						</div>
 					</div>
-					<div class="panel panel-info">
-						<div class="panel-heading">
-							<b>Search</b>
-						</div>
-						<div class="panel-body">
-							<div class="form-group">
-								<input class="form-control" type="text" v-model="search" placeholder="search" />
-							</div>
-						</div>
+					<div class="form-group">
+						<input class="form-control" type="text" v-model="search" placeholder="search" />
 					</div>
 					<div class="spinner" v-if="modelsloading">
 						<div class="bounce1"></div>
 						<div class="bounce2"></div>
 						<div class="bounce3"></div>
 					</div>
-					<div class="panel panel-info" v-for="(moduleModels, module) in  filteredModules">
+					<div class="panel panel-info" v-for="(moduleModels, module) in  _.groupBy(_.sortBy(this.models, ['Module']), 'Module')">
 						<div class="panel-heading" @click="toggleModuleMenuState(module)">
 							<b>{{module | splitCamelCase}}</b>
 						</div>
@@ -73,7 +66,7 @@
 				<div class="main-content">
 					<ul class="nav nav-tabs" v-if="requests.length > 0">
 						<li v-for="(request,index) in requests" v-bind:class="{active: request.active}">
-							<a href="javascript:void(0)" @mousedown="activate(request, $event, index)" @click.self="activate(request, $event, index)">
+							<a href="javascript:void(0)" @mouseup="activate(request, $event, index)" @click.self="activate(request, $event, index)">
 								{{request.name}}&nbsp;<i class="close glyphicon glyphicon-remove" @click="close(index)"></i>
 							</a>
 						</li>

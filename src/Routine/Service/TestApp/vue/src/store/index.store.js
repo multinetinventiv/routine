@@ -11,7 +11,7 @@
 
 		loadConfiguration({ commit }) {
 
-			axios.get("$urlbase$/Configuration").then(response => {
+			axios.get("http://localhost:32805/Service/Configuration").then(response => {
 				let data = response.data;
 
 				commit('SET_HEADERS_LOADING', false);
@@ -28,7 +28,7 @@
 
 		loadApplicationModel({ commit }) {
 
-			axios.get("$urlbase$/ApplicationModel").then(response => {
+			axios.get("http://localhost:32805/Service/ApplicationModel").then(response => {
 				let data = response.data;
 				let models = data.Models;
 
