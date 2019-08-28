@@ -1,176 +1,176 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<title>Service Test UI</title>
-	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
+        <meta charset="utf-8" />
+        <title>Service Test UI</title>
+        <link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="$urlbase$/File?path=assets/css/master.css" />
 
-	<script src="$urlbase$/File?path=assets/js/vue.min.js"></script>
-	<script src="$urlbase$/File?path=assets/js/vuex.min.js"></script>
-	<script src="$urlbase$/File?path=assets/js/es6-promise.auto.js"></script>
-	<script src="$urlbase$/File?path=assets/js/httpVueLoader.js"></script>
-	<script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
-	<script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
+        <script src="$urlbase$/File?path=assets/js/vue.min.js"></script>
+        <script src="$urlbase$/File?path=assets/js/vuex.min.js"></script>
+        <script src="$urlbase$/File?path=assets/js/es6-promise.auto.js"></script>
+        <script src="$urlbase$/File?path=assets/js/httpVueLoader.js"></script>
+        <script src="$urlbase$/File?path=assets/js/axios.min.js"></script>
+        <script src="$urlbase$/File?path=assets/js/lodash.min.js"></script>
 </head>
 <body>
-	<div id="app">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="left-menu">
-					<div class="panel panel-info">
-						<div class="panel-heading"
-							 @click="headersState = !headersState">
-							<b>Request Headers</b>
-						</div>
-						<div class="panel-body" v-if="headersState">
-							<div class="spinner" v-if="headersloading">
-								<div class="bounce1"></div>
-								<div class="bounce2"></div>
-								<div class="bounce3"></div>
-							</div>
-							<div class="form-group" v-for="(value, name) in headers">
-								<label class="control-label">{{ name }}</label>
-								<input type="text" v-model="headers[name]" class="form-control nopad-b" />
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<input class="form-control" type="text" v-model="search" placeholder="search" />
-					</div>
-					<div class="spinner" v-if="modelsloading">
-						<div class="bounce1"></div>
-						<div class="bounce2"></div>
-						<div class="bounce3"></div>
-					</div>
-					<div class="panel panel-info" v-for="(moduleModels, module) in  _.groupBy(_.sortBy(this.models, ['Module']), 'Module')">
-						<div class="panel-heading" @click="toggleModuleMenuState(module)">
-							<b>{{module | splitCamelCase}}</b>
-						</div>
-						<div class="panel-body bg-info" v-if="moduleMenuState[module]">
-							<div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')">
-								<div class="panel-heading" @click="toggleModelMenuState(model.Name)">
-									<b>{{model.Name | splitCamelCase}}</b>
-									<span class="badge" v-for="mark in getRealMarks(model.Marks)">{{mark | splitCamelCase}}</span>
-								</div>
-								<div class="panel-body" v-if="modelMenuState[model.Name]">
-									<a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" @click="showOperation(operation)">
-										{{operation.Name | splitCamelCase}}
-										<span class="badge" v-for="mark in getRealMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="main-content">
-					<ul class="nav nav-tabs" v-if="requests.length > 0">
-						<li v-for="(request,index) in requests" v-bind:class="{active: request.active}">
-							<a href="javascript:void(0)" @mouseup="activate(request, $event, index)" @click.self="activate(request, $event, index)">
-								{{request.name}}&nbsp;<i class="close glyphicon glyphicon-remove" @click="close(index)"></i>
-							</a>
-						</li>
-					</ul>
-					<div class="tab-content" v-if="requests.length > 0">
-						<div class="tab-pane" v-for="request in requests" v-bind:class="{active: request.active}">
-							<div class="row nopad">
-								<div class="col-md-12">
-									<h4>
-										{{request.name}}
-										<span class="badge" v-for="mark in getRealMarks(request.operation.Marks)">{{mark | splitCamelCase()}}</span>
-									</h4>
-									<span class="label label-info">URL</span>&nbsp;<span class="text-info">{{request.getUrl()}}</span>
-									<hr />
-								</div>
-							</div>
-							<div class="row row-tab-content nopad-l nopad-r">
-								<div class="col-md-3 request">
-									<form @submit.prevent="request.make()">
-										<div class="panel panel-default">
-											<div class="panel-heading panel-heading-btn">
-												Target
-												<button type="submit"
-														class="btn btn-primary btn-xs pull-right">
-													Call <i class="glyphicon glyphicon-play"></i>
-												</button>
-											</div>
-											<div class="panel-body">
-												<div class="row">
-													<div class="col-xs-12" v-if="modelOf(request.operation) && modelOf(request.operation).IsViewModel">
-														<div class="form-group">
-															<select class="form-control"
-																	v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length > 1"
-																	v-model="request.target.ModelId"
-																	@change="request.invalidateTargetId">
-																<option v-bind:value="modelId" v-for="modelId in modelOf(request.operation).ActualModelIds">
-																	{{modelOf(modelId).Name | splitCamelCase}}
-																</option>
-															</select>
-															<p class="form-control" v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length === 1">
-																<span>{{modelOf(request.target.ModelId).Name | splitCamelCase}}</span>
-															</p>
-														</div>
-													</div>
-													<div class="col-xs-12">
-														<div class="form-group nopad-b">
-															<input type="text" class="form-control"
-																   v-model="request.target.Id"
-																   v-bind:placeholder="(modelOf(request.operation) && modelOf(request.operation).IsValueModel) ? 'Value':'Id'"
-																   v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length <= 0" />
-															<p class="form-control" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length === 1">
-																<span>{{modelOf(request.target.ModelId).StaticInstances[0].Display}}</span>
-															</p>
-															<select class="form-control" v-model="request.target.Id" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length > 1">
-																<option v-bind:value="instance.Id" v-for="instance in modelOf(request.target.ModelId).StaticInstances">
-																	{{instance.Display}}
-																</option>
-															</select>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										<parameter v-for="parameter in request.operation.Parameters"
-												   :pmodel="parameter"
-												   :viewmodel="modelOf(parameter.ViewModelId)"
-												   :data="request.data"
-												   :marks="getRealMarks(parameter.Marks)"
-												   @model-of="modelOf">
-										</parameter>
-									</form>
-								</div>
-								<div class="col-md-9 response">
-									<div class="spinner" v-if="request.loading">
-										<div class="bounce1"></div>
-										<div class="bounce2"></div>
-										<div class="bounce3"></div>
-									</div>
-									<div class="alert alert-danger"
-										 v-if="!request.loading && request.response!=null && request.response.data!=null &&  request.response.data.IsException">
-										<i class="glyphicon glyphicon-exclamation-sign"></i>
-										<strong>{{request.response.data.Type}}</strong>
-										<hr />
-										<p>{{request.response.data.Message}}</p>
-									</div>
-									<div class="alert alert-success"
-										 v-if="!request.loading && request.response != null && !request.response.data.IsException">
-										<i class="glyphicon glyphicon-ok"></i>&nbsp;
-										<span v-for="(value, header, index) in request.response.headers"><span v-if="index > 0">, </span><strong>{{header}}:</strong> {{value}}</span>
-									</div>
-									<json-table :data="request.response.data"
-												v-if="!request.loading && request.response != null && !request.response.data.IsException">
-									</json-table>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
-	<script src="$urlbase$/File?path=vue/src/shared.js"></script>
-	<script src="$urlbase$/File?path=vue/src/index.js"></script>
-	<script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
+        <div id="app">
+                <div class="container-fluid">
+                        <div class="row">
+                                <div class="left-menu">
+                                        <div class="panel panel-info">
+                                                <div class="panel-heading"
+                                                     @click="headersState = !headersState">
+                                                        <b>Request Headers</b>
+                                                </div>
+                                                <div class="panel-body" v-if="headersState">
+                                                        <div class="spinner" v-if="headersloading">
+                                                                <div class="bounce1"></div>
+                                                                <div class="bounce2"></div>
+                                                                <div class="bounce3"></div>
+                                                        </div>
+                                                        <div class="form-group" v-for="(value, name) in headers">
+                                                                <label class="control-label">{{ name }}</label>
+                                                                <input type="text" v-model="headers[name]" class="form-control nopad-b" />
+                                                        </div>
+                                                </div>
+                                        </div>
+                                        <div class="form-group">
+                                                <input class="form-control" type="text" v-model="search" placeholder="search" />
+                                        </div>
+                                        <div class="spinner" v-if="modelsloading">
+                                                <div class="bounce1"></div>
+                                                <div class="bounce2"></div>
+                                                <div class="bounce3"></div>
+                                        </div>
+                                        <div class="panel panel-info" v-for="(moduleModels, module) in filteredData">
+                                                <div class="panel-heading" @click="toggleModuleMenuState(module)">
+                                                        <b>{{module | splitCamelCase}}</b>
+                                                </div>
+                                                <div class="panel-body bg-info" v-if="moduleMenuState[module]">
+                                                        <div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')" v-if="model.Operations.length > 0">
+                                                                <div class="panel-heading" @click="toggleModelMenuState(model.Name)">
+                                                                        <b>{{model.Name | splitCamelCase}}</b>
+                                                                        <span class="badge" v-for="mark in getRealMarks(model.Marks)">{{mark | splitCamelCase}}</span>
+                                                                </div>
+                                                                <div class="panel-body" v-if="modelMenuState[model.Name]">
+                                                                        <a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" @click="showOperation(operation)">
+                                                                                {{operation.Name | splitCamelCase}}
+                                                                                <span class="badge" v-for="mark in getRealMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
+                                                                        </a>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="main-content">
+                                        <ul class="nav nav-tabs" v-if="requests.length > 0">
+                                                <li v-for="(request,index) in requests" v-bind:class="{active: request.active}">
+                                                        <a href="javascript:void(0)" @mouseup="activate(request, $event, index)" @click.self="activate(request, $event, index)">
+                                                                {{request.name}}&nbsp;<i class="close glyphicon glyphicon-remove" @click="close(index)"></i>
+                                                        </a>
+                                                </li>
+                                        </ul>
+                                        <div class="tab-content" v-if="requests.length > 0">
+                                                <div class="tab-pane" v-for="request in requests" v-bind:class="{active: request.active}">
+                                                        <div class="row nopad">
+                                                                <div class="col-md-12">
+                                                                        <h4>
+                                                                                {{request.name}}
+                                                                                <span class="badge" v-for="mark in getRealMarks(request.operation.Marks)">{{mark | splitCamelCase()}}</span>
+                                                                        </h4>
+                                                                        <span class="label label-info">URL</span>&nbsp;<span class="text-info">{{request.getUrl()}}</span>
+                                                                        <hr />
+                                                                </div>
+                                                        </div>
+                                                        <div class="row row-tab-content nopad-l nopad-r">
+                                                                <div class="col-md-3 request">
+                                                                        <form @submit.prevent="request.make()">
+                                                                                <div class="panel panel-default">
+                                                                                        <div class="panel-heading panel-heading-btn">
+                                                                                                Target
+                                                                                                <button type="submit"
+                                                                                                        class="btn btn-primary btn-xs pull-right">
+                                                                                                        Call <i class="glyphicon glyphicon-play"></i>
+                                                                                                </button>
+                                                                                        </div>
+                                                                                        <div class="panel-body">
+                                                                                                <div class="row">
+                                                                                                        <div class="col-xs-12" v-if="modelOf(request.operation) && modelOf(request.operation).IsViewModel">
+                                                                                                                <div class="form-group">
+                                                                                                                        <select class="form-control"
+                                                                                                                                v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length > 1"
+                                                                                                                                v-model="request.target.ModelId"
+                                                                                                                                @change="request.invalidateTargetId">
+                                                                                                                                <option v-bind:value="modelId" v-for="modelId in modelOf(request.operation).ActualModelIds">
+                                                                                                                                        {{modelOf(modelId).Name | splitCamelCase}}
+                                                                                                                                </option>
+                                                                                                                        </select>
+                                                                                                                        <p class="form-control" v-if="modelOf(request.operation) && modelOf(request.operation).ActualModelIds.length === 1">
+                                                                                                                                <span>{{modelOf(request.target.ModelId).Name | splitCamelCase}}</span>
+                                                                                                                        </p>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-xs-12">
+                                                                                                                <div class="form-group nopad-b">
+                                                                                                                        <input type="text" class="form-control"
+                                                                                                                               v-model="request.target.Id"
+                                                                                                                               v-bind:placeholder="(modelOf(request.operation) && modelOf(request.operation).IsValueModel) ? 'Value':'Id'"
+                                                                                                                               v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length <= 0" />
+                                                                                                                        <p class="form-control" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length === 1">
+                                                                                                                                <span>{{modelOf(request.target.ModelId).StaticInstances[0].Display}}</span>
+                                                                                                                        </p>
+                                                                                                                        <select class="form-control" v-model="request.target.Id" v-if="modelOf(request.target.ModelId) && modelOf(request.target.ModelId).StaticInstances.length > 1">
+                                                                                                                                <option v-bind:value="instance.Id" v-for="instance in modelOf(request.target.ModelId).StaticInstances">
+                                                                                                                                        {{instance.Display}}
+                                                                                                                                </option>
+                                                                                                                        </select>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <parameter v-for="parameter in request.operation.Parameters"
+                                                                                           :pmodel="parameter"
+                                                                                           :viewmodel="modelOf(parameter.ViewModelId)"
+                                                                                           :data="request.data"
+                                                                                           :marks="getRealMarks(parameter.Marks)"
+                                                                                           @model-of="modelOf">
+                                                                                </parameter>
+                                                                        </form>
+                                                                </div>
+                                                                <div class="col-md-9 response">
+                                                                        <div class="spinner" v-if="request.loading">
+                                                                                <div class="bounce1"></div>
+                                                                                <div class="bounce2"></div>
+                                                                                <div class="bounce3"></div>
+                                                                        </div>
+                                                                        <div class="alert alert-danger"
+                                                                             v-if="!request.loading && request.response!=null && request.response.data!=null &&  request.response.data.IsException">
+                                                                                <i class="glyphicon glyphicon-exclamation-sign"></i>
+                                                                                <strong>{{request.response.data.Type}}</strong>
+                                                                                <hr />
+                                                                                <p>{{request.response.data.Message}}</p>
+                                                                        </div>
+                                                                        <div class="alert alert-success"
+                                                                             v-if="!request.loading && request.response != null && !request.response.data.IsException">
+                                                                                <i class="glyphicon glyphicon-ok"></i>&nbsp;
+                                                                                <span v-for="(value, header, index) in request.response.headers"><span v-if="index > 0">, </span><strong>{{header}}:</strong> {{value}}</span>
+                                                                        </div>
+                                                                        <json-table :data="request.response.data"
+                                                                                    v-if="!request.loading && request.response != null && !request.response.data.IsException">
+                                                                        </json-table>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+        </div>
+        <script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
+        <script src="$urlbase$/File?path=vue/src/shared.js"></script>
+        <script src="$urlbase$/File?path=vue/src/index.js"></script>
+        <script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
 </body>
 </html>
