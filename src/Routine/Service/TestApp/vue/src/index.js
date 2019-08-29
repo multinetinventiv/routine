@@ -36,14 +36,15 @@
                         return newModules;
                 },
                 filteredData() {
-                        return Object.keys(this.modules).reduce((a, cKey) => {
-                                const data = this.filterOperations(this.modules[cKey]);
+                        return Object.keys(this.modules).reduce((newModules, moduleName) => {
+                                const data = this.filterOperations(this.modules[moduleName]);
                                 if (data.length) {
-                                        a[cKey] = data;
+                                        newModules[moduleName] = data;
                                 }
-                                return a;
+                                return newModules;
                         }, {});
                 }
+
         },
         data() {
                 return {
@@ -63,17 +64,33 @@
         },
         methods: {
                 filterOperations(modules) {
-                        return modules.filter(module => {
-                                return module.Operations.some(operation => {
 
-                                        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-                                        var result = new RegExp("^" + this.search.toLowerCase().split("*").map(escapeRegex).join(".*") + "$").test(operation.Name);
-                                        console.log(result);
+                        if (this.search === "") { return modules; }
 
-                                        return operation;
-                                        //return _.includes(operation.Name.toLowerCase(), this.search.toLowerCase());
+                        const filteredModules = [];
+                        modules.map(module => {
+                                const operations = module.Operations.filter(operation => {
+
+                                        var searchStartCase = _.startCase(operation.Name);
+
+                                        let pattern = '^', arr = this.search.split('').join(' ').trim().split(' ');
+                                        arr.forEach(function (chars, i) {
+                                                pattern += chars + '\\w*' + (arr.length - 1 > i ? '\\s+' : '');
+                                        });
+
+                                        var result = searchStartCase.match(new RegExp(pattern, 'i'));
+
+                                        if (result && result.length > 0) { return true; }
+                                        else { return _.includes(operation.Name.toLowerCase(), this.search.toLowerCase()) }
                                 });
+
+                                if (operations && operations.length > 0) {
+                                        filteredModules.push(module);
+                                        filteredModules.slice(-1)[0].Operations = operations;
+                                }
+
                         });
+                        return filteredModules;
                 },
                 showOperation: function (operation) {
                         const request = {
