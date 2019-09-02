@@ -36,13 +36,21 @@
                         return newModules;
                 },
                 filteredData() {
-                        return Object.keys(this.modules).reduce((newModules, moduleName) => {
+                        const modules = {};
+                        Object.keys(this.modules).forEach(moduleName => {
                                 const data = this.filterOperations(moduleName);
                                 if (data.length) {
-                                        newModules[moduleName] = data;
+                                        modules[moduleName] = data;
                                 }
-                                return newModules;
-                        }, {});
+                        });
+                        return modules;
+                        //return Object.keys(this.modules).reduce((newModules, moduleName) => {
+                        //        const data = this.filterOperations(moduleName);
+                        //        if (data.length) {
+                        //                newModules[moduleName] = data;
+                        //        }
+                        //        return newModules;
+                        //}, {});
                 }
 
         },
@@ -65,7 +73,10 @@
         methods: {
                 filterOperations(moduleName) {
                         const modules = this.modules[moduleName];
-                        if (this.search === "") { return modules; }
+                        if (this.search === "") {
+                                console.log('sad');
+                                return this.modules[moduleName];
+                        }
 
                         const filteredModules = [];
                         modules.map(module => {
@@ -90,8 +101,11 @@
                                 }
 
                         });
-
-                        return filteredModules;
+                        if (filteredModules.length > 0) {
+                                return filteredModules;
+                        } else {
+                                return this.modules[moduleName];
+                        }
                 },
                 showOperation: function (operation) {
                         const request = {

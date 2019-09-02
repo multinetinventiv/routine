@@ -33,7 +33,7 @@
                                 <button class="btn btn-default" type="button"><i class="glyphicon glyphicon-remove"></i></button>
                         </span>
                 </div>
-                <div v-if="model.Initializer!=null">
+                <div v-if="_.has(model,'Initializer') && model.Initializer!=null">
                         <parameter v-for="parameter in model.Initializer.Parameters"
                                    :pmodel="parameter"
                                    :viewmodel="modelOf(parameter.ViewModelId)"
