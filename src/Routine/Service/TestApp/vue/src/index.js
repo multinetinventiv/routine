@@ -24,7 +24,7 @@
                         const modules = _.groupBy(this.models, 'Module');
                         const newModules = {};
                         Object.keys(modules).forEach(moduleName => {
-                                let modulesByModuleName = modules[moduleName];
+                                const modulesByModuleName = modules[moduleName];
                                 modulesByModuleName.forEach(module => {
                                         if (module.Operations && module.Operations.length > 0) {
                                                 if (!newModules[moduleName]) {
@@ -165,22 +165,12 @@
                         }
                 },
 
-                modelOf: function (obj) {
-                        return modelOf(obj);
-                },
-
                 toggleModuleMenuState: function (module) {
                         this.$set(this.moduleMenuState, module, !this.moduleMenuState[module]);
                 },
 
                 toggleModelMenuState: function (model) {
                         this.$set(this.modelMenuState, model, !this.modelMenuState[model]);
-                },
-
-                getRealMarks: function (marks) {
-                        return marks.filter(mark => {
-                                return /^(?!__routine).+/g.test(mark);
-                        });
                 },
 
                 getModuleModelsByHasOperations: function (moduleModels) {

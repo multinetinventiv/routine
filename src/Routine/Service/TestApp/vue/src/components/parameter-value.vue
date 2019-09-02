@@ -37,9 +37,7 @@
                         <parameter v-for="parameter in model.Initializer.Parameters"
                                    :pmodel="parameter"
                                    :viewmodel="modelOf(parameter.ViewModelId)"
-                                   :data="data.Data"
-                                   :marks="getRealMarks(parameter.Marks)"
-                                   @model-of="modelOf">
+                                   :data="data.Data">
                         </parameter>
                 </div>
         </div>
@@ -90,17 +88,6 @@
                                         }
                                 }
                         }
-                },
-                methods: {
-                        modelOf: function (obj) {
-                                return modelOf(obj);
-                        },
-                        getRealMarks: function (marks) {
-                                return marks.filter(mark => {
-                                        return /^(?!__routine).+/g.test(mark);
-                                });
-                        },
-
-                },
+                }
         }
 </script>

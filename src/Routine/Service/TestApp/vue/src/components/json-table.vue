@@ -36,7 +36,6 @@
                 },
                 methods: {
                         buildTable: function (data) {
-                                console.log(data);
                                 if (!_.isArray(data)) {
                                         data = [data];
                                 }

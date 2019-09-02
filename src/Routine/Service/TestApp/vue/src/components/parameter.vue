@@ -2,7 +2,7 @@
         <div class="panel panel-default">
                 <div class="panel-heading panel-heading-btn">
                         {{pmodel.Name | splitCamelCase}}
-                        <span class="badge" v-for="mark in marks">{{mark | splitCamelCase}}</span>
+                        <span class="badge" v-for="mark in getFilteredMarks(pmodel.Marks)">{{mark | splitCamelCase}}</span>
                         <button type="button"
                                 class="btn btn-default btn-xs pull-right"
                                 v-if="data.hasOwnProperty(pmodel.Name)"
@@ -33,8 +33,7 @@
                                                                  :i="index"
                                                                  :model="currentModel(item)"
                                                                  @set-value="addValue"
-                                                                 @unset-value="removeValue"
-                                                                 @model-of="modelOf"></parameter-value>
+                                                                 @unset-value="removeValue"></parameter-value>
                                         </div>
                                 </div>
                         </div>
@@ -45,7 +44,7 @@
 <script>
         module.exports = {
                 name: 'Parameter',
-                props: ['pmodel', 'data', 'viewmodel', 'marks'],
+                props: ['pmodel', 'data', 'viewmodel'],
                 components: {
                         'parameter-value': httpVueLoader('$urlbase$/File?path=vue/src/components/parameter-value.vue')
                 },
@@ -53,7 +52,6 @@
                         this.addValue();
                 },
                 methods: {
-
                         createEmptyItem: function () {
                                 if (!this.viewmodel.IsViewModel) {
                                         return {};
@@ -149,22 +147,6 @@
                                         return this.modelOf(item.ModelId);
                                 }
                                 return viewmodel;
-                        },
-
-                        modelOf: function (obj) {
-                                var id = obj;
-
-                                if (_.isUndefined(id)) {
-                                        return null;
-                                }
-
-                                if (!_.isString(id)) {
-                                        id = obj.ModelId;
-                                }
-
-                                return _.find(this.$store.state.models, function (item) {
-                                        return item['Id'] === id;
-                                });
                         }
                 }
         }

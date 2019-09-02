@@ -51,12 +51,12 @@
                                                         <div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')" v-if="model.Operations.length > 0">
                                                                 <div class="panel-heading" @click="toggleModelMenuState(model.Name)">
                                                                         <b>{{model.Name | splitCamelCase}}</b>
-                                                                        <span class="badge" v-for="mark in getRealMarks(model.Marks)">{{mark | splitCamelCase}}</span>
+                                                                        <span class="badge" v-for="mark in getFilteredMarks(model.Marks)">{{mark | splitCamelCase}}</span>
                                                                 </div>
                                                                 <div class="panel-body" v-if="modelMenuState[model.Name]">
                                                                         <a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" @click="showOperation(operation)">
                                                                                 {{operation.Name | splitCamelCase}}
-                                                                                <span class="badge" v-for="mark in getRealMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
+                                                                                <span class="badge" v-for="mark in getFilteredMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
                                                                         </a>
                                                                 </div>
                                                         </div>
@@ -77,7 +77,7 @@
                                                                 <div class="col-md-12">
                                                                         <h4>
                                                                                 {{request.name}}
-                                                                                <span class="badge" v-for="mark in getRealMarks(request.operation.Marks)">{{mark | splitCamelCase()}}</span>
+                                                                                <span class="badge" v-for="mark in getFilteredMarks(request.operation.Marks)">{{mark | splitCamelCase()}}</span>
                                                                         </h4>
                                                                         <span class="label label-info">URL</span>&nbsp;<span class="text-info">{{request.getUrl()}}</span>
                                                                         <hr />
@@ -134,7 +134,6 @@
                                                                                            :pmodel="parameter"
                                                                                            :viewmodel="modelOf(parameter.ViewModelId)"
                                                                                            :data="request.data"
-                                                                                           :marks="getRealMarks(parameter.Marks)"
                                                                                            @model-of="modelOf">
                                                                                 </parameter>
                                                                         </form>
@@ -168,8 +167,8 @@
                         </div>
                 </div>
         </div>
+        <script src="$urlbase$/File?path=vue/src/shared-mixin.js"></script>
         <script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
-        <script src="$urlbase$/File?path=vue/src/shared.js"></script>
         <script src="$urlbase$/File?path=vue/src/index.js"></script>
         <script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
 </body>
