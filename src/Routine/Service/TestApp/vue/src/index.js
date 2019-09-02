@@ -107,7 +107,7 @@
                                 data: {},
                                 response: null,
                                 getUrl: function () {
-                                        let result = '$urlbase$/' + this.target.ModelId;
+                                        let result = 'http://localhost:32805/Service/' + this.target.ModelId;
 
                                         if (!(this.target.Id == undefined) && this.target.Id !== '') {
                                                 result += '/' + this.target.Id;
@@ -134,7 +134,7 @@
                                                         self.response.data = response.data;
                                                         self.response.headers = {};
                                                         app.responseHeaders.forEach(function (responseHeader) {
-                                                                self.response.headers[responseHeader] = response.headers[responseHeader];
+                                                                self.response.headers[responseHeader] = response.headers[responseHeader.toLowerCase()];
                                                         });
                                                 });
                                 }
@@ -164,8 +164,6 @@
                                 this.activate(this.requests[0]);
                         }
                 },
-
-
 
                 modelOf: function (obj) {
                         return modelOf(obj);

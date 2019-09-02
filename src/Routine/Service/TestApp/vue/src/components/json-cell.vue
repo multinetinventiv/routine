@@ -9,14 +9,20 @@
         module.exports = {
                 name: 'JsonCell',
                 props: ['data'],
+                data: function () {
+                        return {
+                                isShow: false
+                        }
+                },
+                components: {
+                        'json-table': httpVueLoader('$urlbase$/File?path=vue/src/components/json-table.vue')
+                },
                 mounted() {
-                        this.initComponent();
-                        isShow = false
+                        this.setChildTable();
                 },
                 methods: {
-                        initComponent() {
+                        setChildTable() {
                                 if (_.isObject(this.data)) {
-                                        console.log('parameter:bla');
                                         this.isShow = true;
                                 }
                         }
