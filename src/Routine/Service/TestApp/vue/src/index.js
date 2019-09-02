@@ -21,10 +21,10 @@
                         return store.state.requests;
                 },
                 modules() {
-                        let modules = _.groupBy(_.sortBy(this.models, ['Module']), 'Module');
-                        var newModules = {};
+                        const modules = _.groupBy(this.models, 'Module');
+                        const newModules = {};
                         Object.keys(modules).forEach(moduleName => {
-                                var modulesByModuleName = modules[moduleName];
+                                let modulesByModuleName = modules[moduleName];
                                 modulesByModuleName.forEach(module => {
                                         if (module.Operations && module.Operations.length > 0) {
                                                 if (!newModules[moduleName]) {
@@ -37,7 +37,7 @@
                 },
                 filteredData() {
                         return Object.keys(this.modules).reduce((newModules, moduleName) => {
-                                const data = this.filterOperations(this.modules[moduleName]);
+                                const data = this.filterOperations(moduleName);
                                 if (data.length) {
                                         newModules[moduleName] = data;
                                 }
@@ -63,25 +63,25 @@
                 this.$store.dispatch('loadApplicationModel');
         },
         methods: {
-                filterOperations(modules) {
-
+                filterOperations(moduleName) {
+                        const modules = this.modules[moduleName];
                         if (this.search === "") { return modules; }
 
                         const filteredModules = [];
                         modules.map(module => {
                                 const operations = module.Operations.filter(operation => {
 
-                                        var searchStartCase = _.startCase(operation.Name);
+                                        const searchStartCase = _.startCase(operation.Name);
 
                                         let pattern = '^', arr = this.search.split('').join(' ').trim().split(' ');
                                         arr.forEach(function (chars, i) {
                                                 pattern += chars + '\\w*' + (arr.length - 1 > i ? '\\s+' : '');
                                         });
 
-                                        var result = searchStartCase.match(new RegExp(pattern, 'i'));
+                                        const result = searchStartCase.match(new RegExp(pattern, 'i'));
 
                                         if (result && result.length > 0) { return true; }
-                                        else { return _.includes(operation.Name.toLowerCase(), this.search.toLowerCase()) }
+                                        else { return false; }
                                 });
 
                                 if (operations && operations.length > 0) {
@@ -90,6 +90,7 @@
                                 }
 
                         });
+
                         return filteredModules;
                 },
                 showOperation: function (operation) {
@@ -106,7 +107,7 @@
                                 data: {},
                                 response: null,
                                 getUrl: function () {
-                                        var result = '$urlbase$/' + this.target.ModelId;
+                                        let result = '$urlbase$/' + this.target.ModelId;
 
                                         if (!(this.target.Id == undefined) && this.target.Id !== '') {
                                                 result += '/' + this.target.Id;
@@ -124,7 +125,7 @@
                                         delete this.target.Id;
                                 },
                                 make: function () {
-                                        var self = this;
+                                        const self = this;
                                         this.loading = true;
                                         axios.post(this.getUrl(), this.data, { headers: app.headers })
                                                 .then(response => {
