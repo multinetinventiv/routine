@@ -43,18 +43,18 @@
                                                 <div class="bounce2"></div>
                                                 <div class="bounce3"></div>
                                         </div>
-                                        <div class="panel panel-info" v-for="(moduleModels, module) in filteredData">
+                                        <div class="panel panel-info" v-for="(models, module) in filteredData" v-show="_.some(models, {'IsShow': true})">
                                                 <div class="panel-heading" @click="toggleModuleMenuState(module)">
                                                         <b>{{module | splitCamelCase}}</b>
                                                 </div>
                                                 <div class="panel-body bg-info" v-if="moduleMenuState[module]">
-                                                        <div class="panel panel-default" v-for="model in _.sortBy(getModuleModelsByHasOperations(moduleModels), 'Name')" v-if="model.Operations.length > 0">
+                                                        <div class="panel panel-default" v-for="model in _.sortBy(getModelsWithOperation(models), 'Name')" v-show="model.Operations.length > 0 && hasOperation(model)">
                                                                 <div class="panel-heading" @click="toggleModelMenuState(model.Name)">
                                                                         <b>{{model.Name | splitCamelCase}}</b>
                                                                         <span class="badge" v-for="mark in getFilteredMarks(model.Marks)">{{mark | splitCamelCase}}</span>
                                                                 </div>
                                                                 <div class="panel-body" v-if="modelMenuState[model.Name]">
-                                                                        <a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" @click="showOperation(operation)">
+                                                                        <a class="text-left bg-default btn btn-default btn-block btn-xs" v-for="operation in _.sortBy(model.Operations, 'Name')" v-show="operation.IsShow" @click="showOperation(operation)">
                                                                                 {{operation.Name | splitCamelCase}}
                                                                                 <span class="badge" v-for="mark in getFilteredMarks(operation.Marks)">{{mark | splitCamelCase}}</span>
                                                                         </a>

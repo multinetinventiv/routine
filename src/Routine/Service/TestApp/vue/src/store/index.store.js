@@ -2,6 +2,7 @@
         state: {
                 responseHeaders: [],
                 models: [],
+                modules: {},
                 headers: {},
                 modelsloading: true,
                 headersloading: true,
@@ -12,11 +13,11 @@
                 loadConfiguration({ commit }) {
 
                         axios.get("http://localhost:32805/Service/Configuration").then(response => {
-                                let data = response.data;
+                                const data = response.data;
 
                                 commit('SET_HEADERS_LOADING', false);
 
-                                let headers = {};
+                                const headers = {};
                                 data.requestHeaders.forEach(function (requestHeader) {
                                         headers[requestHeader] = "";
                                 });
@@ -29,8 +30,8 @@
                 loadApplicationModel({ commit }) {
 
                         axios.get("http://localhost:32805/Service/ApplicationModel").then(response => {
-                                let data = response.data;
-                                let models = data.Models;
+                                const data = response.data;
+                                const models = data.Models;
 
                                 commit('SET_MODELS_LOADING', false);
 
@@ -43,14 +44,29 @@
 
                                         model.Operations.forEach(function (operation) {
                                                 operation.ModelId = model.Id;
-
+                                                operation.IsShow = true;
                                                 operation.Parameters.forEach(function (parameter) {
                                                         parameter.ModelId = model.Id;
                                                         parameter.OperationName = operation.Name;
                                                 });
                                         });
                                 });
+
+                                const modules = _.groupBy(models, 'Module');
+                                const newModules = {};
+                                Object.keys(modules).forEach(moduleName => {
+                                        const modulesByModuleName = modules[moduleName];
+                                        modulesByModuleName.forEach(module => {
+                                                module.IsShow = true;
+                                                if (module.Operations && module.Operations.length > 0) {
+                                                        if (!newModules[moduleName]) {
+                                                                newModules[moduleName] = modulesByModuleName;
+                                                        }
+                                                }
+                                        });
+                                });
                                 commit('SET_APPLICATION_MODELS', models);
+                                commit('SET_APPLICATION_MODULES', newModules);
                         });
                 },
 
@@ -69,6 +85,10 @@
 
                 SET_APPLICATION_MODELS(state, models) {
                         state.models = models;
+                },
+
+                SET_APPLICATION_MODULES(state, modules) {
+                        state.modules = modules;
                 },
 
                 SET_MODELS_LOADING(state, modelsloading) {

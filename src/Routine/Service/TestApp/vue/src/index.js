@@ -21,36 +21,10 @@
                         return store.state.requests;
                 },
                 modules() {
-                        const modules = _.groupBy(this.models, 'Module');
-                        const newModules = {};
-                        Object.keys(modules).forEach(moduleName => {
-                                const modulesByModuleName = modules[moduleName];
-                                modulesByModuleName.forEach(module => {
-                                        if (module.Operations && module.Operations.length > 0) {
-                                                if (!newModules[moduleName]) {
-                                                        newModules[moduleName] = modulesByModuleName;
-                                                }
-                                        }
-                                });
-                        });
-                        return newModules;
+                        return store.state.modules;
                 },
                 filteredData() {
-                        const modules = {};
-                        Object.keys(this.modules).forEach(moduleName => {
-                                const data = this.filterOperations(moduleName);
-                                if (data.length) {
-                                        modules[moduleName] = data;
-                                }
-                        });
-                        return modules;
-                        //return Object.keys(this.modules).reduce((newModules, moduleName) => {
-                        //        const data = this.filterOperations(moduleName);
-                        //        if (data.length) {
-                        //                newModules[moduleName] = data;
-                        //        }
-                        //        return newModules;
-                        //}, {});
+                        return this.filterOperations();
                 }
 
         },
@@ -71,41 +45,49 @@
                 this.$store.dispatch('loadApplicationModel');
         },
         methods: {
-                filterOperations(moduleName) {
-                        const modules = this.modules[moduleName];
-                        if (this.search === "") {
-                                console.log('sad');
-                                return this.modules[moduleName];
-                        }
+                filterOperations() {
+                        Object.keys(this.modules).forEach(moduleName => {
+                                const models = this.modules[moduleName];
+                                models.map(model => {
+                                        let operations = model.Operations.filter(operation => {
+                                                operation.IsShow = true;
+                                                model.IsShow = true;
+                                                if (this.search !== "") {
+                                                        const searchStartCase = _.startCase(operation.Name);
 
-                        const filteredModules = [];
-                        modules.map(module => {
-                                const operations = module.Operations.filter(operation => {
+                                                        let pattern = '^', arr = this.search.split('').join(' ').trim().split(' ');
+                                                        arr.forEach(function (chars, i) {
+                                                                pattern += chars + '\\w*' + (arr.length - 1 > i ? '\\s+' : '');
+                                                        });
 
-                                        const searchStartCase = _.startCase(operation.Name);
+                                                        const result = searchStartCase.match(new RegExp(pattern, 'i'));
 
-                                        let pattern = '^', arr = this.search.split('').join(' ').trim().split(' ');
-                                        arr.forEach(function (chars, i) {
-                                                pattern += chars + '\\w*' + (arr.length - 1 > i ? '\\s+' : '');
+                                                        if (result && result.length > 0) {
+                                                                operation.IsShow = true;
+                                                                return true;
+                                                        } else {
+                                                                if (this.search.length > 2) {
+                                                                        if (_.includes(operation.Name.toLowerCase(), this.search.toLowerCase())) {
+                                                                                operation.IsShow = true;
+                                                                                return true;
+                                                                        }
+                                                                }
+                                                                operation.IsShow = false;
+                                                                return false;
+                                                        }
+                                                }
+                                                return true;
                                         });
+                                        if (operations && operations.length > 0) {
+                                                model.IsShow = true;
+                                        }
+                                        else {
+                                                model.IsShow = false;
+                                        }
 
-                                        const result = searchStartCase.match(new RegExp(pattern, 'i'));
-
-                                        if (result && result.length > 0) { return true; }
-                                        else { return false; }
                                 });
-
-                                if (operations && operations.length > 0) {
-                                        filteredModules.push(module);
-                                        filteredModules.slice(-1)[0].Operations = operations;
-                                }
-
                         });
-                        if (filteredModules.length > 0) {
-                                return filteredModules;
-                        } else {
-                                return this.modules[moduleName];
-                        }
+                        return this.modules;
                 },
                 showOperation: function (operation) {
                         const request = {
@@ -179,17 +161,23 @@
                         }
                 },
 
-                toggleModuleMenuState: function (module) {
-                        this.$set(this.moduleMenuState, module, !this.moduleMenuState[module]);
+                toggleModuleMenuState: function (moduleName) {
+                        this.$set(this.moduleMenuState, moduleName, !this.moduleMenuState[moduleName]);
                 },
 
-                toggleModelMenuState: function (model) {
-                        this.$set(this.modelMenuState, model, !this.modelMenuState[model]);
+                toggleModelMenuState: function (modelName) {
+                        this.$set(this.modelMenuState, modelName, !this.modelMenuState[modelName]);
                 },
 
-                getModuleModelsByHasOperations: function (moduleModels) {
+                getModelsWithOperation: function (moduleModels) {
                         return moduleModels.filter(moduleModel => {
                                 return moduleModel.Operations && moduleModel.Operations.length > 0;
+                        });
+                },
+
+                hasOperation(model) {
+                        return _.some(model.Operations, function (operation) {
+                                return operation.IsShow;
                         });
                 }
 
