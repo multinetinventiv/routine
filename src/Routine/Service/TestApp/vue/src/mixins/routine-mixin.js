@@ -1,9 +1,4 @@
 ﻿Vue.mixin({
-        data: function () {
-                return {
-                        URL_BASE: "http://localhost:32805/Service/"
-                }
-        },
         methods: {
                 modelOf: function (obj) {
                         var id = obj;

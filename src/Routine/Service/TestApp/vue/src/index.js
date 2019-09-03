@@ -1,4 +1,5 @@
-﻿var app = new Vue({
+﻿
+var app = new Vue({
         el: '#app',
         store,
         computed: {
@@ -103,7 +104,7 @@
                                 data: {},
                                 response: null,
                                 getUrl: function () {
-                                        let result = 'http://localhost:32805/Service/' + this.target.ModelId;
+                                        let result = `${config.URL_BASE}/${this.target.ModelId}`;
 
                                         if (!(this.target.Id == undefined) && this.target.Id !== '') {
                                                 result += '/' + this.target.Id;

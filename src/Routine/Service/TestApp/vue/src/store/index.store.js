@@ -11,8 +11,7 @@
         actions: {
 
                 loadConfiguration({ commit }) {
-
-                        axios.get("http://localhost:32805/Service/Configuration").then(response => {
+                        axios.get(`${config.URL_BASE}/Configuration`).then(response => {
                                 const data = response.data;
 
                                 commit('SET_HEADERS_LOADING', false);
@@ -29,7 +28,7 @@
 
                 loadApplicationModel({ commit }) {
 
-                        axios.get("http://localhost:32805/Service/ApplicationModel").then(response => {
+                        axios.get(`${config.URL_BASE}/ApplicationModel`).then(response => {
                                 const data = response.data;
                                 const models = data.Models;
 
@@ -101,10 +100,6 @@
 
                 ADD_REQUEST(state, request) {
                         state.requests.push(request);
-                },
-
-                CHANGE_MODELS_LOAIDING(state, modelsloading) {
-                        state.modelsloading = modelsloading;
                 }
         }
 });

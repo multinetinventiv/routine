@@ -36,7 +36,7 @@
                                                 </div>
                                         </div>
                                         <div class="form-group">
-                                                <input class="form-control" type="text" v-model="search" placeholder="search" />
+                                                <input ref="search" class="form-control" type="text" v-model="search" placeholder="search" />
                                         </div>
                                         <div class="spinner" v-if="modelsloading">
                                                 <div class="bounce1"></div>
@@ -167,7 +167,8 @@
                         </div>
                 </div>
         </div>
-        <script src="$urlbase$/File?path=vue/src/shared-mixin.js"></script>
+        <script src="$urlbase$/File?path=vue/src/config.js"></script>
+        <script src="$urlbase$/File?path=vue/src/mixins/routine-mixin.js"></script>
         <script src="$urlbase$/File?path=vue/src/store/index.store.js"></script>
         <script src="$urlbase$/File?path=vue/src/index.js"></script>
         <script src="$urlbase$/File?path=vue/src/filters/string-filter.js"></script>
