@@ -1,5 +1,4 @@
-﻿
-var app = new Vue({
+﻿var app = new Vue({
         el: '#app',
         store,
         computed: {

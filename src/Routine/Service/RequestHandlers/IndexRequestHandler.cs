@@ -11,7 +11,6 @@ namespace Routine.Service.RequestHandlers
         public override void WriteResponse()
         {
             WriteFileResponse("vue/index.html");
-            //WriteFileResponse("app/application/index.html");
         }
     }
 }

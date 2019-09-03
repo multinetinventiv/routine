@@ -121,7 +121,7 @@ namespace Routine.Service.RequestHandlers
 
             fileContent = fileContent.Replace("$urlbase$", UrlBase);
 
-            //AddResponseCaching();
+            AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
             HttpContext.Response.BinaryWrite(Encoding.UTF8.GetBytes(fileContent));
         }
@@ -146,7 +146,7 @@ namespace Routine.Service.RequestHandlers
                     outputStream.Write(buffer, 0, bytesRead);
                 }
             }
-            //AddResponseCaching();
+            AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
             HttpContext.Response.Flush();
             HttpContext.Response.End();
