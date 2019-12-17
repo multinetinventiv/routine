@@ -23,7 +23,7 @@ $projectPath = ($MyInvocation.PSScriptRoot).ToString().Replace("\$folderName",""
 $projectAssemblyInfoPath = "$projectPath\Properties\AssemblyInfo.cs"
 $projectUrl = "http://routineframework.org"
 $dotnetExePath = "dotnet.exe"
-$publishFolderPath = ".\Artifacts"
+$publishFolderPath = ".\..\..\artifacts"
 
 $targetFrameworks = New-Object System.Collections.ArrayList
 $targetFrameworks.Add(@{name = ".NETFramework4.5.2"; shortName = "net452"})
