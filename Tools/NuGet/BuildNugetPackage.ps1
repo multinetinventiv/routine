@@ -5,7 +5,7 @@
     [string]$version,
     [string]$title,
     [string]$author,
-    [string]$iconUrl = "https://raw.githubusercontent.com/multinetinventiv/routine/feature/71368-routine-nuget-deployment/docs/routine-logo.png",
+    [string]$iconUrl = "https://raw.githubusercontent.com/multinetinventiv/routine/develop/docs/routine-logo.png",
     [string]$requireLicenseAcceptance = "true",
     [string]$licenseUrl = "http://routineframework.org",
     [string]$description,
