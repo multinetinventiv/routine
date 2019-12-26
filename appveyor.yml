@@ -68,12 +68,18 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
-  test:
-    assemblies:
-      only:
-        - Routine.Test.dll
+  test_script:
+    - OpenCover.Console.exe -register:user -target:.toolsNUnit.Runners.2.6.4toolsnunit-console.exe -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll -noshadow" -filter:"+[Routine*]*" -output:".\routine_coverage.xml"
+    - codecov -f "routine_coverage.xml"
+  #test:
+  #  assemblies:
+  #    only:
+  #      - Routine.Test.dll
   after_test:
     - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
