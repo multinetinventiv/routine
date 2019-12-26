@@ -75,17 +75,13 @@
     - dotnet build .\Routine.sln
   test_script:
     - OpenCover.Console.exe -register:user -target:.\tools\NUnit.Runners.2.6.4\tools\nunit-console.exe -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll -noshadow" -filter:"+[Routine*]*" -output:".\routine_coverage.xml"
-    #- codecov -f "routine_coverage.xml"
+    - codecov -f "routine_coverage.xml"
   #test:
   #  assemblies:
   #    only:
   #      - Routine.Test.dll
   after_test:
-    - ps: |
-        $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
-        Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-        bash codecov.sh -f "routine_coverage.xml"
-        .\src\Routine\Scripts\BuildNugetPackage.ps1
+    - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
   deploy:
     # The following is the details allowing for appveyor to push the 
