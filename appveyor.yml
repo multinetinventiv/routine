@@ -74,7 +74,7 @@
   build_script:
     - dotnet build .\Routine.sln
   test_script:
-    - "OpenCover.Console.exe" -wait -NoNewWindow -ArgumentList "-register:administrator -filter:""+[Routine]* -[*.Test]*"" -target:"".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe"" -targetargs:"".\test\Routine.Test\bin\Release\net48\Routine.Test.dll /process=multiple "" -output:.\coverage\routine_coverage.xml -mergebyhash -skipautoprops"
+    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll -noshadow" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
     - codecov -f "routine_coverage.xml"
   #test:
   #  assemblies:
