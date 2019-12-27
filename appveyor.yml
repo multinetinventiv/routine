@@ -14,6 +14,9 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 3.10.0 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
   test_script:
@@ -50,6 +53,9 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 3.10.0 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
   test_script:
