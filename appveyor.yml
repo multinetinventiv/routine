@@ -74,7 +74,9 @@
   build_script:
     - dotnet build .\Routine.sln
   test_script:
-    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll .\test\Routine.Test.Performance\bin\Release\net48\Routine.Test.Performance.dll" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
+    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
+    - $wc = New-Object 'System.Net.WebClient'
+    - $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)",(Resolve-Path .\TestResult.xml))
     - codecov -f "routine_coverage.xml"
   #test:
   #  assemblies:
