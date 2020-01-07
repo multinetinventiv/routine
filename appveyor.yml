@@ -1,6 +1,5 @@
 -
   image: Visual Studio 2017
-
 # configuration for "master" branch
 # build in Release mode and deploy to Nuget
 -
@@ -14,12 +13,16 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 3.10.0 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
-  test:
-    assemblies:
-      only:
-        - Routine.Test.dll
+  test_script:
+    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
+    - ps: $wc = New-Object 'System.Net.WebClient'
+    - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)",(Resolve-Path .\TestResult.xml))
+    - codecov -f "routine_coverage.xml"
   after_test:
     - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
@@ -49,12 +52,16 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 3.10.0 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
-  test:
-    assemblies:
-      only:
-        - Routine.Test.dll
+  test_script:
+    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
+    - ps: $wc = New-Object 'System.Net.WebClient'
+    - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)",(Resolve-Path .\TestResult.xml))
+    - codecov -f "routine_coverage.xml"
 
 # configuration for all other branches except "master" and "develop"
 # build in Debug mode and deploy locally for testing
@@ -68,12 +75,16 @@
     - ps: .\tools\Appveyor\install_dotnet_devpack.ps1
   before_build:
     - dotnet restore .\Routine.sln
+    - nuget install NUnit.Runners -Version 3.10.0 -OutputDirectory tools
+    - choco install opencover.portable
+    - choco install codecov
   build_script:
     - dotnet build .\Routine.sln
-  test:
-    assemblies:
-      only:
-        - Routine.Test.dll
+  test_script:
+    - OpenCover.Console.exe -register:administrator -target:".\tools\NUnit.ConsoleRunner.3.10.0\tools\nunit3-console.exe" -targetargs:".\test\Routine.Test\bin\Release\net48\Routine.Test.dll" -filter:"+[Routine*]* -[*.Test]*" -output:".\routine_coverage.xml"
+    - ps: $wc = New-Object 'System.Net.WebClient'
+    - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)",(Resolve-Path .\TestResult.xml))
+    - codecov -f "routine_coverage.xml"
   after_test:
     - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
