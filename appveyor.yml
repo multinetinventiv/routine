@@ -88,14 +88,6 @@
   after_test:
     - ps: .\src\Routine\Scripts\BuildNugetPackage.ps1
 
-  deploy:
-    # The following is the details allowing for appveyor to push the 
-    # new version of the package to nuget.org.
-  - provider: NuGet
-    server: https://www.myget.org/F/routine/api/v2/package
-    name: production
-    api_key: 
-      secure: PmfkNawJ/K1FWOqIMcDCC8bPHOQ4++o+5TmARFSqLUi8bX1PbNRNN2PDrsJ0t81g
   artifacts:
   - path: .\artifacts\**\*.nupkg
     name: Nuget
