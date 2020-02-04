@@ -231,7 +231,7 @@ SetUp
 
 $projectName = (&{If($projectName) {$projectName} Else {$id}})
 
-$version = (&{If($version) {$version} Else {GetValueFromAssemblyInfo("InformationalVersion")}})
+$version = (&{If($version) {$version} Else {GetValueFromAssemblyInfo("version")}})
 
 $title = (&{If($title) {$title} Else {GetValueFromAssemblyInfo("title")}})
 
