@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Moq;
 using NUnit.Framework;
 using Routine.Engine;
@@ -15,8 +14,6 @@ namespace Routine.Test.Engine.Ignored
 {
     public interface IIgnoredModel { }
     public class IgnoredModel { }
-
-
 }
 
 namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
@@ -37,9 +34,6 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public void OverloadOp(string s1, string s, int i1) { }
         public string OverloadOp(bool b) { return null; }
         public void OverloadOp(bool s, string s1) { }
-
-        public string OverloadOpWithParams(string s, params object[] args) { return s; }
-        public string OverloadOpWithParams(string s) { return s; }
 
         public string OverloadOpWithSecondParamUnknown(string value) { return null; }
         public string OverloadOpWithSecondParamUnknown(string value, Func<string> exceptionFactory) { return null; }
