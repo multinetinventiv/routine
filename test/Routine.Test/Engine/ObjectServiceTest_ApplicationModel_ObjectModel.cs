@@ -15,6 +15,8 @@ namespace Routine.Test.Engine.Ignored
 {
     public interface IIgnoredModel { }
     public class IgnoredModel { }
+
+
 }
 
 namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
@@ -41,6 +43,9 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
         public string OverloadOpWithSecondParamUnknown(string value) { return null; }
         public string OverloadOpWithSecondParamUnknown(string value, Func<string> exceptionFactory) { return null; }
+
+        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param1) { return null; }
+        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param2, string param1) { return null; }
 
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
@@ -507,6 +512,16 @@ namespace Routine.Test.Engine
             var operation = actual.Operations.Single(o => o.Name == "OverloadOpWithSecondParamUnknown");
 
             Assert.AreEqual(operation.GroupCount, operation.Parameters.Single(p => p.Name == "value").Groups.Count);
+        }
+
+        [Test]
+        public void Bug__when_second_overload_is_skipped_due_to_different_parameter_type_with_the_same_parameter_name__other_parameter_of_second_overload_exists_in_operation_where_it_should_not()
+        {
+            var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
+            var operation = actual.Operations.Single(o => o.Name == "OverloadOpWithDifferentParamTypeWithSameName");
+
+            Assert.AreEqual(1, operation.GroupCount);
+            Assert.IsFalse(operation.Parameters.Any(p => p.Name == "param2"), "param2 should not exist, because its overload has been skipped");
         }
 
         [Test]

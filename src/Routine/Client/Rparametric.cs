@@ -5,63 +5,55 @@ using Routine.Core;
 
 namespace Routine.Client
 {
-	public abstract class Rparametric
-	{
-		private readonly Dictionary<string, Rparameter> parameters;
+    public abstract class Rparametric
+    {
+        private readonly Dictionary<string, Rparameter> parameters;
 
-		public Rtype Type { get; private set; }
-		public List<List<Rparameter>> Groups { get; private set; }
-		public List<string> Marks { get; private set; }
+        public Rtype Type { get; }
+        public List<List<Rparameter>> Groups { get; }
+        public List<string> Marks { get; }
 
-		protected Rparametric(string name, int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
-		{
-			Marks = new List<string>(marks);
+        protected Rparametric(string name, int groupCount, List<ParameterModel> parameterModels, List<string> marks, Rtype type)
+        {
+            Marks = new List<string>(marks);
 
-			Type = type;
+            Type = type;
 
-			parameters = new Dictionary<string, Rparameter>();
-			Groups = Enumerable.Range(0, groupCount).Select(i => new List<Rparameter>()).ToList();
+            parameters = new Dictionary<string, Rparameter>();
+            Groups = Enumerable.Range(0, groupCount).Select(i => new List<Rparameter>()).ToList();
 
-			foreach (var parameterModel in parameterModels)
-			{
-				parameters[parameterModel.Name] = new Rparameter(parameterModel, this);
-			}
+            foreach (var parameterModel in parameterModels)
+            {
+                parameters[parameterModel.Name] = new Rparameter(parameterModel, this);
+            }
 
-			foreach (var paramId in parameters.Keys)
-			{
-				var param = parameters[paramId];
+            foreach (var paramId in parameters.Keys)
+            {
+                var param = parameters[paramId];
 
-				foreach (var group in param.Groups)
-				{
-					if (group >= Groups.Count)
-					{
-						throw new InvalidOperationException(string.Format("Parameter '{0}' has a group '{1}' that does not exist on '{2}'. There only {3} groups.", param.Name, group, name, Groups.Count));
-					}
+                foreach (var group in param.Groups)
+                {
+                    if (group >= Groups.Count)
+                    {
+                        throw new InvalidOperationException(
+                            $"Parameter '{param.Name}' has a group '{group}' that does not exist on '{type.Name}.{name}'. There are only {Groups.Count} groups."
+                        );
+                    }
 
-					Groups[group].Add(param);
-				}
-			}
-		}
+                    Groups[group].Add(param);
+                }
+            }
+        }
 
-		public Rapplication Application { get { return Type.Application; } }
-		public Dictionary<string, Rparameter> Parameter { get { return parameters; } }
-		public List<Rparameter> Parameters { get { return parameters.Values.ToList(); } }
-		public Roperation Operation { get { return this as Roperation; } }
-		public Rinitializer Initializer { get { return this as Rinitializer; } }
+        public Rapplication Application => Type.Application;
+        public Dictionary<string, Rparameter> Parameter => parameters;
+        public List<Rparameter> Parameters => parameters.Values.ToList();
+        public Roperation Operation => this as Roperation;
+        public Rinitializer Initializer => this as Rinitializer;
 
-		public bool IsOperation()
-		{
-			return this is Roperation;
-		}
+        public bool IsOperation() => this is Roperation;
+        public bool IsInitializer() => this is Rinitializer;
 
-		public bool IsInitializer()
-		{
-			return this is Rinitializer;
-		}
-
-		public bool MarkedAs(string mark)
-		{
-			return Marks.Any(m => m == mark);
-		}
-	}
+        public bool MarkedAs(string mark) => Marks.Any(m => m == mark);
+    }
 }
