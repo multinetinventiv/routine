@@ -5,183 +5,242 @@ using Routine.Core;
 
 namespace Routine.Engine
 {
-	public class DomainParameter
-	{
-		private readonly ICoreContext ctx;
-		private readonly IParameter parameter;
+    public class DomainParameter
+    {
+        #region internal class DomainParameter.Group
 
-		public string Name { get; private set; }
-		public Marks Marks { get; private set; }
-		public List<int> Groups { get; private set; }
-		public bool IsList { get; private set; }
-		public DomainType ParameterType { get; private set; }
+        internal class Group<T> where T : class, IParametric
+        {
+            public T Parametric { get; }
+            public List<DomainParameter> Parameters { get; }
+            public int GroupIndex { get; }
 
-		public DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
-		{
-			this.ctx = ctx;
-			this.parameter = parameter;
+            public Group(T parametric, IEnumerable<DomainParameter> parameters, int groupIndex)
+            {
+                Parametric = parametric;
+                Parameters = parameters.OrderBy(p => parametric.Parameters.Single(p2 => p2.Name == p.Name).Index).ToList();
+                GroupIndex = groupIndex;
+            }
 
-			Groups = new List<int>();
-			
-			Name = ctx.CodingStyle.GetName(parameter);
-			Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
-			Groups.Add(initialGroupIndex);
-			IsList = parameter.ParameterType.CanBeCollection();
+            public bool ContainsSameParameters(T parametric)
+            {
+                return Parametric.Parameters.Count == parametric.Parameters.Count &&
+                       Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
+            }
+        }
 
-			var parameterType = IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType;
+        #endregion
 
-			if (!ctx.CodingStyle.ContainsType(parameterType))
-			{
-				throw new TypeNotConfiguredException(parameterType);
-			}
+        #region internal static void AddGroupToTarget<T>(T group, IDomainParametric<T> target)
 
-			ParameterType = ctx.GetDomainType(parameterType);
-		}
+        internal static void AddGroupToTarget<T>(T group, IDomainParametric<T> target)
+            where T : class, IParametric
+        {
+            Validate(group, target);
 
-		public void AddGroup(IParameter parameter, int groupIndex)
-		{
-			if (Groups.Contains(groupIndex))
-			{
-				throw new InvalidOperationException(string.Format("{0}.{1}(...,{2},...): Given groupIndex ({3}) was already added!", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, groupIndex));
-			}
+            foreach (var parameter in group.Parameters)
+            {
+                if (target.Parameter.TryGetValue(parameter.Name, out var domainParameter))
+                {
+                    domainParameter.AddGroup(parameter, target.NextGroupIndex);
+                }
+                else
+                {
+                    target.Parameter.Add(parameter.Name, new DomainParameter(target.Ctx, parameter, target.NextGroupIndex));
+                }
+            }
 
-			if (!this.parameter.ParameterType.Equals(parameter.ParameterType))
-			{
-				throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType);
-			}
+            target.AddGroup(group, target.Parameter.Values.Where(p => p.Groups.Contains(target.NextGroupIndex)), target.NextGroupIndex);
+        }
 
-			Groups.Add(groupIndex);
+        private static void Validate<T>(T group, IDomainParametric<T> target)
+            where T : class, IParametric
+        {
+            foreach (var parameter in group.Parameters)
+            {
+                if (target.Parameter.TryGetValue(parameter.Name, out var domainParameter))
+                {
+                    if (domainParameter.Groups.Contains(target.NextGroupIndex))
+                    {
+                        throw new InvalidOperationException(
+                            $"{parameter.Owner.ParentType.Name}.{parameter.Owner.Name}(...,{parameter.Name},...): Given groupIndex ({target.NextGroupIndex}) was already added!");
+                    }
 
-			Marks.Join(ctx.CodingStyle.GetMarks(parameter));
-		}
+                    if (!domainParameter.parameter.ParameterType.Equals(parameter.ParameterType))
+                    {
+                        throw new ParameterTypesDoNotMatchException(
+                            parameter,
+                            domainParameter.ParameterType.Type,
+                            parameter.ParameterType
+                        );
+                    }
+                }
+                else if (!target.Ctx.CodingStyle.ContainsType(Fix(parameter.ParameterType)))
+                {
+                    throw new TypeNotConfiguredException(Fix(parameter.ParameterType));
+                }
+            }
+        }
 
-		public bool MarkedAs(string mark)
-		{
-			return Marks.Has(mark);
-		}
+        private static IType Fix(IType type) => type.CanBeCollection() ? type.GetItemType() : type;
 
-		public ParameterModel GetModel()
-		{
-			return new ParameterModel
-			{
-				Name = Name,
-				Marks = Marks.List,
-				Groups = Groups,
-				IsList = IsList,
-				ViewModelId = ParameterType.Id
-			};
-		}
+        #endregion
 
-		internal object Locate(ParameterValueData parameterValueData)
-		{
-			if (!IsList)
-			{
-				return GetObject(parameterValueData);
-			}
+        private readonly ICoreContext ctx;
+        private readonly IParameter parameter;
 
-			var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
+        public string Name { get; }
+        public Marks Marks { get; }
+        public List<int> Groups { get; }
+        public bool IsList { get; }
+        public DomainType ParameterType { get; }
 
-			var objects = GetObjects(parameterValueData);
+        private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
+        {
+            this.ctx = ctx;
+            this.parameter = parameter;
 
-			for (int i = 0; i < objects.Count; i++)
-			{
-				if (parameter.ParameterType.IsArray)
-				{
-					result[i] = objects[i];
-				}
-				else
-				{
-					result.Add(objects[i]);
-				}
-			}
+            Name = ctx.CodingStyle.GetName(parameter);
+            Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
+            Groups = new List<int> { initialGroupIndex };
+            IsList = parameter.ParameterType.CanBeCollection();
+            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
+        }
 
-			return result;
-		}
+        private void AddGroup(IParameter parameter, int groupIndex)
+        {
+            Groups.Add(groupIndex);
 
-		private object GetObject(ParameterValueData parameterValueData)
-		{
-			if (!parameterValueData.Values.Any())
-			{
-				return null;
-			}
+            Marks.Join(ctx.CodingStyle.GetMarks(parameter));
+        }
 
-			var parameterData = parameterValueData.Values[0];
+        public bool MarkedAs(string mark)
+        {
+            return Marks.Has(mark);
+        }
 
-			return GetDomainType(parameterData).Locate(parameterData);
-		}
+        public ParameterModel GetModel()
+        {
+            return new ParameterModel
+            {
+                Name = Name,
+                Marks = Marks.List,
+                Groups = Groups,
+                IsList = IsList,
+                ViewModelId = ParameterType.Id
+            };
+        }
 
-		private List<object> GetObjects(ParameterValueData parameterValueData)
-		{
-			if (!parameterValueData.Values.Any())
-			{
-				return new List<object>();
-			}
+        internal object Locate(ParameterValueData parameterValueData)
+        {
+            if (!IsList)
+            {
+                return GetObject(parameterValueData);
+            }
 
-			var result = new List<object>();
+            var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
 
-			var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
+            var objects = GetObjects(parameterValueData);
 
-			if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
-			{
-				for (int i = 0; i < parameterValueData.Values.Count; i++)
-				{
-					var parameterData = parameterValueData.Values[i];
-					var domainType = domainTypes[i];
+            for (int i = 0; i < objects.Count; i++)
+            {
+                if (parameter.ParameterType.IsArray)
+                {
+                    result[i] = objects[i];
+                }
+                else
+                {
+                    result.Add(objects[i]);
+                }
+            }
 
-					result.Add(domainType.Locate(parameterData));
-				}
-			}
-			else
-			{
-				result.AddRange(ParameterType.LocateMany(parameterValueData.Values));
-			}
+            return result;
+        }
 
-			return result;
-		}
+        private object GetObject(ParameterValueData parameterValueData)
+        {
+            if (!parameterValueData.Values.Any())
+            {
+                return null;
+            }
 
-		private DomainType GetDomainType(ParameterData parameterData)
-		{
-			if (parameterData == null)
-			{
-				return ctx.GetDomainType((IType)null);
-			}
+            var parameterData = parameterValueData.Values[0];
 
-			var domainType = ParameterType;
+            return GetDomainType(parameterData).Locate(parameterData);
+        }
 
-			if (parameterData.ModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ModelId))
-			{
-				domainType = ctx.GetDomainType(parameterData.ModelId);
-			}
+        private List<object> GetObjects(ParameterValueData parameterValueData)
+        {
+            if (!parameterValueData.Values.Any())
+            {
+                return new List<object>();
+            }
 
-			return domainType;
-		}
+            var result = new List<object>();
 
-		#region Formatting & Equality
+            var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
 
-		protected bool Equals(DomainParameter other)
-		{
-			return string.Equals(Name, other.Name);
-		}
+            if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
+            {
+                for (int i = 0; i < parameterValueData.Values.Count; i++)
+                {
+                    var parameterData = parameterValueData.Values[i];
+                    var domainType = domainTypes[i];
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+                    result.Add(domainType.Locate(parameterData));
+                }
+            }
+            else
+            {
+                result.AddRange(ParameterType.LocateMany(parameterValueData.Values));
+            }
 
-			return Equals((DomainParameter)obj);
-		}
+            return result;
+        }
 
-		public override int GetHashCode()
-		{
-			return (Name != null ? Name.GetHashCode() : 0);
-		}
+        private DomainType GetDomainType(ParameterData parameterData)
+        {
+            if (parameterData == null)
+            {
+                return ctx.GetDomainType((IType)null);
+            }
 
-		public override string ToString()
-		{
-			return string.Format("{1} {0}", Name, ParameterType);
-		}
+            var domainType = ParameterType;
 
-		#endregion
-	}
+            if (parameterData.ModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ModelId))
+            {
+                domainType = ctx.GetDomainType(parameterData.ModelId);
+            }
+
+            return domainType;
+        }
+
+        #region Formatting & Equality
+
+        protected bool Equals(DomainParameter other)
+        {
+            return string.Equals(Name, other.Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((DomainParameter)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name != null ? Name.GetHashCode() : 0);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{1} {0}", Name, ParameterType);
+        }
+
+        #endregion
+    }
 }

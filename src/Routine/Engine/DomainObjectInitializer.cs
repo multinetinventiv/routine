@@ -4,74 +4,67 @@ using Routine.Core;
 
 namespace Routine.Engine
 {
-	public class DomainObjectInitializer
-	{
-		private readonly ICoreContext ctx;
-		private readonly List<DomainParameterGroup<IConstructor>> groups;
+    public class DomainObjectInitializer : IDomainParametric<IConstructor>
+    {
+        private readonly ICoreContext ctx;
+        private readonly List<DomainParameter.Group<IConstructor>> groups;
 
-		public Dictionary<string, DomainParameter> Parameter { get; private set; }
-		public ICollection<DomainParameter> Parameters { get { return Parameter.Values; } }
+        public Dictionary<string, DomainParameter> Parameter { get; }
+        public Marks Marks { get; }
 
-		public Marks Marks { get; private set; }
+        public ICollection<DomainParameter> Parameters => Parameter.Values;
 
-		public DomainObjectInitializer(ICoreContext ctx, IConstructor constructor)
-		{
-			this.ctx = ctx;
+        ICoreContext IDomainParametric<IConstructor>.Ctx => ctx;
+        int IDomainParametric<IConstructor>.NextGroupIndex => groups.Count;
+        void IDomainParametric<IConstructor>.AddGroup(IConstructor parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new DomainParameter.Group<IConstructor>(parametric, parameters, groupIndex));
 
-			groups = new List<DomainParameterGroup<IConstructor>>();
-			Parameter = new Dictionary<string, DomainParameter>();
+        public DomainObjectInitializer(ICoreContext ctx, IConstructor constructor)
+        {
+            this.ctx = ctx;
 
-			Marks = new Marks();
+            groups = new List<DomainParameter.Group<IConstructor>>();
+            Parameter = new Dictionary<string, DomainParameter>();
 
-			AddGroup(constructor);
-		}
+            Marks = new Marks();
 
-		public void AddGroup(IConstructor constructor)
-		{
-			if (groups.Any() &&
-			    !constructor.InitializedType.Equals(groups.Last().Parametric.InitializedType))
-			{
-				throw new InitializedTypeDoNotMatchException(constructor, groups.Last().Parametric.InitializedType, constructor.InitializedType);
-			}
+            AddGroup(constructor);
+        }
 
-			if (groups.Any(g => g.ContainsSameParameters(constructor)))
-			{
-				throw new IdenticalSignatureAlreadyAddedException(constructor);
-			}
+        public void AddGroup(IConstructor constructor)
+        {
+            if (groups.Any() &&
+                !constructor.InitializedType.Equals(groups.Last().Parametric.InitializedType))
+            {
+                throw new InitializedTypeDoNotMatchException(constructor, groups.Last().Parametric.InitializedType, constructor.InitializedType);
+            }
 
-			foreach (var parameter in constructor.Parameters)
-			{
-				if (Parameter.ContainsKey(parameter.Name))
-				{
-					Parameter[parameter.Name].AddGroup(parameter, groups.Count);
-				}
-				else
-				{
-					Parameter.Add(parameter.Name, new DomainParameter(ctx, parameter, groups.Count));
-				}
-			}
+            if (groups.Any(g => g.ContainsSameParameters(constructor)))
+            {
+                throw new IdenticalSignatureAlreadyAddedException(constructor);
+            }
 
-			groups.Add(new DomainParameterGroup<IConstructor>(constructor, Parameters.Where(p => p.Groups.Contains(groups.Count)), groups.Count));
+            DomainParameter.AddGroupToTarget(constructor, this);
 
-			Marks.Join(ctx.CodingStyle.GetMarks(constructor));
-		}
+            Marks.Join(ctx.CodingStyle.GetMarks(constructor));
+        }
 
-		public object Initialize(Dictionary<string, ParameterValueData> parameterValues)
-		{
-			var resolution = new DomainParameterResolver<IConstructor>(groups, parameterValues).Resolve();
+        public object Initialize(Dictionary<string, ParameterValueData> parameterValues)
+        {
+            var resolution = new DomainParameterResolver<IConstructor>(groups, parameterValues).Resolve();
 
-			var result = resolution.Result.Initialize(resolution.Parameters);
+            var result = resolution.Result.Initialize(resolution.Parameters);
 
-			return result;
-		}
+            return result;
+        }
 
-		public InitializerModel GetModel()
-		{
-			return new InitializerModel {
-				Marks = Marks.List,
-				GroupCount = groups.Count,
-				Parameters = Parameters.Select(p => p.GetModel()).ToList()
-			};
-		}
-	}
+        public InitializerModel GetModel()
+        {
+            return new InitializerModel
+            {
+                Marks = Marks.List,
+                GroupCount = groups.Count,
+                Parameters = Parameters.Select(p => p.GetModel()).ToList()
+            };
+        }
+    }
 }
