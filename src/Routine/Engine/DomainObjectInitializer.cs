@@ -39,13 +39,7 @@ namespace Routine.Engine
                 throw new IdenticalSignatureAlreadyAddedException(constructor);
             }
 
-            foreach (var parameter in constructor.Parameters)
-            {
-                if (!ctx.CodingStyle.ContainsType(parameter.ParameterType))
-                {
-                    throw new TypeNotConfiguredException(parameter.ParameterType);
-                }
-            }
+            var domainParameters = constructor.Parameters.ToDictionary(p => p.Name, p => new DomainParameter(ctx, p, groups.Count));
 
             foreach (var parameter in constructor.Parameters)
             {
@@ -55,7 +49,7 @@ namespace Routine.Engine
                 }
                 else
                 {
-                    Parameter.Add(parameter.Name, new DomainParameter(ctx, parameter, groups.Count));
+                    Parameter.Add(parameter.Name, domainParameters[parameter.Name]);
                 }
             }
 
