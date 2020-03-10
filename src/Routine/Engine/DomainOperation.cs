@@ -4,25 +4,29 @@ using Routine.Core;
 
 namespace Routine.Engine
 {
-    public class DomainOperation
+    public class DomainOperation : IDomainParametric<IMethod>
     {
         private readonly ICoreContext ctx;
-        private readonly List<DomainParameterGroup<IMethod>> groups;
-
-        public Dictionary<string, DomainParameter> Parameter { get; }
-        public ICollection<DomainParameter> Parameters => Parameter.Values;
+        private readonly List<DomainParameter.Group<IMethod>> groups;
 
         public string Name { get; }
         public Marks Marks { get; }
         public bool ResultIsVoid { get; }
         public bool ResultIsList { get; }
         public DomainType ResultType { get; }
+        public Dictionary<string, DomainParameter> Parameter { get; }
+
+        public ICollection<DomainParameter> Parameters => Parameter.Values;
+
+        ICoreContext IDomainParametric<IMethod>.Ctx => ctx;
+        int IDomainParametric<IMethod>.NextGroupIndex => groups.Count;
+        void IDomainParametric<IMethod>.AddGroup(IMethod parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new DomainParameter.Group<IMethod>(parametric, parameters, groupIndex));
 
         public DomainOperation(ICoreContext ctx, IMethod method)
         {
             this.ctx = ctx;
 
-            groups = new List<DomainParameterGroup<IMethod>>();
+            groups = new List<DomainParameter.Group<IMethod>>();
 
             Name = ctx.CodingStyle.GetName(method);
             Marks = new Marks();
@@ -55,21 +59,7 @@ namespace Routine.Engine
                 throw new IdenticalSignatureAlreadyAddedException(method);
             }
 
-            var domainParameters = method.Parameters.ToDictionary(p => p.Name, p => new DomainParameter(ctx, p, groups.Count));
-
-            foreach (var parameter in method.Parameters)
-            {
-                if (Parameter.ContainsKey(parameter.Name))
-                {
-                    Parameter[parameter.Name].AddGroup(parameter, groups.Count);
-                }
-                else
-                {
-                    Parameter.Add(parameter.Name, domainParameters[parameter.Name]);
-                }
-            }
-
-            groups.Add(new DomainParameterGroup<IMethod>(method, Parameters.Where(p => p.Groups.Contains(groups.Count)), groups.Count));
+            DomainParameter.AddGroupToTarget(method, this);
 
             Marks.Join(ctx.CodingStyle.GetMarks(method));
         }

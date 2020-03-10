@@ -7,6 +7,85 @@ namespace Routine.Engine
 {
     public class DomainParameter
     {
+        #region internal class DomainParameter.Group
+
+        internal class Group<T> where T : class, IParametric
+        {
+            public T Parametric { get; }
+            public List<DomainParameter> Parameters { get; }
+            public int GroupIndex { get; }
+
+            public Group(T parametric, IEnumerable<DomainParameter> parameters, int groupIndex)
+            {
+                Parametric = parametric;
+                Parameters = parameters.OrderBy(p => parametric.Parameters.Single(p2 => p2.Name == p.Name).Index).ToList();
+                GroupIndex = groupIndex;
+            }
+
+            public bool ContainsSameParameters(T parametric)
+            {
+                return Parametric.Parameters.Count == parametric.Parameters.Count &&
+                       Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
+            }
+        }
+
+        #endregion
+
+        #region internal static void AddGroupToTarget<T>(T group, IDomainParametric<T> target)
+
+        internal static void AddGroupToTarget<T>(T group, IDomainParametric<T> target)
+            where T : class, IParametric
+        {
+            Validate(group, target);
+
+            foreach (var parameter in group.Parameters)
+            {
+                if (target.Parameter.TryGetValue(parameter.Name, out var domainParameter))
+                {
+                    domainParameter.AddGroup(parameter, target.NextGroupIndex);
+                }
+                else
+                {
+                    target.Parameter.Add(parameter.Name, new DomainParameter(target.Ctx, parameter, target.NextGroupIndex));
+                }
+            }
+
+            target.AddGroup(group, target.Parameter.Values.Where(p => p.Groups.Contains(target.NextGroupIndex)), target.NextGroupIndex);
+        }
+
+        private static void Validate<T>(T group, IDomainParametric<T> target)
+            where T : class, IParametric
+        {
+            foreach (var parameter in group.Parameters)
+            {
+                if (target.Parameter.TryGetValue(parameter.Name, out var domainParameter))
+                {
+                    if (domainParameter.Groups.Contains(target.NextGroupIndex))
+                    {
+                        throw new InvalidOperationException(
+                            $"{parameter.Owner.ParentType.Name}.{parameter.Owner.Name}(...,{parameter.Name},...): Given groupIndex ({target.NextGroupIndex}) was already added!");
+                    }
+
+                    if (!domainParameter.parameter.ParameterType.Equals(parameter.ParameterType))
+                    {
+                        throw new ParameterTypesDoNotMatchException(
+                            parameter,
+                            domainParameter.ParameterType.Type,
+                            parameter.ParameterType
+                        );
+                    }
+                }
+                else if (!target.Ctx.CodingStyle.ContainsType(Fix(parameter.ParameterType)))
+                {
+                    throw new TypeNotConfiguredException(Fix(parameter.ParameterType));
+                }
+            }
+        }
+
+        private static IType Fix(IType type) => type.CanBeCollection() ? type.GetItemType() : type;
+
+        #endregion
+
         private readonly ICoreContext ctx;
         private readonly IParameter parameter;
 
@@ -16,40 +95,20 @@ namespace Routine.Engine
         public bool IsList { get; }
         public DomainType ParameterType { get; }
 
-        public DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
+        private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
         {
             this.ctx = ctx;
             this.parameter = parameter;
 
-            Groups = new List<int>();
-
             Name = ctx.CodingStyle.GetName(parameter);
             Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
-            Groups.Add(initialGroupIndex);
+            Groups = new List<int> { initialGroupIndex };
             IsList = parameter.ParameterType.CanBeCollection();
-
-            var parameterType = IsList ? parameter.ParameterType.GetItemType() : parameter.ParameterType;
-
-            if (!ctx.CodingStyle.ContainsType(parameterType))
-            {
-                throw new TypeNotConfiguredException(parameterType);
-            }
-
-            ParameterType = ctx.GetDomainType(parameterType);
+            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
         }
 
-        public void AddGroup(IParameter parameter, int groupIndex)
+        private void AddGroup(IParameter parameter, int groupIndex)
         {
-            if (Groups.Contains(groupIndex))
-            {
-                throw new InvalidOperationException(string.Format("{0}.{1}(...,{2},...): Given groupIndex ({3}) was already added!", parameter.Owner.ParentType.Name, parameter.Owner.Name, parameter.Name, groupIndex));
-            }
-
-            if (!this.parameter.ParameterType.Equals(parameter.ParameterType))
-            {
-                throw new ParameterTypesDoNotMatchException(parameter, ParameterType.Type, parameter.ParameterType);
-            }
-
             Groups.Add(groupIndex);
 
             Marks.Join(ctx.CodingStyle.GetMarks(parameter));

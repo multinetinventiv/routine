@@ -4,21 +4,25 @@ using Routine.Core;
 
 namespace Routine.Engine
 {
-    public class DomainObjectInitializer
+    public class DomainObjectInitializer : IDomainParametric<IConstructor>
     {
         private readonly ICoreContext ctx;
-        private readonly List<DomainParameterGroup<IConstructor>> groups;
+        private readonly List<DomainParameter.Group<IConstructor>> groups;
 
-        public Dictionary<string, DomainParameter> Parameter { get; private set; }
-        public ICollection<DomainParameter> Parameters { get { return Parameter.Values; } }
+        public Dictionary<string, DomainParameter> Parameter { get; }
+        public Marks Marks { get; }
 
-        public Marks Marks { get; private set; }
+        public ICollection<DomainParameter> Parameters => Parameter.Values;
+
+        ICoreContext IDomainParametric<IConstructor>.Ctx => ctx;
+        int IDomainParametric<IConstructor>.NextGroupIndex => groups.Count;
+        void IDomainParametric<IConstructor>.AddGroup(IConstructor parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new DomainParameter.Group<IConstructor>(parametric, parameters, groupIndex));
 
         public DomainObjectInitializer(ICoreContext ctx, IConstructor constructor)
         {
             this.ctx = ctx;
 
-            groups = new List<DomainParameterGroup<IConstructor>>();
+            groups = new List<DomainParameter.Group<IConstructor>>();
             Parameter = new Dictionary<string, DomainParameter>();
 
             Marks = new Marks();
@@ -39,21 +43,7 @@ namespace Routine.Engine
                 throw new IdenticalSignatureAlreadyAddedException(constructor);
             }
 
-            var domainParameters = constructor.Parameters.ToDictionary(p => p.Name, p => new DomainParameter(ctx, p, groups.Count));
-
-            foreach (var parameter in constructor.Parameters)
-            {
-                if (Parameter.ContainsKey(parameter.Name))
-                {
-                    Parameter[parameter.Name].AddGroup(parameter, groups.Count);
-                }
-                else
-                {
-                    Parameter.Add(parameter.Name, domainParameters[parameter.Name]);
-                }
-            }
-
-            groups.Add(new DomainParameterGroup<IConstructor>(constructor, Parameters.Where(p => p.Groups.Contains(groups.Count)), groups.Count));
+            DomainParameter.AddGroupToTarget(constructor, this);
 
             Marks.Join(ctx.CodingStyle.GetMarks(constructor));
         }
