@@ -162,7 +162,11 @@ namespace Routine.Service.RequestHandlers
             HttpContext.Response.StatusCode = (int)statusCode;
             HttpContext.Response.ContentType = JSON_CONTENT_TYPE;
             HttpContext.Response.ContentEncoding = DEFAULT_CONTENT_ENCODING;
-            HttpContext.Response.Write(JsonSerializer.Serialize(result));
+
+            if (result != null)
+            {
+                HttpContext.Response.Write(JsonSerializer.Serialize(result));
+            }
         }
 
         private Dictionary<string, List<ObjectModel>> BuildModelIndex()
