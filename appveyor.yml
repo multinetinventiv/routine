@@ -32,7 +32,7 @@
   - provider: NuGet
     name: production
     api_key: 
-      secure: 0uEiB3xE0Pxwlk20sxtf+Vy9WZQrbA2XYIbZbvQZficGLgJ7u8Cvcfu/t2T/rlmq
+      secure: p0Xytrl8mBwDJ9FHceKWAB4fO927J5GDT2c3UcHXgK3gKKNNGbZaR5HlyM3rnkVo
     on:
       branch: master
       APPVEYOR_REPO_TAG: true
