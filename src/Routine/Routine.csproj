@@ -72,10 +72,6 @@
                 <EmbeddedResource Include="Service\TestApp\vue\src\store\index.store.js" />
         </ItemGroup>
         <ItemGroup>
-                <None Include="Api\Template\ClientApiTemplate.tt">
-                        <Generator>TextTemplatingFilePreprocessor</Generator>
-                        <LastGenOutput>ClientApiTemplate.cs</LastGenOutput>
-                </None>
                 <None Include="Engine\Configuration\MethodBuilder.Parameters.tt">
                         <Generator>TextTemplatingFileGenerator</Generator>
                         <LastGenOutput>MethodBuilder.Parameters.cs</LastGenOutput>
