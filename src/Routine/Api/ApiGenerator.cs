@@ -78,8 +78,6 @@ namespace Routine.Api
 #if DEBUG
 			Console.WriteLine(assemblyCode);
 			Console.WriteLine(renderedCode);
-#else
-            Console.WriteLine("Generation Successful! (INFO: Routine does not print successful client api code any more)");
 #endif
 
             return results.CompiledAssembly;
