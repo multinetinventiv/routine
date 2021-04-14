@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Web.Routing;
-using System.Web.Script.Serialization;
 using Routine.Api;
 using Routine.Api.Context;
 using Routine.Client;
@@ -98,7 +97,7 @@ namespace Routine
 
 		private const int DEFAULT_RECURSION_LIMIT = 100;
 		private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
-		private IJsonSerializer serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer { MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT });
+		private IJsonSerializer serializer = new JavaScriptSerializerAdapter(); //todo: NewtonSoft ayarlari yapilamali=> MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT
 		public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
 		private IJsonSerializer Serializer() { return serializer; }
 

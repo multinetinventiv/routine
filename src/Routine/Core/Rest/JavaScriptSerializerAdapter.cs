@@ -1,31 +1,25 @@
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace Routine.Core.Rest
 {
 	public class JavaScriptSerializerAdapter : IJsonSerializer
-	{
-		private readonly JavaScriptSerializer javaScriptSerializer;
+    {
+        public object DeserializeObject(string jsonString)
+        {
+            return JsonConvert.DeserializeObject(jsonString);
+        }
 
-		public JavaScriptSerializerAdapter(JavaScriptSerializer javaScriptSerializer)
-		{
-			this.javaScriptSerializer = javaScriptSerializer;
-		}
+        public T Deserialize<T>(string jsonString)
+        {
+            return JsonConvert.DeserializeObject<T>(jsonString);
+        }
 
-		public object DeserializeObject(string jsonString)
-		{
-			return javaScriptSerializer.DeserializeObject(jsonString);
-		}
+        public string Serialize(object @object)
+        {
+            return JsonConvert.SerializeObject(@object);
+        }
 
-		public T Deserialize<T>(string jsonString)
-		{
-			return javaScriptSerializer.Deserialize<T>(jsonString);
-		}
-
-		public string Serialize(object @object)
-		{
-			return javaScriptSerializer.Serialize(@object);
-		}
-	}
+    }
 
 	public static class ContextBuilderJavaScriptSerializerExtensions
 	{

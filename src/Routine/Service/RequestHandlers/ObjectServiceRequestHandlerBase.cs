@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -9,8 +10,8 @@ namespace Routine.Service.RequestHandlers
 {
 	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
-		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-			: base(serviceContext, jsonSerializer, httpContext) { }
+		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
 		protected abstract bool AllowGet { get; }
 		protected abstract void Process();
@@ -50,8 +51,8 @@ namespace Routine.Service.RequestHandlers
 
 		private void ProcessRequestHeaders()
 		{
-			var requestHeaders = HttpContext.Request.Headers.AllKeys
-				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
+			var requestHeaders = HttpContextAccessor.Request.Headers.AllKeys
+				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContextAccessor.Request.Headers[key]));
 
 			foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())
 			{
@@ -66,7 +67,7 @@ namespace Routine.Service.RequestHandlers
 				var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
 				{
-					HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
+					HttpContextAccessor.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}
 		}

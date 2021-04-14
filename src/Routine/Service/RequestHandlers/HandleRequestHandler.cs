@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -20,14 +20,14 @@ namespace Routine.Service.RequestHandlers
 		public HandleRequestHandler(
 			IServiceContext serviceContext,
 			IJsonSerializer jsonSerializer,
-			HttpContextBase httpContext,
+			IHttpContextAccessor httpContextAccessor,
 			Func<Resolution, IRequestHandler> actionFactory,
 			string modelIdRouteKey,
 			string idOrViewModelIdOrOperationRouteKey,
 			string viewModelIdOrOperationRouteKey,
 			string operationRouteKey
 		)
-			: base(serviceContext, jsonSerializer, httpContext)
+			: base(serviceContext, jsonSerializer, httpContextAccessor)
 		{
 			this.actionFactory = actionFactory;
 			this.modelIdRouteKey = modelIdRouteKey;
@@ -38,7 +38,7 @@ namespace Routine.Service.RequestHandlers
 
 		public override void WriteResponse()
 		{
-			var routeData = HttpContext.Request.RequestContext.RouteData;
+			var routeData = HttpContextAccessor.Request.RequestContext.RouteData;
 
 			Handle(
 				modelId: $"{routeData.Values[modelIdRouteKey]}",
@@ -60,15 +60,15 @@ namespace Routine.Service.RequestHandlers
 			}
 			catch (AmbiguousModelException ex)
 			{
-				HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-				HttpContext.Response.StatusDescription = $"More than one model found with given modelId ({modelId}). " +
+				HttpContextAccessor.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				HttpContextAccessor.Response.StatusDescription = $"More than one model found with given modelId ({modelId}). " +
 														 $"Try sending full names. Available models are {string.Join(",", ex.AvailableModels.Select(om => om.Id))}.";
 				return;
 			}
 			catch (ModelNotFoundException)
 			{
-				HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-				HttpContext.Response.StatusDescription =
+				HttpContextAccessor.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				HttpContextAccessor.Response.StatusDescription =
 					$"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
 					"Make sure given modelId has a corresponding model and url is in one of the following format; " +
 					"- serviceurlbase/modelId " + "- serviceurlbase/modelId/id " + "- serviceurlbase/modelId/operation " +

@@ -1,12 +1,12 @@
-﻿using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
 
 namespace Routine.Service.RequestHandlers
 {
     public class IndexRequestHandler : RequestHandlerBase, IIndexRequestHandler
     {
-        public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-            : base(serviceContext, jsonSerializer, httpContext) { }
+        public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+            : base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
         public override void WriteResponse()
         {

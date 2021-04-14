@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
-using System.Web.Routing;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
+using Microsoft.Net.Http.Headers;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -28,50 +28,53 @@ namespace Routine.Service.RequestHandlers
 
         protected IServiceContext ServiceContext { get; }
         protected IJsonSerializer JsonSerializer { get; }
-        protected HttpContextBase HttpContext { get; }
+        protected IHttpContextAccessor HttpContextAccessor { get; }
 
-        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
         {
             ServiceContext = serviceContext;
             JsonSerializer = jsonSerializer;
-            HttpContext = httpContext;
+            HttpContextAccessor = httpContextAccessor;
         }
 
         #endregion
 
         public abstract void WriteResponse();
 
-        protected HttpApplicationStateBase Application => HttpContext.Application;
-        protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData;
-        protected NameValueCollection QueryString => HttpContext.Request.QueryString;
+        protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
+        protected HttpApplicationStateBase Application => HttpContext.Application; //todo silinmeli mi
+        protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData; //todo silinmeli mi
+        protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
-        protected bool IsGet => "GET".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
-        protected bool IsPost => "POST".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
         protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
-                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"];
+                //todo: cache kurgusu olmali mi?
 
-                if (result != null) { return result; }
+                // var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
 
-                HttpContext.Application.Lock();
+                // if (result != null) { return result; }
 
-                result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
+                // HttpContext.Application.Lock();
 
-                if (result != null)
-                {
-                    HttpContext.Application.UnLock();
+                // result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
 
-                    return result;
-                }
+                // if (result != null)
+                // {
+                //     HttpContext.Application.UnLock();
 
-                result = BuildModelIndex();
+                //     return result;
+                // }
 
-                HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
+                var result = BuildModelIndex();
 
-                HttpContext.Application.UnLock();
+                // HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
+
+                // HttpContext.Application.UnLock();
 
                 return result;
             }
@@ -79,10 +82,20 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void AddResponseCaching()
         {
-            HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
-            HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
-            HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
-            HttpContext.Response.Cache.SetValidUntilExpires(true);
+            //todo: burayi duzelt
+//             HttpContext.Response.GetTypedHeaders().CacheControl = 
+//         new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+//         {
+//             Public = true,
+//             MaxAge = new TimeSpan(0, CACHE_DURATION, 0),
+//         };
+// HttpContext.Response.Headers[HeaderNames.Expires] = $"{CACHE_DURATION}";
+// HttpContext.Response.Headers[HeaderNames.Pragma] = "no-cache";
+// // HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
+//             // HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
+//             // HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
+//             // HttpContext.Response.Cache.SetValidUntilExpires(true);
+//             HeaderNames.
         }
 
         protected virtual void BadRequest(Exception ex)
@@ -156,7 +169,7 @@ namespace Routine.Service.RequestHandlers
         {
             if (clearError)
             {
-                HttpContext.Server.ClearError();
+                HttpContextAccessor.Server.ClearError();
             }
 
             HttpContext.Response.StatusCode = (int)statusCode;

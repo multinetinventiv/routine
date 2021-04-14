@@ -1,5 +1,4 @@
-﻿using System.Web;
-using Routine.Core.Rest;
+﻿using Routine.Core.Rest;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -7,8 +6,8 @@ namespace Routine.Service.RequestHandlers
 	{
 		private readonly string fileNameRouteKey;
 
-		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, string fileNameRouteKey)
-			: base(serviceContext, jsonSerializer, httpContext)
+		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, string fileNameRouteKey)
+			: base(serviceContext, jsonSerializer, httpContextAccessor)
 		{
 			this.fileNameRouteKey = fileNameRouteKey;
 		}
