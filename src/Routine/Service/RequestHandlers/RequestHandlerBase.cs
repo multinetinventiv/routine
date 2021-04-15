@@ -48,7 +48,6 @@ namespace Routine.Service.RequestHandlers
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
         protected IHttpResponseFeature HttpResponseFeature => HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>();
-        //protected HttpApplicationStateBase Application => HttpContext.Application; //todo silinmeli mi
         protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');

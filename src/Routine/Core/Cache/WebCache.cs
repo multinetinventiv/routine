@@ -10,7 +10,6 @@ namespace Routine.Core.Cache
         {
             Cache = new MemoryCache(new MemoryCacheOptions
             {
-                SizeLimit = 1024
             });
         }
         public bool Contains(string key)
