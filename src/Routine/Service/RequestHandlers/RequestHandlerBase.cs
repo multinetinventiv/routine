@@ -10,6 +10,11 @@ using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Features;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Routing;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -42,8 +47,9 @@ namespace Routine.Service.RequestHandlers
         public abstract void WriteResponse();
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
-        protected HttpApplicationStateBase Application => HttpContext.Application; //todo silinmeli mi
-        protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData; //todo silinmeli mi
+        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>();
+        //protected HttpApplicationStateBase Application => HttpContext.Application; //todo silinmeli mi
+        protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
@@ -82,44 +88,36 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void AddResponseCaching()
         {
-            //todo: burayi duzelt
-//             HttpContext.Response.GetTypedHeaders().CacheControl = 
-//         new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
-//         {
-//             Public = true,
-//             MaxAge = new TimeSpan(0, CACHE_DURATION, 0),
-//         };
-// HttpContext.Response.Headers[HeaderNames.Expires] = $"{CACHE_DURATION}";
-// HttpContext.Response.Headers[HeaderNames.Pragma] = "no-cache";
-// // HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
-//             // HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
-//             // HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
-//             // HttpContext.Response.Cache.SetValidUntilExpires(true);
-//             HeaderNames.
+            var headers = HttpContext.Response.GetTypedHeaders();
+            headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+            {
+                Public = true,
+                MaxAge = new TimeSpan(0, CACHE_DURATION, 0)
+            };
+            headers.Expires = DateTime.Now.AddMinutes(CACHE_DURATION);
         }
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            HttpContext.Response.StatusDescription =
-                $"Cannot resolve parameters from request body. The exception is; {ex}";
+            //todo: bunu test etmeli
+            // new HttpResponseMessage().ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            HttpResponseFeature.ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
+
+            // HttpContext.Response.StatusDescription =
+            //     $"Cannot resolve parameters from request body. The exception is; {ex}";
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            HttpContext.Response.StatusDescription =
-                $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            HttpResponseFeature.ReasonPhrase = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            if (allowGet)
-            {
-                HttpContext.Response.StatusDescription = "Only GET, POST and OPTIONS are supported";
-            }
-            HttpContext.Response.StatusDescription = "Only POST and OPTIONS are supported";
+            HttpContext.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+            HttpResponseFeature.ReasonPhrase = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
         }
 
         protected virtual void WriteFileResponse(string path)
@@ -136,14 +134,17 @@ namespace Routine.Service.RequestHandlers
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-            HttpContext.Response.BinaryWrite(Encoding.UTF8.GetBytes(fileContent));
+            HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(fileContent));
         }
 
         protected virtual void WriteFontResponse(string fileName)
         {
             var stream = GetStream("assets/fonts/" + fileName);
 
-            var outputStream = HttpContext.Response.OutputStream;
+            var outputStream = new MemoryStream();
+
+            outputStream.Position = 0;
+
             using (stream)
             {
                 var buffer = new byte[BUFFER_SIZE];
@@ -159,26 +160,37 @@ namespace Routine.Service.RequestHandlers
                     outputStream.Write(buffer, 0, bytesRead);
                 }
             }
+
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
-            HttpContext.Response.Flush();
-            HttpContext.Response.End();
+            //todo: https://stackoverflow.com/questions/53194200/how-httpcontext-response-end-in-asp-net-core linkine gore statu code'u setlenmeli mi test edilecek
+            // HttpContext.Response.Flush();
+            // HttpContext.Response.End();
+
+            Task.Run(async () =>
+            {
+                await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
+                HttpContext.Response.Body.Flush();
+            }).Wait(CancellationToken.None);
         }
 
         protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
-            if (clearError)
-            {
-                HttpContextAccessor.Server.ClearError();
-            }
+            //todo:HttpContext.ClearError muadili bulunmali
+            // if (clearError)
+            // {
+            //     HttpContext.ClearError();
+            // }
 
             HttpContext.Response.StatusCode = (int)statusCode;
-            HttpContext.Response.ContentType = JSON_CONTENT_TYPE;
-            HttpContext.Response.ContentEncoding = DEFAULT_CONTENT_ENCODING;
+
+            var mediaType = new MediaTypeHeaderValue(JSON_CONTENT_TYPE);
+            mediaType.Encoding = DEFAULT_CONTENT_ENCODING;
+            HttpContext.Response.ContentType = mediaType.ToString();
 
             if (result != null)
             {
-                HttpContext.Response.Write(JsonSerializer.Serialize(result));
+                HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }
 
