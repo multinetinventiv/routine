@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Web.Routing;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Routine.Api;
 using Routine.Api.Context;
 using Routine.Client;
@@ -17,6 +18,11 @@ namespace Routine
 {
 	public class ContextBuilder
 	{
+		public ContextBuilder(IApplicationBuilder applicationBuilder, IHttpContextAccessor httpContextAccessor)
+		{
+            this.applicationBuilder = applicationBuilder;
+            this.httpContextAccessor = httpContextAccessor;
+        }
 		public IApiContext AsApiGenerationLocal(IApiConfiguration apiConfiguration, ICodingStyle codingStyle)
 		{
 			return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
@@ -54,7 +60,7 @@ namespace Routine
 
 		private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
 		{
-			return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle), HandlerFactory());
+			return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle), HandlerFactory(), applicationBuilder);
 		}
 
 		private IObjectService ObjectService(ICodingStyle codingStyle)
@@ -88,7 +94,7 @@ namespace Routine
 
 		private Func<IServiceContext, IRoutineRouteHandler> handlerFactory;
 		public ContextBuilder UsingHandlerFactory(Func<IServiceContext, IRoutineRouteHandler> handlerFactory) { this.handlerFactory = handlerFactory; return this; }
-		private Func<IServiceContext, IRoutineRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new RoutineRouteHandler(sc, Serializer()));
+		private Func<IServiceContext, IRoutineRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new RoutineRouteHandler(sc, Serializer(), httpContextAccessor));
 
 		private IRestClient restClient = new WebRequestRestClient();
 		public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
@@ -97,7 +103,9 @@ namespace Routine
 
 		private const int DEFAULT_RECURSION_LIMIT = 100;
 		private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
-		private IJsonSerializer serializer = new JavaScriptSerializerAdapter(); //todo: NewtonSoft ayarlari yapilamali=> MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT
+        private readonly IApplicationBuilder applicationBuilder;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private IJsonSerializer serializer = new JavaScriptSerializerAdapter(); //todo: NewtonSoft ayarlari yapilamali=> MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT
 		public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
 		private IJsonSerializer Serializer() { return serializer; }
 
