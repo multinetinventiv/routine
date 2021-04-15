@@ -61,9 +61,9 @@ namespace Routine.Service.RequestHandlers
             {
                 //todo: cache kurgusu olmali mi?
 
-                // var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
+                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
 
-                // if (result != null) { return result; }
+                if (result != null) { return result; }
 
                 // HttpContext.Application.Lock();
 
@@ -76,8 +76,8 @@ namespace Routine.Service.RequestHandlers
                 //     return result;
                 // }
 
-                var result = BuildModelIndex();
-
+                result = BuildModelIndex();
+                HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
                 // HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
 
                 // HttpContext.Application.UnLock();
