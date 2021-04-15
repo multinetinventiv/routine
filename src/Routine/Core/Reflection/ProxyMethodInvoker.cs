@@ -16,7 +16,7 @@ namespace Routine.Core.Reflection
 		{
 			this.method = method;
 
-			ReflectionOptimizer.AddToOptimizeList(method);
+			// ReflectionOptimizer.AddToOptimizeList(method);
 		}
 
 		private IMethodInvoker real;
@@ -26,7 +26,8 @@ namespace Routine.Core.Reflection
 			{
 				if (real == null)
 				{
-					real = ReflectionOptimizer.CreateInvoker(method);
+					//todo: burasi da duzenlenmeli
+					//  real = ReflectionOptimizer.CreateInvoker(method);
 				}
 
 				return real;

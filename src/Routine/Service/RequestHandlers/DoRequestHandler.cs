@@ -37,9 +37,9 @@ namespace Routine.Service.RequestHandlers
 					);
 
 			}
-			catch (TypeNotFoundException ex)
+			catch (TypeNotFoundException)
 			{
-				throw ex;
+				throw;
 			}
 			catch (Exception ex)
 			{
