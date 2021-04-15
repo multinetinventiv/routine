@@ -51,8 +51,8 @@ namespace Routine.Service.RequestHandlers
 
 		private void ProcessRequestHeaders()
 		{
-			var requestHeaders = HttpContextAccessor.Request.Headers.AllKeys
-				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContextAccessor.Request.Headers[key]));
+			var requestHeaders = HttpContext.Request.Headers.Keys
+				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
 
 			foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())
 			{
@@ -67,7 +67,7 @@ namespace Routine.Service.RequestHandlers
 				var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
 				{
-					HttpContextAccessor.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
+					HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}
 		}

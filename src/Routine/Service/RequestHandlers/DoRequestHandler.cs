@@ -56,10 +56,10 @@ namespace Routine.Service.RequestHandlers
 		{
 			if (IsGet)
 			{
-				return QueryString.AllKeys.ToDictionary(s => s, s => QueryString[s] as object);
+				return QueryString.Keys.ToDictionary(s => s, s => QueryString[s] as object);
 			}
 
-			var req = HttpContextAccessor.Request.InputStream;
+			var req = HttpContext.Request.Body;
 			req.Seek(0, SeekOrigin.Begin);
 			var requestBody = new StreamReader(req).ReadToEnd();
 
