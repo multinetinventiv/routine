@@ -18,10 +18,11 @@ namespace Routine
 {
 	public static class BuildRoutine
 	{
-		public static ContextBuilder Context()
-		{
-			return new ContextBuilder();
-		}
+		//todo: silinmemeli mi? kontrol edilmeli
+		// public static ContextBuilder Context()
+		// {
+		// 	return new ContextBuilder();
+		// }
 
 		public static CodingStyleBuilder CodingStyle()
 		{

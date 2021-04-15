@@ -23,7 +23,7 @@ namespace Routine.Core.Rest
 
 	public static class ContextBuilderJavaScriptSerializerExtensions
 	{
-		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength) { return source.UsingSerializer(new JavaScriptSerializerAdapter(new JavaScriptSerializer { MaxJsonLength = maxJsonLength })); }
-		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength, int recursionLimit) { return source.UsingSerializer(new JavaScriptSerializerAdapter(new JavaScriptSerializer { MaxJsonLength = maxJsonLength, RecursionLimit = recursionLimit })); }
+		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength) { return source.UsingSerializer(new JavaScriptSerializerAdapter()); }
+		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength, int recursionLimit) { return source.UsingSerializer(new JavaScriptSerializerAdapter()); }
 	}
 }
