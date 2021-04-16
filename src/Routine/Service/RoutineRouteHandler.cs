@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Service
 {
-	public class RoutineRouteHandler : IRoutineRouteHandler
+    public class RoutineRouteHandler : IRoutineRouteHandler
 	{
 		private readonly IHttpContextAccessor httpContextAccessor;
 		private readonly IServiceContext serviceContext;
 		private readonly IJsonSerializer jsonSerializer;
 
 		public Dictionary<string, Func<IHttpContextAccessor, IRequestHandler>> RequestHandlers { get; }
+
+        public List<string> RequestHandlersList => RequestHandlers.Keys.Select(q => q.ToLowerInvariant()).ToList();
 
 		public RoutineRouteHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
 		{
@@ -46,18 +48,35 @@ namespace Routine.Service
 							: new GetRequestHandler(serviceContext, jsonSerializer, hcb, resolution)
 					)
 			);
+		
+			//todo: URL pattern tipler RouteTable'a eklenmeli. Uygulama ayaga kalkmasi icin gelen istek request path den cozuldu.
+            applicationBuilder.Use(async (context, next) =>
+            {
+                var path = context.Request.Path.ToString().ToLowerInvariant();
+
+                var key = string.IsNullOrEmpty(path) || path == "/"
+                    ? "index"
+                    : RequestHandlersList.FirstOrDefault(r =>
+                        context.Request.Path.ToString().ToLowerInvariant().Contains(r));
+
+                if (string.IsNullOrEmpty(key))
+                {
+					context.Response.StatusCode = StatusCodes.Status404NotFound;
+				}
+                else
+                {
+					var requestHandler = RequestHandlers[key](httpContextAccessor);
+                    requestHandler.WriteResponse();
+				}
+
+                await next();
+            });
+
+
 		}
 
-		// todo: 0 referansi var. Ihtiyac yoksa silinmeli varsa muadili yazilmali
-		// public IHttpHandler GetHttpHandler(RequestContext requestContext)
-		// {
-		// 	var action = $"{requestContext.RouteData.Values["action"]}".ToLowerInvariant();
-		// 	var requestHandler = RequestHandlers[action](requestContext.HttpContext);
-
-		// 	return new ProxyHttpHandler(requestHandler);
-		// }
-
-		private void Add<T>(Func<IHttpContextAccessor, T> factory, IApplicationBuilder applicationBuilder, object defaults = null)
+      
+        private void Add<T>(Func<IHttpContextAccessor, T> factory, IApplicationBuilder applicationBuilder, object defaults = null)
 			where T : IRequestHandler
 		{
 			Add(
@@ -90,37 +109,6 @@ namespace Routine.Service
 			if (defaults == null) { defaults = new { }; }
 
 			RequestHandlers[action] = factory;
-
-			applicationBuilder.Map($"/{path}", (app) => {
-                app.Run(async context => {
-                    await Task.Run(() =>
-                    {
-                        var requestHandler = RequestHandlers[action](httpContextAccessor);
-                        requestHandler.WriteResponse();
-                    });
-                });
-			});
-
-			// if (index)
-			// {
-			// 	RouteTable.Routes.Add(Guid.NewGuid().ToString(format: "N"),
-			// 		new Route(
-			// 			url: string.Empty,
-			// 			defaults: new RouteValueDictionary(defaults) { { "action", action } },
-			// 			routeHandler: this
-			// 		)
-			// 	);
-			// }
-			// else
-			// {
-			// 	RouteTable.Routes.Add(Guid.NewGuid().ToString(format: "N"),
-			// 		new Route(
-			// 			url: serviceContext.ServiceConfiguration.GetPath(path),
-			// 			defaults: new RouteValueDictionary(defaults) { { "action", action } },
-			// 			routeHandler: this
-			// 		)
-			// 	);
-			// }
 		}
 
 		private string ActionNameFor<T>() where T : IRequestHandler

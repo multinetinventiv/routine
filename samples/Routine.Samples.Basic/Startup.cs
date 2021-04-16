@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
-using System.Linq;
+using Routine.Core.Rest;
 using Routine.Engine;
 using Routine.Engine.Reflection;
-using Routine.Core.Rest;
-using Routine.Service;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Routine.Samples.Basic
 {
@@ -42,30 +41,27 @@ namespace Routine.Samples.Basic
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseRouting();
-            
             app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
-				serviceConfiguration: sc => sc.FromBasic()
-					.RootPath.Set("api")
-					.RequestHeaders.Add("Accept-Language"),
-				codingStyle: cs => cs.FromBasic()
-					.AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
-					.Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))
+                serviceConfiguration: sc => sc.FromBasic()
+                    .RootPath.Set("api")
+                    .RequestHeaders.Add("Accept-Language"),
+                codingStyle: cs => cs.FromBasic()
+                    .AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
+                    .Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))
 
-					//Service Configuration
-					.ValueExtractor.Set(c => c.Value(v => v.By(obj => obj.GetType().Name.SplitCamelCase(' '))).When(t => t.Name.EndsWith("Service")))
-					.Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())).When(t => t.Name.EndsWith("Service")))
-					.StaticInstances.Add(c => c.By(t => t.CreateInstance()).When(t => t.Name.EndsWith("Service")))
-					.Operations.Add(c => c.PublicMethods(m => !m.IsInherited(true, true)).When(t => t.Name.EndsWith("Service")))
+                    //Service Configuration
+                    .ValueExtractor.Set(c => c.Value(v => v.By(obj => obj.GetType().Name.SplitCamelCase(' '))).When(t => t.Name.EndsWith("Service")))
+                    .Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())).When(t => t.Name.EndsWith("Service")))
+                    .StaticInstances.Add(c => c.By(t => t.CreateInstance()).When(t => t.Name.EndsWith("Service")))
+                    .Operations.Add(c => c.PublicMethods(m => !m.IsInherited(true, true)).When(t => t.Name.EndsWith("Service")))
 
-					//Dto Configuration
-					.Initializers.Add(c => c.By(t => new PublicPropertyConstructor(t)).When(t => t.Name.EndsWith("Dto")))
-					.Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
-					.IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
-					.ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
-			));
-        }
+                    //Dto Configuration
+                    .Initializers.Add(c => c.By(t => new PublicPropertyConstructor(t)).When(t => t.Name.EndsWith("Dto")))
+                    .Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
+                    .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
+                    .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
+            ));
+		}
     }
 
     internal class PropertyParameter : IParameter
