@@ -69,10 +69,8 @@ namespace Routine.Service
                     requestHandler.WriteResponse();
 				}
 
-                await next();
+                // await next();
             });
-
-
 		}
 
       
