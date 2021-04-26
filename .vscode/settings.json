@@ -9,7 +9,7 @@
         "**/.vs":true,
         "**/bin":true,
         "**/obj":true,
-        // "**/*.csproj":true,
+        "**/*.csproj.*":true,
         "**/.github":true
     }
 }
