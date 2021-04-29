@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +22,10 @@ namespace Routine.Samples.Basic
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<IJsonSerializer, JavaScriptSerializerAdapter>();
-			
+
+            services.AddControllers();
+            services.AddRouting();
+
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>
             {
@@ -41,6 +46,9 @@ namespace Routine.Samples.Basic
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseRouting();
+
             app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api")
@@ -61,57 +69,58 @@ namespace Routine.Samples.Basic
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
                     .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
             ));
-		}
+
+        }
     }
 
     internal class PropertyParameter : IParameter
-	{
-		public IProperty Property { get; }
-		public IParametric Owner { get; }
-		public int Index { get; }
+    {
+        public IProperty Property { get; }
+        public IParametric Owner { get; }
+        public int Index { get; }
 
-		public PropertyParameter(IParametric owner, IProperty property, int index)
-		{
-			Owner = owner;
-			Property = property;
-			Index = index;
-		}
+        public PropertyParameter(IParametric owner, IProperty property, int index)
+        {
+            Owner = owner;
+            Property = property;
+            Index = index;
+        }
 
-		public string Name => Property.Name.ToLowerInitial();
-		public IType ParentType => Property.ParentType;
-		public object[] GetCustomAttributes() => Property.GetCustomAttributes();
-		public IType ParameterType => Property.ReturnType;
-	}
+        public string Name => Property.Name.ToLowerInitial();
+        public IType ParentType => Property.ParentType;
+        public object[] GetCustomAttributes() => Property.GetCustomAttributes();
+        public IType ParameterType => Property.ReturnType;
+    }
 
-	internal class PublicPropertyConstructor : IConstructor
-	{
-		public IType Type { get; }
+    internal class PublicPropertyConstructor : IConstructor
+    {
+        public IType Type { get; }
 
-		public PublicPropertyConstructor(IType type)
-		{
-			Type = type;
-		}
+        public PublicPropertyConstructor(IType type)
+        {
+            Type = type;
+        }
 
-		public string Name => "_ctor";
-		public IType ParentType => Type;
-		public object[] GetCustomAttributes() => new object[0];
+        public string Name => "_ctor";
+        public IType ParentType => Type;
+        public object[] GetCustomAttributes() => new object[0];
 
-		public List<IParameter> Parameters => Type.Properties.Where(p => p.IsPublic).Select((p, ix) => new PropertyParameter(this, p, ix)).ToList<IParameter>();
+        public List<IParameter> Parameters => Type.Properties.Where(p => p.IsPublic).Select((p, ix) => new PropertyParameter(this, p, ix)).ToList<IParameter>();
 
-		public bool IsPublic => true;
-		public IType InitializedType => Type;
+        public bool IsPublic => true;
+        public IType InitializedType => Type;
 
-		public object Initialize(params object[] parameters)
-		{
-			var result = Type.CreateInstance();
-			var properties = Parameters.Cast<PropertyParameter>().Select(p => p.Property).Cast<PropertyInfo>().ToList();
+        public object Initialize(params object[] parameters)
+        {
+            var result = Type.CreateInstance();
+            var properties = Parameters.Cast<PropertyParameter>().Select(p => p.Property).Cast<PropertyInfo>().ToList();
 
-			for (int i = 0; i < parameters.Length; i++)
-			{
-				properties[i].SetValue(result, parameters[i]);
-			}
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                properties[i].SetValue(result, parameters[i]);
+            }
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }
