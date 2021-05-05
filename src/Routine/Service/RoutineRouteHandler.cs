@@ -64,7 +64,6 @@ namespace Routine.Service
 
             rootBuilder.MapGet("api/{action}/{fileName}/f", (context) =>
             {
-                var routeData = context.GetRouteData();
                 var requestHandler = RequestHandlers["fonts"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
@@ -72,7 +71,6 @@ namespace Routine.Service
 
             rootBuilder.MapPost("api/{modelId}/{idOrViewModelIdOrOperation}", (context) =>
             {
-                var routeData = context.GetRouteData();
                 var requestHandler = RequestHandlers["handle"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
@@ -80,7 +78,6 @@ namespace Routine.Service
 
             rootBuilder.MapPost("api/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}", (context) =>
             {
-                var routeData = context.GetRouteData();
                 var requestHandler = RequestHandlers["handle"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
@@ -88,17 +85,41 @@ namespace Routine.Service
 
             rootBuilder.MapPost("api/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}", (context) =>
             {
-                var routeData = context.GetRouteData();
                 var requestHandler = RequestHandlers["handle"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
             );
 
-            rootBuilder.MapGet("api/{action}", (context) =>
-            {
-                var routeData = context.GetRouteData();
+            // rootBuilder.MapGet("api/{action}", (context) =>
+            // {
+            //     var routeData = context.GetRouteData();
 
-                var requestHandler = RequestHandlers[routeData.Values["action"].ToString().ToLowerInvariant()](httpContextAccessor);
+            //     var requestHandler = RequestHandlers[routeData.Values["action"].ToString().ToLowerInvariant()](httpContextAccessor);
+            //     return Task.Run(() => requestHandler.WriteResponse());
+            // }
+            // );
+
+            rootBuilder.MapGet("api/index", (context) =>
+            {
+                var requestHandler = RequestHandlers["index"](httpContextAccessor);
+                return Task.Run(() => requestHandler.WriteResponse());
+            }
+            );
+            rootBuilder.MapGet("api/file", (context) =>
+            {
+                var requestHandler = RequestHandlers["file"](httpContextAccessor);
+                return Task.Run(() => requestHandler.WriteResponse());
+            }
+            );
+            rootBuilder.MapGet("api/configuration", (context) =>
+            {
+                var requestHandler = RequestHandlers["configuration"](httpContextAccessor);
+                return Task.Run(() => requestHandler.WriteResponse());
+            }
+            );
+            rootBuilder.MapGet("api/applicationmodel", (context) =>
+            {
+                var requestHandler = RequestHandlers["applicationmodel"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
             );
