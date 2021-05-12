@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net;
-using System.Web.Script.Serialization;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -31,7 +30,7 @@ namespace Routine.Test.Service
         {
             base.SetUp();
 
-            serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer());
+            serializer = new JavaScriptSerializerAdapter();
             config = BuildRoutine.ServiceClientConfig().FromBasic()
                 .ServiceUrlBase.Set(URL_BASE);
 
