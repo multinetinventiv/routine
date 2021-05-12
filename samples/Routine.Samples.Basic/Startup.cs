@@ -21,7 +21,7 @@ namespace Routine.Samples.Basic
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddSingleton<IJsonSerializer, JavaScriptSerializerAdapter>();
+            services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
 
             services.AddControllers();
             services.AddRouting();

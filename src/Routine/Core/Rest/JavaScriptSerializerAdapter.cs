@@ -1,29 +1,38 @@
-using Newtonsoft.Json;
+
+using System.Text.Json;
 
 namespace Routine.Core.Rest
 {
-	public class JavaScriptSerializerAdapter : IJsonSerializer
+    public class JsonSerializerAdapter : IJsonSerializer
     {
+        // private const int DEFAULT_RECURSION_LIMIT = 100;
+        // private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
+        private readonly JsonSerializerOptions jsonSerializerOptions;
+
+        public JsonSerializerAdapter(JsonSerializerOptions jsonSerializerOptions = null)
+        {
+            //todo: null ise default degerlerin muadilleri set edilmeli
+            this.jsonSerializerOptions = jsonSerializerOptions;
+        }
+
         public object DeserializeObject(string jsonString)
         {
-            return JsonConvert.DeserializeObject(jsonString);
+            return JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions);
         }
 
         public T Deserialize<T>(string jsonString)
         {
-            return JsonConvert.DeserializeObject<T>(jsonString);
+            return JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions);
         }
 
         public string Serialize(object @object)
         {
-            return JsonConvert.SerializeObject(@object);
+            return JsonSerializer.Serialize(@object, jsonSerializerOptions);
         }
-
     }
 
-	public static class ContextBuilderJavaScriptSerializerExtensions
-	{
-		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength) { return source.UsingSerializer(new JavaScriptSerializerAdapter()); }
-		public static ContextBuilder UsingJavaScriptSerializer(this ContextBuilder source, int maxJsonLength, int recursionLimit) { return source.UsingSerializer(new JavaScriptSerializerAdapter()); }
-	}
+    public static class ContextBuilderJsonSerializerExtensions
+    {
+        public static ContextBuilder UsingJsonSerializer(this ContextBuilder source, int? maxJsonLength = null, int? recursionLimit = null) { return source.UsingSerializer(new JsonSerializerAdapter()); }
+    }
 }

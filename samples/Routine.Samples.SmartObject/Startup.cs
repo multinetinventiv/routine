@@ -18,7 +18,7 @@ namespace Routine.Samples.SmartObject
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddSingleton<IJsonSerializer, JavaScriptSerializerAdapter>();
+            services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
 
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>

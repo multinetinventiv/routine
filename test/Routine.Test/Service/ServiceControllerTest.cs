@@ -38,9 +38,7 @@ namespace Routine.Test.Service
         private HandleRequestHandler testing;
         private ConventionBasedServiceConfiguration config;
 
-        private const int DEFAULT_RECURSION_LIMIT = 100;
-        private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
-        private IJsonSerializer serializer = new JavaScriptSerializerAdapter(new JavaScriptSerializer { MaxJsonLength = DEFAULT_MAX_JSON_LENGTH, RecursionLimit = DEFAULT_RECURSION_LIMIT });
+        private IJsonSerializer serializer = new JsonSerializerAdapter();
 
         public override void SetUp()
         {

@@ -14,12 +14,12 @@ namespace Routine.Test.Core.Rest
 
         private string Serialize(object @object)
         {
-            return new JavaScriptSerializerAdapter().Serialize(@object);
+            return new JsonSerializerAdapter().Serialize(@object);
         }
 
         private object Deserialize(string json)
         {
-            return new JavaScriptSerializerAdapter().DeserializeObject(json);
+            return new JsonSerializerAdapter().DeserializeObject(json);
         }
 
         private DataCompressor Compressor() { return Compressor(null); }

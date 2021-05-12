@@ -30,7 +30,7 @@ namespace Routine.Test.Service
         {
             base.SetUp();
 
-            serializer = new JavaScriptSerializerAdapter();
+            serializer = new JsonSerializerAdapter();
             config = BuildRoutine.ServiceClientConfig().FromBasic()
                 .ServiceUrlBase.Set(URL_BASE);
 
