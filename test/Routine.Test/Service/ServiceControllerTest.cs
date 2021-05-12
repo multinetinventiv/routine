@@ -7,6 +7,8 @@ using System.Net;
 using System.Web;
 using System.Web.Routing;
 using System.Web.Script.Serialization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -24,12 +26,11 @@ namespace Routine.Test.Service
     {
         #region SetUp & Helpers
 
-        private Mock<HttpContextBase> httpContext;
+        private Mock<IHttpContextAccessor> httpContextAccessor;
         private Mock<IServiceContext> serviceContext;
         private Mock<IObjectService> objectService;
         private Mock<HttpRequestBase> request;
         private Mock<HttpResponseBase> response;
-        private Mock<HttpApplicationStateBase> httpApplication;
         private Mock<RequestContext> requestContext;
         private NameValueCollection requestHeaders;
         private NameValueCollection responseHeaders;
@@ -45,13 +46,13 @@ namespace Routine.Test.Service
         {
             base.SetUp();
 
-            httpContext = new Mock<HttpContextBase>();
+            httpContextAccessor = new Mock<IHttpContextAccessor>();
+
             serviceContext = new Mock<IServiceContext>();
             objectService = new Mock<IObjectService>();
             request = new Mock<HttpRequestBase>();
             response = new Mock<HttpResponseBase>();
             requestContext = new Mock<RequestContext>();
-            httpApplication = new Mock<HttpApplicationStateBase>();
 
             requestHeaders = new NameValueCollection();
             responseHeaders = new NameValueCollection();
@@ -74,9 +75,9 @@ namespace Routine.Test.Service
                 }
                 return objectDictionary[referenceData];
             });
-            httpContext.Setup(hc => hc.Request).Returns(request.Object);
-            httpContext.Setup(hc => hc.Response).Returns(response.Object);
-            httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
+            // httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
             requestContext.Setup(rc => rc.RouteData).Returns(new RouteData());
             request.Setup(r => r.RequestContext).Returns(requestContext.Object);
             request.Setup(r => r.Headers).Returns(requestHeaders);
