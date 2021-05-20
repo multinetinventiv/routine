@@ -64,25 +64,7 @@ namespace Routine.Service.RequestHandlers
             req.Seek(0, SeekOrigin.Begin);
             var requestBody = new StreamReader(req).ReadToEnd();
 
-            return deserializeToDictionary(requestBody);
-        }
-
-        private Dictionary<string, object> deserializeToDictionary(string jo)
-        {
-            var values = JsonSerializer.Deserialize<Dictionary<string, object>>(jo);
-            var values2 = new Dictionary<string, object>();
-            foreach (KeyValuePair<string, object> d in values)
-            {
-                if (d.Value is JObject)
-                {
-                    values2.Add(d.Key, deserializeToDictionary(d.Value.ToString()));
-                }
-                else
-                {
-                    values2.Add(d.Key, d.Value);
-                }
-            }
-            return values2;
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
         }
     }
 }
