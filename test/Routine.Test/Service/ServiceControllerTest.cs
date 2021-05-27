@@ -41,7 +41,8 @@ namespace Routine.Test.Service
         private QueryString requestQueryString;
         private HandleRequestHandler testing;
         private ConventionBasedServiceConfiguration config;
-        private Mock<IApplicationBuilder> applicationBuilder;
+        private IApplicationBuilder applicationBuilder;
+        private Mock<IFeatureCollection> featureCollection;
 
 
 
@@ -49,13 +50,21 @@ namespace Routine.Test.Service
 
         private IJsonSerializer serializer = new JsonSerializerAdapter();
 
+        [SetUp]
+        public void BeforeTest()
+        {
+            httpContextAccessor.Object.HttpContext.Response.Body = new MemoryStream();
+        }
+
         public override void SetUp()
         {
             base.SetUp();
 
             var webHostBuilder = new WebHostBuilder().UseStartup<Startup>();
             var server = new TestServer(webHostBuilder);
-            var applicationBuilder = server.Host.Services.GetRequiredService<IApplicationBuilder>();
+            applicationBuilder = Startup.applicationBuilder;
+
+            //var applicationBuilder = server.Host.Services.GetRequiredService<IApplicationBuilder>();
             // You can set the environment you want (development, staging, production) .UseStartup<Startup>(); // Startup class of your web app project
 
             httpContextAccessor = new Mock<IHttpContextAccessor>();
@@ -64,12 +73,14 @@ namespace Routine.Test.Service
             objectService = new Mock<IObjectService>();
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
+            featureCollection = new Mock<IFeatureCollection>();
+            
 
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
             requestQueryString = new QueryString();
-            // applicationBuilder = new Mock<IApplicationBuilder>();
-            // applicationBuilder.Setup(ap => ap.ApplicationServices).Returns(Mock.Of<IServiceProvider>());
+            //applicationBuilder = new Mock<IApplicationBuilder>();
+            //applicationBuilder.Setup(ap => ap.ApplicationServices).Returns(Mock.Of<IServiceProvider>());
 
 
 
@@ -92,6 +103,7 @@ namespace Routine.Test.Service
             });
             httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(featureCollection.Object);
             // httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
             request.Setup(r => r.Headers).Returns(requestHeaders);
             request.Setup(r => r.QueryString).Returns(requestQueryString);
@@ -105,7 +117,7 @@ namespace Routine.Test.Service
             var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object);
             routeHandler.RegisterRoutes(applicationBuilder);
             testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
-
+           
             Assert.IsNotNull(testing);
 
         }
@@ -671,6 +683,8 @@ namespace Routine.Test.Service
 
             app.UseRouting();
 
+            applicationBuilder = app;
+
             // app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
             //     serviceConfiguration: sc => sc.FromBasic()
             //         .RootPath.Set("api")
@@ -693,6 +707,8 @@ namespace Routine.Test.Service
             // ));
 
         }
+
+        public static IApplicationBuilder applicationBuilder;
     }
 }
 

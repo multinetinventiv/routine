@@ -47,7 +47,7 @@ namespace Routine.Service.RequestHandlers
         public abstract void WriteResponse();
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
-        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>();
+        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Features.Get<IHttpResponseFeature>();
         protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
