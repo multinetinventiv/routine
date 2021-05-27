@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,6 @@ namespace Routine.Test.Service
         private Mock<IObjectService> objectService;
         private Mock<HttpRequest> request;
         private Mock<HttpResponse> response;
-        private Mock<RequestContext> requestContext;
         private IHeaderDictionary requestHeaders;
         private IHeaderDictionary responseHeaders;
         private QueryString requestQueryString;
@@ -52,7 +52,7 @@ namespace Routine.Test.Service
             objectService = new Mock<IObjectService>();
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
-            requestContext = new Mock<RequestContext>();
+
 
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
@@ -79,8 +79,6 @@ namespace Routine.Test.Service
             httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
             // httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
-            requestContext.Setup(rc => rc.RouteData).Returns(new RouteData());
-            request.Setup(r => r.RequestContext).Returns(requestContext.Object);
             request.Setup(r => r.Headers).Returns(requestHeaders);
             request.Setup(r => r.QueryString).Returns(requestQueryString);
             request.Setup(r => r.Method).Returns("POST");
@@ -463,9 +461,7 @@ namespace Routine.Test.Service
 
             testing.Handle("model", "2", "action", null);
 
-
-            string jsonText =
-                            "{" +
+            response.Verify(r => r.WriteAsync("{" +
                                 "\"Id\":\"2\"," +
                                 "\"Display\":\"model 2\"," +
                                 "\"ModelId\":\"model\"," +
@@ -473,16 +469,7 @@ namespace Routine.Test.Service
                                 "{" +
                                     "\"data\":\"text\"" +
                                 "}" +
-                            "}";
-
-
-
-            //TODO: Burada VerifyAsync i senkron olarak çağırmak gerekiyor.
-
-            // response.Verify(r => r.WriteAsync(
-
-            //         jsonText
-            // ), Times.Once());
+                            "}", CancellationToken.None), Times.Once());
         }
 
         [Test]
@@ -506,7 +493,7 @@ namespace Routine.Test.Service
 
             testing.Handle("model", "2", "action", null);
 
-            response.Verify(r => r.Write(
+            response.Verify(r => r.WriteAsync(
                 "{" +
                     "\"Id\":\"2\"," +
                     "\"Display\":\"model 2\"," +
@@ -515,7 +502,7 @@ namespace Routine.Test.Service
                         "\"data\":\"text\"" +
                     "}" +
                 "}"
-            ), Times.Once());
+            , CancellationToken.None), Times.Once());
         }
 
         [Test]
@@ -554,7 +541,7 @@ namespace Routine.Test.Service
 
             testing.Handle("model", "3", null, null);
 
-            response.Verify(r => r.Write(
+            response.Verify(r => r.WriteAsync(
                 "{" +
                     "\"Id\":\"3\"," +
                     "\"Display\":\"display\"," +
@@ -563,7 +550,7 @@ namespace Routine.Test.Service
                         "\"data\":\"text\"" +
                     "}" +
                 "}"
-            ));
+            , CancellationToken.None));
         }
 
         [Test]
@@ -583,7 +570,7 @@ namespace Routine.Test.Service
 
             testing.Handle("model", "3", "viewmodel", null);
 
-            response.Verify(r => r.Write(
+            response.Verify(r => r.WriteAsync(
                 "{" +
                     "\"Id\":\"3\"," +
                     "\"Display\":\"display\"," +
@@ -593,7 +580,7 @@ namespace Routine.Test.Service
                         "\"data\":\"text\"" +
                     "}" +
                 "}"
-            ));
+            , CancellationToken.None));
         }
 
         [Test]
