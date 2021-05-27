@@ -19,6 +19,10 @@ using Routine.Service.RequestHandlers;
 using Routine.Test.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.TestHost;
 
 namespace Routine.Test.Service
 {
@@ -41,11 +45,19 @@ namespace Routine.Test.Service
 
 
 
+
+
         private IJsonSerializer serializer = new JsonSerializerAdapter();
 
         public override void SetUp()
         {
             base.SetUp();
+
+            var webHostBuilder = new WebHostBuilder().UseStartup<Startup>();
+            var server = new TestServer(webHostBuilder);
+            var applicationBuilder = server.Host.Services.GetRequiredService<IApplicationBuilder>();
+            // You can set the environment you want (development, staging, production) .UseStartup<Startup>(); // Startup class of your web app project
+
             httpContextAccessor = new Mock<IHttpContextAccessor>();
 
             serviceContext = new Mock<IServiceContext>();
@@ -53,11 +65,13 @@ namespace Routine.Test.Service
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
 
-
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
             requestQueryString = new QueryString();
-            applicationBuilder = new Mock<IApplicationBuilder>();
+            // applicationBuilder = new Mock<IApplicationBuilder>();
+            // applicationBuilder.Setup(ap => ap.ApplicationServices).Returns(Mock.Of<IServiceProvider>());
+
+
 
             serviceContext.Setup(sc => sc.ObjectService).Returns(objectService.Object);
             config = BuildRoutine.ServiceConfig().FromBasic();
@@ -89,10 +103,11 @@ namespace Routine.Test.Service
             response.SetupAllProperties();
 
             var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object);
-            routeHandler.RegisterRoutes(applicationBuilder.Object);
+            routeHandler.RegisterRoutes(applicationBuilder);
             testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
 
             Assert.IsNotNull(testing);
+
         }
 
         protected ObjectStubber When(ReferenceData referenceData)
@@ -440,7 +455,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public async void Compress_for_do_result_viewmodel()
+        public async Task Compress_for_do_result_viewmodel()
         {
             ModelsAre(
                 Model("model").Operation("action", "viewmodel").ViewModelIds("viewmodel"),
@@ -618,6 +633,65 @@ namespace Routine.Test.Service
         public void Clients_should_be_able_to_know_application_model_version_so_that_they_can_invalidate_their_cache()
         {
             Assert.Fail("not implemented");
+        }
+    }
+
+    public class Startup
+    {
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddHttpContextAccessor();
+            // services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
+
+            // services.AddControllers();
+            services.AddRouting();
+
+            // // If using Kestrel:
+            // services.Configure<KestrelServerOptions>(options =>
+            // {
+            //     options.AllowSynchronousIO = true;
+            // });
+
+            // // If using IIS:
+            // services.Configure<IISServerOptions>(options =>
+            // {
+            //     options.AllowSynchronousIO = true;
+            // });
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        {
+            // if (env.IsDevelopment())
+            // {
+            //     app.UseDeveloperExceptionPage();
+            // }
+
+            app.UseRouting();
+
+            // app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
+            //     serviceConfiguration: sc => sc.FromBasic()
+            //         .RootPath.Set("api")
+            //         .RequestHeaders.Add("Accept-Language"),
+            //     codingStyle: cs => cs.FromBasic()
+            //         .AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
+            //         .Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))
+
+            //         //Service Configuration
+            //         .ValueExtractor.Set(c => c.Value(v => v.By(obj => obj.GetType().Name.SplitCamelCase(' '))).When(t => t.Name.EndsWith("Service")))
+            //         .Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())).When(t => t.Name.EndsWith("Service")))
+            //         .StaticInstances.Add(c => c.By(t => t.CreateInstance()).When(t => t.Name.EndsWith("Service")))
+            //         .Operations.Add(c => c.PublicMethods(m => !m.IsInherited(true, true)).When(t => t.Name.EndsWith("Service")))
+
+            //         //Dto Configuration
+            //         .Initializers.Add(c => c.By(t => new PublicPropertyConstructor(t)).When(t => t.Name.EndsWith("Dto")))
+            //         .Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
+            //         .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
+            //         .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
+            // ));
+
         }
     }
 }
