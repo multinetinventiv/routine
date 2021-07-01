@@ -8,8 +8,6 @@ namespace Routine.Core.Rest
 {
     public class JsonSerializerAdapter : IJsonSerializer
     {
-        // private const int DEFAULT_RECURSION_LIMIT = 100;
-        // private const int DEFAULT_MAX_JSON_LENGTH = 1 * 1024 * 1024;
         private readonly JsonSerializerOptions jsonSerializerOptions;
 
         public JsonSerializerAdapter(JsonSerializerOptions jsonSerializerOptions = null)
@@ -41,7 +39,7 @@ namespace Routine.Core.Rest
 
     public static class ContextBuilderJsonSerializerExtensions
     {
-        public static ContextBuilder UsingJsonSerializer(this ContextBuilder source, int? maxJsonLength = null, int? recursionLimit = null) { return source.UsingSerializer(new JsonSerializerAdapter()); }
+        public static ContextBuilder UsingJsonSerializer(this ContextBuilder source, JsonSerializerAdapter jsonSerializerAdapter = null) { return source.UsingSerializer(jsonSerializerAdapter); }
     }
 
     internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<string, object>>

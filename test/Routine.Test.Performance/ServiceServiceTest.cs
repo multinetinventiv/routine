@@ -31,7 +31,7 @@ namespace Routine.Test.Performance
                         .Fail(ctx => Console.WriteLine("fail - " + ctx.Exception))
                         .After(ctx => Console.WriteLine("after - " + ctx.OperationName))
                         .When(ctx => ctx.OperationName != "TestMaxLength" && ctx.OperationName != "TestBigInput"))))
-                .UsingJsonSerializer(int.MaxValue)
+                .UsingJsonSerializer()
                 .UsingRestClient(request => request.Timeout = Timeout.Infinite)
                 .AsServiceClient(BuildRoutine.ServiceClientConfig()
                     .FromBasic()
