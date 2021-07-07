@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,9 +17,10 @@ namespace Routine.Core.Rest
             if (jsonSerializerOptions != null)
             {
                 jsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
+                jsonSerializerOptions.Converters.Add(new BooleanJsonConverter());
             }
 
-            this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter() } };
+            this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter() } };
         }
 
         public object DeserializeObject(string jsonString)
@@ -79,11 +81,6 @@ namespace Routine.Core.Rest
             return dictionary;
         }
 
-        public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value, options);
-        }
-
         private object ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
@@ -101,7 +98,7 @@ namespace Routine.Core.Rest
                 case JsonTokenType.Null:
                     return null;
                 case JsonTokenType.Number:
-                    if (reader.TryGetInt64(out var result))
+                    if (reader.TryGetInt32(out var result))
                     {
                         return result;
                     }
@@ -119,5 +116,85 @@ namespace Routine.Core.Rest
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
         }
+        public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+
+            foreach (var key in value.Keys)
+            {
+                HandleValue(writer, key, value[key]);
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private static void HandleValue(Utf8JsonWriter writer, string key, object objectValue)
+        {
+            if (key != null)
+            {
+                writer.WritePropertyName(key);
+            }
+
+            switch (objectValue)
+            {
+                case string stringValue:
+                    writer.WriteStringValue(stringValue);
+                    break;
+                case DateTime dateTime:
+                    writer.WriteStringValue(dateTime);
+                    break;
+                case long longValue:
+                    writer.WriteNumberValue(longValue);
+                    break;
+                case int intValue:
+                    writer.WriteNumberValue(intValue);
+                    break;
+                case float floatValue:
+                    writer.WriteNumberValue(floatValue);
+                    break;
+                case double doubleValue:
+                    writer.WriteNumberValue(doubleValue);
+                    break;
+                case decimal decimalValue:
+                    writer.WriteNumberValue(decimalValue);
+                    break;
+                case bool boolValue:
+                    writer.WriteBooleanValue(boolValue);
+                    break;
+                case Dictionary<string, object> dict:
+                    writer.WriteStartObject();
+                    foreach (var item in dict)
+                    {
+                        HandleValue(writer, item.Key, item.Value);
+                    }
+                    writer.WriteEndObject();
+                    break;
+                case object[] array:
+                    writer.WriteStartArray();
+                    foreach (var item in array)
+                    {
+                        HandleValue(writer, item);
+                    }
+                    writer.WriteEndArray();
+                    break;
+                default:
+                    writer.WriteNullValue();
+                    break;
+            }
+        }
+
+        private static void HandleValue(Utf8JsonWriter writer, object value)
+        {
+            HandleValue(writer, null, value);
+        }
+    }
+
+    public class BooleanJsonConverter : JsonConverter<Boolean>
+    {
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => bool.Parse(reader.GetString());
+
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+       => writer.WriteBooleanValue(value);
     }
 }
