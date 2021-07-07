@@ -46,7 +46,7 @@ namespace Routine.Test.Performance
         }
 
         [Test]
-        // [Ignore("")]
+        [Ignore("")]
         public void ServiceClientTest()
         {
             var todoModule = rapp.Get("Instance", "Test.Todo.TodoModule");

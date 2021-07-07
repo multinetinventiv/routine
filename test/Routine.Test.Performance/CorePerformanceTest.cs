@@ -98,6 +98,7 @@ namespace Routine.Test.Performance.Domain
 namespace Routine.Test.Performance
 {
     [TestFixture]
+    [Ignore("should be run manually")]
     public class CorePerformanceTest
     {
         #region Setup & Helpers
