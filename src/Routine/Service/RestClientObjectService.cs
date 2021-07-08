@@ -88,7 +88,8 @@ namespace Routine.Service
                 processor.Process(response.Headers);
             }
 
-            var result = serializer.Deserialize<Dictionary<string, object>>(response.Body);
+
+            var result = serializer.DeserializeObject(response.Body); ;
 
             var resultDictionary = result as IDictionary<string, object>;
 
