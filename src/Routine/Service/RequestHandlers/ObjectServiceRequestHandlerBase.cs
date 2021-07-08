@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -9,8 +10,8 @@ namespace Routine.Service.RequestHandlers
 {
 	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
-		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-			: base(serviceContext, jsonSerializer, httpContext) { }
+		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
 		protected abstract bool AllowGet { get; }
 		protected abstract void Process();
@@ -50,7 +51,7 @@ namespace Routine.Service.RequestHandlers
 
 		private void ProcessRequestHeaders()
 		{
-			var requestHeaders = HttpContext.Request.Headers.AllKeys
+			var requestHeaders = HttpContext.Request.Headers.Keys
 				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
 
 			foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())

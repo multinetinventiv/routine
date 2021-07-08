@@ -1,15 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
-using System.Web.Routing;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Features;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Routing;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -28,50 +33,53 @@ namespace Routine.Service.RequestHandlers
 
         protected IServiceContext ServiceContext { get; }
         protected IJsonSerializer JsonSerializer { get; }
-        protected HttpContextBase HttpContext { get; }
+        protected IHttpContextAccessor HttpContextAccessor { get; }
 
-        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
         {
             ServiceContext = serviceContext;
             JsonSerializer = jsonSerializer;
-            HttpContext = httpContext;
+            HttpContextAccessor = httpContextAccessor;
         }
 
         #endregion
 
         public abstract void WriteResponse();
 
-        protected HttpApplicationStateBase Application => HttpContext.Application;
-        protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData;
-        protected NameValueCollection QueryString => HttpContext.Request.QueryString;
+        protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
+        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Features.Get<IHttpResponseFeature>();
+        protected RouteData RouteData => HttpContext.GetRouteData();
+        protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
-        protected bool IsGet => "GET".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
-        protected bool IsPost => "POST".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
         protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
-                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"];
+                //todo: cache kurgusu olmali mi?
+
+                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
 
                 if (result != null) { return result; }
 
-                HttpContext.Application.Lock();
+                // HttpContext.Application.Lock();
 
-                result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
+                // result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
 
-                if (result != null)
-                {
-                    HttpContext.Application.UnLock();
+                // if (result != null)
+                // {
+                //     HttpContext.Application.UnLock();
 
-                    return result;
-                }
+                //     return result;
+                // }
 
                 result = BuildModelIndex();
+                HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
+                // HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
 
-                HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
-
-                HttpContext.Application.UnLock();
+                // HttpContext.Application.UnLock();
 
                 return result;
             }
@@ -79,34 +87,36 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void AddResponseCaching()
         {
-            HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
-            HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
-            HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
-            HttpContext.Response.Cache.SetValidUntilExpires(true);
+            var headers = HttpContext.Response.GetTypedHeaders();
+            headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+            {
+                Public = true,
+                MaxAge = new TimeSpan(0, CACHE_DURATION, 0)
+            };
+            headers.Expires = DateTime.Now.AddMinutes(CACHE_DURATION);
         }
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            HttpContext.Response.StatusDescription =
-                $"Cannot resolve parameters from request body. The exception is; {ex}";
+            //todo: bunu test etmeli
+            // new HttpResponseMessage().ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            HttpResponseFeature.ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
+
+            // HttpContext.Response.StatusDescription =
+            //     $"Cannot resolve parameters from request body. The exception is; {ex}";
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            HttpContext.Response.StatusDescription =
-                $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            HttpResponseFeature.ReasonPhrase = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            if (allowGet)
-            {
-                HttpContext.Response.StatusDescription = "Only GET, POST and OPTIONS are supported";
-            }
-            HttpContext.Response.StatusDescription = "Only POST and OPTIONS are supported";
+            HttpContext.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+            HttpResponseFeature.ReasonPhrase = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
         }
 
         protected virtual void WriteFileResponse(string path)
@@ -123,14 +133,17 @@ namespace Routine.Service.RequestHandlers
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-            HttpContext.Response.BinaryWrite(Encoding.UTF8.GetBytes(fileContent));
+            HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(fileContent));
         }
 
         protected virtual void WriteFontResponse(string fileName)
         {
             var stream = GetStream("assets/fonts/" + fileName);
 
-            var outputStream = HttpContext.Response.OutputStream;
+            var outputStream = new MemoryStream();
+
+            outputStream.Position = 0;
+
             using (stream)
             {
                 var buffer = new byte[BUFFER_SIZE];
@@ -146,26 +159,37 @@ namespace Routine.Service.RequestHandlers
                     outputStream.Write(buffer, 0, bytesRead);
                 }
             }
+
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
-            HttpContext.Response.Flush();
-            HttpContext.Response.End();
+            //todo: https://stackoverflow.com/questions/53194200/how-httpcontext-response-end-in-asp-net-core linkine gore statu code'u setlenmeli mi test edilecek
+            // HttpContext.Response.Flush();
+            // HttpContext.Response.End();
+
+            Task.Run(async () =>
+            {
+                await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
+                HttpContext.Response.Body.Flush();
+            }).Wait(CancellationToken.None);
         }
 
         protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
-            if (clearError)
-            {
-                HttpContext.Server.ClearError();
-            }
+            //todo:HttpContext.ClearError muadili bulunmali
+            // if (clearError)
+            // {
+            //     HttpContext.ClearError();
+            // }
 
             HttpContext.Response.StatusCode = (int)statusCode;
-            HttpContext.Response.ContentType = JSON_CONTENT_TYPE;
-            HttpContext.Response.ContentEncoding = DEFAULT_CONTENT_ENCODING;
+
+            var mediaType = new MediaTypeHeaderValue(JSON_CONTENT_TYPE);
+            mediaType.Encoding = DEFAULT_CONTENT_ENCODING;
+            HttpContext.Response.ContentType = mediaType.ToString();
 
             if (result != null)
             {
-                HttpContext.Response.Write(JsonSerializer.Serialize(result));
+                HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }
 

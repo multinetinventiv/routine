@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Routine.Api.Configuration;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
@@ -18,9 +20,9 @@ namespace Routine
 {
 	public static class BuildRoutine
 	{
-		public static ContextBuilder Context()
+		public static ContextBuilder Context(IApplicationBuilder applicationBuilder, IHttpContextAccessor httpContextAccessor)
 		{
-			return new ContextBuilder();
+			return new ContextBuilder(applicationBuilder, httpContextAccessor);
 		}
 
 		public static CodingStyleBuilder CodingStyle()

@@ -1,9 +1,10 @@
-﻿using System.Web.Routing;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 
 namespace Routine.Service
 {
 	public interface IRoutineRouteHandler : IRouteHandler
 	{
-		void RegisterRoutes();
+		void RegisterRoutes(IApplicationBuilder applicationBuilder);
 	}
 }
