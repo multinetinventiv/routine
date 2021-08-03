@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -11,23 +12,18 @@ namespace Routine.Service.RequestHandlers
 {
     public class HandleRequestHandler : RequestHandlerBase
     {
-        private readonly Func<Resolution, IRequestHandler> actionFactory;
-        private readonly string modelIdRouteKey;
-        private readonly string idOrViewModelIdOrOperationRouteKey;
-        private readonly string viewModelIdOrOperationRouteKey;
-        private readonly string operationRouteKey;
-
         public HandleRequestHandler(
             IServiceContext serviceContext,
             IJsonSerializer jsonSerializer,
             IHttpContextAccessor httpContextAccessor,
+            IMemoryCache memoryCache,
             Func<Resolution, IRequestHandler> actionFactory,
             string modelIdRouteKey,
             string idOrViewModelIdOrOperationRouteKey,
-            string viewModelIdOrOperationRouteKey,
+            string viewModelIdOrOperationRouteKey, 
             string operationRouteKey
         )
-            : base(serviceContext, jsonSerializer, httpContextAccessor)
+            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache )
         {
             this.actionFactory = actionFactory;
             this.modelIdRouteKey = modelIdRouteKey;
@@ -35,6 +31,16 @@ namespace Routine.Service.RequestHandlers
             this.viewModelIdOrOperationRouteKey = viewModelIdOrOperationRouteKey;
             this.operationRouteKey = operationRouteKey;
         }
+
+        private readonly Func<Resolution, IRequestHandler> actionFactory;
+
+        private readonly string modelIdRouteKey;
+
+        private readonly string idOrViewModelIdOrOperationRouteKey;
+
+        private readonly string viewModelIdOrOperationRouteKey;
+
+        private readonly string operationRouteKey;
 
         public override void WriteResponse()
         {

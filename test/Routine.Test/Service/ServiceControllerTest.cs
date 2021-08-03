@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Test.Service
 {
@@ -40,7 +41,7 @@ namespace Routine.Test.Service
         private ConventionBasedServiceConfiguration config;
         private IApplicationBuilder applicationBuilder;
         private Mock<IFeatureCollection> featureCollection;
-
+        private Mock<IMemoryCache> memoryCache;
 
 
 
@@ -71,7 +72,7 @@ namespace Routine.Test.Service
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
             featureCollection = new Mock<IFeatureCollection>();
-            
+            memoryCache = new Mock<IMemoryCache>();
 
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
@@ -111,10 +112,10 @@ namespace Routine.Test.Service
             //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
             response.SetupAllProperties();
 
-            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object);
+            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache.Object);
             routeHandler.RegisterRoutes(applicationBuilder);
             testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
-           
+
             Assert.IsNotNull(testing);
 
         }

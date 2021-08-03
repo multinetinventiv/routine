@@ -6,6 +6,7 @@ using System.Linq;
 using Fasterflect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
@@ -116,7 +117,8 @@ namespace Routine.Test.Performance
 
             var applicationBuilder = default(IApplicationBuilder);
             var httpContextAccessor = default(IHttpContextAccessor);
-            var apiCtx = BuildRoutine.Context(applicationBuilder, httpContextAccessor)
+            var memoryCache = default(IMemoryCache);
+            var apiCtx = BuildRoutine.Context(applicationBuilder, httpContextAccessor, memoryCache)
                 .UsingCache(new DictionaryCache())
                 .AsClientApplication(
                     codingStyle = BuildRoutine.CodingStyle()

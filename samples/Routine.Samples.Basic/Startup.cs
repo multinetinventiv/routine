@@ -11,6 +11,7 @@ using Routine.Engine;
 using Routine.Engine.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Samples.Basic
 {
@@ -22,7 +23,7 @@ namespace Routine.Samples.Basic
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
-
+            services.AddMemoryCache();
             services.AddControllers();
             services.AddRouting();
 
@@ -40,7 +41,8 @@ namespace Routine.Samples.Basic
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
         {
             if (env.IsDevelopment())
             {
@@ -49,7 +51,7 @@ namespace Routine.Samples.Basic
 
             app.UseRouting();
 
-            app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
+            app.UseRoutine(httpContextAccessor, memoryCache, cb => cb.AsServiceApplication(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api")
                     .RequestHeaders.Add("Accept-Language"),

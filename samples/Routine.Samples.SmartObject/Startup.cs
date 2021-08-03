@@ -8,6 +8,7 @@ using Routine.Core.Rest;
 using Routine.Engine;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Samples.SmartObject
 {
@@ -19,6 +20,8 @@ namespace Routine.Samples.SmartObject
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
+
+            services.AddMemoryCache();
 
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>
@@ -34,7 +37,8 @@ namespace Routine.Samples.SmartObject
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
         {
             if (env.IsDevelopment())
             {
@@ -42,7 +46,7 @@ namespace Routine.Samples.SmartObject
             }
 
             app.UseRouting();
-            app.UseRoutine(httpContextAccessor, cb => cb.AsServiceApplication(
+            app.UseRoutine(httpContextAccessor, memoryCache, cb => cb.AsServiceApplication(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api"),
                 codingStyle: cs => cs.FromBasic()

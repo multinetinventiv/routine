@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core.Rest;
@@ -22,7 +23,8 @@ namespace Routine.Test.Performance
         {
             var applicationBuilder = default(IApplicationBuilder);
             var httpContextAccessor = default(IHttpContextAccessor);
-            clientContext = BuildRoutine.Context(applicationBuilder, httpContextAccessor)
+            var memoryCache = default(IMemoryCache);
+            clientContext = BuildRoutine.Context(applicationBuilder, httpContextAccessor, memoryCache)
                 .UsingInterception(BuildRoutine.InterceptionConfig()
                     .FromBasic()
                     .ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()

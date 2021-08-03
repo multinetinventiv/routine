@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 
 namespace Routine.Service.RequestHandlers
@@ -7,8 +8,8 @@ namespace Routine.Service.RequestHandlers
 	{
 		private readonly string fileNameRouteKey;
 
-		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, string fileNameRouteKey)
-			: base(serviceContext, jsonSerializer, httpContextAccessor)
+		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, string fileNameRouteKey)
+			: base(serviceContext, jsonSerializer, httpContextAccessor,memoryCache)
 		{
 			this.fileNameRouteKey = fileNameRouteKey;
 		}
