@@ -42,16 +42,8 @@ namespace Routine.Test.Service
         private Mock<IFeatureCollection> featureCollection;
 
 
-
-
-
         private IJsonSerializer serializer = new JsonSerializerAdapter();
 
-        [SetUp]
-        public void BeforeTest()
-        {
-            httpContextAccessor.Object.HttpContext.Response.Body = new MemoryStream();
-        }
 
         public override void SetUp()
         {
@@ -65,13 +57,14 @@ namespace Routine.Test.Service
             // You can set the environment you want (development, staging, production) .UseStartup<Startup>(); // Startup class of your web app project
 
             httpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext();
 
             serviceContext = new Mock<IServiceContext>();
             objectService = new Mock<IObjectService>();
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
             featureCollection = new Mock<IFeatureCollection>();
-            
+
 
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
@@ -107,6 +100,7 @@ namespace Routine.Test.Service
             request.Setup(r => r.Method).Returns("POST");
             request.Setup(r => r.Body).Returns(new MemoryStream());
             response.Setup(r => r.Headers).Returns(responseHeaders);
+            httpContextAccessor.Setup(hca => hca.HttpContext).Returns(context);
 
             //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
             response.SetupAllProperties();
@@ -114,7 +108,7 @@ namespace Routine.Test.Service
             var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object);
             routeHandler.RegisterRoutes(applicationBuilder);
             testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
-           
+
             Assert.IsNotNull(testing);
 
         }
@@ -517,6 +511,7 @@ namespace Routine.Test.Service
 
             testing.Handle("model", "2", "action", null);
 
+
             response.Verify(r => r.WriteAsync(
                 "{" +
                     "\"Id\":\"2\"," +
@@ -526,7 +521,7 @@ namespace Routine.Test.Service
                         "\"data\":\"text\"" +
                     "}" +
                 "}"
-            , CancellationToken.None), Times.Once());
+            , CancellationToken.None));
         }
 
         [Test]
