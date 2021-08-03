@@ -219,6 +219,8 @@ namespace Routine.Service.RequestHandlers
 
             if (result != null)
             {
+                //UnitTest'lerde body null geldiği için eklendi.
+                HttpContext.Response.Body = new MemoryStream();
                 HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }

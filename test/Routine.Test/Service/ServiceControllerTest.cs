@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Net;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Moq.Language.Flow;
@@ -61,7 +62,8 @@ namespace Routine.Test.Service
             // You can set the environment you want (development, staging, production) .UseStartup<Startup>(); // Startup class of your web app project
 
             httpContextAccessor = new Mock<IHttpContextAccessor>();
-            var context = new DefaultHttpContext();
+
+            var httpContext = new Mock<HttpContext>();
 
             serviceContext = new Mock<IServiceContext>();
             objectService = new Mock<IObjectService>();
@@ -95,16 +97,17 @@ namespace Routine.Test.Service
                 }
                 return objectDictionary[referenceData];
             });
-            httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
-            httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
-            httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(featureCollection.Object);
             // httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
             request.Setup(r => r.Headers).Returns(requestHeaders);
             request.Setup(r => r.QueryString).Returns(requestQueryString);
             request.Setup(r => r.Method).Returns("POST");
-            request.Setup(r => r.Body).Returns(new MemoryStream());
+            request.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
+            response.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
             response.Setup(r => r.Headers).Returns(responseHeaders);
-            httpContextAccessor.Setup(hca => hca.HttpContext).Returns(context);
+            httpContextAccessor.Setup(hca => hca.HttpContext).Returns(httpContext.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(featureCollection.Object);
 
             //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
             response.SetupAllProperties();
@@ -513,19 +516,23 @@ namespace Routine.Test.Service
                 }
             });
 
+
+
             testing.Handle("model", "2", "action", null);
+            var body = "{" +
+                       "\"Id\":\"2\"," +
+                       "\"Display\":\"model 2\"," +
+                       "\"Data\":" +
+                       "{" +
+                       "\"data\":\"text\"" +
+                       "}" +
+                       "}";
 
+            var actual =
+                Encoding.UTF8.GetString(((MemoryStream) httpContextAccessor.Object.HttpContext.Response.Body)
+                    .ToArray());
 
-            response.Verify(r => r.WriteAsync(
-                "{" +
-                    "\"Id\":\"2\"," +
-                    "\"Display\":\"model 2\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"data\":\"text\"" +
-                    "}" +
-                "}"
-            , CancellationToken.None));
+            Assert.AreEqual(body,actual);
         }
 
         [Test]

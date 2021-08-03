@@ -64,7 +64,10 @@ namespace Routine.Service.RequestHandlers
             var req = HttpContext.Request.Body;
             req.Seek(0, SeekOrigin.Begin);
             var requestBody = new StreamReader(req).ReadToEnd();
-
+            if (string.IsNullOrWhiteSpace(requestBody))
+            {
+                return new Dictionary<string, object>();
+            }
             return JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
         }
     }
