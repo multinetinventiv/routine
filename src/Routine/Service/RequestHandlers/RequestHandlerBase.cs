@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,7 +10,6 @@ using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.AspNetCore.Routing;
@@ -59,24 +56,15 @@ namespace Routine.Service.RequestHandlers
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
 
-        static object _cacheLockObject = new();
-        const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
-        protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
+        static readonly object CACHE_LOCK_OBJECT = new object();
+        private const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
+        protected Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
-                //todo: cache kurgusu olmali mi?
                 HttpContext.Items.TryGetValue(MODEL_INDEX_CACHE_KEY, out var result);
-                //var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
                 if (result != null) { return (Dictionary<string, List<ObjectModel>>)result; }
-
-                //if (_modelIndex == default || _modelIndex.IsEmpty)
-                //{
-                //    _modelIndex = new ConcurrentDictionary<string, List<ObjectModel>>(BuildModelIndex());
-                //    result = new Dictionary<string, List<ObjectModel>>(_modelIndex);
-                //}
-
-                lock (_cacheLockObject)
+                lock (CACHE_LOCK_OBJECT)
                 {
                     result = MemoryCache.GetOrCreate(MODEL_INDEX_CACHE_KEY, cache =>
                        {
@@ -89,33 +77,13 @@ namespace Routine.Service.RequestHandlers
                 }
 
                 return (Dictionary<string, List<ObjectModel>>)result;
-
-                // HttpContext.Application.Lock();
-
-                // result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
-
-                // if (result != null)
-                // {
-                //     HttpContext.Application.UnLock();
-
-                //     return result;
-                // }
-
-                //result = BuildModelIndex();
-                //HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
-                // HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
-
-                // HttpContext.Application.UnLock();
-
-
-                //return result;
             }
         }
 
         protected virtual void AddResponseCaching()
         {
             var headers = HttpContext.Response.GetTypedHeaders();
-            headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+            headers.CacheControl = new CacheControlHeaderValue()
             {
                 Public = true,
                 MaxAge = new TimeSpan(0, CACHE_DURATION, 0)
@@ -162,9 +130,8 @@ namespace Routine.Service.RequestHandlers
         {
             var stream = GetStream("assets/fonts/" + fileName);
 
-            var outputStream = new MemoryStream();
+            var outputStream = new MemoryStream { Position = 0 };
 
-            outputStream.Position = 0;
 
             using (stream)
             {
@@ -198,15 +165,16 @@ namespace Routine.Service.RequestHandlers
         protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
             //todo:HttpContext.ClearError muadili bulunmali
-            // if (clearError)
-            // {
-            //     HttpContext.ClearError();
-            // }
+            if (clearError)
+            {
+                //HttpResponseFeature.
+                //HttpContext.
+                //HttpContext.ClearError();
+            }
 
             HttpContext.Response.StatusCode = (int)statusCode;
 
-            var mediaType = new MediaTypeHeaderValue(JSON_CONTENT_TYPE);
-            mediaType.Encoding = DEFAULT_CONTENT_ENCODING;
+            var mediaType = new MediaTypeHeaderValue(JSON_CONTENT_TYPE) { Encoding = DEFAULT_CONTENT_ENCODING };
             HttpContext.Response.ContentType = mediaType.ToString();
 
             if (result != null)

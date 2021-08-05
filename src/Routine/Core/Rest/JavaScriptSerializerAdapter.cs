@@ -314,7 +314,7 @@ namespace Routine.Core.Rest
         }
     }
 
-    public class BooleanJsonConverter : JsonConverter<Boolean>
+    public class BooleanJsonConverter : JsonConverter<bool>
     {
         public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -327,7 +327,7 @@ namespace Routine.Core.Rest
                 default:
                     return bool.Parse(reader.GetString());
             }
-        } 
+        }
 
         public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
        => writer.WriteBooleanValue(value);

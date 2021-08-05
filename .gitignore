@@ -17,3 +17,4 @@ packages/**/*
 **/_ReSharper.Caches/**/*
 
 /.vs
+/test/Routine.Test.Performance/Properties/launchSettings.json
