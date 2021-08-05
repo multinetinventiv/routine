@@ -166,7 +166,7 @@ namespace Routine.Core.Reflection
 
                 foreach (var diagnostic in failures)
                 {
-                    errors.AppendFormat("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+	                errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
                     errors.AppendLine();
                 }
 
@@ -202,6 +202,9 @@ namespace Routine.Core.Reflection
             "\t\t}\n" +
             "\t}\n" +
             "}\n";
+
+        private const string notSupportedInvocationTemplate =
+	        "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
 
         private const string voidInvocationTemplate =
             "\t\t\t$Target$.$MethodName$($Parameters$);\n" +
@@ -250,7 +253,8 @@ namespace Routine.Core.Reflection
 
             if (method.IsConstructor)
             {
-                result = newInvocationTemplate;
+	            if(method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                else { result = newInvocationTemplate; }
             }
             else if (method.IsSpecialName)
             {
@@ -268,7 +272,8 @@ namespace Routine.Core.Reflection
             else
             {
                 var methodInfo = method as System.Reflection.MethodInfo;
-                if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
+                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                else if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
                 else { result = nonVoidInvocationTemplate; }
             }
 
