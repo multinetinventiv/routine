@@ -148,7 +148,8 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-                    return list;
+
+                    return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
@@ -226,7 +227,8 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-                    return list;
+
+                    return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
