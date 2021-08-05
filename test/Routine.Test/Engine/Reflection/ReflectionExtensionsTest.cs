@@ -46,7 +46,12 @@ namespace Routine.Test.Engine.Reflection
 		{
 			base.SetUp();
 
-			TypeInfo.Optimize(GetType().Assembly.GetTypes().Where(t => t.Namespace.StartsWith("Routine.Test")).ToArray());
+			TypeInfo.Optimize(
+				GetType().Assembly
+					.GetTypes()
+					.Where(t => t.Namespace != null && t.Namespace.StartsWith("Routine.Test"))
+					.ToArray()
+			);
 		}
 
 		private ITypeComponent TypeComponent(params object[] customAttributes)
