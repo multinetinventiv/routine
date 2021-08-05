@@ -20,10 +20,10 @@ namespace Routine.Service.RequestHandlers
             Func<Resolution, IRequestHandler> actionFactory,
             string modelIdRouteKey,
             string idOrViewModelIdOrOperationRouteKey,
-            string viewModelIdOrOperationRouteKey, 
+            string viewModelIdOrOperationRouteKey,
             string operationRouteKey
         )
-            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache )
+            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache)
         {
             this.actionFactory = actionFactory;
             this.modelIdRouteKey = modelIdRouteKey;
@@ -67,15 +67,15 @@ namespace Routine.Service.RequestHandlers
             catch (AmbiguousModelException ex)
             {
                 HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                HttpResponseFeature.ReasonPhrase = $"More than one model found with given modelId ({modelId}). " +
+                HttpContext.Response.Headers["X-Status-Description"] = $"More than one model found with given modelId ({modelId}). " +
                                                              $"Try sending full names. Available models are {string.Join(",", ex.AvailableModels.Select(om => om.Id))}.";
 
                 return;
             }
             catch (ModelNotFoundException)
             {
-				HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                HttpResponseFeature.ReasonPhrase = $"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
+                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                HttpContext.Response.Headers["X-Status-Description"] = $"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
                     "Make sure given modelId has a corresponding model and url is in one of the following format; " +
                     "- serviceurlbase/modelId " + "- serviceurlbase/modelId/id " + "- serviceurlbase/modelId/operation " +
                     "- serviceurlbase/modelId/viewModelId " + "- serviceurlbase/modelId/id/operation " +

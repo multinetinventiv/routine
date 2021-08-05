@@ -126,7 +126,7 @@ namespace Routine.Test.Service
                 .Returns(httpResponseFeature.Object);
             //httpContextAccessor.Object.HttpContext.Features.Set<IHttpResponseFeature>(httpResponseFeature.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
-            
+
 
             var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache);
             routeHandler.RegisterRoutes(applicationBuilder);
@@ -358,12 +358,10 @@ namespace Routine.Test.Service
         public void When_given_model_id_does_not_exist__returns_404()
         {
             testing.Handle("nonexistingmodel", null, null, null);
-            httpResponseFeature.Setup(x => x.ReasonPhrase).Returns("Samet");
-            
-            //httpResponseFeature.
+
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-            Assert.IsTrue(httpResponseFeature.Object.ReasonPhrase.Contains("nonexistingmodel"), "StatusDescription should contain given model id");
+            Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), "StatusDescription should contain given model id");
         }
 
         [Test]
@@ -373,10 +371,11 @@ namespace Routine.Test.Service
 
             testing.Handle("model", null, null, null);
 
+            var statusDescription = httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString();
+
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-            Assert.IsTrue(httpContextAccessor.Object.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase.Contains("prefix1.model") &&
-            httpContextAccessor.Object.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase.Contains("prefix2.model"),
+            Assert.IsTrue(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"),
                 "Status description should contain available model ids");
         }
 
@@ -393,7 +392,7 @@ namespace Routine.Test.Service
 
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-            Assert.IsTrue(httpContextAccessor.Object.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase.Contains("nonexistingmodel"),
+            Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
                 "Status description should contain given model id");
         }
 

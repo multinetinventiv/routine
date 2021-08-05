@@ -89,7 +89,7 @@ namespace Routine.Service.RequestHandlers
                 }
 
                 return (Dictionary<string, List<ObjectModel>>)result;
-                
+
                 // HttpContext.Application.Lock();
 
                 // result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
@@ -125,25 +125,20 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void BadRequest(Exception ex)
         {
-            //todo: bunu test etmeli
-            // new HttpResponseMessage().ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
             HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            HttpResponseFeature.ReasonPhrase = $"Cannot resolve parameters from request body. The exception is; {ex}";
-
-            // HttpContext.Response.StatusDescription =
-            //     $"Cannot resolve parameters from request body. The exception is; {ex}";
+            HttpContext.Response.Headers["X-Status-Description"] = $"Cannot resolve parameters from request body. The exception is; {ex}";
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            HttpResponseFeature.ReasonPhrase = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
+            HttpContext.Response.Headers["X-Status-Description"] = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
-            HttpResponseFeature.ReasonPhrase = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
+            HttpContext.Response.Headers["X-Status-Description"] = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
         }
 
         protected virtual void WriteFileResponse(string path)
