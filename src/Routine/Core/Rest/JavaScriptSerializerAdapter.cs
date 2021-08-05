@@ -148,14 +148,15 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-                    return list;
+
+                    return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
         }
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-            throw new InvalidOperationException("Should not get here.");
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
     }
 
@@ -226,7 +227,8 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-                    return list;
+
+                    return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }

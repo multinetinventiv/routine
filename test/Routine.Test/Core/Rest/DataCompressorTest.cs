@@ -639,7 +639,7 @@ namespace Routine.Test.Core.Rest
                 Model("vmid").IsView("mid")
             );
 
-            var actual = Compressor().DecompressReferenceData(Deserialize("{Id:\"id\",ModelId:\"mid\",ViewModelId:\"vmid\"}"));
+            var actual = Compressor().DecompressReferenceData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\",\"ViewModelId\":\"vmid\"}"));
 
             Assert.AreEqual(Id("id", "mid", "vmid"), actual);
         }
@@ -649,7 +649,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor().DecompressReferenceData(Deserialize("{Id:\"id\",ModelId:\"mid\"}"));
+            var actual = Compressor().DecompressReferenceData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\"}"));
 
             Assert.AreEqual(Id("id", "mid", "mid"), actual);
         }
@@ -850,7 +850,7 @@ namespace Routine.Test.Core.Rest
             var actual = Compressor("mid").DecompressObjectData(Deserialize(
                 "{" +
                     "\"Id\":\"id\"," +
-                    "Data:" +
+                    "\"Data\":" +
                     "{" +
                         "\"mmid1\":\"mmid1_id\"," +
                         "\"mmid2\":\"mmid2_id\"" +
@@ -880,7 +880,7 @@ namespace Routine.Test.Core.Rest
             var actual = Compressor("mid").DecompressObjectData(Deserialize(
                 "{" +
                     "\"Id\":\"id\"," +
-                    "Data:" +
+                    "\"Data\":" +
                     "{" +
                         "\"mmid1\":\"mmid1_id\"," +
                         "\"mmid2\":\"mmid2_id\"" +
