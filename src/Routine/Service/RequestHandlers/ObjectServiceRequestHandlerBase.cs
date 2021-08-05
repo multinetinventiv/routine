@@ -23,7 +23,7 @@ namespace Routine.Service.RequestHandlers
 			if (IsGet && !AllowGet) { MethodNotAllowed(false); return; }
 
 			ProcessRequestHeaders();
-
+                
 			try
 			{
 				Process();
@@ -67,7 +67,7 @@ namespace Routine.Service.RequestHandlers
 			{
 				var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
-				{
+                {
 					HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}

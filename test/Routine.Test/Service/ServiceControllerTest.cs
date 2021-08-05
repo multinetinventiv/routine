@@ -38,11 +38,13 @@ namespace Routine.Test.Service
         private IHeaderDictionary requestHeaders;
         private IHeaderDictionary responseHeaders;
         private QueryString requestQueryString;
+        private IQueryCollection requestQuery;
         private HandleRequestHandler testing;
         private ConventionBasedServiceConfiguration config;
         private IApplicationBuilder applicationBuilder;
         private Mock<IFeatureCollection> featureCollection;
-        private Mock<IMemoryCache> memoryCache;
+        //private Mock<IMemoryCache> memoryCache;
+        private Mock<IHttpResponseFeature> httpResponseFeature;
 
 
 
@@ -58,6 +60,8 @@ namespace Routine.Test.Service
             var server = new TestServer(webHostBuilder);
             applicationBuilder = Startup.applicationBuilder;
 
+            var memoryCache = applicationBuilder.ApplicationServices.GetService<IMemoryCache>();
+
             //var applicationBuilder = server.Host.Services.GetRequiredService<IApplicationBuilder>();
             // You can set the environment you want (development, staging, production) .UseStartup<Startup>(); // Startup class of your web app project
 
@@ -70,11 +74,14 @@ namespace Routine.Test.Service
             request = new Mock<HttpRequest>();
             response = new Mock<HttpResponse>();
             featureCollection = new Mock<IFeatureCollection>();
-            memoryCache = new Mock<IMemoryCache>();
+            //memoryCache = new Mock<IMemoryCache>();
+            httpResponseFeature = new Mock<IHttpResponseFeature>();
 
             requestHeaders = new HeaderDictionary();
             responseHeaders = new HeaderDictionary();
             requestQueryString = new QueryString();
+            requestQuery = new QueryCollection();
+
             //applicationBuilder = new Mock<IApplicationBuilder>();
             //applicationBuilder.Setup(ap => ap.ApplicationServices).Returns(Mock.Of<IServiceProvider>());
 
@@ -100,19 +107,28 @@ namespace Routine.Test.Service
             // httpContext.Setup(hc => hc.Application).Returns(httpApplication.Object);
             request.Setup(r => r.Headers).Returns(requestHeaders);
             request.Setup(r => r.QueryString).Returns(requestQueryString);
+            request.Setup(r => r.Query).Returns(requestQuery);
             request.Setup(r => r.Method).Returns("POST");
             request.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
+
+
+            //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
+            response.SetupAllProperties();
             response.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
             response.Setup(r => r.Headers).Returns(responseHeaders);
             httpContextAccessor.Setup(hca => hca.HttpContext).Returns(httpContext.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(featureCollection.Object);
+            //httpContextAccessor.Setup(hca => hca.HttpContext.Features.Get<IHttpResponseFeature>())
+            //    .Returns(httpResponseFeature.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>())
+                .Returns(httpResponseFeature.Object);
+            //httpContextAccessor.Object.HttpContext.Features.Set<IHttpResponseFeature>(httpResponseFeature.Object);
+            httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
+            
 
-            //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
-            response.SetupAllProperties();
-
-            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache.Object);
+            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache);
             routeHandler.RegisterRoutes(applicationBuilder);
             testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
 
@@ -312,7 +328,6 @@ namespace Routine.Test.Service
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
             testing.Handle("model", "3", "post", null);
-
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
@@ -343,10 +358,12 @@ namespace Routine.Test.Service
         public void When_given_model_id_does_not_exist__returns_404()
         {
             testing.Handle("nonexistingmodel", null, null, null);
-
+            httpResponseFeature.Setup(x => x.ReasonPhrase).Returns("Samet");
+            
+            //httpResponseFeature.
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-            Assert.IsTrue(httpContextAccessor.Object.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase.Contains("nonexistingmodel"), "StatusDescription should contain given model id");
+            Assert.IsTrue(httpResponseFeature.Object.ReasonPhrase.Contains("nonexistingmodel"), "StatusDescription should contain given model id");
         }
 
         [Test]
@@ -485,16 +502,21 @@ namespace Routine.Test.Service
             });
 
             testing.Handle("model", "2", "action", null);
+            var body = "{" +
+                       "\"Id\":\"2\"," +
+                       "\"Display\":\"model 2\"," +
+                       "\"ModelId\":\"model\"," +
+                       "\"Data\":" +
+                       "{" +
+                       "\"data\":\"text\"" +
+                       "}" +
+                       "}";
 
-            response.Verify(r => r.WriteAsync("{" +
-                                "\"Id\":\"2\"," +
-                                "\"Display\":\"model 2\"," +
-                                "\"ModelId\":\"model\"," +
-                                "\"Data\":" +
-                                "{" +
-                                    "\"data\":\"text\"" +
-                                "}" +
-                            "}", CancellationToken.None), Times.Once());
+            var actual =
+                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
+                    .ToArray());
+
+            Assert.AreEqual(body, actual);
         }
 
         [Test]
@@ -529,10 +551,10 @@ namespace Routine.Test.Service
                        "}";
 
             var actual =
-                Encoding.UTF8.GetString(((MemoryStream) httpContextAccessor.Object.HttpContext.Response.Body)
+                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
                     .ToArray());
 
-            Assert.AreEqual(body,actual);
+            Assert.AreEqual(body, actual);
         }
 
         [Test]
@@ -570,17 +592,19 @@ namespace Routine.Test.Service
             );
 
             testing.Handle("model", "3", null, null);
+            var body = "{" +
+                       "\"Id\":\"3\"," +
+                       "\"Display\":\"display\"," +
+                       "\"Data\":" +
+                       "{" +
+                       "\"data\":\"text\"" +
+                       "}" +
+                       "}";
+            var actual =
+                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
+                    .ToArray());
 
-            response.Verify(r => r.WriteAsync(
-                "{" +
-                    "\"Id\":\"3\"," +
-                    "\"Display\":\"display\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"data\":\"text\"" +
-                    "}" +
-                "}"
-            , CancellationToken.None));
+            Assert.AreEqual(body, actual);
         }
 
         [Test]
@@ -599,18 +623,20 @@ namespace Routine.Test.Service
             );
 
             testing.Handle("model", "3", "viewmodel", null);
+            var body = "{" +
+                       "\"Id\":\"3\"," +
+                       "\"Display\":\"display\"," +
+                       "\"ModelId\":\"model\"," +
+                       "\"Data\":" +
+                       "{" +
+                       "\"data\":\"text\"" +
+                       "}" +
+                       "}";
+            var actual =
+                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
+                    .ToArray());
 
-            response.Verify(r => r.WriteAsync(
-                "{" +
-                    "\"Id\":\"3\"," +
-                    "\"Display\":\"display\"," +
-                    "\"ModelId\":\"model\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"data\":\"text\"" +
-                    "}" +
-                "}"
-            , CancellationToken.None));
+            Assert.AreEqual(body, actual);
         }
 
         [Test]
@@ -662,7 +688,8 @@ namespace Routine.Test.Service
 
             // services.AddControllers();
             services.AddRouting();
-
+            services.AddMemoryCache();
+            services.BuildServiceProvider();
             // // If using Kestrel:
             // services.Configure<KestrelServerOptions>(options =>
             // {

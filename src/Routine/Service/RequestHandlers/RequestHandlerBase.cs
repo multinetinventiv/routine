@@ -51,7 +51,7 @@ namespace Routine.Service.RequestHandlers
         public abstract void WriteResponse();
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
-        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Features.Get<IHttpResponseFeature>();
+        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>();
         protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
@@ -60,15 +60,15 @@ namespace Routine.Service.RequestHandlers
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
 
         static object _cacheLockObject = new();
-        const string CACHE_KEY = "Routine.RequestHandler.ModelIndex";
+        const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
         protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
                 //todo: cache kurgusu olmali mi?
-
-                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
-                if (result != null) { return result; }
+                HttpContext.Items.TryGetValue(MODEL_INDEX_CACHE_KEY, out var result);
+                //var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
+                if (result != null) { return (Dictionary<string, List<ObjectModel>>)result; }
 
                 //if (_modelIndex == default || _modelIndex.IsEmpty)
                 //{
@@ -78,21 +78,18 @@ namespace Routine.Service.RequestHandlers
 
                 lock (_cacheLockObject)
                 {
-                    result = MemoryCache.GetOrCreate("Routine.RequestHandler.ModelIndex", cache =>
-                   {
-                       cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
+                    result = MemoryCache.GetOrCreate(MODEL_INDEX_CACHE_KEY, cache =>
+                       {
+                           cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
 
-                       return BuildModelIndex();
-                   });
+                           return BuildModelIndex();
+                       });
 
+                    HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
                 }
 
-                return result;
-
-
-
-
-
+                return (Dictionary<string, List<ObjectModel>>)result;
+                
                 // HttpContext.Application.Lock();
 
                 // result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
@@ -219,8 +216,6 @@ namespace Routine.Service.RequestHandlers
 
             if (result != null)
             {
-                //UnitTest'lerde body null geldiği için eklendi.
-                HttpContext.Response.Body = new MemoryStream();
                 HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }
