@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -26,7 +28,7 @@ namespace Routine.Service.RequestHandlers
         private const int BUFFER_SIZE = 0x1000;
         protected const string JSON_CONTENT_TYPE = "application/json";
         protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
-
+        //private static ConcurrentDictionary<string, List<ObjectModel>> _modelIndex;
         #endregion
 
         #region Construction
@@ -34,12 +36,14 @@ namespace Routine.Service.RequestHandlers
         protected IServiceContext ServiceContext { get; }
         protected IJsonSerializer JsonSerializer { get; }
         protected IHttpContextAccessor HttpContextAccessor { get; }
+        protected IMemoryCache MemoryCache { get; }
 
-        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
         {
             ServiceContext = serviceContext;
             JsonSerializer = jsonSerializer;
             HttpContextAccessor = httpContextAccessor;
+            MemoryCache = memoryCache;
         }
 
         #endregion
@@ -54,6 +58,9 @@ namespace Routine.Service.RequestHandlers
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
+
+        static object _cacheLockObject = new();
+        const string CACHE_KEY = "Routine.RequestHandler.ModelIndex";
         protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
@@ -61,8 +68,30 @@ namespace Routine.Service.RequestHandlers
                 //todo: cache kurgusu olmali mi?
 
                 var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Items["Routine.RequestHandler.ModelIndex"];
-
                 if (result != null) { return result; }
+
+                //if (_modelIndex == default || _modelIndex.IsEmpty)
+                //{
+                //    _modelIndex = new ConcurrentDictionary<string, List<ObjectModel>>(BuildModelIndex());
+                //    result = new Dictionary<string, List<ObjectModel>>(_modelIndex);
+                //}
+
+                lock (_cacheLockObject)
+                {
+                    result = MemoryCache.GetOrCreate("Routine.RequestHandler.ModelIndex", cache =>
+                   {
+                       cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
+
+                       return BuildModelIndex();
+                   });
+
+                }
+
+                return result;
+
+
+
+
 
                 // HttpContext.Application.Lock();
 
@@ -75,13 +104,14 @@ namespace Routine.Service.RequestHandlers
                 //     return result;
                 // }
 
-                result = BuildModelIndex();
-                HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
+                //result = BuildModelIndex();
+                //HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
                 // HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
 
                 // HttpContext.Application.UnLock();
 
-                return result;
+
+                //return result;
             }
         }
 
@@ -189,6 +219,8 @@ namespace Routine.Service.RequestHandlers
 
             if (result != null)
             {
+                //UnitTest'lerde body null geldiği için eklendi.
+                HttpContext.Response.Body = new MemoryStream();
                 HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }

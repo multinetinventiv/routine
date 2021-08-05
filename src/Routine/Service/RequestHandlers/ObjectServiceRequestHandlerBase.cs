@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -10,8 +11,8 @@ namespace Routine.Service.RequestHandlers
 {
 	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
-		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
-			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
+		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+			: base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache) { }
 
 		protected abstract bool AllowGet { get; }
 		protected abstract void Process();

@@ -8,12 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Service
 {
     public class RoutineRouteHandler : IRoutineRouteHandler
     {
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IMemoryCache memoryCache;
         private readonly IServiceContext serviceContext;
         private readonly IJsonSerializer jsonSerializer;
 
@@ -22,33 +24,34 @@ namespace Routine.Service
 
         public List<string> RequestHandlersList => RequestHandlers.Keys.Select(q => q.ToLowerInvariant()).ToList();
 
-        public RoutineRouteHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+        public RoutineRouteHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
         {
             this.serviceContext = serviceContext;
             this.jsonSerializer = jsonSerializer;
             this.httpContextAccessor = httpContextAccessor;
+            this.memoryCache = memoryCache;
             RequestHandlers = new Dictionary<string, Func<IHttpContextAccessor, IRequestHandler>>();
         }
 
         public virtual void RegisterRoutes(IApplicationBuilder applicationBuilder)
         {
-            Add(hcb => new IndexRequestHandler(serviceContext, jsonSerializer, hcb), applicationBuilder);
-            Add(hcb => new FileRequestHandler(serviceContext, jsonSerializer, hcb), applicationBuilder);
-            Add(applicationBuilder: applicationBuilder, path: "{action}/{fileName}/f", factory: hcb => new FontsRequestHandler(serviceContext, jsonSerializer, hcb, "fileName"));
-            Add(hcb => new ConfigurationRequestHandler(serviceContext, jsonSerializer, hcb), applicationBuilder);
-            Add(hcb => new ApplicationModelRequestHandler(serviceContext, jsonSerializer, hcb), applicationBuilder);
+            Add(hcb => new IndexRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache), applicationBuilder);
+            Add(hcb => new FileRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache), applicationBuilder);
+            Add(applicationBuilder: applicationBuilder, path: "{action}/{fileName}/f", factory: hcb => new FontsRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache, "fileName"));
+            Add(hcb => new ConfigurationRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache), applicationBuilder);
+            Add(hcb => new ApplicationModelRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache), applicationBuilder);
             Add(applicationBuilder: applicationBuilder,
                 path: "{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation}/{operation}",
                 defaults: new { idOrViewModelIdOrOperation = string.Empty, viewModelIdOrOperation = string.Empty, operation = string.Empty },
                 factory: hcb =>
-                    new HandleRequestHandler(serviceContext, jsonSerializer, hcb,
+                    new HandleRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache,
                         modelIdRouteKey: "modelId",
                         idOrViewModelIdOrOperationRouteKey: "idOrViewModelIdOrOperation",
                         viewModelIdOrOperationRouteKey: "viewModelIdOrOperation",
                         operationRouteKey: "operation",
                         actionFactory: resolution => resolution.HasOperation
-                            ? new DoRequestHandler(serviceContext, jsonSerializer, hcb, resolution) as IRequestHandler
-                            : new GetRequestHandler(serviceContext, jsonSerializer, hcb, resolution)
+                            ? new DoRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache, resolution) as IRequestHandler
+                            : new GetRequestHandler(serviceContext, jsonSerializer, hcb, memoryCache, resolution)
                     )
             );
 

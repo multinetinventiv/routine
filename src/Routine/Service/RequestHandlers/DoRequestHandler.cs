@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
@@ -15,8 +16,8 @@ namespace Routine.Service.RequestHandlers
     {
         private readonly Resolution resolution;
 
-        public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, Resolution resolution)
-            : base(serviceContext, jsonSerializer, httpContextAccessor)
+        public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, Resolution resolution)
+            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache)
         {
             this.resolution = resolution;
         }
@@ -63,7 +64,10 @@ namespace Routine.Service.RequestHandlers
             var req = HttpContext.Request.Body;
             req.Seek(0, SeekOrigin.Begin);
             var requestBody = new StreamReader(req).ReadToEnd();
-
+            if (string.IsNullOrWhiteSpace(requestBody))
+            {
+                return new Dictionary<string, object>();
+            }
             return JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
         }
     }
