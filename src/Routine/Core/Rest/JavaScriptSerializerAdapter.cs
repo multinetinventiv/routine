@@ -1,7 +1,5 @@
-
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -110,12 +108,23 @@ namespace Routine.Core.Rest
                 return dictionary;
             }
 
-            // Use JsonElement as fallback.
-            // Newtonsoft uses JArray or JObject.
-            using (JsonDocument document = JsonDocument.ParseValue(ref reader))
+            if (reader.TokenType == JsonTokenType.StartArray)
             {
-                return document.RootElement.Clone();
+	            var list = new List<object>();
+	            while (reader.Read())
+	            {
+		            if (reader.TokenType == JsonTokenType.EndArray)
+		            {
+			            break;
+		            }
+
+		            list.Add(ExtractValue(ref reader, options));
+	            }
+
+	            return list.ToArray();
             }
+
+            throw new NotSupportedException("ObjectConverter cannot convert this json to object");
         }
 
         private object ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
