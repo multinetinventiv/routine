@@ -11,7 +11,6 @@ namespace Routine.Core.Rest
 
         public JsonSerializerAdapter(JsonSerializerOptions jsonSerializerOptions = null)
         {
-            //todo: null ise default degerlerin muadilleri set edilmeli
             if (jsonSerializerOptions != null)
             {
                 jsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());

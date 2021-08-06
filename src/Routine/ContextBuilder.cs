@@ -1,5 +1,7 @@
-﻿using Routine.Api;
-using Routine.Api.Context;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Routine.Client;
 using Routine.Client.Context;
 using Routine.Core;
@@ -14,17 +16,18 @@ using Routine.Service.Context;
 namespace Routine
 {
     public class ContextBuilder
-    {
-        public IApiContext AsApiGenerationLocal(IApiConfiguration apiConfiguration, ICodingStyle codingStyle)
+        public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
         {
-            return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
+            return ClientContext(ObjectServiceClient(serviceClientConfiguration));
         }
 
-        public IApiContext AsApiGenerationRemote(IApiConfiguration apiConfiguration, IServiceClientConfiguration serviceClientConfiguration)
+        public IClientContext AsClientApplication(ICodingStyle codingStyle)
         {
-            return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(serviceClientConfiguration)));
+            return ClientContext(ObjectService(codingStyle));
         }
 
+        public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
+        {
         public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
         {
             return ClientContext(ObjectServiceClient(serviceClientConfiguration));
@@ -38,11 +41,6 @@ namespace Routine
         public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
             return ServiceContext(serviceConfiguration, codingStyle);
-        }
-
-        private IApiContext ApiContext(IApiConfiguration apiConfiguration, IClientContext clientContext)
-        {
-            return new DefaultApiContext(apiConfiguration, new ApplicationCodeModel(clientContext.Application, apiConfiguration));
         }
 
         private IClientContext ClientContext(IObjectService objectService)

@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Routine.Api.Configuration;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
 using Routine.Engine;
@@ -44,16 +43,6 @@ namespace Routine
         internal static PatternBuilder<ConventionBasedInterceptionConfiguration> InterceptionPattern()
         {
             return new PatternBuilder<ConventionBasedInterceptionConfiguration>();
-        }
-
-        public static ApiConfigurationBuilder ApiConfig()
-        {
-            return new ApiConfigurationBuilder();
-        }
-
-        internal static PatternBuilder<ConventionBasedApiConfiguration> ApiGenerationPattern()
-        {
-            return new PatternBuilder<ConventionBasedApiConfiguration>();
         }
 
         public static ServiceConfigurationBuilder ServiceConfig()
@@ -435,11 +424,6 @@ namespace Routine
         public static ConventionBasedServiceConfiguration Use(this ConventionBasedServiceConfiguration source, Func<PatternBuilder<ConventionBasedServiceConfiguration>, ConventionBasedServiceConfiguration> pattern)
         {
             return source.Merge(pattern(BuildRoutine.ServicePattern()));
-        }
-
-        public static ConventionBasedApiConfiguration Use(this ConventionBasedApiConfiguration source, Func<PatternBuilder<ConventionBasedApiConfiguration>, ConventionBasedApiConfiguration> pattern)
-        {
-            return source.Merge(pattern(BuildRoutine.ApiGenerationPattern()));
         }
 
         public static ConventionBasedServiceClientConfiguration Use(this ConventionBasedServiceClientConfiguration source, Func<PatternBuilder<ConventionBasedServiceClientConfiguration>, ConventionBasedServiceClientConfiguration> pattern)
