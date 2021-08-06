@@ -23,9 +23,8 @@ namespace Routine.Samples.Basic
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
+
             services.AddMemoryCache();
-            services.AddControllers();
-            services.AddRouting();
 
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>

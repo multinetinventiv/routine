@@ -5,7 +5,6 @@ using System.Net;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
-using Routine.Api.Configuration;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service;

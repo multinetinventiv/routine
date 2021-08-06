@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Routine.Api;
-using Routine.Api.Context;
 using Routine.Client;
 using Routine.Client.Context;
 using Routine.Core;
@@ -25,15 +23,6 @@ namespace Routine
             this.httpContextAccessor = httpContextAccessor;
             this.memoryCache = memoryCache;
         }
-        public IApiContext AsApiGenerationLocal(IApiConfiguration apiConfiguration, ICodingStyle codingStyle)
-        {
-            return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
-        }
-
-        public IApiContext AsApiGenerationRemote(IApiConfiguration apiConfiguration, IServiceClientConfiguration serviceClientConfiguration)
-        {
-            return ApiContext(apiConfiguration, ClientContext(ObjectServiceClient(serviceClientConfiguration)));
-        }
 
         public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
         {
@@ -48,11 +37,6 @@ namespace Routine
         public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
             return ServiceContext(serviceConfiguration, codingStyle);
-        }
-
-        private IApiContext ApiContext(IApiConfiguration apiConfiguration, IClientContext clientContext)
-        {
-            return new DefaultApiContext(apiConfiguration, new ApplicationCodeModel(clientContext.Application, apiConfiguration));
         }
 
         private IClientContext ClientContext(IObjectService objectService)
