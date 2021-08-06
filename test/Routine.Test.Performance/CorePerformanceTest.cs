@@ -4,6 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Fasterflect;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
@@ -102,16 +109,26 @@ namespace Routine.Test.Performance
         #region Setup & Helpers
 
         private Dictionary<string, object> objectRepository;
-
+        
+        private Mock<IHttpContextAccessor> httpContextAccessor;
         private ICodingStyle codingStyle;
         private IObjectService objectService;
         private Rapplication rapp;
+        private IApplicationBuilder applicationBuilder;
 
         [SetUp]
         public void SetUp()
         {
             objectRepository = new Dictionary<string, object>();
-            
+
+
+            var webHostBuilder = new WebHostBuilder().UseStartup<Startup>();
+            new TestServer(webHostBuilder);
+            applicationBuilder = Startup.applicationBuilder;
+            var memoryCache = applicationBuilder.ApplicationServices.GetService<IMemoryCache>();
+
+            httpContextAccessor = new Mock<IHttpContextAccessor>();
+
             var apiCtx = BuildRoutine.Context()
                 .UsingCache(new DictionaryCache())
                 .AsClientApplication(
@@ -1048,6 +1065,25 @@ namespace Routine.Test.Performance
             Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
             Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
         }
+    }
+
+    public class Startup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddHttpContextAccessor();
+            services.AddRouting();
+            services.AddMemoryCache();
+            services.BuildServiceProvider();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        {
+            app.UseRouting();
+            applicationBuilder = app;
+        }
+
+        public static IApplicationBuilder applicationBuilder;
     }
 }
 
