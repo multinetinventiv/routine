@@ -57,6 +57,8 @@ namespace Routine.Service
 
             var rootBuilder = new RouteBuilder(applicationBuilder);
 
+            var rootPath = serviceContext.ServiceConfiguration.GetPath();
+
             rootBuilder.MapGet("", (context) =>
             {
                 var requestHandler = RequestHandlers["index"](httpContextAccessor);
@@ -64,21 +66,21 @@ namespace Routine.Service
             }
             );
 
-            rootBuilder.MapGet("api/{action}/{fileName}/f", (context) =>
+            rootBuilder.MapGet($"{rootPath}{{action}}/{{fileName}}/f", (context) =>
             {
                 var requestHandler = RequestHandlers["fonts"](httpContextAccessor);
                 return Task.Run(() => requestHandler.WriteResponse());
             }
             );
 
-            rootBuilder.MapPost("api/{modelId}/{idOrViewModelIdOrOperation}/{viewModelIdOrOperation?}/{operation?}", (context) =>
-            {
-                var requestHandler = RequestHandlers["handle"](httpContextAccessor);
-                return Task.Run(() => requestHandler.WriteResponse());
-            }
+            rootBuilder.MapPost($"{rootPath}{{modelId}}/{{idOrViewModelIdOrOperation}}/{{viewModelIdOrOperation ?}}/{{operation ?}}", (context) =>
+              {
+                  var requestHandler = RequestHandlers["handle"](httpContextAccessor);
+                  return Task.Run(() => requestHandler.WriteResponse());
+              }
             );
 
-            rootBuilder.MapGet("api/{action:regex(^(configuration|file|applicationmodel|font)$)}", (context) =>
+            rootBuilder.MapGet($"{rootPath}{{action:regex(^(configuration|file|applicationmodel|font)$)}}", (context) =>
             {
                 var routeData = context.GetRouteData();
 

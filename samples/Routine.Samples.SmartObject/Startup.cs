@@ -61,14 +61,6 @@ namespace Routine.Samples.SmartObject
                     .Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())))
                     .Override(c => c.Operations.AddNoneWhen(t => t.IsValueType))
                 ));
-
-            // app.UseEndpoints(endpoints =>
-            // {
-            //     endpoints.MapGet("/", async context =>
-            //     {
-            //         await context.Response.WriteAsync("Hello World!");
-            //     });
-            // });
         }
 
         private object FindSmartObject(IType type, string name)

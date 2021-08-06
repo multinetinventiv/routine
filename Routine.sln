@@ -31,6 +31,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Samples.Basic", "sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Samples.SmartObject", "samples\Routine.Samples.SmartObject\Routine.Samples.SmartObject.csproj", "{1D5716B2-306B-47E9-915E-80096DED20A9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Appveyor", "Appveyor", "{ADB44F5F-1755-440D-BE9F-7091DD204E4D}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\Appveyor\install_dotnet_devpack.ps1 = Tools\Appveyor\install_dotnet_devpack.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{17E26F95-7EAC-4807-A28F-1737116F6B8E}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\NuGet\BuildNugetPackage.ps1 = Tools\NuGet\BuildNugetPackage.ps1
+		Tools\NuGet\NuGet.exe = Tools\NuGet\NuGet.exe
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +82,8 @@ Global
 		{81BC51EC-E156-4E32-9D03-40FEFE37555A} = {B7F5933D-DA7B-4664-BC9E-FDF8C2BDE63A}
 		{762CA0D7-1210-4EFA-A6FA-BD7F0E76CE81} = {F61F04A1-0ED2-4263-802E-C085B99A19BE}
 		{1D5716B2-306B-47E9-915E-80096DED20A9} = {81BC51EC-E156-4E32-9D03-40FEFE37555A}
+		{ADB44F5F-1755-440D-BE9F-7091DD204E4D} = {08A5BD17-A122-41B1-BDE3-96FF29B5D82C}
+		{17E26F95-7EAC-4807-A28F-1737116F6B8E} = {08A5BD17-A122-41B1-BDE3-96FF29B5D82C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF1ECBBF-B59A-449B-B2EE-097960552376}
