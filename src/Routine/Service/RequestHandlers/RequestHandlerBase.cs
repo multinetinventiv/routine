@@ -13,6 +13,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -158,12 +159,10 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
-            //todo:HttpContext.ClearError muadili bulunmali
             if (clearError)
             {
-                //HttpResponseFeature.
-                //HttpContext.
-                //HttpContext.ClearError();
+                HttpContext.Response.StatusCode = 200;
+                HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = null;
             }
 
             HttpContext.Response.StatusCode = (int)statusCode;
