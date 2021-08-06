@@ -148,9 +148,6 @@ namespace Routine.Service.RequestHandlers
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
-            //todo: https://stackoverflow.com/questions/53194200/how-httpcontext-response-end-in-asp-net-core linkine gore statu code'u setlenmeli mi test edilecek
-            // HttpContext.Response.Flush();
-            // HttpContext.Response.End();
 
             Task.Run(async () =>
             {

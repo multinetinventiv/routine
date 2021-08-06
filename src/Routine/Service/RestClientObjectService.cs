@@ -88,12 +88,9 @@ namespace Routine.Service
                 processor.Process(response.Headers);
             }
 
+            var result = serializer.DeserializeObject(response.Body);
 
-            var result = serializer.DeserializeObject(response.Body); ;
-
-            var resultDictionary = result as IDictionary<string, object>;
-
-            if (resultDictionary != null && resultDictionary.ContainsKey("IsException"))
+            if (result is IDictionary<string, object> resultDictionary && resultDictionary.ContainsKey("IsException"))
             {
                 var exceptionResult = new ExceptionResult(serializer.Deserialize<ExceptionResultData>(response.Body));
 
