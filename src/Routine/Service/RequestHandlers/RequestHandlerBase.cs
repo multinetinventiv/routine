@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Net.Http.Headers;
+using Routine.Core;
+using Routine.Core.Rest;
+using Routine.Engine.Context;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Routine.Core;
-using Routine.Core.Rest;
-using Routine.Engine.Context;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Http.Features;
-using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Caching.Memory;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -25,7 +24,8 @@ namespace Routine.Service.RequestHandlers
         private const int BUFFER_SIZE = 0x1000;
         protected const string JSON_CONTENT_TYPE = "application/json";
         protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
-        //private static ConcurrentDictionary<string, List<ObjectModel>> _modelIndex;
+        private static readonly object CACHE_LOCK_OBJECT = new object();
+        private const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
         #endregion
 
         #region Construction
@@ -48,7 +48,6 @@ namespace Routine.Service.RequestHandlers
         public abstract void WriteResponse();
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
-        protected IHttpResponseFeature HttpResponseFeature => HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>();
         protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
@@ -56,8 +55,6 @@ namespace Routine.Service.RequestHandlers
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
 
-        static readonly object CACHE_LOCK_OBJECT = new object();
-        private const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
         protected Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get

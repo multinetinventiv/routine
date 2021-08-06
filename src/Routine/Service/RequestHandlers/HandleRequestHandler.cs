@@ -1,17 +1,22 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers.Exceptions;
 using Routine.Service.RequestHandlers.Helper;
+using System;
+using System.Linq;
 
 namespace Routine.Service.RequestHandlers
 {
     public class HandleRequestHandler : RequestHandlerBase
     {
+        private readonly Func<Resolution, IRequestHandler> actionFactory;
+        private readonly string modelIdRouteKey;
+        private readonly string idOrViewModelIdOrOperationRouteKey;
+        private readonly string viewModelIdOrOperationRouteKey;
+        private readonly string operationRouteKey;
+
         public HandleRequestHandler(
             IServiceContext serviceContext,
             IJsonSerializer jsonSerializer,
@@ -31,16 +36,6 @@ namespace Routine.Service.RequestHandlers
             this.viewModelIdOrOperationRouteKey = viewModelIdOrOperationRouteKey;
             this.operationRouteKey = operationRouteKey;
         }
-
-        private readonly Func<Resolution, IRequestHandler> actionFactory;
-
-        private readonly string modelIdRouteKey;
-
-        private readonly string idOrViewModelIdOrOperationRouteKey;
-
-        private readonly string viewModelIdOrOperationRouteKey;
-
-        private readonly string operationRouteKey;
 
         public override void WriteResponse()
         {
