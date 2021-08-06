@@ -30,31 +30,31 @@ namespace Routine.Service
 
         public virtual void RegisterRoutes()
         {
-	        var rootBuilder = new RouteBuilder(applicationBuilder);
+	        var routeBuilder = new RouteBuilder(applicationBuilder);
             var rootPath = serviceContext.ServiceConfiguration.GetPath();
 
             var indexHandler = new IndexRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-            rootBuilder.MapGet("", 
+            routeBuilder.MapGet("", 
 	            context => Task.Run(() => indexHandler.WriteResponse())
             );
 
             var fileHandler = new FileRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-            rootBuilder.MapGet($"{rootPath}{{action}}/{{fileName}}/f", 
+            routeBuilder.MapGet($"{rootPath}{{action}}/{{fileName}}/f", 
 	            context => Task.Run(() => fileHandler.WriteResponse())
             );
 
             var fontsHandler = new FontsRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache, "fileName");
-            rootBuilder.MapGet($"{rootPath}fonts}}", 
+            routeBuilder.MapGet($"{rootPath}fonts}}", 
 	            context => Task.Run(() => fontsHandler.WriteResponse())
             );
 
             var configurationHandler = new ConfigurationRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-            rootBuilder.MapGet($"{rootPath}configuration", 
+            routeBuilder.MapGet($"{rootPath}configuration", 
 	            context => Task.Run(() => configurationHandler.WriteResponse())
             );
 
             var applicationModelHandler = new ApplicationModelRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-            rootBuilder.MapGet($"{rootPath}applicationmodel", 
+            routeBuilder.MapGet($"{rootPath}applicationmodel", 
 	            context => Task.Run(() => applicationModelHandler.WriteResponse())
             );
 
@@ -67,14 +67,14 @@ namespace Routine.Service
 		            ? new DoRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache, resolution)
 		            : new GetRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache, resolution)
             );
-            rootBuilder.MapGet($"{rootPath}{{modelId}}/{{idOrViewModelIdOrOperation}}/{{viewModelIdOrOperation ?}}/{{operation ?}}", 
+            routeBuilder.MapGet($"{rootPath}{{modelId}}/{{idOrViewModelIdOrOperation}}/{{viewModelIdOrOperation ?}}/{{operation ?}}", 
 	            context => Task.Run(() => handleHandler.WriteResponse())
             );
-            rootBuilder.MapPost($"{rootPath}{{modelId}}/{{idOrViewModelIdOrOperation}}/{{viewModelIdOrOperation ?}}/{{operation ?}}", 
+            routeBuilder.MapPost($"{rootPath}{{modelId}}/{{idOrViewModelIdOrOperation}}/{{viewModelIdOrOperation ?}}/{{operation ?}}", 
 	            context => Task.Run(() => handleHandler.WriteResponse())
 	        );
 
-            applicationBuilder.UseRouter(rootBuilder.Build());
+            applicationBuilder.UseRouter(routeBuilder.Build());
         }
     }
 }
