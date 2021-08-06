@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Fasterflect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
@@ -114,11 +111,8 @@ namespace Routine.Test.Performance
         public void SetUp()
         {
             objectRepository = new Dictionary<string, object>();
-
-            var applicationBuilder = default(IApplicationBuilder);
-            var httpContextAccessor = default(IHttpContextAccessor);
-            var memoryCache = default(IMemoryCache);
-            var apiCtx = BuildRoutine.Context(applicationBuilder, httpContextAccessor, memoryCache)
+            
+            var apiCtx = BuildRoutine.Context()
                 .UsingCache(new DictionaryCache())
                 .AsClientApplication(
                     codingStyle = BuildRoutine.CodingStyle()

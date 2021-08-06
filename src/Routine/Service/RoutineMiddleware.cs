@@ -14,11 +14,12 @@ namespace Routine.Service
 		{
 			this.next = next;
 
-			new RoutineRouteHandler(serviceContext, serializer, httpContextAccessor, memoryCache)
-				.RegisterRoutes(applicationBuilder)
-			;
+			new RoutineRouteHandler(serviceContext, serializer, httpContextAccessor, memoryCache, applicationBuilder).RegisterRoutes();
 		}
 
-		public async Task Invoke(HttpContext context) => await next(context);
+		public async Task Invoke(HttpContext context)
+		{
+			await next(context);
+		}
 	}
 }

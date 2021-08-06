@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Routine.Client;
+﻿using Routine.Client;
 using Routine.Client.Context;
 using Routine.Core;
 using Routine.Core.Cache;
@@ -15,19 +11,8 @@ using Routine.Service.Context;
 
 namespace Routine
 {
-    public class ContextBuilder
-        public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
-        {
-            return ClientContext(ObjectServiceClient(serviceClientConfiguration));
-        }
-
-        public IClientContext AsClientApplication(ICodingStyle codingStyle)
-        {
-            return ClientContext(ObjectService(codingStyle));
-        }
-
-        public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
-        {
+	public class ContextBuilder
+    {
         public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
         {
             return ClientContext(ObjectServiceClient(serviceClientConfiguration));

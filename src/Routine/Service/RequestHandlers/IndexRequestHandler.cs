@@ -4,7 +4,7 @@ using Routine.Core.Rest;
 
 namespace Routine.Service.RequestHandlers
 {
-    public class IndexRequestHandler : RequestHandlerBase, IIndexRequestHandler
+    public class IndexRequestHandler : RequestHandlerBase
     {
         public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
             : base(serviceContext, jsonSerializer, httpContextAccessor,memoryCache) { }

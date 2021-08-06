@@ -1,18 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+﻿using NUnit.Framework;
+using Routine.Client;
+using Routine.Core.Rest;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.Caching.Memory;
-using NUnit.Framework;
-using Routine.Client;
-using Routine.Core.Rest;
 
 namespace Routine.Test.Performance
 {
-    [TestFixture]
+	[TestFixture]
     public class ServiceServiceTest
     {
         private IClientContext clientContext;
@@ -21,10 +18,7 @@ namespace Routine.Test.Performance
         [SetUp]
         public void SetUp()
         {
-            var applicationBuilder = default(IApplicationBuilder);
-            var httpContextAccessor = default(IHttpContextAccessor);
-            var memoryCache = default(IMemoryCache);
-            clientContext = BuildRoutine.Context(applicationBuilder, httpContextAccessor, memoryCache)
+            clientContext = BuildRoutine.Context()
                 .UsingInterception(BuildRoutine.InterceptionConfig()
                     .FromBasic()
                     .ServiceInterceptors.Add(c => c.Interceptor(i => i.Do()

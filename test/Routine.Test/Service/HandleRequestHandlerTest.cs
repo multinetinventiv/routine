@@ -1,12 +1,10 @@
-using System.Threading;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
-using System.Net;
-using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -16,17 +14,18 @@ using Routine.Service;
 using Routine.Service.Configuration;
 using Routine.Service.RequestHandlers;
 using Routine.Test.Core;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Caching.Memory;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq.Expressions;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Routine.Test.Service
 {
-    [TestFixture]
-    public class ServiceControllerTest : CoreTestBase
+	[TestFixture]
+    public class HandleRequestHandlerTest : CoreTestBase
     {
         #region SetUp & Helpers
 
@@ -45,7 +44,6 @@ namespace Routine.Test.Service
         private Mock<IFeatureCollection> featureCollection;
         private Mock<IHttpResponseFeature> httpResponseFeature;
         private IJsonSerializer serializer = new JsonSerializerAdapter();
-
 
         public override void SetUp()
         {
@@ -102,12 +100,12 @@ namespace Routine.Test.Service
             httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>()).Returns(httpResponseFeature.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
 
-            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache);
-            routeHandler.RegisterRoutes(applicationBuilder);
-            testing = routeHandler.RequestHandlers["handle"](httpContextAccessor.Object) as HandleRequestHandler;
+            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, applicationBuilder);
+            routeHandler.RegisterRoutes();
+
+            testing = routeHandler.HandleRequestHandler;
 
             Assert.IsNotNull(testing);
-
         }
 
         protected ObjectStubber When(ReferenceData referenceData)
@@ -455,7 +453,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public async Task Compress_for_do_result_viewmodel()
+        public void Compress_for_do_result_viewmodel()
         {
             ModelsAre(
                 Model("model").Operation("action", "viewmodel").ViewModelIds("viewmodel"),

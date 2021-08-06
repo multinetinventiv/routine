@@ -26,6 +26,7 @@ namespace Routine.Service.RequestHandlers
         protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
         private static readonly object CACHE_LOCK_OBJECT = new object();
         private const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
+
         #endregion
 
         #region Construction
@@ -63,14 +64,14 @@ namespace Routine.Service.RequestHandlers
                 if (result != null) { return (Dictionary<string, List<ObjectModel>>)result; }
                 lock (CACHE_LOCK_OBJECT)
                 {
-                    result = MemoryCache.GetOrCreate(MODEL_INDEX_CACHE_KEY, cache =>
-                       {
-                           cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
+	                result = MemoryCache.GetOrCreate(MODEL_INDEX_CACHE_KEY, cache =>
+	                {
+		                cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
 
-                           return BuildModelIndex();
-                       });
+		                return BuildModelIndex();
+	                });
 
-                    HttpContext.Items.Add("Routine.RequestHandler.ModelIndex", result);
+                    HttpContext.Items.Add(MODEL_INDEX_CACHE_KEY, result);
                 }
 
                 return (Dictionary<string, List<ObjectModel>>)result;

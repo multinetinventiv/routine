@@ -4,6 +4,4 @@
 	{
 		void WriteResponse();
 	}
-
-	public interface IIndexRequestHandler : IRequestHandler { }
 }
