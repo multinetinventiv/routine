@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Template;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers;
 using System;
@@ -130,11 +129,6 @@ namespace Routine.Service
         private string ActionNameFor<T>() where T : IRequestHandler
         {
             return typeof(T).Name.BeforeLast("RequestHandler").ToLowerInvariant();
-        }
-
-        public RequestDelegate GetRequestHandler(HttpContext httpContext, RouteData routeData)
-        {
-            throw new NotImplementedException();
         }
     }
 }
