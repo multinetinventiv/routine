@@ -128,10 +128,5 @@ namespace Routine.Service
         {
             return typeof(T).Name.BeforeLast("RequestHandler").ToLowerInvariant();
         }
-
-        public RequestDelegate GetRequestHandler(HttpContext httpContext, RouteData routeData)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
