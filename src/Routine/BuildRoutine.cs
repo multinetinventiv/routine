@@ -21,9 +21,9 @@ namespace Routine
 {
     public static class BuildRoutine
     {
-        public static ContextBuilder Context(IApplicationBuilder applicationBuilder, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+        public static ContextBuilder Context()
         {
-            return new ContextBuilder(applicationBuilder, httpContextAccessor, memoryCache);
+            return new ContextBuilder();
         }
 
         public static CodingStyleBuilder CodingStyle()
@@ -130,8 +130,22 @@ namespace Routine
 
     public static class BuildRoutineExtensions
     {
-        #region ContextBuilder
+        #region ApplicationBuilder
+        
+        public static IApplicationBuilder UseRoutine(this IApplicationBuilder source, 
+	        Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
+	        Func<CodingStyleBuilder, ICodingStyle> codingStyle
+	    )
+        {
+	        return source.UseMiddleware<RoutineMiddleware>(
+		        BuildRoutine.Context().AsServiceApplication(serviceConfiguration, codingStyle)
+	        );
+        }
 
+        #endregion
+
+        #region ContextBuilder
+        
         public static IServiceContext AsServiceApplication(
             this ContextBuilder source,
             Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,

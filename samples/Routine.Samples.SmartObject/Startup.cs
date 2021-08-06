@@ -20,7 +20,6 @@ namespace Routine.Samples.SmartObject
         {
             services.AddHttpContextAccessor();
             services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
-
             services.AddMemoryCache();
 
             // If using Kestrel:
@@ -37,8 +36,7 @@ namespace Routine.Samples.SmartObject
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
-            IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -46,7 +44,7 @@ namespace Routine.Samples.SmartObject
             }
 
             app.UseRouting();
-            app.UseRoutine(httpContextAccessor, memoryCache, cb => cb.AsServiceApplication(
+            app.UseRoutine(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api"),
                 codingStyle: cs => cs.FromBasic()
@@ -60,15 +58,7 @@ namespace Routine.Samples.SmartObject
                     .Locator.Set(c => c.Locator(l => l.SingleBy(FindSmartObject)).When(t => t.Constructors.Any(ctor => ctor.Parameters.Any())))
                     .Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())))
                     .Override(c => c.Operations.AddNoneWhen(t => t.IsValueType))
-                ));
-
-            // app.UseEndpoints(endpoints =>
-            // {
-            //     endpoints.MapGet("/", async context =>
-            //     {
-            //         await context.Response.WriteAsync("Hello World!");
-            //     });
-            // });
+                );
         }
 
         private object FindSmartObject(IType type, string name)

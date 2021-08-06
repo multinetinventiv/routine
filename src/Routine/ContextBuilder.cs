@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Routine.Api;
+﻿using Routine.Api;
 using Routine.Api.Context;
 using Routine.Client;
 using Routine.Client.Context;
@@ -19,12 +15,6 @@ namespace Routine
 {
     public class ContextBuilder
     {
-        public ContextBuilder(IApplicationBuilder applicationBuilder, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
-        {
-            this.applicationBuilder = applicationBuilder;
-            this.httpContextAccessor = httpContextAccessor;
-            this.memoryCache = memoryCache;
-        }
         public IApiContext AsApiGenerationLocal(IApiConfiguration apiConfiguration, ICodingStyle codingStyle)
         {
             return ApiContext(apiConfiguration, ClientContext(ObjectService(codingStyle)));
@@ -62,7 +52,7 @@ namespace Routine
 
         private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
-            return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle), HandlerFactory(), applicationBuilder);
+            return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle));
         }
 
         private IObjectService ObjectService(ICodingStyle codingStyle)
@@ -92,20 +82,11 @@ namespace Routine
 
             return coreContext;
         }
-
-
-        private Func<IServiceContext, IRoutineRouteHandler> handlerFactory;
-        public ContextBuilder UsingHandlerFactory(Func<IServiceContext, IRoutineRouteHandler> handlerFactory) { this.handlerFactory = handlerFactory; return this; }
-        private Func<IServiceContext, IRoutineRouteHandler> HandlerFactory() => handlerFactory ?? (sc => new RoutineRouteHandler(sc, Serializer(), httpContextAccessor, memoryCache));
-
+        
         private IRestClient restClient = new WebRequestRestClient();
         public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
         private IRestClient RestClient() { return restClient; }
-
-
-        private readonly IApplicationBuilder applicationBuilder;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IMemoryCache memoryCache;
+        
         private IJsonSerializer serializer = new JsonSerializerAdapter();
         public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
         private IJsonSerializer Serializer() { return serializer; }

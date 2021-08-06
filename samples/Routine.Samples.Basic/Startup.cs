@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +8,6 @@ using Routine.Engine;
 using Routine.Engine.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Samples.Basic
 {
@@ -41,8 +37,7 @@ namespace Routine.Samples.Basic
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
-            IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -51,7 +46,7 @@ namespace Routine.Samples.Basic
 
             app.UseRouting();
 
-            app.UseRoutine(httpContextAccessor, memoryCache, cb => cb.AsServiceApplication(
+            app.UseRoutine(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api")
                     .RequestHeaders.Add("Accept-Language"),
@@ -70,7 +65,7 @@ namespace Routine.Samples.Basic
                     .Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
                     .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
-            ));
+            );
 
         }
     }

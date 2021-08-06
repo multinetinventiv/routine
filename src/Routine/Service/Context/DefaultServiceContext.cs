@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Routine.Core;
+﻿using Routine.Core;
 using Routine.Engine;
 
 namespace Routine.Service.Context
@@ -11,13 +9,11 @@ namespace Routine.Service.Context
 		public IObjectService ObjectService { get; }
 		public ICoreContext CoreContext { get; }
 
-		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService, Func<IServiceContext, IRoutineRouteHandler> handlerFactory, IApplicationBuilder applicationBuilder)
+		public DefaultServiceContext(ICoreContext coreContext, IServiceConfiguration serviceConfiguration, IObjectService objectService)
 		{
 			ServiceConfiguration = serviceConfiguration;
 			ObjectService = objectService;
 			CoreContext = coreContext;
-
-			handlerFactory(this).RegisterRoutes(applicationBuilder);
 		}
 
 		public ReferenceData GetObjectReference(object @object)

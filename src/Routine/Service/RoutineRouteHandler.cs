@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Template;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers;
 using System;
@@ -18,10 +17,8 @@ namespace Routine.Service
         private readonly IMemoryCache memoryCache;
         private readonly IServiceContext serviceContext;
         private readonly IJsonSerializer jsonSerializer;
-
-
+        
         public Dictionary<string, Func<IHttpContextAccessor, IRequestHandler>> RequestHandlers { get; }
-
         public List<string> RequestHandlersList => RequestHandlers.Keys.Select(q => q.ToLowerInvariant()).ToList();
 
         public RoutineRouteHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
@@ -30,6 +27,7 @@ namespace Routine.Service
             this.jsonSerializer = jsonSerializer;
             this.httpContextAccessor = httpContextAccessor;
             this.memoryCache = memoryCache;
+
             RequestHandlers = new Dictionary<string, Func<IHttpContextAccessor, IRequestHandler>>();
         }
 
@@ -90,7 +88,6 @@ namespace Routine.Service
 
             applicationBuilder.UseRouter(rootBuilder.Build());
         }
-
 
         private void Add<T>(Func<IHttpContextAccessor, T> factory, IApplicationBuilder applicationBuilder, object defaults = null)
             where T : IRequestHandler
