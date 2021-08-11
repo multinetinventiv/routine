@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Routine.Core.Rest;
 using Routine.Engine;
 using Routine.Engine.Reflection;
 using System.Collections.Generic;
@@ -13,12 +12,9 @@ namespace Routine.Samples.Basic
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
+            services.AddRoutineDependencies();
 
             services.AddMemoryCache();
 
@@ -34,16 +30,13 @@ namespace Routine.Samples.Basic
                 options.AllowSynchronousIO = true;
             });
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseRouting();
 
             app.UseRoutine(
                 serviceConfiguration: sc => sc.FromBasic()
@@ -65,7 +58,6 @@ namespace Routine.Samples.Basic
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
                     .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
             );
-
         }
     }
 
@@ -111,7 +103,7 @@ namespace Routine.Samples.Basic
             var result = Type.CreateInstance();
             var properties = Parameters.Cast<PropertyParameter>().Select(p => p.Property).Cast<PropertyInfo>().ToList();
 
-            for (int i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Length; i++)
             {
                 properties[i].SetValue(result, parameters[i]);
             }

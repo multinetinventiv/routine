@@ -1,25 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Routine.Core.Rest;
 using Routine.Engine;
 using System;
 using System.Linq;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Routine.Samples.SmartObject
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IJsonSerializer, JsonSerializerAdapter>();
+            services.AddRoutineDependencies();
             services.AddMemoryCache();
 
             // If using Kestrel:
@@ -34,8 +28,7 @@ namespace Routine.Samples.SmartObject
                 options.AllowSynchronousIO = true;
             });
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -43,7 +36,6 @@ namespace Routine.Samples.SmartObject
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
             app.UseRoutine(
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api"),
@@ -58,10 +50,10 @@ namespace Routine.Samples.SmartObject
                     .Locator.Set(c => c.Locator(l => l.SingleBy(FindSmartObject)).When(t => t.Constructors.Any(ctor => ctor.Parameters.Any())))
                     .Locator.Set(c => c.Locator(l => l.Singleton(t => t.CreateInstance())))
                     .Override(c => c.Operations.AddNoneWhen(t => t.IsValueType))
-                );
+            );
         }
 
-        private object FindSmartObject(IType type, string name)
+        private static object FindSmartObject(IType type, string name)
         {
             var repoTypeName = type.Name + "s";
             var ti = (TypeInfo)type;

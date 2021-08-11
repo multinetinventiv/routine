@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
+using Routine.Core.Rest;
 using Routine.Engine;
 using Routine.Engine.Configuration;
 using Routine.Engine.Configuration.ConventionBased;
@@ -119,8 +119,17 @@ namespace Routine
 
     public static class BuildRoutineExtensions
     {
-        #region ApplicationBuilder
-        
+        #region AspNetCore
+
+        public static IServiceCollection AddRoutineDependencies(this IServiceCollection source) { return source.AddRoutineDependencies<JsonSerializerAdapter>(); }
+        public static IServiceCollection AddRoutineDependencies<TJsonSerializer>(this IServiceCollection source) where TJsonSerializer : class, IJsonSerializer
+        {
+            return source
+                .AddHttpContextAccessor()
+                .AddSingleton<IJsonSerializer, TJsonSerializer>()
+            ;
+        }
+
         public static IApplicationBuilder UseRoutine(this IApplicationBuilder source, 
 	        Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
 	        Func<CodingStyleBuilder, ICodingStyle> codingStyle
