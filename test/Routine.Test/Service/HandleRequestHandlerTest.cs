@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Routine.Test.Service
 {
-	[TestFixture]
+    [TestFixture]
     public class HandleRequestHandlerTest : CoreTestBase
     {
         #region SetUp & Helpers
@@ -43,7 +43,7 @@ namespace Routine.Test.Service
         private IApplicationBuilder applicationBuilder;
         private Mock<IFeatureCollection> featureCollection;
         private Mock<IHttpResponseFeature> httpResponseFeature;
-        private IJsonSerializer serializer = new JsonSerializerAdapter();
+        private IJsonSerializer serializer;
 
         public override void SetUp()
         {
@@ -65,6 +65,7 @@ namespace Routine.Test.Service
             responseHeaders = new HeaderDictionary();
             requestQueryString = new QueryString();
             requestQuery = new QueryCollection();
+            serializer = new JsonSerializerAdapter();
 
             serviceContext.Setup(sc => sc.ObjectService).Returns(objectService.Object);
             config = BuildRoutine.ServiceConfig().FromBasic();
@@ -100,10 +101,11 @@ namespace Routine.Test.Service
             httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>()).Returns(httpResponseFeature.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
 
-            var routeHandler = new RoutineRouteHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, applicationBuilder);
-            routeHandler.RegisterRoutes();
-
-            testing = routeHandler.HandleRequestHandler;
+            testing = new HandleRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache,
+                actionFactory: resolution => resolution.HasOperation
+                    ? new DoRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, resolution)
+                    : new GetRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, resolution)
+            );
 
             Assert.IsNotNull(testing);
         }
@@ -145,30 +147,30 @@ namespace Routine.Test.Service
         #endregion
 
         [Test]
-        public void When_operation_is_not_given__interprets_the_call_as_a_get_request()
+        public async Task When_operation_is_not_given__interprets_the_call_as_a_get_request()
         {
             ModelsAre(Model("model"));
             ObjectsAre(Object(Id("3", "model")));
 
-            testing.Handle("model", "3", null, null);
+            await testing.Handle("model", "3", null, null);
 
             objectService.Verify(os => os.Get(Id("3", "model")));
         }
 
         [Test]
-        public void When_operation_is_given__interprets_the_call_as_a_do_request()
+        public async Task When_operation_is_given__interprets_the_call_as_a_do_request()
         {
             ModelsAre(
                 Model("model").Operation("action", true)
             );
 
-            testing.Handle("model", "3", "action", null);
+            await testing.Handle("model", "3", "action", null);
 
             objectService.Verify(os => os.Do(Id("3", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(p => p.Count == 0)));
         }
 
         [Test]
-        public void All_resolution_cases()
+        public async Task All_resolution_cases()
         {
             ModelsAre(
                 Model("model").ViewModelIds("viewmodel", "prefix.viewmodel2").Operation("action"),
@@ -187,101 +189,101 @@ namespace Routine.Test.Service
             );
 
             // /modelId
-            testing.Handle("model", null, null, null);
+            await testing.Handle("model", null, null, null);
             objectService.Verify(os => os.Get(Id(null, "model")));
 
             // /modelId-short
-            testing.Handle("model2", null, null, null);
+            await testing.Handle("model2", null, null, null);
             objectService.Verify(os => os.Get(Id(null, "prefix.model2")));
 
             // /modelId/id
-            testing.Handle("model", "instance", null, null);
+            await testing.Handle("model", "instance", null, null);
             objectService.Verify(os => os.Get(Id("instance", "model")));
 
             // /modelId-short/id
-            testing.Handle("model2", "instance", null, null);
+            await testing.Handle("model2", "instance", null, null);
             objectService.Verify(os => os.Get(Id("instance", "prefix.model2")));
 
             // /modelId/viewModelId
-            testing.Handle("model", "viewmodel", null, null);
+            await testing.Handle("model", "viewmodel", null, null);
             objectService.Verify(os => os.Get(Id(null, "model", "viewmodel")));
 
             // /modelId-short/viewModelId
-            testing.Handle("model2", "viewmodel", null, null);
+            await testing.Handle("model2", "viewmodel", null, null);
             objectService.Verify(os => os.Get(Id(null, "prefix.model2", "viewmodel")));
 
             // /modelId/viewModelId-short
-            testing.Handle("model", "viewmodel2", null, null);
+            await testing.Handle("model", "viewmodel2", null, null);
             objectService.Verify(os => os.Get(Id(null, "model", "prefix.viewmodel2")));
 
             // /modelId-short/viewModelId-short
-            testing.Handle("model2", "viewmodel2", null, null);
+            await testing.Handle("model2", "viewmodel2", null, null);
             objectService.Verify(os => os.Get(Id(null, "prefix.model2", "prefix.viewmodel2")));
 
             // /modelId/operation
-            testing.Handle("model", "action", null, null);
+            await testing.Handle("model", "action", null, null);
             objectService.Verify(os => os.Do(Id(null, "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/operation
-            testing.Handle("model2", "action", null, null);
+            await testing.Handle("model2", "action", null, null);
             objectService.Verify(os => os.Do(Id(null, "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId
-            testing.Handle("model", "instance", "viewmodel", null);
+            await testing.Handle("model", "instance", "viewmodel", null);
             objectService.Verify(os => os.Get(Id("instance", "model", "viewmodel")));
 
             // /modelId-short/id/viewModelId
-            testing.Handle("model2", "instance", "viewmodel", null);
+            await testing.Handle("model2", "instance", "viewmodel", null);
             objectService.Verify(os => os.Get(Id("instance", "prefix.model2", "viewmodel")));
 
             // /modelId/id/viewModelId-short
-            testing.Handle("model", "instance", "viewmodel2", null);
+            await testing.Handle("model", "instance", "viewmodel2", null);
             objectService.Verify(os => os.Get(Id("instance", "model", "prefix.viewmodel2")));
 
             // /modelId-short/id/viewModelId-short
-            testing.Handle("model2", "instance", "viewmodel2", null);
+            await testing.Handle("model2", "instance", "viewmodel2", null);
             objectService.Verify(os => os.Get(Id("instance", "prefix.model2", "prefix.viewmodel2")));
 
             // /modelId/id/operation
-            testing.Handle("model", "instance", "action", null);
+            await testing.Handle("model", "instance", "action", null);
             objectService.Verify(os => os.Do(Id("instance", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/operation
-            testing.Handle("model2", "instance", "action", null);
+            await testing.Handle("model2", "instance", "action", null);
             objectService.Verify(os => os.Do(Id("instance", "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId/operation
-            testing.Handle("model", "instance", "viewmodel", "action");
+            await testing.Handle("model", "instance", "viewmodel", "action");
             objectService.Verify(os => os.Do(Id("instance", "model", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/viewModelId/operation
-            testing.Handle("model2", "instance", "viewmodel", "action");
+            await testing.Handle("model2", "instance", "viewmodel", "action");
             objectService.Verify(os => os.Do(Id("instance", "prefix.model2", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId-short/operation
-            testing.Handle("model", "instance", "viewmodel2", "action");
+            await testing.Handle("model", "instance", "viewmodel2", "action");
             objectService.Verify(os => os.Do(Id("instance", "model", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/viewModelId-short/operation
-            testing.Handle("model2", "instance", "viewmodel2", "action");
+            await testing.Handle("model2", "instance", "viewmodel2", "action");
             objectService.Verify(os => os.Do(Id("instance", "prefix.model2", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
         }
 
         [Test]
-        public void GET_method_is_available_for_get_actions()
+        public async Task GET_method_is_available_for_get_actions()
         {
             ModelsAre(Model("model"));
             ObjectsAre(Object(Id("3", "model")));
 
             request.Setup(r => r.Method).Returns("GET");
 
-            testing.Handle("model", "3", null, null);
+            await testing.Handle("model", "3", null, null);
 
             objectService.Verify(os => os.Get(Id("3", "model")));
         }
 
         [Test]
-        public void GET_method_is_available_for_only_configured_do_actions()
+        public async Task GET_method_is_available_for_only_configured_do_actions()
         {
             request.Setup(r => r.Method).Returns("GET");
 
@@ -295,30 +297,30 @@ namespace Routine.Test.Service
             );
             ObjectsAre(Object(Id("3", "model")));
 
-            testing.Handle("model", "3", "get", null);
+            await testing.Handle("model", "3", "get", null);
 
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
-            testing.Handle("model", "3", "post", null);
+            await testing.Handle("model", "3", "post", null);
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
         }
 
         [Test]
-        public void Only_GET_and_POST_methods_are_supported()
+        public async Task Only_GET_and_POST_methods_are_supported()
         {
             ModelsAre(
                 Model("model").Operation("action")
             );
 
             request.Setup(r => r.Method).Returns("DELETE");
-            testing.Handle("model", "action", null, null);
+            await testing.Handle("model", "action", null, null);
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
             request.Setup(r => r.Method).Returns("PUT");
-            testing.Handle("model", "action", null, null);
+            await testing.Handle("model", "action", null, null);
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
@@ -327,9 +329,9 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void When_given_model_id_does_not_exist__returns_404()
+        public async Task When_given_model_id_does_not_exist__returns_404()
         {
-            testing.Handle("nonexistingmodel", null, null, null);
+            await testing.Handle("nonexistingmodel", null, null, null);
 
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
@@ -337,11 +339,11 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void When_given_model_id_is_not_full_id_and_there_are_more_than_one_model_with_similar_name__returns_404()
+        public async Task When_given_model_id_is_not_full_id_and_there_are_more_than_one_model_with_similar_name__returns_404()
         {
             ModelsAre(Model("prefix1.model"), Model("prefix2.model"));
 
-            testing.Handle("model", null, null, null);
+            await testing.Handle("model", null, null, null);
 
             var statusDescription = httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString();
 
@@ -352,7 +354,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void When_given_parameters_contains_a_non_existing_model_id__returns_404()
+        public async Task When_given_parameters_contains_a_non_existing_model_id__returns_404()
         {
             ModelsAre(
                 Model("model").Operation("action", PModel("arg", "model"))
@@ -360,7 +362,7 @@ namespace Routine.Test.Service
 
             SetUpRequestBody("{\"arg\":{\"ModelId\":\"nonexistingmodel\",\"Data\":{\"arg\":null}}}");
 
-            testing.Handle("model", "action", null, null);
+            await testing.Handle("model", "action", null, null);
 
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
@@ -369,7 +371,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void When_body_cannot_be_deserialized__returns_BadRequest()
+        public async Task When_body_cannot_be_deserialized__returns_BadRequest()
         {
             ModelsAre(
                 Model("model").Operation("action")
@@ -377,14 +379,14 @@ namespace Routine.Test.Service
 
             SetUpRequestBody("{");
 
-            testing.Handle("model", "action", null, null);
+            await testing.Handle("model", "action", null, null);
 
             Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
             Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
         }
 
         [Test]
-        public void Request_headers_are_processed_for_each_get()
+        public async Task Request_headers_are_processed_for_each_get()
         {
             var header = new Mock<IHeaderProcessor>();
 
@@ -396,7 +398,7 @@ namespace Routine.Test.Service
             config.RequestHeaders.Add("test");
             config.RequestHeaderProcessors.Add(header.Object);
 
-            testing.Handle("model", "3", null, null);
+            await testing.Handle("model", "3", null, null);
 
             header.Verify(h => h.Process(It.Is<Dictionary<string, string>>(d =>
                 d.ContainsKey("test") && d["test"] == "value"
@@ -404,7 +406,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Request_headers_are_processed_for_each_do()
+        public async Task Request_headers_are_processed_for_each_do()
         {
             var header = new Mock<IHeaderProcessor>();
 
@@ -416,7 +418,7 @@ namespace Routine.Test.Service
             config.RequestHeaders.Add("test");
             config.RequestHeaderProcessors.Add(header.Object);
 
-            testing.Handle("model", "3", "action", null);
+            await testing.Handle("model", "3", "action", null);
 
             header.Verify(h => h.Process(It.Is<Dictionary<string, string>>(d =>
                 d.ContainsKey("test") && d["test"] == "value"
@@ -424,7 +426,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Request_headers_are_not_processed_before_validation_for_do_requests()
+        public async Task Request_headers_are_not_processed_before_validation_for_do_requests()
         {
             var header = new Mock<IHeaderProcessor>();
 
@@ -433,13 +435,13 @@ namespace Routine.Test.Service
             config.RequestHeaders.Add("test");
             config.RequestHeaderProcessors.Add(header.Object);
 
-            testing.Handle("model", "3", "action", null);
+            await testing.Handle("model", "3", "action", null);
 
             header.Verify(h => h.Process(It.IsAny<Dictionary<string, string>>()), Times.Never());
         }
 
         [Test]
-        public void Configured_response_headers_are_put_into_response_headers()
+        public async Task Configured_response_headers_are_put_into_response_headers()
         {
             config.ResponseHeaders.Add("test");
             config.ResponseHeaderValue.Set("value", "test");
@@ -447,13 +449,13 @@ namespace Routine.Test.Service
             ModelsAre(Model("model"));
             ObjectsAre(Object(Id("3", "model")));
 
-            testing.Handle("model", "3", null, null);
+            await testing.Handle("model", "3", null, null);
 
             Assert.AreEqual("value", responseHeaders["test"]);
         }
 
         [Test]
-        public void Compress_for_do_result_viewmodel()
+        public async Task Compress_for_do_result_viewmodel()
         {
             ModelsAre(
                 Model("model").Operation("action", "viewmodel").ViewModelIds("viewmodel"),
@@ -472,7 +474,7 @@ namespace Routine.Test.Service
                 }
             });
 
-            testing.Handle("model", "2", "action", null);
+            await testing.Handle("model", "2", "action", null);
             var body = "{" +
                        "\"Id\":\"2\"," +
                        "\"Display\":\"model 2\"," +
@@ -491,7 +493,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Compress_for_do_result_model()
+        public async Task Compress_for_do_result_model()
         {
             ModelsAre(
                 Model("model").Operation("action", "model").Data("data", "string"),
@@ -509,9 +511,7 @@ namespace Routine.Test.Service
                 }
             });
 
-
-
-            testing.Handle("model", "2", "action", null);
+            await testing.Handle("model", "2", "action", null);
             var body = "{" +
                        "\"Id\":\"2\"," +
                        "\"Display\":\"model 2\"," +
@@ -529,7 +529,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Decompress_for_parameterviewmodel()
+        public async Task Decompress_for_parameterviewmodel()
         {
             ModelsAre(
                 Model("model").Operation("action", PModel("arg", "model"))
@@ -537,7 +537,7 @@ namespace Routine.Test.Service
 
             SetUpRequestBody("{\"arg\":\"3\"}");
 
-            testing.Handle("model", "2", "action", null);
+            await testing.Handle("model", "2", "action", null);
 
             objectService.Verify(os => os.Do(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
                 pvd.ContainsKey("arg") &&
@@ -549,7 +549,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Compress_for_get_model()
+        public async Task Compress_for_get_model()
         {
             ModelsAre(
                 Model("model").Data("data", "string"),
@@ -562,7 +562,7 @@ namespace Routine.Test.Service
                 .Data("data", Id("text", "string"))
             );
 
-            testing.Handle("model", "3", null, null);
+            await testing.Handle("model", "3", null, null);
             var body = "{" +
                        "\"Id\":\"3\"," +
                        "\"Display\":\"display\"," +
@@ -579,7 +579,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Compress_for_get_viewmodel()
+        public async Task Compress_for_get_viewmodel()
         {
             ModelsAre(
                 Model("model").ViewModelIds("viewmodel"),
@@ -593,7 +593,7 @@ namespace Routine.Test.Service
                 .Data("data", Id("text", "string"))
             );
 
-            testing.Handle("model", "3", "viewmodel", null);
+            await testing.Handle("model", "3", "viewmodel", null);
             var body = "{" +
                        "\"Id\":\"3\"," +
                        "\"Display\":\"display\"," +
@@ -611,7 +611,7 @@ namespace Routine.Test.Service
         }
 
         [Test]
-        public void Ignore_nonexisting_parameter()
+        public async Task Ignore_nonexisting_parameter()
         {
             ModelsAre(
                 Model("model").Operation("action")
@@ -619,7 +619,7 @@ namespace Routine.Test.Service
 
             SetUpRequestBody("{\"arg\":\"3\"}");
 
-            testing.Handle("model", "2", "action", null);
+            await testing.Handle("model", "2", "action", null);
 
             objectService.Verify(os => os.Do(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
                 pvd.Count == 0

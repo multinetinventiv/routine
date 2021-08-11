@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Routine.Core;
@@ -13,7 +13,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -47,10 +46,9 @@ namespace Routine.Service.RequestHandlers
 
         #endregion
 
-        public abstract void WriteResponse();
+        public abstract Task WriteResponse();
 
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
-        protected RouteData RouteData => HttpContext.GetRouteData();
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
@@ -108,13 +106,13 @@ namespace Routine.Service.RequestHandlers
             HttpContext.Response.Headers["X-Status-Description"] = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
         }
 
-        protected virtual void WriteFileResponse(string path)
+        protected virtual async Task WriteFileResponse(string path)
         {
             var stream = GetStream(path);
 
             var sr = new StreamReader(stream);
 
-            var fileContent = sr.ReadToEnd();
+            var fileContent = await sr.ReadToEndAsync();
             sr.Close();
             stream.Close();
 
@@ -122,23 +120,21 @@ namespace Routine.Service.RequestHandlers
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-            HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(fileContent));
+            await HttpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(fileContent));
         }
 
-        protected virtual void WriteFontResponse(string fileName)
+        protected virtual async Task WriteFontResponse(string fileName)
         {
             var stream = GetStream("assets/fonts/" + fileName);
-
             var outputStream = new MemoryStream { Position = 0 };
 
-
-            using (stream)
+            await using (stream)
             {
                 var buffer = new byte[BUFFER_SIZE];
 
                 while (true)
                 {
-                    var bytesRead = stream.Read(buffer, 0, BUFFER_SIZE);
+                    var bytesRead = await stream.ReadAsync(buffer, 0, BUFFER_SIZE);
                     if (bytesRead == 0)
                     {
                         break;
@@ -151,14 +147,11 @@ namespace Routine.Service.RequestHandlers
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
 
-            Task.Run(async () =>
-            {
-                await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
-                HttpContext.Response.Body.Flush();
-            }).Wait(CancellationToken.None);
+            await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
+			await HttpContext.Response.Body.FlushAsync();
         }
 
-        protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
+        protected virtual async Task WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
             if (clearError)
             {
@@ -173,7 +166,7 @@ namespace Routine.Service.RequestHandlers
 
             if (result != null)
             {
-                HttpContext.Response.Body.Write(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
+                await HttpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }
 

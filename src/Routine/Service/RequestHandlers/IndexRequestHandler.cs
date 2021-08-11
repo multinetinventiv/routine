@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -9,9 +10,9 @@ namespace Routine.Service.RequestHandlers
         public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
             : base(serviceContext, jsonSerializer, httpContextAccessor,memoryCache) { }
 
-        public override void WriteResponse()
+        public override async Task WriteResponse()
         {
-            WriteFileResponse("vue/index.html");
+            await WriteFileResponse("vue/index.html");
         }
     }
 }

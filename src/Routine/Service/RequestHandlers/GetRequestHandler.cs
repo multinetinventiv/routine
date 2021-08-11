@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers.Helper;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
-	public class GetRequestHandler : ObjectServiceRequestHandlerBase
+    public class GetRequestHandler : ObjectServiceRequestHandlerBase
 	{
 		private readonly Resolution resolution;
 
@@ -17,12 +18,12 @@ namespace Routine.Service.RequestHandlers
 
 		protected override bool AllowGet => true;
 
-		protected override void Process()
+		protected override async Task Process()
 		{
 			var objectData = ServiceContext.ObjectService.Get(resolution.Reference);
 			var compressor = new DataCompressor(ApplicationModel, resolution.Reference.ViewModelId);
 
-			WriteJsonResponse(compressor.Compress(objectData));
+			await WriteJsonResponse(compressor.Compress(objectData));
 		}
 	}
 }

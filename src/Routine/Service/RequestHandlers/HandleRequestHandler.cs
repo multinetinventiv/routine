@@ -6,50 +6,39 @@ using Routine.Service.RequestHandlers.Exceptions;
 using Routine.Service.RequestHandlers.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
     public class HandleRequestHandler : RequestHandlerBase
     {
         private readonly Func<Resolution, IRequestHandler> actionFactory;
-        private readonly string modelIdRouteKey;
-        private readonly string idOrViewModelIdOrOperationRouteKey;
-        private readonly string viewModelIdOrOperationRouteKey;
-        private readonly string operationRouteKey;
 
         public HandleRequestHandler(
             IServiceContext serviceContext,
             IJsonSerializer jsonSerializer,
             IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
-            Func<Resolution, IRequestHandler> actionFactory,
-            string modelIdRouteKey,
-            string idOrViewModelIdOrOperationRouteKey,
-            string viewModelIdOrOperationRouteKey,
-            string operationRouteKey
+            Func<Resolution, IRequestHandler> actionFactory
         )
             : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache)
         {
             this.actionFactory = actionFactory;
-            this.modelIdRouteKey = modelIdRouteKey;
-            this.idOrViewModelIdOrOperationRouteKey = idOrViewModelIdOrOperationRouteKey;
-            this.viewModelIdOrOperationRouteKey = viewModelIdOrOperationRouteKey;
-            this.operationRouteKey = operationRouteKey;
         }
 
-        public override void WriteResponse()
+        public override async Task WriteResponse()
         {
-            var routeData = RouteData;
+            var pathItems = $"{HttpContext.Request.Path}".After($"{UrlBase}").Trim('/').Split('/');
 
-            Handle(
-                modelId: $"{routeData.Values[modelIdRouteKey]}",
-                idOrViewModelIdOrOperation: $"{routeData.Values[idOrViewModelIdOrOperationRouteKey]}",
-                viewModelIdOrOperation: $"{routeData.Values[viewModelIdOrOperationRouteKey]}",
-                operation: $"{routeData.Values[operationRouteKey]}"
+            await Handle(
+                modelId: $"{(pathItems.Length > 0 ? pathItems[0] : null)}",
+                idOrViewModelIdOrOperation: $"{(pathItems.Length > 1 ? pathItems[1] : null)}",
+                viewModelIdOrOperation: $"{(pathItems.Length > 2 ? pathItems[2] : null)}",
+                operation: $"{(pathItems.Length > 3 ? pathItems[3] : null)}"
             );
         }
 
-        internal void Handle(string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
+        internal async Task Handle(string modelId, string idOrViewModelIdOrOperation, string viewModelIdOrOperation, string operation)
         {
             if (modelId == null) { throw new InvalidOperationException("Handle action does not handle request when modelId is null. Please check your route configuration, handle action should only be called when modelId is available."); }
 
@@ -79,7 +68,7 @@ namespace Routine.Service.RequestHandlers
                 return;
             }
 
-            actionFactory(Resolve(
+            await actionFactory(Resolve(
                 model: model,
                 idOrViewModelIdOrOperation: idOrViewModelIdOrOperation,
                 viewModelIdOrOperation: viewModelIdOrOperation,

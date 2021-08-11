@@ -1,23 +1,24 @@
-﻿using System;
-using System.Linq;
-using System.Web;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Routine.Service.RequestHandlers
 {
-	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
+    public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
 		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
 			: base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache) { }
 
 		protected abstract bool AllowGet { get; }
-		protected abstract void Process();
+		protected abstract Task Process();
 
-		public sealed override void WriteResponse()
+		public sealed override async Task WriteResponse()
 		{
 			if (!IsPost && !IsGet) { MethodNotAllowed(AllowGet); return; }
 			if (IsGet && !AllowGet) { MethodNotAllowed(false); return; }
@@ -26,7 +27,7 @@ namespace Routine.Service.RequestHandlers
                 
 			try
 			{
-				Process();
+				await Process();
 			}
 			catch (TypeNotFoundException ex)
 			{
@@ -42,7 +43,7 @@ namespace Routine.Service.RequestHandlers
 			}
 			catch (Exception ex)
 			{
-				WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
+				await WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
 
 				return;
 			}

@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
 using Routine.Service.RequestHandlers.Helper;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -23,7 +24,7 @@ namespace Routine.Service.RequestHandlers
         }
 
         protected override bool AllowGet => ServiceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
-        protected override void Process()
+        protected override async Task Process()
         {
             var appModel = ApplicationModel;
 
@@ -50,7 +51,7 @@ namespace Routine.Service.RequestHandlers
             var variableData = ServiceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
             var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
-            WriteJsonResponse(compressor.Compress(variableData));
+            await WriteJsonResponse(compressor.Compress(variableData));
         }
 
         private IDictionary<string, object> GetParameterDictionary()
@@ -68,6 +69,7 @@ namespace Routine.Service.RequestHandlers
             {
                 return new Dictionary<string, object>();
             }
+
             return JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
         }
     }
