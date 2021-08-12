@@ -1,22 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using Fasterflect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
 using Routine.Core.Cache;
 using Routine.Engine;
 using Routine.Test.Performance.Domain;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 
 #region Test Model
 
@@ -87,7 +79,7 @@ namespace Routine.Test.Performance.Domain
         {
             unchecked
             {
-                int hashCode = (Str != null ? Str.GetHashCode() : 0);
+                var hashCode = (Str != null ? Str.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ Int;
                 hashCode = (hashCode * 397) ^ (Str2 != null ? Str2.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Str3 != null ? Str3.GetHashCode() : 0);
@@ -110,24 +102,14 @@ namespace Routine.Test.Performance
 
         private Dictionary<string, object> objectRepository;
         
-        private Mock<IHttpContextAccessor> httpContextAccessor;
         private ICodingStyle codingStyle;
         private IObjectService objectService;
         private Rapplication rapp;
-        private IApplicationBuilder applicationBuilder;
 
         [SetUp]
         public void SetUp()
         {
             objectRepository = new Dictionary<string, object>();
-
-
-            var webHostBuilder = new WebHostBuilder().UseStartup<Startup>();
-            new TestServer(webHostBuilder);
-            applicationBuilder = Startup.applicationBuilder;
-            var memoryCache = applicationBuilder.ApplicationServices.GetService<IMemoryCache>();
-
-            httpContextAccessor = new Mock<IHttpContextAccessor>();
 
             var apiCtx = BuildRoutine.Context()
                 .UsingCache(new DictionaryCache())
@@ -135,7 +117,7 @@ namespace Routine.Test.Performance
                     codingStyle = BuildRoutine.CodingStyle()
                         .FromBasic()
                         .AddCommonSystemTypes()
-                        .AddTypes(GetType().Assembly, t => t.Namespace.StartsWith("Routine.Test.Performance.Domain"))
+                        .AddTypes(GetType().Assembly, t => t.Namespace?.StartsWith("Routine.Test.Performance.Domain") == true)
 
                         .Use(p => p.ParseableValueTypePattern())
 
@@ -145,7 +127,7 @@ namespace Routine.Test.Performance
                         .Operations.Add(c => c.Methods(o => !o.IsInherited(true, true)))
                         .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<int>("Id")))
                         .Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
-                        .ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))))
+                        .ValueExtractor.Set(c => c.Value(e => e.By(o => $"{o}")))
                 );
 
             objectService = apiCtx.ObjectService;
@@ -190,11 +172,6 @@ namespace Routine.Test.Performance
             return result;
         }
 
-        private double Run(string name, Action testAction)
-        {
-            return Run(name, testAction, 1);
-        }
-
         private double Run(string name, Action testAction, int count)
         {
             //first call is not included to let it do its inital loading & caching etc.
@@ -231,12 +208,6 @@ namespace Routine.Test.Performance
 
             Console.WriteLine("-------");
 
-            var accessor = obj.GetType().GetProperty("Id").DelegateForGetPropertyValue();
-            Run("Fasterflect Cached Access", () =>
-                {
-                    var name = accessor(obj);
-                }, load);
-
             var rprop = obj.GetTypeInfo().GetProperty("Id");
             Run("Routine.Core.Reflection Cached Access", () =>
             {
@@ -253,10 +224,6 @@ namespace Routine.Test.Performance
             Run("Routine.Core.Reflection Access", () =>
                 {
                     var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-                }, load);
-            Run("Fasterflect Access", () =>
-                {
-                    var name = obj.GetType().Property("Id").Get(obj);
                 }, load);
             Run("System.Reflection Access", () =>
                 {
@@ -782,8 +749,7 @@ namespace Routine.Test.Performance
             Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
             Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
         }
-
-        [Ignore("")]
+        
         [TestCase(10, 10)]
         [TestCase(10, 100)]
         [TestCase(10, 1000)]
@@ -1065,25 +1031,6 @@ namespace Routine.Test.Performance
             Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
             Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
         }
-    }
-
-    public class Startup
-    {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddHttpContextAccessor();
-            services.AddRouting();
-            services.AddMemoryCache();
-            services.BuildServiceProvider();
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
-        {
-            app.UseRouting();
-            applicationBuilder = app;
-        }
-
-        public static IApplicationBuilder applicationBuilder;
     }
 }
 
