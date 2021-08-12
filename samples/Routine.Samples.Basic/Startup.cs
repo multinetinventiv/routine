@@ -16,8 +16,6 @@ namespace Routine.Samples.Basic
         {
             services.AddRoutineDependencies();
 
-            services.AddMemoryCache();
-
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>
             {

@@ -1,10 +1,5 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -40,7 +35,6 @@ namespace Routine.Test.Service
         private IQueryCollection requestQuery;
         private HandleRequestHandler testing;
         private ConventionBasedServiceConfiguration config;
-        private IApplicationBuilder applicationBuilder;
         private Mock<IFeatureCollection> featureCollection;
         private Mock<IHttpResponseFeature> httpResponseFeature;
         private IJsonSerializer serializer;
@@ -48,11 +42,7 @@ namespace Routine.Test.Service
         public override void SetUp()
         {
             base.SetUp();
-
-            var webHostBuilder = new WebHostBuilder().UseStartup<Startup>();
-            new TestServer(webHostBuilder);
-            applicationBuilder = Startup.applicationBuilder;
-            var memoryCache = applicationBuilder.ApplicationServices.GetService<IMemoryCache>();
+            
             httpContextAccessor = new Mock<IHttpContextAccessor>();
             var httpContext = new Mock<HttpContext>();
             serviceContext = new Mock<IServiceContext>();
@@ -101,13 +91,12 @@ namespace Routine.Test.Service
             httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>()).Returns(httpResponseFeature.Object);
             httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
 
-            testing = new HandleRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache,
+            RequestHandlerBase.ClearModelIndex();
+            testing = new HandleRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object,
                 actionFactory: resolution => resolution.HasOperation
-                    ? new DoRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, resolution)
-                    : new GetRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, memoryCache, resolution)
+                    ? new DoRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, resolution)
+                    : new GetRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, resolution)
             );
-
-            Assert.IsNotNull(testing);
         }
 
         protected ObjectStubber When(ReferenceData referenceData)
@@ -646,25 +635,6 @@ namespace Routine.Test.Service
         {
             Assert.Fail("not implemented");
         }
-    }
-
-    public class Startup
-    {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddHttpContextAccessor();
-            services.AddRouting();
-            services.AddMemoryCache();
-            services.BuildServiceProvider();
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
-        {
-            app.UseRouting();
-            applicationBuilder = app;
-        }
-
-        public static IApplicationBuilder applicationBuilder;
     }
 }
 

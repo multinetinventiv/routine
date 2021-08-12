@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers.Exceptions;
@@ -18,10 +17,9 @@ namespace Routine.Service.RequestHandlers
             IServiceContext serviceContext,
             IJsonSerializer jsonSerializer,
             IHttpContextAccessor httpContextAccessor,
-            IMemoryCache memoryCache,
             Func<Resolution, IRequestHandler> actionFactory
         )
-            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache)
+            : base(serviceContext, jsonSerializer, httpContextAccessor)
         {
             this.actionFactory = actionFactory;
         }

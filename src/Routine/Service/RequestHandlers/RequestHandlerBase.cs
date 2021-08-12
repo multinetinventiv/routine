@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Routine.Core;
 using Routine.Core.Rest;
@@ -23,9 +22,8 @@ namespace Routine.Service.RequestHandlers
         private const int CACHE_DURATION = 60;
         private const int BUFFER_SIZE = 0x1000;
         protected const string JSON_CONTENT_TYPE = "application/json";
-        protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
-        private static readonly object CACHE_LOCK_OBJECT = new object();
-        private const string MODEL_INDEX_CACHE_KEY = "Routine.RequestHandler.ModelIndex";
+        protected static readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
+        private static readonly object MODEL_INDEX_LOCK = new();
 
         #endregion
 
@@ -34,14 +32,12 @@ namespace Routine.Service.RequestHandlers
         protected IServiceContext ServiceContext { get; }
         protected IJsonSerializer JsonSerializer { get; }
         protected IHttpContextAccessor HttpContextAccessor { get; }
-        protected IMemoryCache MemoryCache { get; }
 
-        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
         {
             ServiceContext = serviceContext;
             JsonSerializer = jsonSerializer;
             HttpContextAccessor = httpContextAccessor;
-            MemoryCache = memoryCache;
         }
 
         #endregion
@@ -54,26 +50,32 @@ namespace Routine.Service.RequestHandlers
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
+        
+        private static volatile Dictionary<string, List<ObjectModel>> modelIndex;
+        public static void ClearModelIndex()
+        {
+            lock (MODEL_INDEX_LOCK)
+            {
+                modelIndex = null;
+            }
+        }
 
         protected Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
-                HttpContext.Items.TryGetValue(MODEL_INDEX_CACHE_KEY, out var result);
-                if (result != null) { return (Dictionary<string, List<ObjectModel>>)result; }
-                lock (CACHE_LOCK_OBJECT)
+                if (modelIndex == null)
                 {
-	                result = MemoryCache.GetOrCreate(MODEL_INDEX_CACHE_KEY, cache =>
-	                {
-		                cache.AbsoluteExpiration = DateTimeOffset.MaxValue;
-
-		                return BuildModelIndex();
-	                });
-
-                    HttpContext.Items.Add(MODEL_INDEX_CACHE_KEY, result);
+                    lock (MODEL_INDEX_LOCK)
+                    {
+                        if (modelIndex == null)
+                        {
+                            modelIndex = BuildModelIndex();
+                        }
+                    }
                 }
 
-                return (Dictionary<string, List<ObjectModel>>)result;
+                return modelIndex;
             }
         }
 

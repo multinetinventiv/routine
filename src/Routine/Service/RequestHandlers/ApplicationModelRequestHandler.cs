@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 using System.Threading.Tasks;
 
@@ -7,8 +6,8 @@ namespace Routine.Service.RequestHandlers
 {
     public class ApplicationModelRequestHandler : RequestHandlerBase
 	{
-		public ApplicationModelRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
-			: base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache) { }
+		public ApplicationModelRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
 		public override async Task WriteResponse()
 		{

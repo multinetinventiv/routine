@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
@@ -17,8 +16,8 @@ namespace Routine.Service.RequestHandlers
     {
         private readonly Resolution resolution;
 
-        public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, Resolution resolution)
-            : base(serviceContext, jsonSerializer, httpContextAccessor, memoryCache)
+        public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, Resolution resolution)
+            : base(serviceContext, jsonSerializer, httpContextAccessor)
         {
             this.resolution = resolution;
         }

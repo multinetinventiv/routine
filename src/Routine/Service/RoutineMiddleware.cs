@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Routine.Core.Rest;
 using Routine.Service.RequestHandlers;
 using System.Text.RegularExpressions;
@@ -19,20 +18,20 @@ namespace Routine.Service
 		private readonly ApplicationModelRequestHandler applicationModelHandler;
 		private readonly HandleRequestHandler handleHandler;
 
-		public RoutineMiddleware(RequestDelegate next, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, IJsonSerializer jsonSerializer, IServiceContext serviceContext)
+		public RoutineMiddleware(RequestDelegate next, IHttpContextAccessor httpContextAccessor, IJsonSerializer jsonSerializer, IServiceContext serviceContext)
 		{
 			this.next = next;
 
 			rootPath = serviceContext.ServiceConfiguration.GetPath();
-			indexHandler = new IndexRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-			fileHandler = new FileRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-			fontsHandler = new FontsRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-			configurationHandler = new ConfigurationRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-			applicationModelHandler = new ApplicationModelRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache);
-			handleHandler = new HandleRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache,
+			indexHandler = new IndexRequestHandler(serviceContext, jsonSerializer, httpContextAccessor);
+			fileHandler = new FileRequestHandler(serviceContext, jsonSerializer, httpContextAccessor);
+			fontsHandler = new FontsRequestHandler(serviceContext, jsonSerializer, httpContextAccessor);
+			configurationHandler = new ConfigurationRequestHandler(serviceContext, jsonSerializer, httpContextAccessor);
+			applicationModelHandler = new ApplicationModelRequestHandler(serviceContext, jsonSerializer, httpContextAccessor);
+			handleHandler = new HandleRequestHandler(serviceContext, jsonSerializer, httpContextAccessor,
 				actionFactory: resolution => resolution.HasOperation
-					? new DoRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache, resolution)
-					: new GetRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, memoryCache, resolution)
+					? new DoRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, resolution)
+					: new GetRequestHandler(serviceContext, jsonSerializer, httpContextAccessor, resolution)
 			);
 		}
 

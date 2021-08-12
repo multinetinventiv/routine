@@ -14,7 +14,6 @@ namespace Routine.Samples.SmartObject
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRoutineDependencies();
-            services.AddMemoryCache();
 
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>
