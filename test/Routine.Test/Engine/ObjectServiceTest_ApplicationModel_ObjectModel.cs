@@ -44,9 +44,13 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
 
-        public IgnoredModel IgnoredData { get; set; }
-        public IgnoredModel IgnoredForReturnType() { return null; }
-        public void IgnoredForParameter(IgnoredModel ignoreReason) { }
+        public IgnoredModel IgnoredModelData { get; set; }
+        public IgnoredModel IgnoredModelInReturnType() { return null; }
+        public void IgnoredModelInParameters(IgnoredModel ignoredModel) { }
+
+        public IgnoredRefStruct IgnoredRefStructData => new();
+        public IgnoredRefStruct IgnoredRefStructInReturnType() => new();
+        public void IgnoredRefStructInParameters(IgnoredRefStruct ignoredRefStruct) { }
     }
 
     public interface IBusinessModel : IBusinessModel2
@@ -74,6 +78,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public BusinessDataModel(string data, int i) : this(data) { }
         public BusinessDataModel(int data) : this() { }
         public BusinessDataModel(IgnoredModel ignoredModel) : this() { }
+        public BusinessDataModel(IgnoredRefStruct ignoredRefStruct) : this() { }
     }
 
     public enum BusinessEnum
@@ -81,6 +86,10 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         Item1,
         Item2,
         Item3
+    }
+
+    public ref struct IgnoredRefStruct
+    {
     }
 }
 
@@ -308,7 +317,11 @@ namespace Routine.Test.Engine
 
             var actual = testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.AreEqual(typeof(BusinessDataModel).GetConstructors().Length - 2, actual.Initializer.GroupCount);
+            Assert.IsFalse(actual.Initializer.Parameters.Any(p => p.ViewModelId.Contains("Ignored")),
+                "Initializers that accept an 'Ignored' type as a parameter should have been excluded: " +
+                $"{string.Join(", ", actual.Initializer.Parameters.Where(p => p.ViewModelId.Contains("Ignored")).Select(p => p.Name))}"
+            );
+            Assert.AreEqual(2, actual.Initializer.GroupCount);
         }
 
         [Test]
@@ -349,7 +362,10 @@ namespace Routine.Test.Engine
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Datas.Any(m => m.ViewModelId.Contains("ignored")));
+            Assert.IsFalse(actual.Datas.Any(d => d.ViewModelId.Contains("Ignored")),
+                "Properties that returns an 'Ignored' type should have been excluded: " +
+                $"{string.Join(", ", actual.Datas.Where(d => d.ViewModelId.Contains("Ignored")).Select(d => d.Name))}"
+            );
         }
 
         [Test]
@@ -403,8 +419,11 @@ namespace Routine.Test.Engine
         public void Operations_with_unrecognized_result_ViewModelIds_are_ignored_automatically()
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
-
-            Assert.IsFalse(actual.Operations.Any(m => m.Result.ViewModelId.Contains("ignored")));
+            
+            Assert.IsFalse(actual.Operations.Any(o => o.Result.ViewModelId.Contains("Ignored")),
+                "Operations that returns an 'Ignored' type should have been excluded: " +
+                $"{string.Join(", ", actual.Operations.Where(o => o.Result.ViewModelId.Contains("Ignored")).Select(o => o.Name))}"
+            );
         }
 
         [Test]
@@ -437,8 +456,11 @@ namespace Routine.Test.Engine
         public void Operations_with_any_unrecognized_parameter_ViewModelIds_are_ignored_automatically()
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
-
-            Assert.IsFalse(actual.Operations.Any(m => m.Parameters.Any(p => p.ViewModelId.Contains("ignored"))));
+            
+            Assert.IsFalse(actual.Operations.Any(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))),
+                "Operations that accept an 'Ignored' type as a parameter should have been excluded: " +
+                $"{string.Join(", ", actual.Operations.Where(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))).Select(o => o.Name))}"
+            );
         }
 
         [Test]
