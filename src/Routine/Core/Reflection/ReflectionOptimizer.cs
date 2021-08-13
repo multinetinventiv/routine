@@ -12,19 +12,9 @@ namespace Routine.Core.Reflection
 {
     internal class ReflectionOptimizer
     {
-        private static bool enabled = true;
-
-        public static void Disable()
-        {
-            Clear();
-            enabled = false;
-        }
-
-        public static void Enable()
-        {
-            Clear();
-            enabled = true;
-        }
+        public static bool Enabled { get; private set; } = true;
+        public static void Disable() => Enabled = false;
+        public static void Enable() => Enabled = true;
 
         public static void Clear()
         {   
@@ -109,16 +99,9 @@ namespace Routine.Core.Reflection
                             }
                             else
                             {
-                                if (enabled)
-                                {
-                                    AddReferences(current, references);
-                                    sources.Add(Method(current));
-                                    willOptimize.Add(current);
-                                }
-                                else
-                                {
-                                    SafeAdd(current, new ReflectionMethodInvoker(current));
-                                }
+                                AddReferences(current, references);
+                                sources.Add(Method(current));
+                                willOptimize.Add(current);
                             }
                         }
                         catch (Exception ex)

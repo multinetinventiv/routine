@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
 using Routine.Core.Cache;
+using Routine.Core.Reflection;
 using Routine.Engine;
 using Routine.Test.Performance.Domain;
 using System;
@@ -101,7 +102,7 @@ namespace Routine.Test.Performance
         #region Setup & Helpers
 
         private Dictionary<string, object> objectRepository;
-        
+
         private ICodingStyle codingStyle;
         private IObjectService objectService;
         private Rapplication rapp;
@@ -110,6 +111,8 @@ namespace Routine.Test.Performance
         public void SetUp()
         {
             objectRepository = new Dictionary<string, object>();
+
+            ReflectionOptimizer.Enable();
 
             var apiCtx = BuildRoutine.Context()
                 .UsingCache(new DictionaryCache())
@@ -207,27 +210,39 @@ namespace Routine.Test.Performance
                 }, load);
 
             Console.WriteLine("-------");
-
+            
+            var prop = obj.GetType().GetProperty("Id");
+            Run("System.Reflection Cached Access", () =>
+            {
+                var name = prop.GetValue(obj, new object[0]);
+            }, load);
+            ReflectionOptimizer.Disable();
+            var rprop2 = obj.GetTypeInfo().GetProperty("Id");
+            Run("Routine.Core.Reflection Cached Access (without optimizer) ", () =>
+            {
+                var name = rprop2.GetValue(obj);
+            }, load);
+            ReflectionOptimizer.Enable();
             var rprop = obj.GetTypeInfo().GetProperty("Id");
             Run("Routine.Core.Reflection Cached Access", () =>
             {
                 var name = rprop.GetValue(obj);
             }, load);
-
-            var prop = obj.GetType().GetProperty("Id");
-            Run("System.Reflection Cached Access", () =>
-                {
-                    var name = prop.GetValue(obj, new object[0]);
-                }, load);
             Console.WriteLine("-------");
-
+            
+            Run("System.Reflection Access", () =>
+            {
+                var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
+            }, load);
+            ReflectionOptimizer.Disable();
+            Run("Routine.Core.Reflection Access (without optimizer)", () =>
+            {
+                var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
+            }, load);
+            ReflectionOptimizer.Enable();
             Run("Routine.Core.Reflection Access", () =>
                 {
                     var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-                }, load);
-            Run("System.Reflection Access", () =>
-                {
-                    var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
                 }, load);
 
             Console.WriteLine("-------");
@@ -749,7 +764,7 @@ namespace Routine.Test.Performance
             Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
             Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
         }
-        
+
         [TestCase(10, 10)]
         [TestCase(10, 100)]
         [TestCase(10, 1000)]

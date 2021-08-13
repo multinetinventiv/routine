@@ -24,12 +24,9 @@ namespace Routine.Core.Reflection
         {
             get
             {
-                if (real == null)
-                {
-                    real = ReflectionOptimizer.CreateInvoker(method);
-                }
+                if (!ReflectionOptimizer.Enabled) { return new ReflectionMethodInvoker(method); }
 
-                return real;
+                return real ??= ReflectionOptimizer.CreateInvoker(method);
             }
         }
 
