@@ -12,6 +12,32 @@ namespace Routine.Core.Reflection
 {
     internal class ReflectionOptimizer
     {
+        private static bool enabled = true;
+
+        public static void Disable()
+        {
+            Clear();
+            enabled = false;
+        }
+
+        public static void Enable()
+        {
+            Clear();
+            enabled = true;
+        }
+
+        public static void Clear()
+        {   
+            lock (OPTIMIZE_LIST_LOCK)
+            {
+                lock (INVOKERS_LOCK)
+                {
+                    optimizeList.Clear();
+                    invokers.Clear();
+                }
+            }
+        }
+
         private static readonly object OPTIMIZE_LIST_LOCK = new object();
         private static readonly object INVOKERS_LOCK = new object();
 
@@ -83,9 +109,16 @@ namespace Routine.Core.Reflection
                             }
                             else
                             {
-                                AddReferences(current, references);
-                                sources.Add(Method(current));
-                                willOptimize.Add(current);
+                                if (enabled)
+                                {
+                                    AddReferences(current, references);
+                                    sources.Add(Method(current));
+                                    willOptimize.Add(current);
+                                }
+                                else
+                                {
+                                    SafeAdd(current, new ReflectionMethodInvoker(current));
+                                }
                             }
                         }
                         catch (Exception ex)

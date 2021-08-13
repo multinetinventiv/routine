@@ -34,6 +34,7 @@ namespace Routine.Samples.Basic
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseRoutineInDevelopmentMode();
             }
 
             app.UseRoutine(

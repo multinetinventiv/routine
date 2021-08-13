@@ -33,6 +33,7 @@ namespace Routine.Samples.SmartObject
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseRoutineInDevelopmentMode();
             }
 
             app.UseRoutine(

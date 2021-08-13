@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
+using Routine.Core.Reflection;
 using Routine.Core.Rest;
 using Routine.Engine;
 using Routine.Engine.Configuration;
@@ -130,20 +131,34 @@ namespace Routine
             ;
         }
 
-        public static IApplicationBuilder UseRoutine(this IApplicationBuilder source, 
-	        Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
-	        Func<CodingStyleBuilder, ICodingStyle> codingStyle
-	    )
+        public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
+            Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
+            Func<CodingStyleBuilder, ICodingStyle> codingStyle
+        )
         {
-	        return source.UseMiddleware<RoutineMiddleware>(
-		        BuildRoutine.Context().AsServiceApplication(serviceConfiguration, codingStyle)
-	        );
+            return source.UseMiddleware<RoutineMiddleware>(
+                BuildRoutine.Context().AsServiceApplication(serviceConfiguration, codingStyle)
+            );
+        }
+
+        public static IApplicationBuilder UseRoutineInDevelopmentMode(this IApplicationBuilder source)
+        {
+            ReflectionOptimizer.Disable();
+
+            return source;
+        }
+
+        public static IApplicationBuilder UseRoutineInProductionMode(this IApplicationBuilder source)
+        {
+            ReflectionOptimizer.Enable();
+
+            return source;
         }
 
         #endregion
 
         #region ContextBuilder
-        
+
         public static IServiceContext AsServiceApplication(
             this ContextBuilder source,
             Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
