@@ -41,8 +41,8 @@ namespace Routine.Core
 		public List<ParameterModel> Parameters
 		{
 			get => Parameter.Values.ToList();
-            set { Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp); }
-		}
+            set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
+        }
 
 		#region ToString & Equality
 

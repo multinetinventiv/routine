@@ -21,8 +21,8 @@ namespace Routine.Core
 		public List<ObjectModel> Models
 		{
 			get => Model.Values.ToList();
-            set { Model = value.ToDictionary(om => om.Id, om => om); }
-		}
+            set => Model = value.ToDictionary(om => om.Id, om => om);
+        }
 
 		#region ToString & Equality
 

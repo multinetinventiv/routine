@@ -67,14 +67,14 @@ namespace Routine.Core
 		public List<DataModel> Datas
 		{
 			get => Data.Values.ToList();
-            set { Data = value.ToDictionary(o => o.Name, o => o); }
-		}
+            set => Data = value.ToDictionary(o => o.Name, o => o);
+        }
 
 		public List<OperationModel> Operations
 		{
 			get => Operation.Values.ToList();
-            set { Operation = value.ToDictionary(o => o.Name, o => o); }
-		}
+            set => Operation = value.ToDictionary(o => o.Name, o => o);
+        }
 
 		#region ToString & Equality
 
