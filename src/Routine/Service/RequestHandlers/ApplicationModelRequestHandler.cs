@@ -1,16 +1,17 @@
-﻿using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
-	public class ApplicationModelRequestHandler : RequestHandlerBase
+    public class ApplicationModelRequestHandler : RequestHandlerBase
 	{
-		public ApplicationModelRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-			: base(serviceContext, jsonSerializer, httpContext) { }
+		public ApplicationModelRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override void WriteResponse()
+		public override async Task WriteResponse()
 		{
-			WriteJsonResponse(ServiceContext.ObjectService.ApplicationModel);
+			await WriteJsonResponse(ServiceContext.ObjectService.ApplicationModel);
 		}
 	}
 }

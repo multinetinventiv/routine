@@ -1,15 +1,17 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Net.Http.Headers;
+using Routine.Core;
+using Routine.Core.Rest;
+using Routine.Engine.Context;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
-using System.Web.Routing;
-using Routine.Core;
-using Routine.Core.Rest;
-using Routine.Engine.Context;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -20,7 +22,8 @@ namespace Routine.Service.RequestHandlers
         private const int CACHE_DURATION = 60;
         private const int BUFFER_SIZE = 0x1000;
         protected const string JSON_CONTENT_TYPE = "application/json";
-        protected readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
+        protected static readonly Encoding DEFAULT_CONTENT_ENCODING = Encoding.UTF8;
+        private static readonly object MODEL_INDEX_LOCK = new();
 
         #endregion
 
@@ -28,94 +31,90 @@ namespace Routine.Service.RequestHandlers
 
         protected IServiceContext ServiceContext { get; }
         protected IJsonSerializer JsonSerializer { get; }
-        protected HttpContextBase HttpContext { get; }
+        protected IHttpContextAccessor HttpContextAccessor { get; }
 
-        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
+        protected RequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
         {
             ServiceContext = serviceContext;
             JsonSerializer = jsonSerializer;
-            HttpContext = httpContext;
+            HttpContextAccessor = httpContextAccessor;
         }
 
         #endregion
 
-        public abstract void WriteResponse();
+        public abstract Task WriteResponse();
 
-        protected HttpApplicationStateBase Application => HttpContext.Application;
-        protected RouteData RouteData => HttpContext.Request.RequestContext.RouteData;
-        protected NameValueCollection QueryString => HttpContext.Request.QueryString;
+        protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
+        protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
-        protected bool IsGet => "GET".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
-        protected bool IsPost => "POST".Equals(HttpContext.Request.HttpMethod, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
+        protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
-        protected virtual Dictionary<string, List<ObjectModel>> ModelIndex
+        
+        private static volatile Dictionary<string, List<ObjectModel>> modelIndex;
+        public static void ClearModelIndex()
+        {
+            lock (MODEL_INDEX_LOCK)
+            {
+                modelIndex = null;
+            }
+        }
+
+        protected Dictionary<string, List<ObjectModel>> ModelIndex
         {
             get
             {
-                var result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"];
-
-                if (result != null) { return result; }
-
-                HttpContext.Application.Lock();
-
-                result = (Dictionary<string, List<ObjectModel>>)HttpContext.Application["Routine.RequestHandler.ModelIndex"]; ;
-
-                if (result != null)
+                if (modelIndex == null)
                 {
-                    HttpContext.Application.UnLock();
-
-                    return result;
+                    lock (MODEL_INDEX_LOCK)
+                    {
+                        if (modelIndex == null)
+                        {
+                            modelIndex = BuildModelIndex();
+                        }
+                    }
                 }
 
-                result = BuildModelIndex();
-
-                HttpContext.Application["Routine.RequestHandler.ModelIndex"] = result;
-
-                HttpContext.Application.UnLock();
-
-                return result;
+                return modelIndex;
             }
         }
 
         protected virtual void AddResponseCaching()
         {
-            HttpContext.Response.Cache.SetExpires(DateTime.Now.AddMinutes(CACHE_DURATION));
-            HttpContext.Response.Cache.SetMaxAge(new TimeSpan(0, CACHE_DURATION, 0));
-            HttpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
-            HttpContext.Response.Cache.SetValidUntilExpires(true);
+            var headers = HttpContext.Response.GetTypedHeaders();
+            headers.CacheControl = new CacheControlHeaderValue()
+            {
+                Public = true,
+                MaxAge = new TimeSpan(0, CACHE_DURATION, 0)
+            };
+            headers.Expires = DateTime.Now.AddMinutes(CACHE_DURATION);
         }
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            HttpContext.Response.StatusDescription =
-                $"Cannot resolve parameters from request body. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            HttpContext.Response.Headers["X-Status-Description"] = $"Cannot resolve parameters from request body. The exception is; {ex}";
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            HttpContext.Response.StatusDescription =
-                $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            HttpContext.Response.Headers["X-Status-Description"] = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            if (allowGet)
-            {
-                HttpContext.Response.StatusDescription = "Only GET, POST and OPTIONS are supported";
-            }
-            HttpContext.Response.StatusDescription = "Only POST and OPTIONS are supported";
+            HttpContext.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+            HttpContext.Response.Headers["X-Status-Description"] = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
         }
 
-        protected virtual void WriteFileResponse(string path)
+        protected virtual async Task WriteFileResponse(string path)
         {
             var stream = GetStream(path);
 
             var sr = new StreamReader(stream);
 
-            var fileContent = sr.ReadToEnd();
+            var fileContent = await sr.ReadToEndAsync();
             sr.Close();
             stream.Close();
 
@@ -123,21 +122,21 @@ namespace Routine.Service.RequestHandlers
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
-            HttpContext.Response.BinaryWrite(Encoding.UTF8.GetBytes(fileContent));
+            await HttpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(fileContent));
         }
 
-        protected virtual void WriteFontResponse(string fileName)
+        protected virtual async Task WriteFontResponse(string fileName)
         {
             var stream = GetStream("assets/fonts/" + fileName);
+            var outputStream = new MemoryStream { Position = 0 };
 
-            var outputStream = HttpContext.Response.OutputStream;
-            using (stream)
+            await using (stream)
             {
                 var buffer = new byte[BUFFER_SIZE];
 
                 while (true)
                 {
-                    var bytesRead = stream.Read(buffer, 0, BUFFER_SIZE);
+                    var bytesRead = await stream.ReadAsync(buffer, 0, BUFFER_SIZE);
                     if (bytesRead == 0)
                     {
                         break;
@@ -146,26 +145,30 @@ namespace Routine.Service.RequestHandlers
                     outputStream.Write(buffer, 0, bytesRead);
                 }
             }
+
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
-            HttpContext.Response.Flush();
-            HttpContext.Response.End();
+
+            await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
+			await HttpContext.Response.Body.FlushAsync();
         }
 
-        protected virtual void WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
+        protected virtual async Task WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
         {
             if (clearError)
             {
-                HttpContext.Server.ClearError();
+                HttpContext.Response.StatusCode = 200;
+                HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = null;
             }
 
             HttpContext.Response.StatusCode = (int)statusCode;
-            HttpContext.Response.ContentType = JSON_CONTENT_TYPE;
-            HttpContext.Response.ContentEncoding = DEFAULT_CONTENT_ENCODING;
+
+            var mediaType = new MediaTypeHeaderValue(JSON_CONTENT_TYPE) { Encoding = DEFAULT_CONTENT_ENCODING };
+            HttpContext.Response.ContentType = mediaType.ToString();
 
             if (result != null)
             {
-                HttpContext.Response.Write(JsonSerializer.Serialize(result));
+                await HttpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
             }
         }
 

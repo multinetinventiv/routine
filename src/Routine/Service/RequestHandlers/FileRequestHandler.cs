@@ -1,16 +1,17 @@
-﻿using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
-	public class FileRequestHandler : RequestHandlerBase
+    public class FileRequestHandler : RequestHandlerBase
 	{
-		public FileRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-			: base(serviceContext, jsonSerializer, httpContext) { }
+		public FileRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override void WriteResponse()
+		public override async Task WriteResponse()
 		{
-			WriteFileResponse($"{QueryString["path"]}");
+			await WriteFileResponse($"{QueryString["path"]}");
 		}
 	}
 }
