@@ -5,22 +5,12 @@ namespace Routine.Engine.Configuration
 {
 	public abstract class ExtractorBuilder
 	{
-		internal PropertyValueExtractor ByPropertyValue(IProperty property)
-		{
-			return new PropertyValueExtractor(property);
-		}
+		internal PropertyValueExtractor ByPropertyValue(IProperty property) => new(property);
+        public DelegateBasedExtractor By(Func<object, string> converterDelegate) => new(converterDelegate);
 
-		public DelegateBasedExtractor By(Func<object, string> converterDelegate)
-		{
-			return new DelegateBasedExtractor(converterDelegate);
-		}
-
-		//facade
-		public DelegateBasedExtractor Constant(string value)
-		{
-			return By(_ => value);
-		}
-	}
+        //facade
+		public DelegateBasedExtractor Constant(string value) => By(_ => value);
+    }
 
 	public class IdExtractorBuilder : ExtractorBuilder { }
 	public class ValueExtractorBuilder : ExtractorBuilder { }

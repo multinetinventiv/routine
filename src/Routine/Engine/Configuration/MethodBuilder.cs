@@ -17,56 +17,39 @@ namespace Routine.Engine.Configuration
 
 		public IType ParentType => parentType;
 
-        public IEnumerable<IMethod> Proxy<T>(T target) { return Proxy<T>().Target(target); }
+        public IEnumerable<IMethod> Proxy<T>(T target) => Proxy<T>().Target(target);
 
-		public ProxyMethodBuilder<T> Proxy<T>() { return Proxy<T>(_ => true); }
-		public ProxyMethodBuilder<T> Proxy<T>(string targetMethodName) { return Proxy<T>(m => m.Name == targetMethodName); }
-		public ProxyMethodBuilder<T> Proxy<T>(Func<MethodInfo, bool> targetMethodPredicate)
-		{
-			return new ProxyMethodBuilder<T>(parentType, type.of<T>().GetAllMethods().Where(targetMethodPredicate))
-				.Name.Set(c => c.By(o => o.Name))
-				.NextLayer();
-		}
+        public ProxyMethodBuilder<T> Proxy<T>() => Proxy<T>(_ => true);
+        public ProxyMethodBuilder<T> Proxy<T>(string targetMethodName) => Proxy<T>(m => m.Name == targetMethodName);
+        public ProxyMethodBuilder<T> Proxy<T>(Func<MethodInfo, bool> targetMethodPredicate) =>
+            new ProxyMethodBuilder<T>(parentType, type.of<T>().GetAllMethods().Where(targetMethodPredicate))
+                .Name.Set(c => c.By(o => o.Name))
+                .NextLayer();
 
-		private VirtualMethod Virtual()
-		{
-			return new VirtualMethod(parentType);
-		}
+        private VirtualMethod Virtual() => new(parentType);
 
-		public VirtualMethod Virtual(string name)
-		{
-			return Virtual()
-				.Name.Set(name)
-				.ReturnType.Set(type.ofvoid())
-			;
-		}
+        public VirtualMethod Virtual(string name) => 
+            Virtual()
+                .Name.Set(name)
+                .ReturnType.Set(type.ofvoid());
 
-		public VirtualMethod Virtual<T>(string name)
-		{
-			return Virtual()
-				.Name.Set(name)
-				.ReturnType.Set(type.of<T>())
-			;
-		}
+        public VirtualMethod Virtual<T>(string name) =>
+            Virtual()
+                .Name.Set(name)
+                .ReturnType.Set(type.of<T>());
 
-		public VirtualMethod Virtual(string name, Action body)
-		{
-			return Virtual(name)
-				.Body.Set((_, _) =>
-				{
-					body();
-					return null;
-				})
-			;
-		}
+        public VirtualMethod Virtual(string name, Action body) =>
+            Virtual(name)
+                .Body.Set((_, _) =>
+                {
+                    body();
+                    return null;
+                });
 
-		public VirtualMethod Virtual<TReturn>(string name, Func<TReturn> body)
-		{
-			return Virtual()
-				.Name.Set(name)
-				.ReturnType.Set(type.of<TReturn>())
-				.Body.Set((_, _) => (object)body())
-			;
-		}
-	}
+        public VirtualMethod Virtual<TReturn>(string name, Func<TReturn> body) =>
+            Virtual()
+                .Name.Set(name)
+                .ReturnType.Set(type.of<TReturn>())
+                .Body.Set((_, _) => body());
+    }
 }

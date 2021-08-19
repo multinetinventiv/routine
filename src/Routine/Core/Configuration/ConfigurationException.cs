@@ -23,7 +23,7 @@ namespace Routine.Core.Configuration
 
 		public ConfigurationException() { }
 		public ConfigurationException(object relatedObj) : this(null, relatedObj) { }
-		public ConfigurationException(string configurationName) : this(configurationName, (Exception)null) { }
+		public ConfigurationException(string configurationName) : this(configurationName, null) { }
 		public ConfigurationException(string configurationName, Exception innerException) : this(configurationName, null, innerException, true) { }
 		public ConfigurationException(string configurationName, object relatedObj) : this(configurationName, relatedObj, null) { }
 		public ConfigurationException(string configurationName, object relatedObj, Exception innerException) : this(configurationName, relatedObj, innerException, false) { }

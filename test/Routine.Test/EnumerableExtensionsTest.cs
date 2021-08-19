@@ -16,9 +16,9 @@ namespace Routine.Test
 		[Test]
 		public void Test_IEnumerable_ItemEquals()
 		{
-			Assert.IsTrue(((IEnumerable)null).ItemEquals((IEnumerable)null));
+			Assert.IsTrue(((IEnumerable)null).ItemEquals(null));
 			Assert.IsFalse(((IEnumerable)null).ItemEquals(new string[0]));
-			Assert.IsFalse(new string[0].ItemEquals(((IEnumerable)null)));
+			Assert.IsFalse(new string[0].ItemEquals(null));
 
 			Assert.IsTrue(new string[0].ItemEquals(new List<string>()));
 			Assert.IsTrue(new object[0].ItemEquals(new List<string>()));
