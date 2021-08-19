@@ -33,11 +33,10 @@ namespace Routine.Engine.Converter
 
 		#region IConverter implementation
 
-		object IConverter.Convert(object @object, IType from, IType to) { return ConvertInner(@object, from, to); }
+		object IConverter.Convert(object @object, IType from, IType to) => ConvertInner(@object, from, to);
+        List<IType> IConverter.GetTargetTypes(IType type) => GetTargetTypes(type);
 
-		#endregion
-
-		List<IType> IConverter.GetTargetTypes(IType type) { return GetTargetTypes(type); }
-	}
+        #endregion
+    }
 
 }

@@ -8,14 +8,9 @@ namespace Routine.Engine.Extractor
 
 		public DelegateBasedExtractor(Func<object, string> extractorDelegate)
 		{
-			if (extractorDelegate == null) { throw new ArgumentNullException(nameof(extractorDelegate)); }
-
-			this.extractorDelegate = extractorDelegate;
+            this.extractorDelegate = extractorDelegate ?? throw new ArgumentNullException(nameof(extractorDelegate));
 		}
 
-		protected override string Extract(object obj)
-		{
-			return extractorDelegate(obj);
-		}
-	}
+		protected override string Extract(object obj) => extractorDelegate(obj);
+    }
 }

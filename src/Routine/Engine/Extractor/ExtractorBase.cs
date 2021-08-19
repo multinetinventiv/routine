@@ -6,14 +6,14 @@
 
 		#region IIdExtractor implementation
 
-		string IValueExtractor.GetValue(object obj) { return Extract(obj); }
+		string IValueExtractor.GetValue(object obj) => Extract(obj);
 
-		#endregion
+        #endregion
 
 		#region IValueExtractor implementation
 
-		string IIdExtractor.GetId(object obj) { return Extract(obj); }
+		string IIdExtractor.GetId(object obj) => Extract(obj);
 
-		#endregion
+        #endregion
 	}
 }
