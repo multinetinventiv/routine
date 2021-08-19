@@ -6,16 +6,10 @@ namespace Routine.Core.Configuration.Convention
 	{
 		private Func<TFrom, TResult> converterDelegate;
 
-		public DelegateBasedConvention()
-		{
-			Return(o => default(TResult));
-		}
+		public DelegateBasedConvention() => Return(_ => default);
 
-		public DelegateBasedConvention<TFrom, TResult> Return(Func<TFrom, TResult> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
+        public DelegateBasedConvention<TFrom, TResult> Return(Func<TFrom, TResult> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
 
-		protected override TResult Apply(TFrom obj)
-		{
-			return converterDelegate(obj);
-		}
-	}
+		protected override TResult Apply(TFrom obj) => converterDelegate(obj);
+    }
 }

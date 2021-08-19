@@ -4,9 +4,9 @@ namespace Routine.Core.Configuration
 {
 	public class ConfigurationException : Exception
 	{
-		private static string GetTypeOf(object relatedObj) { return relatedObj == null ? "null" : relatedObj.GetType().FullName; }
+		private static string GetTypeOf(object relatedObj) => relatedObj == null ? "null" : relatedObj.GetType().FullName;
 
-		private static string BuildMessage(string configurationName, object relatedObj, bool onlyName)
+        private static string BuildMessage(string configurationName, object relatedObj, bool onlyName)
 		{
 			if (string.IsNullOrEmpty(configurationName))
 			{

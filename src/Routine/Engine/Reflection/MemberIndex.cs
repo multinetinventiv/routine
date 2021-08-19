@@ -43,12 +43,12 @@ namespace Routine.Engine.Reflection
 
 			if(!index.TryGetValue(key, out result))
 			{
-				return default(TItem);
+				return default;
 			}
 
 			if(result.Count <= 0)
 			{
-				return default(TItem);
+				return default;
 			}
 
 			return result[0];
