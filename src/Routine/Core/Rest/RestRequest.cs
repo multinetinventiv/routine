@@ -6,7 +6,7 @@ namespace Routine.Core.Rest
 {
 	public class RestRequest
 	{
-		public static readonly RestRequest Empty = new RestRequest(string.Empty);
+		public static readonly RestRequest Empty = new(string.Empty);
 
 		public string Body { get; }
 		public Dictionary<string, string> Headers { get; }
@@ -39,14 +39,12 @@ namespace Routine.Core.Rest
 			return this;
 		}
 
-		public string BuildUrlParameters()
-		{
-			return string.Join("&",
-				UrlParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}")
-			);
-		}
+		public string BuildUrlParameters() =>
+            string.Join("&",
+                UrlParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}")
+            );
 
-		#region ToString & Equality
+        #region ToString & Equality
 
 		public override string ToString()
 		{

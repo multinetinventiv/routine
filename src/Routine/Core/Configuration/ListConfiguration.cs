@@ -18,22 +18,19 @@ namespace Routine.Core.Configuration
 			list = new List<TItem>();
 		}
 
-		public TConfiguration Add(params Func<TConfiguration, TItem>[] itemDelegates) { return Add(itemDelegates.Select(d => d(configuration))); }
-		public TConfiguration Add(params TItem[] items) { return Add(items as IEnumerable<TItem>); }
-		public TConfiguration Add(Func<TConfiguration, IEnumerable<TItem>> itemsDelegate) { return Add(itemsDelegate(configuration)); }
-		public TConfiguration Add(IEnumerable<TItem> items)
+		public TConfiguration Add(params Func<TConfiguration, TItem>[] itemDelegates) => Add(itemDelegates.Select(d => d(configuration)));
+        public TConfiguration Add(params TItem[] items) => Add(items as IEnumerable<TItem>);
+        public TConfiguration Add(Func<TConfiguration, IEnumerable<TItem>> itemsDelegate) => Add(itemsDelegate(configuration));
+        public TConfiguration Add(IEnumerable<TItem> items)
 		{
 			list.AddRange(items);
 
 			return configuration;
 		}
 
-		public List<TItem> Get()
-		{
-			return list;
-		}
+		public List<TItem> Get() => list;
 
-		public TConfiguration Merge(ListConfiguration<TConfiguration, TItem> other)
+        public TConfiguration Merge(ListConfiguration<TConfiguration, TItem> other)
 		{
 			list.AddRange(other.list);
 

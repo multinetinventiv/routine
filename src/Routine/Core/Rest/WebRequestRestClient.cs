@@ -38,7 +38,7 @@ namespace Routine.Core.Rest
 
 			req.ContentType = "application/json";
 
-			byte[] byteArray = Encoding.UTF8.GetBytes(request.Body);
+			var byteArray = Encoding.UTF8.GetBytes(request.Body);
 			req.ContentLength = byteArray.Length;
 			using (var dataStream = req.GetRequestStream())
 			{
@@ -59,9 +59,9 @@ namespace Routine.Core.Rest
 
 			req.Method = method;
 
-			foreach (var header in request.Headers)
+			foreach (var (key, value) in request.Headers)
 			{
-				req.Headers.Add(header.Key, HttpUtility.UrlEncode(header.Value));
+				req.Headers.Add(key, HttpUtility.UrlEncode(value));
 			}
 
 			return req;
@@ -93,8 +93,8 @@ namespace Routine.Core.Rest
 
 	public static class ContextBuilderWebRequestRestClientExtensions
 	{
-		public static ContextBuilder UsingRestClient(this ContextBuilder source, Action<WebRequest> configurer) { return source.UsingRestClient(new WebRequestRestClient(configurer)); }
-		public static ContextBuilder UsingRestClient(this ContextBuilder source, Func<string, WebRequest> requestFactory) { return source.UsingRestClient(new WebRequestRestClient(requestFactory)); }
-	}
+		public static ContextBuilder UsingRestClient(this ContextBuilder source, Action<WebRequest> configurer) => source.UsingRestClient(new WebRequestRestClient(configurer));
+        public static ContextBuilder UsingRestClient(this ContextBuilder source, Func<string, WebRequest> requestFactory) => source.UsingRestClient(new WebRequestRestClient(requestFactory));
+    }
 }
 

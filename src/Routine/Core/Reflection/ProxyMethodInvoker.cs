@@ -2,10 +2,7 @@ namespace Routine.Core.Reflection
 {
     public static class SystemReflectionFacadeExtensions
     {
-        public static IMethodInvoker CreateInvoker(this System.Reflection.MethodBase source)
-        {
-            return new ProxyMethodInvoker(source);
-        }
+        public static IMethodInvoker CreateInvoker(this System.Reflection.MethodBase source) => new ProxyMethodInvoker(source);
     }
 
     internal class ProxyMethodInvoker : IMethodInvoker
@@ -30,9 +27,6 @@ namespace Routine.Core.Reflection
             }
         }
 
-        public object Invoke(object target, params object[] args)
-        {
-            return Real.Invoke(target, args);
-        }
+        public object Invoke(object target, params object[] args) => Real.Invoke(target, args);
     }
 }
