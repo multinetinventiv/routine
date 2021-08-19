@@ -16,18 +16,6 @@ namespace Routine.Core.Reflection
         public static void Disable() => Enabled = false;
         public static void Enable() => Enabled = true;
 
-        public static void Clear()
-        {   
-            lock (OPTIMIZE_LIST_LOCK)
-            {
-                lock (INVOKERS_LOCK)
-                {
-                    optimizeList.Clear();
-                    invokers.Clear();
-                }
-            }
-        }
-
         private static readonly object OPTIMIZE_LIST_LOCK = new object();
         private static readonly object INVOKERS_LOCK = new object();
 
