@@ -262,14 +262,16 @@ namespace Routine.Core.Reflection
             }
             else if (method.IsSpecialName)
             {
-                if (method.Name.StartsWith("get_"))
+                var methodInfo = method as System.Reflection.MethodInfo;
+                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                else if (methodInfo.Name.StartsWith("get_"))
                 {
-                    if (method.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
+                    if (methodInfo.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
                     else { result = propertyGetInvocationTemplate; }
                 }
                 else
                 {
-                    if (method.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
+                    if (methodInfo.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
                     else { result = propertySetInvocationTemplate; }
                 }
             }
