@@ -8,11 +8,11 @@ namespace Routine.Engine.Virtual
 	{
 		private readonly IType parentType;
 
-		public SingleConfiguration<VirtualMethod, string> Name { get; private set; }
-		public SingleConfiguration<VirtualMethod, IType> ReturnType { get; private set; }
-		public SingleConfiguration<VirtualMethod, Func<object, object[], object>> Body { get; private set; }
-		public SingleConfiguration<VirtualMethod, Func<object, IType>> TypeRetrieveStrategy { get; private set; }
-		public ListConfiguration<VirtualMethod, IParameter> Parameters { get; private set; }
+		public SingleConfiguration<VirtualMethod, string> Name { get; }
+		public SingleConfiguration<VirtualMethod, IType> ReturnType { get; }
+		public SingleConfiguration<VirtualMethod, Func<object, object[], object>> Body { get; }
+		public SingleConfiguration<VirtualMethod, Func<object, IType>> TypeRetrieveStrategy { get; }
+		public ListConfiguration<VirtualMethod, IParameter> Parameters { get; }
 
 		public VirtualMethod(IType parentType)
 		{

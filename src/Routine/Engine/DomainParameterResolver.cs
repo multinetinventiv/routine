@@ -116,8 +116,8 @@ namespace Routine.Engine
 
         public class Resolution
         {
-            public T Result { get; private set; }
-            public object[] Parameters { get; private set; }
+            public T Result { get; }
+            public object[] Parameters { get; }
 
             internal Resolution(T result, object[] parameters)
             {

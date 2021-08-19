@@ -8,13 +8,13 @@ namespace Routine.Engine.Virtual
 {
 	public class VirtualType : IType
 	{
-		public SingleConfiguration<VirtualType, string> Name { get; private set; }
-		public SingleConfiguration<VirtualType, string> Namespace { get; private set; }
-		public SingleConfiguration<VirtualType, bool> IsInterface { get; private set; }
-		public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; private set; }
-		public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; private set; }
-		public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; private set; }
-		public ListConfiguration<VirtualType, IMethod> Methods { get; private set; }
+		public SingleConfiguration<VirtualType, string> Name { get; }
+		public SingleConfiguration<VirtualType, string> Namespace { get; }
+		public SingleConfiguration<VirtualType, bool> IsInterface { get; }
+		public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; }
+		public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; }
+		public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; }
+		public ListConfiguration<VirtualType, IMethod> Methods { get; }
 
 		public VirtualType()
 		{

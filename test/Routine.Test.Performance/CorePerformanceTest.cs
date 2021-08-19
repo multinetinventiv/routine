@@ -42,11 +42,11 @@ namespace Routine.Test.Performance.Domain
 
     public struct BusinessPerformanceInput
     {
-        public string Str { get; private set; }
-        public int Int { get; private set; }
-        public string Str2 { get; private set; }
-        public string Str3 { get; private set; }
-        public string Str4 { get; private set; }
+        public string Str { get; }
+        public int Int { get; }
+        public string Str2 { get; }
+        public string Str3 { get; }
+        public string Str4 { get; }
 
         //public BusinessPerformanceInput(string s, int i, string s2)
         //	: this()

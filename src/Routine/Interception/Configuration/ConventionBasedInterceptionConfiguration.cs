@@ -6,8 +6,8 @@ namespace Routine.Interception.Configuration
 {
 	public class ConventionBasedInterceptionConfiguration : LayeredBase<ConventionBasedInterceptionConfiguration>, IInterceptionConfiguration
 	{
-		public ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>> Interceptors { get; private set; }
-		public ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, OperationWithObjectModel, IInterceptor<ServiceInterceptionContext>> ServiceInterceptors { get; private set; }
+		public ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>> Interceptors { get; }
+		public ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, OperationWithObjectModel, IInterceptor<ServiceInterceptionContext>> ServiceInterceptors { get; }
 
 		internal ConventionBasedInterceptionConfiguration()
 		{

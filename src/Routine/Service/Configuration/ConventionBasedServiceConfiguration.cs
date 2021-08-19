@@ -7,17 +7,17 @@ namespace Routine.Service.Configuration
 {
 	public class ConventionBasedServiceConfiguration : LayeredBase<ConventionBasedServiceConfiguration>, IServiceConfiguration
 	{
-		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; private set; }
+		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; }
 
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; private set; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; }
 
-		public ListConfiguration<ConventionBasedServiceConfiguration, string> RequestHeaders { get; private set; }
-		public ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor> RequestHeaderProcessors { get; private set; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, string> RequestHeaders { get; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor> RequestHeaderProcessors { get; }
 
-		public ListConfiguration<ConventionBasedServiceConfiguration, string> ResponseHeaders { get; private set; }
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string> ResponseHeaderValue { get; private set; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, string> ResponseHeaders { get; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string> ResponseHeaderValue { get; }
 
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult> ExceptionResult { get; private set; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult> ExceptionResult { get; }
 
 		public ConventionBasedServiceConfiguration()
 		{

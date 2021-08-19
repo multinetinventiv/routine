@@ -10,13 +10,13 @@ namespace Routine.Client
 
 		private readonly ObjectModel model;
 
-		public Rapplication Application { get; private set; }
+		public Rapplication Application { get; }
 
-		public List<Rtype> ViewTypes { get; private set; }
-		public List<Rtype> ActualTypes { get; private set; }
+		public List<Rtype> ViewTypes { get; }
+		public List<Rtype> ActualTypes { get; }
 		public Rinitializer Initializer { get; private set; }
-		public Dictionary<string, Rdata> Data { get; private set; }
-		public Dictionary<string, Roperation> Operation { get; private set; }
+		public Dictionary<string, Rdata> Data { get; }
+		public Dictionary<string, Roperation> Operation { get; }
 
 		private Rtype() : this(null, new ObjectModel { Id = Constants.VOID_MODEL_ID, IsValueModel = true }) { }
 		public Rtype(Rapplication application, ObjectModel model)

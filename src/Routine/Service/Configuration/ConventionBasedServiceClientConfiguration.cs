@@ -6,13 +6,13 @@ namespace Routine.Service.Configuration
 {
 	public class ConventionBasedServiceClientConfiguration : LayeredBase<ConventionBasedServiceClientConfiguration>, IServiceClientConfiguration
 	{
-		public SingleConfiguration<ConventionBasedServiceClientConfiguration, string> ServiceUrlBase { get; private set; }
+		public SingleConfiguration<ConventionBasedServiceClientConfiguration, string> ServiceUrlBase { get; }
 
-		public ListConfiguration<ConventionBasedServiceClientConfiguration, string> RequestHeaders { get; private set; }
+		public ListConfiguration<ConventionBasedServiceClientConfiguration, string> RequestHeaders { get; }
 
-		public ConventionBasedConfiguration<ConventionBasedServiceClientConfiguration, ExceptionResult, Exception> Exception { get; private set; }
-		public ConventionBasedConfiguration<ConventionBasedServiceClientConfiguration, string, string> RequestHeaderValue { get; private set; }
-		public ListConfiguration<ConventionBasedServiceClientConfiguration, IHeaderProcessor> ResponseHeaderProcessors { get; private set; }
+		public ConventionBasedConfiguration<ConventionBasedServiceClientConfiguration, ExceptionResult, Exception> Exception { get; }
+		public ConventionBasedConfiguration<ConventionBasedServiceClientConfiguration, string, string> RequestHeaderValue { get; }
+		public ListConfiguration<ConventionBasedServiceClientConfiguration, IHeaderProcessor> ResponseHeaderProcessors { get; }
 
 		public ConventionBasedServiceClientConfiguration()
 		{

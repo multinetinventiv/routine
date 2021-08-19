@@ -7,11 +7,11 @@ namespace Routine.Engine
 		private readonly ICoreContext ctx;
 		private readonly IProperty property;
 
-		public string Name { get; private set; }
-		public Marks Marks { get; private set; }
-		public bool IsList { get; private set; }
-		public bool FetchedEagerly { get; private set; }
-		public DomainType DataType { get; private set; }
+		public string Name { get; }
+		public Marks Marks { get; }
+		public bool IsList { get; }
+		public bool FetchedEagerly { get; }
+		public DomainType DataType { get; }
 
 		public DomainData(ICoreContext ctx, IProperty property)
 		{

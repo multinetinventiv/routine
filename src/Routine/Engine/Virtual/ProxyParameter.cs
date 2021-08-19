@@ -7,7 +7,7 @@ namespace Routine.Engine.Virtual
 		private readonly IParameter real;
 		private readonly int index;
 
-		public IParametric Owner { get; private set; }
+		public IParametric Owner { get; }
 
 		public ProxyParameter(IParameter real, IParametric owner) : this(real, owner, 0) { }
 		public ProxyParameter(IParameter real, IParametric owner, int index)

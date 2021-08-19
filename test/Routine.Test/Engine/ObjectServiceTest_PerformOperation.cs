@@ -71,7 +71,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
 	public struct BusinessInputData
 	{
-		public string Data { get; private set; }
+		public string Data { get; }
 
 		public BusinessInputData(string data)
 			: this()
@@ -82,7 +82,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
 	public struct BusinessMasterInputData
 	{
-		public List<BusinessInputData> Datas { get; private set; }
+		public List<BusinessInputData> Datas { get; }
 
 		public BusinessMasterInputData(List<BusinessInputData> datas) 
 			: this()
@@ -93,7 +93,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
 	public class BusinessInitializableLocatable
 	{
-		public string Value { get; private set; }
+		public string Value { get; }
 
 		public static BusinessInitializableLocatable Get(string value)
 		{

@@ -122,7 +122,7 @@ namespace Routine.Engine.Context
 
 	public class TypeNotFoundException : Exception
 	{
-		public string TypeId { get; private set; }
+		public string TypeId { get; }
 
 		public TypeNotFoundException(string typeId)
 			: base(

@@ -8,9 +8,9 @@ namespace Routine.Service
         [JsonConverter(typeof(BooleanJsonConverter))]
         public bool IsException { get { return true; } }
         [JsonConverter(typeof(BooleanJsonConverter))]
-        public bool IsHandled { get; private set; }
-        public string Type { get; private set; }
-        public string Message { get; private set; }
+        public bool IsHandled { get; }
+        public string Type { get; }
+        public string Message { get; }
 
         internal ExceptionResult(ExceptionResultData data) : this(data.Type, data.Message, data.IsHandled) { }
         public ExceptionResult() : this("NaN", "NaN", false) { }

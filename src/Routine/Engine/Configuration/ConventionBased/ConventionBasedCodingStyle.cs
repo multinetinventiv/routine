@@ -10,33 +10,33 @@ namespace Routine.Engine.Configuration.ConventionBased
     {
         private readonly List<IType> types;
 
-        public SingleConfiguration<ConventionBasedCodingStyle, int> MaxFetchDepth { get; private set; }
+        public SingleConfiguration<ConventionBasedCodingStyle, int> MaxFetchDepth { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType> Type { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsValue { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsView { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor> IdExtractor { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor> ValueExtractor { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator> Locator { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter> Converters { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object> StaticInstances { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor> Initializers { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty> Datas { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod> Operations { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType> Type { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsValue { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsView { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor> IdExtractor { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor> ValueExtractor { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator> Locator { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter> Converters { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object> StaticInstances { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor> Initializers { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty> Datas { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod> Operations { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool> DataFetchedEagerly { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool> DataFetchedEagerly { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> Module { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> TypeName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string> DataName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterName { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> Module { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> TypeName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string> DataName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterName { get; }
 
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string> TypeMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string> InitializerMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string> DataMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterMarks { get; private set; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string> TypeMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string> InitializerMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string> DataMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterMarks { get; }
 
         public ConventionBasedCodingStyle()
         {

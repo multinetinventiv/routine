@@ -4,7 +4,7 @@
 	{
 		private readonly VirtualType type;
 
-		public string Id { get; private set; }
+		public string Id { get; }
 
 		public VirtualObject(string id, VirtualType type)
 		{

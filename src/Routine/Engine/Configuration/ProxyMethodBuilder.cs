@@ -11,7 +11,7 @@ namespace Routine.Engine.Configuration
 		private readonly IType parentType;
 		private readonly IEnumerable<IMethod> methods;
 
-		public ConventionBasedConfiguration<ProxyMethodBuilder<T>, IMethod, string> Name { get; private set; }
+		public ConventionBasedConfiguration<ProxyMethodBuilder<T>, IMethod, string> Name { get; }
 
 		public ProxyMethodBuilder(IType parentType, IEnumerable<IMethod> methods)
 		{

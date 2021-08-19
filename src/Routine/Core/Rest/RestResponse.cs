@@ -6,8 +6,8 @@ namespace Routine.Core.Rest
 	{
 		public static readonly RestResponse Empty = new RestResponse(string.Empty);
 
-		public string Body { get; private set; }
-		public Dictionary<string, string> Headers { get; private set; }
+		public string Body { get; }
+		public Dictionary<string, string> Headers { get; }
 
 		public RestResponse(string body) : this(body, new Dictionary<string, string>()) { }
 		public RestResponse(string body, IDictionary<string, string> headers)

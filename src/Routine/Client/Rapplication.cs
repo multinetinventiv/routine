@@ -8,7 +8,7 @@ namespace Routine.Client
 {
 	public class Rapplication
 	{
-		public IObjectService Service { get; private set; }
+		public IObjectService Service { get; }
 
 		public Rapplication(IObjectService service)
 		{

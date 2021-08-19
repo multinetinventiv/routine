@@ -8,9 +8,9 @@ namespace Routine.Core.Rest
 	{
 		public static readonly RestRequest Empty = new RestRequest(string.Empty);
 
-		public string Body { get; private set; }
-		public Dictionary<string, string> Headers { get; private set; }
-		public Dictionary<string, string> UrlParameters { get; private set; }
+		public string Body { get; }
+		public Dictionary<string, string> Headers { get; }
+		public Dictionary<string, string> UrlParameters { get; }
 
 		public RestRequest(string body)
 		{

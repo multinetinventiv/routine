@@ -7,7 +7,7 @@ namespace Routine.Client
 	{
 		private readonly OperationModel model;
 
-		public Rtype ResultType { get; private set; }
+		public Rtype ResultType { get; }
 
 		public Roperation(OperationModel model, Rtype type)
 			: base(model.Name, model.GroupCount, model.Parameters, model.Marks, type)

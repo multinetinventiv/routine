@@ -10,33 +10,33 @@ namespace Routine.Engine
 	{
 		private readonly ICoreContext ctx;
 
-		public IType Type { get; private set; }
+		public IType Type { get; }
 
 		private readonly List<DomainType> actualTypes;
 		private readonly List<DomainType> viewTypes;
 
 		public DomainObjectInitializer Initializer { get; private set; }
 
-		public Dictionary<string, DomainData> Data { get; private set; }
+		public Dictionary<string, DomainData> Data { get; }
 		public ICollection<DomainData> Datas { get { return Data.Values; } }
 
-		public Dictionary<string, DomainOperation> Operation { get; private set; }
+		public Dictionary<string, DomainOperation> Operation { get; }
 		public ICollection<DomainOperation> Operations { get { return Operation.Values; } }
 
 		private readonly ILocator locator;
-		public IIdExtractor IdExtractor { get; private set; }
-		public IValueExtractor ValueExtractor { get; private set; }
+		public IIdExtractor IdExtractor { get; }
+		public IValueExtractor ValueExtractor { get; }
 		private readonly Dictionary<IType, IConverter> converter;
 
 		private readonly List<object> staticInstances;
 
-		public int MaxFetchDepth { get; private set; }
-		public string Id { get; private set; }
-		public Marks Marks { get; private set; }
-		public string Name { get; private set; }
-		public string Module { get; private set; }
-		public bool IsValueModel { get; private set; }
-		public bool IsViewModel { get; private set; }
+		public int MaxFetchDepth { get; }
+		public string Id { get; }
+		public Marks Marks { get; }
+		public string Name { get; }
+		public string Module { get; }
+		public bool IsValueModel { get; }
+		public bool IsViewModel { get; }
 
 		public bool Initializable { get { return Initializer != null; } }
 		public bool Locatable { get { return locator != null; } }

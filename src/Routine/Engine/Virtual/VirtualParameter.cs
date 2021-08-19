@@ -6,9 +6,9 @@ namespace Routine.Engine.Virtual
 	{
 		private readonly IParametric owner;
 
-		public SingleConfiguration<VirtualParameter, string> Name { get; private set; }
-		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; private set; }
-		public SingleConfiguration<VirtualParameter, int> Index { get; private set; }
+		public SingleConfiguration<VirtualParameter, string> Name { get; }
+		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; }
+		public SingleConfiguration<VirtualParameter, int> Index { get; }
 
 		public VirtualParameter(IParametric owner)
 		{

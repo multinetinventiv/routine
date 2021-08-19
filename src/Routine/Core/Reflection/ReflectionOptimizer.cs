@@ -170,7 +170,7 @@ namespace Routine.Core.Reflection
 
                 foreach (var diagnostic in failures)
                 {
-	                errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
+                    errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
                     errors.AppendLine();
                 }
 
@@ -208,7 +208,7 @@ namespace Routine.Core.Reflection
             "}\n";
 
         private const string notSupportedInvocationTemplate =
-	        "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
+            "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
 
         private const string voidInvocationTemplate =
             "\t\t\t$Target$.$MethodName$($Parameters$);\n" +
@@ -257,26 +257,28 @@ namespace Routine.Core.Reflection
 
             if (method.IsConstructor)
             {
-	            if(method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                if (method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
                 else { result = newInvocationTemplate; }
             }
             else if (method.IsSpecialName)
             {
-                if (method.Name.StartsWith("get_"))
+                var methodInfo = method as System.Reflection.MethodInfo;
+                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                else if (methodInfo.Name.StartsWith("get_"))
                 {
-                    if (method.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
+                    if (methodInfo.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
                     else { result = propertyGetInvocationTemplate; }
                 }
                 else
                 {
-                    if (method.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
+                    if (methodInfo.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
                     else { result = propertySetInvocationTemplate; }
                 }
             }
             else
             {
                 var methodInfo = method as System.Reflection.MethodInfo;
-                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
                 else if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
                 else { result = nonVoidInvocationTemplate; }
             }

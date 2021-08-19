@@ -8,8 +8,8 @@ namespace Routine.Client
 	{
 		private readonly DataModel model;
 
-		public Rtype Type { get; private set; }
-		public Rtype DataType { get; private set; }
+		public Rtype Type { get; }
+		public Rtype DataType { get; }
 
 		public Rdata(DataModel model, Rtype type)
 		{

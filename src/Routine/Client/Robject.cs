@@ -21,8 +21,8 @@ namespace Routine.Client
 
 		private string display;
 
-		public Rtype ActualType { get; private set; }
-		public Rtype ViewType { get; private set; }
+		public Rtype ActualType { get; }
+		public Rtype ViewType { get; }
 		public Rtype Type { get { return ViewType ?? ActualType; } }
 
 		public Robject() : this(Rd(true), null, null) { }
@@ -178,8 +178,8 @@ namespace Routine.Client
 
 		public class DataValue
 		{
-			public Robject Object { get; private set; }
-			public Rdata Data { get; private set; }
+			public Robject Object { get; }
+			public Rdata Data { get; }
 
 			internal DataValue(Robject @object, Rdata data)
 			{

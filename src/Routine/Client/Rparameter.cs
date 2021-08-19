@@ -8,8 +8,8 @@ namespace Routine.Client
 	{
 		private readonly ParameterModel model;
 
-		public Rparametric Owner { get; private set; }
-		public Rtype ParameterType { get; private set; }
+		public Rparametric Owner { get; }
+		public Rtype ParameterType { get; }
 
 		public Rparameter(ParameterModel model, Rparametric owner)
 		{

@@ -72,7 +72,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
     public struct BusinessDataModel
     {
-        public string Data { get; private set; }
+        public string Data { get; }
 
         public BusinessDataModel(string data) : this() { Data = data; }
         public BusinessDataModel(string data, int i) : this(data) { }
