@@ -382,7 +382,8 @@ namespace Routine
 		{
 			var thisAsIType = this as IType;
 
-			if (!thisAsIType.CanBe(otherType)) { throw new InvalidCastException(string.Format("Cannot cast an object of type {0} to {1}", this, otherType)); }
+			if (!thisAsIType.CanBe(otherType)) { throw new InvalidCastException(
+                $"Cannot cast an object of type {this} to {otherType}"); }
 
 			return @object;
 		}

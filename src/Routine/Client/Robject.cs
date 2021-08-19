@@ -8,12 +8,12 @@ namespace Routine.Client
 	{
 		#region Data Adapter Methods
 
-		private static ReferenceData Rd(bool isNull) { return Rd(null, null, null, isNull); }
-		private static ReferenceData Rd(string id, string mid, string vmid, bool isNull) { return isNull ? null : new ReferenceData { Id = id, ModelId = mid, ViewModelId = vmid }; }
-		private static ObjectData Od(ReferenceData rd) { return Od(rd, null); }
-		private static ObjectData Od(ReferenceData rd, string display) { return rd == null ? null : new ObjectData { Id = rd.Id, ModelId = rd.ModelId, Display = display }; }
+		private static ReferenceData Rd(bool isNull) => Rd(null, null, null, isNull);
+        private static ReferenceData Rd(string id, string mid, string vmid, bool isNull) => isNull ? null : new ReferenceData { Id = id, ModelId = mid, ViewModelId = vmid };
+        private static ObjectData Od(ReferenceData rd) => Od(rd, null);
+        private static ObjectData Od(ReferenceData rd, string display) => rd == null ? null : new ObjectData { Id = rd.Id, ModelId = rd.ModelId, Display = display };
 
-		#endregion
+        #endregion
 
 		private readonly string id;
 		private readonly List<Rvariable> initializationParameters;
@@ -36,12 +36,12 @@ namespace Routine.Client
 		{
 			if (actualType != null && actualType.IsViewType)
 			{
-				throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
+				throw new CannotCreateRobjectException($"Cannot create object with a view type '{actualType}' given as the actual type");
 			}
 
 			if (actualType != null && !actualType.CanBe(viewType))
 			{
-				throw new CannotCreateRobjectException(string.Format("{0} cannot be {1}", actualType, viewType));
+				throw new CannotCreateRobjectException($"{actualType} cannot be {viewType}");
 			}
 
 			this.initializationParameters = initializationParameters;
@@ -216,7 +216,7 @@ namespace Routine.Client
 
 		public override string ToString()
 		{
-			return string.Format("{0}({1})", Id, Type.Id);
+			return $"{Id}({Type.Id})";
 		}
 
 		#region Equality & Hashcode

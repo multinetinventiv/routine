@@ -28,9 +28,7 @@ namespace Routine.Engine.Locator
 			{
 				throw new CannotLocateException(type, ids,
 					new InvalidOperationException(
-						string.Format("Locate result count ({0}) cannot be different than id count ({1})",
-							result.Count,
-							ids.Count))
+                        $"Locate result count ({result.Count}) cannot be different than id count ({ids.Count})")
 				);
 			}
 

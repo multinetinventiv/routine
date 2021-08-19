@@ -46,7 +46,8 @@ namespace Routine.Engine.Reflection
 					return Member as MethodBase;
 				}
 
-				throw new InvalidOperationException(string.Format("This parameter does not belong to a member that implements IParametric: {0}", Member));
+				throw new InvalidOperationException(
+                    $"This parameter does not belong to a member that implements IParametric: {Member}");
 			}
 		}
 		int IParameter.Index => Position;

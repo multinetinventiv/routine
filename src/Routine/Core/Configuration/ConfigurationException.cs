@@ -10,15 +10,15 @@ namespace Routine.Core.Configuration
 		{
 			if (string.IsNullOrEmpty(configurationName))
 			{
-				return string.Format("Cannot get configured value for '{0}' ('{1}')", relatedObj, GetTypeOf(relatedObj));
+				return $"Cannot get configured value for '{relatedObj}' ('{GetTypeOf(relatedObj)}')";
 			}
 
 			if (onlyName)
 			{
-				return string.Format("Cannot configure '{0}'", configurationName);
+				return $"Cannot configure '{configurationName}'";
 			}
 
-			return string.Format("Cannot configure '{0}' for '{1}' ('{2}')", configurationName, relatedObj, GetTypeOf(relatedObj));
+			return $"Cannot configure '{configurationName}' for '{relatedObj}' ('{GetTypeOf(relatedObj)}')";
 		}
 
 		public ConfigurationException() { }

@@ -306,11 +306,7 @@ namespace Routine.Engine
 				if (located.Count != locateIdsWithOriginalIndex.Count)
 				{
 					throw new InvalidOperationException(
-						string.Format("Locator returned a result with different number of objects ({0}) than given number of ids ({1}) when locating ids {2} of type {3}",
-						located.Count,
-						locateIds.Count,
-						locateIds.ToItemString(),
-						Type));
+                        $"Locator returned a result with different number of objects ({located.Count}) than given number of ids ({locateIds.Count}) when locating ids {locateIds.ToItemString()} of type {Type}");
 				}
 
 				for (int i = 0; i < located.Count; i++)
@@ -404,7 +400,7 @@ namespace Routine.Engine
 	internal class TypeNotConfiguredException : Exception
 	{
 		public TypeNotConfiguredException(IType type)
-			: base(string.Format("Type '{0}' is not configured.", type == null ? "null" : type.ToString())) { }
+			: base($"Type '{(type == null ? "null" : type.ToString())}' is not configured.") { }
 	}
 }
 

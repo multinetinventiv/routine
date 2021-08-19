@@ -102,29 +102,22 @@ namespace Routine.Service
 
         private string Url(string action)
         {
-            return string.Format("{0}/{1}",
-                serviceClientConfiguration.GetServiceUrlBase(),
-                action);
+            return $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
         }
 
         private string Url(ReferenceData referenceData)
         {
             if (referenceData.ModelId == referenceData.ViewModelId)
             {
-                return Url(string.Format("{0}/{1}",
-                    referenceData.ModelId,
-                    referenceData.Id));
+                return Url($"{referenceData.ModelId}/{referenceData.Id}");
             }
 
-            return Url(string.Format("{0}/{1}/{2}",
-                referenceData.ModelId,
-                referenceData.Id,
-                referenceData.ViewModelId));
+            return Url($"{referenceData.ModelId}/{referenceData.Id}/{referenceData.ViewModelId}");
         }
 
         private string Url(ReferenceData referenceData, string operation)
         {
-            return string.Format("{0}/{1}", Url(referenceData), operation);
+            return $"{Url(referenceData)}/{operation}";
         }
 
         private RestResponse Post(string url, string body)
@@ -177,24 +170,20 @@ namespace Routine.Service
         private RestResponse Wrap(HttpWebResponse res)
         {
             return new RestResponse(
-                serializer.Serialize(new ExceptionResult(string.Format("Http.{0}", res.StatusCode), res.StatusDescription, false))
+                serializer.Serialize(new ExceptionResult($"Http.{res.StatusCode}", res.StatusDescription, false))
                 );
         }
 
         private Exception OperationNotFound(string modelId, string operation)
         {
             return serviceClientConfiguration.GetException(new ExceptionResult("OperationNotFound",
-                string.Format(
-                    "Given operation ({0}) was not found in given model ({1}). Make sure you are connecting to the correct endpoint.",
-                    operation, modelId), false));
+                $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.", false));
         }
 
         private Exception TypeNotFound(string modelId)
         {
             return serviceClientConfiguration.GetException(new ExceptionResult("TypeNotFound",
-                string.Format(
-                    "Given model id ({0}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
-                    modelId), false));
+                $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.", false));
         }
 
         #endregion

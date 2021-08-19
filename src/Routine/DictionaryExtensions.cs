@@ -11,7 +11,7 @@ namespace Routine
 			var result = new List<string>();
 			foreach (var key in source.Keys)
 			{
-				result.Add(string.Format("[{0}={1}]", key, source[key]));
+				result.Add($"[{key}={source[key]}]");
 			}
 
 			return string.Join(",", result.ToArray()).SurroundWith("[", "]");

@@ -16,7 +16,7 @@
 
 		public override string ToString()
 		{
-			return string.Format("[OperationWithObjectModel:[ObjectModel: {0}, OperationModel: {1}]]", ObjectModel, OperationModel);
+			return $"[OperationWithObjectModel:[ObjectModel: {ObjectModel}, OperationModel: {OperationModel}]]";
 		}
 
 		protected bool Equals(OperationWithObjectModel other)

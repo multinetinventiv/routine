@@ -25,7 +25,7 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[VariableData: [IsList: {0}, Values: {1}]]", IsList, Values.ToItemString());
+			return $"[VariableData: [IsList: {IsList}, Values: {Values.ToItemString()}]]";
 		}
 
 		protected bool Equals(VariableData other)

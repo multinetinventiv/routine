@@ -37,7 +37,8 @@ namespace Routine.Core
 
         public override string ToString()
         {
-            return string.Format("[InitializerModel: [Marks: {0}, GroupCount: {1}, Parameters: {2}]]", Marks.ToItemString(), GroupCount, Parameters.ToItemString());
+            return
+                $"[InitializerModel: [Marks: {Marks.ToItemString()}, GroupCount: {GroupCount}, Parameters: {Parameters.ToItemString()}]]";
         }
 
         protected bool Equals(InitializerModel other)

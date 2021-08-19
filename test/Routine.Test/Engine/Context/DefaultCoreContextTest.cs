@@ -53,7 +53,7 @@ namespace Routine.Test.Engine.Context
                     .AddTypes(typeof(CachedBusiness))
                     .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<string>("Id")))
                     .Locator.Set(c => c.Locator(l => l.Constant(null)))
-                    .ValueExtractor.Set(c => c.Value(e => e.By(obj => string.Format("{0}", obj))));
+                    .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
 
             var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
 

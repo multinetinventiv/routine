@@ -318,7 +318,8 @@ namespace Routine.Core.Rest
 				parameters = new Dictionary<string, object>();
 			}
 
-			if (!(parameters is Dictionary<string, object>)) { throw new ArgumentException(string.Format("Given parameters should be Dictionary<string, object>, but was '{0}'", parameters), "object"); }
+			if (!(parameters is Dictionary<string, object>)) { throw new ArgumentException(
+                $"Given parameters should be Dictionary<string, object>, but was '{parameters}'", "object"); }
 
 			var paramsDict = (Dictionary<string, object>)parameters;
 

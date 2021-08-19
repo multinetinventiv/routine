@@ -28,10 +28,7 @@ namespace Routine
 		public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
 		public static string SplitCamelCase(this string source, char splitter)
 		{
-			var pattern = string.Format("{0}|{1}|{2}",
-			                            "(?<=[A-Z])(?=[A-Z][a-z])",
-			                            "(?<=[^A-Z])(?=[A-Z])",
-			                            "(?<=[A-Za-z])(?=[^A-Za-z])");
+			var pattern = $"{"(?<=[A-Z])(?=[A-Z][a-z])"}|{"(?<=[^A-Z])(?=[A-Z])"}|{"(?<=[A-Za-z])(?=[^A-Za-z])"}";
 
 			return Regex.Replace(source, pattern, splitter.ToString(CultureInfo.InvariantCulture));
 		}

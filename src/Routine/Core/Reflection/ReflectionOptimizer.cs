@@ -96,7 +96,8 @@ namespace Routine.Core.Reflection
                         {
                             if (current == method)
                             {
-                                throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+                                throw new InvalidOperationException(
+                                    $"Cannot optimize {current.ReflectedType} {current}", ex);
                             }
                         }
                     }
@@ -137,7 +138,8 @@ namespace Routine.Core.Reflection
                             {
                                 if (current == method)
                                 {
-                                    throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+                                    throw new InvalidOperationException(
+                                        $"Cannot optimize {current.ReflectedType} {current}", ex);
                                 }
                             }
                         }
@@ -174,7 +176,7 @@ namespace Routine.Core.Reflection
                     errors.AppendLine();
                 }
 
-                throw new Exception(string.Format("{0}; \r\n {1}", errors, code));
+                throw new Exception($"{errors}; \r\n {code}");
             }
         }
 
@@ -330,7 +332,8 @@ namespace Routine.Core.Reflection
 
         private static string MissingGenericParametersMessage(System.Reflection.MethodBase method)
         {
-            return string.Format("Missing generic parameters: {0}, {1}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)", method, method.ReflectedType);
+            return
+                $"Missing generic parameters: {method}, {method.ReflectedType}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
         }
 
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references) { AddTypeReference(type, references, new Dictionary<Type, bool>()); }

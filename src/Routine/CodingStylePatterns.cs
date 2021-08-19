@@ -89,7 +89,7 @@ namespace Routine
 				.Type.Set(c => c.By(o => ((VirtualObject)o).Type).When(o => o is VirtualObject))
 				.IdExtractor.Set(c => c.Id(e => e.By(o => (o as VirtualObject).Id)).When(t => t is VirtualType))
 				.Locator.Set(c => c.Locator(l => l.SingleBy((t, id) => new VirtualObject(id, t as VirtualType))).When(t => t is VirtualType))
-				.ValueExtractor.Set(c => c.Value(e => e.By(o => string.Format("{0}", o))).When(t => t is VirtualType))
+				.ValueExtractor.Set(c => c.Value(e => e.By(o => $"{o}")).When(t => t is VirtualType))
 				.TypeMarks.Add(virtualMark, t => t is VirtualType)
 			;
 		}

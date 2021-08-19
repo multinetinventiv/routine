@@ -77,7 +77,7 @@ namespace Routine.Engine
 				return name;
 			}
 
-			return string.Format("{0}.{1}", module, name);
+			return $"{module}.{name}";
 		}
 	}
 }

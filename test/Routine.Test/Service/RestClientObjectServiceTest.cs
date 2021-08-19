@@ -44,7 +44,7 @@ namespace Routine.Test.Service
         private ISetup<IRestClient, RestResponse> SetUpGet(string action, RestRequest restRequest) { return SetUpGet(action, req => Equals(req, restRequest)); }
         private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
         {
-            return mockRestClient.Setup(rc => rc.Get(string.Format("{0}/{1}", URL_BASE, action), It.Is(restRequestMatcher)));
+            return mockRestClient.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
         }
 
         private ISetup<IRestClient, RestResponse> SetUpPost(string action) { return SetUpPost(action, req => true); }
@@ -52,7 +52,7 @@ namespace Routine.Test.Service
         private ISetup<IRestClient, RestResponse> SetUpPost(string action, RestRequest restRequest) { return SetUpPost(action, req => Equals(req, restRequest)); }
         private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
         {
-            return mockRestClient.Setup(rc => rc.Post(string.Format("{0}/{1}", URL_BASE, action), It.Is(restRequestMatcher)));
+            return mockRestClient.Setup(rc => rc.Post($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
         }
 
         private class TestException : Exception { public TestException(string message) : base(message) { } }

@@ -21,7 +21,7 @@ namespace Routine.Core.Configuration
 
 				if (order == int.MaxValue)
 				{
-					throw new ArgumentOutOfRangeException("order", order, string.Format("\"order\" must be less than {0}", int.MaxValue));
+					throw new ArgumentOutOfRangeException("order", order, $"\"order\" must be less than {int.MaxValue}");
 				}
 			}
 
@@ -62,7 +62,7 @@ namespace Routine.Core.Configuration
 
 		public override string ToString()
 		{
-			return string.Format("Layer ({0})", order);
+			return $"Layer ({order})";
 		}
 
 		#region Equality & HashCode

@@ -20,7 +20,7 @@ namespace Routine.Core.Rest
 
 		public override string ToString()
 		{
-			return string.Format("[RestResponse: Body={0}, Headers={1}]", Body, Headers.ToKeyValueString());
+			return $"[RestResponse: Body={Body}, Headers={Headers.ToKeyValueString()}]";
 		}
 
 		protected bool Equals(RestResponse other)

@@ -60,14 +60,13 @@ namespace Routine.Engine.Virtual
 		{
 			if (target == null)
 			{
-				throw new NullReferenceException(string.Format("Cannot perform {0} method on null target", Name.Get()));
+				throw new NullReferenceException($"Cannot perform {Name.Get()} method on null target");
 			}
 
 			if (!ValidateType(target, parentType))
 			{
 				throw new InvalidCastException(
-					string.Format("Parent type of '{0}' method is configured as {1}, but given target is of type {2}", Name.Get(),
-						parentType, GetType(target)));
+                    $"Parent type of '{Name.Get()}' method is configured as {parentType}, but given target is of type {GetType(target)}");
 			}
 		}
 
@@ -76,8 +75,8 @@ namespace Routine.Engine.Virtual
 			var iParameters = Parameters.Get();
 			if (parameters.Length != iParameters.Count)
 			{
-				throw new InvalidOperationException(string.Format("'{0}' has {1} parameters, but given parameter count is {2}",
-					Name.Get(), iParameters.Count, parameters.Length));
+				throw new InvalidOperationException(
+                    $"'{Name.Get()}' has {iParameters.Count} parameters, but given parameter count is {parameters.Length}");
 			}
 
 			for (int i = 0; i < iParameters.Count; i++)
@@ -87,17 +86,13 @@ namespace Routine.Engine.Virtual
 				if (parameters[i] == null && iParameter.ParameterType.IsValueType)
 				{
 					throw new NullReferenceException(
-						string.Format(
-							"The type of '{0}' parameter of '{1}' method is configured as {2}, but given argument is null. Null cannot be passed for value type parameters. Instead, default() should be used.",
-							iParameter.Name, Name.Get(), iParameter.ParameterType));
+                        $"The type of '{iParameter.Name}' parameter of '{Name.Get()}' method is configured as {iParameter.ParameterType}, but given argument is null. Null cannot be passed for value type parameters. Instead, default() should be used.");
 				}
 
 				if (!ValidateType(parameters[i], iParameter.ParameterType))
 				{
 					throw new InvalidCastException(
-						string.Format(
-							"The type of '{0}' parameter of '{1}' method is configured as {2}, but given argument is of type {3}",
-							iParameter.Name, Name.Get(), iParameter.ParameterType, GetType(parameters[i])));
+                        $"The type of '{iParameter.Name}' parameter of '{Name.Get()}' method is configured as {iParameter.ParameterType}, but given argument is of type {GetType(parameters[i])}");
 				}
 			}
 		}
@@ -107,16 +102,13 @@ namespace Routine.Engine.Virtual
 			if (result == null && !ReturnType.Get().IsVoid && ReturnType.Get().IsValueType)
 			{
 				throw new NullReferenceException(
-					string.Format(
-						"Return type of '{0}' method is configured as {1}, but perform result is null. Null cannot be returned for value type methods. Instead, default() should be used.",
-						Name.Get(), ReturnType.Get()));
+                    $"Return type of '{Name.Get()}' method is configured as {ReturnType.Get()}, but perform result is null. Null cannot be returned for value type methods. Instead, default() should be used.");
 			}
 
 			if (!ValidateType(result, ReturnType.Get()))
 			{
 				throw new InvalidCastException(
-					string.Format("Return type of '{0}' method is configured as {1}, but perform result is of type {2}", Name.Get(),
-						ReturnType.Get(), GetType(result)));
+                    $"Return type of '{Name.Get()}' method is configured as {ReturnType.Get()}, but perform result is of type {GetType(result)}");
 			}
 		}
 

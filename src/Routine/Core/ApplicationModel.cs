@@ -28,7 +28,7 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ApplicationModel: [Models: {0}]]", Models.ToItemString());
+			return $"[ApplicationModel: [Models: {Models.ToItemString()}]]";
 		}
 
 		protected bool Equals(ApplicationModel other)

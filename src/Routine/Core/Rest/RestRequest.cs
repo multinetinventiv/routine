@@ -42,7 +42,7 @@ namespace Routine.Core.Rest
 		public string BuildUrlParameters()
 		{
 			return string.Join("&",
-				UrlParameters.Select(kvp => string.Format("{0}={1}", kvp.Key, HttpUtility.UrlEncode(kvp.Value)))
+				UrlParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}")
 			);
 		}
 
@@ -50,7 +50,8 @@ namespace Routine.Core.Rest
 
 		public override string ToString()
 		{
-			return string.Format("Body: {0}, Headers: {1}, UrlParameters: {2}", Body, Headers.ToKeyValueString(), UrlParameters.ToKeyValueString());
+			return
+                $"Body: {Body}, Headers: {Headers.ToKeyValueString()}, UrlParameters: {UrlParameters.ToKeyValueString()}";
 		}
 
 		protected bool Equals(RestRequest other)

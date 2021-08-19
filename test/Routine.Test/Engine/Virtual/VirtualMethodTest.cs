@@ -86,7 +86,7 @@ namespace Routine.Test.Engine.Virtual
 		{
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("virtual -> {0}", target))
+				.Body.Set((target, parameters) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn("test");
@@ -100,7 +100,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("virtual -> {0}", target))
+				.Body.Set((target, parameters) => $"virtual -> {target}")
 			;
 
 			Assert.Throws<InvalidCastException>(() => testing.PerformOn(3));
@@ -112,7 +112,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<object>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("virtual -> {0}", target))
+				.Body.Set((target, parameters) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn("test");
@@ -130,7 +130,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("virtual -> {0}", target))
+				.Body.Set((target, parameters) => $"virtual -> {target}")
 			;
 
 			Assert.Throws<NullReferenceException>(() => testing.PerformOn(null));
@@ -148,7 +148,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(vt)
 				.Name.Set("VirtualMethod")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("virtual -> {0}", target))
+				.Body.Set((target, parameters) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn(new VirtualObject("test", vt));
@@ -294,7 +294,8 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<int[]>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => string.Format("{0}: {1} {2} {3}", target, parameters[0], (int)parameters[1], ((int[])parameters[2]).ToItemString()))
+				.Body.Set((target, parameters) =>
+                    $"{target}: {parameters[0]} {(int)parameters[1]} {((int[])parameters[2]).ToItemString()}")
 			;
 
 			Assert.AreEqual(3, testing.Parameters.Count);
@@ -419,7 +420,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(parentType)
 				)
 				.ReturnType.Set(parentType)
-				.Body.Set((target, parameters) => string.Format("virtual -> {0} {1}", target, parameters[0]))
+				.Body.Set((target, parameters) => $"virtual -> {target} {parameters[0]}")
 				.TypeRetrieveStrategy.Set(o => parentType)
 			;
 

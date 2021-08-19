@@ -32,12 +32,14 @@ namespace Routine.Engine.Virtual
 			var vobject = @object as VirtualObject;
 			if (vobject == null)
 			{
-				throw new InvalidCastException(string.Format("Cannot cast a real object to a virtual type. {0} as {1} -> {2}", @object, ToString(), otherType));
+				throw new InvalidCastException(
+                    $"Cannot cast a real object to a virtual type. {@object} as {ToString()} -> {otherType}");
 			}
 
 			if (!CanBe(otherType))
 			{
-				throw new InvalidCastException(string.Format("Cannot cast object to given type. {0} as {1} -> {2}", vobject, ToString(), otherType));
+				throw new InvalidCastException(
+                    $"Cannot cast object to given type. {vobject} as {ToString()} -> {otherType}");
 			}
 
 			return @object;
@@ -50,7 +52,7 @@ namespace Routine.Engine.Virtual
 
 		public override string ToString()
 		{
-			return string.Format("{0}.{1}", Namespace.Get(), Name.Get());
+			return $"{Namespace.Get()}.{Name.Get()}";
 		}
 
 		#region Equality & Hashcode
@@ -98,7 +100,7 @@ namespace Routine.Engine.Virtual
         bool IType.IsVoid => false;
         bool IType.IsEnum => false;
         bool IType.IsArray => false;
-        string IType.FullName => string.Format("{0}.{1}", Namespace.Get(), Name.Get());
+        string IType.FullName => $"{Namespace.Get()}.{Name.Get()}";
         string IType.Namespace => Namespace.Get();
         IType IType.BaseType => type.of<object>();
         List<IType> IType.AssignableTypes => AssignableTypes.Get().Cast<IType>().ToList();
