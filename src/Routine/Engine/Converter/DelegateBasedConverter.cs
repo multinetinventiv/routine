@@ -11,8 +11,8 @@ namespace Routine.Engine.Converter
 
 		public DelegateBasedConverter(Func<IEnumerable<IType>> targetTypesDelegate, Func<object, IType, object> converterDelegate)
 		{
-			if (targetTypesDelegate == null) { throw new ArgumentNullException("targetTypesDelegate"); }
-			if (converterDelegate == null) { throw new ArgumentNullException("converterDelegate"); }
+			if (targetTypesDelegate == null) { throw new ArgumentNullException(nameof(targetTypesDelegate)); }
+			if (converterDelegate == null) { throw new ArgumentNullException(nameof(converterDelegate)); }
 
 			this.targetTypesDelegate = targetTypesDelegate;
 			this.converterDelegate = converterDelegate;

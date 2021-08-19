@@ -11,7 +11,7 @@ namespace Routine.Engine.Virtual
 		public PropertyAsMethod(IProperty property) : this(property, Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX) { }
 		public PropertyAsMethod(IProperty property, string namePrefix)
 		{
-			if (namePrefix == null) { throw new ArgumentNullException("namePrefix"); }
+			if (namePrefix == null) { throw new ArgumentNullException(nameof(namePrefix)); }
 
 			this.property = property;
 			this.namePrefix = namePrefix;

@@ -88,9 +88,7 @@ namespace Routine.Core.Configuration
 		{
 			try
 			{
-				List<TResultItem> result;
-
-				if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out result))
+                if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out var result))
 				{
 					return result;
 				}

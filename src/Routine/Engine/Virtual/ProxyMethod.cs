@@ -19,10 +19,10 @@ namespace Routine.Engine.Virtual
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
 		{
-			if (parentType == null) { throw new ArgumentNullException("parentType"); }
-			if (real == null) { throw new ArgumentNullException("real"); }
-			if (targetDelegate == null) { throw new ArgumentNullException("targetDelegate"); }
-			if (parameters == null) { throw new ArgumentNullException("parameters"); }
+			if (parentType == null) { throw new ArgumentNullException(nameof(parentType)); }
+			if (real == null) { throw new ArgumentNullException(nameof(real)); }
+			if (targetDelegate == null) { throw new ArgumentNullException(nameof(targetDelegate)); }
+			if (parameters == null) { throw new ArgumentNullException(nameof(parameters)); }
 
 			Name = new SingleConfiguration<ProxyMethod, string>(this, "Name", true);
 

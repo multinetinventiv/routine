@@ -12,9 +12,9 @@ namespace Routine.Engine.Virtual
 		public ProxyParameter(IParameter real, IParametric owner) : this(real, owner, 0) { }
 		public ProxyParameter(IParameter real, IParametric owner, int index)
 		{
-			if (real == null) { throw new ArgumentNullException("real"); }
-			if (owner == null) { throw new ArgumentNullException("owner"); }
-			if (index < 0) { throw new ArgumentOutOfRangeException("index", index, "'index' cannot be less than zero"); }
+			if (real == null) { throw new ArgumentNullException(nameof(real)); }
+			if (owner == null) { throw new ArgumentNullException(nameof(owner)); }
+			if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index), index, "'index' cannot be less than zero"); }
 
 			this.real = real;
 			this.index = index;

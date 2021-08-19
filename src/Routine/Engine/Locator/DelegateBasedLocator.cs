@@ -9,7 +9,7 @@ namespace Routine.Engine.Locator
 
 		public DelegateBasedLocator(Func<IType, List<string>, List<object>> locatorDelegate)
 		{
-			if (locatorDelegate == null) { throw new ArgumentNullException("locatorDelegate"); }
+			if (locatorDelegate == null) { throw new ArgumentNullException(nameof(locatorDelegate)); }
 
 			this.locatorDelegate = locatorDelegate;
 		}

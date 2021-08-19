@@ -22,7 +22,7 @@ namespace Routine.Engine.Configuration
 
 		public DelegateBasedConverter By(Func<IType> targetTypeDelegate, Func<object, IType, object> converterDelegate)
 		{
-			if (targetTypeDelegate == null) { throw new ArgumentNullException("targetTypeDelegate"); }
+			if (targetTypeDelegate == null) { throw new ArgumentNullException(nameof(targetTypeDelegate)); }
 
 			return By(() => new List<IType> { targetTypeDelegate() }, converterDelegate);
 		}

@@ -8,7 +8,7 @@ namespace Routine.Engine.Extractor
 
 		public DelegateBasedExtractor(Func<object, string> extractorDelegate)
 		{
-			if (extractorDelegate == null) { throw new ArgumentNullException("extractorDelegate"); }
+			if (extractorDelegate == null) { throw new ArgumentNullException(nameof(extractorDelegate)); }
 
 			this.extractorDelegate = extractorDelegate;
 		}

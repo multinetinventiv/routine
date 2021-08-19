@@ -110,7 +110,7 @@ namespace Routine
 
 		public static IType GetItemType(this IType source)
 		{
-			if (!source.CanBeCollection()) { throw new ArgumentException("Type should be a generic collection or an array to have an item type", "source"); }
+			if (!source.CanBeCollection()) { throw new ArgumentException("Type should be a generic collection or an array to have an item type", nameof(source)); }
 			if (source.IsGenericType) { return source.GetGenericArguments()[0]; }
 			if (source.IsArray) { return source.GetElementType(); }
 

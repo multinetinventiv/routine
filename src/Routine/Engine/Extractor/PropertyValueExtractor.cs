@@ -10,7 +10,7 @@ namespace Routine.Engine.Extractor
 
 		public PropertyValueExtractor(IProperty property)
 		{
-			if (property == null) { throw new ArgumentNullException("property"); }
+			if (property == null) { throw new ArgumentNullException(nameof(property)); }
 
 			this.property = property;
 

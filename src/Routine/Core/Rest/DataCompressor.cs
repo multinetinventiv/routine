@@ -163,18 +163,18 @@ namespace Routine.Core.Rest
 
 			if (@object is string)
 			{
-				if (string.IsNullOrEmpty(knownViewModelId)) { throw new ArgumentException("Cannot deserialize a string to a ReferenceData instance when model id is not known", "object"); }
+				if (string.IsNullOrEmpty(knownViewModelId)) { throw new ArgumentException("Cannot deserialize a string to a ReferenceData instance when model id is not known", nameof(@object)); }
 
 				return new ReferenceData { Id = (string)@object, ModelId = knownViewModelId, ViewModelId = knownViewModelId };
 			}
 
-			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or Dictionary<string, object>, but was " + @object, "object"); }
+			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or Dictionary<string, object>, but was " + @object, nameof(@object)); }
 
 			var dict = (Dictionary<string, object>)@object;
 			var result = new ReferenceData();
 
 			object id;
-			if (!dict.TryGetValue(ID_KEY, out id)) { throw new ArgumentException("Given dictionary does not contain Id", "object"); }
+			if (!dict.TryGetValue(ID_KEY, out id)) { throw new ArgumentException("Given dictionary does not contain Id", nameof(@object)); }
 			if (id == null) { return null; }
 
 			result.Id = id.ToString();
@@ -218,7 +218,7 @@ namespace Routine.Core.Rest
 				return result;
 			}
 
-			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or Dictionary<string, object>, but was " + @object, "object"); }
+			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or Dictionary<string, object>, but was " + @object, nameof(@object)); }
 
 			var dict = (Dictionary<string, object>)@object;
 
@@ -235,7 +235,7 @@ namespace Routine.Core.Rest
 			object data;
 			if (!dict.TryGetValue(DATA_KEY, out data)) { return result; }
 
-			if (!(data is Dictionary<string, object>)) { throw new ArgumentException("Given dictionary contains data, but it was not Dictionary<string, object>, it was " + @object, "object"); }
+			if (!(data is Dictionary<string, object>)) { throw new ArgumentException("Given dictionary contains data, but it was not Dictionary<string, object>, it was " + @object, nameof(@object)); }
 
 			var dataDict = (Dictionary<string, object>)data;
 
@@ -257,7 +257,7 @@ namespace Routine.Core.Rest
 				return new VariableData { Values = new List<ObjectData> { DecompressObjectData(@object) } };
 			}
 
-			if (!(@object is object[])) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, "object"); }
+			if (!(@object is object[])) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, nameof(@object)); }
 
 			var list = (object[])@object;
 
@@ -286,7 +286,7 @@ namespace Routine.Core.Rest
 				};
 			}
 
-			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or dictionary, but was " + @object, "object"); }
+			if (!(@object is Dictionary<string, object>)) { throw new ArgumentException("Given parameter value should be null, string or dictionary, but was " + @object, nameof(@object)); }
 
 			var result = new ParameterData();
 			var dict = (Dictionary<string, object>)@object;
@@ -319,7 +319,7 @@ namespace Routine.Core.Rest
 			}
 
 			if (!(parameters is Dictionary<string, object>)) { throw new ArgumentException(
-                $"Given parameters should be Dictionary<string, object>, but was '{parameters}'", "object"); }
+                $"Given parameters should be Dictionary<string, object>, but was '{parameters}'", nameof(@object)); }
 
 			var paramsDict = (Dictionary<string, object>)parameters;
 
@@ -342,7 +342,7 @@ namespace Routine.Core.Rest
 				return new ParameterValueData { Values = new List<ParameterData> { DecompressParameterData(@object) } };
 			}
 
-			if (!(@object is object[])) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, "object"); }
+			if (!(@object is object[])) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, nameof(@object)); }
 
 			var list = (object[])@object;
 

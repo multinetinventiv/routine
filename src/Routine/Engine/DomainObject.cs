@@ -13,8 +13,8 @@ namespace Routine.Engine
 
 		public DomainObject(object target, DomainType actualDomainType, DomainType viewDomainType)
 		{
-			if (actualDomainType == null) { throw new ArgumentNullException("actualDomainType"); }
-			if (viewDomainType == null) { throw new ArgumentNullException("viewDomainType"); }
+			if (actualDomainType == null) { throw new ArgumentNullException(nameof(actualDomainType)); }
+			if (viewDomainType == null) { throw new ArgumentNullException(nameof(viewDomainType)); }
 
 			this.actualDomainType = actualDomainType;
 			this.viewDomainType = viewDomainType;

@@ -24,7 +24,7 @@ namespace Routine.Core.Reflection
 
         public static void AddToOptimizeList(System.Reflection.MethodBase method)
         {
-            if (method == null) { throw new ArgumentNullException("method"); }
+            if (method == null) { throw new ArgumentNullException(nameof(method)); }
             if (invokers.ContainsKey(method)) { return; }
 
             lock (OPTIMIZE_LIST_LOCK)
@@ -35,7 +35,7 @@ namespace Routine.Core.Reflection
 
         public static IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
         {
-            if (method == null) { throw new ArgumentNullException("method"); }
+            if (method == null) { throw new ArgumentNullException(nameof(method)); }
 
             OptimizeTheListFor(method);
 

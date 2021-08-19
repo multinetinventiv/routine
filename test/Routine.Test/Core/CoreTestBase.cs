@@ -87,7 +87,7 @@ namespace Routine.Test.Core
 
 			public ObjectModelBuilder IsView(string firstActualModelId, params string[] restOfTheActualModelIds)
 			{
-				if (string.IsNullOrEmpty(firstActualModelId)) { throw new ArgumentException("firstActualModelId cannot be null or empty. A view model should have at least one actual model id", "firstActualModelId"); }
+				if (string.IsNullOrEmpty(firstActualModelId)) { throw new ArgumentException("firstActualModelId cannot be null or empty. A view model should have at least one actual model id", nameof(firstActualModelId)); }
 
 				result.IsViewModel = true;
 				result.ActualModelIds.Add(firstActualModelId);
