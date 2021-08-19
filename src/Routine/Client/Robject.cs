@@ -46,7 +46,7 @@ namespace Routine.Client
 
 			this.initializationParameters = initializationParameters;
 			
-			id = objectData != null ? objectData.Id : null;
+			id = objectData?.Id;
 
 			ActualType = actualType;
 			ViewType = viewType;
@@ -153,13 +153,10 @@ namespace Routine.Client
         public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
 		public List<DataValue> DataValues { get { LoadDataIfNecessary(); return datas.Values.ToList(); } }
 
-		public Robject As(Rtype viewType)
-		{
-			return Type.Get(Id, viewType);
-		}
+		public Robject As(Rtype viewType) => Type.Get(Id, viewType);
 
-		public Rvariable Perform(string operationName, params Rvariable[] parameters) { return Perform(operationName, parameters.ToList()); }
-		public Rvariable Perform(string operationName, List<Rvariable> parameters)
+        public Rvariable Perform(string operationName, params Rvariable[] parameters) => Perform(operationName, parameters.ToList());
+        public Rvariable Perform(string operationName, List<Rvariable> parameters)
 		{
 			if (IsNull) { return new Rvariable(); }
 
@@ -214,12 +211,9 @@ namespace Routine.Client
 			}
 		}
 
-		public override string ToString()
-		{
-			return $"{Id}({Type.Id})";
-		}
+		public override string ToString() => $"{Id}({Type.Id})";
 
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Robject other)
 		{

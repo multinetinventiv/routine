@@ -24,12 +24,9 @@ namespace Routine.Client
         public bool IsList => model.IsList;
         public List<string> Marks => model.Marks;
 
-        public bool MarkedAs(string mark)
-		{
-			return model.Marks.Any(m => m == mark);
-		}
+        public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
 
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rdata other)
 		{

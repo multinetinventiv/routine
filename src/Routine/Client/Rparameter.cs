@@ -27,35 +27,27 @@ namespace Routine.Client
         internal List<int> Groups => model.Groups;
         public List<string> Marks => model.Marks;
 
-        public bool MarkedAs(string mark)
-		{
-			return model.Marks.Any(m => m == mark);
-		}
+        public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
 
-		public Rvariable CreateVariable(params Robject[] robjs) { return CreateVariable(robjs.ToList()); }
-		public Rvariable CreateVariable(List<Robject> robjs)
+        public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());
+        public Rvariable CreateVariable(List<Robject> robjs)
 		{
 			var result = new Rvariable(Name, robjs);
 
-			if (!IsList)
-			{
-				return result.ToSingle();
-			}
+			return IsList 
+                ? result
+                : result.ToSingle();
+        }
 
-			return result;
-		}
+		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());
+        internal ParameterValueData CreateParameterValueData(List<Robject> robjs) =>
+            new()
+            {
+                IsList = IsList,
+                Values = robjs.Select(robj => robj.GetParameterData()).ToList()
+            };
 
-		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) { return CreateParameterValueData(robjs.ToList()); }
-		internal ParameterValueData CreateParameterValueData(List<Robject> robjs)
-		{
-			return new ParameterValueData
-			{
-				IsList = IsList,
-				Values = robjs.Select(robj => robj.GetParameterData()).ToList()
-			};
-		}
-
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rparameter other)
 		{

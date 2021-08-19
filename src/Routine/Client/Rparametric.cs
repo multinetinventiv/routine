@@ -36,7 +36,8 @@ namespace Routine.Client
                     if (group >= Groups.Count)
                     {
                         throw new InvalidOperationException(
-                            $"Parameter '{param.Name}' has a group '{group}' that does not exist on '{type.Name}.{name}'. There are only {Groups.Count} groups."
+                            $"Parameter '{param.Name}' has a group '{group}' that does not exist on '{type.Name}.{name}'." +
+                            $"There are only {Groups.Count} groups."
                         );
                     }
 
