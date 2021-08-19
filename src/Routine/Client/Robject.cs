@@ -23,9 +23,9 @@ namespace Routine.Client
 
 		public Rtype ActualType { get; }
 		public Rtype ViewType { get; }
-		public Rtype Type { get { return ViewType ?? ActualType; } }
+		public Rtype Type => ViewType ?? ActualType;
 
-		public Robject() : this(Rd(true), null, null) { }
+        public Robject() : this(Rd(true), null, null) { }
 		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Rd(null, type.Id, type.Id, false)), type, type) { }
 		public Robject(string id, Rtype type) : this(id, type, type) { }
 		public Robject(string id, Rtype actualType, Rtype viewType) : this(Rd(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
@@ -142,15 +142,15 @@ namespace Routine.Client
 			return result;
 		}
 
-		public Rapplication Application { get { return Type.Application; } }
-		public string Id { get { return id; } }
-		public bool IsNull { get { return id == null && !IsInitializedOnClient; } }
-		public bool IsNaked { get { return Equals(ActualType, ViewType); } }
-		public bool IsInitializedOnClient { get { return initializationParameters != null; } }
-		public string Display { get { FetchValueIfNecessary(); return display; } }
-		internal ReferenceData ReferenceData { get { return Rd(id, ActualType.Id, ViewType.Id, IsNull); } }
+		public Rapplication Application => Type.Application;
+        public string Id => id;
+        public bool IsNull => id == null && !IsInitializedOnClient;
+        public bool IsNaked => Equals(ActualType, ViewType);
+        public bool IsInitializedOnClient => initializationParameters != null;
+        public string Display { get { FetchValueIfNecessary(); return display; } }
+		internal ReferenceData ReferenceData => Rd(id, ActualType.Id, ViewType.Id, IsNull);
 
-		public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
+        public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
 		public List<DataValue> DataValues { get { LoadDataIfNecessary(); return datas.Values.ToList(); } }
 
 		public Robject As(Rtype viewType)

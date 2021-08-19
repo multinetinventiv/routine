@@ -17,8 +17,8 @@ namespace Routine.Engine.Reflection
 			return new ReflectionMethodInvoker(constructorInfo).Invoke(null, parameters);
 		}
 
-		public override bool IsPublic { get { return constructorInfo.IsPublic; } }
-		public override TypeInfo DeclaringType { get { return TypeInfo.Get(constructorInfo.DeclaringType); } }
-		public override TypeInfo ReflectedType { get { return TypeInfo.Get(constructorInfo.ReflectedType); } }
-	}
+		public override bool IsPublic => constructorInfo.IsPublic;
+        public override TypeInfo DeclaringType => TypeInfo.Get(constructorInfo.DeclaringType);
+        public override TypeInfo ReflectedType => TypeInfo.Get(constructorInfo.ReflectedType);
+    }
 }

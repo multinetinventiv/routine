@@ -138,30 +138,30 @@ namespace Routine.Engine.Virtual
 
 		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
 
-		IType ITypeComponent.ParentType { get { return parentType; } }
-		string ITypeComponent.Name { get { return Name.Get(); } }
+		IType ITypeComponent.ParentType => parentType;
+        string ITypeComponent.Name => Name.Get();
 
-		#endregion
+        #endregion
 
 		#region IParametric implementation
 
-		List<IParameter> IParametric.Parameters { get { return Parameters.Get(); } }
+		List<IParameter> IParametric.Parameters => Parameters.Get();
 
-		#endregion
+        #endregion
 
 		#region IReturnable implementation
 
 		object[] IReturnable.GetReturnTypeCustomAttributes() { return new object[0]; }
 
-		IType IReturnable.ReturnType { get { return ReturnType.Get(); } }
+		IType IReturnable.ReturnType => ReturnType.Get();
 
-		#endregion
+        #endregion
 
 		#region IMethod implementation
 
-		bool IMethod.IsPublic { get { return true; } }
+		bool IMethod.IsPublic => true;
 
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return parentType; }
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) { return parentType; }
 		object IMethod.PerformOn(object target, params object[] parameters) { return Perform(target, parameters); }
 
 		#endregion

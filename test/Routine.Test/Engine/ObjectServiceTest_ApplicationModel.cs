@@ -35,10 +35,10 @@ namespace Routine.Test.Engine
 	{
 		#region Setup & Helpers
 
-		protected override string DefaultModelId { get { return typeof(BusinessModel1).FullName; } }
-		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel"; } }
+		protected override string DefaultModelId => typeof(BusinessModel1).FullName;
+        protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_GetApplicationModel";
 
-		[SetUp]
+        [SetUp]
 		public override void SetUp()
 		{
 			base.SetUp();

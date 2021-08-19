@@ -21,10 +21,10 @@ namespace Routine.Engine.Configuration
 			Name = new ConventionBasedConfiguration<ProxyMethodBuilder<T>, IMethod, string>(this, "Name");
 		}
 
-		public IType ParentType { get { return parentType; } }
-		public IEnumerable<IMethod> Methods { get { return methods; } }
+		public IType ParentType => parentType;
+        public IEnumerable<IMethod> Methods => methods;
 
-		public IEnumerable<IMethod> TargetBySelf() { return TargetBy(o => (T)o); }
+        public IEnumerable<IMethod> TargetBySelf() { return TargetBy(o => (T)o); }
 		public IEnumerable<IMethod> Target(T target) { return TargetBy(() => target); }
 		public IEnumerable<IMethod> TargetBy(Func<T> targetDelegate) { return TargetBy(o => targetDelegate()); }
 		public IEnumerable<IMethod> TargetBy(Func<object, T> targetDelegate)

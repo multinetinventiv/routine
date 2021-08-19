@@ -353,20 +353,20 @@ namespace Routine
 
 		#region ITypeComponent implementation
 
-		IType ITypeComponent.ParentType { get { return null; } }
+		IType ITypeComponent.ParentType => null;
 
-		#endregion
+        #endregion
 
 		#region IType implementation
 
-		IType IType.BaseType { get { return BaseType; } }
+		IType IType.BaseType => BaseType;
 
-		List<IType> IType.AssignableTypes { get { return GetAssignableTypes().Cast<IType>().ToList(); } }
-		List<IConstructor> IType.Constructors { get { return GetAllConstructors().Cast<IConstructor>().ToList(); } }
-		List<IProperty> IType.Properties { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IProperty>().ToList(); } }
-		List<IMethod> IType.Methods { get { return GetAllMethods().Cast<IMethod>().ToList(); } }
+        List<IType> IType.AssignableTypes => GetAssignableTypes().Cast<IType>().ToList();
+        List<IConstructor> IType.Constructors => GetAllConstructors().Cast<IConstructor>().ToList();
+        List<IProperty> IType.Properties { get { return GetAllProperties().Where(p => !p.IsIndexer).Cast<IProperty>().ToList(); } }
+		List<IMethod> IType.Methods => GetAllMethods().Cast<IMethod>().ToList();
 
-		List<IType> IType.GetGenericArguments() { return GetGenericArguments().Cast<IType>().ToList(); }
+        List<IType> IType.GetGenericArguments() { return GetGenericArguments().Cast<IType>().ToList(); }
 		IType IType.GetElementType() { return GetElementType(); }
 		IMethod IType.GetParseMethod() { return GetParseMethod(); }
 		IType IType.GetEnumUnderlyingType() { return GetEnumUnderlyingType(); }

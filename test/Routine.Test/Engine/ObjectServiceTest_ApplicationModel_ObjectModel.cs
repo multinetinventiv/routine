@@ -111,8 +111,8 @@ namespace Routine.Test.Engine
         private const string TESTED_VOM_ID = "Test.Virtual";
         private const string TESTED_VVIM_ID = "Test.IVirtual";
 
-        protected override string DefaultModelId { get { return TESTED_OM_ID; } }
-        protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel"; } }
+        protected override string DefaultModelId => TESTED_OM_ID;
+        protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel";
 
         [SetUp]
         public override void SetUp()

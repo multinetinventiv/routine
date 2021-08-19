@@ -81,31 +81,31 @@ namespace Routine.Engine.Virtual
 
 		#region ITypeComponent implementation
 
-		string ITypeComponent.Name { get { return Name.Get(); } }
-		IType ITypeComponent.ParentType { get { return null; } }
-		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+		string ITypeComponent.Name => Name.Get();
+        IType ITypeComponent.ParentType => null;
+        object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
 
 		#endregion
 
 		#region IType implementation
 
-		bool IType.IsPublic { get { return true; } }
-		bool IType.IsAbstract { get { return false; } }
-		bool IType.IsInterface { get { return IsInterface.Get(); } }
-		bool IType.IsValueType { get { return false; } }
-		bool IType.IsGenericType { get { return false; } }
-		bool IType.IsPrimitive { get { return false; } }
-		bool IType.IsVoid { get { return false; } }
-		bool IType.IsEnum { get { return false; } }
-		bool IType.IsArray { get { return false; } }
-		string IType.FullName { get { return string.Format("{0}.{1}", Namespace.Get(), Name.Get()); } }
-		string IType.Namespace { get { return Namespace.Get(); } }
-		IType IType.BaseType { get { return type.of<object>(); } }
-		List<IType> IType.AssignableTypes { get { return AssignableTypes.Get().Cast<IType>().ToList(); } }
-		List<IConstructor> IType.Constructors { get { return new List<IConstructor>(); } }
-		List<IProperty> IType.Properties { get { return new List<IProperty>(); } }
-		List<IMethod> IType.Methods { get { return Methods.Get(); } }
-		List<IType> IType.GetGenericArguments() { return new List<IType>(); }
+		bool IType.IsPublic => true;
+        bool IType.IsAbstract => false;
+        bool IType.IsInterface => IsInterface.Get();
+        bool IType.IsValueType => false;
+        bool IType.IsGenericType => false;
+        bool IType.IsPrimitive => false;
+        bool IType.IsVoid => false;
+        bool IType.IsEnum => false;
+        bool IType.IsArray => false;
+        string IType.FullName => string.Format("{0}.{1}", Namespace.Get(), Name.Get());
+        string IType.Namespace => Namespace.Get();
+        IType IType.BaseType => type.of<object>();
+        List<IType> IType.AssignableTypes => AssignableTypes.Get().Cast<IType>().ToList();
+        List<IConstructor> IType.Constructors => new List<IConstructor>();
+        List<IProperty> IType.Properties => new List<IProperty>();
+        List<IMethod> IType.Methods => Methods.Get();
+        List<IType> IType.GetGenericArguments() { return new List<IType>(); }
 		IType IType.GetElementType() { return null; }
 		IMethod IType.GetParseMethod() { return null; }
 		List<string> IType.GetEnumNames() { return new List<string>(); }

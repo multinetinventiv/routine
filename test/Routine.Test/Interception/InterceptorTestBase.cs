@@ -119,9 +119,9 @@ namespace Routine.Test.Interception
 
 		private Exception exception;
 		protected void InvocationFailsWith(Exception exception) { this.exception = exception; }
-		protected string ExceptionStackTraceLookupText { get { return "InterceptorTestBase.<SetUp>"; } }
+		protected string ExceptionStackTraceLookupText => "InterceptorTestBase.<SetUp>";
 
-		protected T Throw<T>(Exception ex)
+        protected T Throw<T>(Exception ex)
 		{
 			throw ex;
 		}

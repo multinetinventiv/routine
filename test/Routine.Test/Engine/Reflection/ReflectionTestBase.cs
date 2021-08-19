@@ -35,9 +35,9 @@ namespace Routine.Test.Engine.Reflection.Domain
 
 	public abstract class TestAbstractClass_OOP
 	{
-		public virtual string OverriddenProperty { get { return ""; } }
-		public virtual string NotOverriddenProperty { get { return ""; } }
-		public abstract string AbstractProperty { get; }
+		public virtual string OverriddenProperty => "";
+        public virtual string NotOverriddenProperty => "";
+        public abstract string AbstractProperty { get; }
 
 		public virtual void OverriddenMethod() { }
 		public virtual void NotOverriddenMethod() { }
@@ -51,7 +51,8 @@ namespace Routine.Test.Engine.Reflection.Domain
 		public TestClass_OOP(Exception ex) { throw ex; }
 		private TestClass_OOP(int i) { }
 
-		public string this[int i, string str] { get { return null; } set { } }
+		public string this[int i, string str] { get => null;
+            set { } }
 
 		public string PublicProperty { get; set; }
 		private string PrivateProperty { get; set; }
@@ -61,16 +62,16 @@ namespace Routine.Test.Engine.Reflection.Domain
 		private static string PrivateStaticProperty { get; set; }
 		public static string PublicStaticGetPrivateSetProperty { get; private set; }
 
-		public string OtherNamespaceProperty { get { return ""; } }
+		public string OtherNamespaceProperty => "";
 
-		string TestBaseInterface_OOP.ExplicitBaseInterfaceProperty { get { return ""; } }
-		public string ImplicitInterfaceProperty { get { return ""; } }
-		string TestInterface_OOP.ExplicitInterfaceProperty { get { return ""; } }
+        string TestBaseInterface_OOP.ExplicitBaseInterfaceProperty => "";
+        public string ImplicitInterfaceProperty => "";
+        string TestInterface_OOP.ExplicitInterfaceProperty => "";
 
-		public override string OverriddenProperty { get { return ""; } }
-		public override string AbstractProperty { get { return ""; } }
+        public override string OverriddenProperty => "";
+        public override string AbstractProperty => "";
 
-		public void PublicMethod() { }
+        public void PublicMethod() { }
 		private void PrivateMethod() { }
 
 		public override void AbstractMethod() { }
@@ -91,7 +92,9 @@ namespace Routine.Test.Engine.Reflection.Domain
 
 		public void ExceptionMethod(Exception ex) { throw ex; }
 		public Exception Exception;
-		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
+		public string ExceptionProperty { get => throw Exception;
+            set => throw Exception;
+        }
 	}
 
 	public class TestProxyClass_OOP : TestClass_OOP { }
@@ -126,12 +129,13 @@ namespace Routine.Test.Engine.Reflection.Domain
 
 		public int IntProperty { get; set; }
 		public string StringProperty { get; set; }
-		public List<string> StringListProperty { get { return null; } }
-		public IList NonGenericListProperty { get { return null; } }
-		public string PublicAutoProperty { get; set; }
-		public string PublicProperty { get { return null; } set { } }
-		public string PublicReadOnlyProperty { get { return null; } }
-		public string PublicWriteOnlyProperty { set { } }
+		public List<string> StringListProperty => null;
+        public IList NonGenericListProperty => null;
+        public string PublicAutoProperty { get; set; }
+		public string PublicProperty { get => null;
+            set { } }
+		public string PublicReadOnlyProperty => null;
+        public string PublicWriteOnlyProperty { set { } }
 		public string PrivateGetProperty { private get; set; }
 		public string PrivateSetProperty { get; private set; }
 
@@ -251,7 +255,9 @@ namespace RoutineTest.OuterDomainNamespace
 		public void ExceptionMethod(Exception ex) { throw ex; }
 
 		public Exception Exception;
-		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
+		public string ExceptionProperty { get => throw Exception;
+            set => throw Exception;
+        }
 
 		public TestOuterLaterAddedDomainType_OOP LaterAddedDomainTypeProperty { get; set; }
 	}

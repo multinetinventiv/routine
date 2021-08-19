@@ -63,12 +63,12 @@ namespace Routine.Engine.Reflection
 
 		protected override void Load() { }
 
-		public override string Name { get { return type.Name; } }
-		public override string FullName { get { return type.FullName; } }
-		public override string Namespace { get { return type.Namespace; } }
-		public override TypeInfo BaseType { get { return Get(type.BaseType); } }
+		public override string Name => type.Name;
+        public override string FullName => type.FullName;
+        public override string Namespace => type.Namespace;
+        public override TypeInfo BaseType => Get(type.BaseType);
 
-		public override object CreateInstance()
+        public override object CreateInstance()
 		{
 			return Activator.CreateInstance(type);
 		}

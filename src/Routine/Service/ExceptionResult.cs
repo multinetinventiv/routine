@@ -6,7 +6,8 @@ namespace Routine.Service
     public class ExceptionResult
     {
         [JsonConverter(typeof(BooleanJsonConverter))]
-        public bool IsException { get { return true; } }
+        public bool IsException => true;
+
         [JsonConverter(typeof(BooleanJsonConverter))]
         public bool IsHandled { get; }
         public string Type { get; }

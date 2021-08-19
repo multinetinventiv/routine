@@ -31,9 +31,9 @@ namespace Routine.Engine.Reflection
 
 		#region ITypeComponent implementation
 
-		IType ITypeComponent.ParentType { get { return Member.ReflectedType; } } 
+		IType ITypeComponent.ParentType => Member.ReflectedType;
 
-		#endregion
+        #endregion
 
 		#region IParameter implementation
 
@@ -49,10 +49,10 @@ namespace Routine.Engine.Reflection
 				throw new InvalidOperationException(string.Format("This parameter does not belong to a member that implements IParametric: {0}", Member));
 			}
 		}
-		int IParameter.Index { get { return Position; } }
-		IType IParameter.ParameterType { get { return ParameterType; } } 
+		int IParameter.Index => Position;
+        IType IParameter.ParameterType => ParameterType;
 
-		#endregion
+        #endregion
 	}
 }
 

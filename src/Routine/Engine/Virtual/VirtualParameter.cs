@@ -23,18 +23,18 @@ namespace Routine.Engine.Virtual
 
 		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
 
-		string ITypeComponent.Name { get { return Name.Get(); } }
-		IType ITypeComponent.ParentType { get { return owner.ParentType; } } 
+		string ITypeComponent.Name => Name.Get();
+        IType ITypeComponent.ParentType => owner.ParentType;
 
-		#endregion
+        #endregion
 		
 		#region IParameter implementation
 
-		IParametric IParameter.Owner { get { return owner; } }
-		IType IParameter.ParameterType { get { return ParameterType.Get(); } }
-		int IParameter.Index { get { return Index.Get(); } } 
+		IParametric IParameter.Owner => owner;
+        IType IParameter.ParameterType => ParameterType.Get();
+        int IParameter.Index => Index.Get();
 
-		#endregion
+        #endregion
 
 	}
 }

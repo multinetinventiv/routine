@@ -66,14 +66,14 @@ namespace Routine.Core
 
 		public List<DataModel> Datas
 		{
-			get { return Data.Values.ToList(); }
-			set { Data = value.ToDictionary(o => o.Name, o => o); }
+			get => Data.Values.ToList();
+            set { Data = value.ToDictionary(o => o.Name, o => o); }
 		}
 
 		public List<OperationModel> Operations
 		{
-			get { return Operation.Values.ToList(); }
-			set { Operation = value.ToDictionary(o => o.Name, o => o); }
+			get => Operation.Values.ToList();
+            set { Operation = value.ToDictionary(o => o.Name, o => o); }
 		}
 
 		#region ToString & Equality

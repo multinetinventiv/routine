@@ -17,8 +17,8 @@ namespace Routine.Interception
 
 		public IChainLinkInterceptor<TContext> Next
 		{
-			get { return next; }
-			set
+			get => next;
+            set
 			{
 				if (value == null) { value = new LastChainLinkInterceptor<TContext>(); }
 

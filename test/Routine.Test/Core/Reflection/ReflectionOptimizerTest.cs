@@ -68,12 +68,16 @@ namespace Routine.Test.Core.Reflection
 
         private void NonPublicVoidMethod() { }
 
-        public string StringProperty { get { return real.StringProperty; } set { real.StringProperty = value; } }
+        public string StringProperty { get => real.StringProperty;
+            set => real.StringProperty = value;
+        }
 
         public void Overload() { real.Overload(); }
         public void Overload(int i) { real.Overload(i); }
 
-        public string this[string key, int index] { get { return real[key, index]; } set { real[key, index] = value; } }
+        public string this[string key, int index] { get => real[key, index];
+            set => real[key, index] = value;
+        }
 
         public void GenericParameterMethod(string param) { real.GenericParameterMethod(param); }
         public string GenericReturnMethod() { return real.GenericReturnMethod(); }

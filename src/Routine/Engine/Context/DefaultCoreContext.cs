@@ -15,8 +15,8 @@ namespace Routine.Engine.Context
 
 		private Dictionary<string, DomainType> DomainTypes
 		{
-			get { return cache[Constants.DOMAIN_TYPES_CACHE_KEY] as Dictionary<string, DomainType>; }
-			set
+			get => cache[Constants.DOMAIN_TYPES_CACHE_KEY] as Dictionary<string, DomainType>;
+            set
 			{
 				lock (cache)
 				{
@@ -34,9 +34,9 @@ namespace Routine.Engine.Context
 			initialized = false;
 		}
 
-		public ICodingStyle CodingStyle { get { return codingStyle; } }
+		public ICodingStyle CodingStyle => codingStyle;
 
-		public DomainType GetDomainType(string typeId)
+        public DomainType GetDomainType(string typeId)
 		{
 			DomainType result;
 			if (!DomainTypes.TryGetValue(typeId, out result))

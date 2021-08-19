@@ -29,13 +29,13 @@ namespace Routine.Engine.Reflection
 			return new ReflectionMethodInvoker(methodInfo).Invoke(null, parameters);
 		}
 
-		public override string Name { get { return methodInfo.Name; } }
-		public override bool IsPublic { get { return methodInfo.IsPublic; } }
-		public override bool IsStatic { get { return methodInfo.IsStatic; } }
+		public override string Name => methodInfo.Name;
+        public override bool IsPublic => methodInfo.IsPublic;
+        public override bool IsStatic => methodInfo.IsStatic;
 
-		public override TypeInfo DeclaringType { get { return TypeInfo.Get(methodInfo.DeclaringType); } }
-		public override TypeInfo ReflectedType { get { return TypeInfo.Get(methodInfo.ReflectedType); } }
-		public override TypeInfo ReturnType { get { return TypeInfo.Get(methodInfo.ReturnType); } }
-	}
+        public override TypeInfo DeclaringType => TypeInfo.Get(methodInfo.DeclaringType);
+        public override TypeInfo ReflectedType => TypeInfo.Get(methodInfo.ReflectedType);
+        public override TypeInfo ReturnType => TypeInfo.Get(methodInfo.ReturnType);
+    }
 }
 

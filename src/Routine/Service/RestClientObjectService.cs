@@ -28,7 +28,7 @@ namespace Routine.Service
             return new ApplicationModel((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
         }
 
-        public ApplicationModel ApplicationModel { get { return applicationModel.Value; } }
+        public ApplicationModel ApplicationModel => applicationModel.Value;
 
         public ObjectData Get(ReferenceData reference)
         {

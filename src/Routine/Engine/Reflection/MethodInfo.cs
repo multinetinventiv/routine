@@ -68,9 +68,9 @@ namespace Routine.Engine.Reflection
 
 		#region IReturnable implementation
 
-		IType IReturnable.ReturnType { get { return ReturnType; } }
+		IType IReturnable.ReturnType => ReturnType;
 
-		#endregion
+        #endregion
 
 		#region IMethod implementation
 

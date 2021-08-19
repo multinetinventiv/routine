@@ -20,8 +20,8 @@ namespace Routine.Core
 
 		public List<ObjectModel> Models
 		{
-			get { return Model.Values.ToList(); }
-			set { Model = value.ToDictionary(om => om.Id, om => om); }
+			get => Model.Values.ToList();
+            set { Model = value.ToDictionary(om => om.Id, om => om); }
 		}
 
 		#region ToString & Equality

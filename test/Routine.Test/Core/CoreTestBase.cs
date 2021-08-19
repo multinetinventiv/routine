@@ -11,9 +11,9 @@ namespace Routine.Test.Core
 		protected Dictionary<string, ObjectModel> objectModelDictionary;
 		protected Dictionary<ReferenceData, ObjectData> objectDictionary;
 
-		protected virtual string DefaultObjectModelId { get { return "DefaultModel"; } }
+		protected virtual string DefaultObjectModelId => "DefaultModel";
 
-		[SetUp]
+        [SetUp]
 		public virtual void SetUp()
 		{
 			TypeInfo.SetProxyMatcher(t => t.Name.Contains("Proxy"), t => t.BaseType);

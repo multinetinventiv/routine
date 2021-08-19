@@ -17,16 +17,16 @@ namespace Routine.Interception.Context
 
 		public Dictionary<string, ParameterValueData> ParameterValues
 		{
-			get { return this["ParameterValues"] as Dictionary<string, ParameterValueData>; }
-			set { this["ParameterValues"] = value; }
-		}
+			get => this["ParameterValues"] as Dictionary<string, ParameterValueData>;
+            set => this["ParameterValues"] = value;
+        }
 
 		public string OperationName
 		{
-			get { return this["OperationName"] as string; }
-			set { this["OperationName"] = value; }
-		}
+			get => this["OperationName"] as string;
+            set => this["OperationName"] = value;
+        }
 
-		public OperationModel OperationModel { get { return ViewModel.Operation[OperationName]; } }
-	}
+		public OperationModel OperationModel => ViewModel.Operation[OperationName];
+    }
 }

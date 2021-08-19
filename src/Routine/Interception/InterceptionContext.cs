@@ -22,11 +22,8 @@ namespace Routine.Interception
 				data.TryGetValue(key, out result);
 				return result;
 			}
-			set
-			{
-				data[key] = value;
-			}
-		}
+			set => data[key] = value;
+        }
 
 		public string Target { get; }
 

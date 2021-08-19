@@ -6,7 +6,9 @@ namespace Routine.Core
 
         public string ModelId { get; set; }
         public string Id { get; set; }
-        public string ViewModelId { get { return viewModelId ?? ModelId; } set { viewModelId = value; } }
+        public string ViewModelId { get => viewModelId ?? ModelId;
+            set => viewModelId = value;
+        }
 
         #region ToString & Equality
 

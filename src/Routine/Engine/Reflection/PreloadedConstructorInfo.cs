@@ -31,11 +31,11 @@ namespace Routine.Engine.Reflection
 			return this;
 		}
 
-		public override bool IsPublic { get { return isPublic; } }
-		public override TypeInfo DeclaringType { get { return declaringType; } }
-		public override TypeInfo ReflectedType { get { return reflectedType; } }
+		public override bool IsPublic => isPublic;
+        public override TypeInfo DeclaringType => declaringType;
+        public override TypeInfo ReflectedType => reflectedType;
 
-		public override ParameterInfo[] GetParameters() { return parameters; }
+        public override ParameterInfo[] GetParameters() { return parameters; }
 		public override object[] GetCustomAttributes() { return customAttributes; }
 
 		

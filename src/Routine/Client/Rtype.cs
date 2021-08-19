@@ -59,19 +59,19 @@ namespace Routine.Client
 			}
 		}
 
-		public string Id { get { return model.Id; } }
-		public string Name { get { return model.Name; } }
-		public string Module { get { return model.Module; } }
-		public bool IsValueType { get { return model.IsValueModel; } }
-		public bool IsViewType { get { return model.IsViewModel; } }
-		public bool IsVoid { get { return Id == Constants.VOID_MODEL_ID; } }
-		public bool Initializable { get { return Initializer != null; } }
-		public List<Rdata> Datas { get { return Data.Values.ToList(); } }
-		public List<Roperation> Operations { get { return Operation.Values.ToList(); } }
+		public string Id => model.Id;
+        public string Name => model.Name;
+        public string Module => model.Module;
+        public bool IsValueType => model.IsValueModel;
+        public bool IsViewType => model.IsViewModel;
+        public bool IsVoid => Id == Constants.VOID_MODEL_ID;
+        public bool Initializable => Initializer != null;
+        public List<Rdata> Datas => Data.Values.ToList();
+        public List<Roperation> Operations => Operation.Values.ToList();
 
-		public List<string> Marks { get { return model.Marks; } }
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
+        public bool MarkedAs(string mark)
 		{
 			return model.Marks.Contains(mark);
 		}

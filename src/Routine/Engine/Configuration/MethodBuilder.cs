@@ -15,9 +15,9 @@ namespace Routine.Engine.Configuration
 			this.parentType = parentType;
 		}
 
-		public IType ParentType { get { return parentType; } }
+		public IType ParentType => parentType;
 
-		public IEnumerable<IMethod> Proxy<T>(T target) { return Proxy<T>().Target(target); }
+        public IEnumerable<IMethod> Proxy<T>(T target) { return Proxy<T>().Target(target); }
 
 		public ProxyMethodBuilder<T> Proxy<T>() { return Proxy<T>(m => true); }
 		public ProxyMethodBuilder<T> Proxy<T>(string targetMethodName) { return Proxy<T>(m => m.Name == targetMethodName); }

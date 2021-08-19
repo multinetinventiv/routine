@@ -23,9 +23,9 @@ namespace Routine.Engine.Virtual
 		}
 
 		public object[] GetCustomAttributes() { return real.GetCustomAttributes(); }
-		public string Name { get { return real.Name; } }
-		public IType ParentType { get { return Owner.ParentType; } }
-		public int Index { get { return index; } }
-		public IType ParameterType { get { return real.ParameterType; } }
-	}
+		public string Name => real.Name;
+        public IType ParentType => Owner.ParentType;
+        public int Index => index;
+        public IType ParameterType => real.ParameterType;
+    }
 }

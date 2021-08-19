@@ -54,12 +54,12 @@ namespace Routine.Engine.Reflection
 			return this;
 		}
 
-		public override string Name { get { return name; } }
-		public override TypeInfo DeclaringType { get { return declaringType; } }
-		public override TypeInfo ReflectedType { get { return reflectedType; } }
-		public override TypeInfo PropertyType { get { return propertyType; } }
+		public override string Name => name;
+        public override TypeInfo DeclaringType => declaringType;
+        public override TypeInfo ReflectedType => reflectedType;
+        public override TypeInfo PropertyType => propertyType;
 
-		public override MethodInfo GetGetMethod() { return getMethod; }
+        public override MethodInfo GetGetMethod() { return getMethod; }
 		public override MethodInfo GetSetMethod() { return setMethod; }
 		public override ParameterInfo[] GetIndexParameters() { return indexParameters; }
 

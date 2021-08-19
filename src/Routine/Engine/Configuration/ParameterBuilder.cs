@@ -12,9 +12,9 @@ namespace Routine.Engine.Configuration
 			this.owner = owner;
 		}
 
-		public IParametric Owner { get { return owner; } }
+		public IParametric Owner => owner;
 
-		public VirtualParameter Virtual()
+        public VirtualParameter Virtual()
 		{
 			return new VirtualParameter(owner);
 		}

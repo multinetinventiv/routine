@@ -24,16 +24,16 @@
 			return constructorInfo;
 		}
 
-		public override string Name { get { return constructorInfo.Name; } }
+		public override string Name => constructorInfo.Name;
 
-		protected abstract ConstructorInfo Load();
+        protected abstract ConstructorInfo Load();
 
 		public abstract object Invoke(params object[] parameters);
 
 		#region IInitializer implementation
 
-		IType IConstructor.InitializedType { get { return ReflectedType; } }
-		object IConstructor.Initialize(params object[] parameters) { return Invoke(parameters); } 
+		IType IConstructor.InitializedType => ReflectedType;
+        object IConstructor.Initialize(params object[] parameters) { return Invoke(parameters); } 
 
 		#endregion
 	}

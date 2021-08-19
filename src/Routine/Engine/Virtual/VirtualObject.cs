@@ -12,9 +12,9 @@
 			this.type = type;
 		}
 
-		public IType Type { get { return type; } }
+		public IType Type => type;
 
-		public override string ToString()
+        public override string ToString()
 		{
 			return type.ToStringMethod.Get()(this);
 		}

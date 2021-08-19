@@ -79,12 +79,12 @@ namespace Routine.Engine.Reflection
 			return result;
 		}
 
-		public override string Name { get { return propertyInfo.Name; } }
-		public override TypeInfo DeclaringType { get { return TypeInfo.Get(propertyInfo.DeclaringType); } }
-		public override TypeInfo ReflectedType { get { return TypeInfo.Get(propertyInfo.ReflectedType); } }
-		public override TypeInfo PropertyType { get { return TypeInfo.Get(propertyInfo.PropertyType); } }
+		public override string Name => propertyInfo.Name;
+        public override TypeInfo DeclaringType => TypeInfo.Get(propertyInfo.DeclaringType);
+        public override TypeInfo ReflectedType => TypeInfo.Get(propertyInfo.ReflectedType);
+        public override TypeInfo PropertyType => TypeInfo.Get(propertyInfo.PropertyType);
 
-		public override object[] GetCustomAttributes()
+        public override object[] GetCustomAttributes()
 		{
 			//propertyInfo.GetCustomAttributes(true) does not retrieve attributes from inherited properties.
 			return Attribute.GetCustomAttributes(propertyInfo, true).Cast<object>().ToArray();

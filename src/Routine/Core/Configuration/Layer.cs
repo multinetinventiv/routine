@@ -28,9 +28,9 @@ namespace Routine.Core.Configuration
 			this.order = order;
 		}
 
-		public int Order { get { return order; } }
+		public int Order => order;
 
-		public Layer MoreSpecific()
+        public Layer MoreSpecific()
 		{
 			if (this == MostSpecific)
 			{

@@ -38,22 +38,22 @@ namespace Routine.Engine.Reflection
 		public abstract object[] GetCustomAttributes();
 		public abstract object[] GetReturnTypeCustomAttributes();
 
-		public bool IsPubliclyReadable { get { return GetGetMethod() != null && GetGetMethod().IsPublic; } }
-		public bool IsPubliclyWritable { get { return GetSetMethod() != null && GetSetMethod().IsPublic; } }
+		public bool IsPubliclyReadable => GetGetMethod() != null && GetGetMethod().IsPublic;
+        public bool IsPubliclyWritable => GetSetMethod() != null && GetSetMethod().IsPublic;
 
-		public bool IsIndexer { get { return GetIndexParameters().Length > 0; } }
+        public bool IsIndexer => GetIndexParameters().Length > 0;
 
-		#region ITypeComponent implementation
+        #region ITypeComponent implementation
 
-		IType ITypeComponent.ParentType { get { return ReflectedType; } }
+		IType ITypeComponent.ParentType => ReflectedType;
 
-		#endregion
+        #endregion
 
 		#region IReturnable implementation
 
-		IType IReturnable.ReturnType { get { return PropertyType; } }
+		IType IReturnable.ReturnType => PropertyType;
 
-		#endregion
+        #endregion
 
 		#region IMember implementation
 
@@ -68,9 +68,9 @@ namespace Routine.Engine.Reflection
 		}
 
 		IType IProperty.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
-		bool IProperty.IsPublic { get { return IsPubliclyReadable; } }
+		bool IProperty.IsPublic => IsPubliclyReadable;
 
-		#endregion
+        #endregion
 	}
 }
 

@@ -20,13 +20,13 @@ namespace Routine.Engine.Virtual
 			this.parameters = parameters;
 		}
 
-		public string Name { get { return method.Name.After(ignorePrefix); } }
-		public object[] GetCustomAttributes() { return method.GetCustomAttributes(); }
-		public IType ParentType { get { return method.ParentType; } }
-		public IType ReturnType { get { return method.ReturnType; } }
-		public object[] GetReturnTypeCustomAttributes() { return method.GetReturnTypeCustomAttributes(); }
-		public bool IsPublic { get { return method.IsPublic; } }
-		public IType GetDeclaringType(bool firstDeclaringType) { return method.GetDeclaringType(firstDeclaringType); }
+		public string Name => method.Name.After(ignorePrefix);
+        public object[] GetCustomAttributes() { return method.GetCustomAttributes(); }
+		public IType ParentType => method.ParentType;
+        public IType ReturnType => method.ReturnType;
+        public object[] GetReturnTypeCustomAttributes() { return method.GetReturnTypeCustomAttributes(); }
+		public bool IsPublic => method.IsPublic;
+        public IType GetDeclaringType(bool firstDeclaringType) { return method.GetDeclaringType(firstDeclaringType); }
 		public object FetchFrom(object target) { return method.PerformOn(target, parameters); }
 	}
 }

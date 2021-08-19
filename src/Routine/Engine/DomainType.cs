@@ -18,12 +18,12 @@ namespace Routine.Engine
 		public DomainObjectInitializer Initializer { get; private set; }
 
 		public Dictionary<string, DomainData> Data { get; }
-		public ICollection<DomainData> Datas { get { return Data.Values; } }
+		public ICollection<DomainData> Datas => Data.Values;
 
-		public Dictionary<string, DomainOperation> Operation { get; }
-		public ICollection<DomainOperation> Operations { get { return Operation.Values; } }
+        public Dictionary<string, DomainOperation> Operation { get; }
+		public ICollection<DomainOperation> Operations => Operation.Values;
 
-		private readonly ILocator locator;
+        private readonly ILocator locator;
 		public IIdExtractor IdExtractor { get; }
 		public IValueExtractor ValueExtractor { get; }
 		private readonly Dictionary<IType, IConverter> converter;
@@ -38,10 +38,10 @@ namespace Routine.Engine
 		public bool IsValueModel { get; }
 		public bool IsViewModel { get; }
 
-		public bool Initializable { get { return Initializer != null; } }
-		public bool Locatable { get { return locator != null; } }
+		public bool Initializable => Initializer != null;
+        public bool Locatable => locator != null;
 
-		public DomainType(ICoreContext ctx, IType type)
+        public DomainType(ICoreContext ctx, IType type)
 		{
 			this.ctx = ctx;
 

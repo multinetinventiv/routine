@@ -17,16 +17,16 @@ namespace Routine.Engine.Virtual
 			this.namePrefix = namePrefix;
 		}
 
-		public string Name { get { return property.Name.Prepend(namePrefix); } }
-		public object[] GetCustomAttributes() { return property.GetCustomAttributes(); }
+		public string Name => property.Name.Prepend(namePrefix);
+        public object[] GetCustomAttributes() { return property.GetCustomAttributes(); }
 
-		public IType ParentType { get { return property.ParentType; } }
-		public IType ReturnType { get { return property.ReturnType; } }
-		public object[] GetReturnTypeCustomAttributes() { return property.GetReturnTypeCustomAttributes(); }
+		public IType ParentType => property.ParentType;
+        public IType ReturnType => property.ReturnType;
+        public object[] GetReturnTypeCustomAttributes() { return property.GetReturnTypeCustomAttributes(); }
 
-		public List<IParameter> Parameters { get { return new List<IParameter>(); } }
-		public bool IsPublic { get { return property.IsPublic; } }
-		public IType GetDeclaringType(bool firstDeclaringType) { return property.GetDeclaringType(firstDeclaringType); }
+		public List<IParameter> Parameters => new List<IParameter>();
+        public bool IsPublic => property.IsPublic;
+        public IType GetDeclaringType(bool firstDeclaringType) { return property.GetDeclaringType(firstDeclaringType); }
 		public object PerformOn(object target, params object[] parameters) { return property.FetchFrom(target); }
 	}
 }

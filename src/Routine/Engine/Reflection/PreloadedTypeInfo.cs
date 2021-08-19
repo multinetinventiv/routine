@@ -15,12 +15,12 @@ namespace Routine.Engine.Reflection
 		private TypeInfo[] assignableTypes;
 		private object[] customAttributes;
 
-		public override string Name { get { return name; } }
-		public override string FullName { get { return fullName; } }
-		public override string Namespace { get { return @namespace; } }
-		public override TypeInfo BaseType { get { return baseType; } }
+		public override string Name => name;
+        public override string FullName => fullName;
+        public override string Namespace => @namespace;
+        public override TypeInfo BaseType => baseType;
 
-		protected PreloadedTypeInfo(Type type)
+        protected PreloadedTypeInfo(Type type)
 			: base(type) { }
 
 		protected override void Load()

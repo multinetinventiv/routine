@@ -26,15 +26,9 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData
 
 		public void Operation() { }
 
-		IBusinessData IBusinessData.SubData
-		{
-			get
-			{
-				return new BusinessData { Id = "sub_" + Id, Title = "Sub " + Title };
-			}
-		}
+		IBusinessData IBusinessData.SubData => new BusinessData { Id = "sub_" + Id, Title = "Sub " + Title };
 
-		public override string ToString() { return Title; }
+        public override string ToString() { return Title; }
 	}
 
 	public struct BusinessValue
@@ -77,10 +71,10 @@ namespace Routine.Test.Engine
 		private const string VIEW_WITH_NO_IMPLEMENTOR_OMID = "Test.IBusinessDataWithNoImplementor";
 		private const string VALUE_OMID = "Test.BusinessValue";
 
-		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData"; } }
+		protected override string DefaultModelId => ACTUAL_OMID;
+        protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData";
 
-		[SetUp]
+        [SetUp]
 		public override void SetUp()
 		{
 			base.SetUp();

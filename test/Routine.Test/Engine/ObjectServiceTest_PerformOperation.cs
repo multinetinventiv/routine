@@ -129,10 +129,10 @@ namespace Routine.Test.Engine
 		private const string VIRTUAL_VIMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.IVirtualOperation";
 		private const string INIT_LOCATE_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessInitializableLocatable";
 
-		protected override string DefaultModelId { get { return ACTUAL_OMID; } }
-		protected override string RootNamespace { get { return "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation"; } }
+		protected override string DefaultModelId => ACTUAL_OMID;
+        protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation";
 
-		private Mock<IBusinessOperation> businessMock;
+        private Mock<IBusinessOperation> businessMock;
 		private BusinessOperation businessObj;
 
 		[SetUp]

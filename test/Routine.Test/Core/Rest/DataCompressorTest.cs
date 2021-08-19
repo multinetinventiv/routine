@@ -28,7 +28,7 @@ namespace Routine.Test.Core.Rest
             return new DataCompressor(ApplicationModel, knownViewModelId);
         }
 
-        private ApplicationModel ApplicationModel { get { return new ApplicationModel { Models = objectModelDictionary.Values.ToList() }; } }
+        private ApplicationModel ApplicationModel => new ApplicationModel { Models = objectModelDictionary.Values.ToList() };
 
         #endregion
 

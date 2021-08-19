@@ -44,8 +44,8 @@ namespace Routine.Interception
 		public DecoratorInterceptor<TContext, TVariableType> After(Action<TVariableType> afterDelegate) { return After((ctx, obj) => afterDelegate(obj)); }
 		public DecoratorInterceptor<TContext, TVariableType> After(Action<TContext, TVariableType> afterDelegate) { this.afterDelegate = afterDelegate; return this; }
 
-		private string ExceptionVariableName { get { return variableName + "_exception"; } }
-		private bool ExceptionOccuredOnBefore(TContext context) { return context[ExceptionVariableName] != null; }
+		private string ExceptionVariableName => variableName + "_exception";
+        private bool ExceptionOccuredOnBefore(TContext context) { return context[ExceptionVariableName] != null; }
 
 		protected override void OnBefore(TContext context)
 		{

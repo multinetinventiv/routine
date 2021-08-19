@@ -59,12 +59,12 @@ namespace Routine.Client
 			};
 		}
 
-		public string Name { get { return name; } }
-		public bool IsList { get { return list; } }
-		public bool IsVoid { get { return @void; } }
-		public bool IsNull { get { return Object.IsNull; } }
+		public string Name => name;
+        public bool IsList => list;
+        public bool IsVoid => @void;
+        public bool IsNull => Object.IsNull;
 
-		public Robject Object
+        public Robject Object
 		{
 			get
 			{
@@ -77,15 +77,9 @@ namespace Routine.Client
 			}
 		}
 
-		public List<Robject> List
-		{
-			get
-			{
-				return value;
-			}
-		}
+		public List<Robject> List => value;
 
-		public Rvariable CreateAlias(string name)
+        public Rvariable CreateAlias(string name)
 		{
 			return new Rvariable(name, value, list, @void);
 		}

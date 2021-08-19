@@ -20,14 +20,14 @@ namespace Routine.Client
 			ParameterType = Application[model.ViewModelId];
 		}
 
-		public Rapplication Application { get { return Owner.Type.Application; } }
-		public Rtype Type { get { return Owner.Type; } }
-		public string Name { get { return model.Name; } }
-		public bool IsList { get { return model.IsList; } }
-		internal List<int> Groups { get { return model.Groups; } }
-		public List<string> Marks { get { return model.Marks; } }
+		public Rapplication Application => Owner.Type.Application;
+        public Rtype Type => Owner.Type;
+        public string Name => model.Name;
+        public bool IsList => model.IsList;
+        internal List<int> Groups => model.Groups;
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
+        public bool MarkedAs(string mark)
 		{
 			return model.Marks.Any(m => m == mark);
 		}

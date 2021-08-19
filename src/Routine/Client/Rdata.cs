@@ -19,12 +19,12 @@ namespace Routine.Client
 			DataType = Application[model.ViewModelId];
 		}
 
-		public Rapplication Application { get { return Type.Application; } }
-		public string Name { get { return model.Name; } }
-		public bool IsList { get { return model.IsList; } }
-		public List<string> Marks { get { return model.Marks; } }
+		public Rapplication Application => Type.Application;
+        public string Name => model.Name;
+        public bool IsList => model.IsList;
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
+        public bool MarkedAs(string mark)
 		{
 			return model.Marks.Any(m => m == mark);
 		}

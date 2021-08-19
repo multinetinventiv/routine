@@ -24,11 +24,11 @@ namespace Routine.Client
 			}
 		}
 
-		public string Name { get { return model.Name; } }
-		public bool ResultIsVoid { get { return model.Result.IsVoid; } }
-		public bool ResultIsList { get { return model.Result.IsList; } }
+		public string Name => model.Name;
+        public bool ResultIsVoid => model.Result.IsVoid;
+        public bool ResultIsList => model.Result.IsList;
 
-		public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
+        public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
 		{
 			var parameterValues = new Dictionary<string, ParameterValueData>();
 			foreach (var parameterVariable in parameterVariables)

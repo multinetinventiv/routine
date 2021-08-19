@@ -39,14 +39,14 @@ namespace Routine.Engine.Reflection
 			return this;
 		}
 
-		public override string Name { get { return name; } }
-		public override bool IsPublic { get { return isPublic; } }
-		public override bool IsStatic { get { return isStatic; } }
-		public override TypeInfo DeclaringType { get { return declaringType; } }
-		public override TypeInfo ReflectedType { get { return reflectedType; } }
-		public override TypeInfo ReturnType { get { return returnType; } }
+		public override string Name => name;
+        public override bool IsPublic => isPublic;
+        public override bool IsStatic => isStatic;
+        public override TypeInfo DeclaringType => declaringType;
+        public override TypeInfo ReflectedType => reflectedType;
+        public override TypeInfo ReturnType => returnType;
 
-		public override ParameterInfo[] GetParameters() {return parameters;}
+        public override ParameterInfo[] GetParameters() {return parameters;}
 		public override object[] GetCustomAttributes() { return customAttributes; }
 		public override object[] GetReturnTypeCustomAttributes() { return returnTypeCustomAttributes; }
 
