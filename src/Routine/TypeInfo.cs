@@ -47,7 +47,7 @@ namespace Routine
 
 		public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
 		{
-			if (proxyMatcher == null) { proxyMatcher = t => false; }
+			if (proxyMatcher == null) { proxyMatcher = _ => false; }
 			if (actualTypeGetter == null) { actualTypeGetter = t => t; }
 
 			TypeInfo.proxyMatcher = proxyMatcher;

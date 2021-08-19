@@ -68,7 +68,7 @@ namespace Routine
 					;
 		}
 
-		public static ConventionBasedCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionBasedCodingStyle> source) { return source.AutoMarkWithAttributesPattern(t => true); }
+		public static ConventionBasedCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionBasedCodingStyle> source) { return source.AutoMarkWithAttributesPattern(_ => true); }
 		public static ConventionBasedCodingStyle AutoMarkWithAttributesPattern(this PatternBuilder<ConventionBasedCodingStyle> source, Func<object, bool> attributeFilter)
 		{
 			return source

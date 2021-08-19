@@ -20,22 +20,22 @@ namespace Routine.Engine.Configuration
 
 		public DelegateBasedLocator Singleton(Func<IType, object> locatorDelegate)
 		{
-			return SingleBy((t, id) => locatorDelegate(t));
+			return SingleBy((t, _) => locatorDelegate(t));
 		}
 
 		public DelegateBasedLocator Constant(object staticResult)
 		{
-			return SingleBy((t, id) => staticResult);
+			return SingleBy((_, _) => staticResult);
 		}
 
 		public DelegateBasedLocator SingleBy(Func<string, object> convertDelegate)
 		{
-			return SingleBy((t, id) => convertDelegate(id));
+			return SingleBy((_, id) => convertDelegate(id));
 		}
 
 		public DelegateBasedLocator By(Func<List<string>, IEnumerable> convertDelegate)
 		{
-			return By((t, id) => convertDelegate(id));
+			return By((_, id) => convertDelegate(id));
 		}
 	}
 }

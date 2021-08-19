@@ -94,7 +94,7 @@ namespace Routine.Test.Core.Configuration
         [Test]
         public void Applies_only_applicable_conventions()
         {
-            testing.Add(new[] { "result1", "result2" }, t => false);
+            testing.Add(new[] { "result1", "result2" }, _ => false);
             testing.Add(new[] { "result3", "result4" });
 
             var actual = testing.Get(type.of<string>());
@@ -168,7 +168,7 @@ namespace Routine.Test.Core.Configuration
         public void When_an_exception_occurs__wraps_with_ConfigurationException()
         {
             var expected = new Exception("inner");
-            testing.Add(c => c.By(s => { throw expected; }));
+            testing.Add(c => c.By(_ => { throw expected; }));
 
             try
             {
@@ -186,7 +186,7 @@ namespace Routine.Test.Core.Configuration
         public void When_a_ConfigurationException_occurs__simply_rethrows_it()
         {
             var expected = new ConfigurationException();
-            testing.Add(c => c.By(s => { throw expected; }));
+            testing.Add(c => c.By(_ => { throw expected; }));
 
             try
             {

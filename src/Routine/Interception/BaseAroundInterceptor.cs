@@ -11,7 +11,7 @@ namespace Routine.Interception
 
 		protected BaseAroundInterceptor()
 		{
-			When(ctx => true);
+			When(_ => true);
 		}
 
 		public TConcrete When(Func<TContext, bool> whenDelegate) {this.whenDelegate = whenDelegate; return (TConcrete)this;}

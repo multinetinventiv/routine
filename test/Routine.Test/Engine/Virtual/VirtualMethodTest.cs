@@ -86,7 +86,7 @@ namespace Routine.Test.Engine.Virtual
 		{
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => $"virtual -> {target}")
+				.Body.Set((target, _) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn("test");
@@ -100,7 +100,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => $"virtual -> {target}")
+				.Body.Set((target, _) => $"virtual -> {target}")
 			;
 
 			Assert.Throws<InvalidCastException>(() => testing.PerformOn(3));
@@ -112,7 +112,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<object>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => $"virtual -> {target}")
+				.Body.Set((target, _) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn("test");
@@ -130,7 +130,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => $"virtual -> {target}")
+				.Body.Set((target, _) => $"virtual -> {target}")
 			;
 
 			Assert.Throws<NullReferenceException>(() => testing.PerformOn(null));
@@ -148,7 +148,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(vt)
 				.Name.Set("VirtualMethod")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => $"virtual -> {target}")
+				.Body.Set((target, _) => $"virtual -> {target}")
 			;
 
 			var actual = testing.PerformOn(new VirtualObject("test", vt));
@@ -163,7 +163,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => 3)
+				.Body.Set((_, _) => 3)
 			;
 
 			Assert.Throws<InvalidCastException>(() => testing.PerformOn("dummy"));
@@ -175,7 +175,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<object>())
-				.Body.Set((target, parameters) =>
+				.Body.Set((target, _) =>
 				{
 					if (Equals(target, "1"))
 					{
@@ -201,7 +201,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => null)
+				.Body.Set((_, _) => null)
 			;
 
 			var actual = testing.PerformOn("test");
@@ -215,7 +215,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.ofvoid())
-				.Body.Set((target, parameters) =>
+				.Body.Set((target, _) =>
 				{
 					if (Equals(target, "null"))
 					{
@@ -238,7 +238,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("virtual")
 				.ReturnType.Set(type.of<int>())
-				.Body.Set((target, parameters) => null)
+				.Body.Set((_, _) => null)
 			;
 
 			Assert.Throws<NullReferenceException>(() => testing.PerformOn("test"));
@@ -256,7 +256,7 @@ namespace Routine.Test.Engine.Virtual
 			IMethod testing = new VirtualMethod(type.of<string>())
 				.Name.Set("VirtualMethod")
 				.ReturnType.Set(vt)
-				.Body.Set((target, parameters) =>
+				.Body.Set((target, _) =>
 				{
 					if (Equals(target, "test"))
 					{
@@ -330,7 +330,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<int>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => "success")
+				.Body.Set((_, _) => "success")
 			;
 
 			Assert.Throws<InvalidOperationException>(() => testing.PerformOn("test", "less"));
@@ -348,7 +348,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<string>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => "success")
+				.Body.Set((_, _) => "success")
 			;
 
 			Assert.Throws<InvalidCastException>(() => testing.PerformOn("test", 1));
@@ -366,7 +366,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<string>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => "success")
+				.Body.Set((_, _) => "success")
 			;
 
 			Assert.AreEqual("success", testing.PerformOn("test", new object[] { null }));
@@ -383,7 +383,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<int>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => "success")
+				.Body.Set((_, _) => "success")
 			;
 
 			Assert.Throws<NullReferenceException>(() => testing.PerformOn("test", new object[] { null }));
@@ -400,7 +400,7 @@ namespace Routine.Test.Engine.Virtual
 					.ParameterType.Set(type.of<object>())
 				)
 				.ReturnType.Set(type.of<string>())
-				.Body.Set((target, parameters) => "success")
+				.Body.Set((_, _) => "success")
 			;
 
 			Assert.AreEqual("success", testing.PerformOn("test", "arg1"));
@@ -421,7 +421,7 @@ namespace Routine.Test.Engine.Virtual
 				)
 				.ReturnType.Set(parentType)
 				.Body.Set((target, parameters) => $"virtual -> {target} {parameters[0]}")
-				.TypeRetrieveStrategy.Set(o => parentType)
+				.TypeRetrieveStrategy.Set(_ => parentType)
 			;
 
 			var actual = testing.PerformOn("target", "arg1");

@@ -803,7 +803,7 @@ namespace Routine.Test.Performance
                             IsList = false,
                             Values = Enumerable
                                 .Range(0, input_count)
-                                .Select(i =>
+                                .Select(_ =>
 
 									#region parameter data
 									new ParameterData
@@ -926,7 +926,7 @@ namespace Routine.Test.Performance
                             IsList = false,
                             Values = Enumerable
                                 .Range(0, input_count)
-                                .Select(i =>
+                                .Select(_ =>
 
 									#region parameter data
 									new ParameterData
@@ -1028,7 +1028,7 @@ namespace Routine.Test.Performance
                 var rvar = rapp.NewVarList("input",
                     Enumerable
                         .Range(0, input_count)
-                        .Select(i =>
+                        .Select(_ =>
                             rapp.Init(input_type,
                                 rapp.NewVar("s", str_in, "System.String"),
                                 rapp.NewVar("i", int_in, "System.Int32"),

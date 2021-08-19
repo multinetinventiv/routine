@@ -17,7 +17,7 @@ namespace Routine.Engine.Extractor
 			Return(result => result == null ? null : result.ToString());
 		}
 
-		public PropertyValueExtractor Return(Func<object, string> converterDelegate) { return Return((o, f) => converterDelegate(o)); }
+		public PropertyValueExtractor Return(Func<object, string> converterDelegate) { return Return((o, _) => converterDelegate(o)); }
 		public PropertyValueExtractor Return(Func<object, object, string> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
 
 		protected override string Extract(object obj)

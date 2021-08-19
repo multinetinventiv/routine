@@ -10,7 +10,7 @@ namespace Routine.Core.Rest
 	{
 		private readonly Func<string, WebRequest> requestFactory;
 
-		public WebRequestRestClient() : this(wr => { }) { }
+		public WebRequestRestClient() : this(_ => { }) { }
 		public WebRequestRestClient(Action<WebRequest> configurer) 
 			: this(url =>
 				{

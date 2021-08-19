@@ -26,10 +26,10 @@ namespace Routine.Engine.Configuration
 
         public IEnumerable<IMethod> TargetBySelf() { return TargetBy(o => (T)o); }
 		public IEnumerable<IMethod> Target(T target) { return TargetBy(() => target); }
-		public IEnumerable<IMethod> TargetBy(Func<T> targetDelegate) { return TargetBy(o => targetDelegate()); }
+		public IEnumerable<IMethod> TargetBy(Func<T> targetDelegate) { return TargetBy(_ => targetDelegate()); }
 		public IEnumerable<IMethod> TargetBy(Func<object, T> targetDelegate)
 		{
-			return methods.Select(o => Build(parentType, o, (obj, parameters) => targetDelegate(obj)));
+			return methods.Select(o => Build(parentType, o, (obj, _) => targetDelegate(obj)));
 		}
 
 		public IEnumerable<IMethod> TargetByParameter() { return TargetByParameter(typeof(T).Name.ToLowerInitial()); }
@@ -39,7 +39,7 @@ namespace Routine.Engine.Configuration
 		{
 			return methods.Select(o =>
 				Build(parentType, o,
-					(obj, parameters) => parameters[0],
+					(_, parameters) => parameters[0],
 					BuildRoutine.Parameter(o).Virtual()
 						.ParameterType.Set(type.of<TConcrete>())
 						.Name.Set(parameterName)

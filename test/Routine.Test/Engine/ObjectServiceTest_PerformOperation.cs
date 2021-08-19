@@ -183,7 +183,7 @@ namespace Routine.Test.Engine
 			var convertedBusinessObj = new BusinessOperation(convertedBusinessMock.Object);
 
 			codingStyle.Override(cs => cs
-				.Converters.Add(c => c.Convert(cb => cb.By(() => type.of<IBusinessOperation>(),(o, t) =>
+				.Converters.Add(c => c.Convert(cb => cb.By(() => type.of<IBusinessOperation>(),(o, _) =>
 															{
 																Assert.AreSame(businessObj, o);
 

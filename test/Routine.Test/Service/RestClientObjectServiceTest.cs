@@ -362,8 +362,8 @@ namespace Routine.Test.Service
         public void When_given_model_or_operation_does_not_exist_in_application_model_throws_incompatible_model_exception()
         {
             config
-                .Exception.Set(c => c.By(er => new TestException("operation")).When(er => er.Type == "OperationNotFound"))
-                .Exception.Set(c => c.By(er => new TestException("type")).When(er => er.Type == "TypeNotFound"))
+                .Exception.Set(c => c.By(_ => new TestException("operation")).When(er => er.Type == "OperationNotFound"))
+                .Exception.Set(c => c.By(_ => new TestException("type")).When(er => er.Type == "TypeNotFound"))
             ;
 
             ModelsAre(Model("model"));

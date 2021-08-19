@@ -185,7 +185,7 @@ namespace Routine.Test.Engine
 
 			codingStyle
 				.Override(cs => cs
-					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (o, t) => obj_converted))
+					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (_, _) => obj_converted))
 										 .When(type.of<BusinessData>()))
 					.ValueExtractor.Set(c => c.Value(v => v.By(o => $"{o}"))
 											  .When(type.of<IBusinessData>()))
@@ -236,7 +236,7 @@ namespace Routine.Test.Engine
 
 			codingStyle
 				.Override(cs => cs
-					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (o, t) => obj_converted))
+					.Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (_, _) => obj_converted))
 										 .When(type.of<BusinessData>()))
 				)
 			;

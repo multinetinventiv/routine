@@ -19,7 +19,7 @@ namespace Routine.Test.Core
 				this.defaultFunction = defaultFunction;
 			}
 
-			public T Create() { return Create(m => { }); }
+			public T Create() { return Create(_ => { }); }
 			public T Create(Action<T> manipulation)
 			{
 				var result = defaultFunction();

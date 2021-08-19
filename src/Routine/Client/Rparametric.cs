@@ -20,7 +20,7 @@ namespace Routine.Client
             Type = type;
 
             parameters = new Dictionary<string, Rparameter>();
-            Groups = Enumerable.Range(0, groupCount).Select(i => new List<Rparameter>()).ToList();
+            Groups = Enumerable.Range(0, groupCount).Select(_ => new List<Rparameter>()).ToList();
 
             foreach (var parameterModel in parameterModels)
             {

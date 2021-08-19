@@ -13,7 +13,7 @@ namespace Routine.Service.HeaderProcessor
 		{
 			this.headerKeys = headerKeys;
 
-			processorDelegate = list => { };
+			processorDelegate = _ => { };
 		}
 
 		protected void Process(IDictionary<string, string> responseHeaders)

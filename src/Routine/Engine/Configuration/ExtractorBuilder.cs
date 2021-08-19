@@ -18,7 +18,7 @@ namespace Routine.Engine.Configuration
 		//facade
 		public DelegateBasedExtractor Constant(string value)
 		{
-			return By(o => value);
+			return By(_ => value);
 		}
 	}
 

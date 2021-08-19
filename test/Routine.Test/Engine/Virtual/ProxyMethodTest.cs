@@ -100,7 +100,7 @@ namespace Routine.Test.Engine.Virtual
 		public void Delegates_perform_action_to_the_target_obtained_via_target_delegate()
 		{
 			IMethod real = type.of<string>().GetMethod("Insert");
-			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, p) => o.ToString());
+			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString());
 
 			Assert.AreEqual("insertt", proxy.PerformOn('t', 0, "insert"));
 		}
@@ -113,7 +113,7 @@ namespace Routine.Test.Engine.Virtual
 			parameterMock.Setup(o => o.ParameterType).Returns(type.of<string>());
 
 			IMethod real = type.of<string>().GetMethod("Insert");
-			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, p) => o.ToString(), parameterMock.Object);
+			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString(), parameterMock.Object);
 
 			Assert.AreEqual(real.Parameters.Count + 1, proxy.Parameters.Count);
 			Assert.AreEqual("additional", proxy.Parameters[0].Name);
@@ -133,7 +133,7 @@ namespace Routine.Test.Engine.Virtual
 			var parameterMock = new Mock<IParameter>();
 			
 			IMethod real = type.of<string>().GetMethod("Insert");
-			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, p) => o.ToString(), parameterMock.Object);
+			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString(), parameterMock.Object);
 			
 			Assert.AreEqual("insertt", proxy.PerformOn('t', "dummy", 0, "insert"));
 		}
@@ -144,7 +144,7 @@ namespace Routine.Test.Engine.Virtual
 			var parameterMock = new Mock<IParameter>();
 			
 			IMethod real = type.of<string>().GetMethod("Insert");
-			IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, p) => p[0], parameterMock.Object);
+			IMethod proxy = new ProxyMethod(type.of<char>(), real, (_, p) => p[0], parameterMock.Object);
 			
 			Assert.AreEqual("inserttest", proxy.PerformOn('t', "test", 0, "insert"));
 		}

@@ -88,9 +88,9 @@ namespace Routine.Test.Interception
 		{
 			testing = BuildRoutine.Interceptor<TestContext<string>>()
 				.ByDecorating(() => Throw<string>(new Exception()))
-				.Success(actual => Assert.Fail("should not be called"))
-				.Fail(actual => Assert.Fail("should be skipped"))
-				.After(actual => Assert.Fail("should be skipped"));
+				.Success(_ => Assert.Fail("should not be called"))
+				.Fail(_ => Assert.Fail("should be skipped"))
+				.After(_ => Assert.Fail("should be skipped"));
 
 			var context = String();
 			context["value"] = "dummy";

@@ -23,7 +23,7 @@ namespace Routine.Test.Engine.Locator
 
 			protected override List<object> Locate(IType type, List<string> ids)
 			{
-				var result = ids.Select(id => (object)null).ToList();
+				var result = ids.Select(_ => (object)null).ToList();
 
 				if (provideDifferentNumberOfObjects)
 				{

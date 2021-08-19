@@ -315,7 +315,7 @@ namespace Routine.Core.Reflection
         {
             var parameters = method.GetParameters();
             var lastParameter = parameters.LastOrDefault();
-            var parametersExceptLast = parameters.Where((p, i) => i < parameters.Length - 1).ToArray();
+            var parametersExceptLast = parameters.Where((_, i) => i < parameters.Length - 1).ToArray();
 
             return methodInvokerTemplate
                     .Replace("$Invocation$", Invocation(method))

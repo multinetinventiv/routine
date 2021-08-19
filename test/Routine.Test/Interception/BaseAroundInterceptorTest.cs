@@ -186,7 +186,7 @@ namespace Routine.Test.Interception
 		{
 			testingInterface = testing = new TestAroundInterceptor();
 
-			testing.When(ctx => false);
+			testing.When(_ => false);
 
 			testingInterface.Intercept(context, invocation);
 
@@ -196,7 +196,7 @@ namespace Routine.Test.Interception
 			Assert.IsNull(context["fail"]);
 			Assert.IsNull(context["after"]);
 
-			testing.When(ctx => true);
+			testing.When(_ => true);
 
 			context["invocation"] = null;
 
@@ -216,7 +216,7 @@ namespace Routine.Test.Interception
 
 			context["override-base"] = true;
 
-			testing.When(ctx => false).WhenContextHas("override-base");
+			testing.When(_ => false).WhenContextHas("override-base");
 
 			testingInterface.Intercept(context, invocation);
 

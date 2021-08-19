@@ -62,7 +62,7 @@ namespace Routine.Engine.Configuration
 					.TypeName.Set(Constants.NULL_MODEL_NAME, t => t == null)
 
 					.Module.Set(null, t => t.IsVoid)
-					.TypeName.Set(c => c.By(t => Constants.VOID_MODEL_NAME).When(t => t.IsVoid))
+					.TypeName.Set(c => c.By(_ => Constants.VOID_MODEL_NAME).When(t => t.IsVoid))
 					.TypeIsValue.Set(true, t => t.IsVoid)
 				)
 					

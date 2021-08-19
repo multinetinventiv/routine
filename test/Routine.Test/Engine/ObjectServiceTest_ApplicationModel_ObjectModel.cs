@@ -236,7 +236,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Object_model_can_be_configured_to_have_view_models()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, t) => o))
+            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, _) => o))
                 .When(type.of<BusinessModel>()));
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
@@ -247,7 +247,7 @@ namespace Routine.Test.Engine
         [Test]
         public void When_a_configured_view_type_is_not_added__then_it_is_not_included_in_view_models()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IIgnoredModel>(), (o, t) => o))
+            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IIgnoredModel>(), (o, _) => o))
                 .When(type.of<BusinessModel>()));
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
@@ -258,7 +258,7 @@ namespace Routine.Test.Engine
         [Test]
         public void When_configured_to_have_a_view_model__object_model_is_automatically_included_in_actual_model_list_of_that_view_model()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, t) => o))
+            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, _) => o))
                 .When(type.of<BusinessModel>()));
 
             var actual = testing.ApplicationModel.Model[TESTED_VIM_ID];
@@ -612,7 +612,7 @@ namespace Routine.Test.Engine
         {
             codingStyle
                 .Operations.Add(c => c.Build(o => o.Virtual("VoidOp", () => { })).When(type.of<BusinessModel>()))
-                .Operations.Add(c => c.Build(o => o.Virtual("StringOp", (List<string> list) => "dummy")).When(type.of<BusinessModel>()))
+                .Operations.Add(c => c.Build(o => o.Virtual("StringOp", (List<string> _) => "dummy")).When(type.of<BusinessModel>()))
                 ;
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];

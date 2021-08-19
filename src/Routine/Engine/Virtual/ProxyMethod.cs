@@ -15,7 +15,7 @@ namespace Routine.Engine.Virtual
 
 		public SingleConfiguration<ProxyMethod, string> Name { get; }
 
-		public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, p) => o, parameters.AsEnumerable()) { }
+		public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, _) => o, parameters.AsEnumerable()) { }
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
 		{

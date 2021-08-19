@@ -33,15 +33,15 @@ namespace Routine.Test.Engine.Converter
 		public void Throws_ArgumentNullException_when_any_of_the_given_delegates_is_null()
 		{
 			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().By(() => new List<IType>(), null));
-			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().By((Func<IType>)null, (o, t) => new object()));
+			Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().By((Func<IType>)null, (_, _) => new object()));
 		}
 
 		[Test]
 		public void Facade_By_IType__List_IType_and_Func_IType()
 		{
-			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(() => type.of<string>(), (o, t) => "success")).Convert(0, type.of<int>(), type.of<string>()));
-			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(type.of<string>(), (o, t) => "success")).Convert(0, type.of<int>(), type.of<string>()));
-			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(new List<IType> { type.of<string>() }, (o, t) => "success")).Convert(0, type.of<int>(), type.of<string>()));
+			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(() => type.of<string>(), (_, _) => "success")).Convert(0, type.of<int>(), type.of<string>()));
+			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(type.of<string>(), (_, _) => "success")).Convert(0, type.of<int>(), type.of<string>()));
+			Assert.AreEqual("success", ((IConverter)BuildRoutine.Converter().By(new List<IType> { type.of<string>() }, (_, _) => "success")).Convert(0, type.of<int>(), type.of<string>()));
 		}
 
 		[Test]

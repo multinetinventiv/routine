@@ -111,7 +111,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             return this;
         }
 
-        public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies) { return AddTypes(assemblies, t => true); }
+        public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies) { return AddTypes(assemblies, _ => true); }
         public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies, Func<Type, bool> typeFilter)
         {
             foreach (var assembly in assemblies)
@@ -122,7 +122,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             return this;
         }
 
-        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly) { return AddTypes(assembly, t => true); }
+        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly) { return AddTypes(assembly, _ => true); }
         public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly, Func<Type, bool> typeFilter) { return AddTypes(assembly.GetTypes().Where(typeFilter)); }
         public ConventionBasedCodingStyle AddTypes(IEnumerable<Type> types) { return AddTypes(types.ToArray()); }
         public ConventionBasedCodingStyle AddTypes(params Type[] types)

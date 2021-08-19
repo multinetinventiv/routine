@@ -11,10 +11,10 @@ namespace Routine.Engine.Configuration
 		{
 			if (staticResult == null)
 			{
-				return By((IType)null, (o, t) => null);
+				return By((IType)null, (_, _) => null);
 			}
 
-			return By(() => staticResult.GetTypeInfo(), (o, t) => staticResult);
+			return By(() => staticResult.GetTypeInfo(), (_, _) => staticResult);
 		}
 
 		public DelegateBasedConverter By(IType targetType, Func<object, IType, object> converterDelegate) { return By(() => targetType, converterDelegate); }
@@ -32,7 +32,7 @@ namespace Routine.Engine.Configuration
 			return new DelegateBasedConverter(targetTypesDelegate, converterDelegate);
 		}
 
-		public TypeCastConverter ByCasting() { return ByCasting(t => true); }
+		public TypeCastConverter ByCasting() { return ByCasting(_ => true); }
 		public TypeCastConverter ByCasting(Func<IType, bool> viewTypePredicate)
 		{
 			if (viewTypePredicate == null) { throw new ArgumentNullException(); }

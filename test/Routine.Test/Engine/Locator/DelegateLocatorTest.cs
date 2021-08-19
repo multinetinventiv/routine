@@ -14,7 +14,7 @@ namespace Routine.Test.Engine.Locator
 		[Test]
 		public void Uses_delegate_to_locate_an_object()
 		{
-			var testing = new DelegateBasedLocator((t, ids) => ids.Select(id => "located: " + id).Cast<object>().ToList());
+			var testing = new DelegateBasedLocator((_, ids) => ids.Select(id => "located: " + id).Cast<object>().ToList());
 			var testingInterface = (ILocator)testing;
 
 			var actual = testingInterface.Locate(type.of<string>(), new List<string> { "test1", "test2" });

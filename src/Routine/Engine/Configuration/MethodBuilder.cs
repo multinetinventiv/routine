@@ -19,7 +19,7 @@ namespace Routine.Engine.Configuration
 
         public IEnumerable<IMethod> Proxy<T>(T target) { return Proxy<T>().Target(target); }
 
-		public ProxyMethodBuilder<T> Proxy<T>() { return Proxy<T>(m => true); }
+		public ProxyMethodBuilder<T> Proxy<T>() { return Proxy<T>(_ => true); }
 		public ProxyMethodBuilder<T> Proxy<T>(string targetMethodName) { return Proxy<T>(m => m.Name == targetMethodName); }
 		public ProxyMethodBuilder<T> Proxy<T>(Func<MethodInfo, bool> targetMethodPredicate)
 		{
@@ -52,7 +52,7 @@ namespace Routine.Engine.Configuration
 		public VirtualMethod Virtual(string name, Action body)
 		{
 			return Virtual(name)
-				.Body.Set((target, parameters) =>
+				.Body.Set((_, _) =>
 				{
 					body();
 					return null;
@@ -65,7 +65,7 @@ namespace Routine.Engine.Configuration
 			return Virtual()
 				.Name.Set(name)
 				.ReturnType.Set(type.of<TReturn>())
-				.Body.Set((target, parameters) => (object)body())
+				.Body.Set((_, _) => (object)body())
 			;
 		}
 	}
