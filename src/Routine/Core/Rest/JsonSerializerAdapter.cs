@@ -41,8 +41,10 @@ namespace Routine.Core.Rest
                     return true;
                 case JsonTokenType.False:
                     return false;
-                case JsonTokenType.Number when reader.TryGetInt64(out var l):
-                    return l;
+                case JsonTokenType.Number when reader.TryGetInt32(out var @int):
+                    return @int;
+                case JsonTokenType.Number when reader.TryGetInt64(out var @long):
+                    return @long;
                 case JsonTokenType.Number:
                     return reader.GetDouble();
                 case JsonTokenType.String when reader.TryGetDateTime(out var datetime):
@@ -114,8 +116,12 @@ namespace Routine.Core.Rest
                     return true;
                 case JsonTokenType.Null:
                     return null;
+                case JsonTokenType.Number when reader.TryGetInt32(out var @int):
+                    return @int;
+                case JsonTokenType.Number when reader.TryGetInt64(out var @long):
+                    return @long;
                 case JsonTokenType.Number:
-                    return reader.TryGetInt32(out var result) ? result : reader.GetDecimal();
+                    return reader.GetDouble();
                 case JsonTokenType.StartObject:
                     return Read(ref reader, null, options);
                 case JsonTokenType.StartArray:

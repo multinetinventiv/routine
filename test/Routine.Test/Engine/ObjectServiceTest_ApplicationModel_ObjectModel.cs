@@ -612,7 +612,8 @@ namespace Routine.Test.Engine
         {
             codingStyle
                 .Operations.Add(c => c.Build(o => o.Virtual("VoidOp", () => { })).When(type.of<BusinessModel>()))
-                .Operations.Add(c => c.Build(o => o.Virtual("StringOp", (List<string> _) => "dummy")).When(type.of<BusinessModel>()))
+                // ReSharper disable once UnusedParameter.Local
+                .Operations.Add(c => c.Build(o => o.Virtual("StringOp", (List<string> list) => "dummy")).When(type.of<BusinessModel>()))
                 ;
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
