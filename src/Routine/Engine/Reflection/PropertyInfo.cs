@@ -2,26 +2,19 @@ namespace Routine.Engine.Reflection
 {
 	public abstract class PropertyInfo : MemberInfo, IProperty
 	{
-		internal static PropertyInfo Reflected(System.Reflection.PropertyInfo propertyInfo)
-		{
-			return new ReflectedPropertyInfo(propertyInfo).Load();
-		}
+		internal static PropertyInfo Reflected(System.Reflection.PropertyInfo propertyInfo) => new ReflectedPropertyInfo(propertyInfo).Load();
+        internal static PropertyInfo Preloaded(System.Reflection.PropertyInfo propertyInfo) => new PreloadedPropertyInfo(propertyInfo).Load();
 
-		internal static PropertyInfo Preloaded(System.Reflection.PropertyInfo propertyInfo)
-		{
-			return new PreloadedPropertyInfo(propertyInfo).Load();
-		}
-
-		protected readonly System.Reflection.PropertyInfo propertyInfo;
+        protected readonly System.Reflection.PropertyInfo propertyInfo;
 
 		protected PropertyInfo(System.Reflection.PropertyInfo propertyInfo)
 		{
 			this.propertyInfo = propertyInfo;
 		}
 
-		public System.Reflection.PropertyInfo GetActualProperty() { return propertyInfo; }
+		public System.Reflection.PropertyInfo GetActualProperty() => propertyInfo;
 
-		protected abstract PropertyInfo Load();
+        protected abstract PropertyInfo Load();
 
 		public abstract TypeInfo PropertyType { get; }
 
@@ -57,18 +50,9 @@ namespace Routine.Engine.Reflection
 
 		#region IMember implementation
 
-		object IProperty.FetchFrom(object target)
-		{
-			if (target == null)
-			{
-				return GetStaticValue();
-			}
-
-			return GetValue(target);
-		}
-
-		IType IProperty.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
-		bool IProperty.IsPublic => IsPubliclyReadable;
+		object IProperty.FetchFrom(object target) => target == null ? GetStaticValue() : GetValue(target);
+        IType IProperty.GetDeclaringType(bool firstDeclaringType) => firstDeclaringType ? GetFirstDeclaringType() : DeclaringType;
+        bool IProperty.IsPublic => IsPubliclyReadable;
 
         #endregion
 	}

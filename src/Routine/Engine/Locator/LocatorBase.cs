@@ -39,9 +39,9 @@ namespace Routine.Engine.Locator
 
 		#region ILocator implementation
 
-		List<object> ILocator.Locate(IType type, List<string> ids) { return LocateInner(type, ids); }
+		List<object> ILocator.Locate(IType type, List<string> ids) => LocateInner(type, ids);
 
-		#endregion
+        #endregion
 	}
 
 }

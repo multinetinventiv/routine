@@ -35,13 +35,8 @@ namespace Routine.Engine.Reflection
         public override TypeInfo DeclaringType => declaringType;
         public override TypeInfo ReflectedType => reflectedType;
 
-        public override ParameterInfo[] GetParameters() { return parameters; }
-		public override object[] GetCustomAttributes() { return customAttributes; }
-
-		
-		public override object Invoke(params object[] parameters)
-		{
-			return invoker.Invoke(null, parameters);
-		}
-	}
+        public override ParameterInfo[] GetParameters() => parameters;
+        public override object[] GetCustomAttributes() => customAttributes;
+        public override object Invoke(params object[] parameters) => invoker.Invoke(null, parameters);
+    }
 }

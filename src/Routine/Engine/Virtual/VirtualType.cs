@@ -85,7 +85,7 @@ namespace Routine.Engine.Virtual
 
 		string ITypeComponent.Name => Name.Get();
         IType ITypeComponent.ParentType => null;
-        object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+        object[] ITypeComponent.GetCustomAttributes() { return Array.Empty<object>(); }
 
 		#endregion
 

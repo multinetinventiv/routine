@@ -20,8 +20,8 @@ namespace Routine.Engine.Reflection
 			enumUnderlyingType = Get(type.GetEnumUnderlyingType());
 		}
 
-		public override List<string> GetEnumNames() { return enumNames; }
-		public override List<object> GetEnumValues() { return enumValues; }
-		protected override TypeInfo GetEnumUnderlyingType() { return enumUnderlyingType; }
-	}
+		public override List<string> GetEnumNames() => enumNames;
+        public override List<object> GetEnumValues() => enumValues;
+        protected override TypeInfo GetEnumUnderlyingType() => enumUnderlyingType;
+    }
 }

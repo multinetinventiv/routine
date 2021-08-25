@@ -629,12 +629,12 @@ namespace Routine.Test.Engine
             parameterMock.Setup(obj => obj.ParameterType).Returns(type.of<string>());
             parameterMock.Setup(obj => obj.Name).Returns("data");
             parameterMock.Setup(obj => obj.ParentType).Returns(type.of<ObjectServiceTest_ApplicationModel_ObjectModel>());
-            parameterMock.Setup(obj => obj.GetCustomAttributes()).Returns(new object[0]);
+            parameterMock.Setup(obj => obj.GetCustomAttributes()).Returns(Array.Empty<object>());
 
             var initializerMock = new Mock<IConstructor>();
             initializerMock.Setup(obj => obj.IsPublic).Returns(true);
             initializerMock.Setup(obj => obj.Name).Returns("mock_ctor");
-            initializerMock.Setup(obj => obj.GetCustomAttributes()).Returns(new object[0]);
+            initializerMock.Setup(obj => obj.GetCustomAttributes()).Returns(Array.Empty<object>());
             initializerMock.Setup(obj => obj.ParentType).Returns(type.of<ObjectServiceTest_ApplicationModel_ObjectModel>());
             initializerMock.Setup(obj => obj.InitializedType).Returns(type.of<BusinessDataModel>());
             initializerMock.Setup(obj => obj.Parameters).Returns(new List<IParameter> { parameterMock.Object });

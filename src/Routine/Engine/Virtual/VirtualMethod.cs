@@ -44,7 +44,7 @@ namespace Routine.Engine.Virtual
 
 		private object Perform(object target, object[] parameters)
 		{
-			if (parameters == null) { parameters = new object[0]; }
+			if (parameters == null) { parameters = Array.Empty<object>(); }
 
 			ValidateTarget(target);
 			ValidateParameters(parameters);
@@ -128,7 +128,7 @@ namespace Routine.Engine.Virtual
 
 		#region ITypeComponent implementation
 
-		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+		object[] ITypeComponent.GetCustomAttributes() { return Array.Empty<object>(); }
 
 		IType ITypeComponent.ParentType => parentType;
         string ITypeComponent.Name => Name.Get();
@@ -143,7 +143,7 @@ namespace Routine.Engine.Virtual
 
 		#region IReturnable implementation
 
-		object[] IReturnable.GetReturnTypeCustomAttributes() { return new object[0]; }
+		object[] IReturnable.GetReturnTypeCustomAttributes() { return Array.Empty<object>(); }
 
 		IType IReturnable.ReturnType => ReturnType.Get();
 

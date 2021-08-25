@@ -214,7 +214,7 @@ namespace Routine.Test.Performance
             var prop = obj.GetType().GetProperty("Id");
             Run("System.Reflection Cached Access", () =>
             {
-                var name = prop.GetValue(obj, new object[0]);
+                var name = prop.GetValue(obj, Array.Empty<object>());
             }, load);
             ReflectionOptimizer.Disable();
             var rprop2 = obj.GetTypeInfo().GetProperty("Id");
@@ -232,7 +232,7 @@ namespace Routine.Test.Performance
             
             Run("System.Reflection Access", () =>
             {
-                var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
+                var name = obj.GetType().GetProperty("Id").GetValue(obj, Array.Empty<object>());
             }, load);
             ReflectionOptimizer.Disable();
             Run("Routine.Core.Reflection Access (without optimizer)", () =>

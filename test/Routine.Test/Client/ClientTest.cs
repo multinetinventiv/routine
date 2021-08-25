@@ -186,7 +186,7 @@ namespace Routine.Test.Client
 			Assert.AreEqual("id1", testingRvariable.Object.Id);
 
 			//accessing list as single returns null if there is no items in the list
-			testingRvariable = Rvarlist("testingEmptyList", new Robject[0]);
+			testingRvariable = Rvarlist("testingEmptyList", Array.Empty<Robject>());
 			Assert.IsTrue(testingRvariable.Object.IsNull);
 
 			//accessing void as single returns null object

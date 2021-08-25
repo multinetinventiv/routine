@@ -1,4 +1,5 @@
 ﻿using Routine.Core.Configuration;
+using System;
 
 namespace Routine.Engine.Virtual
 {
@@ -21,7 +22,7 @@ namespace Routine.Engine.Virtual
 
 		#region ITypeComponent implementation
 
-		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+		object[] ITypeComponent.GetCustomAttributes() { return Array.Empty<object>(); }
 
 		string ITypeComponent.Name => Name.Get();
         IType ITypeComponent.ParentType => owner.ParentType;

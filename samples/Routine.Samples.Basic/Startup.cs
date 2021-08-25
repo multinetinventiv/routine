@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Routine.Engine;
 using Routine.Engine.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -90,7 +91,7 @@ namespace Routine.Samples.Basic
 
         public string Name => "_ctor";
         public IType ParentType => Type;
-        public object[] GetCustomAttributes() => new object[0];
+        public object[] GetCustomAttributes() => Array.Empty<object>();
 
         public List<IParameter> Parameters => Type.Properties.Where(p => p.IsPublic).Select((p, ix) => new PropertyParameter(this, p, ix)).ToList<IParameter>();
 

@@ -29,6 +29,6 @@ namespace Routine.Engine.Reflection
         public override TypeInfo ParameterType => parameterType;
         public override MemberInfo Member => member;
         public override int Position => position;
-        public override object[] GetCustomAttributes() { return customAttributes; }
-	}
+        public override object[] GetCustomAttributes() => customAttributes;
+    }
 }

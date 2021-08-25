@@ -2,29 +2,19 @@ namespace Routine.Engine.Reflection
 {
 	public abstract class MethodInfo : MethodBase, IMethod
 	{
-		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo)
-		{
-			return new ReflectedMethodInfo(methodInfo).Load();
-		}
+		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo) => new ReflectedMethodInfo(methodInfo).Load();
+        internal static MethodInfo Preloaded(System.Reflection.MethodInfo methodInfo) => new PreloadedMethodInfo(methodInfo).Load();
 
-		internal static MethodInfo Preloaded(System.Reflection.MethodInfo methodInfo)
-		{
-			return new PreloadedMethodInfo(methodInfo).Load();
-		}
-
-		protected readonly System.Reflection.MethodInfo methodInfo;
+        protected readonly System.Reflection.MethodInfo methodInfo;
 
 		protected MethodInfo(System.Reflection.MethodInfo methodInfo)
 		{
 			this.methodInfo = methodInfo;
 		}
 
-		public System.Reflection.MethodInfo GetActualMethod()
-		{
-			return methodInfo;
-		}
+		public System.Reflection.MethodInfo GetActualMethod() => methodInfo;
 
-		protected abstract MethodInfo Load();
+        protected abstract MethodInfo Load();
 
 		public abstract bool IsStatic { get; }
 		public abstract TypeInfo ReturnType { get; }
@@ -48,7 +38,7 @@ namespace Routine.Engine.Reflection
 					if (parameters.Length == 0) { return TypeInfo.Get(interfaceType); }
 
 					var interfaceMethodParameters = interfaceMethodInfo.GetParameters();
-					for (int i = 0; i < parameters.Length; i++)
+					for (var i = 0; i < parameters.Length; i++)
 					{
 						if (parameters[i].ParameterType.GetActualType() != interfaceMethodParameters[i].ParameterType)
 						{
@@ -74,19 +64,10 @@ namespace Routine.Engine.Reflection
 
 		#region IMethod implementation
 
-		object IMethod.PerformOn(object target, params object[] parameters)
-		{
-			if (IsStatic)
-			{
-				return InvokeStatic(parameters);
-			}
+		object IMethod.PerformOn(object target, params object[] parameters) => IsStatic ? InvokeStatic(parameters) : Invoke(target, parameters);
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) => firstDeclaringType ? GetFirstDeclaringType() : DeclaringType;
 
-			return Invoke(target, parameters);
-		}
-
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
-
-		#endregion
+        #endregion
 	}
 }
 

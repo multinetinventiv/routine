@@ -30,33 +30,30 @@ namespace Routine.Engine.Reflection
 			@namespace = type.Namespace;
 			baseType = Get(type.BaseType);
 
-			genericArguments = type.GetGenericArguments().Select(t => Get(t)).ToArray();
-			interfaces = type.GetInterfaces().Select(t => Get(t)).ToArray();
+			genericArguments = type.GetGenericArguments().Select(Get).ToArray();
+			interfaces = type.GetInterfaces().Select(Get).ToArray();
 			assignableTypes = base.GetAssignableTypes();
 
 			customAttributes = type.GetCustomAttributes(true);
 		}
 
-		protected override TypeInfo[] GetAssignableTypes()
-		{
-			return assignableTypes;
-		}
+		protected override TypeInfo[] GetAssignableTypes() => assignableTypes;
 
-		protected override TypeInfo[] GetGenericArguments() { return genericArguments; }
-		protected override TypeInfo[] GetInterfaces() { return interfaces; }
-		public override bool CanBe(TypeInfo other) { return assignableTypes.Any(t => t == other); }
-		protected override TypeInfo GetElementType() { return null; }
-		public override ConstructorInfo[] GetAllConstructors() { return new ConstructorInfo[0]; }
-		public override PropertyInfo[] GetAllProperties() { return new PropertyInfo[0]; }
-		public override PropertyInfo[] GetAllStaticProperties() { return new PropertyInfo[0]; }
-		public override MethodInfo[] GetAllMethods() { return new MethodInfo[0]; }
-		public override MethodInfo[] GetAllStaticMethods() { return new MethodInfo[0]; }
-		public override object[] GetCustomAttributes() { return customAttributes; }
+        protected override TypeInfo[] GetGenericArguments() => genericArguments;
+        protected override TypeInfo[] GetInterfaces() => interfaces;
+        public override bool CanBe(TypeInfo other) => assignableTypes.Any(t => t == other);
+        protected override TypeInfo GetElementType() => null;
+        public override ConstructorInfo[] GetAllConstructors() => Array.Empty<ConstructorInfo>();
+        public override PropertyInfo[] GetAllProperties() => Array.Empty<PropertyInfo>();
+        public override PropertyInfo[] GetAllStaticProperties() => Array.Empty<PropertyInfo>();
+        public override MethodInfo[] GetAllMethods() => Array.Empty<MethodInfo>();
+        public override MethodInfo[] GetAllStaticMethods() => Array.Empty<MethodInfo>();
+        public override object[] GetCustomAttributes() => customAttributes;
 
-		protected override MethodInfo GetParseMethod() { return null; }
+        protected override MethodInfo GetParseMethod() => null;
 
-		public override object CreateInstance() { return Activator.CreateInstance(type); }
-		public override IList CreateListInstance(int length) { return (IList)Activator.CreateInstance(type, length); }
-	}
+        public override object CreateInstance() => Activator.CreateInstance(type);
+        public override IList CreateListInstance(int length) => (IList)Activator.CreateInstance(type, length);
+    }
 }
 

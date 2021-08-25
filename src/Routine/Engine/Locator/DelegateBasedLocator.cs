@@ -9,14 +9,9 @@ namespace Routine.Engine.Locator
 
 		public DelegateBasedLocator(Func<IType, List<string>, List<object>> locatorDelegate)
 		{
-			if (locatorDelegate == null) { throw new ArgumentNullException(nameof(locatorDelegate)); }
-
-			this.locatorDelegate = locatorDelegate;
+            this.locatorDelegate = locatorDelegate ?? throw new ArgumentNullException(nameof(locatorDelegate));
 		}
 
-		protected override List<object> Locate(IType type, List<string> ids)
-		{
-			return locatorDelegate(type, ids);
-		}
-	}
+		protected override List<object> Locate(IType type, List<string> ids) => locatorDelegate(type, ids);
+    }
 }

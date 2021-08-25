@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using System;
 
 namespace Routine.Test
 {
@@ -17,11 +18,11 @@ namespace Routine.Test
 		public void Test_IEnumerable_ItemEquals()
 		{
 			Assert.IsTrue(((IEnumerable)null).ItemEquals(null));
-			Assert.IsFalse(((IEnumerable)null).ItemEquals(new string[0]));
-			Assert.IsFalse(new string[0].ItemEquals(null));
+			Assert.IsFalse(((IEnumerable)null).ItemEquals(Array.Empty<string>()));
+			Assert.IsFalse(Array.Empty<string>().ItemEquals(null));
 
-			Assert.IsTrue(new string[0].ItemEquals(new List<string>()));
-			Assert.IsTrue(new object[0].ItemEquals(new List<string>()));
+			Assert.IsTrue(Array.Empty<string>().ItemEquals(new List<string>()));
+			Assert.IsTrue(Array.Empty<object>().ItemEquals(new List<string>()));
 
 			Assert.IsTrue(new []{"a"}.ItemEquals(new List<string>{"a"}));
 
@@ -32,7 +33,7 @@ namespace Routine.Test
 		[Test]
 		public void Test_IEnumerable_GetItemHashCode()
 		{
-			Assert.AreEqual(new string[0].GetItemHashCode(), new List<string>().GetItemHashCode());
+			Assert.AreEqual(Array.Empty<string>().GetItemHashCode(), new List<string>().GetItemHashCode());
 
 			Assert.AreEqual(new string[]{"a"}.GetItemHashCode(), new List<string>{"a"}.GetItemHashCode());
 			Assert.AreNotEqual(new string[]{"a"}.GetItemHashCode(), new List<string>{"a", "b"}.GetItemHashCode());
