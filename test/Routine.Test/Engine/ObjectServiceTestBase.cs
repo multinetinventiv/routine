@@ -55,10 +55,10 @@ namespace Routine.Test.Engine
         }
 
         protected ReferenceData IdNull() { return Id(null, null, null, true); }
-        protected virtual ReferenceData Id(string id) { return Id(id, DefaultModelId); }
-        protected ReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
-        protected ReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
-        protected ReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
+        protected new virtual ReferenceData Id(string id) { return Id(id, DefaultModelId); }
+        protected new ReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
+        protected new ReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
+        protected new ReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
         {
             if (isNull) { return null; }
 

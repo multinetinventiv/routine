@@ -47,7 +47,7 @@ namespace Routine.Engine.Context
         }
 
         public DomainType GetDomainType(IType type) =>
-            GetDomainType(this.BuildTypeId(
+            GetDomainType(((ICoreContext)this).BuildTypeId(
                 CodingStyle.GetModule(type),
                 CodingStyle.GetName(type)
             ));
