@@ -14,17 +14,11 @@
 
 		public IType Type => type;
 
-        public override string ToString()
-		{
-			return type.ToStringMethod.Get()(this);
-		}
+        public override string ToString() => type.ToStringMethod.Get()(this);
 
-		protected bool Equals(VirtualObject other)
-		{
-			return Equals(type, other.type) && string.Equals(Id, other.Id);
-		}
+        protected bool Equals(VirtualObject other) => Equals(type, other.type) && string.Equals(Id, other.Id);
 
-		public override bool Equals(object obj)
+        public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;

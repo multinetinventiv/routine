@@ -15,16 +15,16 @@ namespace Routine.Engine.Virtual
 		{
 			this.owner = owner;
 
-			Name = new SingleConfiguration<VirtualParameter, string>(this, "Name", true);
-			ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, "ParameterType", true);
-			Index = new SingleConfiguration<VirtualParameter, int>(this, "Index");
+			Name = new SingleConfiguration<VirtualParameter, string>(this, nameof(Name), true);
+			ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, nameof(ParameterType), true);
+			Index = new SingleConfiguration<VirtualParameter, int>(this, nameof(Index));
 		}
 
 		#region ITypeComponent implementation
 
-		object[] ITypeComponent.GetCustomAttributes() { return Array.Empty<object>(); }
+		object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
-		string ITypeComponent.Name => Name.Get();
+        string ITypeComponent.Name => Name.Get();
         IType ITypeComponent.ParentType => owner.ParentType;
 
         #endregion

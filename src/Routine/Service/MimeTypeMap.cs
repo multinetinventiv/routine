@@ -5,7 +5,7 @@ namespace Routine.Service
 {
 	public static class MimeTypeMap
 	{
-		private static readonly Lazy<IDictionary<string, string>> Mappings = new Lazy<IDictionary<string, string>>(BuildMappings);
+		private static readonly Lazy<IDictionary<string, string>> Mappings = new(BuildMappings);
 
 		private static IDictionary<string, string> BuildMappings()
 		{

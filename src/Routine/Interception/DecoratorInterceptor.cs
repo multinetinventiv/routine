@@ -4,7 +4,7 @@ namespace Routine.Interception
 {
 	internal class DecoratorInterceptorVariableNameFactory
 	{
-		private static readonly object variableNameLock = new object();
+		private static readonly object variableNameLock = new();
 		private static int instanceCount;
 		internal static string NextVariableName()
 		{

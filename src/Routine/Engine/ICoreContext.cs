@@ -20,65 +20,43 @@ namespace Routine.Engine
 
 		DomainObject CreateDomainObject(object @object, DomainType viewDomainType);
 		DomainObject CreateDomainObject(ReferenceData reference);
-	}
 
-	public static class CoreContextFacade
-	{
-		public static DomainObject CreateDomainObject(this ICoreContext source, string id, string modelId)
-		{
-			return source.CreateDomainObject(id, modelId, modelId);
-		}
+        public DomainObject CreateDomainObject(string id, string modelId) => CreateDomainObject(id, modelId, modelId);
+        public DomainObject CreateDomainObject(string id, string modelId, string viewModelId) =>
+            CreateDomainObject(new ReferenceData
+            {
+                Id = id,
+                ModelId = modelId,
+                ViewModelId = viewModelId
+            });
 
-		public static DomainObject CreateDomainObject(this ICoreContext source, string id, string modelId, string viewModelId)
-		{
-			return source.CreateDomainObject(new ReferenceData
-			{
-				Id = id,
-				ModelId = modelId,
-				ViewModelId = viewModelId
-			});
-		}
+        public DomainObject CreateDomainObject(object anObject) => CreateDomainObject(anObject, null);
 
-		public static DomainObject CreateDomainObject(this ICoreContext source, object anObject)
-		{
-			return source.CreateDomainObject(anObject, null);
-		}
+        internal VariableData CreateValueData(object anObject, bool isList, DomainType viewDomainType, bool eager) => CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager);
+        internal VariableData CreateValueData(object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
+        {
+            var result = new VariableData { IsList = isList };
 
-		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, bool eager) { return source.CreateValueData(anObject, isList, viewDomainType, Constants.FIRST_DEPTH, eager); }
-		internal static VariableData CreateValueData(this ICoreContext source, object anObject, bool isList, DomainType viewDomainType, int currentDepth, bool eager)
-		{
-			var result = new VariableData { IsList = isList };
+            if (anObject == null) { return result; }
 
-			if (anObject == null) { return result; }
+            if (isList)
+            {
+                if (anObject is not ICollection list) { return result; }
 
-			if (isList)
-			{
-				var list = anObject as ICollection;
+                foreach (var item in list)
+                {
+                    result.Values.Add(CreateDomainObject(item, viewDomainType).GetObjectData(currentDepth, eager));
+                }
+            }
+            else
+            {
+                result.Values.Add(CreateDomainObject(anObject, viewDomainType).GetObjectData(currentDepth, eager));
+            }
 
-				if (list == null) { return result; }
+            return result;
+        }
 
-				foreach (var item in list)
-				{
-					result.Values.Add(source.CreateDomainObject(item, viewDomainType).GetObjectData(currentDepth, eager));
-				}
-			}
-			else
-			{
-				result.Values.Add(source.CreateDomainObject(anObject, viewDomainType).GetObjectData(currentDepth, eager));
-			}
-
-			return result;
-		}
-
-		internal static string BuildTypeId(this ICoreContext source, string module, string name)
-		{
-			if (string.IsNullOrEmpty(module))
-			{
-				return name;
-			}
-
-			return $"{module}.{name}";
-		}
-	}
+        internal string BuildTypeId(string module, string name) => string.IsNullOrEmpty(module) ? name : $"{module}.{name}";
+    }
 }
 

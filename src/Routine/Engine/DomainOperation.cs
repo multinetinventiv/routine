@@ -64,14 +64,10 @@ namespace Routine.Engine
             Marks.Join(ctx.CodingStyle.GetMarks(method));
         }
 
-        public bool MarkedAs(string mark)
-        {
-            return Marks.Has(mark);
-        }
+        public bool MarkedAs(string mark) => Marks.Has(mark);
 
-        public OperationModel GetModel()
-        {
-            return new OperationModel
+        public OperationModel GetModel() =>
+            new()
             {
                 Name = Name,
                 Marks = Marks.List,
@@ -84,7 +80,6 @@ namespace Routine.Engine
                     ViewModelId = ResultType.Id
                 }
             };
-        }
 
         public VariableData Perform(object target, Dictionary<string, ParameterValueData> parameterValues)
         {
@@ -92,12 +87,9 @@ namespace Routine.Engine
 
             var resultValue = resolution.Result.PerformOn(target, resolution.Parameters);
 
-            if (ResultIsVoid)
-            {
-                return new VariableData();
-            }
-
-            return ctx.CreateValueData(resultValue, ResultIsList, ResultType, true);
+            return ResultIsVoid
+                ? new VariableData()
+                : ctx.CreateValueData(resultValue, ResultIsList, ResultType, true);
         }
 
         #region Formatting & Equality

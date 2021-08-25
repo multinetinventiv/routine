@@ -13,6 +13,6 @@ namespace Routine.Engine
 	{
 		public CannotConvertException(object @object, IType targetType) : this(@object, targetType, null) { }
 		public CannotConvertException(object @object, IType targetType, Exception innerException)
-			: base($"{@object} ({(@object == null ? null : @object.GetType())}) cannot be converted to {targetType}", innerException) { }
+			: base($"{@object} ({@object?.GetType()}) cannot be converted to {targetType}", innerException) { }
 	}
 }

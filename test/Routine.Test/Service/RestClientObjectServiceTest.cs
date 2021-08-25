@@ -208,7 +208,7 @@ namespace Routine.Test.Service
                         "arg1",
                         new ParameterValueData {Values = new List<ParameterData>
                         {
-                            new ParameterData {Id = "4", ModelId = "model"}
+                            new() {Id = "4", ModelId = "model"}
                         }}
                     }
                 });

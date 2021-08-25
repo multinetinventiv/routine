@@ -105,7 +105,7 @@ namespace Routine.Test.Engine.Reflection.Domain
 
 	public class TestClass_Parseable
 	{
-		public static readonly TestClass_Parseable ParsedResult = new TestClass_Parseable();
+		public static readonly TestClass_Parseable ParsedResult = new();
 
 		public static TestClass_Parseable Parse(string value) { return ParsedResult; }
 	}

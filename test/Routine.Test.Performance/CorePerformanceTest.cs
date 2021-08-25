@@ -327,7 +327,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop1,
@@ -343,7 +343,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop2,
@@ -359,7 +359,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop3,
@@ -375,7 +375,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop4,
@@ -391,7 +391,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop5,
@@ -407,7 +407,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop6,
@@ -423,7 +423,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop7,
@@ -439,7 +439,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop8,
@@ -455,7 +455,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop9,
@@ -471,7 +471,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop10,
@@ -552,7 +552,8 @@ namespace Routine.Test.Performance
                     {
                         IsList = false,
                         Values = new List<ObjectData> {
-                            new ObjectData {
+                            new()
+                            {
                                 Display = sub.ToString(),
                                 ModelId = sub_type,
                                 Id = sub.Id.ToString(CultureInfo.InvariantCulture),
@@ -566,7 +567,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop1,
@@ -582,7 +583,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop2,
@@ -598,7 +599,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop3,
@@ -614,7 +615,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop4,
@@ -630,7 +631,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop5,
@@ -646,7 +647,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop6,
@@ -662,7 +663,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop7,
@@ -678,7 +679,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop8,
@@ -694,7 +695,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop9,
@@ -710,7 +711,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop10,
@@ -740,7 +741,8 @@ namespace Routine.Test.Performance
                     {"index", new ParameterValueData {
                             IsList = false,
                             Values = new List<ParameterData> {
-                                new ParameterData {
+                                new()
+                                {
                                     ModelId= "System.Int32",
                                     Id = "0"
                                 }
@@ -817,7 +819,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
                                                             Id = str_in
@@ -831,7 +833,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-int-32",
                                                             Id = int_in
@@ -845,7 +847,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
                                                             Id = str_in
@@ -859,7 +861,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
                                                             Id = str_in
@@ -873,7 +875,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
                                                             Id = str_in
@@ -940,7 +942,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = str_in
@@ -954,7 +956,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.Int32",
                                                             Id = int_in
@@ -968,7 +970,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = str_in
@@ -982,7 +984,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = str_in
@@ -996,7 +998,7 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = str_in

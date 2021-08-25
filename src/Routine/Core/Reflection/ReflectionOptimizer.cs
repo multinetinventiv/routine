@@ -16,11 +16,11 @@ namespace Routine.Core.Reflection
         public static void Disable() => Enabled = false;
         public static void Enable() => Enabled = true;
 
-        private static readonly object OPTIMIZE_LIST_LOCK = new object();
-        private static readonly object INVOKERS_LOCK = new object();
+        private static readonly object OPTIMIZE_LIST_LOCK = new();
+        private static readonly object INVOKERS_LOCK = new();
 
-        private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new Dictionary<System.Reflection.MethodBase, bool>();
-        private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new Dictionary<System.Reflection.MethodBase, IMethodInvoker>();
+        private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new();
+        private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new();
 
         public static void AddToOptimizeList(System.Reflection.MethodBase method)
         {

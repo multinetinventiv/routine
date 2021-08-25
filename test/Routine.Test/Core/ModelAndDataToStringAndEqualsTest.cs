@@ -162,7 +162,7 @@ namespace Routine.Test.Core
 				Marks = new List<string> { "mark1", "mark2" },
 				Name = "Operation",
 				GroupCount = 2,
-				Parameters = new List<ParameterModel> { new ParameterModel { Name = "parameter" } },
+				Parameters = new List<ParameterModel> { new() { Name = "parameter" } },
 				Result = new ResultModel { ViewModelId = "view_model_id" }
 			});
 
@@ -198,7 +198,7 @@ namespace Routine.Test.Core
 			{
 				Marks = new List<string> { "mark1", "mark2" },
 				GroupCount = 2,
-				Parameters = new List<ParameterModel> { new ParameterModel { Name = "parameter" } }
+				Parameters = new List<ParameterModel> { new() { Name = "parameter" } }
 			});
 
 			var testing = prototype.Create();
@@ -234,9 +234,9 @@ namespace Routine.Test.Core
 				ViewModelIds = new List<string> { "interface" },
 				ActualModelIds = new List<string> { "implementation" },
 				Initializer = new InitializerModel { GroupCount = 2 },
-				Datas = new List<DataModel> { new DataModel { Name = "data" } },
-				Operations = new List<OperationModel> { new OperationModel { Name = "operation" } },
-				StaticInstances = new List<ObjectData> { new ObjectData { Display = "value1" }, new ObjectData { Display = "value2" } }
+				Datas = new List<DataModel> { new() { Name = "data" } },
+				Operations = new List<OperationModel> { new() { Name = "operation" } },
+				StaticInstances = new List<ObjectData> { new() { Display = "value1" }, new() { Display = "value2" } }
 			});
 
 			var testing = prototype.Create();
@@ -287,7 +287,7 @@ namespace Routine.Test.Core
 		{
 			var prototype = new TestDataPrototype<ApplicationModel>(() => new ApplicationModel
 			{
-				Models = new List<ObjectModel> { new ObjectModel { Id = "model" } }
+				Models = new List<ObjectModel> { new() { Id = "model" } }
 			});
 
 			var testing = prototype.Create();
@@ -363,7 +363,7 @@ namespace Routine.Test.Core
 			var prototype = new TestDataPrototype<ParameterValueData>(() => new ParameterValueData
 			{
 				IsList = true,
-				Values = new List<ParameterData> { new ParameterData { Id = "id" } },
+				Values = new List<ParameterData> { new() { Id = "id" } },
 			});
 
 			var testing = prototype.Create();
@@ -398,8 +398,8 @@ namespace Routine.Test.Core
 							IsList = false,
 							Values = new List<ParameterData>
 							{
-								new ParameterData
-								{
+								new()
+                                {
 									Id = "childid",
 								}
 							}
@@ -433,7 +433,7 @@ namespace Routine.Test.Core
 			var prototype = new TestDataPrototype<VariableData>(() => new VariableData
 			{
 				IsList = true,
-				Values = new List<ObjectData> { new ObjectData { Display = "value" } },
+				Values = new List<ObjectData> { new() { Display = "value" } },
 			});
 
 			var testing = prototype.Create();
@@ -467,8 +467,8 @@ namespace Routine.Test.Core
 						{
 							Values = new List<ObjectData>
 							{
-								new ObjectData
-								{
+								new()
+                                {
 									Id="childid",
 									Display = "childvalue"
 								}

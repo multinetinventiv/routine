@@ -28,7 +28,7 @@ namespace Routine.Test.Core.Rest
             return new DataCompressor(ApplicationModel, knownViewModelId);
         }
 
-        private ApplicationModel ApplicationModel => new ApplicationModel { Models = objectModelDictionary.Values.ToList() };
+        private ApplicationModel ApplicationModel => new() { Models = objectModelDictionary.Values.ToList() };
 
         #endregion
 
@@ -210,7 +210,7 @@ namespace Routine.Test.Core.Rest
                 IsList = false,
                 Values = new List<ObjectData>
                 {
-                    new ObjectData
+                    new()
                     {
                         Id = "id",
                         ModelId = "mid",
@@ -317,8 +317,8 @@ namespace Routine.Test.Core.Rest
                 Display = "value",
                 Data = new Dictionary<string, VariableData>
                 {
-                    {"mmid1", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid1_id",ModelId="mid2"}}}},
-                    {"mmid2", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid2_id",ModelId="mid2"}}}}
+                    {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id",ModelId="mid2"}}}},
+                    {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id",ModelId="mid2"}}}}
                 }
             };
 
@@ -355,8 +355,8 @@ namespace Routine.Test.Core.Rest
                 Display = "value",
                 Data = new Dictionary<string, VariableData>
                 {
-                    {"mmid1", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid1_id",ModelId="mid2"}}}},
-                    {"mmid2", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid2_id",ModelId="mid2"}}}}
+                    {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id",ModelId="mid2"}}}},
+                    {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id",ModelId="mid2"}}}}
                 }
             };
 
@@ -449,7 +449,7 @@ namespace Routine.Test.Core.Rest
 
             var data = new ParameterValueData
             {
-                Values = new List<ParameterData> { new ParameterData { ModelId = "mid", Id = "id" } }
+                Values = new List<ParameterData> { new() { ModelId = "mid", Id = "id" } }
             };
 
             var actual = Serialize(Compressor("mid").Compress(data));
@@ -539,7 +539,7 @@ namespace Routine.Test.Core.Rest
                 ModelId = "mid",
                 InitializationParameters = new Dictionary<string, ParameterValueData>
                 {
-                    {"p1",new ParameterValueData{Values = new List<ParameterData> {new ParameterData {ModelId = "mid", Id = "id1"}}}},
+                    {"p1",new ParameterValueData{Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id1"}}}},
                     {"p2",null},
                     {
                         "p3",
@@ -548,8 +548,8 @@ namespace Routine.Test.Core.Rest
                             IsList = true,
                             Values = new List<ParameterData>
                             {
-                                new ParameterData {ModelId = "mid", Id = "id3.1"},
-                                new ParameterData {ModelId = "mid", Id = "id3.2"}
+                                new() {ModelId = "mid", Id = "id3.1"},
+                                new() {ModelId = "mid", Id = "id3.2"}
                             }
                         }
                     },
@@ -559,13 +559,13 @@ namespace Routine.Test.Core.Rest
                         {
                             Values = new List<ParameterData>
                             {
-                                new ParameterData
+                                new()
                                 {
                                     ModelId = "mid",
                                     InitializationParameters = new Dictionary<string, ParameterValueData>
                                     {
                                         {"p1",new ParameterValueData{Values = new List<ParameterData> {null}}},
-                                        {"p2",new ParameterValueData{Values = new List<ParameterData> {new ParameterData {ModelId = "mid", Id = "id4.id2"}}}}
+                                        {"p2",new ParameterValueData{Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id4.id2"}}}}
                                     }
                                 }
                             }
@@ -614,8 +614,8 @@ namespace Routine.Test.Core.Rest
                 ModelId = "mid",
                 InitializationParameters = new Dictionary<string, ParameterValueData>
                 {
-                    {"p1", new ParameterValueData {Values = new List<ParameterData> {new ParameterData {ModelId = "mid", Id = "id1"}}}},
-                    {"p2", new ParameterValueData {Values = new List<ParameterData> {new ParameterData {ModelId = "mid", Id = "id2"}}}},
+                    {"p1", new ParameterValueData {Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id1"}}}},
+                    {"p2", new ParameterValueData {Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id2"}}}},
                 }
             };
 
@@ -751,7 +751,7 @@ namespace Routine.Test.Core.Rest
             {
                 IsList = true,
                 Values = new List<ObjectData>{
-                    new ObjectData
+                    new()
                     {
                         Id = "id", ModelId = "mid",
                         Display = "value"
@@ -773,7 +773,7 @@ namespace Routine.Test.Core.Rest
             {
                 IsList = false,
                 Values = new List<ObjectData>{
-                    new ObjectData
+                    new()
                     {
                         Id = "id",
                         ModelId = "mid",
@@ -796,7 +796,7 @@ namespace Routine.Test.Core.Rest
             {
                 IsList = false,
                 Values = new List<ObjectData>{
-                    new ObjectData
+                    new()
                     {
                         Id = "id",
                         ModelId = "mid",
@@ -842,8 +842,8 @@ namespace Routine.Test.Core.Rest
                 Display = "id",
                 Data = new Dictionary<string, VariableData>
                 {
-                    {"mmid1", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}},
-                    {"mmid2", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid2_id", ModelId="mid", Display="mmid2_id"}}}}
+                    {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}},
+                    {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id", ModelId="mid", Display="mmid2_id"}}}}
                 }
             };
 
@@ -873,7 +873,7 @@ namespace Routine.Test.Core.Rest
                 Display = "id",
                 Data = new Dictionary<string, VariableData>
                 {
-                    {"mmid1", new VariableData{Values=new List<ObjectData>{new ObjectData{Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}}
+                    {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}}
                 }
             };
 
@@ -930,7 +930,7 @@ namespace Routine.Test.Core.Rest
             {
                 IsList = true,
                 Values = new List<ParameterData>{
-                    new ParameterData { Id = "id", ModelId = "mid" }
+                    new() { Id = "id", ModelId = "mid" }
                 }
             };
 
@@ -948,7 +948,7 @@ namespace Routine.Test.Core.Rest
             {
                 IsList = false,
                 Values = new List<ParameterData>{
-                    new ParameterData { Id = "id", ModelId = "mid" }
+                    new() { Id = "id", ModelId = "mid" }
                 }
             };
 
@@ -1016,7 +1016,7 @@ namespace Routine.Test.Core.Rest
                         "p1",
                         new ParameterValueData
                         {
-                            Values = new List<ParameterData> {new ParameterData {Id = "p1_id", ModelId = "p1_mid"}}
+                            Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
                         }
                     },
                     {
@@ -1024,7 +1024,7 @@ namespace Routine.Test.Core.Rest
                         new ParameterValueData
                         {
                             IsList = true,
-                            Values = new List<ParameterData> {new ParameterData {Id = "p2_id", ModelId = "p2_mid"}}
+                            Values = new List<ParameterData> {new() {Id = "p2_id", ModelId = "p2_mid"}}
                         }
                     },
                     {
@@ -1070,7 +1070,7 @@ namespace Routine.Test.Core.Rest
                         "p1",
                         new ParameterValueData
                         {
-                            Values = new List<ParameterData> {new ParameterData {Id = "p1_id", ModelId = "p1_mid"}}
+                            Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
                         }
                     }
                 }
@@ -1104,7 +1104,7 @@ namespace Routine.Test.Core.Rest
                 IsList = false,
                 Values = new List<ParameterData>
                 {
-                    new ParameterData
+                    new()
                     {
                         ModelId = "mid",
                         InitializationParameters = new Dictionary<string, ParameterValueData>
@@ -1113,7 +1113,7 @@ namespace Routine.Test.Core.Rest
                                 "p1",
                                 new ParameterValueData
                                 {
-                                    Values = new List<ParameterData> {new ParameterData {Id = "p1_id", ModelId = "p1_mid"}}
+                                    Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
                                 }
                             }
                         }

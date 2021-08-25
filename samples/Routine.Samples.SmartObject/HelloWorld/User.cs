@@ -25,7 +25,7 @@ namespace Routine.Samples.SmartObject.HelloWorld
 
 	public class Users
 	{
-		internal static readonly List<User> users = new List<User>();
+		internal static readonly List<User> users = new();
 
 		public void Add(string name)
 		{

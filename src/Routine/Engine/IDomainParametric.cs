@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Routine.Engine
 {
-    public interface IDomainParametric<T> where T : class, IParametric
+    public interface IDomainParametric<in T> where T : class, IParametric
     {
         Dictionary<string, DomainParameter> Parameter { get; }
         ICoreContext Ctx { get; }

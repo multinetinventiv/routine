@@ -4,7 +4,7 @@ namespace Routine.Core.Rest
 {
 	public class RestResponse
 	{
-		public static readonly RestResponse Empty = new RestResponse(string.Empty);
+		public static readonly RestResponse Empty = new(string.Empty);
 
 		public string Body { get; }
 		public Dictionary<string, string> Headers { get; }
