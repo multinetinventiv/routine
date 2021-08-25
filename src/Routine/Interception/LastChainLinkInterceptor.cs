@@ -8,9 +8,6 @@ namespace Routine.Interception
 		public IChainLinkInterceptor<TContext> Next { get => null;
             set { } }
 
-		public object Intercept(TContext context, Func<object> invocation)
-		{
-			return invocation();
-		}
-	}
+		public object Intercept(TContext context, Func<object> invocation) => invocation();
+    }
 }

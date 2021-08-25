@@ -18,8 +18,7 @@ namespace Routine.Interception
 		{
 			get
 			{
-				object result;
-				data.TryGetValue(key, out result);
+                data.TryGetValue(key, out var result);
 				return result;
 			}
 			set => data[key] = value;

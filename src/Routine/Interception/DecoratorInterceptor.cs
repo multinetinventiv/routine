@@ -4,11 +4,11 @@ namespace Routine.Interception
 {
 	internal class DecoratorInterceptorVariableNameFactory
 	{
-		private static readonly object variableNameLock = new();
+		private static readonly object VARIABLE_NAME_LOCK = new();
 		private static int instanceCount;
 		internal static string NextVariableName()
 		{
-			lock (variableNameLock)
+			lock (VARIABLE_NAME_LOCK)
 			{
 				return "__decoratorVariable_" + (instanceCount++);
 			}
@@ -35,19 +35,19 @@ namespace Routine.Interception
 			After(_ => { });
 		}
 
-		public DecoratorInterceptor<TContext, TVariableType> Success(Action<TVariableType> successDelegate) { return Success((_, obj) => successDelegate(obj)); }
-		public DecoratorInterceptor<TContext, TVariableType> Success(Action<TContext, TVariableType> successDelegate) { this.successDelegate = successDelegate; return this; }
+		public DecoratorInterceptor<TContext, TVariableType> Success(Action<TVariableType> successDelegate) => Success((_, obj) => successDelegate(obj));
+        public DecoratorInterceptor<TContext, TVariableType> Success(Action<TContext, TVariableType> successDelegate) { this.successDelegate = successDelegate; return this; }
 
-		public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TVariableType> failDelegate) { return Fail((_, obj) => failDelegate(obj)); }
-		public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TContext, TVariableType> failDelegate) { this.failDelegate = failDelegate; return this; }
+		public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TVariableType> failDelegate) => Fail((_, obj) => failDelegate(obj));
+        public DecoratorInterceptor<TContext, TVariableType> Fail(Action<TContext, TVariableType> failDelegate) { this.failDelegate = failDelegate; return this; }
 
-		public DecoratorInterceptor<TContext, TVariableType> After(Action<TVariableType> afterDelegate) { return After((_, obj) => afterDelegate(obj)); }
-		public DecoratorInterceptor<TContext, TVariableType> After(Action<TContext, TVariableType> afterDelegate) { this.afterDelegate = afterDelegate; return this; }
+		public DecoratorInterceptor<TContext, TVariableType> After(Action<TVariableType> afterDelegate) => After((_, obj) => afterDelegate(obj));
+        public DecoratorInterceptor<TContext, TVariableType> After(Action<TContext, TVariableType> afterDelegate) { this.afterDelegate = afterDelegate; return this; }
 
 		private string ExceptionVariableName => variableName + "_exception";
-        private bool ExceptionOccuredOnBefore(TContext context) { return context[ExceptionVariableName] != null; }
+        private bool ExceptionOccuredOnBefore(TContext context) => context[ExceptionVariableName] != null;
 
-		protected override void OnBefore(TContext context)
+        protected override void OnBefore(TContext context)
 		{
 			try
 			{

@@ -11,8 +11,8 @@ namespace Routine.Interception.Configuration
 
 		internal ConventionBasedInterceptionConfiguration()
 		{
-			Interceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>>(this, "Interceptors");
-			ServiceInterceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, OperationWithObjectModel, IInterceptor<ServiceInterceptionContext>>(this, "ServiceInterceptors");
+			Interceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>>(this, nameof(Interceptors));
+			ServiceInterceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, OperationWithObjectModel, IInterceptor<ServiceInterceptionContext>>(this, nameof(ServiceInterceptors));
 		}
 
 		public ConventionBasedInterceptionConfiguration Merge(ConventionBasedInterceptionConfiguration other)
@@ -25,9 +25,9 @@ namespace Routine.Interception.Configuration
 
 		#region IInterceptionConfiguration implementation
 
-		IInterceptor<InterceptionContext> IInterceptionConfiguration.GetInterceptor(InterceptionTarget target) { return new ChainInterceptor<InterceptionContext>(Interceptors.Get(target)); }
-		IInterceptor<ServiceInterceptionContext> IInterceptionConfiguration.GetServiceInterceptor(ObjectModel objectModel, OperationModel operationModel) { return new ChainInterceptor<ServiceInterceptionContext>(ServiceInterceptors.Get(new OperationWithObjectModel(objectModel, operationModel))); }
+		IInterceptor<InterceptionContext> IInterceptionConfiguration.GetInterceptor(InterceptionTarget target) => new ChainInterceptor<InterceptionContext>(Interceptors.Get(target));
+        IInterceptor<ServiceInterceptionContext> IInterceptionConfiguration.GetServiceInterceptor(ObjectModel objectModel, OperationModel operationModel) => new ChainInterceptor<ServiceInterceptionContext>(ServiceInterceptors.Get(new OperationWithObjectModel(objectModel, operationModel)));
 
-		#endregion
+        #endregion
 	}
 }

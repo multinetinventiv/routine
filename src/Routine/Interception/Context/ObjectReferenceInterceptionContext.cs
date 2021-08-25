@@ -16,8 +16,8 @@ namespace Routine.Interception.Context
 
 		public ReferenceData TargetReference
 		{
-			get => this["TargetReference"] as ReferenceData;
-            set => this["TargetReference"] = value;
+			get => this[nameof(TargetReference)] as ReferenceData;
+            set => this[nameof(TargetReference)] = value;
         }
 
 		public ObjectModel Model => objectService.ApplicationModel.Model[TargetReference.ModelId];
