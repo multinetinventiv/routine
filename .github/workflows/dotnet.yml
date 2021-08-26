@@ -25,9 +25,14 @@ jobs:
       - name: Code Coverage Summary Report
         uses: 5monkeys/cobertura-action@master
         with:
-          path: ${{ github.workspace }}/test/Routine.Test/bin/Debug/net5.0/coverage.cobertura.xml
+          path: ${{ github.workspace }}/test/*/coverage.cobertura.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 70
           skip_covered : false
           only_changed_files : true
-          minimum_coverage: 10
-          report_name : Coverage_Report
+      - name: Publish Routine to Nuget
+        uses: brandedoutcast/publish-nuget@v2.5.2
+        with:
+            PROJECT_FILE_PATH: src/Routine/Routine.csproj
+            NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
