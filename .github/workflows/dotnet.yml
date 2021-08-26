@@ -1,0 +1,41 @@
+name: .NET
+
+on:
+  push:
+    branches: 
+    - 'releases/**'
+  pull_request:
+    branches: 
+    - develop
+
+jobs:
+  one:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+      - name: Code Coverage Summary Report
+        uses: 5monkeys/cobertura-action@master
+        with:
+          path: ${{ github.workspace }}/test/*/coverage.cobertura.xml
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 70
+          skip_covered : false
+          only_changed_files : true
+      - name: Publish Routine to Nuget
+        if: ${{ contains(github.ref, 'release') }}
+        uses: brandedoutcast/publish-nuget@v2.5.2
+        with:
+            PROJECT_FILE_PATH: src/Routine/Routine.csproj
+            NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
