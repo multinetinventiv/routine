@@ -30,4 +30,5 @@ jobs:
           minimum_coverage: 70
           skip_covered : false
           report_name: Oguzhan
+          only_changed_files : true
 
