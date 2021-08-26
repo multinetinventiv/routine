@@ -28,3 +28,5 @@ jobs:
           path: ${{ github.workspace }}/test/*/coverage.cobertura.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 70
+          skip_covered : false
+
