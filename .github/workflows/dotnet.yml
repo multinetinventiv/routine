@@ -29,4 +29,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 70
           skip_covered : false
+          report_name: Oguzhan
 
