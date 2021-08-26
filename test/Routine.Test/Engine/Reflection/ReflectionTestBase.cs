@@ -274,11 +274,13 @@ namespace Routine.Test.Engine.Reflection
 			TypeInfo.Optimize(GetType().Assembly
 				.GetTypes()
 				.Where(t =>
-					t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||
-					t.Namespace.StartsWith("RoutineTest.OuterNamespace")
+					t.Namespace != null && (
+						t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||
+						t.Namespace.StartsWith("RoutineTest.OuterNamespace")
+					)
 				)
 				.ToArray()
-				);
+			);
 		}
 
 		public override void TearDown()

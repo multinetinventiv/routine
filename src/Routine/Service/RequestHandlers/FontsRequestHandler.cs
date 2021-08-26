@@ -1,21 +1,17 @@
-﻿using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
-	public class FontsRequestHandler : RequestHandlerBase
+    public class FontsRequestHandler : RequestHandlerBase
 	{
-		private readonly string fileNameRouteKey;
+		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext, string fileNameRouteKey)
-			: base(serviceContext, jsonSerializer, httpContext)
+		public override async Task WriteResponse()
 		{
-			this.fileNameRouteKey = fileNameRouteKey;
-		}
-
-		public override void WriteResponse()
-		{
-			WriteFontResponse($"{RouteData.Values[fileNameRouteKey]}");
+			await WriteFontResponse($"{HttpContext.Request.Path.Value.After("fonts/").BeforeLast("/f")}");
 		}
 	}
 }

@@ -1,161 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-        <PropertyGroup>
-                <TargetFrameworks>net452;net46;net47;net48</TargetFrameworks>
-                <Configurations>Debug;Release;Test</Configurations>
-                <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-                <DefineConstants>NET45</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(TargetFramework)'=='net46'">
-                <DefineConstants>NET46</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(TargetFramework)'=='net47'">
-                <DefineConstants>NET47</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(TargetFramework)'=='net48'">
-                <DefineConstants>NET48</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-                <DefineConstants>DEBUG;TRACE</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-                <DefineConstants>TRACE</DefineConstants>
-        </PropertyGroup>
-
-        <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|AnyCPU'">
-                <DefineConstants>TRACE</DefineConstants>
-        </PropertyGroup>
-
-        <ItemGroup>
-                <None Remove="Service\TestApp\assets\js\axios.min.js" />
-                <None Remove="Service\TestApp\assets\js\es6-promise.auto.js" />
-                <None Remove="Service\TestApp\assets\js\httpVueLoader.js" />
-                <None Remove="Service\TestApp\assets\js\lodash.min.js" />
-                <None Remove="Service\TestApp\assets\js\vuex.min.js" />
-                <None Remove="Service\TestApp\vue\src\mixins\config.js" />
-                <None Remove="Service\TestApp\vue\src\shared-mixin.js" />
-        </ItemGroup>
-
-        <ItemGroup>
-                <Reference Include="System" />
-                <Reference Include="System.Core" />
-                <Reference Include="System.Data" />
-                <Reference Include="System.Web" />
-                <Reference Include="System.Web.Routing" />
-                <Reference Include="System.Xml" />
-                <Reference Include="System.Web.Extensions" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\index.html" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\axios.min.js" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\es6-promise.auto.js" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\httpVueLoader.js" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\lodash.min.js" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\vuex.min.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\index.html" />
-                <EmbeddedResource Include="Service\TestApp\assets\js\vue.min.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\components\json-cell.vue" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\components\json-table.vue" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\components\parameter.vue" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\components\parameter-value.vue" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\filters\string-filter.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\index.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\config.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\mixins\routine-mixin.js" />
-                <EmbeddedResource Include="Service\TestApp\vue\src\store\index.store.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <None Include="Engine\Configuration\MethodBuilder.Parameters.tt">
-                        <Generator>TextTemplatingFileGenerator</Generator>
-                        <LastGenOutput>MethodBuilder.Parameters.cs</LastGenOutput>
-                </None>
-                <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.eot" />
-                <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.ttf" />
-                <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff" />
-                <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.woff2" />
-                <None Include="Service\Configuration\HeaderProcessorBuilder.Predefined.tt">
-                        <Generator>TextTemplatingFileGenerator</Generator>
-                        <LastGenOutput>HeaderProcessorBuilder.Predefined.cs</LastGenOutput>
-                </None>
-                <None Include="Service\HeaderProcessor\PredefinedHeaderProcessor.tt">
-                        <Generator>TextTemplatingFileGenerator</Generator>
-                        <LastGenOutput>PredefinedHeaderProcessor.cs</LastGenOutput>
-                </None>
-        </ItemGroup>
-        <ItemGroup>
-                <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-        </ItemGroup>
-        <ItemGroup>
-                <Folder Include="Scripts\" />
-                <Folder Include="Service\TestApp\assets\img\" />
-                <Folder Include="Service\TestApp\assets\lib\" />
-                <Folder Include="Service\TestApp\vue\src\components\" />
-                <Folder Include="Service\TestApp\vue\src\filters\" />
-                <Folder Include="Service\TestApp\vue\src\store\" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\config.router.js" />
-                <EmbeddedResource Include="Service\TestApp\app\config.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\js\angular.min.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\app.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\index.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\js\angular.ui.router.min.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\indexService.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\js\angular.filter.min.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\css\bootstrap.min.css" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\js\ui.bootstrap.tpls.0.14.3.min.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\css\master.css" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\assets\fonts\glyphicons.halflings.regular.svg" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\parameter.html" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\parameter.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.html" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\parameterValue.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.html" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\jsonTable.js" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.html" />
-        </ItemGroup>
-        <ItemGroup>
-                <EmbeddedResource Include="Service\TestApp\app\application\jsonCell.js" />
-        </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<Version>0.9.1</Version>
+		<Authors>inventiv</Authors>
+		<Company>Multinet Teknoloji A.S.</Company>
+	</PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Remove="Service\TestApp\**\*.*" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Service\TestApp\**\*.*" />
+	</ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>Routine.Test</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
+	</ItemGroup>
 </Project>

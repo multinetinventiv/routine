@@ -1,30 +1,32 @@
-﻿using System;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Routine.Service.RequestHandlers
 {
-	public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
+    public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 	{
-		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-			: base(serviceContext, jsonSerializer, httpContext) { }
+		protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
 		protected abstract bool AllowGet { get; }
-		protected abstract void Process();
+		protected abstract Task Process();
 
-		public sealed override void WriteResponse()
+		public sealed override async Task WriteResponse()
 		{
 			if (!IsPost && !IsGet) { MethodNotAllowed(AllowGet); return; }
 			if (IsGet && !AllowGet) { MethodNotAllowed(false); return; }
 
 			ProcessRequestHeaders();
-
+                
 			try
 			{
-				Process();
+				await Process();
 			}
 			catch (TypeNotFoundException ex)
 			{
@@ -40,7 +42,7 @@ namespace Routine.Service.RequestHandlers
 			}
 			catch (Exception ex)
 			{
-				WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
+				await WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
 
 				return;
 			}
@@ -50,7 +52,7 @@ namespace Routine.Service.RequestHandlers
 
 		private void ProcessRequestHeaders()
 		{
-			var requestHeaders = HttpContext.Request.Headers.AllKeys
+			var requestHeaders = HttpContext.Request.Headers.Keys
 				.ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
 
 			foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())
@@ -65,7 +67,7 @@ namespace Routine.Service.RequestHandlers
 			{
 				var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
 				if (!string.IsNullOrEmpty(responseHeaderValue))
-				{
+                {
 					HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
 				}
 			}

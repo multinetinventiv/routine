@@ -1,16 +1,17 @@
-﻿using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers
 {
-    public class IndexRequestHandler : RequestHandlerBase, IIndexRequestHandler
+    public class IndexRequestHandler : RequestHandlerBase
     {
-        public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, HttpContextBase httpContext)
-            : base(serviceContext, jsonSerializer, httpContext) { }
+        public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+            : base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-        public override void WriteResponse()
+        public override async Task WriteResponse()
         {
-            WriteFileResponse("vue/index.html");
+            await WriteFileResponse("vue/index.html");
         }
     }
 }

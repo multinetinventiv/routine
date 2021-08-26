@@ -4,44 +4,46 @@ using Routine.Core;
 
 namespace Routine.Service
 {
-	public interface IServiceConfiguration
-	{
-		string GetRootPath();
+    public interface IServiceConfiguration
+    {
+        string GetRootPath();
 
-		bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
+        bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
 
-		List<string> GetRequestHeaders();
-		List<IHeaderProcessor> GetRequestHeaderProcessors();
+        List<string> GetRequestHeaders();
+        List<IHeaderProcessor> GetRequestHeaderProcessors();
 
-		List<string> GetResponseHeaders();
-		string GetResponseHeaderValue(string responseHeader);
+        List<string> GetResponseHeaders();
+        string GetResponseHeaderValue(string responseHeader);
 
-		ExceptionResult GetExceptionResult(Exception exception);
-	}
+        ExceptionResult GetExceptionResult(Exception exception);
+    }
 
-	public static class ServiceConfigurationFacade
-	{
-		public static string GetPath(this IServiceConfiguration source, string path)
-		{
-			var rootPath = source.GetRootPath() ?? string.Empty;
+    public static class ServiceConfigurationFacade
+    {
+        public static string GetPath(this IServiceConfiguration source) => GetPath(source, string.Empty);
 
-			if (rootPath.StartsWith("/"))
-			{
-				rootPath = rootPath.After("/");
-			}
+        public static string GetPath(this IServiceConfiguration source, string path)
+        {
+            var rootPath = source.GetRootPath() ?? string.Empty;
 
-			if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
-			{
-				rootPath += "/";
-			}
+            if (rootPath.StartsWith("/"))
+            {
+                rootPath = rootPath.After("/");
+            }
 
-			if (path.StartsWith("/"))
-			{
-				path = path.After("/");
-			}
+            if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
+            {
+                rootPath += "/";
+            }
 
-			return rootPath + path;
-		}
-	}
+            if (path.StartsWith("/"))
+            {
+                path = path.After("/");
+            }
+
+            return rootPath + path;
+        }
+    }
 }
 
