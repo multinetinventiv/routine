@@ -30,4 +30,9 @@ jobs:
           minimum_coverage: 70
           skip_covered : false
           only_changed_files : true
+      - name: Publish Routine to Nuget
+        uses: brandedoutcast/publish-nuget@v2.5.2
+        with:
+            PROJECT_FILE_PATH: src/Routine/Routine.csproj
+            NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
