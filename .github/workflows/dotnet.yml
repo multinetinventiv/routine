@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - develop
-      - master
 
 jobs:
   one:
@@ -34,7 +33,7 @@ jobs:
           skip_covered: false
           only_changed_files: true
       - name: Publish Routine to Nuget
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: brandedoutcast/publish-nuget@v2.5.2
         with:
           PROJECT_FILE_PATH: src/Routine/Routine.csproj
