@@ -10,7 +10,7 @@
         "**/bin":true,
         "**/obj":true,
         "**/*.csproj.*":true,
-        "**/.github":true,
+        "**/.github":false,
         "**/_ReSharper.Caches":true,
     }
 }
