@@ -25,9 +25,9 @@ jobs:
       - name: Code Coverage Summary Report
         uses: 5monkeys/cobertura-action@master
         with:
-          path: ${{ github.workspace }}/test/Routine.Test/coverage.cobertura.xml
+          path: ${{ github.workspace }}/test/Routine.Test.Performance/coverage.cobertura.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           skip_covered : false
           only_changed_files : true
-          minimum_coverage: 10
+          minimum_coverage: 75
           report_name : Coverage_Report
