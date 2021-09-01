@@ -2,9 +2,6 @@
 {
 	public class HelloWorldService
 	{
-		public string GetMessage(string name)
-		{
-			return $"Hello {name}!";
-		}
-	}
+		public string GetMessage(string name) => $"Hello {name}!";
+    }
 }

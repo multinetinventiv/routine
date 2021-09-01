@@ -12,29 +12,15 @@ namespace Routine.Samples.SmartObject.HelloWorld
 			Name = name;
 		}
 
-		public string GetMessage()
-		{
-			return $"Hello {Name}!";
-		}
-
-		public void Delete()
-		{
-			Users.users.Remove(this);
-		}
-	}
+		public string GetMessage() => $"Hello {Name}!";
+        public void Delete() => Users.users.Remove(this);
+    }
 
 	public class Users
 	{
 		internal static readonly List<User> users = new();
 
-		public void Add(string name)
-		{
-			users.Add(new User(name));
-		}
-
-		public User Find(string name)
-		{
-			return users.FirstOrDefault(u => u.Name == name);
-		}
-	}
+		public void Add(string name) => users.Add(new User(name));
+        public User Find(string name) => users.FirstOrDefault(u => u.Name == name);
+    }
 }
