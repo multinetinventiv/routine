@@ -9,9 +9,6 @@ namespace Routine.Service.RequestHandlers
 		public FileRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
 			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override async Task WriteResponse()
-		{
-			await WriteFileResponse($"{QueryString["path"]}");
-		}
-	}
+		public override async Task WriteResponse() => await WriteFileResponse($"{QueryString["path"]}");
+    }
 }

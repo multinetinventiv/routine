@@ -23,10 +23,7 @@ namespace Routine.Service
             applicationModel = new Lazy<ApplicationModel>(FetchApplicationModel);
         }
 
-        private ApplicationModel FetchApplicationModel()
-        {
-            return new ApplicationModel((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
-        }
+        private ApplicationModel FetchApplicationModel() => new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
 
         public ApplicationModel ApplicationModel => applicationModel.Value;
 
@@ -59,9 +56,7 @@ namespace Routine.Service
 
         private ObjectModel GetObjectModel(ReferenceData target)
         {
-            ObjectModel objectModel;
-
-            if (!ApplicationModel.Model.TryGetValue(target.ViewModelId, out objectModel))
+            if (!ApplicationModel.Model.TryGetValue(target.ViewModelId, out var objectModel))
             {
                 throw TypeNotFound(target.ViewModelId);
             }
@@ -71,9 +66,7 @@ namespace Routine.Service
 
         private OperationModel GetOperationModel(ReferenceData target, string operation)
         {
-            OperationModel operationModel;
-
-            if (!GetObjectModel(target).Operation.TryGetValue(operation, out operationModel))
+            if (!GetObjectModel(target).Operation.TryGetValue(operation, out var operationModel))
             {
                 throw OperationNotFound(target.ViewModelId, operation);
             }
@@ -100,25 +93,13 @@ namespace Routine.Service
             return result;
         }
 
-        private string Url(string action)
-        {
-            return $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
-        }
-
-        private string Url(ReferenceData referenceData)
-        {
-            if (referenceData.ModelId == referenceData.ViewModelId)
-            {
-                return Url($"{referenceData.ModelId}/{referenceData.Id}");
-            }
-
-            return Url($"{referenceData.ModelId}/{referenceData.Id}/{referenceData.ViewModelId}");
-        }
-
-        private string Url(ReferenceData referenceData, string operation)
-        {
-            return $"{Url(referenceData)}/{operation}";
-        }
+        private string Url(ReferenceData referenceData, string operation) => $"{Url(referenceData)}/{operation}";
+        private string Url(ReferenceData referenceData) =>
+            Url(referenceData.ModelId == referenceData.ViewModelId
+                ? $"{referenceData.ModelId}/{referenceData.Id}"
+                : $"{referenceData.ModelId}/{referenceData.Id}/{referenceData.ViewModelId}"
+            );
+        private string Url(string action) => $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
 
         private RestResponse Post(string url, string body)
         {
@@ -128,8 +109,7 @@ namespace Routine.Service
             }
             catch (WebException ex)
             {
-                var res = ex.Response as HttpWebResponse;
-                if (res == null)
+                if (ex.Response is not HttpWebResponse res)
                 {
                     throw;
                 }
@@ -146,8 +126,7 @@ namespace Routine.Service
             }
             catch (WebException ex)
             {
-                var res = ex.Response as HttpWebResponse;
-                if (res == null)
+                if (ex.Response is not HttpWebResponse res)
                 {
                     throw;
                 }
@@ -156,35 +135,30 @@ namespace Routine.Service
             }
         }
 
-        private RestRequest BuildRequest(string body)
-        {
-            return new RestRequest(body)
+        private RestRequest BuildRequest(string body) =>
+            new RestRequest(body)
                 .WithHeaders(
                     serviceClientConfiguration.GetRequestHeaders()
                         .ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
                 );
-        }
 
         #region Exceptions
 
-        private RestResponse Wrap(HttpWebResponse res)
-        {
-            return new RestResponse(
-                serializer.Serialize(new ExceptionResult($"Http.{res.StatusCode}", res.StatusDescription, false))
-                );
-        }
+        private RestResponse Wrap(HttpWebResponse res) => new(
+            serializer.Serialize(new ExceptionResult($"Http.{res.StatusCode}", res.StatusDescription, false))
+        );
 
-        private Exception OperationNotFound(string modelId, string operation)
-        {
-            return serviceClientConfiguration.GetException(new ExceptionResult("OperationNotFound",
-                $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.", false));
-        }
+        private Exception OperationNotFound(string modelId, string operation) =>
+            serviceClientConfiguration.GetException(new ExceptionResult(nameof(OperationNotFound),
+                $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.",
+                false
+            ));
 
-        private Exception TypeNotFound(string modelId)
-        {
-            return serviceClientConfiguration.GetException(new ExceptionResult("TypeNotFound",
-                $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.", false));
-        }
+        private Exception TypeNotFound(string modelId) =>
+            serviceClientConfiguration.GetException(new ExceptionResult(nameof(TypeNotFound),
+                $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
+                false
+            ));
 
         #endregion
     }

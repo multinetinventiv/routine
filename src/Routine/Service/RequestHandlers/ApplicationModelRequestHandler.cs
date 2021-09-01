@@ -9,9 +9,6 @@ namespace Routine.Service.RequestHandlers
 		public ApplicationModelRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
 			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override async Task WriteResponse()
-		{
-			await WriteJsonResponse(ServiceContext.ObjectService.ApplicationModel);
-		}
-	}
+		public override async Task WriteResponse() => await WriteJsonResponse(ServiceContext.ObjectService.ApplicationModel);
+    }
 }

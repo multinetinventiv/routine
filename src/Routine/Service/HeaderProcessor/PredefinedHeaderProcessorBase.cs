@@ -21,8 +21,7 @@ namespace Routine.Service.HeaderProcessor
 			var headers = new List<string>();
 			foreach (var headerKey in headerKeys)
 			{
-				string header;
-				if (!responseHeaders.TryGetValue(headerKey, out header))
+                if (!responseHeaders.TryGetValue(headerKey, out var header))
 				{
 					header = string.Empty;
 				}
@@ -37,8 +36,8 @@ namespace Routine.Service.HeaderProcessor
 
 		#region IHeaderProcessor implementation
 
-		void IHeaderProcessor.Process(IDictionary<string, string> responseHeaders) { Process(responseHeaders); }
+		void IHeaderProcessor.Process(IDictionary<string, string> responseHeaders) => Process(responseHeaders);
 
-		#endregion
+        #endregion
 	}
 }
