@@ -265,7 +265,7 @@ namespace Routine.Core.Reflection
             else if (method.IsSpecialName)
             {
                 var methodInfo = method as System.Reflection.MethodInfo;
-                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
                 else if (methodInfo.Name.StartsWith("get_"))
                 {
                     if (methodInfo.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
