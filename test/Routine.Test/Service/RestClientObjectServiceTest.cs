@@ -40,20 +40,14 @@ namespace Routine.Test.Service
             SetUpGet("ApplicationModel").Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
         }
 
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action) { return SetUpGet(action, req => true); }
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action, RestRequest restRequest) { return SetUpGet(action, req => Equals(req, restRequest)); }
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
-        {
-            return mockRestClient.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
-        }
+        private ISetup<IRestClient, RestResponse> SetUpGet(string action) => SetUpGet(action, req => true);
+        private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
+            mockRestClient.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
 
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action) { return SetUpPost(action, req => true); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, string body) { return SetUpPost(action, req => req.Body == body); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, RestRequest restRequest) { return SetUpPost(action, req => Equals(req, restRequest)); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
-        {
-            return mockRestClient.Setup(rc => rc.Post($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
-        }
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action) => SetUpPost(action, req => true);
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action, string body) => SetUpPost(action, req => req.Body == body);
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
+            mockRestClient.Setup(rc => rc.Post($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
 
         private class TestException : Exception { public TestException(string message) : base(message) { } }
 

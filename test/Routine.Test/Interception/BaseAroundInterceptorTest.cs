@@ -4,227 +4,227 @@ using Routine.Interception;
 
 namespace Routine.Test.Interception
 {
-	[TestFixture]
-	public class BaseAroundInterceptorTest : InterceptorTestBase
-	{
-		private TestAroundInterceptor testing;
-		private IInterceptor<TestContext<string>> testingInterface;
-		
-		[Test]
-		public void A_successful_invocation_calls_OnBefore__OnSuccess_and_OnAfter_respectively()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+    [TestFixture]
+    public class BaseAroundInterceptorTest : InterceptorTestBase
+    {
+        private TestAroundInterceptor testing;
+        private IInterceptor<TestContext<string>> testingInterface;
 
-			InvocationReturns("result");
-			
-			var actual = testingInterface.Intercept(context, invocation);
-			
-			Assert.AreEqual("result", actual);
+        [Test]
+        public void A_successful_invocation_calls_OnBefore__OnSuccess_and_OnAfter_respectively()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-			AssertInvocationWasCalledOnlyOnce();
-		}
+            InvocationReturns("result");
 
-		[Test]
-		public void An_unsuccessful_invocation_calls_OnBefore__OnFail_and_OnAfter_respectively()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            var actual = testingInterface.Intercept(context, invocation);
 
-			InvocationFailsWith(new Exception());
+            Assert.AreEqual("result", actual);
 
-			Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+            AssertInvocationWasCalledOnlyOnce();
+        }
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsNull(context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsTrue((bool)context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+        [Test]
+        public void An_unsuccessful_invocation_calls_OnBefore__OnFail_and_OnAfter_respectively()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-		[Test]
-		public void Can_cancel_actual_invocation_and_return_some_other_result()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            InvocationFailsWith(new Exception());
 
-			InvocationReturns("actual");
-			testing.CancelAndReturn("cancel");
+            Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
 
-			var actual = testingInterface.Intercept(context, invocation);
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsNull(context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsTrue((bool)context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.AreEqual("cancel", actual);
+        [Test]
+        public void Can_cancel_actual_invocation_and_return_some_other_result()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsNull(context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+            InvocationReturns("actual");
+            testing.CancelAndReturn("cancel");
 
-		[Test]
-		public void Can_alter_actual_invocation_result_after_a_successful_invocation()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            var actual = testingInterface.Intercept(context, invocation);
 
-			InvocationReturns("actual");
-			testing.OverrideActualResultWith("override");
+            Assert.AreEqual("cancel", actual);
 
-			var actual = testingInterface.Intercept(context, invocation);
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsNull(context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+        [Test]
+        public void Can_alter_actual_invocation_result_after_a_successful_invocation()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-		[Test]
-		public void Can_hide_the_exception_and_return_a_result()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            InvocationReturns("actual");
+            testing.OverrideActualResultWith("override");
 
-			InvocationFailsWith(new Exception());
-			testing.HideFailAndReturn("override");
+            var actual = testingInterface.Intercept(context, invocation);
 
-			var actual = testingInterface.Intercept(context, invocation);
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.AreEqual("override", actual);
+        [Test]
+        public void Can_hide_the_exception_and_return_a_result()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsNull(context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsTrue((bool)context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+            InvocationFailsWith(new Exception());
+            testing.HideFailAndReturn("override");
 
-		[Test]
-		public void Can_alter_the_exception_thrown_by_invocation()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            var actual = testingInterface.Intercept(context, invocation);
 
-			InvocationFailsWith(new ArgumentNullException());
-			testing.OverrideExceptionWith(new FormatException());
+            Assert.AreEqual("override", actual);
 
-			Assert.Throws<FormatException>(() => testingInterface.Intercept(context, invocation));
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsNull(context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsTrue((bool)context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsNull(context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsTrue((bool)context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+        [Test]
+        public void Can_alter_the_exception_thrown_by_invocation()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-		[Test]
-		public void When_exception_is_not_changed__preserves_stack_trace()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            InvocationFailsWith(new ArgumentNullException());
+            testing.OverrideExceptionWith(new FormatException());
 
-			InvocationFailsWith(new ArgumentNullException());
+            Assert.Throws<FormatException>(() => testingInterface.Intercept(context, invocation));
 
-			try
-			{
-				testingInterface.Intercept(context, invocation);
-			}
-			catch (ArgumentNullException ex)
-			{
-				Console.WriteLine(ex.StackTrace);
-				Assert.IsTrue(ex.StackTrace.Contains(ExceptionStackTraceLookupText), ex.StackTrace);
-			}
-		}
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsNull(context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsTrue((bool)context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-		[Test]
-		public void When_an_exception_is_thrown_OnBefore__OnFail_is_still_called()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+        [Test]
+        public void When_exception_is_not_changed__preserves_stack_trace()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			testing.FailOnBeforeWith(new Exception());
+            InvocationFailsWith(new ArgumentNullException());
 
-			Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
+            try
+            {
+                testingInterface.Intercept(context, invocation);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                Assert.IsTrue(ex.StackTrace.Contains(ExceptionStackTraceLookupText), ex.StackTrace);
+            }
+        }
 
-			Assert.IsNull(context["before"]);
-			Assert.IsNull(context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsTrue((bool)context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+        [Test]
+        public void When_an_exception_is_thrown_OnBefore__OnFail_is_still_called()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-		[Test]
-		public void When_an_exception_is_thrown_OnSuccess__OnFail_is_still_called()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            testing.FailOnBeforeWith(new Exception());
 
-			testing.FailOnSuccessWith(new Exception());
+            Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
 
-			Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
+            Assert.IsNull(context["before"]);
+            Assert.IsNull(context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsTrue((bool)context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsTrue((bool)context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+        [Test]
+        public void When_an_exception_is_thrown_OnSuccess__OnFail_is_still_called()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-		[Test]
-		public void By_default_intercepts_any_given_invocation()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            testing.FailOnSuccessWith(new Exception());
 
-			testingInterface.Intercept(context, invocation);
+            Assert.Throws<Exception>(() => testingInterface.Intercept(context, invocation));
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsTrue((bool)context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-		[Test]
-		public void Intercepts_only_when_clause_returns_true()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+        [Test]
+        public void By_default_intercepts_any_given_invocation()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			testing.When(_ => false);
+            testingInterface.Intercept(context, invocation);
 
-			testingInterface.Intercept(context, invocation);
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			Assert.IsNull(context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsNull(context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsNull(context["after"]);
+        [Test]
+        public void Intercepts_only_when_clause_returns_true()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			testing.When(_ => true);
+            testing.When(_ => false);
 
-			context["invocation"] = null;
+            testingInterface.Intercept(context, invocation);
 
-			testingInterface.Intercept(context, invocation);
+            Assert.IsNull(context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsNull(context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsNull(context["after"]);
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
+            testing.When(_ => true);
 
-		[Test]
-		public void Custom_when_clauses_can_be_defined_by_sub_classes()
-		{
-			testingInterface = testing = new TestAroundInterceptor();
+            context["invocation"] = null;
 
-			context["override-base"] = true;
+            testingInterface.Intercept(context, invocation);
 
-			testing.When(_ => false).WhenContextHas("override-base");
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
 
-			testingInterface.Intercept(context, invocation);
+        [Test]
+        public void Custom_when_clauses_can_be_defined_by_sub_classes()
+        {
+            testingInterface = testing = new TestAroundInterceptor();
 
-			Assert.IsTrue((bool)context["before"]);
-			Assert.IsTrue((bool)context["invocation"]);
-			Assert.IsTrue((bool)context["success"]);
-			Assert.IsNull(context["fail"]);
-			Assert.IsTrue((bool)context["after"]);
-		}
-	}
+            context["override-base"] = true;
+
+            testing.When(_ => false).WhenContextHas("override-base");
+
+            testingInterface.Intercept(context, invocation);
+
+            Assert.IsTrue((bool)context["before"]);
+            Assert.IsTrue((bool)context["invocation"]);
+            Assert.IsTrue((bool)context["success"]);
+            Assert.IsNull(context["fail"]);
+            Assert.IsTrue((bool)context["after"]);
+        }
+    }
 }

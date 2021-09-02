@@ -47,68 +47,54 @@ namespace Routine.Test.Engine
 
         protected void AddToRepository(object obj)
         {
-            var dummy = testing.ApplicationModel;
+            var _ = testing.ApplicationModel;
 
             var idExtractor = ctx.CodingStyle.GetIdExtractor(obj.GetTypeInfo());
             var id = idExtractor.GetId(obj);
             objectRepository.Add(id, obj);
         }
 
-        protected ReferenceData IdNull() { return Id(null, null, null, true); }
-        protected new virtual ReferenceData Id(string id) { return Id(id, DefaultModelId); }
-        protected new ReferenceData Id(string id, string modelId) { return Id(id, modelId, modelId); }
-        protected new ReferenceData Id(string id, string actualModelId, string viewModelId) { return Id(id, actualModelId, viewModelId, false); }
-        protected new ReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull)
-        {
-            if (isNull) { return null; }
+        protected ReferenceData IdNull() => Id(null, null, null, true);
+        protected new virtual ReferenceData Id(string id) => Id(id, DefaultModelId);
+        protected new ReferenceData Id(string id, string modelId) => Id(id, modelId, modelId);
+        protected new ReferenceData Id(string id, string actualModelId, string viewModelId) => Id(id, actualModelId, viewModelId, false);
+        protected new ReferenceData Id(string id, string actualModelId, string viewModelId, bool isNull) =>
+            isNull
+                ? null
+                : new ReferenceData { Id = id, ModelId = actualModelId, ViewModelId = viewModelId };
 
-            return new ReferenceData { Id = id, ModelId = actualModelId, ViewModelId = viewModelId };
-        }
+        protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters) =>
+            parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value);
 
-        protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters)
-        {
-            var result = new Dictionary<string, ParameterValueData>();
-
-            foreach (var parameter in parameters)
-            {
-                result.Add(parameter.Key, parameter.Value);
-            }
-
-            return result;
-        }
-
-        protected ParameterData Init(string objectModelId, Dictionary<string, ParameterValueData> initializationParameters)
-        {
-            return new ParameterData
+        protected ParameterData Init(string objectModelId, Dictionary<string, ParameterValueData> initializationParameters) =>
+            new()
             {
                 ModelId = objectModelId,
                 InitializationParameters = initializationParameters
             };
-        }
 
-        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ParameterData[] values) { return Param(modelId, values.Length > 1, values); }
-        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values)
-        {
-            return new KeyValuePair<string, ParameterValueData>(modelId,
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ParameterData[] values) => Param(modelId, values.Length > 1, values);
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values) =>
+            new(modelId,
                 new ParameterValueData
                 {
                     IsList = isList,
                     Values = values.ToList()
                 }
             );
-        }
 
-        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ReferenceData[] references) { return Param(modelId, references.Length > 1, references); }
-        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ReferenceData[] references)
-        {
-            return new KeyValuePair<string, ParameterValueData>(modelId, new ParameterValueData { IsList = isList, Values = references.Select(r => PD(r)).ToList() });
-        }
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ReferenceData[] references) => Param(modelId, references.Length > 1, references);
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ReferenceData[] references) =>
+            new(modelId, new ParameterValueData
+            {
+                IsList = isList,
+                Values = references.Select(PD).ToList()
+            });
 
-        protected ParameterData PD(ReferenceData reference)
-        {
-            if (reference == null) { return null; }
-            return new ParameterData { ModelId = reference.ModelId, Id = reference.Id };
-        }
+        protected ParameterData PD(ReferenceData reference) =>
+            reference == null
+                ? null
+                : new ParameterData { ModelId = reference.ModelId, Id = reference.Id };
 
         protected abstract string DefaultModelId { get; }
         protected abstract string RootNamespace { get; }

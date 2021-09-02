@@ -24,28 +24,28 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public List<string> List { get; set; }
 
         public void VoidOp() { }
-        public string StringOp(List<string> list) { return null; }
-        public List<string> ListOp(bool boolParam) { return null; }
+        public string StringOp(List<string> list) => null;
+        public List<string> ListOp(bool boolParam) => null;
 
         public void OverloadOp() { }
         public void OverloadOp(string s) { }
         public void OverloadOp(int i) { }
         public void OverloadOp(string s, int i) { }
         public void OverloadOp(string s1, string s, int i1) { }
-        public string OverloadOp(bool b) { return null; }
+        public string OverloadOp(bool b) => null;
         public void OverloadOp(bool s, string s1) { }
 
-        public string OverloadOpWithSecondParamUnknown(string value) { return null; }
-        public string OverloadOpWithSecondParamUnknown(string value, Func<string> exceptionFactory) { return null; }
+        public string OverloadOpWithSecondParamUnknown(string value) => null;
+        public string OverloadOpWithSecondParamUnknown(string value, Func<string> exceptionFactory) => null;
 
-        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param1) { return null; }
-        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param2, string param1) { return null; }
+        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param1) => null;
+        public List<string> OverloadOpWithDifferentParamTypeWithSameName(int param2, string param1) => null;
 
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
 
         public IgnoredModel IgnoredModelData { get; set; }
-        public IgnoredModel IgnoredModelInReturnType() { return null; }
+        public IgnoredModel IgnoredModelInReturnType() => null;
         public void IgnoredModelInParameters(IgnoredModel ignoredModel) { }
 
         public IgnoredRefStruct IgnoredRefStructData => new();
@@ -64,13 +64,14 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
     public class BusinessValueModel
     {
-        public static BusinessValueModel Parse(string value) { return null; }
+        public static BusinessValueModel Parse(string value) => null;
 
         public string AutoExcludedData { get; set; }
         public void AutoExcludedOperation() { }
     }
-
-    public struct BusinessDataModel
+    
+    // ReSharper disable UnusedParameter.Local
+    public readonly struct BusinessDataModel
     {
         public string Data { get; }
 
@@ -80,6 +81,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public BusinessDataModel(IgnoredModel ignoredModel) : this() { }
         public BusinessDataModel(IgnoredRefStruct ignoredRefStruct) : this() { }
     }
+    // ReSharper restore UnusedParameter.Local
 
     public enum BusinessEnum
     {
@@ -236,8 +238,10 @@ namespace Routine.Test.Engine
         [Test]
         public void Object_model_can_be_configured_to_have_view_models()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, _) => o))
-                .When(type.of<BusinessModel>()));
+            codingStyle.Converters.Add(c => c
+                .Convert(b => b.By(type.of<IBusinessModel>, (o, _) => o))
+                .When(type.of<BusinessModel>())
+            );
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
@@ -247,8 +251,10 @@ namespace Routine.Test.Engine
         [Test]
         public void When_a_configured_view_type_is_not_added__then_it_is_not_included_in_view_models()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IIgnoredModel>(), (o, _) => o))
-                .When(type.of<BusinessModel>()));
+            codingStyle.Converters.Add(c => c
+                .Convert(b => b.By(type.of<IIgnoredModel>, (o, _) => o))
+                .When(type.of<BusinessModel>())
+            );
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
@@ -258,8 +264,10 @@ namespace Routine.Test.Engine
         [Test]
         public void When_configured_to_have_a_view_model__object_model_is_automatically_included_in_actual_model_list_of_that_view_model()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.By(() => type.of<IBusinessModel>(), (o, _) => o))
-                .When(type.of<BusinessModel>()));
+            codingStyle.Converters.Add(c => c
+                .Convert(b => b.By(type.of<IBusinessModel>, (o, _) => o))
+                .When(type.of<BusinessModel>())
+            );
 
             var actual = testing.ApplicationModel.Model[TESTED_VIM_ID];
 
@@ -279,8 +287,10 @@ namespace Routine.Test.Engine
         [Test]
         public void A_model_cannot_be_in_its_own_actual_model_nor_in_its_own_view_models()
         {
-            codingStyle.Converters.Add(c => c.Convert(b => b.ByCasting())
-                .When(type.of<BusinessModel>()));
+            codingStyle.Converters.Add(c => c
+                .Convert(b => b.ByCasting())
+                .When(type.of<BusinessModel>())
+            );
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
@@ -419,7 +429,7 @@ namespace Routine.Test.Engine
         public void Operations_with_unrecognized_result_ViewModelIds_are_ignored_automatically()
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
-            
+
             Assert.IsFalse(actual.Operations.Any(o => o.Result.ViewModelId.Contains("Ignored")),
                 "Operations that returns an 'Ignored' type should have been excluded: " +
                 $"{string.Join(", ", actual.Operations.Where(o => o.Result.ViewModelId.Contains("Ignored")).Select(o => o.Name))}"
@@ -456,7 +466,7 @@ namespace Routine.Test.Engine
         public void Operations_with_any_unrecognized_parameter_ViewModelIds_are_ignored_automatically()
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
-            
+
             Assert.IsFalse(actual.Operations.Any(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))),
                 "Operations that accept an 'Ignored' type as a parameter should have been excluded: " +
                 $"{string.Join(", ", actual.Operations.Where(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))).Select(o => o.Name))}"
@@ -554,9 +564,10 @@ namespace Routine.Test.Engine
         public void An_operation_s_marks_are_those_merged_from_all_its_groups()
         {
             codingStyle
-                .OperationMarks.Add(s => s.By(o => new List<string> { "ovr-" + o.Parameters.Count }).When(o => o.Name == "OverloadOp"))
-                ;
-
+                .OperationMarks.Add(s => s
+                    .By(o => new List<string> { "ovr-" + o.Parameters.Count })
+                    .When(o => o.Name == "OverloadOp")
+                );
 
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
@@ -571,8 +582,10 @@ namespace Routine.Test.Engine
         public void A_parameter_s_marks_are_those_merged_from_all_its_groups()
         {
             codingStyle
-                .ParameterMarks.Add(s => s.By(p => new List<string> { "ovr-" + p.Owner.Parameters.Count }).When(p => p.Name == "s" && p.Owner.Name == "OverloadOp"))
-                ;
+                .ParameterMarks.Add(s => s
+                    .By(p => new List<string> { "ovr-" + p.Owner.Parameters.Count })
+                    .When(p => p.Name == "s" && p.Owner.Name == "OverloadOp")
+                );
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
             var actual = om.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s");
@@ -735,7 +748,7 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_VOM_ID];
 
             Assert.IsTrue(om.Operations.Any(o => o.Name == "VoidOp"));
-            Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Name == "VoidOp").Parameters.Any(p => p.Name == "businessModel" && p.ViewModelId == TESTED_OM_ID));
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "VoidOp").Parameters.Any(p => p.Name == "businessModel" && p.ViewModelId == TESTED_OM_ID));
         }
 
         [Test]
@@ -748,7 +761,7 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
             Assert.IsTrue(om.Operations.Any(o => o.Name == "Insert"));
-            Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Name == "Insert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "Insert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
         }
 
         [Test]
@@ -765,7 +778,7 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
             Assert.IsTrue(om.Operations.Any(o => o.Name == "OverriddenInsert"));
-            Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Name == "OverriddenInsert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "OverriddenInsert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
         }
 
         [Test]
@@ -778,8 +791,8 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
             Assert.IsTrue(om.Operations.Any(o => o.Name == "Ping"));
-            Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
-            Assert.AreEqual("System.String", om.Operations.SingleOrDefault(o => o.Name == "Ping").Result.ViewModelId);
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
+            Assert.AreEqual("System.String", om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId);
         }
 
         [Test]
@@ -797,8 +810,8 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_VOM_ID];
 
             Assert.IsTrue(om.Operations.Any(o => o.Name == "Ping"));
-            Assert.IsTrue(om.Operations.SingleOrDefault(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
-            Assert.AreEqual("System.String", om.Operations.SingleOrDefault(o => o.Name == "Ping").Result.ViewModelId);
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
+            Assert.AreEqual("System.String", om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId);
         }
     }
 }
