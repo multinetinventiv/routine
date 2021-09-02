@@ -82,7 +82,7 @@ namespace Routine.Test.Engine.Reflection
         }
 
         [Test]
-        public void RoutineMethodInfo_throws_null_exception_when_target_is_null()
+        public void Routine_MethodInfo_throws_null_exception_when_target_is_null()
         {
             testing = OOP_Method("PublicPingMethod");
 
