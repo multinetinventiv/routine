@@ -42,7 +42,7 @@ namespace Routine.Test.Core.Reflection
     {
         public class InnerClass
         {
-            public static InnerClass New() { return new InnerClass(); }
+            public static InnerClass New() => new InnerClass();
             private InnerClass() { }
             public void VoidMethod() { }
         }
@@ -50,40 +50,41 @@ namespace Routine.Test.Core.Reflection
         public static void StaticVoidMethod() { }
 
         private readonly IOptimizedInterface<string> real;
-        public OptimizedClass(IOptimizedInterface<string> real) { this.real = real; }
+        public OptimizedClass(IOptimizedInterface<string> real) => this.real = real;
 
-        public void VoidMethod() { real.VoidMethod(); }
+        public void VoidMethod() => real.VoidMethod();
 
-        void IOptimizedInterface<string>.ExplicitVoidMethod() { real.ExplicitVoidMethod(); }
+        void IOptimizedInterface<string>.ExplicitVoidMethod() => real.ExplicitVoidMethod();
 
-        public string StringMethod() { return real.StringMethod(); }
-        public void OneParameterVoidMethod(string str) { real.OneParameterVoidMethod(str); }
-        public void TwoParameterVoidMethod(string str, int i) { real.TwoParameterVoidMethod(str, i); }
-        public string ThreeParameterStringMethod(string str, int i, decimal d) { return real.ThreeParameterStringMethod(str, i, d); }
+        public string StringMethod() => real.StringMethod();
+        public void OneParameterVoidMethod(string str) => real.OneParameterVoidMethod(str);
+        public void TwoParameterVoidMethod(string str, int i) => real.TwoParameterVoidMethod(str, i);
+        public string ThreeParameterStringMethod(string str, int i, decimal d) => real.ThreeParameterStringMethod(str, i, d);
 
-        public List<string> ListMethod() { return real.ListMethod(); }
-        public void ListParameterVoidMethod(List<string> list) { real.ListParameterVoidMethod(list); }
-        public void ListListParameterVoidMethod(List<List<string>> listList) { real.ListListParameterVoidMethod(listList); }
-        public void DictionaryParameterVoidMethod(Dictionary<string, object> dict) { real.DictionaryParameterVoidMethod(dict); }
+        public List<string> ListMethod() => real.ListMethod();
+        public void ListParameterVoidMethod(List<string> list) => real.ListParameterVoidMethod(list);
+        public void ListListParameterVoidMethod(List<List<string>> listList) => real.ListListParameterVoidMethod(listList);
+        public void DictionaryParameterVoidMethod(Dictionary<string, object> dict) => real.DictionaryParameterVoidMethod(dict);
 
+        // ReSharper disable once UnusedMember.Local
         private void NonPublicVoidMethod() { }
 
-        public string StringProperty { get => real.StringProperty;
-            set => real.StringProperty = value;
-        }
+        public string StringProperty { get => real.StringProperty; set => real.StringProperty = value; }
 
-        public void Overload() { real.Overload(); }
-        public void Overload(int i) { real.Overload(i); }
+        public void Overload() => real.Overload();
+        public void Overload(int i) => real.Overload(i);
 
-        public string this[string key, int index] { get => real[key, index];
+        public string this[string key, int index]
+        {
+            get => real[key, index];
             set => real[key, index] = value;
         }
 
-        public void GenericParameterMethod(string param) { real.GenericParameterMethod(param); }
-        public string GenericReturnMethod() { return real.GenericReturnMethod(); }
+        public void GenericParameterMethod(string param) => real.GenericParameterMethod(param);
+        public string GenericReturnMethod() => real.GenericReturnMethod();
 
-        private void PrivateVoidMethod() { real.PrivateVoidMethod(); }
-        void IOptimizedInterface<string>.PrivateVoidMethod() { PrivateVoidMethod(); }
+        private void PrivateVoidMethod() => real.PrivateVoidMethod();
+        void IOptimizedInterface<string>.PrivateVoidMethod() => PrivateVoidMethod();
     }
 
     public struct Struct
@@ -119,13 +120,13 @@ namespace Routine.Test.Core.Reflection
             if (methodName.StartsWith("get:"))
             {
                 return typeof(T).GetProperty(methodName.After("get:"), ALL_MEMBERS)
-                            .GetGetMethod().CreateInvoker();
+                    ?.GetGetMethod().CreateInvoker();
             }
 
             if (methodName.StartsWith("set:"))
             {
                 return typeof(T).GetProperty(methodName.After("set:"), ALL_MEMBERS)
-                            .GetSetMethod().CreateInvoker();
+                    ?.GetSetMethod().CreateInvoker();
             }
 
             if (methodName == "new")
@@ -285,7 +286,7 @@ namespace Routine.Test.Core.Reflection
         [Test]
         public void Struct_property_setters_are_not_optimized_because_they_are_value_type_and_we_are_not_allowed_to_unbox_a_value_type_and_set_its_property()
         {
-            var invoker = typeof(Struct).GetProperty("Property").GetSetMethod().CreateInvoker() as ProxyMethodInvoker;
+            var invoker = typeof(Struct).GetProperty("Property")?.GetSetMethod().CreateInvoker() as ProxyMethodInvoker;
 
             Assert.IsNotNull(invoker);
             Assert.IsInstanceOf<ReflectionMethodInvoker>(invoker.Real);

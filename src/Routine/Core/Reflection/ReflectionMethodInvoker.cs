@@ -23,8 +23,6 @@ namespace Routine.Core.Reflection
                     return ctor.Invoke(args);
                 }
 
-                if (target == null) { throw new NullReferenceException(); }
-
                 return method.Invoke(target, args);
             }
             catch (System.Reflection.TargetInvocationException ex)

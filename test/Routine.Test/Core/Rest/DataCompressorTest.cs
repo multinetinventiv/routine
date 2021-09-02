@@ -12,21 +12,11 @@ namespace Routine.Test.Core.Rest
     {
         #region SetUp & Helpers
 
-        private string Serialize(object @object)
-        {
-            return new JsonSerializerAdapter().Serialize(@object);
-        }
+        private string Serialize(object @object) => new JsonSerializerAdapter().Serialize(@object);
+        private object Deserialize(string json) => new JsonSerializerAdapter().DeserializeObject(json);
 
-        private object Deserialize(string json)
-        {
-            return new JsonSerializerAdapter().DeserializeObject(json);
-        }
-
-        private DataCompressor Compressor() { return Compressor(null); }
-        private DataCompressor Compressor(string knownViewModelId)
-        {
-            return new DataCompressor(ApplicationModel, knownViewModelId);
-        }
+        private DataCompressor Compressor() => Compressor(null);
+        private DataCompressor Compressor(string knownViewModelId) => new(ApplicationModel, knownViewModelId);
 
         private ApplicationModel ApplicationModel => new() { Models = objectModelDictionary.Values.ToList() };
 
