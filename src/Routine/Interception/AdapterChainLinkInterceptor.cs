@@ -17,18 +17,15 @@ namespace Routine.Interception
 
 		public IChainLinkInterceptor<TContext> Next
 		{
-			get { return next; }
-			set
-			{
-				if (value == null) { value = new LastChainLinkInterceptor<TContext>(); }
+			get => next;
+            set
+            {
+                value ??= new LastChainLinkInterceptor<TContext>();
 
-				next = value;
-			}
+                next = value;
+            }
 		}
 
-		public object Intercept(TContext context, Func<object> invocation)
-		{
-			return real.Intercept(context, () => next.Intercept(context, invocation));
-		}
-	}
+		public object Intercept(TContext context, Func<object> invocation) => real.Intercept(context, () => next.Intercept(context, invocation));
+    }
 }

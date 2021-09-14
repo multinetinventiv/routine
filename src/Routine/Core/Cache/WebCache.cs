@@ -4,38 +4,17 @@ namespace Routine.Core.Cache
 {
     public class WebCache : ICache
     {
-        private readonly MemoryCache Cache;
+        private readonly MemoryCache cache;
 
         public WebCache()
         {
-            Cache = new MemoryCache(new MemoryCacheOptions
-            {
-            });
-        }
-        public bool Contains(string key)
-        {
-            var dummyVariable = default(object);
-            return Cache.TryGetValue(key, out dummyVariable);
+            cache = new MemoryCache(new MemoryCacheOptions());
         }
 
-        public void Add(string key, object value)
-        {
-            Cache.Set(key, value);
-        }
-
-        public void Remove(string key)
-        {
-            Cache.Remove(key);
-        }
-
-        public object this[string key]
-        {
-            get
-            {
-                var result = default(object);
-                return Cache.TryGetValue(key, out result) ? result : default;
-            }
-        }
+        public object this[string key] => cache.TryGetValue(key, out var result) ? result : default;
+        public bool Contains(string key) => cache.TryGetValue(key, out _);
+        public void Add(string key, object value) => cache.Set(key, value);
+        public void Remove(string key) => cache.Remove(key);
     }
 }
 

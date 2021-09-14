@@ -16,11 +16,11 @@ namespace Routine.Interception.Context
 
 		public ReferenceData TargetReference
 		{
-			get { return this["TargetReference"] as ReferenceData; }
-			set { this["TargetReference"] = value; }
-		}
+			get => this[nameof(TargetReference)] as ReferenceData;
+            set => this[nameof(TargetReference)] = value;
+        }
 
-		public ObjectModel Model { get { return objectService.ApplicationModel.Model[TargetReference.ModelId]; } }
-		public ObjectModel ViewModel { get { return objectService.ApplicationModel.Model[TargetReference.ViewModelId]; } }
-	}
+		public ObjectModel Model => objectService.ApplicationModel.Model[TargetReference.ModelId];
+        public ObjectModel ViewModel => objectService.ApplicationModel.Model[TargetReference.ViewModelId];
+    }
 }

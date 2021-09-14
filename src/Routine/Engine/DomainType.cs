@@ -10,38 +10,38 @@ namespace Routine.Engine
 	{
 		private readonly ICoreContext ctx;
 
-		public IType Type { get; private set; }
+		public IType Type { get; }
 
 		private readonly List<DomainType> actualTypes;
 		private readonly List<DomainType> viewTypes;
 
 		public DomainObjectInitializer Initializer { get; private set; }
 
-		public Dictionary<string, DomainData> Data { get; private set; }
-		public ICollection<DomainData> Datas { get { return Data.Values; } }
+		public Dictionary<string, DomainData> Data { get; }
+		public ICollection<DomainData> Datas => Data.Values;
 
-		public Dictionary<string, DomainOperation> Operation { get; private set; }
-		public ICollection<DomainOperation> Operations { get { return Operation.Values; } }
+        public Dictionary<string, DomainOperation> Operation { get; }
+		public ICollection<DomainOperation> Operations => Operation.Values;
 
-		private readonly ILocator locator;
-		public IIdExtractor IdExtractor { get; private set; }
-		public IValueExtractor ValueExtractor { get; private set; }
+        private readonly ILocator locator;
+		public IIdExtractor IdExtractor { get; }
+		public IValueExtractor ValueExtractor { get; }
 		private readonly Dictionary<IType, IConverter> converter;
 
 		private readonly List<object> staticInstances;
 
-		public int MaxFetchDepth { get; private set; }
-		public string Id { get; private set; }
-		public Marks Marks { get; private set; }
-		public string Name { get; private set; }
-		public string Module { get; private set; }
-		public bool IsValueModel { get; private set; }
-		public bool IsViewModel { get; private set; }
+		public int MaxFetchDepth { get; }
+		public string Id { get; }
+		public Marks Marks { get; }
+		public string Name { get; }
+		public string Module { get; }
+		public bool IsValueModel { get; }
+		public bool IsViewModel { get; }
 
-		public bool Initializable { get { return Initializer != null; } }
-		public bool Locatable { get { return locator != null; } }
+		public bool Initializable => Initializer != null;
+        public bool Locatable => locator != null;
 
-		public DomainType(ICoreContext ctx, IType type)
+        public DomainType(ICoreContext ctx, IType type)
 		{
 			this.ctx = ctx;
 
@@ -70,9 +70,6 @@ namespace Routine.Engine
 				{
 					if (converter.ContainsKey(targetType))
 					{
-#if DEBUG
-						Console.WriteLine("{0} has more than one way to be converted to {1}", type, targetType);
-#endif
 						continue;
 					}
 
@@ -117,41 +114,10 @@ namespace Routine.Engine
 						Initializer.AddGroup(initializer);
 					}
 				}
-				catch (TypeNotConfiguredException)
-				{
-#if DEBUG
-					Console.WriteLine("{0}.{1} initializer is skipped. All parameter types and return type should be configured.",
-						Type.Name, initializer.Name);
-					Console.WriteLine();
-#endif
-				}
-				catch (InitializedTypeDoNotMatchException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} initializer is skipped. Given initializer should initialize the expected type ({2}) but it initializes another type ({3}). Exception is; {4}",
-						Type.Name, initializer.Name, Name, initializer.InitializedType.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
-				catch (ParameterTypesDoNotMatchException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} initializer is skipped. On initialier groups (constructor overloading) parameters with the same name but different types are not allowed. Exception is; {2}",
-						Type.Name, initializer.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
-				catch (IdenticalSignatureAlreadyAddedException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} initializer is skipped. An initializer with same signature is already added. Exception is; {2}", Type.Name,
-						initializer.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
+				catch (TypeNotConfiguredException) { }
+				catch (InitializedTypeDoNotMatchException) { }
+				catch (ParameterTypesDoNotMatchException) { }
+				catch (IdenticalSignatureAlreadyAddedException) { }
 			}
 		}
 
@@ -165,10 +131,6 @@ namespace Routine.Engine
 				}
 				catch (TypeNotConfiguredException)
 				{
-#if DEBUG
-					Console.WriteLine("{0}.{1} data is skipped. Data type should be configured.", Type.Name, data.Name);
-					Console.WriteLine();
-#endif
 				}
 			}
 		}
@@ -188,41 +150,10 @@ namespace Routine.Engine
 						Operation.Add(operation.Name, new DomainOperation(ctx, operation));
 					}
 				}
-				catch (TypeNotConfiguredException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} operation is skipped. All parameter types and return type should be configured. Exception is; {2}",
-						Type.Name, operation.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
-				catch (ReturnTypesDoNotMatchException ex)
-				{
-#if DEBUG
-					Console.WriteLine("{0}.{1} operation is skipped. Return type should be the same with the others. Exception is; {2}",
-						Type.Name, operation.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
-				catch (ParameterTypesDoNotMatchException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} operation is skipped. On operation groups (method overloading) parameters with the same name but different types are not allowed. Exception is; {2}",
-						Type.Name, operation.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
-				catch (IdenticalSignatureAlreadyAddedException ex)
-				{
-#if DEBUG
-					Console.WriteLine(
-						"{0}.{1} operation is skipped. An operation with same signature is already added. Exception is; {2}", Type.Name,
-						operation.Name, ex.Message);
-					Console.WriteLine();
-#endif
-				}
+				catch (TypeNotConfiguredException) { }
+				catch (ReturnTypesDoNotMatchException) { }
+				catch (ParameterTypesDoNotMatchException) { }
+				catch (IdenticalSignatureAlreadyAddedException) { }
 			}
 		}
 
@@ -246,42 +177,34 @@ namespace Routine.Engine
 			}
 		}
 
-		public bool MarkedAs(string mark)
-		{
-			return Marks.Has(mark);
-		}
+		public bool MarkedAs(string mark) => Marks.Has(mark);
 
-		public ObjectModel GetModel()
-		{
-			return new ObjectModel
-			{
-				Id = Id,
-				Marks = Marks.List,
-				Name = Name,
-				Module = Module,
-				IsViewModel = IsViewModel,
-				IsValueModel = IsValueModel,
-				ActualModelIds = actualTypes.Select(t => t.Id).ToList(),
-				ViewModelIds = viewTypes.Select(t => t.Id).ToList(),
-				Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
-				Datas = Datas.Select(m => m.GetModel()).ToList(),
-				Operations = Operations.Select(o => o.GetModel()).ToList(),
-				StaticInstances = staticInstances.Select(o => ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
-			};
-		}
+        public ObjectModel GetModel() =>
+            new()
+            {
+                Id = Id,
+                Marks = Marks.List,
+                Name = Name,
+                Module = Module,
+                IsViewModel = IsViewModel,
+                IsValueModel = IsValueModel,
+                ActualModelIds = actualTypes.Select(t => t.Id).ToList(),
+                ViewModelIds = viewTypes.Select(t => t.Id).ToList(),
+                Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
+                Datas = Datas.Select(m => m.GetModel()).ToList(),
+                Operations = Operations.Select(o => o.GetModel()).ToList(),
+                StaticInstances = staticInstances.Select(o => ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
+            };
 
-		internal object Locate(ParameterData parameterData)
-		{
-			return LocateMany(new List<ParameterData> { parameterData })[0];
-		}
+        internal object Locate(ParameterData parameterData) => LocateMany(new List<ParameterData> { parameterData })[0];
 
-		internal List<object> LocateMany(List<ParameterData> parameterDatas)
+        internal List<object> LocateMany(List<ParameterData> parameterDatas)
 		{
 			var result = new object[parameterDatas.Count];
 
 			var locateIdsWithOriginalIndex = new List<Tuple<int, string>>();
 
-			for (int i = 0; i < parameterDatas.Count; i++)
+			for (var i = 0; i < parameterDatas.Count; i++)
 			{
 				var parameterData = parameterDatas[i];
 				if (Initializable && parameterData != null && string.IsNullOrEmpty(parameterData.Id))
@@ -306,14 +229,10 @@ namespace Routine.Engine
 				if (located.Count != locateIdsWithOriginalIndex.Count)
 				{
 					throw new InvalidOperationException(
-						string.Format("Locator returned a result with different number of objects ({0}) than given number of ids ({1}) when locating ids {2} of type {3}",
-						located.Count,
-						locateIds.Count,
-						locateIds.ToItemString(),
-						Type));
+                        $"Locator returned a result with different number of objects ({located.Count}) than given number of ids ({locateIds.Count}) when locating ids {locateIds.ToItemString()} of type {Type}");
 				}
 
-				for (int i = 0; i < located.Count; i++)
+				for (var i = 0; i < located.Count; i++)
 				{
 					result[locateIdsWithOriginalIndex[i].Item1] = located[i];
 				}
@@ -322,22 +241,10 @@ namespace Routine.Engine
 			return result.ToList();
 		}
 
-		public object Locate(ReferenceData referenceData)
-		{
-			if (referenceData == null)
-			{
-				return null;
-			}
+		public object Locate(ReferenceData referenceData) => referenceData == null ? null : Locate(referenceData.Id);
+        public object Locate(string id) => LocateMany(new List<string> { id })[0];
 
-			return Locate(referenceData.Id);
-		}
-
-		public object Locate(string id)
-		{
-			return LocateMany(new List<string> { id })[0];
-		}
-
-		public List<object> LocateMany(List<string> ids)
+        public List<object> LocateMany(List<string> ids)
 		{
 			if (!Locatable)
 			{
@@ -404,7 +311,7 @@ namespace Routine.Engine
 	internal class TypeNotConfiguredException : Exception
 	{
 		public TypeNotConfiguredException(IType type)
-			: base(string.Format("Type '{0}' is not configured.", type == null ? "null" : type.ToString())) { }
+			: base($"Type '{(type == null ? "null" : type.ToString())}' is not configured.") { }
 	}
 }
 

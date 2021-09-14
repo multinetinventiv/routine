@@ -20,15 +20,15 @@ namespace Routine.Core
 
 		public List<ObjectModel> Models
 		{
-			get { return Model.Values.ToList(); }
-			set { Model = value.ToDictionary(om => om.Id, om => om); }
-		}
+			get => Model.Values.ToList();
+            set => Model = value.ToDictionary(om => om.Id, om => om);
+        }
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[ApplicationModel: [Models: {0}]]", Models.ToItemString());
+			return $"[ApplicationModel: [Models: {Models.ToItemString()}]]";
 		}
 
 		protected bool Equals(ApplicationModel other)

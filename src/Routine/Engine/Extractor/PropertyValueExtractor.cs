@@ -10,15 +10,13 @@ namespace Routine.Engine.Extractor
 
 		public PropertyValueExtractor(IProperty property)
 		{
-			if (property == null) { throw new ArgumentNullException("property"); }
+            this.property = property ?? throw new ArgumentNullException(nameof(property));
 
-			this.property = property;
-
-			Return(result => result == null ? null : result.ToString());
+			Return(result => result?.ToString());
 		}
 
-		public PropertyValueExtractor Return(Func<object, string> converterDelegate) { return Return((o, f) => converterDelegate(o)); }
-		public PropertyValueExtractor Return(Func<object, object, string> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
+		public PropertyValueExtractor Return(Func<object, string> converterDelegate) => Return((o, _) => converterDelegate(o));
+        public PropertyValueExtractor Return(Func<object, object, string> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
 
 		protected override string Extract(object obj)
 		{

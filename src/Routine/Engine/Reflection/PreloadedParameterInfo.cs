@@ -25,10 +25,10 @@ namespace Routine.Engine.Reflection
 			return this;
 		}
 
-		public override string Name { get { return name; } }
-		public override TypeInfo ParameterType { get { return parameterType; } }
-		public override MemberInfo Member { get { return member; } }
-		public override int Position { get { return position; } }
-		public override object[] GetCustomAttributes() { return customAttributes; }
-	}
+		public override string Name => name;
+        public override TypeInfo ParameterType => parameterType;
+        public override MemberInfo Member => member;
+        public override int Position => position;
+        public override object[] GetCustomAttributes() => customAttributes;
+    }
 }

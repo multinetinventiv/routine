@@ -57,14 +57,12 @@ namespace Routine.Engine
             return result;
         }
 
-        public InitializerModel GetModel()
-        {
-            return new InitializerModel
+        public InitializerModel GetModel() =>
+            new()
             {
                 Marks = Marks.List,
                 GroupCount = groups.Count,
                 Parameters = Parameters.Select(p => p.GetModel()).ToList()
             };
-        }
     }
 }

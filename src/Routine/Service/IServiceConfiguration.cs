@@ -17,15 +17,11 @@ namespace Routine.Service
         string GetResponseHeaderValue(string responseHeader);
 
         ExceptionResult GetExceptionResult(Exception exception);
-    }
 
-    public static class ServiceConfigurationFacade
-    {
-        public static string GetPath(this IServiceConfiguration source) => GetPath(source, string.Empty);
-
-        public static string GetPath(this IServiceConfiguration source, string path)
+        public string GetPath() => GetPath(string.Empty);
+        public string GetPath(string path)
         {
-            var rootPath = source.GetRootPath() ?? string.Empty;
+            var rootPath = GetRootPath() ?? string.Empty;
 
             if (rootPath.StartsWith("/"))
             {

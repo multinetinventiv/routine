@@ -6,22 +6,16 @@ using Routine.Engine.Extractor;
 
 namespace Routine.Test.Engine.Extractor
 {
-	[TestFixture]
-	public class IdExtractorTest : ExtractorContract<IIdExtractor>
-	{
-		protected override IConvention<IType, IIdExtractor> CreateConventionByPublicMethod(Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate)
-		{
-			return BuildRoutine.Convention<IType, IIdExtractor>().IdByPublicMethod(filter, configurationDelegate);
-		}
+    [TestFixture]
+    public class IdExtractorTest : ExtractorContract<IIdExtractor>
+    {
+        protected override IConvention<IType, IIdExtractor> CreateConventionByPublicMethod(Func<IMethod, bool> filter, Func<PropertyValueExtractor, PropertyValueExtractor> configurationDelegate) =>
+            BuildRoutine.Convention<IType, IIdExtractor>().IdByPublicMethod(filter, configurationDelegate);
 
-		protected override IConvention<IType, IIdExtractor> CreateConventionByDelegate(Func<object, string> extractorDelegate)
-		{
-			return BuildRoutine.Convention<IType, IIdExtractor>().Id(e => e.By(extractorDelegate));
-		}
+        protected override IConvention<IType, IIdExtractor> CreateConventionByDelegate(Func<object, string> extractorDelegate) =>
+            BuildRoutine.Convention<IType, IIdExtractor>().Id(e => e.By(extractorDelegate));
 
-		protected override string Extract(IIdExtractor extractor, object obj)
-		{
-			return extractor.GetId(obj);
-		}
-	}
+        protected override string Extract(IIdExtractor extractor, object obj) =>
+            extractor.GetId(obj);
+    }
 }

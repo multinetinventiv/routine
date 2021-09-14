@@ -8,43 +8,28 @@ namespace Routine.Engine.Virtual
 	{
 		private readonly IType parentType;
 
-		public SingleConfiguration<VirtualMethod, string> Name { get; private set; }
-		public SingleConfiguration<VirtualMethod, IType> ReturnType { get; private set; }
-		public SingleConfiguration<VirtualMethod, Func<object, object[], object>> Body { get; private set; }
-		public SingleConfiguration<VirtualMethod, Func<object, IType>> TypeRetrieveStrategy { get; private set; }
-		public ListConfiguration<VirtualMethod, IParameter> Parameters { get; private set; }
+		public SingleConfiguration<VirtualMethod, string> Name { get; }
+		public SingleConfiguration<VirtualMethod, IType> ReturnType { get; }
+		public SingleConfiguration<VirtualMethod, Func<object, object[], object>> Body { get; }
+		public SingleConfiguration<VirtualMethod, Func<object, IType>> TypeRetrieveStrategy { get; }
+		public ListConfiguration<VirtualMethod, IParameter> Parameters { get; }
 
 		public VirtualMethod(IType parentType)
 		{
 			this.parentType = parentType;
 
-			Name = new SingleConfiguration<VirtualMethod, string>(this, "Name", true);
-			ReturnType = new SingleConfiguration<VirtualMethod, IType>(this, "ReturnType", true);
-			Body = new SingleConfiguration<VirtualMethod, Func<object, object[], object>>(this, "Body", true);
-			TypeRetrieveStrategy = new SingleConfiguration<VirtualMethod, Func<object, IType>>(this, "TypeRetrieveStrategy", true);
-			Parameters = new ListConfiguration<VirtualMethod, IParameter>(this, "Parameters");
+			Name = new SingleConfiguration<VirtualMethod, string>(this, nameof(Name), true);
+			ReturnType = new SingleConfiguration<VirtualMethod, IType>(this, nameof(ReturnType), true);
+			Body = new SingleConfiguration<VirtualMethod, Func<object, object[], object>>(this, nameof(Body), true);
+			TypeRetrieveStrategy = new SingleConfiguration<VirtualMethod, Func<object, IType>>(this, nameof(TypeRetrieveStrategy), true);
+			Parameters = new ListConfiguration<VirtualMethod, IParameter>(this, nameof(Parameters));
 
-			TypeRetrieveStrategy.Set(o =>
-			{
-				IType type;
-
-				var vo = o as VirtualObject;
-				if (vo != null)
-				{
-					type = vo.Type;
-				}
-				else
-				{
-					type = o.GetTypeInfo();
-				}
-
-				return type;
-			});
+			TypeRetrieveStrategy.Set(o => o is VirtualObject vo ? vo.Type : o.GetTypeInfo());
 		}
 
 		private object Perform(object target, object[] parameters)
 		{
-			if (parameters == null) { parameters = new object[0]; }
+			parameters ??= Array.Empty<object>();
 
 			ValidateTarget(target);
 			ValidateParameters(parameters);
@@ -60,14 +45,13 @@ namespace Routine.Engine.Virtual
 		{
 			if (target == null)
 			{
-				throw new NullReferenceException(string.Format("Cannot perform {0} method on null target", Name.Get()));
+				throw new NullReferenceException($"Cannot perform {Name.Get()} method on null target");
 			}
 
 			if (!ValidateType(target, parentType))
 			{
 				throw new InvalidCastException(
-					string.Format("Parent type of '{0}' method is configured as {1}, but given target is of type {2}", Name.Get(),
-						parentType, GetType(target)));
+                    $"Parent type of '{Name.Get()}' method is configured as {parentType}, but given target is of type {GetType(target)}");
 			}
 		}
 
@@ -76,28 +60,26 @@ namespace Routine.Engine.Virtual
 			var iParameters = Parameters.Get();
 			if (parameters.Length != iParameters.Count)
 			{
-				throw new InvalidOperationException(string.Format("'{0}' has {1} parameters, but given parameter count is {2}",
-					Name.Get(), iParameters.Count, parameters.Length));
+				throw new InvalidOperationException(
+                    $"'{Name.Get()}' has {iParameters.Count} parameters, but given parameter count is {parameters.Length}");
 			}
 
-			for (int i = 0; i < iParameters.Count; i++)
+			for (var i = 0; i < iParameters.Count; i++)
 			{
 				var iParameter = iParameters[i];
 
 				if (parameters[i] == null && iParameter.ParameterType.IsValueType)
 				{
 					throw new NullReferenceException(
-						string.Format(
-							"The type of '{0}' parameter of '{1}' method is configured as {2}, but given argument is null. Null cannot be passed for value type parameters. Instead, default() should be used.",
-							iParameter.Name, Name.Get(), iParameter.ParameterType));
+                        $"The type of '{iParameter.Name}' parameter of '{Name.Get()}' method is configured as {iParameter.ParameterType}, " +
+                        "but given argument is null. Null cannot be passed for value type parameters. Instead, default() should be used.");
 				}
 
 				if (!ValidateType(parameters[i], iParameter.ParameterType))
 				{
 					throw new InvalidCastException(
-						string.Format(
-							"The type of '{0}' parameter of '{1}' method is configured as {2}, but given argument is of type {3}",
-							iParameter.Name, Name.Get(), iParameter.ParameterType, GetType(parameters[i])));
+                        $"The type of '{iParameter.Name}' parameter of '{Name.Get()}' method is configured as {iParameter.ParameterType}, " +
+                        $"but given argument is of type {GetType(parameters[i])}");
 				}
 			}
 		}
@@ -107,63 +89,51 @@ namespace Routine.Engine.Virtual
 			if (result == null && !ReturnType.Get().IsVoid && ReturnType.Get().IsValueType)
 			{
 				throw new NullReferenceException(
-					string.Format(
-						"Return type of '{0}' method is configured as {1}, but perform result is null. Null cannot be returned for value type methods. Instead, default() should be used.",
-						Name.Get(), ReturnType.Get()));
+                    $"Return type of '{Name.Get()}' method is configured as {ReturnType.Get()}," +
+                    " but perform result is null. Null cannot be returned for value type methods. Instead, default() should be used.");
 			}
 
 			if (!ValidateType(result, ReturnType.Get()))
 			{
 				throw new InvalidCastException(
-					string.Format("Return type of '{0}' method is configured as {1}, but perform result is of type {2}", Name.Get(),
-						ReturnType.Get(), GetType(result)));
+                    $"Return type of '{Name.Get()}' method is configured as {ReturnType.Get()}, " +
+                    $"but perform result is of type {GetType(result)}");
 			}
 		}
 
-		private bool ValidateType(object @object, IType expected)
-		{
-			if (@object == null) { return true; }
+		private bool ValidateType(object @object, IType expected) => @object == null || GetType(@object).CanBe(expected);
+        private IType GetType(object @object) => @object == null ? null : TypeRetrieveStrategy.Get()(@object);
 
-			return GetType(@object).CanBe(expected);
-		}
+        #region ITypeComponent implementation
 
-		private IType GetType(object @object)
-		{
-			if (@object == null) { return null; }
+		object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
-			return TypeRetrieveStrategy.Get()(@object);
-		}
+        IType ITypeComponent.ParentType => parentType;
+        string ITypeComponent.Name => Name.Get();
 
-		#region ITypeComponent implementation
-
-		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
-
-		IType ITypeComponent.ParentType { get { return parentType; } }
-		string ITypeComponent.Name { get { return Name.Get(); } }
-
-		#endregion
+        #endregion
 
 		#region IParametric implementation
 
-		List<IParameter> IParametric.Parameters { get { return Parameters.Get(); } }
+		List<IParameter> IParametric.Parameters => Parameters.Get();
 
-		#endregion
+        #endregion
 
 		#region IReturnable implementation
 
-		object[] IReturnable.GetReturnTypeCustomAttributes() { return new object[0]; }
+		object[] IReturnable.GetReturnTypeCustomAttributes() => Array.Empty<object>();
 
-		IType IReturnable.ReturnType { get { return ReturnType.Get(); } }
+        IType IReturnable.ReturnType => ReturnType.Get();
 
-		#endregion
+        #endregion
 
 		#region IMethod implementation
 
-		bool IMethod.IsPublic { get { return true; } }
+		bool IMethod.IsPublic => true;
 
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return parentType; }
-		object IMethod.PerformOn(object target, params object[] parameters) { return Perform(target, parameters); }
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) => parentType;
+        object IMethod.PerformOn(object target, params object[] parameters) => Perform(target, parameters);
 
-		#endregion
+        #endregion
 	}
 }

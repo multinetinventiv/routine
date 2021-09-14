@@ -16,15 +16,15 @@ namespace Routine.Core.Reflection
         public static void Disable() => Enabled = false;
         public static void Enable() => Enabled = true;
 
-        private static readonly object OPTIMIZE_LIST_LOCK = new object();
-        private static readonly object INVOKERS_LOCK = new object();
+        private static readonly object OPTIMIZE_LIST_LOCK = new();
+        private static readonly object INVOKERS_LOCK = new();
 
-        private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new Dictionary<System.Reflection.MethodBase, bool>();
-        private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new Dictionary<System.Reflection.MethodBase, IMethodInvoker>();
+        private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new();
+        private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new();
 
         public static void AddToOptimizeList(System.Reflection.MethodBase method)
         {
-            if (method == null) { throw new ArgumentNullException("method"); }
+            if (method == null) { throw new ArgumentNullException(nameof(method)); }
             if (invokers.ContainsKey(method)) { return; }
 
             lock (OPTIMIZE_LIST_LOCK)
@@ -35,7 +35,7 @@ namespace Routine.Core.Reflection
 
         public static IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
         {
-            if (method == null) { throw new ArgumentNullException("method"); }
+            if (method == null) { throw new ArgumentNullException(nameof(method)); }
 
             OptimizeTheListFor(method);
 
@@ -96,7 +96,8 @@ namespace Routine.Core.Reflection
                         {
                             if (current == method)
                             {
-                                throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+                                throw new InvalidOperationException(
+                                    $"Cannot optimize {current.ReflectedType} {current}", ex);
                             }
                         }
                     }
@@ -137,7 +138,8 @@ namespace Routine.Core.Reflection
                             {
                                 if (current == method)
                                 {
-                                    throw new InvalidOperationException(string.Format("Cannot optimize {0} {1}", current.ReflectedType, current), ex);
+                                    throw new InvalidOperationException(
+                                        $"Cannot optimize {current.ReflectedType} {current}", ex);
                                 }
                             }
                         }
@@ -170,11 +172,11 @@ namespace Routine.Core.Reflection
 
                 foreach (var diagnostic in failures)
                 {
-	                errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
+                    errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
                     errors.AppendLine();
                 }
 
-                throw new Exception(string.Format("{0}; \r\n {1}", errors, code));
+                throw new Exception($"{errors}; \r\n {code}");
             }
         }
 
@@ -208,7 +210,7 @@ namespace Routine.Core.Reflection
             "}\n";
 
         private const string notSupportedInvocationTemplate =
-	        "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
+            "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
 
         private const string voidInvocationTemplate =
             "\t\t\t$Target$.$MethodName$($Parameters$);\n" +
@@ -257,7 +259,7 @@ namespace Routine.Core.Reflection
 
             if (method.IsConstructor)
             {
-	            if(method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                if (method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
                 else { result = newInvocationTemplate; }
             }
             else if (method.IsSpecialName)
@@ -278,7 +280,7 @@ namespace Routine.Core.Reflection
             else
             {
                 var methodInfo = method as System.Reflection.MethodInfo;
-                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
                 else if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
                 else { result = nonVoidInvocationTemplate; }
             }
@@ -313,7 +315,7 @@ namespace Routine.Core.Reflection
         {
             var parameters = method.GetParameters();
             var lastParameter = parameters.LastOrDefault();
-            var parametersExceptLast = parameters.Where((p, i) => i < parameters.Length - 1).ToArray();
+            var parametersExceptLast = parameters.Where((_, i) => i < parameters.Length - 1).ToArray();
 
             return methodInvokerTemplate
                     .Replace("$Invocation$", Invocation(method))
@@ -330,7 +332,8 @@ namespace Routine.Core.Reflection
 
         private static string MissingGenericParametersMessage(System.Reflection.MethodBase method)
         {
-            return string.Format("Missing generic parameters: {0}, {1}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)", method, method.ReflectedType);
+            return
+                $"Missing generic parameters: {method}, {method.ReflectedType}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
         }
 
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references) { AddTypeReference(type, references, new Dictionary<Type, bool>()); }

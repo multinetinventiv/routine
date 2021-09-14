@@ -18,17 +18,13 @@ namespace Routine.Interception
 		{
 			get
 			{
-				object result;
-				data.TryGetValue(key, out result);
+                data.TryGetValue(key, out var result);
 				return result;
 			}
-			set
-			{
-				data[key] = value;
-			}
-		}
+			set => data[key] = value;
+        }
 
-		public string Target { get; private set; }
+		public string Target { get; }
 
 		public virtual object Result { get; set; }
 		public virtual bool Canceled { get; set; }

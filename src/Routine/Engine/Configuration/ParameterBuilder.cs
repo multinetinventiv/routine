@@ -12,20 +12,14 @@ namespace Routine.Engine.Configuration
 			this.owner = owner;
 		}
 
-		public IParametric Owner { get { return owner; } }
+		public IParametric Owner => owner;
 
-		public VirtualParameter Virtual()
-		{
-			return new VirtualParameter(owner);
-		}
+        public VirtualParameter Virtual() => new(owner);
 
-		public VirtualParameter Virtual(ParameterInfo parameterInfo)
-		{
-			return Virtual()
-				.Name.Set(parameterInfo.Name)
-				.Index.Set(parameterInfo.Position)
-				.ParameterType.Set(parameterInfo.ParameterType.ToTypeInfo())
-			;
-		}
-	}
+        public VirtualParameter Virtual(ParameterInfo parameterInfo) =>
+            Virtual()
+                .Name.Set(parameterInfo.Name)
+                .Index.Set(parameterInfo.Position)
+                .ParameterType.Set(parameterInfo.ParameterType.ToTypeInfo());
+    }
 }

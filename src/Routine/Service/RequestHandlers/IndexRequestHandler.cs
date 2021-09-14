@@ -9,9 +9,6 @@ namespace Routine.Service.RequestHandlers
         public IndexRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
             : base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-        public override async Task WriteResponse()
-        {
-            await WriteFileResponse("vue/index.html");
-        }
+        public override async Task WriteResponse() => await WriteFileResponse("vue/index.html");
     }
 }

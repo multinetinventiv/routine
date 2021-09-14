@@ -40,20 +40,14 @@ namespace Routine.Test.Service
             SetUpGet("ApplicationModel").Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
         }
 
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action) { return SetUpGet(action, req => true); }
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action, RestRequest restRequest) { return SetUpGet(action, req => Equals(req, restRequest)); }
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
-        {
-            return mockRestClient.Setup(rc => rc.Get(string.Format("{0}/{1}", URL_BASE, action), It.Is(restRequestMatcher)));
-        }
+        private ISetup<IRestClient, RestResponse> SetUpGet(string action) => SetUpGet(action, req => true);
+        private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
+            mockRestClient.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
 
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action) { return SetUpPost(action, req => true); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, string body) { return SetUpPost(action, req => req.Body == body); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, RestRequest restRequest) { return SetUpPost(action, req => Equals(req, restRequest)); }
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher)
-        {
-            return mockRestClient.Setup(rc => rc.Post(string.Format("{0}/{1}", URL_BASE, action), It.Is(restRequestMatcher)));
-        }
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action) => SetUpPost(action, req => true);
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action, string body) => SetUpPost(action, req => req.Body == body);
+        private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
+            mockRestClient.Setup(rc => rc.Post($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
 
         private class TestException : Exception { public TestException(string message) : base(message) { } }
 
@@ -208,7 +202,7 @@ namespace Routine.Test.Service
                         "arg1",
                         new ParameterValueData {Values = new List<ParameterData>
                         {
-                            new ParameterData {Id = "4", ModelId = "model"}
+                            new() {Id = "4", ModelId = "model"}
                         }}
                     }
                 });
@@ -362,8 +356,8 @@ namespace Routine.Test.Service
         public void When_given_model_or_operation_does_not_exist_in_application_model_throws_incompatible_model_exception()
         {
             config
-                .Exception.Set(c => c.By(er => new TestException("operation")).When(er => er.Type == "OperationNotFound"))
-                .Exception.Set(c => c.By(er => new TestException("type")).When(er => er.Type == "TypeNotFound"))
+                .Exception.Set(c => c.By(_ => new TestException("operation")).When(er => er.Type == "OperationNotFound"))
+                .Exception.Set(c => c.By(_ => new TestException("type")).When(er => er.Type == "TypeNotFound"))
             ;
 
             ModelsAre(Model("model"));

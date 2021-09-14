@@ -5,151 +5,146 @@ using Routine.Test.Core;
 
 namespace Routine.Test.Interception
 {
-	public class TestContext<T> : InterceptionContext
-	{
-		public TestContext(string target) : base(target) { }
+    public class TestContext<T> : InterceptionContext
+    {
+        public TestContext(string target) : base(target) { }
 
-		public T Value { get; set; }
-	}
+        public T Value { get; set; }
+    }
 
-	public abstract class InterceptorTestBase : CoreTestBase
-	{
-		protected class TestConfiguration { }
+    public abstract class InterceptorTestBase : CoreTestBase
+    {
+        protected class TestConfiguration { }
 
-		#region TestAroundInterceptor
+        #region TestAroundInterceptor
 
-		protected class TestAroundInterceptor : BaseAroundInterceptor<TestAroundInterceptor, TestContext<string>>
-		{
-			private Exception exceptionBefore;
-			public void FailOnBeforeWith(Exception exceptionBefore) { this.exceptionBefore = exceptionBefore; }
+        protected class TestAroundInterceptor : BaseAroundInterceptor<TestAroundInterceptor, TestContext<string>>
+        {
+            private Exception exceptionBefore;
+            public void FailOnBeforeWith(Exception exceptionBefore) => this.exceptionBefore = exceptionBefore;
 
-			private object result;
-			public void CancelAndReturn(object result) { this.result = result; }
+            private object result;
+            public void CancelAndReturn(object result) => this.result = result;
 
-			private object resultOverride;
-			public void OverrideActualResultWith(object resultOverride) { this.resultOverride = resultOverride; }
+            private object resultOverride;
+            public void OverrideActualResultWith(object resultOverride) => this.resultOverride = resultOverride;
 
-			private Exception exceptionSuccess;
-			public void FailOnSuccessWith(Exception exceptionSuccess) { this.exceptionSuccess = exceptionSuccess; }
+            private Exception exceptionSuccess;
+            public void FailOnSuccessWith(Exception exceptionSuccess) => this.exceptionSuccess = exceptionSuccess;
 
-			private object resultOnFail;
-			public void HideFailAndReturn(object resultOnFail) { this.resultOnFail = resultOnFail; }
+            private object resultOnFail;
+            public void HideFailAndReturn(object resultOnFail) => this.resultOnFail = resultOnFail;
 
-			private Exception exception;
-			public void OverrideExceptionWith(Exception exception) { this.exception = exception; }
+            private Exception exception;
+            public void OverrideExceptionWith(Exception exception) => this.exception = exception;
 
-			protected override void OnBefore(TestContext<string> context)
-			{
-				if (exceptionBefore != null)
-				{
-					throw exceptionBefore;
-				}
+            protected override void OnBefore(TestContext<string> context)
+            {
+                if (exceptionBefore != null)
+                {
+                    throw exceptionBefore;
+                }
 
-				context["before"] = true;
+                context["before"] = true;
 
-				if (result != null)
-				{
-					context.Canceled = true;
-					context.Result = result;
-				}
-			}
+                if (result != null)
+                {
+                    context.Canceled = true;
+                    context.Result = result;
+                }
+            }
 
-			protected override void OnSuccess(TestContext<string> context)
-			{
-				if (exceptionSuccess != null)
-				{
-					throw exceptionSuccess;
-				}
+            protected override void OnSuccess(TestContext<string> context)
+            {
+                if (exceptionSuccess != null)
+                {
+                    throw exceptionSuccess;
+                }
 
-				context["success"] = true;
+                context["success"] = true;
 
-				if (resultOverride != null)
-				{
-					context.Result = resultOverride;
-				}
-			}
+                if (resultOverride != null)
+                {
+                    context.Result = resultOverride;
+                }
+            }
 
-			protected override void OnFail(TestContext<string> context)
-			{
-				context["fail"] = true;
+            protected override void OnFail(TestContext<string> context)
+            {
+                context["fail"] = true;
 
-				if (resultOnFail != null)
-				{
-					context.ExceptionHandled = true;
-					context.Result = resultOnFail;
-				}
+                if (resultOnFail != null)
+                {
+                    context.ExceptionHandled = true;
+                    context.Result = resultOnFail;
+                }
 
-				if (exception != null)
-				{
-					context.Exception = exception;
-				}
-			}
+                if (exception != null)
+                {
+                    context.Exception = exception;
+                }
+            }
 
-			protected override void OnAfter(TestContext<string> context) { context["after"] = true; }
+            protected override void OnAfter(TestContext<string> context) => context["after"] = true;
 
-			protected override bool CanIntercept(TestContext<string> context)
-			{
-				return (key != null && context[key] != null) || base.CanIntercept(context);
-			}
+            protected override bool CanIntercept(TestContext<string> context) =>
+                key != null && context[key] != null || base.CanIntercept(context);
 
-			private string key;
-			public TestAroundInterceptor WhenContextHas(string key)
-			{
-				this.key = key;
+            private string key;
+            public TestAroundInterceptor WhenContextHas(string key)
+            {
+                this.key = key;
 
-				return this;
-			}
-		}
+                return this;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		protected TestContext<string> String() { return String(null); }
-		protected TestContext<string> String(string value) { return Ctx(value); }
-		protected TestContext<T> Ctx<T>() { return Ctx(default(T)); }
-		protected TestContext<T> Ctx<T>(T value) { return new TestContext<T>("test") { Value = value }; }
-		protected TestConfiguration DummyConfiguration() { return new TestConfiguration(); }
+        protected TestContext<string> String() => String(null);
+        protected TestContext<string> String(string value) => Ctx(value);
+        protected TestContext<T> Ctx<T>() => Ctx(default(T));
+        protected TestContext<T> Ctx<T>(T value) => new("test") { Value = value };
+        protected TestConfiguration DummyConfiguration() => new();
 
-		protected TestContext<string> context;
-		protected Func<object> invocation;
+        protected TestContext<string> context;
+        protected Func<object> invocation;
 
-		private int invocationCount;
+        private int invocationCount;
 
-		private object result;
-		protected void InvocationReturns(object result) { this.result = result; }
+        private object result;
+        protected void InvocationReturns(object result) => this.result = result;
 
-		private Exception exception;
-		protected void InvocationFailsWith(Exception exception) { this.exception = exception; }
-		protected string ExceptionStackTraceLookupText { get { return "InterceptorTestBase.<SetUp>"; } }
+        private Exception exception;
+        protected void InvocationFailsWith(Exception exception) => this.exception = exception;
+        protected string ExceptionStackTraceLookupText => "InterceptorTestBase.<SetUp>";
 
-		protected T Throw<T>(Exception ex)
-		{
-			throw ex;
-		}
+        protected T Throw<T>(Exception ex) => throw ex;
 
-		[SetUp]
-		public override void SetUp()
-		{
-			base.SetUp();
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
 
-			context = String();
-			invocationCount = 0;
-			result = null;
-			exception = null;
-			invocation = () =>
-			{
-				invocationCount++;
+            context = String();
+            invocationCount = 0;
+            result = null;
+            exception = null;
+            invocation = () =>
+            {
+                invocationCount++;
 
-				if (exception != null) { throw exception; }
+                if (exception != null) { throw exception; }
 
-				context["invocation"] = true;
+                context["invocation"] = true;
 
-				return result;
-			};
-		}
+                return result;
+            };
+        }
 
-		protected void AssertInvocationWasCalledOnlyOnce()
-		{
-			Assert.AreEqual(1, invocationCount);
-		}
-	}
+        protected void AssertInvocationWasCalledOnlyOnce()
+        {
+            Assert.AreEqual(1, invocationCount);
+        }
+    }
 }

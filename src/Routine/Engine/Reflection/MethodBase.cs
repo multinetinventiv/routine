@@ -12,14 +12,14 @@ namespace Routine.Engine.Reflection
 
 		#region ITypeComponent implementation
 
-		IType ITypeComponent.ParentType { get { return ReflectedType; } } 
+		IType ITypeComponent.ParentType => ReflectedType;
 
-		#endregion
+        #endregion
 
 		#region IParametric implementation
 
-		List<IParameter> IParametric.Parameters { get { return GetParameters().Cast<IParameter>().ToList(); } } 
+		List<IParameter> IParametric.Parameters => GetParameters().Cast<IParameter>().ToList();
 
-		#endregion
+        #endregion
 	}
 }

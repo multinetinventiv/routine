@@ -29,15 +29,16 @@ namespace Routine.Core
 
         public List<ParameterModel> Parameters
         {
-            get { return Parameter.Values.ToList(); }
-            set { Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp); }
+            get => Parameter.Values.ToList();
+            set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
         }
 
         #region ToString & Equality
 
         public override string ToString()
         {
-            return string.Format("[InitializerModel: [Marks: {0}, GroupCount: {1}, Parameters: {2}]]", Marks.ToItemString(), GroupCount, Parameters.ToItemString());
+            return
+                $"[InitializerModel: [Marks: {Marks.ToItemString()}, GroupCount: {GroupCount}, Parameters: {Parameters.ToItemString()}]]";
         }
 
         protected bool Equals(InitializerModel other)

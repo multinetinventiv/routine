@@ -11,21 +11,11 @@ namespace Routine.Engine.Converter
 
 		public DelegateBasedConverter(Func<IEnumerable<IType>> targetTypesDelegate, Func<object, IType, object> converterDelegate)
 		{
-			if (targetTypesDelegate == null) { throw new ArgumentNullException("targetTypesDelegate"); }
-			if (converterDelegate == null) { throw new ArgumentNullException("converterDelegate"); }
-
-			this.targetTypesDelegate = targetTypesDelegate;
-			this.converterDelegate = converterDelegate;
+            this.targetTypesDelegate = targetTypesDelegate ?? throw new ArgumentNullException(nameof(targetTypesDelegate));
+			this.converterDelegate = converterDelegate ?? throw new ArgumentNullException(nameof(converterDelegate));
 		}
 
-		protected override List<IType> GetTargetTypes(IType type)
-		{
-			return targetTypesDelegate().ToList();
-		}
-
-		protected override object Convert(object @object, IType from, IType to)
-		{
-			return converterDelegate(@object, to);
-		}
-	}
+		protected override List<IType> GetTargetTypes(IType type) => targetTypesDelegate().ToList();
+        protected override object Convert(object @object, IType from, IType to) => converterDelegate(@object, to);
+    }
 }

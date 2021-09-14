@@ -29,12 +29,10 @@ namespace Routine.Interception
 			{
 				var context = new InterceptionContext(InterceptionTarget.ApplicationModel.ToString());
 
-				var result = getApplicationModelInterceptor.Intercept(
-					context,
-					() => objectService.ApplicationModel
-				) as ApplicationModel;
-
-				return result;	
+                return getApplicationModelInterceptor.Intercept(
+                    context,
+                    () => objectService.ApplicationModel
+                ) as ApplicationModel;	
 			}
 			
 		}
@@ -43,12 +41,10 @@ namespace Routine.Interception
 		{
 			var context = new ObjectReferenceInterceptionContext(InterceptionTarget.Get.ToString(), objectService, reference);
 
-			var result = getInterceptor.Intercept(
-				context,
-				() => objectService.Get(reference)
-			) as ObjectData;
-
-			return result;
+            return getInterceptor.Intercept(
+                context,
+                () => objectService.Get(reference)
+            ) as ObjectData;
 		}
 
 		public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameterValues)
@@ -58,15 +54,13 @@ namespace Routine.Interception
 
 			var serviceInterceptor = interceptionConfiguration.GetServiceInterceptor(objectModel, context.OperationModel);
 
-			var result = doInterceptor.Intercept(
-				context,
-				() => serviceInterceptor.Intercept(
-					context,
-					() => objectService.Do(context.TargetReference, context.OperationName, context.ParameterValues)
-				)
-			) as VariableData;
-
-			return result;
+            return doInterceptor.Intercept(
+                context,
+                () => serviceInterceptor.Intercept(
+                    context,
+                    () => objectService.Do(context.TargetReference, context.OperationName, context.ParameterValues)
+                )
+            ) as VariableData;
 		}
 	}
 }

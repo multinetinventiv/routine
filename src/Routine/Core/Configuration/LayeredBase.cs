@@ -34,8 +34,8 @@ namespace Routine.Core.Configuration
 
 		#region ILayered implementation
 
-		Layer ILayered.CurrentLayer { get { return currentLayer; } }
+		Layer ILayered.CurrentLayer => currentLayer;
 
-		#endregion
+        #endregion
 	}
 }

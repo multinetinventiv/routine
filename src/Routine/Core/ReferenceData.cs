@@ -6,13 +6,13 @@ namespace Routine.Core
 
         public string ModelId { get; set; }
         public string Id { get; set; }
-        public string ViewModelId { get { return viewModelId ?? ModelId; } set { viewModelId = value; } }
+        public string ViewModelId { get => viewModelId ?? ModelId; set => viewModelId = value; }
 
         #region ToString & Equality
 
         public override string ToString()
         {
-            return string.Format("[ReferenceData: [ModelId: {0}, Id: {1}, ViewModelId: {2}]]", ModelId, Id, ViewModelId);
+            return $"[ReferenceData: [ModelId: {ModelId}, Id: {Id}, ViewModelId: {ViewModelId}]]";
         }
         protected bool Equals(ReferenceData other)
         {

@@ -7,11 +7,11 @@ namespace Routine.Engine
 		private readonly ICoreContext ctx;
 		private readonly IProperty property;
 
-		public string Name { get; private set; }
-		public Marks Marks { get; private set; }
-		public bool IsList { get; private set; }
-		public bool FetchedEagerly { get; private set; }
-		public DomainType DataType { get; private set; }
+		public string Name { get; }
+		public Marks Marks { get; }
+		public bool IsList { get; }
+		public bool FetchedEagerly { get; }
+		public DomainType DataType { get; }
 
 		public DomainData(ICoreContext ctx, IProperty property)
 		{
@@ -33,31 +33,23 @@ namespace Routine.Engine
 			DataType = ctx.GetDomainType(returnType);
 		}
 
-		public bool MarkedAs(string mark)
-		{
-			return Marks.Has(mark);
-		}
+		public bool MarkedAs(string mark) => Marks.Has(mark);
 
-		public DataModel GetModel()
-		{
-			return new DataModel
-			{
-				Name = Name,
-				Marks = Marks.List,
-				IsList = IsList,
-				ViewModelId = DataType.Id
-			};
-		}
+        public DataModel GetModel() =>
+            new()
+            {
+                Name = Name,
+                Marks = Marks.List,
+                IsList = IsList,
+                ViewModelId = DataType.Id
+            };
 
-		public VariableData CreateData(object target) { return CreateData(target, FetchedEagerly); }
-		public VariableData CreateData(object target, bool eager) { return CreateData(target, Constants.FIRST_DEPTH, eager); }
-		internal VariableData CreateData(object target, int currentDepth) { return CreateData(target, currentDepth, FetchedEagerly); }
-		internal VariableData CreateData(object target, int currentDepth, bool eager)
-		{
-			return ctx.CreateValueData(property.FetchFrom(target), IsList, DataType, currentDepth, eager);
-		}
+        public VariableData CreateData(object target) => CreateData(target, FetchedEagerly);
+        public VariableData CreateData(object target, bool eager) => CreateData(target, Constants.FIRST_DEPTH, eager);
+        internal VariableData CreateData(object target, int currentDepth) => CreateData(target, currentDepth, FetchedEagerly);
+        internal VariableData CreateData(object target, int currentDepth, bool eager) => ctx.CreateValueData(property.FetchFrom(target), IsList, DataType, currentDepth, eager);
 
-		#region Formatting & Equality
+        #region Formatting & Equality
 
 		protected bool Equals(DomainData other)
 		{

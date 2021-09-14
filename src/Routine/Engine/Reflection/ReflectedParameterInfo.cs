@@ -5,13 +5,13 @@ namespace Routine.Engine.Reflection
 		internal ReflectedParameterInfo(System.Reflection.ParameterInfo parameterInfo)
 			: base(parameterInfo) { }
 
-		protected override ParameterInfo Load() { return this; }
+		protected override ParameterInfo Load() => this;
 
-		public override MemberInfo Member { get { return MemberInfo.Reflected(parameterInfo.Member); } }
-		public override string Name { get { return parameterInfo.Name; } }
-		public override TypeInfo ParameterType { get { return TypeInfo.Get(parameterInfo.ParameterType); } }
-		public override int Position { get { return parameterInfo.Position; } }
-		public override object[] GetCustomAttributes() { return parameterInfo.GetCustomAttributes(true); }
-	}
+        public override MemberInfo Member => MemberInfo.Reflected(parameterInfo.Member);
+        public override string Name => parameterInfo.Name;
+        public override TypeInfo ParameterType => TypeInfo.Get(parameterInfo.ParameterType);
+        public override int Position => parameterInfo.Position;
+        public override object[] GetCustomAttributes() => parameterInfo.GetCustomAttributes(true);
+    }
 
 }

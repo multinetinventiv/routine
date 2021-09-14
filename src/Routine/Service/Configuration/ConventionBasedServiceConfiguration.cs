@@ -7,31 +7,31 @@ namespace Routine.Service.Configuration
 {
 	public class ConventionBasedServiceConfiguration : LayeredBase<ConventionBasedServiceConfiguration>, IServiceConfiguration
 	{
-		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; private set; }
+		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; }
 
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; private set; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; }
 
-		public ListConfiguration<ConventionBasedServiceConfiguration, string> RequestHeaders { get; private set; }
-		public ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor> RequestHeaderProcessors { get; private set; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, string> RequestHeaders { get; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor> RequestHeaderProcessors { get; }
 
-		public ListConfiguration<ConventionBasedServiceConfiguration, string> ResponseHeaders { get; private set; }
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string> ResponseHeaderValue { get; private set; }
+		public ListConfiguration<ConventionBasedServiceConfiguration, string> ResponseHeaders { get; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string> ResponseHeaderValue { get; }
 
-		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult> ExceptionResult { get; private set; }
+		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult> ExceptionResult { get; }
 
 		public ConventionBasedServiceConfiguration()
 		{
-			RootPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, "RootPath", true);
+			RootPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(RootPath), true);
 
-			AllowGet = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool>(this, "AllowGet", true);
+			AllowGet = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool>(this, nameof(AllowGet), true);
 
-			RequestHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, "RequestHeaders");
-			RequestHeaderProcessors = new ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor>(this, "RequestHeaderProcessors");
+			RequestHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(RequestHeaders));
+			RequestHeaderProcessors = new ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor>(this, nameof(RequestHeaderProcessors));
 
-			ResponseHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, "ResponseHeaders");
-			ResponseHeaderValue = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string>(this, "ResponseHeaderValue");
+			ResponseHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(ResponseHeaders));
+			ResponseHeaderValue = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string>(this, nameof(ResponseHeaderValue));
 
-			ExceptionResult = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult>(this, "ExceptionResult");
+			ExceptionResult = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult>(this, nameof(ExceptionResult));
 		}
 
 		public ConventionBasedServiceConfiguration Merge(ConventionBasedServiceConfiguration other)
@@ -48,15 +48,15 @@ namespace Routine.Service.Configuration
 
 		#region IServiceConfiguration implementation
 
-		string IServiceConfiguration.GetRootPath() { return RootPath.Get(); }
-		bool IServiceConfiguration.GetAllowGet(ObjectModel objectModel, OperationModel operationModel) { return AllowGet.Get(new OperationWithObjectModel(objectModel, operationModel)); }
-		List<string> IServiceConfiguration.GetRequestHeaders() { return RequestHeaders.Get(); }
-		List<IHeaderProcessor> IServiceConfiguration.GetRequestHeaderProcessors() { return RequestHeaderProcessors.Get(); }
-		List<string> IServiceConfiguration.GetResponseHeaders() { return ResponseHeaders.Get(); }
-		string IServiceConfiguration.GetResponseHeaderValue(string responseHeader) { return ResponseHeaderValue.Get(responseHeader); }
-		ExceptionResult IServiceConfiguration.GetExceptionResult(Exception exception) { return ExceptionResult.Get(exception); }
+		string IServiceConfiguration.GetRootPath() => RootPath.Get();
+        bool IServiceConfiguration.GetAllowGet(ObjectModel objectModel, OperationModel operationModel) => AllowGet.Get(new OperationWithObjectModel(objectModel, operationModel));
+        List<string> IServiceConfiguration.GetRequestHeaders() => RequestHeaders.Get();
+        List<IHeaderProcessor> IServiceConfiguration.GetRequestHeaderProcessors() => RequestHeaderProcessors.Get();
+        List<string> IServiceConfiguration.GetResponseHeaders() => ResponseHeaders.Get();
+        string IServiceConfiguration.GetResponseHeaderValue(string responseHeader) => ResponseHeaderValue.Get(responseHeader);
+        ExceptionResult IServiceConfiguration.GetExceptionResult(Exception exception) => ExceptionResult.Get(exception);
 
-		#endregion
+        #endregion
 	}
 }
 

@@ -40,13 +40,13 @@ namespace Routine.Test.Performance.Domain
         public string Prop10 { get; set; }
     }
 
-    public struct BusinessPerformanceInput
+    public readonly struct BusinessPerformanceInput
     {
-        public string Str { get; private set; }
-        public int Int { get; private set; }
-        public string Str2 { get; private set; }
-        public string Str3 { get; private set; }
-        public string Str4 { get; private set; }
+        public string Str { get; }
+        public int Int { get; }
+        public string Str2 { get; }
+        public string Str3 { get; }
+        public string Str4 { get; }
 
         //public BusinessPerformanceInput(string s, int i, string s2)
         //	: this()
@@ -65,16 +65,14 @@ namespace Routine.Test.Performance.Domain
             Str4 = s4;
         }
 
-        public bool Equals(BusinessPerformanceInput other)
-        {
-            return string.Equals(Str, other.Str) && Int == other.Int && string.Equals(Str2, other.Str2) && string.Equals(Str3, other.Str3) && string.Equals(Str4, other.Str4);
-        }
+        public bool Equals(BusinessPerformanceInput other) =>
+            string.Equals(Str, other.Str) &&
+            Int == other.Int &&
+            string.Equals(Str2, other.Str2) &&
+            string.Equals(Str3, other.Str3) &&
+            string.Equals(Str4, other.Str4);
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is BusinessPerformanceInput && Equals((BusinessPerformanceInput)obj);
-        }
+        public override bool Equals(object obj) => obj is BusinessPerformanceInput input && Equals(input);
 
         public override int GetHashCode()
         {
@@ -136,7 +134,7 @@ namespace Routine.Test.Performance
             objectService = apiCtx.ObjectService;
             rapp = apiCtx.Application;
 
-            var applicationModel = objectService.ApplicationModel;
+            var _ = objectService.ApplicationModel;
         }
 
         protected void AddToRepository(BusinessPerformance obj)
@@ -150,11 +148,12 @@ namespace Routine.Test.Performance
 
         private static BusinessPerformance NewObj(int id, int subObjectCount)
         {
-            var result = new BusinessPerformance();
+            var result = new BusinessPerformance
+            {
+                Id = id
+            };
 
-            result.Id = id;
-
-            for (int i = 0; i < subObjectCount; i++)
+            for (var i = 0; i < subObjectCount; i++)
             {
                 result.Items.Add(new BusinessPerformanceSub
                 {
@@ -181,7 +180,7 @@ namespace Routine.Test.Performance
             testAction();
 
             var timer = Stopwatch.StartNew();
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 testAction();
             }
@@ -206,60 +205,60 @@ namespace Routine.Test.Performance
 
             Run("Direct Access", () =>
                 {
-                    var name = obj.Id;
+                    var _ = obj.Id;
                 }, load);
 
             Console.WriteLine("-------");
-            
+
             var prop = obj.GetType().GetProperty("Id");
             Run("System.Reflection Cached Access", () =>
             {
-                var name = prop.GetValue(obj, new object[0]);
+                var _ = prop?.GetValue(obj, Array.Empty<object>());
             }, load);
             ReflectionOptimizer.Disable();
-            var rprop2 = obj.GetTypeInfo().GetProperty("Id");
+            var rprop1 = obj.GetTypeInfo().GetProperty("Id");
             Run("Routine.Core.Reflection Cached Access (without optimizer) ", () =>
             {
-                var name = rprop2.GetValue(obj);
+                var _ = rprop1.GetValue(obj);
             }, load);
             ReflectionOptimizer.Enable();
-            var rprop = obj.GetTypeInfo().GetProperty("Id");
+            var rprop2 = obj.GetTypeInfo().GetProperty("Id");
             Run("Routine.Core.Reflection Cached Access", () =>
             {
-                var name = rprop.GetValue(obj);
+                var _ = rprop2.GetValue(obj);
             }, load);
             Console.WriteLine("-------");
-            
+
             Run("System.Reflection Access", () =>
             {
-                var name = obj.GetType().GetProperty("Id").GetValue(obj, new object[0]);
+                var _ = obj.GetType().GetProperty("Id")?.GetValue(obj, Array.Empty<object>());
             }, load);
             ReflectionOptimizer.Disable();
             Run("Routine.Core.Reflection Access (without optimizer)", () =>
             {
-                var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
+                var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
             }, load);
             ReflectionOptimizer.Enable();
             Run("Routine.Core.Reflection Access", () =>
                 {
-                    var name = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
+                    var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
                 }, load);
 
             Console.WriteLine("-------");
 
             Run("Routine.Core.Reflection Access -> GetTypeInfo()", () =>
                 {
-                    var name = obj.GetTypeInfo();
+                    var _ = obj.GetTypeInfo();
                 }, load);
             var type = obj.GetTypeInfo();
             Run("Routine.Core.Reflection Access -> GetProperty('Id')", () =>
                 {
-                    var name = type.GetProperty("Id");
+                    var _ = type.GetProperty("Id");
                 }, load);
-            rprop = type.GetProperty("Id");
+            var rprop3 = type.GetProperty("Id");
             Run("Routine.Core.Reflection Access -> GetValue(obj)", () =>
                 {
-                    var name = rprop.GetValue(obj);
+                    var _ = rprop3.GetValue(obj);
                 }, load);
         }
 
@@ -269,43 +268,43 @@ namespace Routine.Test.Performance
         [TestCase(1000, 10)]
         [TestCase(1000, 100)]
         [TestCase(1000, 1000)]
-        public void GetObjectData_WithListProperty(int load, int sub_obj_count)
+        public void GetObjectData_WithListProperty(int load, int subObjCount)
         {
-            const double max_engine_overhead_ratio = 5;
-            const double max_client_overhead_ratio = 2;
+            const double maxEngineOverheadRatio = 5;
+            const double maxClientOverheadRatio = 2;
 
             #region setup
-            Console.WriteLine("Load -> " + load + "x" + sub_obj_count);
+            Console.WriteLine("Load -> " + load + "x" + subObjCount);
             Console.WriteLine("------");
 
-            const int obj_id = 1;
+            const int objId = 1;
 
-            var obj = NewObj(obj_id, sub_obj_count);
+            var obj = NewObj(objId, subObjCount);
 
-            var obj_type = typeof(BusinessPerformance).FullName;
-            var sub_type = typeof(BusinessPerformanceSub).FullName;
+            var objType = typeof(BusinessPerformance).FullName;
+            var subType = typeof(BusinessPerformanceSub).FullName;
 
             AddToRepository(obj);
-            var dummyLoadToPrintMessagesBeforeManuelCoding = objectService.Get(new ReferenceData
+            var __ = objectService.Get(new ReferenceData
             {
-                ModelId = obj_type,
-                ViewModelId = obj_type,
-                Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                ModelId = objType,
+                ViewModelId = objType,
+                Id = objId.ToString(CultureInfo.InvariantCulture)
             });
             #endregion
 
             #region manuel
-            var manuel_time = Run("manuel", () =>
+            var manuelTime = Run("manuel", () =>
                     {
                         var ord = new ReferenceData
                         {
-                            ModelId = obj_type,
-                            ViewModelId = obj_type,
-                            Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                            ModelId = objType,
+                            ViewModelId = objType,
+                            Id = objId.ToString(CultureInfo.InvariantCulture)
                         };
 
-                        var foundObj = objectRepository[ord.Id] as BusinessPerformance;
-                        var result = new ObjectData
+                        var foundObj = (BusinessPerformance)objectRepository[ord.Id];
+                        var _ = new ObjectData
                         {
                             ModelId = ord.ModelId,
                             Id = foundObj.Id.ToString(CultureInfo.InvariantCulture),
@@ -313,7 +312,7 @@ namespace Routine.Test.Performance
                             {"Items", new VariableData {
                                     IsList = true,
                                     Values = foundObj.Items.Select(sub => new ObjectData{
-                                        ModelId = sub_type,
+                                        ModelId = subType,
                                         Id = sub.Id.ToString(CultureInfo.InvariantCulture),
                                         Display = sub.ToString(),
 										
@@ -327,7 +326,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop1,
@@ -343,7 +342,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop2,
@@ -359,7 +358,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop3,
@@ -375,7 +374,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop4,
@@ -391,7 +390,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop5,
@@ -407,7 +406,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop6,
@@ -423,7 +422,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop7,
@@ -439,7 +438,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop8,
@@ -455,7 +454,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop9,
@@ -471,7 +470,7 @@ namespace Routine.Test.Performance
                                                     IsList =  false,
                                                     Values = new List<ObjectData>
                                                     {
-                                                        new ObjectData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
                                                             Id = sub.Prop10,
@@ -492,26 +491,26 @@ namespace Routine.Test.Performance
             #endregion
 
             #region engine
-            var engine_time = Run("engine", () =>
+            var engineTime = Run("engine", () =>
                     {
-                        var result = objectService.Get(new ReferenceData
+                        var _ = objectService.Get(new ReferenceData
                         {
-                            ModelId = obj_type,
-                            ViewModelId = obj_type,
-                            Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                            ModelId = objType,
+                            ViewModelId = objType,
+                            Id = objId.ToString(CultureInfo.InvariantCulture)
                         });
                     }, load);
             #endregion
 
             #region client
-            var client_time = Run("client api", () =>
+            var clientTime = Run("client api", () =>
                     {
-                        var items = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type)["Items"].Get().List.Select(r => r.Display);
+                        var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType)["Items"].Get().List.Select(r => r.Display);
                     }, load);
             #endregion
 
-            Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
-            Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
+            Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
+            Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
         }
 
         [TestCase(1000)]
@@ -519,42 +518,43 @@ namespace Routine.Test.Performance
         [TestCase(100000)]
         public void PerformOperation_LightParameter_HeavyLoad(int load)
         {
-            const double max_engine_overhead_ratio = 7.2;
-            const double max_client_overhead_ratio = 2;
+            const double maxEngineOverheadRatio = 7.2;
+            const double maxClientOverheadRatio = 2;
 
             #region setup
             Console.WriteLine("Load -> " + load);
             Console.WriteLine("------");
 
-            const int obj_id = 1;
+            const int objId = 1;
 
-            var obj_type = typeof(BusinessPerformance).FullName;
-            var sub_type = typeof(BusinessPerformanceSub).FullName;
+            var objType = typeof(BusinessPerformance).FullName;
+            var subType = typeof(BusinessPerformanceSub).FullName;
 
-            var obj = NewObj(obj_id, 1);
+            var obj = NewObj(objId, 1);
 
             AddToRepository(obj);
             #endregion
 
             #region manuel
-            var manuel_time = Run("manuel", () =>
+            var manuelTime = Run("manuel", () =>
                 {
                     var ord = new ReferenceData
                     {
-                        ModelId = obj_type,
-                        ViewModelId = obj_type,
-                        Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                        ModelId = objType,
+                        ViewModelId = objType,
+                        Id = objId.ToString(CultureInfo.InvariantCulture)
                     };
-                    var foundObj = objectRepository[ord.Id] as BusinessPerformance;
+                    var foundObj = (BusinessPerformance)objectRepository[ord.Id];
 
                     var sub = foundObj.GetSub(int.Parse("0"));
-                    var returnResult = new VariableData
+                    var _ = new VariableData
                     {
                         IsList = false,
                         Values = new List<ObjectData> {
-                            new ObjectData {
+                            new()
+                            {
                                 Display = sub.ToString(),
-                                ModelId = sub_type,
+                                ModelId = subType,
                                 Id = sub.Id.ToString(CultureInfo.InvariantCulture),
 								#region Prop1 - Prop10
 								Data = new Dictionary<string, VariableData>
@@ -566,7 +566,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop1,
@@ -582,7 +582,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop2,
@@ -598,7 +598,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop3,
@@ -614,7 +614,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop4,
@@ -630,7 +630,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop5,
@@ -646,7 +646,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop6,
@@ -662,7 +662,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop7,
@@ -678,7 +678,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop8,
@@ -694,7 +694,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop9,
@@ -710,7 +710,7 @@ namespace Routine.Test.Performance
                                             IsList =  false,
                                             Values = new List<ObjectData>
                                             {
-                                                new ObjectData
+                                                new()
                                                 {
                                                     ModelId = "System.String",
                                                     Id = sub.Prop10,
@@ -728,19 +728,20 @@ namespace Routine.Test.Performance
             #endregion
 
             #region engine
-            var engine_time = Run("engine", () =>
+            var engineTime = Run("engine", () =>
                 {
                     var ord = new ReferenceData
                     {
-                        ModelId = obj_type,
-                        ViewModelId = obj_type,
-                        Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                        ModelId = objType,
+                        ViewModelId = objType,
+                        Id = objId.ToString(CultureInfo.InvariantCulture)
                     };
-                    var returnResult = objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
+                    var _ = objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
                     {"index", new ParameterValueData {
                             IsList = false,
                             Values = new List<ParameterData> {
-                                new ParameterData {
+                                new()
+                                {
                                     ModelId= "System.Int32",
                                     Id = "0"
                                 }
@@ -753,16 +754,16 @@ namespace Routine.Test.Performance
             #endregion
 
             #region client
-            var client_time = Run("client api", () =>
+            var clientTime = Run("client api", () =>
                 {
                     var rvar = rapp.NewVar("index", rapp.Get("0", "System.Int32"));
-                    var returnResult = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type).Perform("GetSub", rvar);
+                    var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("GetSub", rvar);
                 }, load);
 
             #endregion
 
-            Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
-            Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
+            Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
+            Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
         }
 
         [TestCase(10, 10)]
@@ -770,30 +771,30 @@ namespace Routine.Test.Performance
         [TestCase(10, 1000)]
         [TestCase(10, 10000)]
         [TestCase(10, 100000)]
-        public void PerformOperation_HeavyParameter_LightLoad(int load, int input_count)
+        public void PerformOperation_HeavyParameter_LightLoad(int load, int inputCount)
         {
-            const double max_engine_overhead_ratio = 7.2;
-            const double max_client_overhead_ratio = 2;
+            const double maxEngineOverheadRatio = 7.2;
+            const double maxClientOverheadRatio = 2;
 
             #region setup
-            Console.WriteLine("Load -> " + load + "x" + input_count);
+            Console.WriteLine("Load -> " + load + "x" + inputCount);
             Console.WriteLine("------");
 
-            const int obj_id = 1;
+            const int objId = 1;
 
-            var obj_type = typeof(BusinessPerformance).FullName;
-            var input_type = typeof(BusinessPerformanceInput).FullName;
+            var objType = typeof(BusinessPerformance).FullName;
+            var inputType = typeof(BusinessPerformanceInput).FullName;
 
-            var obj = NewObj(obj_id, 1);
+            var obj = NewObj(objId, 1);
 
             AddToRepository(obj);
-            const string str_in = "str_in";
-            const string int_in = "20";
+            const string strIn = "str_in";
+            const string intIn = "20";
 
             #endregion
 
             #region manuel
-            var manuel_time = Run("manuel", () =>
+            var manuelTime = Run("manuel", () =>
             {
                 var parameters = new Dictionary<string, ParameterValueData>
                 {
@@ -802,13 +803,13 @@ namespace Routine.Test.Performance
                         {
                             IsList = false,
                             Values = Enumerable
-                                .Range(0, input_count)
-                                .Select(i =>
+                                .Range(0, inputCount)
+                                .Select(_ =>
 
 									#region parameter data
 									new ParameterData
                                     {
-                                        ModelId = input_type,
+                                        ModelId = inputType,
                                         InitializationParameters = new Dictionary<string, ParameterValueData>
                                         {
                                             {
@@ -817,10 +818,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -831,10 +832,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-int-32",
-                                                            Id = int_in
+                                                            Id = intIn
                                                         }
                                                     }
                                                 }
@@ -845,10 +846,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -859,10 +860,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -873,10 +874,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "s-string",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -892,17 +893,17 @@ namespace Routine.Test.Performance
 
                 var ord = new ReferenceData
                 {
-                    ModelId = obj_type,
-                    ViewModelId = obj_type,
-                    Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                    ModelId = objType,
+                    ViewModelId = objType,
+                    Id = objId.ToString(CultureInfo.InvariantCulture)
                 };
 
-                var foundObj = objectRepository[ord.Id] as BusinessPerformance;
+                var foundObj = (BusinessPerformance)objectRepository[ord.Id];
 
                 var parameter = parameters["input"];
-                var returnResult = foundObj
+                var _ = foundObj
                     .Create(Enumerable
-                        .Range(0, input_count)
+                        .Range(0, inputCount)
                         .Select(i => new BusinessPerformanceInput(
                             parameter.Values[i].InitializationParameters["s"].Values[0].Id,
                             int.Parse(parameter.Values[i].InitializationParameters["i"].Values[0].Id),
@@ -916,7 +917,7 @@ namespace Routine.Test.Performance
             #endregion
 
             #region engine
-            var engine_time = Run("engine", () =>
+            var engineTime = Run("engine", () =>
             {
                 var parameters = new Dictionary<string, ParameterValueData>
                 {
@@ -925,13 +926,13 @@ namespace Routine.Test.Performance
                         {
                             IsList = false,
                             Values = Enumerable
-                                .Range(0, input_count)
-                                .Select(i =>
+                                .Range(0, inputCount)
+                                .Select(_ =>
 
 									#region parameter data
 									new ParameterData
                                     {
-                                        ModelId = input_type,
+                                        ModelId = inputType,
                                         InitializationParameters = new Dictionary<string, ParameterValueData>
                                         {
                                             {
@@ -940,10 +941,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -954,10 +955,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.Int32",
-                                                            Id = int_in
+                                                            Id = intIn
                                                         }
                                                     }
                                                 }
@@ -968,10 +969,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -982,10 +983,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -996,10 +997,10 @@ namespace Routine.Test.Performance
                                                     IsList = false,
                                                     Values = new List<ParameterData>
                                                     {
-                                                        new ParameterData
+                                                        new()
                                                         {
                                                             ModelId = "System.String",
-                                                            Id = str_in
+                                                            Id = strIn
                                                         }
                                                     }
                                                 }
@@ -1014,37 +1015,37 @@ namespace Routine.Test.Performance
                 };
                 var ord = new ReferenceData
                 {
-                    ModelId = obj_type,
-                    ViewModelId = obj_type,
-                    Id = obj_id.ToString(CultureInfo.InvariantCulture)
+                    ModelId = objType,
+                    ViewModelId = objType,
+                    Id = objId.ToString(CultureInfo.InvariantCulture)
                 };
-                var returnResult = objectService.Do(ord, "Create", parameters);
+                var _ = objectService.Do(ord, "Create", parameters);
             }, load);
             #endregion
 
             #region client
-            var client_time = Run("client api", () =>
+            var clientTime = Run("client api", () =>
             {
                 var rvar = rapp.NewVarList("input",
                     Enumerable
-                        .Range(0, input_count)
-                        .Select(i =>
-                            rapp.Init(input_type,
-                                rapp.NewVar("s", str_in, "System.String"),
-                                rapp.NewVar("i", int_in, "System.Int32"),
-                                rapp.NewVar("s2", str_in, "System.String"),
-                                rapp.NewVar("s3", str_in, "System.String"),
-                                rapp.NewVar("s4", str_in, "System.String")
+                        .Range(0, inputCount)
+                        .Select(_ =>
+                            rapp.Init(inputType,
+                                rapp.NewVar("s", strIn, "System.String"),
+                                rapp.NewVar("i", intIn, "System.Int32"),
+                                rapp.NewVar("s2", strIn, "System.String"),
+                                rapp.NewVar("s3", strIn, "System.String"),
+                                rapp.NewVar("s4", strIn, "System.String")
                             )
                         )
                     );
-                var returnResult = rapp.Get(obj_id.ToString(CultureInfo.InvariantCulture), obj_type).Perform("Create", rvar);
+                var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("Create", rvar);
             }, load);
 
             #endregion
 
-            Assert.LessOrEqual(engine_time / manuel_time, max_engine_overhead_ratio, "Engine over manuel is above expected");
-            Assert.LessOrEqual(client_time / engine_time, max_client_overhead_ratio, "Client over engine is above expected");
+            Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
+            Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
         }
     }
 }

@@ -8,17 +8,14 @@ namespace Routine.Engine.Reflection
 		internal ReflectedConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
 			: base(constructorInfo) { }
 
-		protected override ConstructorInfo Load() { return this; }
-		public override ParameterInfo[] GetParameters() { return constructorInfo.GetParameters().Select(p => ParameterInfo.Reflected(p)).ToArray(); }
-		public override object[] GetCustomAttributes() { return constructorInfo.GetCustomAttributes(true); }
+		protected override ConstructorInfo Load() => this;
+        public override ParameterInfo[] GetParameters() => constructorInfo.GetParameters().Select(ParameterInfo.Reflected).ToArray();
+        public override object[] GetCustomAttributes() => constructorInfo.GetCustomAttributes(true);
 
-		public override object Invoke(params object[] parameters)
-		{
-			return new ReflectionMethodInvoker(constructorInfo).Invoke(null, parameters);
-		}
+        public override object Invoke(params object[] parameters) => new ReflectionMethodInvoker(constructorInfo).Invoke(null, parameters);
 
-		public override bool IsPublic { get { return constructorInfo.IsPublic; } }
-		public override TypeInfo DeclaringType { get { return TypeInfo.Get(constructorInfo.DeclaringType); } }
-		public override TypeInfo ReflectedType { get { return TypeInfo.Get(constructorInfo.ReflectedType); } }
-	}
+        public override bool IsPublic => constructorInfo.IsPublic;
+        public override TypeInfo DeclaringType => TypeInfo.Get(constructorInfo.DeclaringType);
+        public override TypeInfo ReflectedType => TypeInfo.Get(constructorInfo.ReflectedType);
+    }
 }

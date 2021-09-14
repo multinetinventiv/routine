@@ -22,11 +22,9 @@ namespace Routine.Engine
                 GroupIndex = groupIndex;
             }
 
-            public bool ContainsSameParameters(T parametric)
-            {
-                return Parametric.Parameters.Count == parametric.Parameters.Count &&
-                       Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
-            }
+            public bool ContainsSameParameters(T parametric) =>
+                Parametric.Parameters.Count == parametric.Parameters.Count &&
+                Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
         }
 
         #endregion
@@ -114,14 +112,10 @@ namespace Routine.Engine
             Marks.Join(ctx.CodingStyle.GetMarks(parameter));
         }
 
-        public bool MarkedAs(string mark)
-        {
-            return Marks.Has(mark);
-        }
+        public bool MarkedAs(string mark) => Marks.Has(mark);
 
-        public ParameterModel GetModel()
-        {
-            return new ParameterModel
+        public ParameterModel GetModel() =>
+            new()
             {
                 Name = Name,
                 Marks = Marks.List,
@@ -129,7 +123,6 @@ namespace Routine.Engine
                 IsList = IsList,
                 ViewModelId = ParameterType.Id
             };
-        }
 
         internal object Locate(ParameterValueData parameterValueData)
         {
@@ -142,7 +135,7 @@ namespace Routine.Engine
 
             var objects = GetObjects(parameterValueData);
 
-            for (int i = 0; i < objects.Count; i++)
+            for (var i = 0; i < objects.Count; i++)
             {
                 if (parameter.ParameterType.IsArray)
                 {
@@ -178,11 +171,11 @@ namespace Routine.Engine
 
             var result = new List<object>();
 
-            var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
+            var domainTypes = parameterValueData.Values.Select(GetDomainType).ToList();
 
             if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
             {
-                for (int i = 0; i < parameterValueData.Values.Count; i++)
+                for (var i = 0; i < parameterValueData.Values.Count; i++)
                 {
                     var parameterData = parameterValueData.Values[i];
                     var domainType = domainTypes[i];

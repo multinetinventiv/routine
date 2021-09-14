@@ -42,7 +42,7 @@ namespace Routine.Test.Service
         public override void SetUp()
         {
             base.SetUp();
-            
+
             httpContextAccessor = new Mock<IHttpContextAccessor>();
             var httpContext = new Mock<HttpContext>();
             serviceContext = new Mock<IServiceContext>();
@@ -72,6 +72,7 @@ namespace Routine.Test.Service
                         ViewModelId = referenceData.ViewModelId
                     };
                 }
+
                 return objectDictionary[referenceData];
             });
             request.Setup(r => r.Headers).Returns(requestHeaders);
@@ -80,7 +81,7 @@ namespace Routine.Test.Service
             request.Setup(r => r.Method).Returns("POST");
             request.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
 
-            //https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
+            // https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
             response.SetupAllProperties();
             response.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
             response.Setup(r => r.Headers).Returns(responseHeaders);
@@ -99,10 +100,7 @@ namespace Routine.Test.Service
             );
         }
 
-        protected ObjectStubber When(ReferenceData referenceData)
-        {
-            return new ObjectStubber(objectService, referenceData);
-        }
+        protected ObjectStubber When(ReferenceData referenceData) => new(objectService, referenceData);
 
         protected class ObjectStubber
         {
@@ -115,15 +113,13 @@ namespace Routine.Test.Service
                 this.referenceData = referenceData;
             }
 
-            public ISetup<IObjectService, VariableData> Performs(string operationName) { return Performs(operationName, p => true); }
-            public ISetup<IObjectService, VariableData> Performs(string operationName, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher)
-            {
-                return objectService
-                        .Setup(o => o.Do(
-                            referenceData,
-                            operationName,
-                            It.Is(parameterMatcher)));
-            }
+            public ISetup<IObjectService, VariableData> Performs(string operationName) => Performs(operationName, p => true);
+            public ISetup<IObjectService, VariableData> Performs(string operationName, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher) =>
+                objectService
+                    .Setup(o => o.Do(
+                        referenceData,
+                        operationName,
+                        It.Is(parameterMatcher)));
         }
 
         private void SetUpRequestBody(string body)
@@ -292,7 +288,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "3", "post", null);
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
         }
 
@@ -305,7 +301,7 @@ namespace Routine.Test.Service
 
             request.Setup(r => r.Method).Returns("DELETE");
             await testing.Handle("model", "action", null, null);
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
             request.Setup(r => r.Method).Returns("PUT");
@@ -322,7 +318,7 @@ namespace Routine.Test.Service
         {
             await testing.Handle("nonexistingmodel", null, null, null);
 
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
             Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), "StatusDescription should contain given model id");
         }
@@ -334,9 +330,9 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", null, null, null);
 
-            var statusDescription = httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString();
+            var statusDescription = httpContextAccessor.Object.HttpContext?.Response.Headers["X-Status-Description"].ToString();
 
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
             Assert.IsTrue(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"),
                 "Status description should contain available model ids");
@@ -353,7 +349,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "action", null, null);
 
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
             Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
                 "Status description should contain given model id");
@@ -370,7 +366,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "action", null, null);
 
-            Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
+            Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
             Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
         }
 
@@ -474,9 +470,7 @@ namespace Routine.Test.Service
                        "}" +
                        "}";
 
-            var actual =
-                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
-                    .ToArray());
+            var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
             Assert.AreEqual(body, actual);
         }
@@ -510,9 +504,7 @@ namespace Routine.Test.Service
                        "}" +
                        "}";
 
-            var actual =
-                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
-                    .ToArray());
+            var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
             Assert.AreEqual(body, actual);
         }
@@ -560,9 +552,8 @@ namespace Routine.Test.Service
                        "\"data\":\"text\"" +
                        "}" +
                        "}";
-            var actual =
-                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
-                    .ToArray());
+
+            var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
             Assert.AreEqual(body, actual);
         }
@@ -592,9 +583,8 @@ namespace Routine.Test.Service
                        "\"data\":\"text\"" +
                        "}" +
                        "}";
-            var actual =
-                Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext.Response.Body)
-                    .ToArray());
+
+            var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
             Assert.AreEqual(body, actual);
         }

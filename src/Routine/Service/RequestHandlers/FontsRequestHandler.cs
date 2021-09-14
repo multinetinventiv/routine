@@ -9,9 +9,6 @@ namespace Routine.Service.RequestHandlers
 		public FontsRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
 			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override async Task WriteResponse()
-		{
-			await WriteFontResponse($"{HttpContext.Request.Path.Value.After("fonts/").BeforeLast("/f")}");
-		}
-	}
+		public override async Task WriteResponse() => await WriteFontResponse($"{HttpContext.Request.Path.Value.After("fonts/").BeforeLast("/f")}");
+    }
 }

@@ -13,22 +13,19 @@ namespace Routine.Engine.Virtual
 		private readonly List<IParameter> parameters;
 		private readonly Func<object, object[], object> targetDelegate;
 
-		public SingleConfiguration<ProxyMethod, string> Name { get; private set; }
+		public SingleConfiguration<ProxyMethod, string> Name { get; }
 
-		public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, p) => o, parameters.AsEnumerable()) { }
+		public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, _) => o, parameters.AsEnumerable()) { }
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
 		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
 		{
-			if (parentType == null) { throw new ArgumentNullException("parentType"); }
-			if (real == null) { throw new ArgumentNullException("real"); }
-			if (targetDelegate == null) { throw new ArgumentNullException("targetDelegate"); }
-			if (parameters == null) { throw new ArgumentNullException("parameters"); }
+            if (parameters == null) { throw new ArgumentNullException(nameof(parameters)); }
 
-			Name = new SingleConfiguration<ProxyMethod, string>(this, "Name", true);
+			Name = new SingleConfiguration<ProxyMethod, string>(this, nameof(Name), true);
 
-			this.real = real;
-			this.parentType = parentType;
-			this.targetDelegate = targetDelegate;
+			this.real = real ?? throw new ArgumentNullException(nameof(real));
+			this.parentType = parentType ?? throw new ArgumentNullException(nameof(parentType));
+			this.targetDelegate = targetDelegate ?? throw new ArgumentNullException(nameof(targetDelegate));
 			
 			this.parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
 
@@ -39,38 +36,35 @@ namespace Routine.Engine.Virtual
 			Name.Set(real.Name);
 		}
 
-		private object PerformOn(object target, object[] parameters)
-		{
-			return real.PerformOn(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
-		}
+		private object PerformOn(object target, object[] parameters) => real.PerformOn(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
 
-		#region ITypeComponent implementation
+        #region ITypeComponent implementation
 
-		IType ITypeComponent.ParentType { get { return parentType; } }
-		string ITypeComponent.Name { get { return Name.Get(); } }
-		object[] ITypeComponent.GetCustomAttributes() { return real.GetCustomAttributes(); }
+		IType ITypeComponent.ParentType => parentType;
+        string ITypeComponent.Name => Name.Get();
+        object[] ITypeComponent.GetCustomAttributes() => real.GetCustomAttributes();
 
-		#endregion
+        #endregion
 
 		#region IParametric implementation
 
-		List<IParameter> IParametric.Parameters { get { return parameters; } }
+		List<IParameter> IParametric.Parameters => parameters;
 
-		#endregion
+        #endregion
 
 		#region IReturnable implementation
 
-		IType IReturnable.ReturnType { get { return real.ReturnType; } }
-		object[] IReturnable.GetReturnTypeCustomAttributes() { return real.GetReturnTypeCustomAttributes(); }
+		IType IReturnable.ReturnType => real.ReturnType;
+        object[] IReturnable.GetReturnTypeCustomAttributes() => real.GetReturnTypeCustomAttributes();
 
-		#endregion
+        #endregion
 
 		#region IMethod
 
-		object IMethod.PerformOn(object target, params object[] parameters) { return PerformOn(target, parameters); }
-		bool IMethod.IsPublic { get { return real.IsPublic; } }
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return parentType; }
+		object IMethod.PerformOn(object target, params object[] parameters) => PerformOn(target, parameters);
+        bool IMethod.IsPublic => real.IsPublic;
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) => parentType;
 
-		#endregion
+        #endregion
 	}
 }

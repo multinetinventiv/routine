@@ -157,17 +157,12 @@ namespace Routine.Service.RequestHandlers
             return new Resolution(appModel, model.Id, id, viewModelId, operation);
         }
 
-        private static string ViewModelId(ObjectModel model, string viewModelIdOrOperation)
-        {
-            if (string.IsNullOrWhiteSpace(viewModelIdOrOperation))
-            {
-                return null;
-            }
-
-            return
-                model.Id == viewModelIdOrOperation ? model.Id :
-                    model.ViewModelIds.FirstOrDefault(vmid => vmid == viewModelIdOrOperation) ??
-                    model.ViewModelIds.FirstOrDefault(vmid => vmid.EndsWith(viewModelIdOrOperation));
-        }
+        private static string ViewModelId(ObjectModel model, string viewModelIdOrOperation) =>
+            string.IsNullOrWhiteSpace(viewModelIdOrOperation)
+                ? null
+                : model.Id == viewModelIdOrOperation
+                    ? model.Id
+                    : model.ViewModelIds.FirstOrDefault(vmid => vmid == viewModelIdOrOperation) ??
+                      model.ViewModelIds.FirstOrDefault(vmid => vmid.EndsWith(viewModelIdOrOperation));
     }
 }

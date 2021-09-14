@@ -14,7 +14,8 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterData: [ModelId: {0}, Id: {1}, InitializationParameters: {2}]]", ModelId, Id, InitializationParameters.ToKeyValueString());
+			return
+                $"[ParameterData: [ModelId: {ModelId}, Id: {Id}, InitializationParameters: {InitializationParameters.ToKeyValueString()}]]";
 		}
 
 		protected bool Equals(ParameterData other)

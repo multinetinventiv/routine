@@ -11,7 +11,7 @@ namespace Routine.Engine
 
         public DomainParameterResolver(List<DomainParameter.Group<T>> alternatives, Dictionary<string, ParameterValueData> parameterValueDatas)
         {
-            if (parameterValueDatas == null) { parameterValueDatas = new Dictionary<string, ParameterValueData>(); }
+            parameterValueDatas ??= new Dictionary<string, ParameterValueData>();
 
             this.alternatives = alternatives;
             this.parameterValueDatas = parameterValueDatas;
@@ -57,27 +57,24 @@ namespace Routine.Engine
 
             var foundAlternatives = FindAlternativesWithMostMatchedParameters();
 
-            if (foundAlternatives.Count == 1) { return foundAlternatives[0]; }
-
-            return GetFirstAlternativeWithLeastNonMatchedParameters(foundAlternatives);
+            return foundAlternatives.Count == 1
+                ? foundAlternatives[0]
+                : GetFirstAlternativeWithLeastNonMatchedParameters(foundAlternatives);
         }
 
-        private bool MatchesExactlyWithValues(DomainParameter.Group<T> alternative)
-        {
-            return
-                alternative.Parametric.Parameters.Count == parameterValueDatas.Count &&
-                alternative.Parametric.Parameters.All(p => parameterValueDatas.ContainsKey(p.Name));
-        }
+        private bool MatchesExactlyWithValues(DomainParameter.Group<T> alternative) =>
+            alternative.Parametric.Parameters.Count == parameterValueDatas.Count &&
+            alternative.Parametric.Parameters.All(p => parameterValueDatas.ContainsKey(p.Name));
 
         private List<DomainParameter.Group<T>> FindAlternativesWithMostMatchedParameters()
         {
             var result = new List<DomainParameter.Group<T>>();
 
-            int matchCount = int.MinValue;
+            var matchCount = int.MinValue;
 
             foreach (var alternative in alternatives.OrderByDescending(o => o.Parameters.Count))
             {
-                int tempCount = alternative.Parametric.Parameters.Count(p => parameterValueDatas.ContainsKey(p.Name));
+                var tempCount = alternative.Parametric.Parameters.Count(p => parameterValueDatas.ContainsKey(p.Name));
 
                 if (tempCount > matchCount)
                 {
@@ -116,8 +113,8 @@ namespace Routine.Engine
 
         public class Resolution
         {
-            public T Result { get; private set; }
-            public object[] Parameters { get; private set; }
+            public T Result { get; }
+            public object[] Parameters { get; }
 
             internal Resolution(T result, object[] parameters)
             {

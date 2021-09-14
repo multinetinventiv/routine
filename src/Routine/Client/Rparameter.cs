@@ -8,8 +8,8 @@ namespace Routine.Client
 	{
 		private readonly ParameterModel model;
 
-		public Rparametric Owner { get; private set; }
-		public Rtype ParameterType { get; private set; }
+		public Rparametric Owner { get; }
+		public Rtype ParameterType { get; }
 
 		public Rparameter(ParameterModel model, Rparametric owner)
 		{
@@ -20,42 +20,34 @@ namespace Routine.Client
 			ParameterType = Application[model.ViewModelId];
 		}
 
-		public Rapplication Application { get { return Owner.Type.Application; } }
-		public Rtype Type { get { return Owner.Type; } }
-		public string Name { get { return model.Name; } }
-		public bool IsList { get { return model.IsList; } }
-		internal List<int> Groups { get { return model.Groups; } }
-		public List<string> Marks { get { return model.Marks; } }
+		public Rapplication Application => Owner.Type.Application;
+        public Rtype Type => Owner.Type;
+        public string Name => model.Name;
+        public bool IsList => model.IsList;
+        internal List<int> Groups => model.Groups;
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
-		{
-			return model.Marks.Any(m => m == mark);
-		}
+        public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
 
-		public Rvariable CreateVariable(params Robject[] robjs) { return CreateVariable(robjs.ToList()); }
-		public Rvariable CreateVariable(List<Robject> robjs)
+        public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());
+        public Rvariable CreateVariable(List<Robject> robjs)
 		{
 			var result = new Rvariable(Name, robjs);
 
-			if (!IsList)
-			{
-				return result.ToSingle();
-			}
+			return IsList 
+                ? result
+                : result.ToSingle();
+        }
 
-			return result;
-		}
+		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());
+        internal ParameterValueData CreateParameterValueData(List<Robject> robjs) =>
+            new()
+            {
+                IsList = IsList,
+                Values = robjs.Select(robj => robj.GetParameterData()).ToList()
+            };
 
-		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) { return CreateParameterValueData(robjs.ToList()); }
-		internal ParameterValueData CreateParameterValueData(List<Robject> robjs)
-		{
-			return new ParameterValueData
-			{
-				IsList = IsList,
-				Values = robjs.Select(robj => robj.GetParameterData()).ToList()
-			};
-		}
-
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rparameter other)
 		{

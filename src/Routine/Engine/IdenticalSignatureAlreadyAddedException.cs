@@ -7,11 +7,6 @@ namespace Routine.Engine
 	{
 		public IdenticalSignatureAlreadyAddedException(IParametric parametric)
 			: base(
-				string.Format("{0}({1}) already added",
-					parametric.Name,
-					string.Join(", ", parametric.Parameters.Select(p =>
-						string.Format("{0} {1}",
-							p.ParameterType.Name,
-							p.Name))))) { }
+                $"{parametric.Name}({string.Join(", ", parametric.Parameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}) already added") { }
 	}
 }

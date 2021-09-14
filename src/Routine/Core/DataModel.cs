@@ -33,7 +33,8 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[DataModel: [Marks: {0}, Name: {1}, ViewModelId: {2}, IsList: {3}]]", Marks.ToItemString(), Name, ViewModelId, IsList);
+			return
+                $"[DataModel: [Marks: {Marks.ToItemString()}, Name: {Name}, ViewModelId: {ViewModelId}, IsList: {IsList}]]";
 		}
 
 		protected bool Equals(DataModel other)

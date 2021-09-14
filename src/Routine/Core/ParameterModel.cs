@@ -37,7 +37,8 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterModel: [Marks: {0}, Groups: {1}, Name: {2}, ViewModelId: {3}, IsList: {4}]]", Marks.ToItemString(), Groups.ToItemString(), Name, ViewModelId, IsList);
+			return
+                $"[ParameterModel: [Marks: {Marks.ToItemString()}, Groups: {Groups.ToItemString()}, Name: {Name}, ViewModelId: {ViewModelId}, IsList: {IsList}]]";
 		}
 
 		protected bool Equals(ParameterModel other)

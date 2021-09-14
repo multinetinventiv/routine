@@ -10,65 +10,65 @@ namespace Routine.Engine.Configuration.ConventionBased
     {
         private readonly List<IType> types;
 
-        public SingleConfiguration<ConventionBasedCodingStyle, int> MaxFetchDepth { get; private set; }
+        public SingleConfiguration<ConventionBasedCodingStyle, int> MaxFetchDepth { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType> Type { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsValue { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsView { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor> IdExtractor { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor> ValueExtractor { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator> Locator { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter> Converters { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object> StaticInstances { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor> Initializers { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty> Datas { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod> Operations { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType> Type { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsValue { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool> TypeIsView { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor> IdExtractor { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor> ValueExtractor { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator> Locator { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter> Converters { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object> StaticInstances { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor> Initializers { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty> Datas { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod> Operations { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool> DataFetchedEagerly { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool> DataFetchedEagerly { get; }
 
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> Module { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> TypeName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string> DataName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationName { get; private set; }
-        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterName { get; private set; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> Module { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> TypeName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string> DataName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationName { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterName { get; }
 
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string> TypeMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string> InitializerMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string> DataMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationMarks { get; private set; }
-        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterMarks { get; private set; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string> TypeMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string> InitializerMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string> DataMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string> OperationMarks { get; }
+        public ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string> ParameterMarks { get; }
 
         public ConventionBasedCodingStyle()
         {
             types = new List<IType>();
 
-            MaxFetchDepth = new SingleConfiguration<ConventionBasedCodingStyle, int>(this, "MaxFetchDepth", true);
+            MaxFetchDepth = new SingleConfiguration<ConventionBasedCodingStyle, int>(this, nameof(MaxFetchDepth), true);
 
-            Type = new ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType>(this, "Type");
-            TypeIsValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, "TypeIsValue");
-            TypeIsView = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, "TypeIsView");
-            IdExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor>(this, "IdExtractor");
-            ValueExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor>(this, "ValueExtractor");
-            Locator = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator>(this, "Locator");
-            Converters = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter>(this, "Converters");
-            StaticInstances = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object>(this, "StaticInstances");
-            Initializers = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor>(this, "Initializers");
-            Datas = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty>(this, "Datas");
-            Operations = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod>(this, "Operations");
+            Type = new ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType>(this, nameof(Type));
+            TypeIsValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, nameof(TypeIsValue));
+            TypeIsView = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, nameof(TypeIsView));
+            IdExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor>(this, nameof(IdExtractor));
+            ValueExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor>(this, nameof(ValueExtractor));
+            Locator = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator>(this, nameof(Locator));
+            Converters = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter>(this, nameof(Converters));
+            StaticInstances = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object>(this, nameof(StaticInstances));
+            Initializers = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor>(this, nameof(Initializers));
+            Datas = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty>(this, nameof(Datas));
+            Operations = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod>(this, nameof(Operations));
 
-            DataFetchedEagerly = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool>(this, "DataFetchedEagerly");
+            DataFetchedEagerly = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool>(this, nameof(DataFetchedEagerly));
 
-            Module = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, "Module", true);
-            TypeName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, "TypeName", true);
-            DataName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, "DataName", true);
-            OperationName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, "OperationName", true);
-            ParameterName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, "ParameterName", true);
+            Module = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(Module), true);
+            TypeName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(TypeName), true);
+            DataName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, nameof(DataName), true);
+            OperationName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, nameof(OperationName), true);
+            ParameterName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, nameof(ParameterName), true);
 
-            TypeMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string>(this, "TypeMarks");
-            InitializerMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string>(this, "InitializerMarks");
-            DataMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, "DataMarks");
-            OperationMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, "OperationMarks");
-            ParameterMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, "ParameterMarks");
+            TypeMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(TypeMarks));
+            InitializerMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string>(this, nameof(InitializerMarks));
+            DataMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, nameof(DataMarks));
+            OperationMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, nameof(OperationMarks));
+            ParameterMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, nameof(ParameterMarks));
         }
 
         public ConventionBasedCodingStyle Merge(ConventionBasedCodingStyle other)
@@ -111,7 +111,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             return this;
         }
 
-        public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies) { return AddTypes(assemblies, t => true); }
+        public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies) => AddTypes(assemblies, _ => true);
         public ConventionBasedCodingStyle AddTypes(IEnumerable<System.Reflection.Assembly> assemblies, Func<Type, bool> typeFilter)
         {
             foreach (var assembly in assemblies)
@@ -122,9 +122,9 @@ namespace Routine.Engine.Configuration.ConventionBased
             return this;
         }
 
-        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly) { return AddTypes(assembly, t => true); }
-        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly, Func<Type, bool> typeFilter) { return AddTypes(assembly.GetTypes().Where(typeFilter)); }
-        public ConventionBasedCodingStyle AddTypes(IEnumerable<Type> types) { return AddTypes(types.ToArray()); }
+        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly) => AddTypes(assembly, _ => true);
+        public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly, Func<Type, bool> typeFilter) => AddTypes(assembly.GetTypes().Where(typeFilter));
+        public ConventionBasedCodingStyle AddTypes(IEnumerable<Type> types) => AddTypes(types.ToArray());
         public ConventionBasedCodingStyle AddTypes(params Type[] types)
         {
             types = types.Where(t => !t.IsByRefLike).ToArray();
@@ -140,7 +140,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             return this;
         }
 
-        public ConventionBasedCodingStyle AddTypes(params IType[] types) { return AddTypes(types.AsEnumerable()); }
+        public ConventionBasedCodingStyle AddTypes(params IType[] types) => AddTypes(types.AsEnumerable());
         public ConventionBasedCodingStyle AddTypes(IEnumerable<IType> types)
         {
             foreach (var type in types)
@@ -172,7 +172,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             needsRefresh = false;
 
             //TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
-            for (int i = 0; i < types.Count; i++)
+            for (var i = 0; i < types.Count; i++)
             {
                 var type = types[i];
 
@@ -197,37 +197,37 @@ namespace Routine.Engine.Configuration.ConventionBased
 
         #region ICodingStyle implementation
 
-        int ICodingStyle.GetMaxFetchDepth() { return MaxFetchDepth.Get(); }
+        int ICodingStyle.GetMaxFetchDepth() => MaxFetchDepth.Get();
 
         List<IType> ICodingStyle.GetTypes() { RefreshIfNecessary(); return types; }
         bool ICodingStyle.ContainsType(IType type) { RefreshIfNecessary(); return types.Contains(type); }
 
-        IType ICodingStyle.GetType(object @object) { return Type.Get(@object); }
+        IType ICodingStyle.GetType(object @object) => Type.Get(@object);
 
-        bool ICodingStyle.IsValue(IType type) { return TypeIsValue.Get(type); }
-        bool ICodingStyle.IsView(IType type) { return TypeIsView.Get(type); }
-        IIdExtractor ICodingStyle.GetIdExtractor(IType type) { return IdExtractor.Get(type); }
-        IValueExtractor ICodingStyle.GetValueExtractor(IType type) { return ValueExtractor.Get(type); }
-        ILocator ICodingStyle.GetLocator(IType type) { return Locator.Get(type); }
-        List<IConverter> ICodingStyle.GetConverters(IType type) { return Converters.Get(type); }
-        List<object> ICodingStyle.GetStaticInstances(IType type) { return StaticInstances.Get(type); }
-        List<IConstructor> ICodingStyle.GetInitializers(IType type) { return Initializers.Get(type); }
-        List<IProperty> ICodingStyle.GetDatas(IType type) { return Datas.Get(type); }
-        List<IMethod> ICodingStyle.GetOperations(IType type) { return Operations.Get(type); }
+        bool ICodingStyle.IsValue(IType type) => TypeIsValue.Get(type);
+        bool ICodingStyle.IsView(IType type) => TypeIsView.Get(type);
+        IIdExtractor ICodingStyle.GetIdExtractor(IType type) => IdExtractor.Get(type);
+        IValueExtractor ICodingStyle.GetValueExtractor(IType type) => ValueExtractor.Get(type);
+        ILocator ICodingStyle.GetLocator(IType type) => Locator.Get(type);
+        List<IConverter> ICodingStyle.GetConverters(IType type) => Converters.Get(type);
+        List<object> ICodingStyle.GetStaticInstances(IType type) => StaticInstances.Get(type);
+        List<IConstructor> ICodingStyle.GetInitializers(IType type) => Initializers.Get(type);
+        List<IProperty> ICodingStyle.GetDatas(IType type) => Datas.Get(type);
+        List<IMethod> ICodingStyle.GetOperations(IType type) => Operations.Get(type);
 
-        bool ICodingStyle.IsFetchedEagerly(IProperty property) { return DataFetchedEagerly.Get(property); }
+        bool ICodingStyle.IsFetchedEagerly(IProperty property) => DataFetchedEagerly.Get(property);
 
-        string ICodingStyle.GetModule(IType type) { return Module.Get(type); }
-        string ICodingStyle.GetName(IType type) { return TypeName.Get(type); }
-        string ICodingStyle.GetName(IProperty property) { return DataName.Get(property); }
-        string ICodingStyle.GetName(IMethod method) { return OperationName.Get(method); }
-        string ICodingStyle.GetName(IParameter parameter) { return ParameterName.Get(parameter); }
+        string ICodingStyle.GetModule(IType type) => Module.Get(type);
+        string ICodingStyle.GetName(IType type) => TypeName.Get(type);
+        string ICodingStyle.GetName(IProperty property) => DataName.Get(property);
+        string ICodingStyle.GetName(IMethod method) => OperationName.Get(method);
+        string ICodingStyle.GetName(IParameter parameter) => ParameterName.Get(parameter);
 
-        List<string> ICodingStyle.GetMarks(IType type) { return TypeMarks.Get(type); }
-        List<string> ICodingStyle.GetMarks(IConstructor constructor) { return InitializerMarks.Get(constructor); }
-        List<string> ICodingStyle.GetMarks(IProperty property) { return DataMarks.Get(property); }
-        List<string> ICodingStyle.GetMarks(IMethod method) { return OperationMarks.Get(method); }
-        List<string> ICodingStyle.GetMarks(IParameter parameter) { return ParameterMarks.Get(parameter); }
+        List<string> ICodingStyle.GetMarks(IType type) => TypeMarks.Get(type);
+        List<string> ICodingStyle.GetMarks(IConstructor constructor) => InitializerMarks.Get(constructor);
+        List<string> ICodingStyle.GetMarks(IProperty property) => DataMarks.Get(property);
+        List<string> ICodingStyle.GetMarks(IMethod method) => OperationMarks.Get(method);
+        List<string> ICodingStyle.GetMarks(IParameter parameter) => ParameterMarks.Get(parameter);
 
         #endregion
     }

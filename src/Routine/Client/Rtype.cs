@@ -6,17 +6,17 @@ namespace Routine.Client
 {
 	public class Rtype
 	{
-		public static readonly Rtype Void = new Rtype();
+		public static readonly Rtype Void = new();
 
 		private readonly ObjectModel model;
 
-		public Rapplication Application { get; private set; }
+		public Rapplication Application { get; }
 
-		public List<Rtype> ViewTypes { get; private set; }
-		public List<Rtype> ActualTypes { get; private set; }
+		public List<Rtype> ViewTypes { get; }
+		public List<Rtype> ActualTypes { get; }
 		public Rinitializer Initializer { get; private set; }
-		public Dictionary<string, Rdata> Data { get; private set; }
-		public Dictionary<string, Roperation> Operation { get; private set; }
+		public Dictionary<string, Rdata> Data { get; }
+		public Dictionary<string, Roperation> Operation { get; }
 
 		private Rtype() : this(null, new ObjectModel { Id = Constants.VOID_MODEL_ID, IsValueModel = true }) { }
 		public Rtype(Rapplication application, ObjectModel model)
@@ -59,63 +59,42 @@ namespace Routine.Client
 			}
 		}
 
-		public string Id { get { return model.Id; } }
-		public string Name { get { return model.Name; } }
-		public string Module { get { return model.Module; } }
-		public bool IsValueType { get { return model.IsValueModel; } }
-		public bool IsViewType { get { return model.IsViewModel; } }
-		public bool IsVoid { get { return Id == Constants.VOID_MODEL_ID; } }
-		public bool Initializable { get { return Initializer != null; } }
-		public List<Rdata> Datas { get { return Data.Values.ToList(); } }
-		public List<Roperation> Operations { get { return Operation.Values.ToList(); } }
+		public string Id => model.Id;
+        public string Name => model.Name;
+        public string Module => model.Module;
+        public bool IsValueType => model.IsValueModel;
+        public bool IsViewType => model.IsViewModel;
+        public bool IsVoid => Id == Constants.VOID_MODEL_ID;
+        public bool Initializable => Initializer != null;
+        public List<Rdata> Datas => Data.Values.ToList();
+        public List<Roperation> Operations => Operation.Values.ToList();
 
-		public List<string> Marks { get { return model.Marks; } }
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
-		{
-			return model.Marks.Contains(mark);
-		}
+        public bool MarkedAs(string mark) => model.Marks.Contains(mark);
 
-		public bool CanBe(Rtype viewType)
+        public bool CanBe(Rtype viewType)
 		{
 			if (Equals(this, viewType)) { return true; }
 
 			return ViewTypes.Contains(viewType);
 		}
 
-		public List<Robject> StaticInstances
-		{
-			get
-			{
-				return model
-					.StaticInstances
-					.Select(od => new Robject(od, Application[od.ModelId], this))
-					.ToList();
-			}
-		}
+		public List<Robject> StaticInstances =>
+            model
+                .StaticInstances
+                .Select(od => new Robject(od, Application[od.ModelId], this))
+                .ToList();
 
-		public Robject Get(string id)
-		{
-			return new Robject(id, this);
-		}
+        public Robject Get(string id) => new(id, this);
+        public Robject Get(string id, Rtype viewType) => new(id, this, viewType);
 
-		public Robject Get(string id, Rtype viewType)
-		{
-			return new Robject(id, this, viewType);
-		}
+        public Robject Init(params Rvariable[] initializationParameters) => Init(initializationParameters.AsEnumerable());
+        public Robject Init(IEnumerable<Rvariable> initializationParameters) => new(initializationParameters, this);
 
-		public Robject Init(params Rvariable[] initializationParameters) { return Init(initializationParameters.AsEnumerable()); }
-		public Robject Init(IEnumerable<Rvariable> initializationParameters)
-		{
-			return new Robject(initializationParameters, this);
-		}
+        public override string ToString() => model.Id;
 
-		public override string ToString()
-		{
-			return model.Id;
-		}
-
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rtype other)
 		{
