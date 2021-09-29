@@ -33,13 +33,34 @@ namespace Routine.Test.Engine.Configuration
         [Test]
         public void When_a_ref_struct_is_added__it_is_ignored_automatically()
         {
-            Assert.Fail("not implemented");
+            var testing = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(ReadOnlySpan<int>)) as ICodingStyle;
+
+            Assert.IsFalse(testing.ContainsType(TypeInfo.Get(typeof(ReadOnlySpan<int>))));
         }
+
+        public record ARecord(string Data);
 
         [Test]
         public void When_a_record_is_added__it_can_be_configured_like_any_other_class()
         {
-            Assert.Fail("not implemented");
+            var testing = BuildRoutine.CodingStyle().FromBasic();
+
+            testing.AddTypes(typeof(ARecord));
+
+            testing.Initializers.Add(c => c.PublicConstructors().When(type.of<ARecord>()));
+            testing.Datas.Add(c => c.PublicProperties().When(type.of<ARecord>()));
+
+            var initializers = ((ICodingStyle)testing).GetInitializers(type.of<ARecord>());
+            var datas = ((ICodingStyle)testing).GetDatas(type.of<ARecord>());
+
+            Assert.AreEqual(1, initializers.Count);
+            Assert.AreEqual(1, initializers[0].Parameters.Count);
+            Assert.AreEqual("Data", initializers[0].Parameters[0].Name);
+            Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
+
+            Assert.AreEqual(1, datas.Count);
+            Assert.AreEqual("Data", datas[0].Name);
+            Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
         }
     }
 }
