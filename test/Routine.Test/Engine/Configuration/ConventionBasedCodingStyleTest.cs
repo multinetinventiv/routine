@@ -30,12 +30,14 @@ namespace Routine.Test.Engine.Configuration
             Assert.IsTrue(testing.ContainsType(type.of<int?>()));
         }
 
+        public ref struct ARefStruct { }
+
         [Test]
         public void When_a_ref_struct_is_added__it_is_ignored_automatically()
         {
-            var testing = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(ReadOnlySpan<int>)) as ICodingStyle;
+            var testing = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(ARefStruct)) as ICodingStyle;
 
-            Assert.IsFalse(testing.ContainsType(TypeInfo.Get(typeof(ReadOnlySpan<int>))));
+            Assert.IsFalse(testing.ContainsType(TypeInfo.Get(typeof(ARefStruct))));
         }
 
         public record ARecord(string Data);
