@@ -57,7 +57,7 @@ namespace Routine.Test.Engine.Extractor
         public void When_cannot_convert_exception_occurs__rethrows_the_exception()
         {
             var expected = new CannotConvertException(new object(), type.of<string>());
-            var testing = new TestConverter(() => { throw expected; }, type.of<string>()) as IConverter;
+            var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
             try
             {
@@ -75,7 +75,7 @@ namespace Routine.Test.Engine.Extractor
         {
             var expected = new Exception();
 
-            var testing = new TestConverter(() => { throw expected; }, type.of<string>()) as IConverter;
+            var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
             try
             {

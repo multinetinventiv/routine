@@ -29,9 +29,9 @@ namespace Routine.Test.Engine
             codingStyle = BuildRoutine.CodingStyle().FromBasic()
                 .AddTypes(GetType().Assembly, t => t.IsPublic && t.Namespace != null && t.Namespace.StartsWith(RootNamespace))
 
-                .Initializers.Add(c => c.Constructors().When(t => t.IsValueType && t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
-                .Datas.Add(c => c.PublicProperties(m => !m.IsInherited()).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
-                .Operations.Add(c => c.PublicMethods(m => !m.IsInherited()).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
+                .Initializers.Add(c => c.Constructors().When(t => t.IsValueType && t.Namespace?.StartsWith(RootNamespace) == true))
+                .Datas.Add(c => c.PublicProperties(m => !m.IsInherited()).When(t => t.Namespace?.StartsWith(RootNamespace) == true))
+                .Operations.Add(c => c.PublicMethods(m => !m.IsInherited()).When(t => t.Namespace?.StartsWith(RootNamespace) == true))
 
                 .IdExtractor.Set(c => c.IdByProperty(p => p.Returns<string>("Id")).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
                 .Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace) && t.Properties.Any(m => m.Returns<string>("Id"))))

@@ -29,5 +29,17 @@ namespace Routine.Test.Engine.Configuration
 
             Assert.IsTrue(testing.ContainsType(type.of<int?>()));
         }
+
+        [Test]
+        public void When_a_ref_struct_is_added__it_is_ignored_automatically()
+        {
+            Assert.Fail("not implemented");
+        }
+
+        [Test]
+        public void When_a_record_is_added__it_can_be_configured_like_any_other_class()
+        {
+            Assert.Fail("not implemented");
+        }
     }
 }

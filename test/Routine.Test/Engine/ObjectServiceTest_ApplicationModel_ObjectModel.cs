@@ -47,10 +47,6 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public IgnoredModel IgnoredModelData { get; set; }
         public IgnoredModel IgnoredModelInReturnType() => null;
         public void IgnoredModelInParameters(IgnoredModel ignoredModel) { }
-
-        public IgnoredRefStruct IgnoredRefStructData => new();
-        public IgnoredRefStruct IgnoredRefStructInReturnType() => new();
-        public void IgnoredRefStructInParameters(IgnoredRefStruct ignoredRefStruct) { }
     }
 
     public interface IBusinessModel : IBusinessModel2
@@ -79,7 +75,6 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public BusinessDataModel(string data, int i) : this(data) { }
         public BusinessDataModel(int data) : this() { }
         public BusinessDataModel(IgnoredModel ignoredModel) : this() { }
-        public BusinessDataModel(IgnoredRefStruct ignoredRefStruct) : this() { }
     }
     // ReSharper restore UnusedParameter.Local
 
@@ -88,10 +83,6 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         Item1,
         Item2,
         Item3
-    }
-
-    public ref struct IgnoredRefStruct
-    {
     }
 }
 
