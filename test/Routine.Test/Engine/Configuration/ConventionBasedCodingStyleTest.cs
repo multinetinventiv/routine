@@ -64,5 +64,38 @@ namespace Routine.Test.Engine.Configuration
             Assert.AreEqual("Data", datas[0].Name);
             Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
         }
+
+        public readonly struct AReadonlyStruct
+        {
+            public string Data { get; }
+
+            public AReadonlyStruct(string data)
+            {
+                Data = data;
+            }
+        }
+
+        [Test]
+        public void When_a_struct_is_readonly__it_can_Be_configured_like_any_other_struct()
+        {
+            var testing = BuildRoutine.CodingStyle().FromBasic();
+
+            testing.AddTypes(typeof(AReadonlyStruct));
+
+            testing.Initializers.Add(c => c.PublicConstructors().When(type.of<AReadonlyStruct>()));
+            testing.Datas.Add(c => c.PublicProperties().When(type.of<AReadonlyStruct>()));
+
+            var initializers = ((ICodingStyle)testing).GetInitializers(type.of<AReadonlyStruct>());
+            var datas = ((ICodingStyle)testing).GetDatas(type.of<AReadonlyStruct>());
+
+            Assert.AreEqual(1, initializers.Count);
+            Assert.AreEqual(1, initializers[0].Parameters.Count);
+            Assert.AreEqual("data", initializers[0].Parameters[0].Name);
+            Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
+
+            Assert.AreEqual(1, datas.Count);
+            Assert.AreEqual("Data", datas[0].Name);
+            Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
+        }
     }
 }
