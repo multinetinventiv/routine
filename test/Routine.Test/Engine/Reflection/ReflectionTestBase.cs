@@ -9,6 +9,14 @@ using RoutineTest.OuterNamespace;
 
 #region Test Model
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable ValueParameterNotUsed
+
+#region Inner Namespace
+
 namespace Routine.Test.Engine.Reflection.Domain
 {
     #region OOP Model
@@ -31,6 +39,8 @@ namespace Routine.Test.Engine.Reflection.Domain
         void ImplicitInterfaceMethod();
         void ImplicitInterfaceWithParameterMethod(string str);
         void ExplicitInterfaceMethod();
+
+        public string DefaultInterfaceMethod(string message) => $"default interface {message}";
     }
 
     public abstract class TestAbstractClass_OOP
@@ -235,10 +245,9 @@ namespace Routine.Test.Engine.Reflection.Domain
 
     #endregion
 }
-
 #endregion
 
-#region Test Model (Outer Namespace)
+#region Outer Namespace
 
 namespace RoutineTest.OuterNamespace
 {
@@ -271,6 +280,14 @@ namespace RoutineTest.OuterDomainNamespace
     {
     }
 }
+
+#endregion
+
+// ReSharper restore ValueParameterNotUsed
+// ReSharper restore UnusedAutoPropertyAccessor.Local
+// ReSharper restore UnusedMember.Local
+// ReSharper restore UnusedParameter.Local
+// ReSharper restore InconsistentNaming
 
 #endregion
 
@@ -311,6 +328,10 @@ namespace Routine.Test.Engine.Reflection
         protected MethodInfo OOP_StaticMethod(string prefixOrFullName) =>
             type.of<TestClass_OOP>().GetStaticMethod($"{prefixOrFullName}Method") ??
             type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
+
+        protected MethodInfo OOP_InterfaceMethod(string prefixOrFullName) =>
+            type.of<TestInterface_OOP>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestInterface_OOP>().GetMethod(prefixOrFullName);
 
         protected PropertyInfo OOP_Property(string prefixOrFullName) =>
             type.of<TestClass_OOP>().GetProperty($"{prefixOrFullName}Property") ??

@@ -97,5 +97,23 @@ namespace Routine.Test.Engine.Configuration
             Assert.AreEqual("Data", datas[0].Name);
             Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
         }
+
+        public interface IAnInterface { public string GetData() => "data"; }
+        public class AClass : IAnInterface { }
+
+        [Test]
+        public void When_an_interface_has_a_default_method__it_can_be_an_operation_of_its_view_model()
+        {
+            var testing = BuildRoutine.CodingStyle().FromBasic();
+
+            testing.AddTypes(typeof(IAnInterface), typeof(AClass));
+
+            testing.Operations.Add(c => c.PublicMethods().When(type.of<IAnInterface>()));
+
+            var operations = ((ICodingStyle)testing).GetOperations(type.of<IAnInterface>());
+
+            Assert.AreEqual(1, operations.Count);
+            Assert.AreEqual("GetData", operations[0].Name);
+        }
     }
 }

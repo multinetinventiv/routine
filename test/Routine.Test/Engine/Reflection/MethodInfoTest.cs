@@ -82,6 +82,16 @@ namespace Routine.Test.Engine.Reflection
         }
 
         [Test]
+        public void Routine_MethodInfo_can_invoke_default_interface_methods()
+        {
+            testing = OOP_InterfaceMethod("DefaultInterfaceMethod");
+
+            var obj = new TestClass_OOP();
+
+            Assert.AreEqual("default interface test", testing.Invoke(obj, "test"));
+        }
+
+        [Test]
         public void Routine_MethodInfo_throws_null_exception_when_target_is_null()
         {
             testing = OOP_Method("PublicPingMethod");
