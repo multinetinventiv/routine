@@ -25,6 +25,7 @@ namespace Routine.Test.Engine.Reflection
             Assert.AreEqual(parameterInfo.Name, testing.Name);
             Assert.AreSame(parameterInfo.ParameterType, testing.ParameterType.GetActualType());
             Assert.AreEqual(parameterInfo.Position, testing.Position);
+            Assert.Fail("test IsOptional and DefaultValue");
         }
 
         [Test]
@@ -33,6 +34,7 @@ namespace Routine.Test.Engine.Reflection
             Assert.AreSame(testing.Name, testing.Name);
             Assert.AreSame(testing.ParameterType, testing.ParameterType);
             Assert.AreSame(testing.GetCustomAttributes(), testing.GetCustomAttributes());
+            Assert.Fail("test IsOptional and DefaultValue");
         }
 
         [Test]

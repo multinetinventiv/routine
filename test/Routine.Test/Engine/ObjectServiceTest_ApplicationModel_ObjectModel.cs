@@ -43,6 +43,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
+        
+        public void OptionalParameterOp(string required, string optional = "test") { }
 
         public IgnoredModel IgnoredModelData { get; set; }
         public IgnoredModel IgnoredModelInReturnType() => null;
@@ -65,7 +67,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public string AutoExcludedData { get; set; }
         public void AutoExcludedOperation() { }
     }
-    
+
     // ReSharper disable UnusedParameter.Local
     public readonly struct BusinessDataModel
     {
@@ -471,6 +473,13 @@ namespace Routine.Test.Engine
 
             Assert.IsTrue(actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].IsList);
             Assert.IsFalse(actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].IsList);
+        }
+
+        [Test]
+        public void A_parameter_can_be_optional_and_include_its_default_value()
+        {
+            // add IsOptional and DefaultValue to ParameterModel
+            Assert.Fail("not implemented");
         }
 
         [Test]

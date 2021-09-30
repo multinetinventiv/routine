@@ -34,6 +34,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
         void OverloadArray(string s);
         void OverloadArray(int[] i, string s);
 
+        void OptionalParameterOp(string required, string optional = "default");
+
         void DataInput(BusinessMasterInputData input);
         void InitLocateInput(List<BusinessInitializableLocatable> input);
     }
@@ -48,11 +50,11 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
         void IBusinessOperation.Void() => mock.Void();
         IBusinessOperation IBusinessOperation.GetResult() => mock.GetResult();
-        void IBusinessOperation.DoParameterizedOperation(string str, IBusinessOperation obj) { mock.DoParameterizedOperation(str, obj); }
-        void IBusinessOperation.DoOperationWithList(List<string> list) { mock.DoOperationWithList(list); }
-        void IBusinessOperation.DoOperationWithIntList(List<int> list) { mock.DoOperationWithIntList(list); }
-        void IBusinessOperation.DoOperationWithArray(string[] array) { mock.DoOperationWithArray(array); }
-        void IBusinessOperation.DoOperationWithParamsArray(params string[] paramsArray) { mock.DoOperationWithParamsArray(paramsArray); }
+        void IBusinessOperation.DoParameterizedOperation(string str, IBusinessOperation obj) => mock.DoParameterizedOperation(str, obj);
+        void IBusinessOperation.DoOperationWithList(List<string> list) => mock.DoOperationWithList(list);
+        void IBusinessOperation.DoOperationWithIntList(List<int> list) => mock.DoOperationWithIntList(list);
+        void IBusinessOperation.DoOperationWithArray(string[] array) => mock.DoOperationWithArray(array);
+        void IBusinessOperation.DoOperationWithParamsArray(params string[] paramsArray) => mock.DoOperationWithParamsArray(paramsArray);
         List<string> IBusinessOperation.GetListResult() => mock.GetListResult();
         string[] IBusinessOperation.GetArrayResult() => mock.GetArrayResult();
 
@@ -65,6 +67,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
         void IBusinessOperation.DataInput(BusinessMasterInputData input) => mock.DataInput(input);
         void IBusinessOperation.OverloadArray(string s) => mock.OverloadArray(s);
         void IBusinessOperation.OverloadArray(int[] i, string s) => mock.OverloadArray(i, s);
+
+        void IBusinessOperation.OptionalParameterOp(string required, string optional) => mock.OptionalParameterOp(required, optional);
 
         void IBusinessOperation.InitLocateInput(List<BusinessInitializableLocatable> input) => mock.InitLocateInput(input);
     }
@@ -587,6 +591,17 @@ namespace Routine.Test.Engine
             );
 
             businessMock.Verify(o => o.OverloadArray(It.Is<int[]>(i => i[0] == 1 && i[1] == 2), "s_value"), Times.Once);
+        }
+
+        [Test]
+        public void When_an_optional_parameter_is_not_present__it_passes_TypeMissing_for_IMethod_to_use_its_own_default_value()
+        {
+            Assert.Fail("not implemented");
+        }
+        [Test]
+        public void When_an_optional_parameter_is_present_but_its_null__it_passes_null_as_its_value()
+        {
+            Assert.Fail("not implemented");
         }
 
         [Test]

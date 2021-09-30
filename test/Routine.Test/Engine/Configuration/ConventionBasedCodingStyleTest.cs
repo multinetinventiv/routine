@@ -76,7 +76,7 @@ namespace Routine.Test.Engine.Configuration
         }
 
         [Test]
-        public void When_a_struct_is_readonly__it_can_Be_configured_like_any_other_struct()
+        public void When_a_struct_is_readonly__it_can_be_configured_like_any_other_struct()
         {
             var testing = BuildRoutine.CodingStyle().FromBasic();
 

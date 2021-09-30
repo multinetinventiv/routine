@@ -81,7 +81,7 @@ namespace Routine.Test.Engine.Reflection
         {
             var result = new Mock<IMethod>();
 
-            var parameters = parameterTypes.Select(p => Parameter(p)).ToList();
+            var parameters = parameterTypes.Select(Parameter).ToList();
             result.Setup(o => o.Parameters).Returns(parameters);
             result.Setup(o => o.ReturnType).Returns(returnType);
             result.Setup(o => o.Name).Returns(name);
