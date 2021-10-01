@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
+using System;
 
 namespace Routine.Engine
 {
@@ -35,6 +36,10 @@ namespace Routine.Engine
                 if (parameterValueDatas.TryGetValue(parameter.Name, out var parameterValueData))
                 {
                     result[parameter.Index] = alternative.Parameters[parameter.Index].Locate(parameterValueData);
+                }
+                else if (parameter.IsOptional && parameter.HasDefaultValue)
+                {
+                    result[parameter.Index] = parameter.DefaultValue;
                 }
             }
 

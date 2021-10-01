@@ -594,14 +594,31 @@ namespace Routine.Test.Engine
         }
 
         [Test]
-        public void When_an_optional_parameter_is_not_present__it_passes_TypeMissing_for_IMethod_to_use_its_own_default_value()
+        public void When_an_optional_parameter_is_not_present__it_passes_default_value()
         {
-            Assert.Fail("not implemented");
+            SetUpObject("id");
+
+            testing.Do(Id("id"), "OptionalParameterOp",
+                Params(
+                    Param("required", Id("required_value", "System.String"))
+                )
+            );
+
+            businessMock.Verify(o => o.OptionalParameterOp("required_value", "default"), Times.Once);
         }
         [Test]
         public void When_an_optional_parameter_is_present_but_its_null__it_passes_null_as_its_value()
         {
-            Assert.Fail("not implemented");
+            SetUpObject("id");
+
+            testing.Do(Id("id"), "OptionalParameterOp",
+                Params(
+                    Param("required", Id("required_value", "System.String")),
+                    Param("optional", IdNull())
+                )
+            );
+
+            businessMock.Verify(o => o.OptionalParameterOp("required_value", null), Times.Once);
         }
 
         [Test]
