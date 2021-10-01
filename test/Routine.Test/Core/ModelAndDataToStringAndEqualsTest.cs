@@ -88,6 +88,8 @@ namespace Routine.Test.Core
         [Test]
         public void ParameterModel()
         {
+            Assert.Fail("add isoptional and default value");
+
             var prototype = new TestDataPrototype<ParameterModel>(() => new ParameterModel
             {
                 Marks = new List<string> { "mark1", "mark2" },
