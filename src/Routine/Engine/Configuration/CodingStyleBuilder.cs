@@ -3,9 +3,9 @@ using Routine.Engine.Configuration.ConventionBased;
 
 namespace Routine.Engine.Configuration
 {
-	public class CodingStyleBuilder
-	{
-		public ConventionBasedCodingStyle FromBasic() =>
+    public class CodingStyleBuilder
+    {
+        public ConventionBasedCodingStyle FromBasic() =>
             new ConventionBasedCodingStyle()
                 .AddCommonSystemTypes()
 
@@ -36,6 +36,10 @@ namespace Routine.Engine.Configuration
 
                 .DataFetchedEagerly.Set(false)
 
+                .ParameterIsOptional.Set(c => c.By(p => p.IsOptional))
+                .ParameterDefaultValue.Set(c => c.By(p => p.DefaultValue).When(p => p.HasDefaultValue))
+                .ParameterDefaultValue.SetDefault()
+
                 .IdExtractor.SetDefault()
                 .ValueExtractor.SetDefault()
                 .Locator.SetDefault()
@@ -64,10 +68,10 @@ namespace Routine.Engine.Configuration
                     .TypeName.Set(c => c.By(_ => Constants.VOID_MODEL_NAME).When(t => t.IsVoid))
                     .TypeIsValue.Set(true, t => t.IsVoid)
                 )
-					
+
                 .Override(cfg => cfg
                     .TypeIsValue.Set(true, t => t.CanBe<string>())
-				
+
                     .IdExtractor.Set(c => c.Id(e => e.By(o => o as string)).When(type.of<string>()))
                     .Locator.Set(c => c.Locator(l => l.SingleBy(o => o)).When(type.of<string>()))
 

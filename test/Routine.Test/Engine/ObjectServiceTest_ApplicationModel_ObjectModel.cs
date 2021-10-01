@@ -44,7 +44,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
         
-        public void OptionalParameterOp(string required, string optional = "test") { }
+        public void OptionalParameterOp(string required, string optional = "default") { }
 
         public IgnoredModel IgnoredModelData { get; set; }
         public IgnoredModel IgnoredModelInReturnType() => null;
@@ -478,8 +478,11 @@ namespace Routine.Test.Engine
         [Test]
         public void A_parameter_can_be_optional_and_include_its_default_value()
         {
-            // add IsOptional and DefaultValue to ParameterModel
-            Assert.Fail("not implemented");
+            var actual = testing.ApplicationModel.Model[TESTED_OM_ID].Operations.Single(o => o.Name == "OptionalParameterOp");
+            
+            Assert.IsFalse(actual.Parameters[0].IsOptional);
+            Assert.IsTrue(actual.Parameters[1].IsOptional);
+            Assert.AreEqual("default", actual.Parameters[1].DefaultValue.Values[0].Id);
         }
 
         [Test]
