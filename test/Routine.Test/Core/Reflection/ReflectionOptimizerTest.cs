@@ -92,6 +92,8 @@ namespace Routine.Test.Core.Reflection
         public string Property { get; set; }
     }
 
+    public record Record(string Data);
+
     #endregion
 
     [TestFixture]
@@ -335,6 +337,24 @@ namespace Routine.Test.Core.Reflection
         public void For_methods_with_ref_parameters_ReflectionInvoker_is_created()
         {
             var proxy = InvokerFor<Uri>("HexUnescape") as ProxyMethodInvoker;
+
+            Assert.IsNotNull(proxy);
+            Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        }
+
+        [Test]
+        public void For_the_clone_method_of_records_ReflectionInvoker_is_created()
+        {
+            var proxy = InvokerFor<Record>("<Clone>$") as ProxyMethodInvoker;
+
+            Assert.IsNotNull(proxy);
+            Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        }
+
+        [Test]
+        public void For_record_property_setters_ReflectionInvoker_is_created()
+        {
+            var proxy = InvokerFor<Record>("set:Data") as ProxyMethodInvoker;
 
             Assert.IsNotNull(proxy);
             Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);

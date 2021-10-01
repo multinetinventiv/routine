@@ -7,9 +7,9 @@ namespace Routine.Engine.Virtual
 	{
 		private readonly IParametric owner;
 
-		public SingleConfiguration<VirtualParameter, string> Name { get; }
+        public SingleConfiguration<VirtualParameter, string> Name { get; }
 		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; }
-		public SingleConfiguration<VirtualParameter, int> Index { get; }
+        public SingleConfiguration<VirtualParameter, int> Index { get; }
 
 		public VirtualParameter(IParametric owner)
 		{
@@ -34,6 +34,9 @@ namespace Routine.Engine.Virtual
 		IParametric IParameter.Owner => owner;
         IType IParameter.ParameterType => ParameterType.Get();
         int IParameter.Index => Index.Get();
+        bool IParameter.IsOptional => throw new NotImplementedException();
+        bool IParameter.HasDefaultValue => throw new NotImplementedException();
+        object IParameter.DefaultValue => throw new NotImplementedException();
 
         #endregion
 

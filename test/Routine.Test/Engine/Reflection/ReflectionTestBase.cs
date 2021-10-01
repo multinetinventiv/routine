@@ -240,7 +240,7 @@ namespace Routine.Test.Engine.Reflection.Domain
 
     public class ReflectedParameter
     {
-        public void AMethod([TestClass] string theParameter) { }
+        public void AMethod([TestClass] string theParameter = "default") { }
     }
 
     #endregion

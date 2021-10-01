@@ -20,6 +20,9 @@ namespace Routine.Engine.Reflection
         public abstract string Name { get; }
         public abstract TypeInfo ParameterType { get; }
         public abstract int Position { get; }
+        public abstract bool IsOptional { get; }
+        public abstract bool HasDefaultValue { get; }
+        public abstract object DefaultValue { get; }
         public abstract object[] GetCustomAttributes();
 
         #region ITypeComponent implementation

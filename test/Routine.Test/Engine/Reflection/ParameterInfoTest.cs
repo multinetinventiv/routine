@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
+using System.Runtime.InteropServices;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -25,7 +26,9 @@ namespace Routine.Test.Engine.Reflection
             Assert.AreEqual(parameterInfo.Name, testing.Name);
             Assert.AreSame(parameterInfo.ParameterType, testing.ParameterType.GetActualType());
             Assert.AreEqual(parameterInfo.Position, testing.Position);
-            Assert.Fail("test IsOptional and DefaultValue");
+            Assert.AreEqual(parameterInfo.IsOptional, testing.IsOptional);
+            Assert.AreEqual(parameterInfo.HasDefaultValue, testing.HasDefaultValue);
+            Assert.AreEqual(parameterInfo.DefaultValue, testing.DefaultValue);
         }
 
         [Test]
@@ -34,7 +37,7 @@ namespace Routine.Test.Engine.Reflection
             Assert.AreSame(testing.Name, testing.Name);
             Assert.AreSame(testing.ParameterType, testing.ParameterType);
             Assert.AreSame(testing.GetCustomAttributes(), testing.GetCustomAttributes());
-            Assert.Fail("test IsOptional and DefaultValue");
+            Assert.AreSame(testing.DefaultValue, testing.DefaultValue);
         }
 
         [Test]
@@ -42,8 +45,9 @@ namespace Routine.Test.Engine.Reflection
         {
             var actual = testing.GetCustomAttributes();
 
-            Assert.AreEqual(1, actual.Length);
+            Assert.AreEqual(2, actual.Length);
             Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+            Assert.IsInstanceOf<OptionalAttribute>(actual[1]); // added to optional parameters automatically by compiler
         }
 
         [Test]

@@ -19,37 +19,37 @@ namespace Routine.Core.Reflection
         private static readonly object OPTIMIZE_LIST_LOCK = new();
         private static readonly object INVOKERS_LOCK = new();
 
-        private static readonly Dictionary<System.Reflection.MethodBase, bool> optimizeList = new();
-        private static readonly Dictionary<System.Reflection.MethodBase, IMethodInvoker> invokers = new();
+        private static readonly Dictionary<MethodBase, bool> OPTIMIZE_LIST = new();
+        private static readonly Dictionary<MethodBase, IMethodInvoker> INVOKERS = new();
 
-        public static void AddToOptimizeList(System.Reflection.MethodBase method)
+        public static void AddToOptimizeList(MethodBase method)
         {
             if (method == null) { throw new ArgumentNullException(nameof(method)); }
-            if (invokers.ContainsKey(method)) { return; }
+            if (INVOKERS.ContainsKey(method)) { return; }
 
             lock (OPTIMIZE_LIST_LOCK)
             {
-                optimizeList[method] = true;
+                OPTIMIZE_LIST[method] = true;
             }
         }
 
-        public static IMethodInvoker CreateInvoker(System.Reflection.MethodBase method)
+        public static IMethodInvoker CreateInvoker(MethodBase method)
         {
             if (method == null) { throw new ArgumentNullException(nameof(method)); }
 
             OptimizeTheListFor(method);
 
-            return invokers[method];
+            return INVOKERS[method];
         }
 
-        //TODO refactor, use a class instance for each optimization - hint: use method object
-        private static void OptimizeTheListFor(System.Reflection.MethodBase method)
+        // TODO refactor, use a class instance for each optimization - hint: use method object
+        private static void OptimizeTheListFor(MethodBase method)
         {
             AddToOptimizeList(method);
 
             lock (OPTIMIZE_LIST_LOCK)
             {
-                var localOptimizeList = new List<System.Reflection.MethodBase>(optimizeList.Keys);
+                var localOptimizeList = new List<MethodBase>(OPTIMIZE_LIST.Keys);
 
                 lock (INVOKERS_LOCK)
                 {
@@ -61,27 +61,21 @@ namespace Routine.Core.Reflection
                         }
                     };
 
-                    var willOptimize = new List<System.Reflection.MethodBase>();
+                    var willOptimize = new List<MethodBase>();
                     var sources = new List<string>();
                     foreach (var current in localOptimizeList)
                     {
                         try
                         {
                             if (current.ContainsGenericParameters) { throw new InvalidOperationException(MissingGenericParametersMessage(current)); }
+                            if (current.ReflectedType == null) { throw new NotSupportedException(); }
 
-                            if (!current.IsPublic)
-                            {
-                                SafeAdd(current, new ReflectionMethodInvoker(current));
-                            }
-                            else if (!current.ReflectedType.IsPublic && !current.ReflectedType.IsNestedPublic)
-                            {
-                                SafeAdd(current, new ReflectionMethodInvoker(current));
-                            }
-                            else if (current.GetParameters().Any(pi => pi.IsIn || pi.IsOut || pi.ParameterType.IsPointer || pi.ParameterType.IsByRef))
-                            {
-                                SafeAdd(current, new ReflectionMethodInvoker(current));
-                            }
-                            else if (current.ReflectedType.IsValueType && current.IsSpecialName)
+                            if ((!current.IsPublic) ||
+                                (!current.ReflectedType.IsPublic && !current.ReflectedType.IsNestedPublic) ||
+                                (current.GetParameters().Any(pi => pi.IsIn || pi.IsOut || pi.ParameterType.IsPointer || pi.ParameterType.IsByRef)) ||
+                                (current.ReflectedType.IsValueType && current.IsSpecialName) ||
+                                (current.Name == "<Clone>$") ||
+                                (current.Name.StartsWith("set_") && SetIsInitOnly(current)))
                             {
                                 SafeAdd(current, new ReflectionMethodInvoker(current));
                             }
@@ -148,45 +142,49 @@ namespace Routine.Core.Reflection
 
                 foreach (var current in localOptimizeList)
                 {
-                    optimizeList.Remove(current);
+                    OPTIMIZE_LIST.Remove(current);
                 }
             }
         }
 
+        private static bool SetIsInitOnly(MethodBase setMethod) =>
+            setMethod is MethodInfo setMethodInfo &&
+            setMethodInfo.ReturnParameter != null && 
+            setMethodInfo.ReturnParameter.GetRequiredCustomModifiers().Contains(typeof(System.Runtime.CompilerServices.IsExternalInit));
+
         private static void SafeAdd(MethodBase current, IMethodInvoker invoker)
         {
-            if (invokers.ContainsKey(current)) { return; }
+            if (INVOKERS.ContainsKey(current)) { return; }
 
-            invokers.Add(current, invoker);
+            INVOKERS.Add(current, invoker);
         }
 
         private static void ValidateCompilerResults(EmitResult result, string code)
         {
-            if (!result.Success)
+            if (result.Success) { return; }
+
+            var failures = result.Diagnostics.Where(diagnostic =>
+                diagnostic.IsWarningAsError ||
+                diagnostic.Severity == DiagnosticSeverity.Error
+            );
+            var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
+
+            foreach (var diagnostic in failures)
             {
-                var failures = result.Diagnostics.Where(diagnostic =>
-                    diagnostic.IsWarningAsError ||
-                    diagnostic.Severity == DiagnosticSeverity.Error
-                );
-                var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
-
-                foreach (var diagnostic in failures)
-                {
-                    errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
-                    errors.AppendLine();
-                }
-
-                throw new Exception($"{errors}; \r\n {code}");
+                errors.AppendFormat("{0} - {1}: {2}", diagnostic.Location.GetLineSpan(), diagnostic.Id, diagnostic.GetMessage());
+                errors.AppendLine();
             }
+
+            throw new Exception($"{errors}; \r\n {code}");
         }
 
-        private static void AddReferences(System.Reflection.MethodBase current, Dictionary<string, MetadataReference> references)
+        private static void AddReferences(MethodBase current, Dictionary<string, MetadataReference> references)
         {
             AddTypeReference(current.ReflectedType, references);
             AddTypeReference(current.DeclaringType, references);
-            if (current is System.Reflection.MethodInfo)
+            if (current is MethodInfo methodInfo)
             {
-                AddTypeReference(((System.Reflection.MethodInfo)current).ReturnType, references);
+                AddTypeReference(methodInfo.ReturnType, references);
             }
 
             foreach (var parameter in current.GetParameters())
@@ -195,12 +193,9 @@ namespace Routine.Core.Reflection
             }
         }
 
-        private static string InvokerTypeName(System.Reflection.MethodBase current)
-        {
-            return current.ReflectedType.Namespace + "." + TypeName(current.ReflectedType) + "_" + MethodName(current) + "_Invoker_" + current.GetHashCode();
-        }
+        private static string InvokerTypeName(MethodBase current) => current.ReflectedType?.Namespace + "." + TypeName(current.ReflectedType) + "_" + MethodName(current) + "_Invoker_" + current.GetHashCode();
 
-        private const string methodInvokerTemplate =
+        private const string METHOD_INVOKER_TEMPLATE =
             "namespace $Namespace$ {\n" +
             "\tpublic class $ReflectedTypeName$_$MethodName$_Invoker_$HashCode$ : $BaseInterface$ {\n" +
             "\t\tpublic object Invoke(object target, params object[] args) {\n" +
@@ -209,94 +204,84 @@ namespace Routine.Core.Reflection
             "\t}\n" +
             "}\n";
 
-        private const string notSupportedInvocationTemplate =
+        private const string NOT_SUPPORTED_INVOCATION_TEMPLATE =
             "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
 
-        private const string voidInvocationTemplate =
+        private const string VOID_INVOCATION_TEMPLATE =
             "\t\t\t$Target$.$MethodName$($Parameters$);\n" +
             "\t\t\treturn null;\n";
 
-        private const string nonVoidInvocationTemplate =
+        private const string NON_VOID_INVOCATION_TEMPLATE =
             "\t\t\treturn $Target$.$MethodName$($Parameters$);\n";
 
-        private const string propertyGetInvocationTemplate =
+        private const string PROPERTY_GET_INVOCATION_TEMPLATE =
             "\t\t\treturn $Target$.$MethodName$;\n";
 
-        private const string indexerPropertyGetInvocationTemplate =
+        private const string INDEXER_PROPERTY_GET_INVOCATION_TEMPLATE =
             "\t\t\treturn $Target$[$Parameters$];\n";
 
-        private const string propertySetInvocationTemplate =
+        private const string PROPERTY_SET_INVOCATION_TEMPLATE =
             "\t\t\t$Target$.$MethodName$ = $LastParameter$;\n" +
             "\t\t\treturn null;\n";
 
-        private const string indexerPropertySetInvocationTemplate =
+        private const string INDEXER_PROPERTY_SET_INVOCATION_TEMPLATE =
             "\t\t\t$Target$[$ParametersExceptLast$] = $LastParameter$;\n" +
             "\t\t\treturn null;\n";
 
-        private const string newInvocationTemplate =
+        private const string NEW_INVOCATION_TEMPLATE =
             "\t\t\treturn new $ReflectedType$($Parameters$);\n";
 
-        private const string parameterTemplate =
+        private const string PARAMETER_TEMPLATE =
             "(($ParameterType$)(args[$ParameterIndex$]??default($ParameterType$)))";
 
-        private static string Parameter(System.Reflection.ParameterInfo parameterInfo)
+        private static string Parameter(ParameterInfo parameterInfo)
         {
             if (parameterInfo == null) { return ""; }
 
-            return parameterTemplate
+            return PARAMETER_TEMPLATE
                     .Replace("$ParameterType$", parameterInfo.ParameterType.ToCSharpString())
                     .Replace("$ParameterIndex$", parameterInfo.Position.ToString());
         }
 
-        private static string Parameters(System.Reflection.ParameterInfo[] parameters)
-        {
-            return string.Join(",", parameters.Select(p => Parameter(p)));
-        }
+        private static string Parameters(ParameterInfo[] parameters) => string.Join(",", parameters.Select(Parameter));
 
-        private static string Invocation(System.Reflection.MethodBase method)
+        private static string Invocation(MethodBase method)
         {
             string result;
 
             if (method.IsConstructor)
             {
-                if (method.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
-                else { result = newInvocationTemplate; }
+                result = method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ? NOT_SUPPORTED_INVOCATION_TEMPLATE : NEW_INVOCATION_TEMPLATE;
             }
             else if (method.IsSpecialName)
             {
-                var methodInfo = method as System.Reflection.MethodInfo;
-                if(methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
+                var methodInfo = (MethodInfo)method;
+                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = NOT_SUPPORTED_INVOCATION_TEMPLATE; }
                 else if (methodInfo.Name.StartsWith("get_"))
                 {
-                    if (methodInfo.GetParameters().Any()) { result = indexerPropertyGetInvocationTemplate; }
-                    else { result = propertyGetInvocationTemplate; }
+                    result = methodInfo.GetParameters().Any() ? INDEXER_PROPERTY_GET_INVOCATION_TEMPLATE : PROPERTY_GET_INVOCATION_TEMPLATE;
                 }
                 else
                 {
-                    if (methodInfo.GetParameters().Length > 1) { result = indexerPropertySetInvocationTemplate; }
-                    else { result = propertySetInvocationTemplate; }
+                    result = methodInfo.GetParameters().Length > 1 ? INDEXER_PROPERTY_SET_INVOCATION_TEMPLATE : PROPERTY_SET_INVOCATION_TEMPLATE;
                 }
             }
             else
             {
-                var methodInfo = method as System.Reflection.MethodInfo;
-                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = notSupportedInvocationTemplate; }
-                else if (methodInfo.ReturnType == typeof(void)) { result = voidInvocationTemplate; }
-                else { result = nonVoidInvocationTemplate; }
+                var methodInfo = (MethodInfo)method;
+                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = NOT_SUPPORTED_INVOCATION_TEMPLATE; }
+                else if (methodInfo.ReturnType == typeof(void)) { result = VOID_INVOCATION_TEMPLATE; }
+                else { result = NON_VOID_INVOCATION_TEMPLATE; }
             }
 
-            if (method.IsStatic) { result = result.Replace("$Target$", "$ReflectedType$"); }
-            else { result = result.Replace("$Target$", "(($ReflectedType$)target)"); }
+            result = result.Replace("$Target$", method.IsStatic ? "$ReflectedType$" : "(($ReflectedType$)target)");
 
             return result;
         }
 
-        private static string TypeName(Type type)
-        {
-            return type.ToCSharpString().AfterLast(".").Replace("<", "_").Replace(">", "_");
-        }
+        private static string TypeName(Type type) => type.ToCSharpString().AfterLast(".").Replace("<", "_").Replace(">", "_");
 
-        private static string MethodName(System.Reflection.MethodBase method)
+        private static string MethodName(MethodBase method)
         {
             if (method.IsConstructor)
             {
@@ -311,13 +296,13 @@ namespace Routine.Core.Reflection
             return method.Name;
         }
 
-        private static string Method(System.Reflection.MethodBase method)
+        private static string Method(MethodBase method)
         {
             var parameters = method.GetParameters();
             var lastParameter = parameters.LastOrDefault();
             var parametersExceptLast = parameters.Where((_, i) => i < parameters.Length - 1).ToArray();
 
-            return methodInvokerTemplate
+            return METHOD_INVOKER_TEMPLATE
                     .Replace("$Invocation$", Invocation(method))
                     .Replace("$MethodName$", MethodName(method))
                     .Replace("$BaseInterface$", typeof(IMethodInvoker).ToCSharpString())
@@ -327,14 +312,14 @@ namespace Routine.Core.Reflection
                     .Replace("$LastParameter$", Parameter(lastParameter))
                     .Replace("$ParametersExceptLast$", Parameters(parametersExceptLast))
                     .Replace("$HashCode$", method.GetHashCode().ToString())
-                    .Replace("$Namespace$", method.ReflectedType.Namespace);
+                    .Replace("$Namespace$", method.ReflectedType?.Namespace);
         }
 
-        private static string MissingGenericParametersMessage(System.Reflection.MethodBase method)
-        {
-            return
-                $"Missing generic parameters: {method}, {method.ReflectedType}. Cannot create invoker for a method with generic parameters. Method should already be given with its type parameters. (E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
-        }
+        private static string MissingGenericParametersMessage(MethodBase method) =>
+            $"Missing generic parameters: {method}, {method.ReflectedType}. " +
+            "Cannot create invoker for a method with generic parameters. " +
+            "Method should already be given with its type parameters. " +
+            "(E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
 
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references) { AddTypeReference(type, references, new Dictionary<Type, bool>()); }
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references, Dictionary<Type, bool> visits)
@@ -362,7 +347,7 @@ namespace Routine.Core.Reflection
             }
         }
 
-        private static void SafeAddReference(System.Reflection.Assembly assembly, Dictionary<string, MetadataReference> references)
+        private static void SafeAddReference(Assembly assembly, Dictionary<string, MetadataReference> references)
         {
             if (references.ContainsKey(assembly.Location)) { return; }
 
@@ -370,7 +355,7 @@ namespace Routine.Core.Reflection
 
             foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
             {
-                SafeAddReference(System.Reflection.Assembly.Load(referencedAssembly), references);
+                SafeAddReference(Assembly.Load(referencedAssembly), references);
             }
         }
     }
