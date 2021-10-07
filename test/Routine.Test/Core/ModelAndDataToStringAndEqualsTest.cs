@@ -63,7 +63,7 @@ namespace Routine.Test.Core
                 Marks = new List<string> { "mark1", "mark2" },
                 IsList = false,
                 Name = "name",
-                ViewModelId = "view_model_id",
+                ViewModelId = "view_model_id"
             });
 
             var testing = prototype.Create();
