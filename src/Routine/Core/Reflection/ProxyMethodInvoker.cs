@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Routine.Core.Reflection
 {
     public static class SystemReflectionFacadeExtensions
@@ -28,5 +30,6 @@ namespace Routine.Core.Reflection
         }
 
         public object Invoke(object target, params object[] args) => Real.Invoke(target, args);
+        public async Task<object> InvokeAsync(object target, params object[] args) => await Real.InvokeAsync(target, args);
     }
 }

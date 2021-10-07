@@ -42,7 +42,7 @@ namespace Routine.Test.Core.Reflection
     {
         public class InnerClass
         {
-            public static InnerClass New() => new InnerClass();
+            public static InnerClass New() => new();
             private InnerClass() { }
             public void VoidMethod() { }
         }
