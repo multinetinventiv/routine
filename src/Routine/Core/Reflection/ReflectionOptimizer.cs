@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Threading.Tasks;
 
 namespace Routine.Core.Reflection
 {
@@ -53,13 +54,10 @@ namespace Routine.Core.Reflection
 
                 lock (INVOKERS_LOCK)
                 {
-                    var references = new Dictionary<string, MetadataReference>
-                    {
-                        {
-                            typeof(IMethodInvoker).Assembly.Location,
-                            MetadataReference.CreateFromFile(typeof(IMethodInvoker).Assembly.Location)
-                        }
-                    };
+                    var references = new Dictionary<string, MetadataReference>();
+
+                    AddTypeReference(typeof(IMethodInvoker), references);
+                    AddTypeReference(typeof(Task), references);
 
                     var willOptimize = new List<MethodBase>();
                     var sources = new List<string>();
@@ -122,8 +120,7 @@ namespace Routine.Core.Reflection
                         {
                             try
                             {
-                                string typeName = InvokerTypeName(current);
-
+                                var typeName = InvokerTypeName(current);
                                 var type = assembly.GetType(typeName);
 
                                 SafeAdd(current, (IMethodInvoker)Activator.CreateInstance(type));
@@ -200,6 +197,9 @@ namespace Routine.Core.Reflection
             "\tpublic class $ReflectedTypeName$_$MethodName$_Invoker_$HashCode$ : $BaseInterface$ {\n" +
             "\t\tpublic object Invoke(object target, params object[] args) {\n" +
             "$Invocation$" +
+            "\t\t}\n" +
+            "\t\tpublic async System.Threading.Tasks.Task<object> InvokeAsync(object target, params object[] args) {\n" +
+            "\t\t\tthrow new System.NotImplementedException();" +
             "\t\t}\n" +
             "\t}\n" +
             "}\n";
