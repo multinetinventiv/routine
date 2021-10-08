@@ -80,7 +80,7 @@ namespace Routine.Core.Reflection
                             else
                             {
                                 AddReferences(current, references);
-                                sources.Add(Method(current));
+                                sources.Add(OptimizedMethodInvokerTemplate.Render(current));
                                 willOptimize.Add(current);
                             }
                         }
@@ -120,7 +120,7 @@ namespace Routine.Core.Reflection
                         {
                             try
                             {
-                                var typeName = InvokerTypeName(current);
+                                var typeName = OptimizedMethodInvokerTemplate.GetInvokerTypeName(current);
                                 var type = assembly.GetType(typeName);
 
                                 SafeAdd(current, (IMethodInvoker)Activator.CreateInstance(type));
@@ -175,6 +175,12 @@ namespace Routine.Core.Reflection
             throw new Exception($"{errors}; \r\n {code}");
         }
 
+        private static string MissingGenericParametersMessage(MethodBase method) =>
+            $"Missing generic parameters: {method}, {method.ReflectedType}. " +
+            "Cannot create invoker for a method with generic parameters. " +
+            "Method should already be given with its type parameters. " +
+            "(E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
+
         private static void AddReferences(MethodBase current, Dictionary<string, MetadataReference> references)
         {
             AddTypeReference(current.ReflectedType, references);
@@ -189,137 +195,6 @@ namespace Routine.Core.Reflection
                 AddTypeReference(parameter.ParameterType, references);
             }
         }
-
-        private static string InvokerTypeName(MethodBase current) => current.ReflectedType?.Namespace + "." + TypeName(current.ReflectedType) + "_" + MethodName(current) + "_Invoker_" + current.GetHashCode();
-
-        private const string METHOD_INVOKER_TEMPLATE =
-            "namespace $Namespace$ {\n" +
-            "\tpublic class $ReflectedTypeName$_$MethodName$_Invoker_$HashCode$ : $BaseInterface$ {\n" +
-            "\t\tpublic object Invoke(object target, params object[] args) {\n" +
-            "$Invocation$" +
-            "\t\t}\n" +
-            "\t\tpublic async System.Threading.Tasks.Task<object> InvokeAsync(object target, params object[] args) {\n" +
-            "\t\t\tthrow new System.NotImplementedException();" +
-            "\t\t}\n" +
-            "\t}\n" +
-            "}\n";
-
-        private const string NOT_SUPPORTED_INVOCATION_TEMPLATE =
-            "\t\t\tthrow new System.NotSupportedException(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
-
-        private const string VOID_INVOCATION_TEMPLATE =
-            "\t\t\t$Target$.$MethodName$($Parameters$);\n" +
-            "\t\t\treturn null;\n";
-
-        private const string NON_VOID_INVOCATION_TEMPLATE =
-            "\t\t\treturn $Target$.$MethodName$($Parameters$);\n";
-
-        private const string PROPERTY_GET_INVOCATION_TEMPLATE =
-            "\t\t\treturn $Target$.$MethodName$;\n";
-
-        private const string INDEXER_PROPERTY_GET_INVOCATION_TEMPLATE =
-            "\t\t\treturn $Target$[$Parameters$];\n";
-
-        private const string PROPERTY_SET_INVOCATION_TEMPLATE =
-            "\t\t\t$Target$.$MethodName$ = $LastParameter$;\n" +
-            "\t\t\treturn null;\n";
-
-        private const string INDEXER_PROPERTY_SET_INVOCATION_TEMPLATE =
-            "\t\t\t$Target$[$ParametersExceptLast$] = $LastParameter$;\n" +
-            "\t\t\treturn null;\n";
-
-        private const string NEW_INVOCATION_TEMPLATE =
-            "\t\t\treturn new $ReflectedType$($Parameters$);\n";
-
-        private const string PARAMETER_TEMPLATE =
-            "(($ParameterType$)(args[$ParameterIndex$]??default($ParameterType$)))";
-
-        private static string Parameter(ParameterInfo parameterInfo)
-        {
-            if (parameterInfo == null) { return ""; }
-
-            return PARAMETER_TEMPLATE
-                    .Replace("$ParameterType$", parameterInfo.ParameterType.ToCSharpString())
-                    .Replace("$ParameterIndex$", parameterInfo.Position.ToString());
-        }
-
-        private static string Parameters(ParameterInfo[] parameters) => string.Join(",", parameters.Select(Parameter));
-
-        private static string Invocation(MethodBase method)
-        {
-            string result;
-
-            if (method.IsConstructor)
-            {
-                result = method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ? NOT_SUPPORTED_INVOCATION_TEMPLATE : NEW_INVOCATION_TEMPLATE;
-            }
-            else if (method.IsSpecialName)
-            {
-                var methodInfo = (MethodInfo)method;
-                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = NOT_SUPPORTED_INVOCATION_TEMPLATE; }
-                else if (methodInfo.Name.StartsWith("get_"))
-                {
-                    result = methodInfo.GetParameters().Any() ? INDEXER_PROPERTY_GET_INVOCATION_TEMPLATE : PROPERTY_GET_INVOCATION_TEMPLATE;
-                }
-                else
-                {
-                    result = methodInfo.GetParameters().Length > 1 ? INDEXER_PROPERTY_SET_INVOCATION_TEMPLATE : PROPERTY_SET_INVOCATION_TEMPLATE;
-                }
-            }
-            else
-            {
-                var methodInfo = (MethodInfo)method;
-                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike)) { result = NOT_SUPPORTED_INVOCATION_TEMPLATE; }
-                else if (methodInfo.ReturnType == typeof(void)) { result = VOID_INVOCATION_TEMPLATE; }
-                else { result = NON_VOID_INVOCATION_TEMPLATE; }
-            }
-
-            result = result.Replace("$Target$", method.IsStatic ? "$ReflectedType$" : "(($ReflectedType$)target)");
-
-            return result;
-        }
-
-        private static string TypeName(Type type) => type.ToCSharpString().AfterLast(".").Replace("<", "_").Replace(">", "_");
-
-        private static string MethodName(MethodBase method)
-        {
-            if (method.IsConstructor)
-            {
-                return "Constructor";
-            }
-
-            if (method.IsSpecialName)
-            {
-                return method.Name.After("_");
-            }
-
-            return method.Name;
-        }
-
-        private static string Method(MethodBase method)
-        {
-            var parameters = method.GetParameters();
-            var lastParameter = parameters.LastOrDefault();
-            var parametersExceptLast = parameters.Where((_, i) => i < parameters.Length - 1).ToArray();
-
-            return METHOD_INVOKER_TEMPLATE
-                    .Replace("$Invocation$", Invocation(method))
-                    .Replace("$MethodName$", MethodName(method))
-                    .Replace("$BaseInterface$", typeof(IMethodInvoker).ToCSharpString())
-                    .Replace("$ReflectedType$", method.ReflectedType.ToCSharpString())
-                    .Replace("$ReflectedTypeName$", TypeName(method.ReflectedType))
-                    .Replace("$Parameters$", Parameters(parameters))
-                    .Replace("$LastParameter$", Parameter(lastParameter))
-                    .Replace("$ParametersExceptLast$", Parameters(parametersExceptLast))
-                    .Replace("$HashCode$", method.GetHashCode().ToString())
-                    .Replace("$Namespace$", method.ReflectedType?.Namespace);
-        }
-
-        private static string MissingGenericParametersMessage(MethodBase method) =>
-            $"Missing generic parameters: {method}, {method.ReflectedType}. " +
-            "Cannot create invoker for a method with generic parameters. " +
-            "Method should already be given with its type parameters. " +
-            "(E.g. Cannot create invoker for IndexOf<T>, can create invoker for IndexOf<string>)";
 
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references) { AddTypeReference(type, references, new Dictionary<Type, bool>()); }
         private static void AddTypeReference(Type type, Dictionary<string, MetadataReference> references, Dictionary<Type, bool> visits)
