@@ -8,12 +8,8 @@ namespace Routine.Core.Reflection
 {
     public class OptimizedMethodInvokerTemplate
     {
-        private static string TypeName(Type type) => type.ToCSharpString().AfterLast(".").Replace("<", "_").Replace(">", "_");
-        private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(Parameter));
-
         public static string Render(MethodBase method) => new OptimizedMethodInvokerTemplate(method).Render();
-        public static string GetInvokerTypeName(MethodBase current) =>
-            $"{current.ReflectedType?.Namespace}.{TypeName(current.ReflectedType)}_{new OptimizedMethodInvokerTemplate(current).MethodName}_Invoker_{current.GetHashCode()}";
+        public static string GetInvokerTypeFullName(MethodBase method) => new OptimizedMethodInvokerTemplate(method).FullName;
 
         private readonly MethodBase method;
 
@@ -23,83 +19,98 @@ namespace Routine.Core.Reflection
         }
 
         public string Render() => $@"
-namespace {method.ReflectedType?.Namespace}
+namespace {Namespace}
 {{
-    public class {ReflectedType}_{MethodName}_Invoker_{method.GetHashCode()} : {typeof(IMethodInvoker).ToCSharpString()}
+    public class {Name} : {NameOf<IMethodInvoker>()}
     {{
         public object Invoke(object target, params object[] args)
         {{
             {Invocation}
         }}
 
-        public async {typeof(Task<object>).ToCSharpString()} InvokeAsync(object target, params object[] args)
+        public async {NameOf<Task<object>>()} InvokeAsync(object target, params object[] args)
         {{
             throw new System.NotImplementedException();
         }}
     }}
 }}
 ";
+  
+        private string FullName => $"{Namespace}.{Name}";      
+        private string Namespace => method.ReflectedType?.Namespace;
+        private string Name => $"{Fix(NameOf(method.ReflectedType))}_{MethodName}_Invoker_{method.GetHashCode()}";
 
-        private string Invocation
+        private string Invocation => ResolveInvocationType() switch
         {
-            get
-            {
-                if (method.IsConstructor)
-                {
-                    return method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ? NotSupportedInvocation : NewInvocation;
-                }
+            InvocationType.NotSupported => $"throw new {NameOf<NotSupportedException>()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");",
+            InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
+            InvocationType.Get => $"return {Target}.{MethodName};",
+            InvocationType.Set => $"{Target}.{MethodName} = {LastParameter}; return null;",
+            InvocationType.IndexerGet => $"return {Target}[{Parameters}];",
+            InvocationType.IndexerSet => $"{Target}[{ParametersExceptLast}] = {LastParameter}; return null;",
+            InvocationType.ReturnsVoid => $"{Target}.{MethodName}({Parameters}); return null;",
+            InvocationType.HasReturnType => $"return {Target}.{MethodName}({Parameters});",
+            _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {method}")
+        };
 
-                var methodInfo = (MethodInfo)method;
-                if (method.IsSpecialName)
-                {
-                    if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike))
-                    {
-                        return NotSupportedInvocation;
-                    }
-
-                    if (methodInfo.Name.StartsWith("get_"))
-                    {
-                        return methodInfo.GetParameters().Any() ? IndexerPropertyGetInvocation : PropertyGetInvocation;
-                    }
-
-                    return methodInfo.GetParameters().Length > 1 ? IndexerPropertySetInvocation : PropertySetInvocation;
-                }
-
-                if (methodInfo.ReturnType.IsByRefLike || methodInfo.GetParameters().Any(p => p.ParameterType.IsByRefLike))
-                {
-                    return NotSupportedInvocation;
-                }
-
-                return methodInfo.ReturnType == typeof(void) ? VoidInvocation : NonVoidInvocation;
-            }
+        private enum InvocationType
+        {
+            NotSupported,
+            Constructor,
+            Get,
+            Set,
+            IndexerGet,
+            IndexerSet,
+            ReturnsVoid,
+            HasReturnType
         }
 
-        private string NewInvocation => $"return new {method.ReflectedType.ToCSharpString()}({Parameters});";
-        
-        private string VoidInvocation => $"{Target}.{MethodName}({Parameters}); return null;";
-        private string NonVoidInvocation => $"return {Target}.{MethodName}({Parameters});";
-        
-        private string PropertyGetInvocation => $"return {Target}.{MethodName};";
-        private string PropertySetInvocation => $"{Target}.{MethodName} = {LastParameter}; return null;";
+        private InvocationType ResolveInvocationType()
+        {
+            if (method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ||
+                method is MethodInfo mi && mi.ReturnType.IsByRefLike)
+            {
+                return InvocationType.NotSupported;
+            }
 
-        private string IndexerPropertyGetInvocation => $"return {Target}[{Parameters}];";
-        private string IndexerPropertySetInvocation => $"{Target}[{ParametersExceptLast}] = {LastParameter}; return null;";
-        
-        private string NotSupportedInvocation => $"throw new {typeof(NotSupportedException).ToCSharpString()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");";
+            if (method.IsConstructor) { return InvocationType.Constructor; }
 
-        private string ReflectedType => TypeName(method.ReflectedType);
-        private string Target => method.IsStatic ? method.ReflectedType.ToCSharpString() : $"(({method.ReflectedType.ToCSharpString()})target)";
+            if (method.IsSpecialName)
+            {
+                if (method.Name.StartsWith("get_"))
+                {
+                    return method.GetParameters().Any() ? InvocationType.IndexerGet : InvocationType.Get;
+                }
+
+                if (method.Name.StartsWith("set_"))
+                {
+                    return method.GetParameters().Length > 1 ? InvocationType.IndexerSet : InvocationType.Set;
+                }
+            }
+
+            if (method is MethodInfo mi2 && mi2.ReturnType == typeof(void))
+            {
+                return InvocationType.ReturnsVoid;
+            }
+
+            return InvocationType.HasReturnType;
+        }
+
+        private string Target => method.IsStatic ? NameOf(method.ReflectedType) : $"(({NameOf(method.ReflectedType)})target)";
         private string MethodName => method.IsConstructor ? "Constructor" : method.IsSpecialName ? method.Name.After("_") : method.Name;
 
         private string Parameters => RenderParameters(method.GetParameters());
         private string ParametersExceptLast => RenderParameters(method.GetParameters().Where((_, i) => i < method.GetParameters().Length - 1).ToArray());
         private string LastParameter => Parameter(method.GetParameters().LastOrDefault());
+        
+        private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(Parameter));
+        private static string Parameter(ParameterInfo parameterInfo) => 
+            parameterInfo == null
+            ? "" 
+            : $"(({NameOf(parameterInfo.ParameterType)})(args[{parameterInfo.Position}]??default({NameOf(parameterInfo.ParameterType)})))";
 
-        private static string Parameter(ParameterInfo parameterInfo)
-        {
-            if (parameterInfo == null) { return ""; }
-
-            return $@"(({parameterInfo.ParameterType.ToCSharpString()})(args[{parameterInfo.Position}]??default({parameterInfo.ParameterType.ToCSharpString()})))";
-        }
+        private static string Fix(string typeName) => typeName.AfterLast(".").Replace("<", "_").Replace(">", "_");
+        private static string NameOf<T>() => NameOf(typeof(T));
+        private static string NameOf(Type type) => type.ToCSharpString();
     }
 }

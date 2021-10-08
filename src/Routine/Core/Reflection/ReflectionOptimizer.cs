@@ -120,7 +120,7 @@ namespace Routine.Core.Reflection
                         {
                             try
                             {
-                                var typeName = OptimizedMethodInvokerTemplate.GetInvokerTypeName(current);
+                                var typeName = OptimizedMethodInvokerTemplate.GetInvokerTypeFullName(current);
                                 var type = assembly.GetType(typeName);
 
                                 SafeAdd(current, (IMethodInvoker)Activator.CreateInstance(type));
