@@ -8,9 +8,6 @@ namespace Routine.Core.Reflection
 {
     public class OptimizedMethodInvokerTemplate
     {
-        public static string Render(MethodBase method) => new OptimizedMethodInvokerTemplate(method).Render();
-        public static string GetInvokerTypeFullName(MethodBase method) => new OptimizedMethodInvokerTemplate(method).FullName;
-
         private readonly MethodBase method;
 
         public OptimizedMethodInvokerTemplate(MethodBase method)
@@ -18,6 +15,7 @@ namespace Routine.Core.Reflection
             this.method = method;
         }
 
+        public string InvokerTypeName => Name;
         public string Render() => $@"
 namespace {Namespace}
 {{
@@ -35,8 +33,7 @@ namespace {Namespace}
     }}
 }}
 ";
-  
-        private string FullName => $"{Namespace}.{Name}";      
+
         private string Namespace => method.ReflectedType?.Namespace;
         private string Name => $"{Fix(NameOf(method.ReflectedType))}_{MethodName}_Invoker_{method.GetHashCode()}";
 
@@ -101,12 +98,12 @@ namespace {Namespace}
 
         private string Parameters => RenderParameters(method.GetParameters());
         private string ParametersExceptLast => RenderParameters(method.GetParameters().Where((_, i) => i < method.GetParameters().Length - 1).ToArray());
-        private string LastParameter => Parameter(method.GetParameters().LastOrDefault());
-        
-        private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(Parameter));
-        private static string Parameter(ParameterInfo parameterInfo) => 
+        private string LastParameter => RenderParameter(method.GetParameters().LastOrDefault());
+
+        private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(RenderParameter));
+        private static string RenderParameter(ParameterInfo parameterInfo) =>
             parameterInfo == null
-            ? "" 
+            ? ""
             : $"(({NameOf(parameterInfo.ParameterType)})(args[{parameterInfo.Position}]??default({NameOf(parameterInfo.ParameterType)})))";
 
         private static string Fix(string typeName) => typeName.AfterLast(".").Replace("<", "_").Replace(">", "_");

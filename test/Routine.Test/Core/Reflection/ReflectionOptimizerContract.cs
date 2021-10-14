@@ -117,6 +117,8 @@ namespace Routine.Test.Core.Reflection
         {
             base.SetUp();
 
+            ReflectionOptimizer.Enable();
+
             mock = new Mock<IOptimizedInterface<string>>();
 
             target = new OptimizedClass(mock.Object);
@@ -162,6 +164,17 @@ namespace Routine.Test.Core.Reflection
 
             mock.Verify(o => o.ExplicitVoidMethod(), Times.Once());
             mock.Verify(o => o.VoidMethod(), Times.Exactly(2));
+        }
+
+        [Test]
+        public void When_disabled__it_does_not_optimize()
+        {
+            ReflectionOptimizer.Disable();
+
+            var invoker = InvokerFor<OptimizedClass>("VoidMethod") as ProxyMethodInvoker;
+
+            Assert.IsNotNull(invoker);
+            Assert.IsInstanceOf<ReflectionMethodInvoker>(invoker.Real);
         }
 
         [Test]
