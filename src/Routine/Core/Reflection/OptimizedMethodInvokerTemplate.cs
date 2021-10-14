@@ -9,10 +9,13 @@ namespace Routine.Core.Reflection
     public class OptimizedMethodInvokerTemplate
     {
         private readonly MethodBase method;
+        private readonly InvocationType invocationType;
 
         public OptimizedMethodInvokerTemplate(MethodBase method)
         {
             this.method = method;
+
+            invocationType = ResolveInvocationType();
         }
 
         public string InvokerTypeName => Name;
@@ -28,7 +31,7 @@ namespace {Namespace}
 
         public async {NameOf<Task<object>>()} InvokeAsync(object target, params object[] args)
         {{
-            throw new System.NotImplementedException();
+            {AsyncInvocation}
         }}
     }}
 }}
@@ -37,7 +40,7 @@ namespace {Namespace}
         private string Namespace => method.ReflectedType?.Namespace;
         private string Name => $"{Fix(NameOf(method.ReflectedType))}_{MethodName}_Invoker_{method.GetHashCode()}";
 
-        private string Invocation => ResolveInvocationType() switch
+        private string Invocation => invocationType switch
         {
             InvocationType.NotSupported => $"throw new {NameOf<NotSupportedException>()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");",
             InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
@@ -67,6 +70,16 @@ namespace {Namespace}
             return task.Result;
 ",
             _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {method}")
+        };
+
+        private string AsyncInvocation => invocationType switch
+        {
+            InvocationType.ReturnsVoidAsync => $@"
+            await {Target}.{MethodName}({Parameters});
+            return null;
+",
+            InvocationType.HasReturnTypeAsync => $@"return await {Target}.{MethodName}({Parameters});",
+            _ => Invocation
         };
 
         private enum InvocationType

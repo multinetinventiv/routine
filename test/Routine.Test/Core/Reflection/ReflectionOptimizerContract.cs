@@ -418,5 +418,12 @@ namespace Routine.Test.Core.Reflection
             mock.Verify(o => o.Overload(), Times.Once());
             mock.Verify(o => o.Overload(It.IsAny<int>()), Times.Once());
         }
+
+        [TestCase(nameof(OptimizedClass.VoidMethod))]
+        [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
+        public void Throws_exception_without_any_change(string method)
+        {
+            Assert.Fail("not implemented");
+        }
     }
 }
