@@ -110,8 +110,8 @@ namespace Routine.Test.Core.Reflection
         private const BindingFlags ALL_MEMBERS = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
         private const BindingFlags ALL_INSTANCE_MEMBERS = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-        private Mock<IOptimizedInterface<string>> mock;
-        private OptimizedClass target;
+        protected Mock<IOptimizedInterface<string>> mock;
+        protected OptimizedClass target;
 
         public override void SetUp()
         {
@@ -124,8 +124,8 @@ namespace Routine.Test.Core.Reflection
             target = new OptimizedClass(mock.Object);
         }
 
-        private IMethodInvoker InvokerFor<T>(string methodName) { return InvokerFor<T>(methodName, null); }
-        private IMethodInvoker InvokerFor<T>(string methodName, int? parameterCount)
+        protected IMethodInvoker InvokerFor<T>(string methodName) { return InvokerFor<T>(methodName, null); }
+        protected IMethodInvoker InvokerFor<T>(string methodName, int? parameterCount)
         {
             if (methodName.StartsWith("get:"))
             {

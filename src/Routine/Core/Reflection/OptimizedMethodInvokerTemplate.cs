@@ -42,11 +42,30 @@ namespace {Namespace}
             InvocationType.NotSupported => $"throw new {NameOf<NotSupportedException>()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");",
             InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
             InvocationType.Get => $"return {Target}.{MethodName};",
-            InvocationType.Set => $"{Target}.{MethodName} = {LastParameter}; return null;",
+            InvocationType.Set => $@"
+            {Target}.{MethodName} = {LastParameter}; 
+            return null;
+",
             InvocationType.IndexerGet => $"return {Target}[{Parameters}];",
-            InvocationType.IndexerSet => $"{Target}[{ParametersExceptLast}] = {LastParameter}; return null;",
-            InvocationType.ReturnsVoid => $"{Target}.{MethodName}({Parameters}); return null;",
+            InvocationType.IndexerSet => $@"
+            {Target}[{ParametersExceptLast}] = {LastParameter};
+            return null;
+",
+            InvocationType.ReturnsVoid => $@"
+            {Target}.{MethodName}({Parameters});
+            return null;
+",
+            InvocationType.ReturnsVoidAsync => $@"
+            var task = {Target}.{MethodName}({Parameters});
+            {NameOf<Task>()}.WaitAll(task);
+            return null;
+",
             InvocationType.HasReturnType => $"return {Target}.{MethodName}({Parameters});",
+            InvocationType.HasReturnTypeAsync => $@"
+            var task = {Target}.{MethodName}({Parameters});
+            {NameOf<Task>()}.WaitAll(task);
+            return task.Result;
+",
             _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {method}")
         };
 
@@ -59,7 +78,9 @@ namespace {Namespace}
             IndexerGet,
             IndexerSet,
             ReturnsVoid,
-            HasReturnType
+            ReturnsVoidAsync,
+            HasReturnType,
+            HasReturnTypeAsync
         }
 
         private InvocationType ResolveInvocationType()
@@ -85,12 +106,26 @@ namespace {Namespace}
                 }
             }
 
-            if (method is MethodInfo mi2 && mi2.ReturnType == typeof(void))
+            if (method is not MethodInfo methodInfo) { return InvocationType.NotSupported; }
+
+            if (methodInfo.ReturnType == typeof(void))
             {
                 return InvocationType.ReturnsVoid;
             }
 
+            if (methodInfo.ReturnType == typeof(Task))
+            {
+                return InvocationType.ReturnsVoidAsync;
+            }
+
+            if (methodInfo.ReturnType.IsGenericType &&
+                methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                return InvocationType.HasReturnTypeAsync;
+            }
+
             return InvocationType.HasReturnType;
+
         }
 
         private string Target => method.IsStatic ? NameOf(method.ReflectedType) : $"(({NameOf(method.ReflectedType)})target)";
