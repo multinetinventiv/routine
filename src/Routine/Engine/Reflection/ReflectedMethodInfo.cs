@@ -3,12 +3,12 @@ using Routine.Core.Reflection;
 
 namespace Routine.Engine.Reflection
 {
-	public class ReflectedMethodInfo : MethodInfo
-	{
-		internal ReflectedMethodInfo(System.Reflection.MethodInfo methodInfo)
-			: base(methodInfo) { }
+    public class ReflectedMethodInfo : MethodInfo
+    {
+        internal ReflectedMethodInfo(System.Reflection.MethodInfo methodInfo)
+            : base(methodInfo) { }
 
-		protected override MethodInfo Load() => this;
+        protected override MethodInfo Load() => this;
 
         public override ParameterInfo[] GetParameters() => methodInfo.GetParameters().Select(ParameterInfo.Reflected).ToArray();
         public override object[] GetCustomAttributes() => methodInfo.GetCustomAttributes(true);
@@ -25,7 +25,7 @@ namespace Routine.Engine.Reflection
 
         public override TypeInfo DeclaringType => TypeInfo.Get(methodInfo.DeclaringType);
         public override TypeInfo ReflectedType => TypeInfo.Get(methodInfo.ReflectedType);
-        public override TypeInfo ReturnType => TypeInfo.Get(methodInfo.ReturnType);
+        public override TypeInfo ReturnType => TypeInfo.Get(IgnoreTask(methodInfo.ReturnType));
     }
 }
 

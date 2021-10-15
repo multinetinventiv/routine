@@ -401,7 +401,7 @@ namespace Routine.Test.Core.Reflection
                 InvokerFor<OptimizedClass>("get:StringProperty"),
                 InvokerFor<OptimizedClass>("set:StringProperty"),
                 InvokerFor<OptimizedClass>("Overload", 0),
-                InvokerFor<OptimizedClass>("Overload", 1),
+                InvokerFor<OptimizedClass>("Overload", 1)
             };
 
             Invoke(invokers[0], target, new List<string>());

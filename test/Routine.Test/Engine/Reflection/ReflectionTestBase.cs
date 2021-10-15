@@ -6,6 +6,7 @@ using Routine.Engine.Reflection;
 using Routine.Test.Core;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterNamespace;
+using System.Threading.Tasks;
 
 #region Test Model
 
@@ -82,6 +83,8 @@ namespace Routine.Test.Engine.Reflection.Domain
 
         public void PublicMethod() { }
         private void PrivateMethod() { }
+        public async Task PublicMethodAsync() => await Task.Delay(10);
+        private async Task PrivateMethodAsync() => await Task.Delay(10);
 
         public override void AbstractMethod() { }
         public override void OverriddenMethod() { }
@@ -94,10 +97,14 @@ namespace Routine.Test.Engine.Reflection.Domain
         public override string ToString() => "TestClass_OOP";
 
         public static void PublicStaticMethod() { }
+        public static async Task PublicStaticMethodAsync() => await Task.Delay(10);
         private static void PrivateStaticMethod() { }
+        private static async Task PrivateStaticMethodAsync() => await Task.Delay(10);
 
         public static string PublicStaticPingMethod(string message) => $"static {message}";
         public string PublicPingMethod(string message) => $"instance {message}";
+        public static async Task<string> PublicStaticPingMethodAsync(string message) { await Task.Delay(10); return $"static {message}"; }
+        public async Task<string> PublicPingMethodAsync(string message) { await Task.Delay(10); return $"static {message}"; }
 
         public void ExceptionMethod(Exception ex) => throw ex;
         public Exception Exception;

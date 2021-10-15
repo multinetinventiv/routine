@@ -28,7 +28,7 @@ namespace Routine.Engine.Reflection
 			isStatic = methodInfo.IsStatic;
 			declaringType = TypeInfo.Get(methodInfo.DeclaringType);
 			reflectedType = TypeInfo.Get(methodInfo.ReflectedType);
-			returnType = TypeInfo.Get(methodInfo.ReturnType);
+			returnType = TypeInfo.Get(IgnoreTask(methodInfo.ReturnType));
 			parameters = methodInfo.GetParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
 			firstDeclaringType = SearchFirstDeclaringType();
 			customAttributes = methodInfo.GetCustomAttributes(true);

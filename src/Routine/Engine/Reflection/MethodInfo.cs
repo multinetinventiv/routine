@@ -1,9 +1,27 @@
+using System;
+using System.Threading.Tasks;
+
 namespace Routine.Engine.Reflection
 {
 	public abstract class MethodInfo : MethodBase, IMethod
 	{
 		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo) => new ReflectedMethodInfo(methodInfo).Load();
         internal static MethodInfo Preloaded(System.Reflection.MethodInfo methodInfo) => new PreloadedMethodInfo(methodInfo).Load();
+
+        protected static Type IgnoreTask(Type type)
+        {
+            if (type == typeof(Task))
+            {
+                return typeof(void);
+            }
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                return type.GenericTypeArguments[0];
+            }
+
+            return type;
+        }
 
         protected readonly System.Reflection.MethodInfo methodInfo;
 
