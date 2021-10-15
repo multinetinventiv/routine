@@ -60,13 +60,39 @@ namespace {Namespace}
 ",
             InvocationType.ReturnsVoidAsync => $@"
             var task = {Target}.{MethodName}({Parameters});
-            {NameOf<Task>()}.WaitAll(task);
+            try
+            {{
+                {NameOf<Task>()}.WaitAll(task);
+            }}
+            catch({NameOf<AggregateException>()} ex)
+            {{
+                if(ex.InnerException != null) 
+                {{ 
+                    throw ex.InnerException;
+                }}
+
+                throw;
+            }}
+
             return null;
 ",
             InvocationType.HasReturnType => $"return {Target}.{MethodName}({Parameters});",
             InvocationType.HasReturnTypeAsync => $@"
             var task = {Target}.{MethodName}({Parameters});
-            {NameOf<Task>()}.WaitAll(task);
+            try
+            {{
+                {NameOf<Task>()}.WaitAll(task);
+            }}
+            catch({NameOf<AggregateException>()} ex)
+            {{
+                if(ex.InnerException != null) 
+                {{ 
+                    throw ex.InnerException;
+                }}
+
+                throw;
+            }}
+
             return task.Result;
 ",
             _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {method}")

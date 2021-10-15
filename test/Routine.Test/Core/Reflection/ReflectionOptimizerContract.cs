@@ -423,7 +423,20 @@ namespace Routine.Test.Core.Reflection
         [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
         public void Throws_exception_without_any_change(string method)
         {
-            Assert.Fail("not implemented");
+            mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
+            mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
+
+            var testing = InvokerFor<OptimizedClass>(method);
+
+            try
+            {
+                Invoke(testing, target);
+                Assert.Fail("exception not thrown");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("test", ex.Message);
+            }
         }
     }
 }

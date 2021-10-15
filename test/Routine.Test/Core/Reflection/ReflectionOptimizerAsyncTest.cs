@@ -69,7 +69,20 @@ namespace Routine.Test.Core.Reflection
         [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
         public async Task Retest_exception_case_in_an_async_method(string method)
         {
-            Assert.Fail("not implemented");
+            mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
+            mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
+
+            var testing = InvokerFor<OptimizedClass>(method);
+
+            try
+            {
+                await testing.InvokeAsync(target);
+                Assert.Fail("exception not thrown");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("test", ex.Message);
+            }
         }
     }
 }
