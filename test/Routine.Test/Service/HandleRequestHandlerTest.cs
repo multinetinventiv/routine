@@ -113,13 +113,15 @@ namespace Routine.Test.Service
                 this.referenceData = referenceData;
             }
 
-            public ISetup<IObjectService, VariableData> Performs(string operationName) => Performs(operationName, p => true);
-            public ISetup<IObjectService, VariableData> Performs(string operationName, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher) =>
-                objectService
-                    .Setup(o => o.Do(
+            public ISetup<IObjectService, Task<VariableData>> Performs(string operationName) => Performs(operationName, p => true);
+            public ISetup<IObjectService, Task<VariableData>> Performs(string operationName, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher) =>
+                objectService.Setup(o => o
+                    .DoAsync(
                         referenceData,
                         operationName,
-                        It.Is(parameterMatcher)));
+                        It.Is(parameterMatcher)
+                    )
+                );
         }
 
         private void SetUpRequestBody(string body)
@@ -151,7 +153,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "3", "action", null);
 
-            objectService.Verify(os => os.Do(Id("3", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(p => p.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("3", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(p => p.Count == 0)));
         }
 
         [Test]
@@ -207,11 +209,11 @@ namespace Routine.Test.Service
 
             // /modelId/operation
             await testing.Handle("model", "action", null, null);
-            objectService.Verify(os => os.Do(Id(null, "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id(null, "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/operation
             await testing.Handle("model2", "action", null, null);
-            objectService.Verify(os => os.Do(Id(null, "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id(null, "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId
             await testing.Handle("model", "instance", "viewmodel", null);
@@ -231,27 +233,27 @@ namespace Routine.Test.Service
 
             // /modelId/id/operation
             await testing.Handle("model", "instance", "action", null);
-            objectService.Verify(os => os.Do(Id("instance", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/operation
             await testing.Handle("model2", "instance", "action", null);
-            objectService.Verify(os => os.Do(Id("instance", "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId/operation
             await testing.Handle("model", "instance", "viewmodel", "action");
-            objectService.Verify(os => os.Do(Id("instance", "model", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "model", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/viewModelId/operation
             await testing.Handle("model2", "instance", "viewmodel", "action");
-            objectService.Verify(os => os.Do(Id("instance", "prefix.model2", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId/id/viewModelId-short/operation
             await testing.Handle("model", "instance", "viewmodel2", "action");
-            objectService.Verify(os => os.Do(Id("instance", "model", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "model", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
             // /modelId-short/id/viewModelId-short/operation
             await testing.Handle("model2", "instance", "viewmodel2", "action");
-            objectService.Verify(os => os.Do(Id("instance", "prefix.model2", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+            objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
         }
 
         [Test]
@@ -284,7 +286,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "3", "get", null);
 
-            objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
+            objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
             await testing.Handle("model", "3", "post", null);
             objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
@@ -448,7 +450,7 @@ namespace Routine.Test.Service
                 Model("string").IsValue()
             );
 
-            When(Id("2", "model")).Performs("action").Returns(new VariableData
+            When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
             {
                 Values = new List<ObjectData>
                 {
@@ -483,7 +485,7 @@ namespace Routine.Test.Service
                 Model("string").IsValue()
             );
 
-            When(Id("2", "model")).Performs("action").Returns(new VariableData
+            When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
             {
                 Values = new List<ObjectData>
                 {
@@ -520,7 +522,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "2", "action", null);
 
-            objectService.Verify(os => os.Do(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
+            objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
                 pvd.ContainsKey("arg") &&
                 pvd["arg"].IsList == false &&
                 pvd["arg"].Values.Count == 1 &&
@@ -600,7 +602,7 @@ namespace Routine.Test.Service
 
             await testing.Handle("model", "2", "action", null);
 
-            objectService.Verify(os => os.Do(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
+            objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
                 pvd.Count == 0
             )));
         }

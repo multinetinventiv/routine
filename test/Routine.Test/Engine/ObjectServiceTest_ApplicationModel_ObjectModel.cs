@@ -7,6 +7,7 @@ using Routine.Engine;
 using Routine.Engine.Virtual;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel;
 using Routine.Test.Engine.Ignored;
+using System.Threading.Tasks;
 
 #region Test Model
 
@@ -43,8 +44,11 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
         public void OverloadOpBug(List<int> e) { }
         public void OverloadOpBug(List<int> e, int f) { }
-        
+
         public void OptionalParameterOp(string required, string optional = "default") { }
+
+        public async Task AsyncVoidOp() { await Task.Delay(0); }
+        public async Task<string> AsyncStringOp() { await Task.Delay(0); return string.Empty; }
 
         public IgnoredModel IgnoredModelData { get; set; }
         public IgnoredModel IgnoredModelInReturnType() => null;
@@ -403,9 +407,9 @@ namespace Routine.Test.Engine
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "VoidOp").Result.IsVoid);
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "StringOp").Result.IsVoid);
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "ListOp").Result.IsVoid);
+            Assert.IsTrue(actual.Operation["VoidOp"].Result.IsVoid);
+            Assert.IsFalse(actual.Operation["StringOp"].Result.IsVoid);
+            Assert.IsFalse(actual.Operation["ListOp"].Result.IsVoid);
         }
 
         [Test]
@@ -416,6 +420,22 @@ namespace Routine.Test.Engine
             Assert.IsFalse(actual.Operations.Single(o => o.Name == "VoidOp").Result.IsList);
             Assert.IsFalse(actual.Operations.Single(o => o.Name == "StringOp").Result.IsList);
             Assert.IsTrue(actual.Operations.Single(o => o.Name == "ListOp").Result.IsList);
+        }
+
+        [Test]
+        public void Async_void_methods_are_void_operations()
+        {
+            var actual = testing.ApplicationModel.Model[TESTED_OM_ID].Operation["AsyncVoidOp"];
+
+            Assert.IsTrue(actual.Result.IsVoid);
+        }
+
+        [Test]
+        public void Operations_use_generic_argument_of_task_as_its_result_view_model()
+        {
+            var actual = testing.ApplicationModel.Model[TESTED_OM_ID].Operation["AsyncStringOp"];
+
+            Assert.AreEqual("System.String", actual.Result.ViewModelId);
         }
 
         [Test]
@@ -479,7 +499,7 @@ namespace Routine.Test.Engine
         public void A_parameter_can_be_optional_and_include_its_default_value()
         {
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID].Operations.Single(o => o.Name == "OptionalParameterOp");
-            
+
             Assert.IsFalse(actual.Parameters[0].IsOptional);
             Assert.IsTrue(actual.Parameters[1].IsOptional);
             Assert.AreEqual("default", actual.Parameters[1].DefaultValue.Values[0].Id);

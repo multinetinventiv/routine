@@ -38,6 +38,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
         void OptionalParameterOp(string required, string optional = "default");
 
+        Task<string> AsyncOp();
+
         void DataInput(BusinessMasterInputData input);
         void InitLocateInput(List<BusinessInitializableLocatable> input);
     }
@@ -71,6 +73,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
         void IBusinessOperation.OverloadArray(int[] i, string s) => mock.OverloadArray(i, s);
 
         void IBusinessOperation.OptionalParameterOp(string required, string optional) => mock.OptionalParameterOp(required, optional);
+
+        async Task<string> IBusinessOperation.AsyncOp() => await mock.AsyncOp();
 
         void IBusinessOperation.InitLocateInput(List<BusinessInitializableLocatable> input) => mock.InitLocateInput(input);
     }
@@ -273,6 +277,20 @@ namespace Routine.Test.Engine
             Assert.AreEqual("title", result.Values[0].Display);
             Assert.AreEqual("id", result.Values[0].Id);
             Assert.AreEqual(ACTUAL_OMID, result.Values[0].ModelId);
+        }
+
+        [Test]
+        public void Async_support()
+        {
+            SetUpObject("id");
+
+            businessMock.Setup(o => o.AsyncOp()).ReturnsAsync("async result");
+
+            var result = Do(Id("id"), "AsyncOp", Params());
+
+            Assert.IsNotNull(result.Values[0]);
+            Assert.AreEqual("async result", result.Values[0].Id);
+            Assert.AreEqual("System.String", result.Values[0].ModelId);
         }
 
         [Test]
