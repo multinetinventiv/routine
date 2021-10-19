@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
 using Routine.Core.Cache;
+using System.Threading.Tasks;
 
 namespace Routine.Engine
 {
@@ -41,6 +42,7 @@ namespace Routine.Engine
 
         public ObjectData Get(ReferenceData reference) => ctx.CreateDomainObject(reference).GetObjectData(true);
         public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => ctx.CreateDomainObject(target).Perform(operation, parameters);
+        public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => await ctx.CreateDomainObject(target).PerformAsync(operation, parameters);
     }
 
     public class DataDoesNotExistException : Exception

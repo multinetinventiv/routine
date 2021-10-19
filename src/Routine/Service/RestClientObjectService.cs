@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using Routine.Core;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service
 {
@@ -52,6 +53,11 @@ namespace Routine.Service
             var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
 
             return helper.DecompressVariableData(result);
+        }
+
+        public Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
+            throw new NotImplementedException();
         }
 
         private ObjectModel GetObjectModel(ReferenceData target)

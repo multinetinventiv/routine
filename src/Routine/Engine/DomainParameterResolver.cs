@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
-using System;
 
 namespace Routine.Engine
 {
@@ -116,16 +115,6 @@ namespace Routine.Engine
             return result;
         }
 
-        public class Resolution
-        {
-            public T Result { get; }
-            public object[] Parameters { get; }
-
-            internal Resolution(T result, object[] parameters)
-            {
-                Result = result;
-                Parameters = parameters;
-            }
-        }
+        public record Resolution(T Result, object[] Parameters);
     }
 }

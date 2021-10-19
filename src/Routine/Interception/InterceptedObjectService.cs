@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Routine.Core;
 using Routine.Interception.Context;
+using System.Threading.Tasks;
 
 namespace Routine.Interception
 {
@@ -62,5 +63,10 @@ namespace Routine.Interception
                 )
             ) as VariableData;
 		}
-	}
+
+        public Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

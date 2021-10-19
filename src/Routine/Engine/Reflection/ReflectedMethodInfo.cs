@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Routine.Core.Reflection;
+using System.Threading.Tasks;
 
 namespace Routine.Engine.Reflection
 {
@@ -17,7 +18,9 @@ namespace Routine.Engine.Reflection
         public override TypeInfo GetFirstDeclaringType() => SearchFirstDeclaringType();
 
         public override object Invoke(object target, params object[] parameters) => new ReflectionMethodInvoker(methodInfo).Invoke(target, parameters);
+        public override async Task<object> InvokeAsync(object target, params object[] parameters) => await new ReflectionMethodInvoker(methodInfo).InvokeAsync(target, parameters);
         public override object InvokeStatic(params object[] parameters) => new ReflectionMethodInvoker(methodInfo).Invoke(null, parameters);
+        public override async Task<object> InvokeStaticAsync(params object[] parameters) => await new ReflectionMethodInvoker(methodInfo).InvokeAsync(null, parameters);
 
         public override string Name => methodInfo.Name;
         public override bool IsPublic => methodInfo.IsPublic;
