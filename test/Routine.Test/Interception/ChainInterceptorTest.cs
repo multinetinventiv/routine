@@ -1,14 +1,26 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Interception;
+using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
-	[TestFixture]
-	public class ChainInterceptorTest : InterceptorTestBase
-	{
-		private IInterceptor<TestContext<string>> testing;
+    [TestFixture]
+    public class ChainInterceptorSyncTest : ChainInterceptorTest<object>
+    {
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
+        protected override object Convert(object result) => result;
+    }
 
+    [TestFixture]
+    public class ChainInterceptorAsyncTest : AroundInterceptorTest<Task<object>>
+    {
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
+        protected override Task<object> Convert(object result) => Task.FromResult(result);
+    }
+
+	public abstract class ChainInterceptorTest<TResult> : InterceptorTestBase<TResult>
+	{
 		[Test]
 		public void First_added_interceptor_wraps_the_second_one_and_invocation_happens_last()
 		{
@@ -23,13 +35,13 @@ namespace Routine.Test.Interception
 				.Success(ctx => ctx.Value += " - success2")
 				.After(ctx => ctx.Value += " - after2"));
 
-			testing = interceptor;
+			var testing = interceptor;
 
 			context.Value = "begin";
 
 			InvocationReturns("actual");
 			
-			var actual = testing.Intercept(context, invocation);
+			var actual = Intercept(testing, context, invocation);
 
 			Assert.AreEqual("actual", actual);
 
@@ -51,13 +63,13 @@ namespace Routine.Test.Interception
 				.Fail(ctx => ctx.Value += " - fail2")
 				.After(ctx => ctx.Value += " - after2"));
 
-			testing = interceptor;
+			var testing = interceptor;
 
 			context.Value = "begin";
 
 			InvocationFailsWith(new Exception());
 
-			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
+			Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
 
 			Assert.AreEqual("begin - before1 - before2 - fail2 - after2 - fail1 - after1", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -82,13 +94,13 @@ namespace Routine.Test.Interception
 				})
 				.After(ctx => ctx.Value += " - after2"));
 
-			testing = interceptor;
+			var testing = interceptor;
 			
 			context.Value = "begin";
 
 			InvocationFailsWith(new Exception());
 
-			var actual = testing.Intercept(context, invocation);
+			var actual = Intercept(testing, context, invocation);
 
 			Assert.AreEqual("result2", actual);
 
@@ -116,13 +128,13 @@ namespace Routine.Test.Interception
 				.Success(ctx => ctx.Value += " - success2")
 				.After(ctx => ctx.Value += " - after2"));
 
-			testing = interceptor;
+			var testing = interceptor;
 
 			context.Value = "begin";
 
 			InvocationReturns("actual");
 
-			Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
+			Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
 
 			Assert.AreEqual("begin - before1 - before2 - success2 - after2 - success1 - fail1 - after1", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -141,10 +153,10 @@ namespace Routine.Test.Interception
 
 			interceptor1.Merge(interceptor2);
 
-			testing = interceptor1;
+			var testing = interceptor1;
 
 			context.Value = "begin";
-			testing.Intercept(context, invocation);
+			Intercept(testing, context, invocation);
 
 			Assert.AreEqual("begin - before1 - before2 - before3 - before4", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -165,10 +177,10 @@ namespace Routine.Test.Interception
 
 			interceptor1.Add(BuildRoutine.Interceptor<TestContext<string>>().Before(ctx => ctx.Value += " - before5"));
 
-			testing = interceptor1;
+			var testing = interceptor1;
 
 			context.Value = "begin";
-			testing.Intercept(context, invocation);
+			Intercept(testing, context, invocation);
 
 			Assert.AreEqual("begin - before1 - before2 - before3 - before4 - before5", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -185,10 +197,10 @@ namespace Routine.Test.Interception
 
 			interceptor1.Merge(interceptor2);
 
-			testing = interceptor1;
+			var testing = interceptor1;
 
 			context.Value = "begin";
-			testing.Intercept(context, invocation);
+			Intercept(testing, context, invocation);
 
 			Assert.AreEqual("begin - before1 - before2", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -205,10 +217,10 @@ namespace Routine.Test.Interception
 
 			interceptor1.Merge(interceptor2);
 
-			testing = interceptor1;
+			var testing = interceptor1;
 
 			context.Value = "begin";
-			testing.Intercept(context, invocation);
+			Intercept(testing, context, invocation);
 
 			Assert.AreEqual("begin - before1 - before2", context.Value);
 			AssertInvocationWasCalledOnlyOnce();
@@ -217,11 +229,11 @@ namespace Routine.Test.Interception
 		[Test]
 		public void When_an_empty_chain_intercepts_some_invocation__invocation_is_directly_called()
 		{
-			testing = new ChainInterceptor<TestContext<string>>();
+			var testing = new ChainInterceptor<TestContext<string>>();
 
 			InvocationReturns("actual");
 
-			var actual = testing.Intercept(context, invocation);
+			var actual = Intercept(testing, context, invocation);
 
 			Assert.AreEqual("actual", actual);
 			AssertInvocationWasCalledOnlyOnce();

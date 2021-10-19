@@ -5,8 +5,8 @@ namespace Routine.Interception.Configuration
 	public class InterceptorBuilder<TContext>
 		where TContext : InterceptionContext
 	{
-		public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TContext, TVariableType> beforeDelegate) => new(beforeDelegate);
         public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TVariableType> beforeDelegate) => ByDecorating(_ => beforeDelegate());
+        public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TContext, TVariableType> beforeDelegate) => new(beforeDelegate);
 
         public AroundInterceptor<TContext> Do() => new();
 

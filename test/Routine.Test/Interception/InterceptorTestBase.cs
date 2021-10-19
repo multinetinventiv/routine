@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Routine.Interception;
 using Routine.Test.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
@@ -12,7 +13,7 @@ namespace Routine.Test.Interception
         public T Value { get; set; }
     }
 
-    public abstract class InterceptorTestBase : CoreTestBase
+    public abstract class InterceptorTestBase<TResult> : CoreTestBase
     {
         protected class TestConfiguration { }
 
@@ -108,7 +109,7 @@ namespace Routine.Test.Interception
         protected TestConfiguration DummyConfiguration() => new();
 
         protected TestContext<string> context;
-        protected Func<object> invocation;
+        protected Func<TResult> invocation;
 
         private int invocationCount;
 
@@ -138,7 +139,7 @@ namespace Routine.Test.Interception
 
                 context["invocation"] = true;
 
-                return result;
+                return Convert(result);
             };
         }
 
@@ -146,5 +147,32 @@ namespace Routine.Test.Interception
         {
             Assert.AreEqual(1, invocationCount);
         }
+
+        protected abstract object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<TResult> invocation);
+
+        protected object UseIntercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation)
+        {
+            return testing.Intercept(context, invocation);
+        }
+
+        protected object UseInterceptAsync(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation)
+        {
+            var task = testing.InterceptAsync(context, invocation);
+
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerException != null) { throw ex.InnerException; }
+
+                throw;
+            }
+
+            return task.Result;
+        }
+
+        protected abstract TResult Convert(object result);
     }
 }

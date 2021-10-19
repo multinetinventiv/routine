@@ -6,7 +6,6 @@ namespace Routine.Test.Interception
     public class InterceptedObjectServiceTest
     {
         [Test]
-        [Ignore("")]
         public void Write_tests()
         {
             Assert.Fail();

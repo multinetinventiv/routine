@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Routine.Interception
 {
@@ -61,9 +62,54 @@ namespace Routine.Interception
         protected abstract void OnFail(TContext context);
         protected abstract void OnAfter(TContext context);
 
+        private async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation)
+        {
+            if (!CanIntercept(context)) { return await invocation(); }
+
+            try
+            {
+                await OnBeforeAsync(context);
+
+                if (!context.Canceled)
+                {
+                    context.Result = await invocation();
+                }
+
+                await OnSuccessAsync(context);
+            }
+            catch (Exception ex)
+            {
+                context.Exception = ex;
+                await OnFailAsync(context);
+                if (!context.ExceptionHandled)
+                {
+                    if (ex == context.Exception) // if exception was not changed, preserve stack trace
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        throw context.Exception;
+                    }
+                }
+            }
+            finally
+            {
+                await OnAfterAsync(context);
+            }
+
+            return context.Result;
+        }
+
+        protected abstract Task OnBeforeAsync(TContext context);
+        protected abstract Task OnSuccessAsync(TContext context);
+        protected abstract Task OnFailAsync(TContext context);
+        protected abstract Task OnAfterAsync(TContext context);
+
         #region IInterceptor implementation
 
         object IInterceptor<TContext>.Intercept(TContext context, Func<object> invocation) => Intercept(context, invocation);
+        async Task<object> IInterceptor<TContext>.InterceptAsync(TContext context, Func<Task<object>> invocation) => await InterceptAsync(context, invocation);
 
         #endregion
     }

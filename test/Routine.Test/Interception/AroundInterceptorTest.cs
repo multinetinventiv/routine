@@ -1,34 +1,46 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Interception;
+using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
     [TestFixture]
-    public class AroundInterceptorTest : InterceptorTestBase
+    public class AroundInntercepterSyncTest : AroundInterceptorTest<object>
     {
-        private IInterceptor<TestContext<string>> testing;
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
+        protected override object Convert(object result) => result;
+    }
 
+    [TestFixture]
+    public class AroundInntercepterAsyncTest : AroundInterceptorTest<Task<object>>
+    {
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
+        protected override Task<object> Convert(object result) => Task.FromResult(result);
+    }
+
+    public abstract class AroundInterceptorTest<TResult> : InterceptorTestBase<TResult>
+    {
         [Test]
         public void Before_success_fail_actions_can_be_defined_by_delegates()
         {
             context = String();
             context.Value = "begin";
 
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
                 .Before(() => context.Value += " - before")
                 .Success(() => context.Value += " - success")
                 .Fail(() => context.Value += " - fail")
                 .After(() => context.Value += " - after");
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
 
             Assert.AreEqual("begin - before - success - after", context.Value);
 
             context.Value = "begin";
             InvocationFailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
+            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
 
             Assert.AreEqual("begin - before - fail - after", context.Value);
         }
@@ -36,16 +48,16 @@ namespace Routine.Test.Interception
         [Test]
         public void Nothing_happens_when_nothing_is_defined()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Do();
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Do();
             context = String();
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
         }
 
         [Test]
         public void Context_can_be_used_during_interception()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Do()
                 .Before(ctx => ctx.Value += " - before")
                 .Success(ctx => ctx.Value += " - success")
                 .Fail(ctx => ctx.Value += " - fail")
@@ -54,14 +66,14 @@ namespace Routine.Test.Interception
             context = String();
             context.Value = "begin";
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
 
             Assert.AreEqual("begin - before - success - after", context.Value);
 
             context.Value = "begin";
             InvocationFailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
+            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
 
             Assert.AreEqual("begin - before - fail - after", context.Value);
         }
@@ -69,10 +81,10 @@ namespace Routine.Test.Interception
         [Test]
         public void Facade_Before()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Before(ctx => ctx.Value = "before");
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Before(ctx => ctx.Value = "before");
             context = String();
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
 
             Assert.AreEqual("before", context.Value);
         }
@@ -80,10 +92,10 @@ namespace Routine.Test.Interception
         [Test]
         public void Facade_Success()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Success(ctx => ctx.Value = "success");
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Success(ctx => ctx.Value = "success");
             context = String();
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
 
             Assert.AreEqual("success", context.Value);
         }
@@ -91,12 +103,12 @@ namespace Routine.Test.Interception
         [Test]
         public void Facade_Fail()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().Fail(ctx => ctx.Value = "fail");
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().Fail(ctx => ctx.Value = "fail");
             context = String();
 
             InvocationFailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => testing.Intercept(context, invocation));
+            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
 
             Assert.AreEqual("fail", context.Value);
         }
@@ -104,10 +116,10 @@ namespace Routine.Test.Interception
         [Test]
         public void Facade_After()
         {
-            testing = BuildRoutine.Interceptor<TestContext<string>>().After(ctx => ctx.Value = "after");
+            var testing = BuildRoutine.Interceptor<TestContext<string>>().After(ctx => ctx.Value = "after");
             context = String();
 
-            testing.Intercept(context, invocation);
+            Intercept(testing, context, invocation);
 
             Assert.AreEqual("after", context.Value);
         }
