@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Interception;
+using Routine.Test.Interception.Stubs;
 using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
@@ -21,6 +22,12 @@ namespace Routine.Test.Interception
 
     public abstract class DecoratorInterceptorTest<TResult> : InterceptorTestBase<TResult>
     {
+        [Test]
+        public void Implement_async_overload()
+        {
+            Assert.Fail("not implemented");
+        }
+
         [Test]
         public void Decorates_an_invocation_with_a_variable_of_given_type_that_is_created_OnBefore()
         {

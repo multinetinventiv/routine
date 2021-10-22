@@ -1,6 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using Routine.Core.Reflection;
+using Routine.Core.Runtime;
 using System;
 using System.Threading.Tasks;
 
@@ -9,26 +10,7 @@ namespace Routine.Test.Core.Reflection
     [TestFixture]
     public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
     {
-        protected override object Invoke(IMethodInvoker invoker, object target, params object[] args)
-        {
-            var task = invoker.InvokeAsync(target, args);
-
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerException != null)
-                {
-                    throw ex.InnerException;
-                }
-
-                throw;
-            }
-
-            return task.Result;
-        }
+        protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.InvokeAsync(target, args).WaitAndGetResult();
 
         [Test]
         public async Task Returns_result_of_sync_methods_without_doing_anything()

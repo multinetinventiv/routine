@@ -4,9 +4,9 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Core;
+using Routine.Core.Runtime;
 using Routine.Engine;
 using Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation;
-using System;
 using System.Threading.Tasks;
 
 #region Test Model
@@ -148,23 +148,7 @@ namespace Routine.Test.Engine
         [TearDown]
         public override void TearDown() => base.TearDown();
 
-        protected override VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
-        {
-            var task = testing.DoAsync(target, operation, parameters);
-
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerException != null) { throw ex.InnerException; }
-
-                throw;
-            }
-
-            return task.Result;
-        }
+        protected override VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => testing.DoAsync(target, operation, parameters).WaitAndGetResult();
 
         #endregion
     }

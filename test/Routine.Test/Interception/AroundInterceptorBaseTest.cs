@@ -1,30 +1,52 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Interception;
+using Routine.Test.Interception.Stubs;
 using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
     [TestFixture]
-    public class BaseAroundInterceptorSyncTest : BaseAroundInterceptorTest<object>
+    public class AroundInterceptorBaseSyncTest : AroundInterceptorBaseTest<TestAroundInterceptor, object>
     {
         protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation); 
         protected override object Convert(object result) => result;
+        protected override ITestAroundInterceptor<TestAroundInterceptor> NewInterceptor() => new TestAroundInterceptor();
     }
 
     [TestFixture]
-    public class BaseAroundInterceptorAsyncTest : AroundInterceptorTest<Task<object>>
+    public class AroundInterceptorBaseAsyncTest : AroundInterceptorBaseTest<TestAroundInterceptor, Task<object>>
     {
         protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
         protected override Task<object> Convert(object result) => Task.FromResult(result);
+        protected override ITestAroundInterceptor<TestAroundInterceptor> NewInterceptor() => new TestAroundInterceptor();
     }
 
-    public abstract class BaseAroundInterceptorTest<TResult> : InterceptorTestBase<TResult>
+    [TestFixture]
+    public class AsyncAroundInterceptorBaseSyncTest : AroundInterceptorBaseTest<TestAsyncAroundInterceptor, object>
     {
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation); 
+        protected override object Convert(object result) => result;
+        protected override ITestAroundInterceptor<TestAsyncAroundInterceptor> NewInterceptor() => new TestAsyncAroundInterceptor(1);
+    }
+
+    [TestFixture]
+    public class AsyncAroundInterceptorBaseAsyncTest : AroundInterceptorBaseTest<TestAsyncAroundInterceptor, Task<object>>
+    {
+        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
+        protected override Task<object> Convert(object result) => Task.FromResult(result);
+        protected override ITestAroundInterceptor<TestAsyncAroundInterceptor> NewInterceptor() => new TestAsyncAroundInterceptor(1);
+    }
+
+    public abstract class AroundInterceptorBaseTest<TInterceptor, TResult> : InterceptorTestBase<TResult> 
+        where TInterceptor : ITestAroundInterceptor<TInterceptor>
+    {
+        protected abstract ITestAroundInterceptor<TInterceptor> NewInterceptor();
+
         [Test]
         public void A_successful_invocation_calls_OnBefore__OnSuccess_and_OnAfter_respectively()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationReturns("result");
 
@@ -43,7 +65,7 @@ namespace Routine.Test.Interception
         [Test]
         public void An_unsuccessful_invocation_calls_OnBefore__OnFail_and_OnAfter_respectively()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationFailsWith(new Exception());
 
@@ -59,7 +81,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Can_cancel_actual_invocation_and_return_some_other_result()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationReturns("actual");
             testing.CancelAndReturn("cancel");
@@ -78,7 +100,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Can_alter_actual_invocation_result_after_a_successful_invocation()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationReturns("actual");
             testing.OverrideActualResultWith("override");
@@ -95,7 +117,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Can_hide_the_exception_and_return_a_result()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationFailsWith(new Exception());
             testing.HideFailAndReturn("override");
@@ -114,7 +136,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Can_alter_the_exception_thrown_by_invocation()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationFailsWith(new ArgumentNullException());
             testing.OverrideExceptionWith(new FormatException());
@@ -131,7 +153,7 @@ namespace Routine.Test.Interception
         [Test]
         public void When_exception_is_not_changed__preserves_stack_trace()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             InvocationFailsWith(new ArgumentNullException());
 
@@ -149,7 +171,7 @@ namespace Routine.Test.Interception
         [Test]
         public void When_an_exception_is_thrown_OnBefore__OnFail_is_still_called()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             testing.FailOnBeforeWith(new Exception());
 
@@ -165,7 +187,7 @@ namespace Routine.Test.Interception
         [Test]
         public void When_an_exception_is_thrown_OnSuccess__OnFail_is_still_called()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             testing.FailOnSuccessWith(new Exception());
 
@@ -181,7 +203,7 @@ namespace Routine.Test.Interception
         [Test]
         public void By_default_intercepts_any_given_invocation()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             Intercept(testing, context, invocation);
 
@@ -195,7 +217,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Intercepts_only_when_clause_returns_true()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             testing.When(_ => false);
 
@@ -223,7 +245,7 @@ namespace Routine.Test.Interception
         [Test]
         public void Custom_when_clauses_can_be_defined_by_sub_classes()
         {
-            var testing = new TestAroundInterceptor();
+            var testing = NewInterceptor();
 
             context["override-base"] = true;
 

@@ -11,26 +11,7 @@ namespace Routine.Test.Core.Reflection
     {
         #region Invoke Impl for Contract 
 
-        protected override object Invoke(IMethodInvoker invoker, object target, params object[] args)
-        {
-            var task = invoker.InvokeAsync(target, args);
-
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerException == null) { throw; }
-
-                ex.InnerException.PreserveStackTrace();
-
-                throw ex.InnerException;
-
-            }
-
-            return task.Result;
-        }
+        protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.InvokeAsync(target, args).WaitAndGetResult();
 
         #endregion
 

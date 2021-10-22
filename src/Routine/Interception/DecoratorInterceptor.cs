@@ -15,7 +15,7 @@ namespace Routine.Interception
 		}
 	}
 
-	public class DecoratorInterceptor<TContext, TVariableType> : BaseAroundInterceptor<DecoratorInterceptor<TContext, TVariableType>, TContext>
+	public class DecoratorInterceptor<TContext, TVariableType> : AroundInterceptorBase<DecoratorInterceptor<TContext, TVariableType>, TContext>
 		where TContext : InterceptionContext
 	{
 		private readonly string variableName;

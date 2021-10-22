@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 
 namespace Routine.Interception
 {
-    public abstract class BaseAroundInterceptor<TConcrete, TContext> : IInterceptor<TContext>
-        where TConcrete : BaseAroundInterceptor<TConcrete, TContext>
+    public abstract class AroundInterceptorBase<TConcrete, TContext> : InterceptorBase<TContext>
+        where TConcrete : AroundInterceptorBase<TConcrete, TContext>
         where TContext : InterceptionContext
     {
         private Func<TContext, bool> whenDelegate;
 
-        protected BaseAroundInterceptor()
+        protected AroundInterceptorBase()
         {
             When(_ => true);
         }
@@ -18,7 +18,7 @@ namespace Routine.Interception
 
         protected virtual bool CanIntercept(TContext context) => whenDelegate(context);
 
-        private object Intercept(TContext context, Func<object> invocation)
+        protected override object Intercept(TContext context, Func<object> invocation)
         {
             if (!CanIntercept(context)) { return invocation(); }
 
@@ -61,26 +61,42 @@ namespace Routine.Interception
         protected abstract void OnSuccess(TContext context);
         protected abstract void OnFail(TContext context);
         protected abstract void OnAfter(TContext context);
+    }
 
-        private async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation)
+    public abstract class AsyncAroundInterceptorBase<TConcrete, TContext> : AsyncInterceptorBase<TContext>
+        where TConcrete : AsyncAroundInterceptorBase<TConcrete, TContext>
+        where TContext : InterceptionContext
+    {
+        private Func<TContext, bool> whenDelegate;
+
+        protected AsyncAroundInterceptorBase()
+        {
+            When(_ => true);
+        }
+
+        public TConcrete When(Func<TContext, bool> whenDelegate) { this.whenDelegate = whenDelegate; return (TConcrete)this; }
+
+        protected virtual bool CanIntercept(TContext context) => whenDelegate(context);
+
+        protected override async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation)
         {
             if (!CanIntercept(context)) { return await invocation(); }
 
             try
             {
-                await OnBeforeAsync(context);
+                await OnBefore(context);
 
                 if (!context.Canceled)
                 {
                     context.Result = await invocation();
                 }
 
-                await OnSuccessAsync(context);
+                await OnSuccess(context);
             }
             catch (Exception ex)
             {
                 context.Exception = ex;
-                await OnFailAsync(context);
+                await OnFail(context);
                 if (!context.ExceptionHandled)
                 {
                     if (ex == context.Exception) // if exception was not changed, preserve stack trace
@@ -95,22 +111,15 @@ namespace Routine.Interception
             }
             finally
             {
-                await OnAfterAsync(context);
+                await OnAfter(context);
             }
 
             return context.Result;
         }
 
-        protected abstract Task OnBeforeAsync(TContext context);
-        protected abstract Task OnSuccessAsync(TContext context);
-        protected abstract Task OnFailAsync(TContext context);
-        protected abstract Task OnAfterAsync(TContext context);
-
-        #region IInterceptor implementation
-
-        object IInterceptor<TContext>.Intercept(TContext context, Func<object> invocation) => Intercept(context, invocation);
-        async Task<object> IInterceptor<TContext>.InterceptAsync(TContext context, Func<Task<object>> invocation) => await InterceptAsync(context, invocation);
-
-        #endregion
+        protected abstract Task OnBefore(TContext context);
+        protected abstract Task OnSuccess(TContext context);
+        protected abstract Task OnFail(TContext context);
+        protected abstract Task OnAfter(TContext context);
     }
 }

@@ -1,19 +1,20 @@
 ﻿using System;
 using NUnit.Framework;
 using Routine.Interception;
+using Routine.Test.Interception.Stubs;
 using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
     [TestFixture]
-    public class AroundInntercepterSyncTest : AroundInterceptorTest<object>
+    public class AroundInterceptorSyncTest : AroundInterceptorTest<object>
     {
         protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
         protected override object Convert(object result) => result;
     }
 
     [TestFixture]
-    public class AroundInntercepterAsyncTest : AroundInterceptorTest<Task<object>>
+    public class AroundInterceptorAsyncTest : AroundInterceptorTest<Task<object>>
     {
         protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
         protected override Task<object> Convert(object result) => Task.FromResult(result);
@@ -21,6 +22,12 @@ namespace Routine.Test.Interception
 
     public abstract class AroundInterceptorTest<TResult> : InterceptorTestBase<TResult>
     {
+        [Test]
+        public void Implement_async_overload()
+        {
+            Assert.Fail("not implemented");
+        }
+
         [Test]
         public void Before_success_fail_actions_can_be_defined_by_delegates()
         {

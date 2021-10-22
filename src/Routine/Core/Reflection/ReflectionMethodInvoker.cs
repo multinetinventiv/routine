@@ -20,18 +20,7 @@ namespace Routine.Core.Reflection
 
             if (result is not Task task) { return result; }
 
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ex)
-            {
-                TryThrowingInnerExceptionOf(ex);
-
-                throw;
-            }
-
-            return ResultOf(task);
+            return task.WaitAndGetResult();
         }
 
         public async Task<object> InvokeAsync(object target, params object[] args)
@@ -42,7 +31,7 @@ namespace Routine.Core.Reflection
 
             await task;
 
-            return ResultOf(task);
+            return task.GetResult();
         }
 
         private object InvokeInner(object target, object[] args)
@@ -62,24 +51,8 @@ namespace Routine.Core.Reflection
             }
             catch (TargetInvocationException ex)
             {
-                TryThrowingInnerExceptionOf(ex);
-
-                throw;
+                throw ex.GetInnerException();
             }
         }
-
-        private static void TryThrowingInnerExceptionOf(Exception ex)
-        {
-            if (ex.InnerException == null) { return; }
-
-            ex.InnerException.PreserveStackTrace();
-
-            throw ex.InnerException;
-        }
-
-        private static object ResultOf(Task task) =>
-            task.GetType().IsGenericType
-                ? task.GetType().GetProperty("Result")?.GetValue(task)
-                : null;
     }
 }
