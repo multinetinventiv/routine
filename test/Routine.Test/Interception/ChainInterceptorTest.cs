@@ -14,7 +14,7 @@ namespace Routine.Test.Interception
     }
 
     [TestFixture]
-    public class ChainInterceptorAsyncTest : AroundInterceptorTest<Task<object>>
+    public class ChainInterceptorAsyncTest : ChainInterceptorTest<Task<object>>
     {
         protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
         protected override Task<object> Convert(object result) => Task.FromResult(result);
