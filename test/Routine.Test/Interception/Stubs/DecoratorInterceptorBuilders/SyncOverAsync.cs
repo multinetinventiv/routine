@@ -13,6 +13,8 @@ namespace Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders
             Action<TVariableType> fail = null, Action<TVariableType> after = null,
             Func<TestContext, TVariableType> beforeCtx = null, Action<TestContext, TVariableType> successCtx = null,
             Action<TestContext, TVariableType> failCtx = null, Action<TestContext, TVariableType> afterCtx = null
-        ) => throw new NotImplementedException();
+        ) => (before != null ? Builder.ByDecoratingAsync(before) : Builder.ByDecoratingAsync(beforeCtx))
+            .Success(success).Fail(fail).After(after)
+            .Success(successCtx).Fail(failCtx).After(afterCtx);
     }
 }

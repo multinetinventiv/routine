@@ -9,11 +9,7 @@ namespace Routine.Test.Core.Reflection
     [TestFixture]
     public class ReflectionMethodInvokerAsyncTest : ReflectionMethodInvokerContract
     {
-        #region Invoke Impl for Contract 
-
         protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.InvokeAsync(target, args).WaitAndGetResult();
-
-        #endregion
 
         public async Task<string> TestAsync(TimeSpan delay, string response) { await Task.Delay(delay); return response; }
 

@@ -6,8 +6,13 @@ namespace Routine.Interception.Configuration
     public class InterceptorBuilder<TContext>
         where TContext : InterceptionContext
     {
-        public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TVariableType> beforeDelegate) => ByDecorating(_ => beforeDelegate());
-        public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TContext, TVariableType> beforeDelegate) => new(beforeDelegate);
+        public DecoratorInterceptor<TContext, TVariable> ByDecorating<TVariable>(Func<TVariable> beforeDelegate) => new(beforeDelegate);
+        public DecoratorInterceptor<TContext, TVariable> ByDecorating<TVariable>(Func<TContext, TVariable> beforeDelegate) => new(beforeDelegate);
+
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TVariable> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TContext, TVariable> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<Task<TVariable>> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TContext, Task<TVariable>> beforeDelegate) => new(beforeDelegate);
 
         public AroundInterceptor<TContext> Do() => new();
         public AsyncAroundInterceptor<TContext> DoAsync() => new();
