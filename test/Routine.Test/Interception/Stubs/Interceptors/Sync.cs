@@ -1,9 +1,9 @@
 ﻿using Routine.Interception;
 using System;
 
-namespace Routine.Test.Interception.Stubs
+namespace Routine.Test.Interception.Stubs.Interceptors
 {
-    public class TestAroundInterceptor : AroundInterceptorBase<TestAroundInterceptor, TestContext<string>>, ITestAroundInterceptor<TestAroundInterceptor>
+    public class Sync : AroundInterceptorBase<Sync, TestContext>, IInterceptor<Sync>
     {
         private Exception exceptionBefore;
         public void FailOnBeforeWith(Exception exceptionBefore) => this.exceptionBefore = exceptionBefore;
@@ -23,7 +23,7 @@ namespace Routine.Test.Interception.Stubs
         private Exception exception;
         public void OverrideExceptionWith(Exception exception) => this.exception = exception;
 
-        protected override void OnBefore(TestContext<string> context)
+        protected override void OnBefore(TestContext context)
         {
             if (exceptionBefore != null)
             {
@@ -39,7 +39,7 @@ namespace Routine.Test.Interception.Stubs
             }
         }
 
-        protected override void OnSuccess(TestContext<string> context)
+        protected override void OnSuccess(TestContext context)
         {
             if (exceptionSuccess != null)
             {
@@ -54,7 +54,7 @@ namespace Routine.Test.Interception.Stubs
             }
         }
 
-        protected override void OnFail(TestContext<string> context)
+        protected override void OnFail(TestContext context)
         {
             context["fail"] = true;
 
@@ -70,13 +70,13 @@ namespace Routine.Test.Interception.Stubs
             }
         }
 
-        protected override void OnAfter(TestContext<string> context) => context["after"] = true;
+        protected override void OnAfter(TestContext context) => context["after"] = true;
 
-        protected override bool CanIntercept(TestContext<string> context) =>
+        protected override bool CanIntercept(TestContext context) =>
             key != null && context[key] != null || base.CanIntercept(context);
 
         private string key;
-        public TestAroundInterceptor WhenContextHas(string key)
+        public Sync WhenContextHas(string key)
         {
             this.key = key;
 

@@ -1,10 +1,9 @@
-﻿using Routine.Interception;
-using System;
+﻿using System;
 
-namespace Routine.Test.Interception.Stubs
+namespace Routine.Test.Interception.Stubs.Interceptors
 {
-    public interface ITestAroundInterceptor<out TConcrete> : IInterceptor<TestContext<string>>
-        where TConcrete : ITestAroundInterceptor<TConcrete>
+    public interface IInterceptor<out TConcrete> : Routine.Interception.IInterceptor<TestContext>
+        where TConcrete : IInterceptor<TConcrete>
     {
         void FailOnBeforeWith(Exception exceptionBefore);
         void CancelAndReturn(object result);
@@ -13,7 +12,7 @@ namespace Routine.Test.Interception.Stubs
         void HideFailAndReturn(object resultOnFail);
         void OverrideExceptionWith(Exception exception);
 
-        TConcrete When(Func<TestContext<string>, bool> whenDelegate);
+        TConcrete When(Func<TestContext, bool> whenDelegate);
         TConcrete WhenContextHas(string key);
     }
 }

@@ -1,227 +1,133 @@
-﻿using System;
-using NUnit.Framework;
-using Routine.Interception;
-using Routine.Interception.Configuration;
-using Routine.Test.Interception.Stubs;
-using System.Threading.Tasks;
+﻿using NUnit.Framework;
+using Routine.Test.Core;
+using Routine.Test.Interception.Stubs.AroundInterceptorBuilders;
+using Routine.Test.Interception.Stubs.Invocations;
+using System;
+using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
+using AsyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.Async;
+using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
+using SyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.Sync;
+using SyncOverAsyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.SyncOverAsync;
 
 namespace Routine.Test.Interception
 {
-    [TestFixture]
-    public class AroundInterceptorSyncTest : AroundInterceptorTest<object>.Base
+    [TestFixture(typeof(SyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(SyncBuilder), typeof(AsyncInvocation))]
+    [TestFixture(typeof(AsyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(AsyncBuilder), typeof(AsyncInvocation))]
+    [TestFixture(typeof(SyncOverAsyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(SyncOverAsyncBuilder), typeof(AsyncInvocation))]
+    public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
+        where TBuilder : IBuilder, new()
+        where TInvocation : IInvocation, new()
     {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
-        protected override object Convert(object result) => result;
-    }
+        private IBuilder builder;
+        private IInvocation invocation;
 
-    [TestFixture]
-    public class AroundInterceptorAsyncTest : AroundInterceptorTest<Task<object>>.Base
-    {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
-        protected override Task<object> Convert(object result) => Task.FromResult(result);
-    }
-
-    [TestFixture]
-    public class AsyncAroundInterceptorSyncTest : AroundInterceptorTest<object>.AsyncBase
-    {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
-        protected override object Convert(object result) => result;
-
-        [Test]
-        public void Test_async_overloads()
+        [SetUp]
+        public override void SetUp()
         {
-            Assert.Fail("not tested");
+            base.SetUp();
+
+            builder = new TBuilder();
+            invocation = new TInvocation();
         }
-    }
-
-    [TestFixture]
-    public class AsyncAroundInterceptorAsyncTest : AroundInterceptorTest<Task<object>>.AsyncBase
-    {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
-        protected override Task<object> Convert(object result) => Task.FromResult(result);
-
-        [Test]
-        public void Test_async_overloads()
-        {
-            Assert.Fail("not tested");
-        }
-    }
-
-    public abstract class AroundInterceptorTest<TResult> : InterceptorTestBase<TResult>
-    {
-        #region Abstraction
-
-        protected abstract IInterceptor<TestContext<string>> Build(
-            Action before = null, Action success = null, Action fail = null, Action after = null,
-            Action<TestContext<string>> beforeCtx = null, Action<TestContext<string>> successCtx = null, Action<TestContext<string>> failCtx = null, Action<TestContext<string>> afterCtx = null
-        );
-        protected abstract IInterceptor<TestContext<string>> FacadeBefore(Action before = null, Action<TestContext<string>> beforeCtx = null);
-        protected abstract IInterceptor<TestContext<string>> FacadeSuccess(Action success = null, Action<TestContext<string>> successCtx = null);
-        protected abstract IInterceptor<TestContext<string>> FacadeFail(Action fail = null, Action<TestContext<string>> failCtx = null);
-        protected abstract IInterceptor<TestContext<string>> FacadeAfter(Action after = null, Action<TestContext<string>> afterCtx = null);
-
-        public abstract class Base : AroundInterceptorTest<TResult>
-        {
-            protected static InterceptorBuilder<TestContext<string>> Builder => BuildRoutine.Interceptor<TestContext<string>>();
-
-            protected override IInterceptor<TestContext<string>> Build(
-                Action before = null, Action success = null, Action fail = null, Action after = null,
-                Action<TestContext<string>> beforeCtx = null, Action<TestContext<string>> successCtx = null,
-                Action<TestContext<string>> failCtx = null, Action<TestContext<string>> afterCtx = null
-            ) => Builder.Do()
-                .Before(before).Success(success).Fail(fail).After(after)
-                .Before(beforeCtx).Success(successCtx).Fail(failCtx).After(afterCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeBefore(
-                Action before = null, Action<TestContext<string>> beforeCtx = null
-            ) => before != null ? Builder.Before(before) : Builder.Before(beforeCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeSuccess(
-                Action success = null, Action<TestContext<string>> successCtx = null
-            ) => success != null ? Builder.Success(success) : Builder.Success(successCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeFail(
-                Action fail = null, Action<TestContext<string>> failCtx = null
-            ) => fail != null ? Builder.Fail(fail) : Builder.Fail(failCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeAfter(
-                Action after = null, Action<TestContext<string>> afterCtx = null
-            ) => after != null ? Builder.After(after) : Builder.After(afterCtx);
-        }
-
-        public abstract class AsyncBase : AroundInterceptorTest<TResult>
-        {
-            protected static InterceptorBuilder<TestContext<string>> Builder => BuildRoutine.Interceptor<TestContext<string>>();
-
-            protected override IInterceptor<TestContext<string>> Build(
-                Action before = null, Action success = null, Action fail = null, Action after = null,
-                Action<TestContext<string>> beforeCtx = null, Action<TestContext<string>> successCtx = null,
-                Action<TestContext<string>> failCtx = null, Action<TestContext<string>> afterCtx = null
-            ) => Builder.DoAsync()
-                .Before(before).Success(success).Fail(fail).After(after)
-                .Before(beforeCtx).Success(successCtx).Fail(failCtx).After(afterCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeBefore(
-                Action before = null, Action<TestContext<string>> beforeCtx = null
-            ) => before != null ? Builder.BeforeAsync(before) : Builder.BeforeAsync(beforeCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeSuccess(
-                Action success = null, Action<TestContext<string>> successCtx = null
-            ) => success != null ? Builder.SuccessAsync(success) : Builder.SuccessAsync(successCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeFail(
-                Action fail = null, Action<TestContext<string>> failCtx = null
-            ) => fail != null ? Builder.FailAsync(fail) : Builder.FailAsync(failCtx);
-
-            protected override IInterceptor<TestContext<string>> FacadeAfter(
-                Action after = null, Action<TestContext<string>> afterCtx = null
-            ) => after != null ? Builder.AfterAsync(after) : Builder.AfterAsync(afterCtx);
-        }
-
-        #endregion
 
         [Test]
         public void Before_success_fail_actions_can_be_defined_by_delegates()
         {
-            context = String();
-            context.Value = "begin";
+            invocation.Context.Value = "begin";
 
-            var testing = Build(
-                before: () => context.Value += " - before",
-                success: () => context.Value += " - success",
-                fail: () => context.Value += " - fail",
-                after: () => context.Value += " - after"
+            var testing = builder.Build(
+                before: () => invocation.Context.Value += " - before",
+                success: () => invocation.Context.Value += " - success",
+                fail: () => invocation.Context.Value += " - fail",
+                after: () => invocation.Context.Value += " - after"
             );
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
 
-            Assert.AreEqual("begin - before - success - after", context.Value);
+            Assert.AreEqual("begin - before - success - after", invocation.Context.Value);
 
-            context.Value = "begin";
-            InvocationFailsWith(new Exception());
+            invocation.Context.Value = "begin";
+            invocation.FailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
-
-            Assert.AreEqual("begin - before - fail - after", context.Value);
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
+            Assert.AreEqual("begin - before - fail - after", invocation.Context.Value);
         }
 
         [Test]
         public void Nothing_happens_when_nothing_is_defined()
         {
-            var testing = Build();
-            context = String();
+            var testing = builder.Build();
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
         }
 
         [Test]
         public void Context_can_be_used_during_interception()
         {
-            var testing = Build(
+            var testing = builder.Build(
                 beforeCtx: ctx => ctx.Value += " - before",
                 successCtx: ctx => ctx.Value += " - success",
                 failCtx: ctx => ctx.Value += " - fail",
                 afterCtx: ctx => ctx.Value += " - after"
             );
+            
+            invocation.Context.Value = "begin";
 
-            context = String();
-            context.Value = "begin";
+            invocation.Intercept(testing);
 
-            Intercept(testing, context, invocation);
+            Assert.AreEqual("begin - before - success - after", invocation.Context.Value);
 
-            Assert.AreEqual("begin - before - success - after", context.Value);
+            invocation.Context.Value = "begin";
+            invocation.FailsWith(new Exception());
 
-            context.Value = "begin";
-            InvocationFailsWith(new Exception());
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
 
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
-            Assert.AreEqual("begin - before - fail - after", context.Value);
+            Assert.AreEqual("begin - before - fail - after", invocation.Context.Value);
         }
 
         [Test]
         public void Facade_Before()
         {
-            var testing = FacadeBefore(beforeCtx: ctx => ctx.Value = "before");
-            context = String();
+            var testing = builder.FacadeBefore(beforeCtx: ctx => ctx.Value = "before");
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
 
-            Assert.AreEqual("before", context.Value);
+            Assert.AreEqual("before", invocation.Context.Value);
         }
 
         [Test]
         public void Facade_Success()
         {
-            var testing = FacadeSuccess(successCtx: ctx => ctx.Value = "success");
-            context = String();
+            var testing = builder.FacadeSuccess(successCtx: ctx => ctx.Value = "success");
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
 
-            Assert.AreEqual("success", context.Value);
+            Assert.AreEqual("success", invocation.Context.Value);
         }
 
         [Test]
         public void Facade_Fail()
         {
-            var testing = FacadeFail(failCtx: ctx => ctx.Value = "fail");
-            context = String();
+            var testing = builder.FacadeFail(failCtx: ctx => ctx.Value = "fail");
 
-            InvocationFailsWith(new Exception());
+            invocation.FailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
 
-            Assert.AreEqual("fail", context.Value);
+            Assert.AreEqual("fail", invocation.Context.Value);
         }
 
         [Test]
         public void Facade_After()
         {
-            var testing = FacadeAfter(afterCtx: ctx => ctx.Value = "after");
-            context = String();
+            var testing = builder.FacadeAfter(afterCtx: ctx => ctx.Value = "after");
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
 
-            Assert.AreEqual("after", context.Value);
+            Assert.AreEqual("after", invocation.Context.Value);
         }
     }
 }

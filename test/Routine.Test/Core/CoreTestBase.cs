@@ -25,6 +25,8 @@ namespace Routine.Test.Core
         [TearDown]
         public virtual void TearDown() { }
 
+        protected T Throw<T>(Exception ex) => throw ex;
+
         #region Model Builders
 
         protected ApplicationModel GetApplicationModel() => new() { Models = objectModelDictionary.Select(o => o.Value).ToList() };

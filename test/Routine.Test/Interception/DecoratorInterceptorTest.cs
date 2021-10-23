@@ -1,119 +1,120 @@
-﻿using System;
-using NUnit.Framework;
-using Routine.Interception;
-using Routine.Test.Interception.Stubs;
-using System.Threading.Tasks;
+﻿using NUnit.Framework;
+using Routine.Test.Core;
+using Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders;
+using Routine.Test.Interception.Stubs.Invocations;
+using System;
+using AsyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.Async;
+using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
+using SyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.Sync;
+using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
+using SyncOverAsyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.SyncOverAsync;
 
 namespace Routine.Test.Interception
 {
-    [TestFixture]
-    public class DecoratorInterceptorSyncTest : DecoratorInterceptorTest<object>
+    [TestFixture(typeof(SyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(SyncBuilder), typeof(AsyncInvocation))]
+    [TestFixture(typeof(AsyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(AsyncBuilder), typeof(AsyncInvocation))]
+    [TestFixture(typeof(SyncOverAsyncBuilder), typeof(SyncInvocation))]
+    [TestFixture(typeof(SyncOverAsyncBuilder), typeof(AsyncInvocation))]
+    public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
+        where TBuilder : IBuilder, new()
+        where TInvocation : IInvocation, new()
     {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<object> invocation) => UseIntercept(testing, context, invocation);
-        protected override object Convert(object result) => result;
-    }
+        private IBuilder builder;
+        private IInvocation invocation;
 
-    [TestFixture]
-    public class DecoratorInterceptorAsyncTest : DecoratorInterceptorTest<Task<object>>
-    {
-        protected override object Intercept(IInterceptor<TestContext<string>> testing, TestContext<string> context, Func<Task<object>> invocation) => UseInterceptAsync(testing, context, invocation);
-        protected override Task<object> Convert(object result) => Task.FromResult(result);
-    }
-
-    public abstract class DecoratorInterceptorTest<TResult> : InterceptorTestBase<TResult>
-    {
-        [Test]
-        public void Implement_async_overload()
+        [SetUp]
+        public override void SetUp()
         {
-            Assert.Fail("not implemented");
+            base.SetUp();
+
+            builder = new TBuilder();
+            invocation = new TInvocation();
         }
 
         [Test]
         public void Decorates_an_invocation_with_a_variable_of_given_type_that_is_created_OnBefore()
         {
-            var testing = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(() => "test string")
-                .Success(actual => Assert.AreEqual("test string", actual))
-                .Fail(actual => Assert.AreEqual("test string", actual))
-                .After(actual => Assert.AreEqual("test string", actual));
+            var testing = builder.Build(
+                before: () => "test string",
+                success: actual => Assert.AreEqual("test string", actual),
+                fail: actual => Assert.AreEqual("test string", actual),
+                after: actual => Assert.AreEqual("test string", actual)
+            );
 
-            context = String();
+            invocation.Intercept(testing);
 
-            Intercept(testing, context, invocation);
+            invocation.FailsWith(new Exception());
 
-            InvocationFailsWith(new Exception());
-
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
         }
 
         [Test]
         public void When_multiple_instances_intercept_using_same_context__variables_does_not_conflict()
         {
-            var testing = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(() => "interceptor1")
-                .Success(actual => Assert.AreEqual("interceptor1", actual))
-                .Fail(actual => Assert.AreEqual("interceptor1", actual))
-                .After(actual => Assert.AreEqual("interceptor1", actual));
+            var testing = builder.Build(
+                before: () => "interceptor1",
+                success: actual => Assert.AreEqual("interceptor1", actual),
+                fail: actual => Assert.AreEqual("interceptor1", actual),
+                after: actual => Assert.AreEqual("interceptor1", actual)
+            );
 
-            var testingOther = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(() => 2)
-                .Success(actual => Assert.AreEqual(2, actual))
-                .Fail(actual => Assert.AreEqual(2, actual))
-                .After(actual => Assert.AreEqual(2, actual));
+            var testingOther = builder.Build(
+                before: () => 2,
+                success: actual => Assert.AreEqual(2, actual),
+                fail: actual => Assert.AreEqual(2, actual),
+                after: actual => Assert.AreEqual(2, actual)
+            );
 
-            context = String();
-
-            Intercept(testing, context, invocation);
-            Intercept(testingOther, context, invocation);
+            invocation.Intercept(testing);
+            invocation.Intercept(testingOther);
         }
 
         [Test]
         public void By_default_nothing_happens_OnSuccess__OnFail_and_OnAfter()
         {
-            var testing = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(() => "dummy");
+            var testing = builder.Build(before: () => "dummy");
 
-            context = String();
+            invocation.Intercept(testing);
 
-            Intercept(testing, context, invocation);
+            invocation.FailsWith(new Exception());
 
-            InvocationFailsWith(new Exception());
-
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
         }
 
         [Test]
         public void Context_can_be_used_during_interception()
         {
-            var testing = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(ctx => ctx["value"] as string)
-                .Success((ctx, actual) => Assert.AreSame(ctx["value"], actual))
-                .Fail((ctx, actual) => Assert.AreSame(ctx["value"], actual))
-                .After((ctx, actual) => Assert.AreSame(ctx["value"], actual));
+            var testing = builder.Build(
+                beforeCtx: ctx => ctx["value"] as string,
+                successCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
+                failCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
+                afterCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual)
+            );
 
-            context = String();
-            context["value"] = "dummy";
+            invocation.Context["value"] = "dummy";
 
-            Intercept(testing, context, invocation);
+            invocation.Intercept(testing);
 
-            InvocationFailsWith(new Exception());
+            invocation.FailsWith(new Exception());
 
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
         }
 
         [Test]
         public void When_variable_could_not_be_retrieved_during_before_delegate__fail_and_after_are_skipped()
         {
-            var testing = BuildRoutine.Interceptor<TestContext<string>>()
-                .ByDecorating(() => Throw<string>(new Exception()))
-                .Success(_ => Assert.Fail("should not be called"))
-                .Fail(_ => Assert.Fail("should be skipped"))
-                .After(_ => Assert.Fail("should be skipped"));
+            var testing = builder.Build(
+                before: () => Throw<string>(new Exception()),
+                success: _ => Assert.Fail("should not be called"),
+                fail: _ => Assert.Fail("should be skipped"),
+                after: _ => Assert.Fail("should be skipped")
+            );
 
-            context = String();
-            context["value"] = "dummy";
+            invocation.Context["value"] = "dummy";
 
-            Assert.Throws<Exception>(() => Intercept(testing, context, invocation));
+            Assert.Throws<Exception>(() => invocation.Intercept(testing));
         }
     }
 }
