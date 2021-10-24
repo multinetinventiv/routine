@@ -5,13 +5,13 @@ namespace Routine.Test.Interception.Stubs.AroundInterceptorBuilders
 {
     public interface IBuilder
     {
-        IInterceptor<TestContext> Build(
+        IInterceptor<Context> Build(
             Action before = null, Action success = null, Action fail = null, Action after = null,
-            Action<TestContext> beforeCtx = null, Action<TestContext> successCtx = null, Action<TestContext> failCtx = null, Action<TestContext> afterCtx = null
+            Action<Context> beforeCtx = null, Action<Context> successCtx = null, Action<Context> failCtx = null, Action<Context> afterCtx = null
         );
-        IInterceptor<TestContext> FacadeBefore(Action before = null, Action<TestContext> beforeCtx = null);
-        IInterceptor<TestContext> FacadeSuccess(Action success = null, Action<TestContext> successCtx = null);
-        IInterceptor<TestContext> FacadeFail(Action fail = null, Action<TestContext> failCtx = null);
-        IInterceptor<TestContext> FacadeAfter(Action after = null, Action<TestContext> afterCtx = null);
+        IInterceptor<Context> FacadeBefore(Action before = null, Action<Context> beforeCtx = null);
+        IInterceptor<Context> FacadeSuccess(Action success = null, Action<Context> successCtx = null);
+        IInterceptor<Context> FacadeFail(Action fail = null, Action<Context> failCtx = null);
+        IInterceptor<Context> FacadeAfter(Action after = null, Action<Context> afterCtx = null);
     }
 }

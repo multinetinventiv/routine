@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Routine.Test.Interception.Stubs.Interceptors
 {
-    public class Async : AsyncAroundInterceptorBase<Async, TestContext>, IInterceptor<Async>
+    public class AsyncAround : AsyncAroundInterceptorBase<AsyncAround, Context>, IAroundInterceptor<AsyncAround>
     {
         private readonly int delay;
 
-        public Async() : this(1) { }
-        public Async(int delay)
+        public AsyncAround() : this(1) { }
+        public AsyncAround(int delay)
         {
             this.delay = delay;
         }
@@ -32,7 +32,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
         private Exception exception;
         public void OverrideExceptionWith(Exception exception) => this.exception = exception;
 
-        protected override async Task OnBefore(TestContext context)
+        protected override async Task OnBefore(Context context)
         {
             await Task.Delay(delay);
 
@@ -50,7 +50,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override async Task OnSuccess(TestContext context)
+        protected override async Task OnSuccess(Context context)
         {
             await Task.Delay(delay);
 
@@ -67,7 +67,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override async Task OnFail(TestContext context)
+        protected override async Task OnFail(Context context)
         {
             await Task.Delay(delay);
 
@@ -85,18 +85,18 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override async Task OnAfter(TestContext context)
+        protected override async Task OnAfter(Context context)
         {
             await Task.Delay(delay);
 
             context["after"] = true;
         }
 
-        protected override bool CanIntercept(TestContext context) =>
+        protected override bool CanIntercept(Context context) =>
             key != null && context[key] != null || base.CanIntercept(context);
 
         private string key;
-        public Async WhenContextHas(string key)
+        public AsyncAround WhenContextHas(string key)
         {
             this.key = key;
 

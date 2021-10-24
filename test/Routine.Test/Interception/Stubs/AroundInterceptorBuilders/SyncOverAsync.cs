@@ -6,30 +6,30 @@ namespace Routine.Test.Interception.Stubs.AroundInterceptorBuilders
 {
     public class SyncOverAsync : IBuilder
     {
-        private static InterceptorBuilder<TestContext> Builder => BuildRoutine.Interceptor<TestContext>();
+        private static InterceptorBuilder<Context> Builder => BuildRoutine.Interceptor<Context>();
 
-        public IInterceptor<TestContext> Build(
+        public IInterceptor<Context> Build(
             Action before = null, Action success = null, Action fail = null, Action after = null,
-            Action<TestContext> beforeCtx = null, Action<TestContext> successCtx = null,
-            Action<TestContext> failCtx = null, Action<TestContext> afterCtx = null
+            Action<Context> beforeCtx = null, Action<Context> successCtx = null,
+            Action<Context> failCtx = null, Action<Context> afterCtx = null
         ) => Builder.DoAsync()
             .Before(before).Success(success).Fail(fail).After(after)
             .Before(beforeCtx).Success(successCtx).Fail(failCtx).After(afterCtx);
 
-        public IInterceptor<TestContext> FacadeBefore(
-            Action before = null, Action<TestContext> beforeCtx = null
+        public IInterceptor<Context> FacadeBefore(
+            Action before = null, Action<Context> beforeCtx = null
         ) => before != null ? Builder.BeforeAsync(before) : Builder.BeforeAsync(beforeCtx);
 
-        public IInterceptor<TestContext> FacadeSuccess(
-            Action success = null, Action<TestContext> successCtx = null
+        public IInterceptor<Context> FacadeSuccess(
+            Action success = null, Action<Context> successCtx = null
         ) => success != null ? Builder.SuccessAsync(success) : Builder.SuccessAsync(successCtx);
 
-        public IInterceptor<TestContext> FacadeFail(
-            Action fail = null, Action<TestContext> failCtx = null
+        public IInterceptor<Context> FacadeFail(
+            Action fail = null, Action<Context> failCtx = null
         ) => fail != null ? Builder.FailAsync(fail) : Builder.FailAsync(failCtx);
 
-        public IInterceptor<TestContext> FacadeAfter(
-            Action after = null, Action<TestContext> afterCtx = null
+        public IInterceptor<Context> FacadeAfter(
+            Action after = null, Action<Context> afterCtx = null
         ) => after != null ? Builder.AfterAsync(after) : Builder.AfterAsync(afterCtx);
     }
 }

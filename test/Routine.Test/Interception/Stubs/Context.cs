@@ -2,9 +2,9 @@
 
 namespace Routine.Test.Interception.Stubs
 {
-    public class TestContext : InterceptionContext
+    public class Context : InterceptionContext
     {
-        public TestContext(string target) : base(target) { }
+        public Context() : base("test") { }
 
         public string Value { get; set; }
     }

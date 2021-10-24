@@ -4,18 +4,16 @@ using Routine.Test.Interception.Stubs.Interceptors;
 using Routine.Test.Interception.Stubs.Invocations;
 using System;
 using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
-using AsyncInterceptor = Routine.Test.Interception.Stubs.Interceptors.Async;
 using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
-using SyncInterceptor = Routine.Test.Interception.Stubs.Interceptors.Sync;
 
 namespace Routine.Test.Interception
 {
-    [TestFixture(typeof(SyncInterceptor), typeof(SyncInvocation))]
-    [TestFixture(typeof(SyncInterceptor), typeof(AsyncInvocation))]
-    [TestFixture(typeof(AsyncInterceptor), typeof(SyncInvocation))]
-    [TestFixture(typeof(AsyncInterceptor), typeof(AsyncInvocation))]
+    [TestFixture(typeof(SyncAround), typeof(SyncInvocation))]
+    [TestFixture(typeof(SyncAround), typeof(AsyncInvocation))]
+    [TestFixture(typeof(AsyncAround), typeof(SyncInvocation))]
+    [TestFixture(typeof(AsyncAround), typeof(AsyncInvocation))]
     public class AroundInterceptorBaseTest<TInterceptor, TInvocation> : CoreTestBase 
-        where TInterceptor : IInterceptor<TInterceptor>, new()
+        where TInterceptor : IAroundInterceptor<TInterceptor>, new()
         where TInvocation : IInvocation, new()
     {
         private IInvocation invocation;

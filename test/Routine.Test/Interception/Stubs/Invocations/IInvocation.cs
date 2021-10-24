@@ -5,12 +5,12 @@ namespace Routine.Test.Interception.Stubs.Invocations
 {
     public interface IInvocation
     {
-        TestContext Context { get; }
+        Context Context { get; }
         int Count { get; }
         string ExceptionStackTraceLookupText { get; }
 
         void Returns(object result);
         void FailsWith(Exception exception);
-        object Intercept(IInterceptor<TestContext> testing);
+        object Intercept(IInterceptor<Context> testing);
     }
 }

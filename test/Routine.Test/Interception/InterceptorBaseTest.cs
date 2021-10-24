@@ -1,20 +1,36 @@
 ﻿using NUnit.Framework;
+using Routine.Interception;
+using Routine.Test.Interception.Stubs;
+using Routine.Test.Interception.Stubs.Interceptors;
+using System.Threading.Tasks;
 
 namespace Routine.Test.Interception
 {
-    [TestFixture]
-    public class InterceptorBaseTest
+    [TestFixture(typeof(SyncBase))]
+    [TestFixture(typeof(AsyncBase))]
+    public class InterceptorBaseTest<TInterceptor>
+        where TInterceptor : IInterceptor<Context>, new()
     {
         [Test]
-        public void Write_sync_tests()
+        public void Delegates_Intercept_as_is()
         {
-            Assert.Fail("not implemented");
+            var testing = new TInterceptor();
+            var expected = new object();
+
+            var actual = testing.Intercept(new Context(), () => expected);
+
+            Assert.AreSame(expected, actual);
         }
 
         [Test]
-        public void Write_async_tests()
+        public async Task Delegates_InterceptAsync_as_is()
         {
-            Assert.Fail("not implemented");
+            var testing = new TInterceptor();
+            var expected = new object();
+
+            var actual = await testing.InterceptAsync(new Context(), () => Task.FromResult(expected));
+
+            Assert.AreSame(expected, actual);
         }
     }
 }

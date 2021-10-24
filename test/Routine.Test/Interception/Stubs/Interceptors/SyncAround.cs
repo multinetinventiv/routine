@@ -3,7 +3,7 @@ using System;
 
 namespace Routine.Test.Interception.Stubs.Interceptors
 {
-    public class Sync : AroundInterceptorBase<Sync, TestContext>, IInterceptor<Sync>
+    public class SyncAround : AroundInterceptorBase<SyncAround, Context>, IAroundInterceptor<SyncAround>
     {
         private Exception exceptionBefore;
         public void FailOnBeforeWith(Exception exceptionBefore) => this.exceptionBefore = exceptionBefore;
@@ -23,7 +23,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
         private Exception exception;
         public void OverrideExceptionWith(Exception exception) => this.exception = exception;
 
-        protected override void OnBefore(TestContext context)
+        protected override void OnBefore(Context context)
         {
             if (exceptionBefore != null)
             {
@@ -39,7 +39,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override void OnSuccess(TestContext context)
+        protected override void OnSuccess(Context context)
         {
             if (exceptionSuccess != null)
             {
@@ -54,7 +54,7 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override void OnFail(TestContext context)
+        protected override void OnFail(Context context)
         {
             context["fail"] = true;
 
@@ -70,13 +70,13 @@ namespace Routine.Test.Interception.Stubs.Interceptors
             }
         }
 
-        protected override void OnAfter(TestContext context) => context["after"] = true;
+        protected override void OnAfter(Context context) => context["after"] = true;
 
-        protected override bool CanIntercept(TestContext context) =>
+        protected override bool CanIntercept(Context context) =>
             key != null && context[key] != null || base.CanIntercept(context);
 
         private string key;
-        public Sync WhenContextHas(string key)
+        public SyncAround WhenContextHas(string key)
         {
             this.key = key;
 
