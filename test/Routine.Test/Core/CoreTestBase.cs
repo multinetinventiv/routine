@@ -321,6 +321,39 @@ namespace Routine.Test.Core
             return objectDictionary[new ReferenceData { Id = rd.Id, ModelId = rd.ModelId }].Display;
         }
 
+        protected Dictionary<string, ParameterValueData> Params(params KeyValuePair<string, ParameterValueData>[] parameters) =>
+            parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value);
+
+        protected ParameterData Init(string objectModelId, Dictionary<string, ParameterValueData> initializationParameters) =>
+            new()
+            {
+                ModelId = objectModelId,
+                InitializationParameters = initializationParameters
+            };
+
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ParameterData[] values) => Param(modelId, values.Length > 1, values);
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ParameterData[] values) =>
+            new(modelId,
+                new ParameterValueData
+                {
+                    IsList = isList,
+                    Values = values.ToList()
+                }
+            );
+
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, params ReferenceData[] references) => Param(modelId, references.Length > 1, references);
+        protected KeyValuePair<string, ParameterValueData> Param(string modelId, bool isList, params ReferenceData[] references) =>
+            new(modelId, new ParameterValueData
+            {
+                IsList = isList,
+                Values = references.Select(PD).ToList()
+            });
+
+        protected ParameterData PD(ReferenceData reference) =>
+            reference == null
+                ? null
+                : new ParameterData { ModelId = reference.ModelId, Id = reference.Id };
+
         protected VariableData Result(params ReferenceData[] rds)
         {
             var result = new VariableData();
