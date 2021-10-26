@@ -12,8 +12,8 @@ namespace Routine.Test.Interception
 {
     [TestFixture(typeof(Sync))]
     [TestFixture(typeof(Async))]
-    public class InterceptedObjectServiceTest_Do<TInvocation> : CoreTestBase
-        where TInvocation : IDoInvoker, new()
+    public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
+        where TDoInvoker : IDoInvoker, new()
     {
         #region Setup & Helpers
 
@@ -29,7 +29,7 @@ namespace Routine.Test.Interception
             mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
             mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
 
-            invoker = new TInvocation();
+            invoker = new TDoInvoker();
         }
 
         private InterceptedObjectService Build(

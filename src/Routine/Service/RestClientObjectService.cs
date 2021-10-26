@@ -55,9 +55,22 @@ namespace Routine.Service
             return helper.DecompressVariableData(result);
         }
 
-        public Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
         {
-            throw new NotImplementedException();
+            if (target == null) { return new VariableData(); }
+
+            var operationModel = GetOperationModel(target, operation);
+
+            var body = serializer.Serialize(parameters.ToDictionary(kvp => kvp.Key, kvp =>
+                new DataCompressor(ApplicationModel, operationModel.Parameter[kvp.Key].ViewModelId)
+                    .Compress(kvp.Value)
+            ));
+
+            var result = Result(await PostAsync(Url(target, operation), body));
+
+            var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
+
+            return helper.DecompressVariableData(result);
         }
 
         private ObjectModel GetObjectModel(ReferenceData target)
@@ -107,6 +120,23 @@ namespace Routine.Service
             );
         private string Url(string action) => $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
 
+        private RestResponse Get(string url)
+        {
+            try
+            {
+                return restClient.Get(url, BuildRequest(string.Empty));
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response is not HttpWebResponse res)
+                {
+                    throw;
+                }
+
+                return Wrap(res);
+            }
+        }
+
         private RestResponse Post(string url, string body)
         {
             try
@@ -124,11 +154,11 @@ namespace Routine.Service
             }
         }
 
-        private RestResponse Get(string url)
+        private async Task<RestResponse> PostAsync(string url, string body)
         {
             try
             {
-                return restClient.Get(url, BuildRequest(string.Empty));
+                return await restClient.PostAsync(url, BuildRequest(body));
             }
             catch (WebException ex)
             {

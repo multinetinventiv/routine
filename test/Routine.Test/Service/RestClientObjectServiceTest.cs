@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Net;
-using Moq;
+﻿using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
 using Routine.Core;
@@ -10,20 +6,35 @@ using Routine.Core.Rest;
 using Routine.Service;
 using Routine.Service.Configuration;
 using Routine.Test.Core;
+using Routine.Test.Engine.Stubs.DoInvokers;
+using Routine.Test.Service.Stubs;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Net;
+using AsyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Async;
+using AsyncStubber = Routine.Test.Service.Stubs.Async;
+using SyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Sync;
+using SyncStubber = Routine.Test.Service.Stubs.Sync;
 
 namespace Routine.Test.Service
 {
-    [TestFixture]
-    public class RestClientObjectServiceTest : CoreTestBase
+    [TestFixture(typeof(SyncStubber), typeof(SyncInvoker))]
+    [TestFixture(typeof(AsyncStubber), typeof(AsyncInvoker))]
+    public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreTestBase
+        where TRestClientStubber : IRestClientStubber, new()
+        where TDoInvoker : IDoInvoker, new()
     {
         #region SetUp & Helpers
 
+        private const string URL_BASE = "http://api.test.com/service";
+
         private ConventionBasedServiceClientConfiguration config;
-        private Mock<IRestClient> mockRestClient;
+        private Mock<IRestClient> mock;
         private IJsonSerializer serializer;
         private RestClientObjectService testing;
-
-        private const string URL_BASE = "http://api.test.com/service";
+        private IRestClientStubber stubber;
+        private IDoInvoker invoker;
 
         public override void SetUp()
         {
@@ -31,23 +42,19 @@ namespace Routine.Test.Service
 
             serializer = new JsonSerializerAdapter();
             config = BuildRoutine.ServiceClientConfig().FromBasic()
-                .ServiceUrlBase.Set(URL_BASE);
-
-            mockRestClient = new Mock<IRestClient>();
-
-            testing = new RestClientObjectService(config, mockRestClient.Object, serializer);
+                .ServiceUrlBase.Set(URL_BASE)
+            ;
+            mock = new Mock<IRestClient>();
+            testing = new RestClientObjectService(config, mock.Object, serializer);
+            stubber = new TRestClientStubber();
+            invoker = new TDoInvoker();
 
             SetUpGet("ApplicationModel").Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
         }
 
         private ISetup<IRestClient, RestResponse> SetUpGet(string action) => SetUpGet(action, req => true);
         private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
-            mockRestClient.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
-
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action) => SetUpPost(action, req => true);
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, string body) => SetUpPost(action, req => req.Body == body);
-        private ISetup<IRestClient, RestResponse> SetUpPost(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
-            mockRestClient.Setup(rc => rc.Post($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
+            mock.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
 
         private class TestException : Exception { public TestException(string message) : base(message) { } }
 
@@ -67,7 +74,7 @@ namespace Routine.Test.Service
         {
             var actual = testing.ApplicationModel;
 
-            mockRestClient.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), RestRequest.Empty), Times.Once());
+            mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), RestRequest.Empty), Times.Once());
             Assert.AreEqual(0, actual.Models.Count);
         }
 
@@ -77,7 +84,7 @@ namespace Routine.Test.Service
             var expected = testing.ApplicationModel;
             var actual = testing.ApplicationModel;
 
-            mockRestClient.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), It.IsAny<RestRequest>()), Times.Once());
+            mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), It.IsAny<RestRequest>()), Times.Once());
 
             Assert.AreSame(expected, actual);
         }
@@ -125,8 +132,9 @@ namespace Routine.Test.Service
             var actual = testing.Get(Null());
 
             Assert.AreEqual(null, actual);
-            mockRestClient.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
-            mockRestClient.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         }
 
         [Test]
@@ -143,11 +151,12 @@ namespace Routine.Test.Service
 
             testing.Get(Id("3", "model"));
 
-            mockRestClient.Verify(rc => rc.Get(It.IsAny<string>(), It.Is<RestRequest>(req =>
+            mock.Verify(rc => rc.Get(It.IsAny<string>(), It.Is<RestRequest>(req =>
                 req.Headers.ContainsKey("header1") &&
                 req.Headers["header1"] == "header1_value" &&
                 req.Headers.ContainsKey("header2") &&
-                req.Headers["header2"] == "header2_value")));
+                req.Headers["header2"] == "header2_value"
+            )));
         }
 
         [Test]
@@ -186,16 +195,13 @@ namespace Routine.Test.Service
                     .Operation("action", "model", PModel("arg1", "model"))
                 );
 
-            SetUpPost("model/3/action",
-                "{" +
-                    "\"arg1\":\"4\"" +
-                "}").Returns(new RestResponse(
-                    "{" +
-                        "\"Id\":\"5\"," +
-                        "\"Display\":\"Test\"" +
-                    "}"));
+            stubber.SetUp(mock,
+                url: $"{URL_BASE}/model/3/action",
+                body: @"{""arg1"":""4""}",
+                response: @"{""Id"":""5"",""Display"":""Test""}"
+            );
 
-            var actual = testing.Do(Id("3", "model"), "action",
+            var actual = invoker.InvokeDo(testing, Id("3", "model"), "action",
                 new Dictionary<string, ParameterValueData>
                 {
                     {
@@ -214,11 +220,12 @@ namespace Routine.Test.Service
         [Test]
         public void When_given_target_is_null__returns_empty_variable_data_without_making_a_remote_call()
         {
-            var actual = testing.Do(Null(), "doesn't matter", new Dictionary<string, ParameterValueData>());
+            var actual = invoker.InvokeDo(testing, Null(), "doesn't matter", new Dictionary<string, ParameterValueData>());
 
             Assert.AreEqual(new VariableData(), actual);
-            mockRestClient.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
-            mockRestClient.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+            mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         }
 
         [Test]
@@ -231,15 +238,19 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model").Operation("action", true));
 
-            SetUpPost("model/3/action").Returns(new RestResponse("null"));
+            stubber.SetUp(mock,
+                url: $"{URL_BASE}/model/3/action",
+                response: "null"
+            );
 
-            testing.Do(Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
 
-            mockRestClient.Verify(rc => rc.Post(It.IsAny<string>(), It.Is<RestRequest>(req =>
+            mock.Verify(rc => rc.Post(It.IsAny<string>(), It.Is<RestRequest>(req =>
                 req.Headers.ContainsKey("header1") &&
                 req.Headers["header1"] == "header1_value" &&
                 req.Headers.ContainsKey("header2") &&
-                req.Headers["header2"] == "header2_value")));
+                req.Headers["header2"] == "header2_value"
+            )));
         }
 
         [Test]
@@ -251,8 +262,9 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model").Operation("action", true));
 
-            SetUpPost("model/3/action")
-                .Returns(new RestResponse("null",
+            stubber.SetUp(mock,
+                url: $"{URL_BASE}model/3/action",
+                response: new RestResponse("null",
                     new Dictionary<string, string>
                     {
                         {"header1", "header1_value"},
@@ -260,7 +272,7 @@ namespace Routine.Test.Service
                     })
                 );
 
-            testing.Do(Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
 
             mockHeaderProcessor.Verify(hp => hp.Process(It.Is<IDictionary<string, string>>(h =>
                 h.ContainsKey("header1") &&
@@ -280,12 +292,8 @@ namespace Routine.Test.Service
             ModelsAre(Model("model").Operation("action"));
 
             SetUpGet("model/3").Returns(new RestResponse(
-                "{" +
-                    "\"IsException\":\"true\"," +
-                    "\"Type\":\"type\"," +
-                    "\"Handled\":\"true\"," +
-                    "\"Message\":\"message\"" +
-                "}"));
+                @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
+            ));
 
             try
             {
@@ -297,17 +305,14 @@ namespace Routine.Test.Service
                 Assert.AreEqual("message", ex.Message);
             }
 
-            SetUpPost("model/3/action").Returns(new RestResponse(
-                "{" +
-                    "\"IsException\":\"true\"," +
-                    "\"Type\":\"type\"," +
-                    "\"Handled\":\"true\"," +
-                    "\"Message\":\"message\"" +
-                "}"));
+            stubber.SetUp(mock,
+                url: $"{URL_BASE}/model/3/action",
+                response: new RestResponse(@"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}")
+            );
 
             try
             {
-                testing.Do(Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+                invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
                 Assert.Fail("exception not thrown");
             }
             catch (TestException ex)
@@ -338,12 +343,14 @@ namespace Routine.Test.Service
                 Assert.AreEqual("server message", ex.Message);
             }
 
-            SetUpPost("model/3/action")
-                .Throws(HttpNotFound("server message"));
+            stubber.SetUp(mock,
+                url: $"{URL_BASE}/model/3/action",
+                exception: HttpNotFound("server message")
+            );
 
             try
             {
-                testing.Do(Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+                invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
                 Assert.Fail("exception not thrown");
             }
             catch (TestException ex)
@@ -364,7 +371,7 @@ namespace Routine.Test.Service
 
             try
             {
-                testing.Do(Id("3", "model"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
+                invoker.InvokeDo(testing, Id("3", "model"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
                 Assert.Fail("exception not thrown");
             }
             catch (TestException ex)
@@ -374,20 +381,13 @@ namespace Routine.Test.Service
 
             try
             {
-                testing.Do(Id("3", "nonexistingmodel"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
+                invoker.InvokeDo(testing, Id("3", "nonexistingmodel"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
                 Assert.Fail("exception not thrown");
             }
             catch (TestException ex)
             {
                 Assert.AreEqual("type", ex.Message);
             }
-        }
-
-        [Test]
-        [Ignore("")]
-        public void Invalidates_cache_when_server_version_has_changed()
-        {
-            Assert.Fail("not implemented");
         }
     }
 }
