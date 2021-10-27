@@ -1,5 +1,4 @@
 ﻿using Moq;
-using Moq.Language.Flow;
 using NUnit.Framework;
 using Routine.Core;
 using Routine.Core.Rest;
@@ -49,12 +48,20 @@ namespace Routine.Test.Service
             stubber = new TRestClientStubber();
             invoker = new TDoInvoker();
 
-            SetUpGet("ApplicationModel").Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
+            mock.Setup(rc => rc.Get($"{URL_BASE}/ApplicationModel", It.IsAny<RestRequest>()))
+                .Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
         }
 
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action) => SetUpGet(action, req => true);
-        private ISetup<IRestClient, RestResponse> SetUpGet(string action, Expression<Func<RestRequest, bool>> restRequestMatcher) =>
-            mock.Setup(rc => rc.Get($"{URL_BASE}/{action}", It.Is(restRequestMatcher)));
+        private void SetUpGet(string url, string response) => SetUpGet(url, req => true, response);
+        private void SetUpGet(string url, RestResponse response) => SetUpGet(url, req => true, response);
+        private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, string response) => SetUpGet(url, match, new RestResponse(response));
+        private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, RestResponse response) =>
+            mock.Setup(rc => rc.Get(url, It.Is(match))).Returns(response);
+
+
+        private void SetUpGet(string url, WebException exception) => SetUpGet(url, req => true, exception);
+        private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, WebException exception) =>
+            mock.Setup(rc => rc.Get(url, It.Is(match))).Throws(exception);
 
         private class TestException : Exception { public TestException(string message) : base(message) { } }
 
@@ -94,12 +101,10 @@ namespace Routine.Test.Service
         {
             ModelsAre(Model("model"));
 
-            SetUpGet("model/3").Returns(new RestResponse(
-                "{" +
-                "\"Id\":\"3\"," +
-                "\"Display\":\"Test\"" +
-                "}"
-            ));
+            SetUpGet(
+                url: $"{URL_BASE}/model/3",
+                response: @"{""Id"":""3"",""Display"":""Test""}"
+            );
 
             var actual = testing.Get(Id("3", "model"));
 
@@ -114,12 +119,10 @@ namespace Routine.Test.Service
                 Model("viewmodel").IsView("model")
             );
 
-            SetUpGet("model/3/viewmodel").Returns(new RestResponse(
-                "{" +
-                "\"Id\":\"3\"," +
-                "\"Display\":\"Test\"" +
-                "}"
-            ));
+            SetUpGet(
+                url: $"{URL_BASE}/model/3/viewmodel",
+                response: @"{""Id"":""3"",""Display"":""Test""}"
+            );
 
             var actual = testing.Get(Id("3", "model", "viewmodel"));
 
@@ -147,7 +150,10 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model"));
 
-            SetUpGet("model/3").Returns(new RestResponse("\"3\""));
+            SetUpGet(
+                url: $"{URL_BASE}/model/3",
+                response: @"""3"""
+            );
 
             testing.Get(Id("3", "model"));
 
@@ -168,14 +174,16 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model"));
 
-            SetUpGet("model/3")
-                .Returns(new RestResponse("null",
+            SetUpGet(
+                url: $"{URL_BASE}/model/3",
+                response: new RestResponse("null",
                     new Dictionary<string, string>
                     {
-                        {"header1", "header1_value"},
-                        {"header2", "header2_value"}
-                    })
-                );
+                        { "header1", "header1_value" },
+                        { "header2", "header2_value" }
+                    }
+                )
+            );
 
             testing.Get(Id("3", "model"));
 
@@ -195,7 +203,7 @@ namespace Routine.Test.Service
                     .Operation("action", "model", PModel("arg1", "model"))
                 );
 
-            stubber.SetUp(mock,
+            stubber.SetUpPost(mock,
                 url: $"{URL_BASE}/model/3/action",
                 body: @"{""arg1"":""4""}",
                 response: @"{""Id"":""5"",""Display"":""Test""}"
@@ -238,19 +246,20 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model").Operation("action", true));
 
-            stubber.SetUp(mock,
+            stubber.SetUpPost(mock,
                 url: $"{URL_BASE}/model/3/action",
                 response: "null"
             );
 
             invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
 
-            mock.Verify(rc => rc.Post(It.IsAny<string>(), It.Is<RestRequest>(req =>
-                req.Headers.ContainsKey("header1") &&
-                req.Headers["header1"] == "header1_value" &&
-                req.Headers.ContainsKey("header2") &&
-                req.Headers["header2"] == "header2_value"
-            )));
+            stubber.VerifyPost(mock,
+                match: req =>
+                    req.Headers.ContainsKey("header1") &&
+                    req.Headers["header1"] == "header1_value" &&
+                    req.Headers.ContainsKey("header2") &&
+                    req.Headers["header2"] == "header2_value"
+            );
         }
 
         [Test]
@@ -262,8 +271,8 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model").Operation("action", true));
 
-            stubber.SetUp(mock,
-                url: $"{URL_BASE}model/3/action",
+            stubber.SetUpPost(mock,
+                url: $"{URL_BASE}/model/3/action",
                 response: new RestResponse("null",
                     new Dictionary<string, string>
                     {
@@ -291,9 +300,10 @@ namespace Routine.Test.Service
 
             ModelsAre(Model("model").Operation("action"));
 
-            SetUpGet("model/3").Returns(new RestResponse(
-                @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
-            ));
+            SetUpGet(
+                url: $"{URL_BASE}/model/3",
+                response: @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
+            );
 
             try
             {
@@ -305,7 +315,7 @@ namespace Routine.Test.Service
                 Assert.AreEqual("message", ex.Message);
             }
 
-            stubber.SetUp(mock,
+            stubber.SetUpPost(mock,
                 url: $"{URL_BASE}/model/3/action",
                 response: new RestResponse(@"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}")
             );
@@ -328,8 +338,10 @@ namespace Routine.Test.Service
                 .Exception.Set(c => c.By(er => new TestException(er.Message)).When(er => er.Type == "Http.NotFound"))
             ;
 
-            SetUpGet("model/3")
-                .Throws(HttpNotFound("server message"));
+            SetUpGet(
+                url: $"{URL_BASE}/model/3",
+                exception: HttpNotFound("server message")
+            );
 
             ModelsAre(Model("model").Operation("action"));
 
@@ -343,7 +355,7 @@ namespace Routine.Test.Service
                 Assert.AreEqual("server message", ex.Message);
             }
 
-            stubber.SetUp(mock,
+            stubber.SetUpPost(mock,
                 url: $"{URL_BASE}/model/3/action",
                 exception: HttpNotFound("server message")
             );

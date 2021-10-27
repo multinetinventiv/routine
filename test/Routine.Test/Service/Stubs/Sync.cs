@@ -8,16 +8,19 @@ namespace Routine.Test.Service.Stubs
 {
     public class Sync : IRestClientStubber
     {
-        public void SetUp(Mock<IRestClient> mock,
+        public void SetUpPost(Mock<IRestClient> mock,
             string url,
-            Expression<Func<RestRequest, bool>> restRequestMatcher,
+            Expression<Func<RestRequest, bool>> match,
             RestResponse response
-        ) => mock.Setup(rc => rc.Post(url, It.Is(restRequestMatcher))).Returns(response);
+        ) => mock.Setup(rc => rc.Post(url, It.Is(match))).Returns(response);
 
-        public void SetUp(Mock<IRestClient> mock,
+        public void SetUpPost(Mock<IRestClient> mock,
             string url,
-            Expression<Func<RestRequest, bool>> restRequestMatcher,
+            Expression<Func<RestRequest, bool>> match,
             WebException exception
-        ) => mock.Setup(rc => rc.Post(url, It.Is(restRequestMatcher))).Throws(exception);
+        ) => mock.Setup(rc => rc.Post(url, It.Is(match))).Throws(exception);
+
+        public void VerifyPost(Mock<IRestClient> mock, Expression<Func<RestRequest, bool>> match) =>
+            mock.Verify(rc => rc.Post(It.IsAny<string>(), It.Is(match)));
     }
 }
