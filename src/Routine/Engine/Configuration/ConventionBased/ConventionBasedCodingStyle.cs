@@ -182,13 +182,10 @@ namespace Routine.Engine.Configuration.ConventionBased
 
             //TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
             for (var i = 0; i < types.Count; i++)
-            {
-                var type = types[i];
+            {   
+                if (types[i] is not TypeInfo type) { continue; }
 
-                var typeInfo = type as TypeInfo;
-                if (typeInfo == null) { continue; }
-
-                types[i] = TypeInfo.Get(typeInfo.GetActualType());
+                types[i] = TypeInfo.Get(type.GetActualType());
             }
         }
 

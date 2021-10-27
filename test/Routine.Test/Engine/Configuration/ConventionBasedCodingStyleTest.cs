@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using NUnit.Framework;
 using Routine.Engine;
 
@@ -30,6 +32,30 @@ namespace Routine.Test.Engine.Configuration
             Assert.IsTrue(testing.ContainsType(type.of<int?>()));
         }
 
+        public class AClassWithNullableReferenceType
+        {
+            public string? NullableString { get; set; }
+            public string NotNullableString { get; set; } = "initial value";
+        }
+
+        [Test]
+        public void A_nullable_reference_type_is_treated_just_like_a_not_nullable_one()
+        {
+            var testing = BuildRoutine.CodingStyle().FromBasic();
+
+            testing.AddTypes(typeof(AClassWithNullableReferenceType));
+
+            testing.Datas.Add(c => c.PublicProperties());
+
+            var datas = ((ICodingStyle)testing).GetDatas(type.of<AClassWithNullableReferenceType>());
+
+            Assert.AreEqual(2, datas.Count);
+            Assert.AreEqual(nameof(AClassWithNullableReferenceType.NullableString), datas[0].Name);
+            Assert.AreEqual("System.String", datas[0].ReturnType.FullName);
+            Assert.AreEqual(nameof(AClassWithNullableReferenceType.NotNullableString), datas[1].Name);
+            Assert.AreEqual("System.String", datas[1].ReturnType.FullName);
+        }
+
         public ref struct ARefStruct { }
 
         [Test]
@@ -57,11 +83,11 @@ namespace Routine.Test.Engine.Configuration
 
             Assert.AreEqual(1, initializers.Count);
             Assert.AreEqual(1, initializers[0].Parameters.Count);
-            Assert.AreEqual("Data", initializers[0].Parameters[0].Name);
+            Assert.AreEqual(nameof(ARecord.Data), initializers[0].Parameters[0].Name);
             Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
 
             Assert.AreEqual(1, datas.Count);
-            Assert.AreEqual("Data", datas[0].Name);
+            Assert.AreEqual(nameof(ARecord.Data), datas[0].Name);
             Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
         }
 
@@ -94,11 +120,11 @@ namespace Routine.Test.Engine.Configuration
             Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
 
             Assert.AreEqual(1, datas.Count);
-            Assert.AreEqual("Data", datas[0].Name);
+            Assert.AreEqual(nameof(AReadonlyStruct.Data), datas[0].Name);
             Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
         }
 
-        public interface IAnInterface { public string GetData() => "data"; }
+        public interface IAnInterface { public string DefaultMethodOp() => "data"; }
         public class AClass : IAnInterface { }
 
         [Test]
@@ -113,7 +139,7 @@ namespace Routine.Test.Engine.Configuration
             var operations = ((ICodingStyle)testing).GetOperations(type.of<IAnInterface>());
 
             Assert.AreEqual(1, operations.Count);
-            Assert.AreEqual("GetData", operations[0].Name);
+            Assert.AreEqual(nameof(IAnInterface.DefaultMethodOp), operations[0].Name);
         }
     }
 }

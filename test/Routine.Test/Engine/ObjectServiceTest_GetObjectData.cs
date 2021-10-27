@@ -23,6 +23,7 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData
         public List<string> Items { get; set; }
         public List<BusinessData> SubDatas { get; set; }
         public NotLocatable NotLocatable { get; set; }
+        public int? NullableInt { get; set; }
 
         public void Operation() { }
 
@@ -259,12 +260,14 @@ namespace Routine.Test.Engine
         [Test]
         public void Null_objects_represented_as_empty_variable_data()
         {
-            AddToRepository(new BusinessData { Id = "obj", Title = null });
+            AddToRepository(new BusinessData { Id = "obj", Title = null, NullableInt = null});
 
             var actual = testing.Get(Id("obj"));
-            var actualData = actual.Data["Title"];
+            var title = actual.Data["Title"];
+            var nullableInt = actual.Data["NullableInt"];
 
-            Assert.AreEqual(new VariableData(), actualData);
+            Assert.AreEqual(new VariableData(), title);
+            Assert.AreEqual(new VariableData(), nullableInt);
         }
 
         [Test]

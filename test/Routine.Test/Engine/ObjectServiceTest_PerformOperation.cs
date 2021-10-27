@@ -38,6 +38,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
 
         void OptionalParameterOp(string required, string optional = "default");
 
+        int? NullableParameterOp(int? nullableInt);
+
         Task<string> AsyncOp();
 
         void DataInput(BusinessMasterInputData input);
@@ -73,6 +75,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation
         void IBusinessOperation.OverloadArray(int[] i, string s) => mock.OverloadArray(i, s);
 
         void IBusinessOperation.OptionalParameterOp(string required, string optional) => mock.OptionalParameterOp(required, optional);
+
+        int? IBusinessOperation.NullableParameterOp(int? nullableInt) => mock.NullableParameterOp(nullableInt);
 
         async Task<string> IBusinessOperation.AsyncOp() => await mock.AsyncOp();
 
@@ -264,6 +268,18 @@ namespace Routine.Test.Engine
         }
 
         [Test]
+        public void Nullable_value_result_support()
+        {
+            SetUpObject("id");
+
+            businessMock.Setup(o => o.NullableParameterOp(It.IsAny<int?>())).Returns((int?)null);
+
+            var result = invoker.InvokeDo(testing, Id("id"), "NullableParameterOp", Params());
+
+            Assert.AreEqual(new VariableData(), result);
+        }
+
+        [Test]
         public void List_result_support()
         {
             SetUpObject("id");
@@ -378,6 +394,19 @@ namespace Routine.Test.Engine
         }
 
         [Test]
+        public void Nullable_value_parameter_support()
+        {
+            SetUpObject("id");
+
+            invoker.InvokeDo(testing, Id("id"), "NullableParameterOp",
+                Params(
+                    Param("nullableInt", IdNull())
+                ));
+
+            businessMock.Verify(o => o.NullableParameterOp(null));
+        }
+
+        [Test]
         public void List_parameter_support()
         {
             SetUpObject("id");
@@ -471,7 +500,7 @@ namespace Routine.Test.Engine
         }
 
         [Test]
-        public void When_multiple_locating__null_and_initialized_arguments_are_not_sent_to_locator_but_their_index_are_kept()
+        public void When_multiple_locating__null_and_initialized_arguments_are_not_sent_to_locator_but_their_indices_are_kept()
         {
             codingStyle
                 .Initializers.Add(c => c.PublicConstructors().When(type.of<BusinessInitializableLocatable>()))

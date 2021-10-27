@@ -47,6 +47,8 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel
 
         public void OptionalParameterOp(string required, string optional = "default") { }
 
+        public int? NullableParameterOp(int? i) => i;
+
         public async Task AsyncVoidOp() { await Task.Delay(0); }
         public async Task<string> AsyncStringOp() { await Task.Delay(0); return string.Empty; }
 
@@ -503,6 +505,15 @@ namespace Routine.Test.Engine
             Assert.IsFalse(actual.Parameters[0].IsOptional);
             Assert.IsTrue(actual.Parameters[1].IsOptional);
             Assert.AreEqual("default", actual.Parameters[1].DefaultValue.Values[0].Id);
+        }
+
+        [Test]
+        public void A_parameter_and_return_type_can_be_nullable_value()
+        {
+            var actual = testing.ApplicationModel.Model[TESTED_OM_ID].Operations.Single(o => o.Name == "NullableParameterOp");
+
+            Assert.AreEqual("System.Int32?", actual.Parameters[0].ViewModelId);
+            Assert.AreEqual("System.Int32?", actual.Result.ViewModelId);
         }
 
         [Test]
