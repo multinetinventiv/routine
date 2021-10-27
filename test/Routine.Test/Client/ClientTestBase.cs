@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Moq;
-using Moq.Language.Flow;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Client.Context;
@@ -36,40 +33,13 @@ namespace Routine.Test.Client
                 .Returns((ReferenceData ord) => ObjectData(ord));
             objectServiceMock.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
                 .Returns(Void());
+            objectServiceMock.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
+                .ReturnsAsync(Void());
 
             ModelsAre(Model());
         }
 
         private ObjectData ObjectData(ReferenceData ord) => objectDictionary[ord];
-
-        #region Stubbers
-
-        protected ObjectStubber When(ReferenceData referenceData) => new(objectServiceMock, referenceData);
-
-        protected class ObjectStubber
-        {
-            private readonly Mock<IObjectService> objectServiceMock;
-            private readonly ReferenceData referenceData;
-
-            public ObjectStubber(Mock<IObjectService> objectServiceMock, ReferenceData referenceData)
-            {
-                this.objectServiceMock = objectServiceMock;
-                this.referenceData = referenceData;
-            }
-
-            public ISetup<IObjectService, VariableData> Performs(string operationName) => Performs(operationName, p => true);
-
-            public ISetup<IObjectService, VariableData> Performs(string operationName,
-                Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher
-            ) => objectServiceMock
-                .Setup(o => o.Do(
-                    referenceData,
-                    operationName,
-                    It.Is(parameterMatcher)
-                ));
-        }
-
-        #endregion
 
         protected Rtype Rtyp(string id) => testingRapplication[id];
 
