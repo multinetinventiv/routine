@@ -32,26 +32,26 @@ namespace Routine.Test.Core
 
         private void AssertEqualsAndHasSameHashCode<T>(T left, T right)
         {
-            Assert.IsTrue(left.Equals(right), left + " and " + right + " should be equal");
+            Assert.IsTrue(left.Equals(right), $"{left} and {right} should be equal");
             Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
         }
 
         private void AssertDoesNotEqualAndHasDifferentHashCode<T>(T left, T right)
         {
-            Assert.IsFalse(left.Equals(right), left + " and " + right + " should not be equal");
+            Assert.IsFalse(left.Equals(right), $"{left} and {right} should not be equal");
             Assert.AreNotEqual(left.GetHashCode(), right.GetHashCode());
         }
 
         private void AssertToStringHasTypeName<T>(T unitUnderTest) =>
-            Assert.IsTrue(unitUnderTest.ToString()?.Contains(typeof(T).Name), WrongToString(unitUnderTest.ToString()));
+            Assert.IsTrue(unitUnderTest.ToString()?.Contains(typeof(T).Name), $"{WrongToString(unitUnderTest.ToString())}, Expected: {typeof(T).Name}");
 
         private void AssertToStringHasProperty<T>(T unitUnderTest, string propertyName) =>
-            Assert.IsTrue(unitUnderTest.ToString()?.Contains(propertyName + ": "), WrongToString(unitUnderTest.ToString()));
+            Assert.IsTrue(unitUnderTest.ToString()?.Contains($"{propertyName}: "), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: ");
 
         private void AssertToStringHasPropertyAndItsValue<T>(T unitUnderTest, string propertyName, object propertyValue) =>
-            Assert.IsTrue(unitUnderTest.ToString()?.Contains(propertyName + ": " + propertyValue), WrongToString(unitUnderTest.ToString()));
+            Assert.IsTrue(unitUnderTest.ToString()?.Contains($"{propertyName}: {propertyValue}"), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: {propertyValue}");
 
-        private string WrongToString(string toString) => "Wrong ToString: " + toString;
+        private string WrongToString(string toString) => $"Wrong ToString: {toString}";
 
         #endregion
 
@@ -94,7 +94,13 @@ namespace Routine.Test.Core
                 Groups = new List<int> { 1, 2 },
                 IsList = true,
                 Name = "name",
-                ViewModelId = "view_model_id"
+                ViewModelId = "view_model_id",
+                IsOptional = true,
+                DefaultValue = new VariableData
+                {
+                    IsList = true,
+                    Values = new List<ObjectData> { new() { Id = "obj1" }, new() { Id = "obj2" } }
+                }
             });
 
             var testing = prototype.Create();
@@ -107,6 +113,8 @@ namespace Routine.Test.Core
             AssertToStringHasPropertyAndItsValue(testing, "IsList", testing.IsList);
             AssertToStringHasPropertyAndItsValue(testing, "Name", testing.Name);
             AssertToStringHasPropertyAndItsValue(testing, "ViewModelId", testing.ViewModelId);
+            AssertToStringHasPropertyAndItsValue(testing, "IsOptional", testing.IsOptional);
+            AssertToStringHasPropertyAndItsValue(testing, "DefaultValue", testing.DefaultValue.ToString());
 
             //Equals & HashCode tests
             AssertEqualsAndHasSameHashCode(testing, prototype.Create());
@@ -116,6 +124,8 @@ namespace Routine.Test.Core
             AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsList = false));
             AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.Name = "different"));
             AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.ViewModelId = "different"));
+            AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.IsOptional = false));
+            AssertDoesNotEqualAndHasDifferentHashCode(testing, prototype.Create(m => m.DefaultValue.Values[0].Id = "different"));
         }
 
         [Test]

@@ -94,6 +94,9 @@ namespace Routine.Test.Engine.Virtual
             IParameter testing = new VirtualParameter(owner);
 
             Assert.AreEqual(0, testing.GetCustomAttributes().Length);
+            Assert.IsFalse(testing.IsOptional);
+            Assert.IsFalse(testing.HasDefaultValue);
+            Assert.IsNull(testing.DefaultValue);
         }
     }
 }

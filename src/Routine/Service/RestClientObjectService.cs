@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using Routine.Core;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service
 {
@@ -24,34 +25,64 @@ namespace Routine.Service
         }
 
         private ApplicationModel FetchApplicationModel() => new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
-
         public ApplicationModel ApplicationModel => applicationModel.Value;
 
         public ObjectData Get(ReferenceData reference)
         {
             if (reference == null) { return null; }
 
-            var helper = new DataCompressor(ApplicationModel, reference.ViewModelId);
+            var response = Get(Url(reference));
+            var result = Result(response);
 
-            return helper.DecompressObjectData(Result(Get(Url(reference))));
+            return Compressor(reference.ViewModelId).DecompressObjectData(result);
         }
 
         public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
         {
             if (target == null) { return new VariableData(); }
 
+            var (body, resultViewModelId) = GetBodyAndResultViewModelId(target, operation, parameters);
+
+            var response = Post(Url(target, operation), body);
+            var result = Result(response);
+
+            return Compressor(resultViewModelId).DecompressVariableData(result);
+        }
+
+        public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
+            if (target == null) { return new VariableData(); }
+
+            var (body, resultViewModelId) = GetBodyAndResultViewModelId(target, operation, parameters);
+
+            var response = await PostAsync(Url(target, operation), body);
+            var result = Result(response);
+
+            return Compressor(resultViewModelId).DecompressVariableData(result);
+        }
+
+        private Tuple<string, string> GetBodyAndResultViewModelId(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
             var operationModel = GetOperationModel(target, operation);
 
-            var body = serializer.Serialize(parameters.ToDictionary(kvp => kvp.Key, kvp =>
-                new DataCompressor(ApplicationModel, operationModel.Parameter[kvp.Key].ViewModelId)
-                    .Compress(kvp.Value)
-                ));
+            var body = serializer.Serialize(parameters.ToDictionary(
+                kvp => kvp.Key,
+                kvp => Compressor(operationModel.Parameter[kvp.Key].ViewModelId).Compress(kvp.Value)
+            ));
 
-            var result = Result(Post(Url(target, operation), body));
+            return new Tuple<string, string>(body, operationModel.Result.ViewModelId);
+        }
 
-            var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
+        private DataCompressor Compressor(string resultViewModelId) => new(ApplicationModel, resultViewModelId);
 
-            return helper.DecompressVariableData(result);
+        private OperationModel GetOperationModel(ReferenceData target, string operation)
+        {
+            if (!GetObjectModel(target).Operation.TryGetValue(operation, out var operationModel))
+            {
+                throw OperationNotFound(target.ViewModelId, operation);
+            }
+
+            return operationModel;
         }
 
         private ObjectModel GetObjectModel(ReferenceData target)
@@ -62,16 +93,6 @@ namespace Routine.Service
             }
 
             return objectModel;
-        }
-
-        private OperationModel GetOperationModel(ReferenceData target, string operation)
-        {
-            if (!GetObjectModel(target).Operation.TryGetValue(operation, out var operationModel))
-            {
-                throw OperationNotFound(target.ViewModelId, operation);
-            }
-
-            return operationModel;
         }
 
         private object Result(RestResponse response)
@@ -101,6 +122,23 @@ namespace Routine.Service
             );
         private string Url(string action) => $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
 
+        private RestResponse Get(string url)
+        {
+            try
+            {
+                return restClient.Get(url, BuildRequest(string.Empty));
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response is not HttpWebResponse res)
+                {
+                    throw;
+                }
+
+                return Wrap(res);
+            }
+        }
+
         private RestResponse Post(string url, string body)
         {
             try
@@ -118,11 +156,11 @@ namespace Routine.Service
             }
         }
 
-        private RestResponse Get(string url)
+        private async Task<RestResponse> PostAsync(string url, string body)
         {
             try
             {
-                return restClient.Get(url, BuildRequest(string.Empty));
+                return await restClient.PostAsync(url, BuildRequest(body));
             }
             catch (WebException ex)
             {

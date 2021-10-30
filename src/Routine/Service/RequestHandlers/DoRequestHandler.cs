@@ -47,7 +47,7 @@ namespace Routine.Service.RequestHandlers
                 throw new BadRequestException(ex);
             }
 
-            var variableData = ServiceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
+            var variableData = await ServiceContext.ObjectService.DoAsync(resolution.Reference, resolution.OperationModel.Name, parameterValues);
             var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
             await WriteJsonResponse(compressor.Compress(variableData));

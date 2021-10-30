@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Routine.Client;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
 using Routine.Core.Reflection;
@@ -77,6 +78,13 @@ namespace Routine
 
         #region ContextBuilder
 
+        public static IClientContext AsClientApplication(
+            this ContextBuilder source,
+            Func<CodingStyleBuilder, ICodingStyle> codingStyle
+        ) => source.AsClientApplication(
+            codingStyle(BuildRoutine.CodingStyle())
+        );
+
         public static IServiceContext AsServiceApplication(
             this ContextBuilder source,
             Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
@@ -84,6 +92,13 @@ namespace Routine
         ) => source.AsServiceApplication(
             serviceConfiguration(BuildRoutine.ServiceConfig()),
             codingStyle(BuildRoutine.CodingStyle())
+        );
+
+        public static IClientContext AsServiceClient(
+            this ContextBuilder source,
+            Func<ServiceClientConfigurationBuilder, IServiceClientConfiguration> serviceClientConfiguration
+        ) => source.AsServiceClient(
+            serviceClientConfiguration(BuildRoutine.ServiceClientConfig())
         );
 
         #endregion

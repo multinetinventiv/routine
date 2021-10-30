@@ -26,6 +26,9 @@ namespace Routine.Engine.Configuration.ConventionBased
 
         public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool> DataFetchedEagerly { get; }
 
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, bool> ParameterIsOptional { get; }
+        public ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, object> ParameterDefaultValue { get; }
+
         public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> Module { get; }
         public ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string> TypeName { get; }
         public ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string> DataName { get; }
@@ -57,6 +60,9 @@ namespace Routine.Engine.Configuration.ConventionBased
             Operations = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod>(this, nameof(Operations));
 
             DataFetchedEagerly = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool>(this, nameof(DataFetchedEagerly));
+            
+            ParameterIsOptional = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, bool>(this, nameof(ParameterIsOptional));
+            ParameterDefaultValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, object>(this, nameof(ParameterDefaultValue));
 
             Module = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(Module), true);
             TypeName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(TypeName), true);
@@ -88,6 +94,9 @@ namespace Routine.Engine.Configuration.ConventionBased
             Operations.Merge(other.Operations);
 
             DataFetchedEagerly.Merge(other.DataFetchedEagerly);
+
+            ParameterIsOptional.Merge(other.ParameterIsOptional);
+            ParameterDefaultValue.Merge(other.ParameterDefaultValue);
 
             Module.Merge(other.Module);
             TypeName.Merge(other.TypeName);
@@ -173,13 +182,10 @@ namespace Routine.Engine.Configuration.ConventionBased
 
             //TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
             for (var i = 0; i < types.Count; i++)
-            {
-                var type = types[i];
+            {   
+                if (types[i] is not TypeInfo type) { continue; }
 
-                var typeInfo = type as TypeInfo;
-                if (typeInfo == null) { continue; }
-
-                types[i] = TypeInfo.Get(typeInfo.GetActualType());
+                types[i] = TypeInfo.Get(type.GetActualType());
             }
         }
 
@@ -216,6 +222,9 @@ namespace Routine.Engine.Configuration.ConventionBased
         List<IMethod> ICodingStyle.GetOperations(IType type) => Operations.Get(type);
 
         bool ICodingStyle.IsFetchedEagerly(IProperty property) => DataFetchedEagerly.Get(property);
+
+        bool ICodingStyle.IsOptional(IParameter parameter) => ParameterIsOptional.Get(parameter);
+        object ICodingStyle.GetDefaultValue(IParameter parameter) => ParameterDefaultValue.Get(parameter);
 
         string ICodingStyle.GetModule(IType type) => Module.Get(type);
         string ICodingStyle.GetName(IType type) => TypeName.Get(type);

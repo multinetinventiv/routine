@@ -88,10 +88,13 @@ namespace Routine.Engine
         private readonly IParameter parameter;
 
         public string Name { get; }
+        public DomainType ParameterType { get; }
         public Marks Marks { get; }
         public List<int> Groups { get; }
         public bool IsList { get; }
-        public DomainType ParameterType { get; }
+        public bool IsOptional { get; }
+        
+        private readonly object defaultValue;
 
         private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
         {
@@ -99,10 +102,13 @@ namespace Routine.Engine
             this.parameter = parameter;
 
             Name = ctx.CodingStyle.GetName(parameter);
+            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
             Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
             Groups = new List<int> { initialGroupIndex };
             IsList = parameter.ParameterType.CanBeCollection();
-            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
+            IsOptional = ctx.CodingStyle.IsOptional(parameter);
+            
+            defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
         }
 
         private void AddGroup(IParameter parameter, int groupIndex)
@@ -118,10 +124,12 @@ namespace Routine.Engine
             new()
             {
                 Name = Name,
+                ViewModelId = ParameterType.Id,
                 Marks = Marks.List,
                 Groups = Groups,
                 IsList = IsList,
-                ViewModelId = ParameterType.Id
+                IsOptional = IsOptional,
+                DefaultValue = ctx.CreateValueData(defaultValue, IsList, ParameterType, false)
             };
 
         internal object Locate(ParameterValueData parameterValueData)

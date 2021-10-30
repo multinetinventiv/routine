@@ -1,24 +1,46 @@
 using System;
 using Routine.Core.Runtime;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Routine.Core.Reflection
 {
     public class ReflectionMethodInvoker : IMethodInvoker
     {
-        private readonly System.Reflection.MethodBase method;
+        private readonly MethodBase method;
 
-        public ReflectionMethodInvoker(System.Reflection.MethodBase method)
+        public ReflectionMethodInvoker(MethodBase method)
         {
             this.method = method;
         }
 
         public object Invoke(object target, params object[] args)
         {
+            var result = InvokeInner(target, args);
+
+            if (result is not Task task) { return result; }
+
+            return task.WaitAndGetResult();
+        }
+
+        public async Task<object> InvokeAsync(object target, params object[] args)
+        {
+            var result = InvokeInner(target, args);
+
+            if (result is not Task task) { return result; }
+
+            await task;
+
+            return task.GetResult();
+        }
+
+        private object InvokeInner(object target, object[] args)
+        {
             try
             {
                 if (method.IsConstructor)
                 {
-                    var ctor = (System.Reflection.ConstructorInfo)method;
+                    var ctor = (ConstructorInfo)method;
 
                     return ctor.Invoke(args);
                 }
@@ -27,11 +49,9 @@ namespace Routine.Core.Reflection
 
                 return method.Invoke(target, args);
             }
-            catch (System.Reflection.TargetInvocationException ex)
+            catch (TargetInvocationException ex)
             {
-                ex.InnerException.PreserveStackTrace();
-
-                throw ex.InnerException;
+                throw ex.GetInnerException();
             }
         }
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Routine.Core
 {
@@ -8,5 +9,6 @@ namespace Routine.Core
 
 		ObjectData Get(ReferenceData reference);
 		VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters);
+		Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters);
 	}
 }

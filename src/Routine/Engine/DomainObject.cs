@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Engine
 {
@@ -99,14 +100,17 @@ namespace Routine.Engine
 			return data.CreateData(viewTarget, true);
 		}
 
-		public VariableData Perform(string operationName, Dictionary<string, ParameterValueData> parameterValues)
-		{
-            if (!viewDomainType.Operation.TryGetValue(operationName, out var operation))
-			{
-				throw new OperationDoesNotExistException(viewDomainType.Id, operationName);
-			}
+		public VariableData Perform(string operationName, Dictionary<string, ParameterValueData> parameterValues) => Operation(operationName).Perform(viewTarget, parameterValues);
+        public async Task<VariableData> PerformAsync(string operationName, Dictionary<string, ParameterValueData> parameterValues) => await Operation(operationName).PerformAsync(viewTarget, parameterValues);
 
-			return operation.Perform(viewTarget, parameterValues);
-		}
-	}
+        private DomainOperation Operation(string name)
+        {
+            if (!viewDomainType.Operation.TryGetValue(name, out var operation))
+            {
+                throw new OperationDoesNotExistException(viewDomainType.Id, name);
+            }
+
+            return operation;
+        }
+    }
 }

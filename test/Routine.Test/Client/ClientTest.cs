@@ -7,12 +7,15 @@ using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
 using Routine.Engine.Context;
+using Routine.Test.Client.Stubs;
 
 namespace Routine.Test.Client
 {
     [TestFixture]
     public class ClientTest : ClientTestBase
     {
+        public static List<IPerformer> SyncAndAsync() => new() { new Sync(), new Async() };
+
         [Test]
         public void Client_gets_all_types_in_application_via_Rapplication()
         {
@@ -160,8 +163,8 @@ namespace Routine.Test.Client
             Assert.AreEqual("value", testingRobject.Display);
         }
 
-        [Test]
-        public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode()
+        [TestCaseSource(nameof(SyncAndAsync))]
+        public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode(IPerformer performer)
         {
             ModelsAre(
                 Model("model")
@@ -190,8 +193,12 @@ namespace Routine.Test.Client
             Assert.IsTrue(testingRvariable.Object.IsNull);
 
             //accessing void as single returns null object
-            When(Id("id3", "model")).Performs("operation1").Returns(Void());
-            testingRvariable = obj3.Perform("operation");
+            performer.SetUp(objectServiceMock,
+                id: Id("id3", "model"),
+                operation: "operation",
+                result: Void()
+            );
+            testingRvariable = performer.Perform(obj3, "operation");
             Assert.IsTrue(testingRvariable.IsNull);
             Assert.IsTrue(testingRvariable.Object.IsNull);
 
@@ -226,8 +233,8 @@ namespace Routine.Test.Client
             Assert.IsTrue(testingRvariable.Object.IsNull);
         }
 
-        [Test]
-        public void Robject_behaves_optimistic_when_it_is_null()
+        [TestCaseSource(nameof(SyncAndAsync))]
+        public void Robject_behaves_optimistic_when_it_is_null(IPerformer performer)
         {
             ModelsAre(Model("model").Data("data"));
 
@@ -238,11 +245,11 @@ namespace Routine.Test.Client
 
             Assert.AreEqual(0, testingRobject.DataValues.Count);
             Assert.IsNull(testingRobject.Type);
-            Assert.IsTrue(testingRobject.Perform("some non existing operation").IsNull);
+            Assert.IsTrue(performer.Perform(testingRobject, "some non existing operation").IsNull);
         }
 
-        [Test]
-        public void Client_performs_operation_via_Robject()
+        [TestCaseSource(nameof(SyncAndAsync))]
+        public void Client_performs_operation_via_Robject(IPerformer performer)
         {
             ModelsAre(
                 Model("view_model").IsView("actual_model")
@@ -255,23 +262,27 @@ namespace Routine.Test.Client
                 Object(Id("id_param2")),
                 Object(Id("id_result")));
 
-            When(Id("id", "actual_model", "view_model"))
-                .Performs("operation", p =>
+            performer.SetUp(objectServiceMock,
+                id: Id("id", "actual_model", "view_model"),
+                operation: "operation",
+                match: p =>
                     p["param1"].Values[0].Id == "id_param1" &&
-                    p["param2"].Values[0].Id == "id_param2")
-                .Returns(Result(Id("id_result")));
+                    p["param2"].Values[0].Id == "id_param2",
+                result: Result(Id("id_result"))
+            );
 
             var testingRobject = Robj("id", "actual_model", "view_model");
 
-            var result = testingRobject.Perform("operation",
+            var result = performer.Perform(testingRobject, "operation",
                 Rvar("param1", Robj("id_param1")),
-                Rvar("param2", Robj("id_param2")));
+                Rvar("param2", Robj("id_param2"))
+            );
 
             Assert.AreEqual("id_result", result.Object.Id);
         }
 
-        [Test]
-        public void Client_can_initialize_objects_via_Robject()
+        [TestCaseSource(nameof(SyncAndAsync))]
+        public void Client_can_initialize_objects_via_Robject(IPerformer performer)
         {
             ModelsAre(
                 Model("sub_data_model")
@@ -289,19 +300,22 @@ namespace Routine.Test.Client
                 Object(Id("id_result"))
             );
 
-            When(Id("id", "operational_model"))
-                .Performs("data_input", p =>
+            performer.SetUp(objectServiceMock,
+                id: Id("id", "operational_model"),
+                operation: "data_input",
+                match: p =>
                     p["data"].Values[0].ModelId == "data_model" &&
                     p["data"].Values[0].Id == null &&
                     p["data"].Values[0].InitializationParameters["param1"].Values[0].ModelId == "sub_data_model" &&
                     p["data"].Values[0].InitializationParameters["param1"].Values[0].Id == null &&
                     p["data"].Values[0].InitializationParameters["param1"].Values[0].InitializationParameters["param1"].Values[0].Id == "id_sub_data_param1" &&
-                    p["data"].Values[0].InitializationParameters["param2"].Values[0].Id == "id_data_param2")
-                .Returns(Result(Id("id_result")));
+                    p["data"].Values[0].InitializationParameters["param2"].Values[0].Id == "id_data_param2",
+                result: Result(Id("id_result"))
+            );
 
             var testingRobject = Robj("id", "operational_model");
 
-            var result = testingRobject.Perform("data_input",
+            var result = performer.Perform(testingRobject, "data_input",
                 Rvar("data",
                     Robj("data_model",
                         Rvar("param1",
@@ -369,8 +383,8 @@ namespace Routine.Test.Client
             Assert.AreNotEqual(robj1, robj2);
         }
 
-        [Test]
-        public void Roperation_can_return_void_result()
+        [TestCaseSource(nameof(SyncAndAsync))]
+        public void Roperation_can_return_void_result(IPerformer performer)
         {
             ModelsAre(
                 Model("model")
@@ -378,9 +392,13 @@ namespace Routine.Test.Client
 
             ObjectsAre(Object(Id("id", "model")));
 
-            When(Id("id", "model")).Performs("operation1").Returns(Void());
+            performer.SetUp(objectServiceMock,
+                id: Id("id", "model"),
+                operation: "operation1",
+                result: Void()
+            );
 
-            var result = Robj("id", "model").Perform("operation1");
+            var result = performer.Perform(Robj("id", "model"), "operation1");
 
             Assert.IsTrue(result.IsVoid);
         }

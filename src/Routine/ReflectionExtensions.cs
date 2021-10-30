@@ -10,9 +10,8 @@ namespace Routine
     public static class ReflectionExtensions
     {
         #region string
-
-        public static TypeInfo ToTypeInfo(this string typeName) => typeName.ToTypeInfo(false);
-        public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch)
+        
+        public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch = false)
         {
             try
             {
@@ -46,11 +45,9 @@ namespace Routine
         #endregion
 
         #region internal Type
-
-        public static string ToCSharpString(this Type source) => source.ToCSharpString(true);
-        public static string ToCSharpString(this IType source) => source.ToCSharpString(true);
-        public static string ToCSharpString(this Type source, bool useFullName) => source.ToTypeInfo().ToCSharpString(useFullName);
-        public static string ToCSharpString(this IType source, bool useFullName)
+        
+        public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo().ToCSharpString(useFullName);
+        public static string ToCSharpString(this IType source, bool useFullName = true)
         {
             if (source.IsVoid)
             {
@@ -99,7 +96,7 @@ namespace Routine
         public static bool CanBeCollection(this IType source) => source.CanBeCollection<object>();
         public static bool CanBeCollection<T>(this IType source) => source.CanBeCollection(type.of<T>());
         public static bool CanBeCollection(this IType source, IType itemType) =>
-            source.CanBe<ICollection>() && 
+            source.CanBe<ICollection>() &&
             source.IsGenericType && source.GetGenericArguments()[0].CanBe(itemType) ||
             source.IsArray && source.GetElementType().CanBe(itemType);
 
@@ -120,7 +117,7 @@ namespace Routine
         #region ITypeComponent
 
         public static bool Has<TAttribute>(this ITypeComponent source) where TAttribute : Attribute => source.Has(type.of<TAttribute>());
-        public static bool Has(this ITypeComponent source, TypeInfo attributeType) => 
+        public static bool Has(this ITypeComponent source, TypeInfo attributeType) =>
             source.GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 
         #endregion
@@ -159,9 +156,7 @@ namespace Routine
 
         public static bool ReturnsVoid(this IMethod method) => method.ReturnType.IsVoid;
 
-        public static bool IsInherited(this IMethod method) => method.IsInherited(false);
-        public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace) => method.IsInherited(ignoreSameRootNamespace, false);
-        public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace, bool useFirstDeclaration)
+        public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace = false, bool useFirstDeclaration = false)
         {
             var parent = method.ParentType;
             var declaring = method.GetDeclaringType(useFirstDeclaration);
@@ -181,9 +176,7 @@ namespace Routine
 
         #region IProperty
 
-        public static bool IsInherited(this IProperty property) => property.IsInherited(false);
-        public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace) => property.IsInherited(ignoreSameRootNamespace, false);
-        public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace, bool useFirstDeclaration)
+        public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace = false, bool useFirstDeclaration = false)
         {
             var parent = property.ParentType;
             var declaring = property.GetDeclaringType(useFirstDeclaration);
@@ -204,25 +197,25 @@ namespace Routine
         #region IReturnable
 
         public static bool Returns<T>(this IReturnable source) => source.Returns(type.of<T>());
-        public static bool Returns(this IReturnable source, IType returnType) => 
+        public static bool Returns(this IReturnable source, IType returnType) =>
             source.ReturnType.CanBe(returnType);
 
         public static bool Returns<T>(this IReturnable source, string name) => source.Returns(type.of<T>(), name);
-        public static bool Returns(this IReturnable source, IType returnType, string name) => 
+        public static bool Returns(this IReturnable source, IType returnType, string name) =>
             source.Returns(returnType) && source.Name == name;
 
         public static bool ReturnsCollection(this IReturnable source) => source.ReturnsCollection<object>();
         public static bool ReturnsCollection<T>(this IReturnable source) => source.ReturnsCollection(type.of<T>());
-        public static bool ReturnsCollection(this IReturnable source, IType itemType) => 
+        public static bool ReturnsCollection(this IReturnable source, IType itemType) =>
             source.ReturnType.CanBeCollection(itemType);
 
         public static bool ReturnsCollection(this IReturnable source, string name) => source.ReturnsCollection<object>(name);
         public static bool ReturnsCollection<T>(this IReturnable source, string name) => source.ReturnsCollection(type.of<T>(), name);
-        public static bool ReturnsCollection(this IReturnable source, IType itemType, string name) => 
+        public static bool ReturnsCollection(this IReturnable source, IType itemType, string name) =>
             source.ReturnsCollection(itemType) && source.Name == name;
 
         public static bool ReturnTypeHas<TAttribute>(this IReturnable source) where TAttribute : Attribute => source.ReturnTypeHas(type.of<TAttribute>());
-        public static bool ReturnTypeHas(this IReturnable source, TypeInfo attributeType) => 
+        public static bool ReturnTypeHas(this IReturnable source, TypeInfo attributeType) =>
             source.GetReturnTypeCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 
         #endregion

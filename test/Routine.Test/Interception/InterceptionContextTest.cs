@@ -18,7 +18,7 @@ namespace Routine.Test.Interception
         }
 
         [Test]
-        public void Returns_null_when_given_key_does_not_exists()
+        public void Returns_null_when_given_key_does_not_exist()
         {
             var testing = new InterceptionContext("test");
 

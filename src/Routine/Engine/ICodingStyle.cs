@@ -22,6 +22,9 @@ namespace Routine.Engine
 
 		bool IsFetchedEagerly(IProperty property);
 
+        bool IsOptional(IParameter parameter);
+        object GetDefaultValue(IParameter parameter);
+
 		string GetModule(IType type);
 		string GetName(IType type);
 		string GetName(IProperty type);

@@ -36,6 +36,10 @@ namespace Routine.Engine
                 {
                     result[parameter.Index] = alternative.Parameters[parameter.Index].Locate(parameterValueData);
                 }
+                else if (parameter.IsOptional && parameter.HasDefaultValue)
+                {
+                    result[parameter.Index] = parameter.DefaultValue;
+                }
             }
 
             return result;
@@ -111,16 +115,6 @@ namespace Routine.Engine
             return result;
         }
 
-        public class Resolution
-        {
-            public T Result { get; }
-            public object[] Parameters { get; }
-
-            internal Resolution(T result, object[] parameters)
-            {
-                Result = result;
-                Parameters = parameters;
-            }
-        }
+        public record Resolution(T Result, object[] Parameters);
     }
 }

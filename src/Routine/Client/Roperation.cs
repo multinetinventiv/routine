@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Client
 {
@@ -25,6 +26,24 @@ namespace Routine.Client
 
         public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
         {
+            var parameterValues = BuildParameters(parameterVariables);
+
+            var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
+
+            return Result(resultData);
+        }
+
+        public async Task<Rvariable> PerformAsync(Robject target, List<Rvariable> parameterVariables)
+        {
+            var parameterValues = BuildParameters(parameterVariables);
+
+            var resultData = await Application.Service.DoAsync(target.ReferenceData, model.Name, parameterValues);
+
+            return Result(resultData);
+        }
+
+        private Dictionary<string, ParameterValueData> BuildParameters(List<Rvariable> parameterVariables)
+        {
             var parameterValues = new Dictionary<string, ParameterValueData>();
             foreach (var parameterVariable in parameterVariables)
             {
@@ -33,12 +52,13 @@ namespace Routine.Client
                 parameterValues.Add(rparam.Name, parameterValue);
             }
 
-            var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
+            return parameterValues;
+        }
 
-            return ResultIsVoid
+        private Rvariable Result(VariableData resultData) =>
+            ResultIsVoid
                 ? new Rvariable(true)
                 : new Rvariable(Application, resultData, ResultType.Id);
-        }
 
         #region Equality & Hashcode
 

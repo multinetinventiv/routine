@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Routine.Interception
 {
@@ -54,9 +55,15 @@ namespace Routine.Interception
                 ? invocation()
                 : first.Intercept(context, invocation);
 
+        private async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) =>
+            first == null
+                ? await invocation()
+                : await first.InterceptAsync(context, invocation);
+
         #region IInterceptor<TContext> implementation
 
         object IInterceptor<TContext>.Intercept(TContext context, Func<object> invocation) => Intercept(context, invocation);
+        async Task<object> IInterceptor<TContext>.InterceptAsync(TContext context, Func<Task<object>> invocation) => await InterceptAsync(context, invocation);
 
         #endregion
     }

@@ -32,6 +32,19 @@ namespace Routine.Test.Engine.Reflection
             Assert.AreSame(methodInfo.ReturnType, testing.ReturnType.GetActualType());
         }
 
+        [TestCase("PublicMethod", "PublicMethodAsync")]
+        [TestCase("PrivateMethod", "PrivateMethodAsync")]
+        [TestCase("PublicStaticMethod", "PublicStaticMethodAsync")]
+        [TestCase("PublicPingMethod", "PublicPingMethodAsync")]
+        [TestCase("PublicStaticPingMethod", "PublicStaticPingMethodAsync")]
+        public void Given_an_async_method__task_is_ignored_and_return_type_becomes_void(string sync, string async)
+        {
+            Assert.AreSame(
+                (type.of<TestClass_OOP>().GetMethod(sync) ?? type.of<TestClass_OOP>().GetStaticMethod(sync)).ReturnType,
+                (type.of<TestClass_OOP>().GetMethod(async) ?? type.of<TestClass_OOP>().GetStaticMethod(async)).ReturnType
+            );
+        }
+
         [Test, SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public void System_MethodInfo_GetParameters_is_wrapped_by_Routine_MethodInfo()
         {
@@ -79,6 +92,16 @@ namespace Routine.Test.Engine.Reflection
             var obj = new TestClass_OOP();
 
             Assert.AreEqual("instance test", testing.Invoke(obj, "test"));
+        }
+
+        [Test]
+        public void Routine_MethodInfo_can_invoke_default_interface_methods()
+        {
+            testing = OOP_InterfaceMethod("DefaultInterfaceMethod");
+
+            var obj = new TestClass_OOP();
+
+            Assert.AreEqual("default interface test", testing.Invoke(obj, "test"));
         }
 
         [Test]

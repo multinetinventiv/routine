@@ -20,10 +20,14 @@ namespace Routine.Engine.Virtual
 			Owner = owner ?? throw new ArgumentNullException(nameof(owner));
 		}
 
-		public object[] GetCustomAttributes() => real.GetCustomAttributes();
         public string Name => real.Name;
         public IType ParentType => Owner.ParentType;
         public int Index => index;
         public IType ParameterType => real.ParameterType;
+        public bool IsOptional => real.IsOptional;
+        public bool HasDefaultValue => real.HasDefaultValue;
+        public object DefaultValue => real.DefaultValue;
+
+        public object[] GetCustomAttributes() => real.GetCustomAttributes();
     }
 }
