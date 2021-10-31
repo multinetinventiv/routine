@@ -70,7 +70,7 @@ namespace Routine.Core.Rest
             {
                 await using (var dataStream = await req.GetRequestStreamAsync())
                 {
-                    await dataStream.WriteAsync(byteArray, 0, byteArray.Length);
+                    await dataStream.WriteAsync(byteArray.AsMemory(0, byteArray.Length));
                 }
             }
 
@@ -126,12 +126,6 @@ namespace Routine.Core.Rest
 
             return result;
         }
-    }
-
-    public static class ContextBuilderWebRequestRestClientExtensions
-    {
-        public static ContextBuilder UsingRestClient(this ContextBuilder source, Action<WebRequest> configurer) => source.UsingRestClient(new WebRequestRestClient(configurer));
-        public static ContextBuilder UsingRestClient(this ContextBuilder source, Func<string, WebRequest> requestFactory) => source.UsingRestClient(new WebRequestRestClient(requestFactory));
     }
 }
 
