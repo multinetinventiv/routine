@@ -4,6 +4,7 @@ namespace Routine.Core.Cache
 {
     public class WebCache : ICache
     {
+        // remove memory cache, use dictionary instead
         private readonly MemoryCache cache;
 
         public WebCache()
