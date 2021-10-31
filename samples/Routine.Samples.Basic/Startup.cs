@@ -52,6 +52,7 @@ namespace Routine.Samples.Basic
                     .Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
                     .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
+                // using interception and other extensions?
             );
         }
     }
