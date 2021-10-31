@@ -35,7 +35,7 @@ namespace Routine
         public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
         private IJsonSerializer Serializer() => serializer;
 
-        private ICache cache = new WebCache();
+        private ICache cache = new DictionaryCache();
         public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }
         private ICache Cache() => cache;
 

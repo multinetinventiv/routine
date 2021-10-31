@@ -11,7 +11,16 @@ namespace Routine.Core.Cache
             dictionary = new Dictionary<string, object>();
         }
 
-        public object this[string key] => Contains(key) ? dictionary[key] : null;
+        public object this[string key]
+        {
+            get
+            {
+                dictionary.TryGetValue(key, out var result);
+
+                return result;
+            }
+        }
+
         public bool Contains(string key) => dictionary.ContainsKey(key);
 
         public void Add(string key, object value)
