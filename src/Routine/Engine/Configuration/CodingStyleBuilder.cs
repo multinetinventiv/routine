@@ -1,5 +1,6 @@
-using System;
 using Routine.Engine.Configuration.ConventionBased;
+using System;
+using static Routine.Constants;
 
 namespace Routine.Engine.Configuration
 {
@@ -63,10 +64,10 @@ namespace Routine.Engine.Configuration
                 .Datas.AddNoneWhen(t => t == null)
                 .StaticInstances.AddNoneWhen(t => t == null)
                 .Module.Set(null, t => t == null)
-                .TypeName.Set(Constants.NULL_MODEL_NAME, t => t == null)
+                .TypeName.Set(MODEL_NAME_NULL, t => t == null)
 
                 .Module.Set(null, t => t.IsVoid)
-                .TypeName.Set(c => c.By(_ => Constants.VOID_MODEL_NAME).When(t => t.IsVoid))
+                .TypeName.Set(c => c.By(_ => MODEL_NAME_VOID).When(t => t.IsVoid))
                 .TypeIsValue.Set(true, t => t.IsVoid)
             )
 

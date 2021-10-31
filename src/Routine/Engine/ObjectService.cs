@@ -1,9 +1,10 @@
+using Routine.Core;
+using Routine.Core.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
-using Routine.Core.Cache;
 using System.Threading.Tasks;
+using static Routine.Constants;
 
 namespace Routine.Engine
 {
@@ -22,13 +23,13 @@ namespace Routine.Engine
         {
             get
             {
-                if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
+                if (!cache.Contains(CACHE_APPLICATION_MODEL))
                 {
                     lock (cache)
                     {
-                        if (!cache.Contains(Constants.APPLICATION_MODEL_CACHE_KEY))
+                        if (!cache.Contains(CACHE_APPLICATION_MODEL))
                         {
-                            cache.Add(Constants.APPLICATION_MODEL_CACHE_KEY, new ApplicationModel
+                            cache.Add(CACHE_APPLICATION_MODEL, new ApplicationModel
                             {
                                 Models = ctx.GetDomainTypes().Select(dt => dt.GetModel()).ToList()
                             });
@@ -36,7 +37,7 @@ namespace Routine.Engine
                     }
                 }
 
-                return cache[Constants.APPLICATION_MODEL_CACHE_KEY] as ApplicationModel;
+                return cache[CACHE_APPLICATION_MODEL] as ApplicationModel;
             }
         }
 

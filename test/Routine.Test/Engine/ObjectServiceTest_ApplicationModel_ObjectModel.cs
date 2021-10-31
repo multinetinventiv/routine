@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Engine;
 using Routine.Engine.Virtual;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectModel;
 using Routine.Test.Engine.Ignored;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using static Routine.Constants;
 
 #region Test Model
 
@@ -383,7 +384,7 @@ namespace Routine.Test.Engine
             var actual = testing.ApplicationModel.Model[TESTED_OM_ID];
 
             Assert.IsTrue(actual.Operations.Any(o => o.Name == "VoidOp"));
-            Assert.AreEqual(Constants.VOID_MODEL_ID, actual.Operations.Single(o => o.Name == "VoidOp").Result.ViewModelId);
+            Assert.AreEqual(MODEL_ID_VOID, actual.Operations.Single(o => o.Name == "VoidOp").Result.ViewModelId);
             Assert.IsTrue(actual.Operations.Any(o => o.Name == "StringOp"));
             Assert.AreEqual("System.String", actual.Operations.Single(o => o.Name == "StringOp").Result.ViewModelId);
             Assert.IsTrue(actual.Operations.Any(o => o.Name == "ListOp"));
