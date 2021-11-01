@@ -102,7 +102,6 @@ namespace Routine.Test.Performance
             ReflectionOptimizer.Enable();
 
             var apiCtx = BuildRoutine.Context()
-                .Using(cache: new DictionaryCache())
                 .AsClientApplication(
                     codingStyle = BuildRoutine.CodingStyle()
                         .FromBasic()
