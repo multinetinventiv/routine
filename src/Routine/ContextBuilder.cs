@@ -1,4 +1,4 @@
-﻿using Routine.Client;
+using Routine.Client;
 using Routine.Client.Context;
 using Routine.Core;
 using Routine.Core.Cache;
@@ -27,7 +27,7 @@ namespace Routine
         {
             this.restClient = restClient ?? new WebRequestRestClient();
             this.serializer = serializer ?? new JsonSerializerAdapter();
-            this.cache = cache ?? new WebCache();
+            this.cache = cache ?? new DictionaryCache();
 
             this.interceptionConfiguration = interceptionConfiguration;
 

@@ -1,8 +1,9 @@
+using Routine.Core;
+using Routine.Core.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
-using Routine.Core.Cache;
+using static Routine.Constants;
 
 namespace Routine.Engine.Context
 {
@@ -15,12 +16,12 @@ namespace Routine.Engine.Context
 
         private Dictionary<string, DomainType> DomainTypes
         {
-            get => cache[Constants.DOMAIN_TYPES_CACHE_KEY] as Dictionary<string, DomainType>;
+            get => cache[CACHE_DOMAIN_TYPES] as Dictionary<string, DomainType>;
             init
             {
                 lock (cache)
                 {
-                    cache.Add(Constants.DOMAIN_TYPES_CACHE_KEY, value);
+                    cache.Add(CACHE_DOMAIN_TYPES, value);
                 }
             }
         }
