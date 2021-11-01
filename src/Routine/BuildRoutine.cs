@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Routine.Client;
+using Routine.Core.Cache;
 using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
 using Routine.Core.Reflection;
@@ -55,9 +56,20 @@ namespace Routine
 
         public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
             Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
-            Func<CodingStyleBuilder, ICodingStyle> codingStyle
+            Func<CodingStyleBuilder, ICodingStyle> codingStyle,
+            IRestClient restClient = null,
+            IJsonSerializer serializer = null,
+            ICache cache = null,
+            Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration = null
         ) => source.UseMiddleware<RoutineMiddleware>(
-            BuildRoutine.Context().AsServiceApplication(serviceConfiguration, codingStyle)
+            BuildRoutine.Context()
+                .Using(
+                    restClient: restClient,
+                    serializer: serializer,
+                    cache: cache,
+                    interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
+                )
+                .AsServiceApplication(serviceConfiguration, codingStyle)
         );
 
         public static IApplicationBuilder UseRoutineInDevelopmentMode(this IApplicationBuilder source)
@@ -118,19 +130,19 @@ namespace Routine
             source.Add(conventionDelegate(BuildRoutine.Convention<TFrom, List<TItem>>()));
 
         public static ConventionBase<IType, List<IConstructor>> Constructors(this ConventionBuilder<IType, List<IConstructor>> source) => source.Constructors(_ => true);
-        public static ConventionBase<IType, List<IConstructor>> Constructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter) => 
+        public static ConventionBase<IType, List<IConstructor>> Constructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter) =>
             source.By(t => t.Constructors.Where(filter).ToList());
 
         public static ConventionBase<IType, List<IConstructor>> PublicConstructors(this ConventionBuilder<IType, List<IConstructor>> source) => source.PublicConstructors(_ => true);
-        public static ConventionBase<IType, List<IConstructor>> PublicConstructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter) => 
+        public static ConventionBase<IType, List<IConstructor>> PublicConstructors(this ConventionBuilder<IType, List<IConstructor>> source, Func<IConstructor, bool> filter) =>
             source.Constructors(i => i.IsPublic && filter(i));
 
         public static ConventionBase<IType, List<IProperty>> Properties(this ConventionBuilder<IType, List<IProperty>> source) => source.Properties(_ => true);
-        public static ConventionBase<IType, List<IProperty>> Properties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter) => 
+        public static ConventionBase<IType, List<IProperty>> Properties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter) =>
             source.By(t => t.Properties.Where(filter).ToList());
 
         public static ConventionBase<IType, List<IProperty>> PublicProperties(this ConventionBuilder<IType, List<IProperty>> source) => source.PublicProperties(_ => true);
-        public static ConventionBase<IType, List<IProperty>> PublicProperties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter) => 
+        public static ConventionBase<IType, List<IProperty>> PublicProperties(this ConventionBuilder<IType, List<IProperty>> source, Func<IProperty, bool> filter) =>
             source.Properties(m => m.IsPublic && filter(m));
 
         public static ConventionBase<IType, List<IProperty>> Methods(this ConventionBuilder<IType, List<IProperty>> source, Func<IMethod, bool> filter) => source.Methods(string.Empty, filter);
@@ -143,15 +155,15 @@ namespace Routine
             );
 
         public static ConventionBase<IType, List<IProperty>> PublicMethods(this ConventionBuilder<IType, List<IProperty>> source, Func<IMethod, bool> filter) => source.PublicMethods(string.Empty, filter);
-        public static ConventionBase<IType, List<IProperty>> PublicMethods(this ConventionBuilder<IType, List<IProperty>> source, string ignorePrefix, Func<IMethod, bool> filter) => 
-            source.Methods(o => o.IsPublic && filter(o));
+        public static ConventionBase<IType, List<IProperty>> PublicMethods(this ConventionBuilder<IType, List<IProperty>> source, string ignorePrefix, Func<IMethod, bool> filter) =>
+            source.Methods(ignorePrefix, o => o.IsPublic && filter(o));
 
         public static ConventionBase<IType, List<IMethod>> Methods(this ConventionBuilder<IType, List<IMethod>> source) => source.Methods(_ => true);
-        public static ConventionBase<IType, List<IMethod>> Methods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter) => 
+        public static ConventionBase<IType, List<IMethod>> Methods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter) =>
             source.By(t => t.Methods.Where(filter).ToList());
 
         public static ConventionBase<IType, List<IMethod>> PublicMethods(this ConventionBuilder<IType, List<IMethod>> source) => source.PublicMethods(_ => true);
-        public static ConventionBase<IType, List<IMethod>> PublicMethods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter) => 
+        public static ConventionBase<IType, List<IMethod>> PublicMethods(this ConventionBuilder<IType, List<IMethod>> source, Func<IMethod, bool> filter) =>
             source.Methods(o => o.IsPublic && filter(o));
 
         public static ConventionBase<IType, List<IMethod>> Properties(this ConventionBuilder<IType, List<IMethod>> source, Func<IProperty, bool> filter) => source.Properties(Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX, filter);
@@ -164,7 +176,7 @@ namespace Routine
             );
 
         public static ConventionBase<IType, List<IMethod>> PublicProperties(this ConventionBuilder<IType, List<IMethod>> source, Func<IProperty, bool> filter) => source.PublicProperties(Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX, filter);
-        public static ConventionBase<IType, List<IMethod>> PublicProperties(this ConventionBuilder<IType, List<IMethod>> source, string namePrefix, Func<IProperty, bool> filter) => 
+        public static ConventionBase<IType, List<IMethod>> PublicProperties(this ConventionBuilder<IType, List<IMethod>> source, string namePrefix, Func<IProperty, bool> filter) =>
             source.Properties(namePrefix, m => m.IsPublic && filter(m));
 
         public static ConventionBase<TFrom, List<TResultItem>> Constant<TFrom, TResultItem>(
