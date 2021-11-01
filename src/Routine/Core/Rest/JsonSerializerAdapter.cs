@@ -26,11 +26,6 @@ namespace Routine.Core.Rest
         public string Serialize(object @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
     }
 
-    public static class ContextBuilderJsonSerializerExtensions
-    {
-        public static ContextBuilder UsingJsonSerializer(this ContextBuilder source, JsonSerializerAdapter jsonSerializerAdapter = null) { return source.UsingSerializer(jsonSerializerAdapter); }
-    }
-
     internal class ObjectConverter : JsonConverter<object>
     {
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

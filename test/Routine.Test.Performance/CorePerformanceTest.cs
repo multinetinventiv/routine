@@ -74,18 +74,7 @@ namespace Routine.Test.Performance.Domain
 
         public override bool Equals(object obj) => obj is BusinessPerformanceInput input && Equals(input);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Str != null ? Str.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ Int;
-                hashCode = (hashCode * 397) ^ (Str2 != null ? Str2.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Str3 != null ? Str3.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Str4 != null ? Str4.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Str, Int, Str2, Str3, Str4);
     }
 }
 
@@ -113,7 +102,7 @@ namespace Routine.Test.Performance
             ReflectionOptimizer.Enable();
 
             var apiCtx = BuildRoutine.Context()
-                .UsingCache(new DictionaryCache())
+                .Using(cache: new DictionaryCache())
                 .AsClientApplication(
                     codingStyle = BuildRoutine.CodingStyle()
                         .FromBasic()

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Diagnostics;
 
 namespace Routine.Samples.Basic
 {
@@ -24,7 +26,7 @@ namespace Routine.Samples.Basic
                 options.AllowSynchronousIO = true;
             });
         }
-        
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -37,6 +39,7 @@ namespace Routine.Samples.Basic
                 serviceConfiguration: sc => sc.FromBasic()
                     .RootPath.Set("api")
                     .RequestHeaders.Add("Accept-Language"),
+
                 codingStyle: cs => cs.FromBasic()
                     .AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
                     .Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))
@@ -51,7 +54,18 @@ namespace Routine.Samples.Basic
                     .Initializers.Add(c => c.PublicConstructors().When(t => t.Name.EndsWith("Dto")))
                     .Datas.Add(c => c.PublicProperties().When(t => t.Name.EndsWith("Dto")))
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
-                    .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto")))
+                    .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto"))),
+
+                interceptionConfiguration: ic => ic.FromBasic()
+                    .ServiceInterceptors.Add(c => c.Interceptor(i => i
+                        .ByDecoratingAsync(Stopwatch.StartNew)
+                        .After(sw => Console.WriteLine($@"End in ""{sw.Elapsed}"""))
+                    ))
+                    .ServiceInterceptors.Add(c => c.Interceptor(i => i
+                        .Before(ctx => Console.WriteLine($@"Executing ""{ctx.OperationName}"""))
+                        .Success(() => Console.WriteLine("\tsuccess!"))
+                        .Fail(() => Console.WriteLine("\tfail!"))
+                    ))
             );
         }
     }
