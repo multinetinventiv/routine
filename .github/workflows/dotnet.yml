@@ -25,6 +25,7 @@ jobs:
       - name: Test
         run: dotnet test test/Routine.Test/Routine.Test.csproj -c Release --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
       - name: Code Coverage Summary Report
+        if: ${{ github.ref != 'refs/heads/master' }}
         uses: 5monkeys/cobertura-action@master
         with:
           path: test/Routine.Test/coverage.cobertura.xml
