@@ -1,41 +1,58 @@
 using System;
 using Routine.Core.Runtime;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Routine.Core.Reflection
 {
-	public class ReflectionMethodInvoker : IMethodInvoker
-	{
-		private readonly System.Reflection.MethodBase method;
+    public class ReflectionMethodInvoker : IMethodInvoker
+    {
+        private readonly MethodBase method;
 
-		public ReflectionMethodInvoker(System.Reflection.MethodBase method)
-		{
-			this.method = method;
-		}
+        public ReflectionMethodInvoker(MethodBase method)
+        {
+            this.method = method;
+        }
 
-		public object Invoke(object target, params object[] args)
-		{
-			try
-			{
-				if (method.IsConstructor)
-				{
-					var ctor = method as System.Reflection.ConstructorInfo;
+        public object Invoke(object target, params object[] args)
+        {
+            var result = InvokeInner(target, args);
 
-					return ctor.Invoke(args);
-				}
+            if (result is not Task task) { return result; }
 
-				if (target == null)
-				{
-					throw new NullReferenceException();
-				}
+            return task.WaitAndGetResult();
+        }
 
-				return method.Invoke(target, args);
-			}
-			catch (System.Reflection.TargetInvocationException ex)
-			{
-				ex.InnerException.PreserveStackTrace();
+        public async Task<object> InvokeAsync(object target, params object[] args)
+        {
+            var result = InvokeInner(target, args);
 
-				throw ex.InnerException;
-			}
-		}
-	}
+            if (result is not Task task) { return result; }
+
+            await task;
+
+            return task.GetResult();
+        }
+
+        private object InvokeInner(object target, object[] args)
+        {
+            try
+            {
+                if (method.IsConstructor)
+                {
+                    var ctor = (ConstructorInfo)method;
+
+                    return ctor.Invoke(args);
+                }
+
+                if (!method.IsStatic && target == null) { throw new NullReferenceException(); }
+
+                return method.Invoke(target, args);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.GetInnerException();
+            }
+        }
+    }
 }

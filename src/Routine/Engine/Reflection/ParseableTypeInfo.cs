@@ -17,13 +17,12 @@ namespace Routine.Engine.Reflection
 
 			if (parseMethod.ReturnType != this)
 			{
-				throw new InvalidOperationException(type + " was loaded as Parseable but its static Parse method does not return " + type);
+				throw new InvalidOperationException(
+                    $"{type} was loaded as Parseable but its static Parse method does not return {type}"
+                );
 			}
 		}
 
-		protected override MethodInfo GetParseMethod()
-		{
-			return parseMethod;
-		}
-	}
+		protected override MethodInfo GetParseMethod() => parseMethod;
+    }
 }

@@ -1,77 +1,89 @@
 using System.Collections.Generic;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Client
 {
-	public class Roperation : Rparametric
-	{
-		private readonly OperationModel model;
+    public class Roperation : Rparametric
+    {
+        private readonly OperationModel model;
 
-		public Rtype ResultType { get; private set; }
+        public Rtype ResultType { get; }
 
-		public Roperation(OperationModel model, Rtype type)
-			: base(model.Name, model.GroupCount, model.Parameters, model.Marks, type)
-		{
-			this.model = model;
+        public Roperation(OperationModel model, Rtype type)
+            : base(model.Name, model.GroupCount, model.Parameters, model.Marks, type)
+        {
+            this.model = model;
 
-			if (model.Result.IsVoid)
-			{
-				ResultType = Rtype.Void;
-			}
-			else
-			{
-				ResultType = Application[model.Result.ViewModelId];
-			}
-		}
+            ResultType = model.Result.IsVoid
+                ? Rtype.Void
+                : Application[model.Result.ViewModelId];
+        }
 
-		public string Name { get { return model.Name; } }
-		public bool ResultIsVoid { get { return model.Result.IsVoid; } }
-		public bool ResultIsList { get { return model.Result.IsList; } }
+        public string Name => model.Name;
+        public bool ResultIsVoid => model.Result.IsVoid;
+        public bool ResultIsList => model.Result.IsList;
 
-		public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
-		{
-			var parameterValues = new Dictionary<string, ParameterValueData>();
-			foreach (var parameterVariable in parameterVariables)
-			{
-				var rparam = Parameter[parameterVariable.Name];
-				var parameterValue = rparam.CreateParameterValueData(parameterVariable.List);
-				parameterValues.Add(rparam.Name, parameterValue);
-			}
+        public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
+        {
+            var parameterValues = BuildParameters(parameterVariables);
 
-			var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
+            var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
 
-			if (ResultIsVoid)
-			{
-				return new Rvariable(true);
-			}
+            return Result(resultData);
+        }
 
-			return new Rvariable(Application, resultData, ResultType.Id);
-		}
+        public async Task<Rvariable> PerformAsync(Robject target, List<Rvariable> parameterVariables)
+        {
+            var parameterValues = BuildParameters(parameterVariables);
 
-		#region Equality & Hashcode
+            var resultData = await Application.Service.DoAsync(target.ReferenceData, model.Name, parameterValues);
 
-		protected bool Equals(Roperation other)
-		{
-			return Equals(Type, other.Type) && Equals(model, other.model);
-		}
+            return Result(resultData);
+        }
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+        private Dictionary<string, ParameterValueData> BuildParameters(List<Rvariable> parameterVariables)
+        {
+            var parameterValues = new Dictionary<string, ParameterValueData>();
+            foreach (var parameterVariable in parameterVariables)
+            {
+                var rparam = Parameter[parameterVariable.Name];
+                var parameterValue = rparam.CreateParameterValueData(parameterVariable.List);
+                parameterValues.Add(rparam.Name, parameterValue);
+            }
 
-			return Equals((Roperation)obj);
-		}
+            return parameterValues;
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
-			}
-		}
+        private Rvariable Result(VariableData resultData) =>
+            ResultIsVoid
+                ? new Rvariable(true)
+                : new Rvariable(Application, resultData, ResultType.Id);
 
-		#endregion
-	}
+        #region Equality & Hashcode
+
+        protected bool Equals(Roperation other)
+        {
+            return Equals(Type, other.Type) && Equals(model, other.model);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((Roperation)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            }
+        }
+
+        #endregion
+    }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using Routine.Core;
 using Routine.Core.Rest;
+using System.Threading.Tasks;
 
 namespace Routine.Service
 {
@@ -23,62 +24,75 @@ namespace Routine.Service
             applicationModel = new Lazy<ApplicationModel>(FetchApplicationModel);
         }
 
-        private ApplicationModel FetchApplicationModel()
-        {
-            return new ApplicationModel((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
-        }
-
-        public ApplicationModel ApplicationModel { get { return applicationModel.Value; } }
+        private ApplicationModel FetchApplicationModel() => new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
+        public ApplicationModel ApplicationModel => applicationModel.Value;
 
         public ObjectData Get(ReferenceData reference)
         {
             if (reference == null) { return null; }
 
-            var helper = new DataCompressor(ApplicationModel, reference.ViewModelId);
+            var response = Get(Url(reference));
+            var result = Result(response);
 
-            return helper.DecompressObjectData(Result(Get(Url(reference))));
+            return Compressor(reference.ViewModelId).DecompressObjectData(result);
         }
 
         public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
         {
             if (target == null) { return new VariableData(); }
 
+            var (body, resultViewModelId) = GetBodyAndResultViewModelId(target, operation, parameters);
+
+            var response = Post(Url(target, operation), body);
+            var result = Result(response);
+
+            return Compressor(resultViewModelId).DecompressVariableData(result);
+        }
+
+        public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
+            if (target == null) { return new VariableData(); }
+
+            var (body, resultViewModelId) = GetBodyAndResultViewModelId(target, operation, parameters);
+
+            var response = await PostAsync(Url(target, operation), body);
+            var result = Result(response);
+
+            return Compressor(resultViewModelId).DecompressVariableData(result);
+        }
+
+        private Tuple<string, string> GetBodyAndResultViewModelId(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
+        {
             var operationModel = GetOperationModel(target, operation);
 
-            var body = serializer.Serialize(parameters.ToDictionary(kvp => kvp.Key, kvp =>
-                new DataCompressor(ApplicationModel, operationModel.Parameter[kvp.Key].ViewModelId)
-                    .Compress(kvp.Value)
-                ));
+            var body = serializer.Serialize(parameters.ToDictionary(
+                kvp => kvp.Key,
+                kvp => Compressor(operationModel.Parameter[kvp.Key].ViewModelId).Compress(kvp.Value)
+            ));
 
-            var result = Result(Post(Url(target, operation), body));
-
-            var helper = new DataCompressor(ApplicationModel, operationModel.Result.ViewModelId);
-
-            return helper.DecompressVariableData(result);
+            return new Tuple<string, string>(body, operationModel.Result.ViewModelId);
         }
 
-        private ObjectModel GetObjectModel(ReferenceData target)
-        {
-            ObjectModel objectModel;
-
-            if (!ApplicationModel.Model.TryGetValue(target.ViewModelId, out objectModel))
-            {
-                throw TypeNotFound(target.ViewModelId);
-            }
-
-            return objectModel;
-        }
+        private DataCompressor Compressor(string resultViewModelId) => new(ApplicationModel, resultViewModelId);
 
         private OperationModel GetOperationModel(ReferenceData target, string operation)
         {
-            OperationModel operationModel;
-
-            if (!GetObjectModel(target).Operation.TryGetValue(operation, out operationModel))
+            if (!GetObjectModel(target).Operation.TryGetValue(operation, out var operationModel))
             {
                 throw OperationNotFound(target.ViewModelId, operation);
             }
 
             return operationModel;
+        }
+
+        private ObjectModel GetObjectModel(ReferenceData target)
+        {
+            if (!ApplicationModel.Model.TryGetValue(target.ViewModelId, out var objectModel))
+            {
+                throw TypeNotFound(target.ViewModelId);
+            }
+
+            return objectModel;
         }
 
         private object Result(RestResponse response)
@@ -100,31 +114,29 @@ namespace Routine.Service
             return result;
         }
 
-        private string Url(string action)
-        {
-            return string.Format("{0}/{1}",
-                serviceClientConfiguration.GetServiceUrlBase(),
-                action);
-        }
+        private string Url(ReferenceData referenceData, string operation) => $"{Url(referenceData)}/{operation}";
+        private string Url(ReferenceData referenceData) =>
+            Url(referenceData.ModelId == referenceData.ViewModelId
+                ? $"{referenceData.ModelId}/{referenceData.Id}"
+                : $"{referenceData.ModelId}/{referenceData.Id}/{referenceData.ViewModelId}"
+            );
+        private string Url(string action) => $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
 
-        private string Url(ReferenceData referenceData)
+        private RestResponse Get(string url)
         {
-            if (referenceData.ModelId == referenceData.ViewModelId)
+            try
             {
-                return Url(string.Format("{0}/{1}",
-                    referenceData.ModelId,
-                    referenceData.Id));
+                return restClient.Get(url, BuildRequest(string.Empty));
             }
+            catch (WebException ex)
+            {
+                if (ex.Response is not HttpWebResponse res)
+                {
+                    throw;
+                }
 
-            return Url(string.Format("{0}/{1}/{2}",
-                referenceData.ModelId,
-                referenceData.Id,
-                referenceData.ViewModelId));
-        }
-
-        private string Url(ReferenceData referenceData, string operation)
-        {
-            return string.Format("{0}/{1}", Url(referenceData), operation);
+                return Wrap(res);
+            }
         }
 
         private RestResponse Post(string url, string body)
@@ -135,8 +147,7 @@ namespace Routine.Service
             }
             catch (WebException ex)
             {
-                var res = ex.Response as HttpWebResponse;
-                if (res == null)
+                if (ex.Response is not HttpWebResponse res)
                 {
                     throw;
                 }
@@ -145,16 +156,15 @@ namespace Routine.Service
             }
         }
 
-        private RestResponse Get(string url)
+        private async Task<RestResponse> PostAsync(string url, string body)
         {
             try
             {
-                return restClient.Get(url, BuildRequest(string.Empty));
+                return await restClient.PostAsync(url, BuildRequest(body));
             }
             catch (WebException ex)
             {
-                var res = ex.Response as HttpWebResponse;
-                if (res == null)
+                if (ex.Response is not HttpWebResponse res)
                 {
                     throw;
                 }
@@ -163,39 +173,30 @@ namespace Routine.Service
             }
         }
 
-        private RestRequest BuildRequest(string body)
-        {
-            return new RestRequest(body)
+        private RestRequest BuildRequest(string body) =>
+            new RestRequest(body)
                 .WithHeaders(
                     serviceClientConfiguration.GetRequestHeaders()
                         .ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
                 );
-        }
 
         #region Exceptions
 
-        private RestResponse Wrap(HttpWebResponse res)
-        {
-            return new RestResponse(
-                serializer.Serialize(new ExceptionResult(string.Format("Http.{0}", res.StatusCode), res.StatusDescription, false))
-                );
-        }
+        private RestResponse Wrap(HttpWebResponse res) => new(
+            serializer.Serialize(new ExceptionResult($"Http.{res.StatusCode}", res.StatusDescription, false))
+        );
 
-        private Exception OperationNotFound(string modelId, string operation)
-        {
-            return serviceClientConfiguration.GetException(new ExceptionResult("OperationNotFound",
-                string.Format(
-                    "Given operation ({0}) was not found in given model ({1}). Make sure you are connecting to the correct endpoint.",
-                    operation, modelId), false));
-        }
+        private Exception OperationNotFound(string modelId, string operation) =>
+            serviceClientConfiguration.GetException(new ExceptionResult(nameof(OperationNotFound),
+                $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.",
+                false
+            ));
 
-        private Exception TypeNotFound(string modelId)
-        {
-            return serviceClientConfiguration.GetException(new ExceptionResult("TypeNotFound",
-                string.Format(
-                    "Given model id ({0}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
-                    modelId), false));
-        }
+        private Exception TypeNotFound(string modelId) =>
+            serviceClientConfiguration.GetException(new ExceptionResult(nameof(TypeNotFound),
+                $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
+                false
+            ));
 
         #endregion
     }

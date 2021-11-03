@@ -4,7 +4,7 @@
 	{
 		private readonly VirtualType type;
 
-		public string Id { get; private set; }
+		public string Id { get; }
 
 		public VirtualObject(string id, VirtualType type)
 		{
@@ -12,19 +12,13 @@
 			this.type = type;
 		}
 
-		public IType Type { get { return type; } }
+		public IType Type => type;
 
-		public override string ToString()
-		{
-			return type.ToStringMethod.Get()(this);
-		}
+        public override string ToString() => type.ToStringMethod.Get()(this);
 
-		protected bool Equals(VirtualObject other)
-		{
-			return Equals(type, other.type) && string.Equals(Id, other.Id);
-		}
+        protected bool Equals(VirtualObject other) => Equals(type, other.type) && string.Equals(Id, other.Id);
 
-		public override bool Equals(object obj)
+        public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;

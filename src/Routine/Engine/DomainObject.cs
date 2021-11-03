@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Engine
 {
@@ -13,27 +14,18 @@ namespace Routine.Engine
 
 		public DomainObject(object target, DomainType actualDomainType, DomainType viewDomainType)
 		{
-			if (actualDomainType == null) { throw new ArgumentNullException("actualDomainType"); }
-			if (viewDomainType == null) { throw new ArgumentNullException("viewDomainType"); }
-
-			this.actualDomainType = actualDomainType;
-			this.viewDomainType = viewDomainType;
+            this.actualDomainType = actualDomainType ?? throw new ArgumentNullException(nameof(actualDomainType));
+			this.viewDomainType = viewDomainType ?? throw new ArgumentNullException(nameof(viewDomainType));
 
 			actualTarget = target;
 			viewTarget = actualDomainType.Convert(target, viewDomainType);
 		}
 
-		public string GetId()
-		{
-			if (actualDomainType.IdExtractor == null)
-			{
-				return string.Empty;
-			}
+		public string GetId() => actualDomainType.IdExtractor == null
+            ? string.Empty
+            : actualDomainType.IdExtractor.GetId(actualTarget);
 
-			return actualDomainType.IdExtractor.GetId(actualTarget);
-		}
-
-		public string GetDisplay()
+        public string GetDisplay()
 		{
 			if (viewDomainType.IsValueModel)
 			{
@@ -41,14 +33,11 @@ namespace Routine.Engine
 			}
 
 			if (actualTarget == null || viewDomainType.ValueExtractor == null)
-			{
-				if (actualDomainType.ValueExtractor == null)
-				{
-					return string.Empty;
-				}
-
-				return actualDomainType.ValueExtractor.GetValue(actualTarget);
-			}
+            {
+                return actualDomainType.ValueExtractor == null
+                    ? string.Empty
+                    : actualDomainType.ValueExtractor.GetValue(actualTarget);
+            }
 
 			return viewDomainType.ValueExtractor.GetValue(viewTarget);
 		}
@@ -60,17 +49,18 @@ namespace Routine.Engine
 				return null;
 			}
 
-			var result = new ReferenceData();
+			var result = new ReferenceData
+            {
+                ModelId = actualDomainType.Id,
+                ViewModelId = viewDomainType.Id,
+                Id = GetId()
+            };
 
-			result.ModelId = actualDomainType.Id;
-			result.ViewModelId = viewDomainType.Id;
-			result.Id = GetId();
-
-			return result;
+            return result;
 		}
 
-		public ObjectData GetObjectData(bool eager) { return GetObjectData(Constants.FIRST_DEPTH, eager); }
-		internal ObjectData GetObjectData(int currentDepth, bool eager)
+		public ObjectData GetObjectData(bool eager) => GetObjectData(Constants.FIRST_DEPTH, eager);
+        internal ObjectData GetObjectData(int currentDepth, bool eager)
 		{
 			if (actualTarget == null)
 			{
@@ -102,8 +92,7 @@ namespace Routine.Engine
 
 		public VariableData GetData(string dataName)
 		{
-			DomainData data;
-			if (!viewDomainType.Data.TryGetValue(dataName, out data))
+            if (!viewDomainType.Data.TryGetValue(dataName, out var data))
 			{
 				throw new DataDoesNotExistException(viewDomainType.Id, dataName);
 			}
@@ -111,16 +100,17 @@ namespace Routine.Engine
 			return data.CreateData(viewTarget, true);
 		}
 
-		public VariableData Perform(string operationName, Dictionary<string, ParameterValueData> parameterValues)
-		{
-			DomainOperation operation;
-			if (!viewDomainType.Operation.TryGetValue(operationName, out operation))
-			{
-				throw new OperationDoesNotExistException(viewDomainType.Id, operationName);
-			}
+		public VariableData Perform(string operationName, Dictionary<string, ParameterValueData> parameterValues) => Operation(operationName).Perform(viewTarget, parameterValues);
+        public async Task<VariableData> PerformAsync(string operationName, Dictionary<string, ParameterValueData> parameterValues) => await Operation(operationName).PerformAsync(viewTarget, parameterValues);
 
-			return operation.Perform(viewTarget, parameterValues);
-		}
-	}
+        private DomainOperation Operation(string name)
+        {
+            if (!viewDomainType.Operation.TryGetValue(name, out var operation))
+            {
+                throw new OperationDoesNotExistException(viewDomainType.Id, name);
+            }
+
+            return operation;
+        }
+    }
 }
-

@@ -40,15 +40,16 @@ namespace Routine.Core
 
 		public List<ParameterModel> Parameters
 		{
-			get { return Parameter.Values.ToList(); }
-			set { Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp); }
-		}
+			get => Parameter.Values.ToList();
+            set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
+        }
 
 		#region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("[OperationModel: [Marks: {0}, GroupCount: {1}, Name: {2}, Parameters: {3}, Result: {4}]]", Marks.ToItemString(), GroupCount, Name, Parameters.ToItemString(), Result);
+			return
+                $"[OperationModel: [Marks: {Marks.ToItemString()}, GroupCount: {GroupCount}, Name: {Name}, Parameters: {Parameters.ToItemString()}, Result: {Result}]]";
 		}
 
 		protected bool Equals(OperationModel other)

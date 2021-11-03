@@ -21,109 +21,78 @@ namespace Routine.Core.Rest
             this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter(), new ObjectConverter() } };
         }
 
-        public object DeserializeObject(string jsonString)
-        {
-            return JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions);
-        }
-
-        public T Deserialize<T>(string jsonString)
-        {
-            return JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions);
-        }
-
-        public string Serialize(object @object)
-        {
-            return JsonSerializer.Serialize(@object, jsonSerializerOptions);
-        }
-    }
-
-    public static class ContextBuilderJsonSerializerExtensions
-    {
-        public static ContextBuilder UsingJsonSerializer(this ContextBuilder source, JsonSerializerAdapter jsonSerializerAdapter = null) { return source.UsingSerializer(jsonSerializerAdapter); }
+        public object DeserializeObject(string jsonString) => JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions);
+        public T Deserialize<T>(string jsonString) => JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions);
+        public string Serialize(object @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
     }
 
     internal class ObjectConverter : JsonConverter<object>
     {
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.True)
+            switch (reader.TokenType)
             {
-                return true;
-            }
-
-            if (reader.TokenType == JsonTokenType.False)
-            {
-                return false;
-            }
-
-            if (reader.TokenType == JsonTokenType.Number)
-            {
-                if (reader.TryGetInt64(out long l))
-                {
-                    return l;
-                }
-
-                return reader.GetDouble();
-            }
-
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                if (reader.TryGetDateTime(out DateTime datetime))
-                {
+                case JsonTokenType.True:
+                    return true;
+                case JsonTokenType.False:
+                    return false;
+                case JsonTokenType.Number when reader.TryGetInt32(out var @int):
+                    return @int;
+                case JsonTokenType.Number when reader.TryGetInt64(out var @long):
+                    return @long;
+                case JsonTokenType.Number:
+                    return reader.GetDouble();
+                case JsonTokenType.String when reader.TryGetDateTime(out var datetime):
                     return datetime;
-                }
-
-                return reader.GetString();
-            }
-
-            if (reader.TokenType == JsonTokenType.StartObject)
-            {
-
-                var dictionary = new Dictionary<string, object>();
-                while (reader.Read())
-                {
-                    if (reader.TokenType == JsonTokenType.EndObject)
+                case JsonTokenType.String:
+                    return reader.GetString();
+                case JsonTokenType.StartObject:
                     {
+                        var dictionary = new Dictionary<string, object>();
+                        while (reader.Read())
+                        {
+                            if (reader.TokenType == JsonTokenType.EndObject)
+                            {
+                                return dictionary;
+                            }
+
+                            if (reader.TokenType != JsonTokenType.PropertyName)
+                            {
+                                throw new JsonException("JsonTokenType was not PropertyName");
+                            }
+
+                            var propertyName = reader.GetString();
+
+                            if (string.IsNullOrWhiteSpace(propertyName))
+                            {
+                                throw new JsonException("Failed to get property name");
+                            }
+
+                            reader.Read();
+
+                            dictionary.Add(propertyName, ExtractValue(ref reader, options));
+                        }
+
                         return dictionary;
                     }
-
-                    if (reader.TokenType != JsonTokenType.PropertyName)
+                case JsonTokenType.StartArray:
                     {
-                        throw new JsonException("JsonTokenType was not PropertyName");
+                        var list = new List<object>();
+                        while (reader.Read())
+                        {
+                            if (reader.TokenType == JsonTokenType.EndArray)
+                            {
+                                break;
+                            }
+
+                            list.Add(ExtractValue(ref reader, options));
+                        }
+
+                        return list.ToArray();
                     }
-
-                    var propertyName = reader.GetString();
-
-                    if (string.IsNullOrWhiteSpace(propertyName))
-                    {
-                        throw new JsonException("Failed to get property name");
-                    }
-
-                    reader.Read();
-
-                    dictionary.Add(propertyName, ExtractValue(ref reader, options));
-                }
-
-                return dictionary;
+                default:
+                    throw new NotSupportedException("ObjectConverter cannot convert this json to object");
             }
-
-            if (reader.TokenType == JsonTokenType.StartArray)
-            {
-	            var list = new List<object>();
-	            while (reader.Read())
-	            {
-		            if (reader.TokenType == JsonTokenType.EndArray)
-		            {
-			            break;
-		            }
-
-		            list.Add(ExtractValue(ref reader, options));
-	            }
-
-	            return list.ToArray();
-            }
-
-            throw new NotSupportedException("ObjectConverter cannot convert this json to object");
         }
 
         private object ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
@@ -142,12 +111,12 @@ namespace Routine.Core.Rest
                     return true;
                 case JsonTokenType.Null:
                     return null;
+                case JsonTokenType.Number when reader.TryGetInt32(out var @int):
+                    return @int;
+                case JsonTokenType.Number when reader.TryGetInt64(out var @long):
+                    return @long;
                 case JsonTokenType.Number:
-                    if (reader.TryGetInt32(out var result))
-                    {
-                        return result;
-                    }
-                    return reader.GetDecimal();
+                    return reader.GetDouble();
                 case JsonTokenType.StartObject:
                     return Read(ref reader, null, options);
                 case JsonTokenType.StartArray:
@@ -156,16 +125,13 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-
                     return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
         }
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value, value.GetType(), options);
-        }
+
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, value, value.GetType(), options);
     }
 
     internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<string, object>>
@@ -210,11 +176,7 @@ namespace Routine.Core.Rest
             switch (reader.TokenType)
             {
                 case JsonTokenType.String:
-                    if (reader.TryGetDateTime(out var date))
-                    {
-                        return date;
-                    }
-                    return reader.GetString();
+                    return reader.TryGetDateTime(out var date) ? date : reader.GetString();
                 case JsonTokenType.False:
                     return false;
                 case JsonTokenType.True:
@@ -222,11 +184,7 @@ namespace Routine.Core.Rest
                 case JsonTokenType.Null:
                     return null;
                 case JsonTokenType.Number:
-                    if (reader.TryGetInt32(out var result))
-                    {
-                        return result;
-                    }
-                    return reader.GetDecimal();
+                    return reader.TryGetInt32(out var result) ? result : reader.GetDecimal();
                 case JsonTokenType.StartObject:
                     return Read(ref reader, null, options);
                 case JsonTokenType.StartArray:
@@ -235,12 +193,12 @@ namespace Routine.Core.Rest
                     {
                         list.Add(ExtractValue(ref reader, options));
                     }
-
                     return list.ToArray();
                 default:
                     throw new JsonException($"'{reader.TokenType}' is not supported");
             }
         }
+
         public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
@@ -316,10 +274,7 @@ namespace Routine.Core.Rest
             }
         }
 
-        private static void HandleValue(Utf8JsonWriter writer, object value)
-        {
-            HandleValue(writer, null, value);
-        }
+        private static void HandleValue(Utf8JsonWriter writer, object value) => HandleValue(writer, null, value);
     }
 
     public class BooleanJsonConverter : JsonConverter<bool>
@@ -337,7 +292,6 @@ namespace Routine.Core.Rest
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
-       => writer.WriteBooleanValue(value);
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) => writer.WriteBooleanValue(value);
     }
 }

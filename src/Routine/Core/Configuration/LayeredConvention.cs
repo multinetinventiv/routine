@@ -4,8 +4,8 @@ namespace Routine.Core.Configuration
 {
 	internal class LayeredConvention<TFrom, TResult>
 	{
-		public IConvention<TFrom, TResult> Convention { get; private set; }
-		public Layer Layer { get; private set; }
+		public IConvention<TFrom, TResult> Convention { get; }
+		public Layer Layer { get; }
 
 		public LayeredConvention(IConvention<TFrom, TResult> convention, Layer layer)
 		{

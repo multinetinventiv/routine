@@ -4,8 +4,8 @@ namespace Routine.Client.Context
 {
     public class DefaultClientContext : IClientContext
     {
-        public IObjectService ObjectService { get; private set; }
-		public Rapplication Application { get; private set; }
+        public IObjectService ObjectService { get; }
+		public Rapplication Application { get; }
 
         public DefaultClientContext(IObjectService objectService, Rapplication application)
         {

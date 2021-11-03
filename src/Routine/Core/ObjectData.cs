@@ -31,7 +31,7 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ObjectData: [Id: {0}, ModelId: {1}, Display: {2}, Data: {3}]]", Id, ModelId, Display, Data.ToKeyValueString());
+			return $"[ObjectData: [Id: {Id}, ModelId: {ModelId}, Display: {Display}, Data: {Data.ToKeyValueString()}]]";
 		}
 
 		protected bool Equals(ObjectData other)

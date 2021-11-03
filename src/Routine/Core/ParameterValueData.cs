@@ -13,7 +13,7 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ParameterValueData: [IsList: {0}, Values: {1}]]", IsList, Values.ToItemString());
+			return $"[ParameterValueData: [IsList: {IsList}, Values: {Values.ToItemString()}]]";
 		}
 
 		protected bool Equals(ParameterValueData other)

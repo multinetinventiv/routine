@@ -18,9 +18,9 @@ namespace Routine.Engine
 			}
 		}
 
-		public List<string> List { get { return marks.Keys.ToList(); } }
+		public List<string> List => marks.Keys.ToList();
 
-		public bool Has(string mark) { return marks.ContainsKey(mark); }
+        public bool Has(string mark) { return marks.ContainsKey(mark); }
 
 		public void Join(IEnumerable<string> list)
 		{

@@ -11,11 +11,9 @@ namespace Routine.Engine.Converter
 			if (!type.IsValueType) { return new List<IType>(); }
 			if (type.IsVoid) { return new List<IType>(); }
 			if (type.IsGenericType) { return new List<IType>(); }
-			if (!(type is TypeInfo)) { return new List<IType>(); }
+			if (type is not TypeInfo typeInfo) { return new List<IType>(); }
 
-			var typeInfo = type as TypeInfo;
-
-			return new List<IType> { typeof(Nullable<>).MakeGenericType(typeInfo.GetActualType()).ToTypeInfo() };
+            return new List<IType> { typeof(Nullable<>).MakeGenericType(typeInfo.GetActualType()).ToTypeInfo() };
 		}
 
 		protected override object Convert(object @object, IType from, IType to)

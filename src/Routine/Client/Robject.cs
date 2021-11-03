@@ -1,256 +1,259 @@
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Client
 {
-	public class Robject
-	{
-		#region Data Adapter Methods
+    public class Robject
+    {
+        #region Data Adapter Methods
 
-		private static ReferenceData Rd(bool isNull) { return Rd(null, null, null, isNull); }
-		private static ReferenceData Rd(string id, string mid, string vmid, bool isNull) { return isNull ? null : new ReferenceData { Id = id, ModelId = mid, ViewModelId = vmid }; }
-		private static ObjectData Od(ReferenceData rd) { return Od(rd, null); }
-		private static ObjectData Od(ReferenceData rd, string display) { return rd == null ? null : new ObjectData { Id = rd.Id, ModelId = rd.ModelId, Display = display }; }
+        private static ReferenceData Rd(bool isNull) => Rd(null, null, null, isNull);
+        private static ReferenceData Rd(string id, string mid, string vmid, bool isNull) => isNull ? null : new ReferenceData { Id = id, ModelId = mid, ViewModelId = vmid };
+        private static ObjectData Od(ReferenceData rd) => Od(rd, null);
+        private static ObjectData Od(ReferenceData rd, string display) => rd == null ? null : new ObjectData { Id = rd.Id, ModelId = rd.ModelId, Display = display };
 
-		#endregion
+        #endregion
 
-		private readonly string id;
-		private readonly List<Rvariable> initializationParameters;
-		private readonly Dictionary<string, DataValue> datas;
+        private readonly string id;
+        private readonly List<Rvariable> initializationParameters;
+        private readonly Dictionary<string, DataValue> datas;
 
-		private string display;
+        private string display;
 
-		public Rtype ActualType { get; private set; }
-		public Rtype ViewType { get; private set; }
-		public Rtype Type { get { return ViewType ?? ActualType; } }
+        public Rtype ActualType { get; }
+        public Rtype ViewType { get; }
+        public Rtype Type => ViewType ?? ActualType;
 
-		public Robject() : this(Rd(true), null, null) { }
-		public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Rd(null, type.Id, type.Id, false)), type, type) { }
-		public Robject(string id, Rtype type) : this(id, type, type) { }
-		public Robject(string id, Rtype actualType, Rtype viewType) : this(Rd(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
-		internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType) : this(Od(referenceData), actualType, viewType) { }
-		internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType, string value) : this(Od(referenceData, value), actualType, viewType) { }
-		internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(null, objectData, actualType, viewType) { }
-		private Robject(List<Rvariable> initializationParameters, ObjectData objectData, Rtype actualType, Rtype viewType)
-		{
-			if (actualType != null && actualType.IsViewType)
-			{
-				throw new CannotCreateRobjectException(string.Format("Cannot create object with a view type '{0}' given as the actual type", actualType));
-			}
+        public Robject() : this(Rd(true), null, null) { }
+        public Robject(IEnumerable<Rvariable> initializationParameters, Rtype type) : this(initializationParameters.ToList(), Od(Rd(null, type.Id, type.Id, false)), type, type) { }
+        public Robject(string id, Rtype type) : this(id, type, type) { }
+        public Robject(string id, Rtype actualType, Rtype viewType) : this(Rd(id, actualType.Id, viewType.Id, id == null), actualType, viewType) { }
+        internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType) : this(Od(referenceData), actualType, viewType) { }
+        internal Robject(ReferenceData referenceData, Rtype actualType, Rtype viewType, string value) : this(Od(referenceData, value), actualType, viewType) { }
+        internal Robject(ObjectData objectData, Rtype actualType, Rtype viewType) : this(null, objectData, actualType, viewType) { }
+        private Robject(List<Rvariable> initializationParameters, ObjectData objectData, Rtype actualType, Rtype viewType)
+        {
+            if (actualType != null && actualType.IsViewType)
+            {
+                throw new CannotCreateRobjectException($"Cannot create object with a view type '{actualType}' given as the actual type");
+            }
 
-			if (actualType != null && !actualType.CanBe(viewType))
-			{
-				throw new CannotCreateRobjectException(string.Format("{0} cannot be {1}", actualType, viewType));
-			}
+            if (actualType != null && !actualType.CanBe(viewType))
+            {
+                throw new CannotCreateRobjectException($"{actualType} cannot be {viewType}");
+            }
 
-			this.initializationParameters = initializationParameters;
-			
-			id = objectData != null ? objectData.Id : null;
+            this.initializationParameters = initializationParameters;
 
-			ActualType = actualType;
-			ViewType = viewType;
+            id = objectData?.Id;
 
-			datas = new Dictionary<string, DataValue>();
+            ActualType = actualType;
+            ViewType = viewType;
 
-			if (!IsNull)
-			{
-				FillObject(objectData);
-			}
-		}
+            datas = new Dictionary<string, DataValue>();
 
-		private void FillObject(ObjectData objectData)
-		{
-			display = objectData.Display;
+            if (!IsNull)
+            {
+                FillObject(objectData);
+            }
+        }
 
-			if (objectData.Data.Count <= 0) { return; }
+        private void FillObject(ObjectData objectData)
+        {
+            display = objectData.Display;
 
-			LoadDataIfNecessary();
+            if (objectData.Data.Count <= 0) { return; }
 
-			foreach (var dataName in objectData.Data.Keys)
-			{
-				datas[dataName].SetData(objectData.Data[dataName]);
-			}
-		}
+            LoadDataIfNecessary();
 
-		private void LoadDataIfNecessary()
-		{
-			if (IsNull) { return; }
-			if (Type.IsValueType) { return; }
-			if (datas.Any()) { return; }
+            foreach (var dataName in objectData.Data.Keys)
+            {
+                datas[dataName].SetData(objectData.Data[dataName]);
+            }
+        }
 
-			foreach (var data in Type.Datas)
-			{
-				datas.Add(data.Name, new DataValue(this, data));
-			}
-		}
+        private void LoadDataIfNecessary()
+        {
+            if (IsNull) { return; }
+            if (Type.IsValueType) { return; }
+            if (datas.Any()) { return; }
 
-		private void FetchValueIfNecessary()
-		{
-			if (display != null) { return; }
+            foreach (var data in Type.Datas)
+            {
+                datas.Add(data.Name, new DataValue(this, data));
+            }
+        }
 
-			if (IsNull)
-			{
-				display = "";
+        private void FetchValueIfNecessary()
+        {
+            if (display != null) { return; }
 
-				return;
-			}
+            if (IsNull)
+            {
+                display = "";
 
-			if (Type.IsValueType)
-			{
-				display = id;
+                return;
+            }
 
-				return;
-			}
+            if (Type.IsValueType)
+            {
+                display = id;
 
-			if (IsInitializedOnClient)
-			{
-				throw new RobjectIsInitializedOnClientException();
-			}
+                return;
+            }
 
-			LoadObject();
-		}
+            if (IsInitializedOnClient)
+            {
+                throw new RobjectIsInitializedOnClientException();
+            }
 
-		internal void LoadObject()
-		{
-			if (IsNull) { return; }
-			if (Type.IsValueType) { return; }
+            LoadObject();
+        }
 
-			FillObject(Application.Service.Get(ReferenceData));
-		}
+        internal void LoadObject()
+        {
+            if (IsNull) { return; }
+            if (Type.IsValueType) { return; }
 
-		internal ParameterData GetParameterData()
-		{
-			if (IsNull) { return null; }
+            FillObject(Application.Service.Get(ReferenceData));
+        }
 
-			if (!IsInitializedOnClient)
-			{
-				return new ParameterData
-				{
-					ModelId = ActualType.Id,
-					Id = id
-				};
-			}
+        internal ParameterData GetParameterData()
+        {
+            if (IsNull) { return null; }
 
-			var result = new ParameterData { ModelId = ActualType.Id };
+            if (!IsInitializedOnClient)
+            {
+                return new ParameterData
+                {
+                    ModelId = ActualType.Id,
+                    Id = id
+                };
+            }
 
-			foreach (var initializationParameter in initializationParameters)
-			{
-				result.InitializationParameters.Add(initializationParameter.Name, initializationParameter.GetParameterValueData());
-			}
+            var result = new ParameterData { ModelId = ActualType.Id };
 
-			return result;
-		}
+            foreach (var initializationParameter in initializationParameters)
+            {
+                result.InitializationParameters.Add(initializationParameter.Name, initializationParameter.GetParameterValueData());
+            }
 
-		public Rapplication Application { get { return Type.Application; } }
-		public string Id { get { return id; } }
-		public bool IsNull { get { return id == null && !IsInitializedOnClient; } }
-		public bool IsNaked { get { return Equals(ActualType, ViewType); } }
-		public bool IsInitializedOnClient { get { return initializationParameters != null; } }
-		public string Display { get { FetchValueIfNecessary(); return display; } }
-		internal ReferenceData ReferenceData { get { return Rd(id, ActualType.Id, ViewType.Id, IsNull); } }
+            return result;
+        }
 
-		public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
-		public List<DataValue> DataValues { get { LoadDataIfNecessary(); return datas.Values.ToList(); } }
+        public Rapplication Application => Type.Application;
+        public string Id => id;
+        public bool IsNull => id == null && !IsInitializedOnClient;
+        public bool IsNaked => Equals(ActualType, ViewType);
+        public bool IsInitializedOnClient => initializationParameters != null;
+        public string Display { get { FetchValueIfNecessary(); return display; } }
+        internal ReferenceData ReferenceData => Rd(id, ActualType.Id, ViewType.Id, IsNull);
 
-		public Robject As(Rtype viewType)
-		{
-			return Type.Get(Id, viewType);
-		}
+        public DataValue this[string dataName] { get { LoadDataIfNecessary(); return datas[dataName]; } }
+        public List<DataValue> DataValues { get { LoadDataIfNecessary(); return datas.Values.ToList(); } }
 
-		public Rvariable Perform(string operationName, params Rvariable[] parameters) { return Perform(operationName, parameters.ToList()); }
-		public Rvariable Perform(string operationName, List<Rvariable> parameters)
-		{
-			if (IsNull) { return new Rvariable(); }
+        public Robject As(Rtype viewType) => Type.Get(Id, viewType);
 
-			return Type.Operation[operationName].Perform(this, parameters);
-		}
+        public Rvariable Perform(string operationName, params Rvariable[] parameters) => Perform(operationName, parameters.ToList());
+        public Rvariable Perform(string operationName, List<Rvariable> parameters)
+        {
+            if (IsNull) { return new Rvariable(); }
 
-		public void Invalidate()
-		{
-			display = null;
+            return Type.Operation[operationName].Perform(this, parameters);
+        }
 
-			foreach (var data in datas.Values)
-			{
-				data.Invalidate();
-			}
-		}
+        public async Task<Rvariable> PerformAsync(string operationName, params Rvariable[] parameters) => await PerformAsync(operationName, parameters.ToList());
+        public async Task<Rvariable> PerformAsync(string operationName, List<Rvariable> parameters)
+        {
+            if (IsNull) { return new Rvariable(); }
 
-		public class DataValue
-		{
-			public Robject Object { get; private set; }
-			public Rdata Data { get; private set; }
+            return await Type.Operation[operationName].PerformAsync(this, parameters);
+        }
 
-			internal DataValue(Robject @object, Rdata data)
-			{
-				Object = @object;
-				Data = data;
-			}
+        public void Invalidate()
+        {
+            display = null;
 
-			private Rvariable value;
-			private VariableData data;
+            foreach (var data in datas.Values)
+            {
+                data.Invalidate();
+            }
+        }
 
-			internal void SetData(VariableData data)
-			{
-				this.data = data;
+        public class DataValue
+        {
+            public Robject Object { get; }
+            public Rdata Data { get; }
 
-				value = new Rvariable(Object.Type.Application, data, Data.DataType.Id);
-			}
+            internal DataValue(Robject @object, Rdata data)
+            {
+                Object = @object;
+                Data = data;
+            }
 
-			public Rvariable Get()
-			{
-				if (data == null)
-				{
-					Object.LoadObject();
-				}
+            private Rvariable value;
+            private VariableData data;
 
-				return value;
-			}
+            internal void SetData(VariableData data)
+            {
+                this.data = data;
 
-			internal void Invalidate()
-			{
-				value = null;
-				data = null;
-			}
-		}
+                value = new Rvariable(Object.Type.Application, data, Data.DataType.Id);
+            }
 
-		public override string ToString()
-		{
-			return string.Format("{0}({1})", Id, Type.Id);
-		}
+            public Rvariable Get()
+            {
+                if (data == null)
+                {
+                    Object.LoadObject();
+                }
 
-		#region Equality & Hashcode
+                return value;
+            }
 
-		protected bool Equals(Robject other)
-		{
-			if (IsInitializedOnClient || other.IsInitializedOnClient)
-			{
-				return false;
-			}
+            internal void Invalidate()
+            {
+                value = null;
+                data = null;
+            }
+        }
 
-			return string.Equals(id, other.id) && Equals(ActualType, other.ActualType) && Equals(ViewType, other.ViewType);
-		}
+        public override string ToString() => $"{Id}({Type.Id})";
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+        #region Equality & Hashcode
 
-			return Equals((Robject)obj);
-		}
+        protected bool Equals(Robject other)
+        {
+            if (IsInitializedOnClient || other.IsInitializedOnClient)
+            {
+                return false;
+            }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = (id != null ? id.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (ActualType != null ? ActualType.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (ViewType != null ? ViewType.GetHashCode() : 0);
-				return hashCode;
-			}
-		}
+            return string.Equals(id, other.id) && Equals(ActualType, other.ActualType) && Equals(ViewType, other.ViewType);
+        }
 
-		#endregion
-	}
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((Robject)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (id != null ? id.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ActualType != null ? ActualType.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ViewType != null ? ViewType.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        #endregion
+    }
 }

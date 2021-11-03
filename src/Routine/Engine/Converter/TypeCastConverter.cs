@@ -13,12 +13,9 @@ namespace Routine.Engine.Converter
 			this.viewTypePredicate = viewTypePredicate;
 		}
 
-		protected override List<IType> GetTargetTypes(IType type)
-		{
-			return type.AssignableTypes.Where(viewTypePredicate).ToList();
-		}
+		protected override List<IType> GetTargetTypes(IType type) => type.AssignableTypes.Where(viewTypePredicate).ToList();
 
-		protected override object Convert(object @object, IType from, IType to)
+        protected override object Convert(object @object, IType from, IType to)
 		{
 			if (!viewTypePredicate(to))
 			{

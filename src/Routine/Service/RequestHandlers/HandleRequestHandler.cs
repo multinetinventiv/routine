@@ -59,9 +59,9 @@ namespace Routine.Service.RequestHandlers
                 HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
                 HttpContext.Response.Headers["X-Status-Description"] = $"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
                     "Make sure given modelId has a corresponding model and url is in one of the following format; " +
-                    "- serviceurlbase/modelId " + "- serviceurlbase/modelId/id " + "- serviceurlbase/modelId/operation " +
-                    "- serviceurlbase/modelId/viewModelId " + "- serviceurlbase/modelId/id/operation " +
-                    "- serviceurlbase/modelId/id/viewModelId " + "- serviceurlbase/modelId/id/viewModelId/operation";
+                    "- serviceurlbase/modelId - serviceurlbase/modelId/id - serviceurlbase/modelId/operation " +
+                    "- serviceurlbase/modelId/viewModelId - serviceurlbase/modelId/id/operation " +
+                    "- serviceurlbase/modelId/id/viewModelId - serviceurlbase/modelId/id/viewModelId/operation";
 
                 return;
             }
@@ -157,17 +157,12 @@ namespace Routine.Service.RequestHandlers
             return new Resolution(appModel, model.Id, id, viewModelId, operation);
         }
 
-        private static string ViewModelId(ObjectModel model, string viewModelIdOrOperation)
-        {
-            if (string.IsNullOrWhiteSpace(viewModelIdOrOperation))
-            {
-                return null;
-            }
-
-            return
-                model.Id == viewModelIdOrOperation ? model.Id :
-                    model.ViewModelIds.FirstOrDefault(vmid => vmid == viewModelIdOrOperation) ??
-                    model.ViewModelIds.FirstOrDefault(vmid => vmid.EndsWith(viewModelIdOrOperation));
-        }
+        private static string ViewModelId(ObjectModel model, string viewModelIdOrOperation) =>
+            string.IsNullOrWhiteSpace(viewModelIdOrOperation)
+                ? null
+                : model.Id == viewModelIdOrOperation
+                    ? model.Id
+                    : model.ViewModelIds.FirstOrDefault(vmid => vmid == viewModelIdOrOperation) ??
+                      model.ViewModelIds.FirstOrDefault(vmid => vmid.EndsWith(viewModelIdOrOperation));
     }
 }

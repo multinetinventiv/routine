@@ -2,75 +2,71 @@
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core.Configuration;
+using System.Threading.Tasks;
 
 namespace Routine.Engine.Virtual
 {
-	public class ProxyMethod : IMethod
-	{
-		private readonly IMethod real;
-		private readonly IType parentType;
-		private readonly int parameterOffset;
-		private readonly List<IParameter> parameters;
-		private readonly Func<object, object[], object> targetDelegate;
+    public class ProxyMethod : IMethod
+    {
+        private readonly IMethod real;
+        private readonly IType parentType;
+        private readonly int parameterOffset;
+        private readonly List<IParameter> parameters;
+        private readonly Func<object, object[], object> targetDelegate;
 
-		public SingleConfiguration<ProxyMethod, string> Name { get; private set; }
+        public SingleConfiguration<ProxyMethod, string> Name { get; }
 
-		public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, p) => o, parameters.AsEnumerable()) { }
-		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
-		public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
-		{
-			if (parentType == null) { throw new ArgumentNullException("parentType"); }
-			if (real == null) { throw new ArgumentNullException("real"); }
-			if (targetDelegate == null) { throw new ArgumentNullException("targetDelegate"); }
-			if (parameters == null) { throw new ArgumentNullException("parameters"); }
+        public ProxyMethod(IType parentType, IMethod real, params IParameter[] parameters) : this(parentType, real, (o, _) => o, parameters.AsEnumerable()) { }
+        public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, params IParameter[] parameters) : this(parentType, real, targetDelegate, parameters.AsEnumerable()) { }
+        public ProxyMethod(IType parentType, IMethod real, Func<object, object[], object> targetDelegate, IEnumerable<IParameter> parameters)
+        {
+            if (parameters == null) { throw new ArgumentNullException(nameof(parameters)); }
 
-			Name = new SingleConfiguration<ProxyMethod, string>(this, "Name", true);
+            Name = new SingleConfiguration<ProxyMethod, string>(this, nameof(Name), true);
 
-			this.real = real;
-			this.parentType = parentType;
-			this.targetDelegate = targetDelegate;
-			
-			this.parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
+            this.real = real ?? throw new ArgumentNullException(nameof(real));
+            this.parentType = parentType ?? throw new ArgumentNullException(nameof(parentType));
+            this.targetDelegate = targetDelegate ?? throw new ArgumentNullException(nameof(targetDelegate));
 
-			parameterOffset = this.parameters.Count;
+            this.parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
 
-			this.parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, parameterOffset + i) as IParameter));
+            parameterOffset = this.parameters.Count;
 
-			Name.Set(real.Name);
-		}
+            this.parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, parameterOffset + i) as IParameter));
 
-		private object PerformOn(object target, object[] parameters)
-		{
-			return real.PerformOn(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
-		}
+            Name.Set(real.Name);
+        }
 
-		#region ITypeComponent implementation
+        private object PerformOn(object target, object[] parameters) => real.PerformOn(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
+        public async Task<object> PerformOnAsync(object target, params object[] parameters) => await real.PerformOnAsync(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
 
-		IType ITypeComponent.ParentType { get { return parentType; } }
-		string ITypeComponent.Name { get { return Name.Get(); } }
-		object[] ITypeComponent.GetCustomAttributes() { return real.GetCustomAttributes(); }
+        #region ITypeComponent implementation
 
-		#endregion
+        IType ITypeComponent.ParentType => parentType;
+        string ITypeComponent.Name => Name.Get();
+        object[] ITypeComponent.GetCustomAttributes() => real.GetCustomAttributes();
 
-		#region IParametric implementation
+        #endregion
 
-		List<IParameter> IParametric.Parameters { get { return parameters; } }
+        #region IParametric implementation
 
-		#endregion
+        List<IParameter> IParametric.Parameters => parameters;
 
-		#region IReturnable implementation
+        #endregion
 
-		IType IReturnable.ReturnType { get { return real.ReturnType; } }
-		object[] IReturnable.GetReturnTypeCustomAttributes() { return real.GetReturnTypeCustomAttributes(); }
+        #region IReturnable implementation
 
-		#endregion
+        IType IReturnable.ReturnType => real.ReturnType;
+        object[] IReturnable.GetReturnTypeCustomAttributes() => real.GetReturnTypeCustomAttributes();
 
-		#region IMethod
+        #endregion
 
-		object IMethod.PerformOn(object target, params object[] parameters) { return PerformOn(target, parameters); }
-		bool IMethod.IsPublic { get { return real.IsPublic; } }
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return parentType; }
+        #region IMethod
 
-		#endregion
-	}
+        object IMethod.PerformOn(object target, params object[] parameters) => PerformOn(target, parameters);
+        bool IMethod.IsPublic => real.IsPublic;
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) => parentType;
+
+        #endregion
+    }
 }

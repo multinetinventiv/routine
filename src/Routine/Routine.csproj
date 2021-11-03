@@ -1,25 +1,49 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
-		<Version>0.9.1</Version>
-		<Authors>inventiv</Authors>
-		<Company>Multinet Teknoloji A.S.</Company>
-	</PropertyGroup>
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Remove="Service\TestApp\**\*.*" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="Service\TestApp\**\*.*" />
-	</ItemGroup>
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>Routine.Test</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
-	</ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Version>0.9.2</Version>
+        <Authors>inventiv</Authors>
+        <Company>Multinet Teknoloji A.S.</Company>
+        <PackageIcon>routine-logo.png</PackageIcon>
+        <PackageIconUrl />
+        <RepositoryUrl>https://github.com/multinetinventiv/routine.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>http://routineframework.org</PackageProjectUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <Description>Routine is a service framework that can adapt to any coding style.</Description>
+        <PackageTags>rest, service, client</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Copyright>Copyright (c) 2016 - 2021 inventiv</Copyright>
+    </PropertyGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Remove="Service\TestApp\**\*.*" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Service\TestApp\**\*.*" />
+    </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Routine.Test</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\docs\routine-logo.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\..\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\..\README.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

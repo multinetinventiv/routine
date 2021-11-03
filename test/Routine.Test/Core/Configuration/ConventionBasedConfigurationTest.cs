@@ -116,7 +116,7 @@ namespace Routine.Test.Core.Configuration
         public void When_an_exception_occurs__wraps_with_ConfigurationException()
         {
             var expected = new Exception("inner");
-            testing.Set(c => c.By(s => { throw expected; }));
+            testing.Set(c => c.By(_ => throw expected));
 
             try
             {
@@ -134,7 +134,7 @@ namespace Routine.Test.Core.Configuration
         public void When_a_ConfigurationException_occurs__simply_rethrows_it()
         {
             var expected = new ConfigurationException();
-            testing.Set(c => c.By(s => { throw expected; }));
+            testing.Set(c => c.By(_ => throw expected));
 
             try
             {

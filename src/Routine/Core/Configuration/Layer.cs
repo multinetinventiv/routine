@@ -4,8 +4,8 @@ namespace Routine.Core.Configuration
 {
 	public class Layer
 	{
-		public static readonly Layer LeastSpecific = new Layer(0, true);
-		public static readonly Layer MostSpecific = new Layer(int.MaxValue, true);
+		public static readonly Layer LeastSpecific = new(0, true);
+		public static readonly Layer MostSpecific = new(int.MaxValue, true);
 
 		private readonly int order;
 
@@ -16,21 +16,21 @@ namespace Routine.Core.Configuration
 			{
 				if (order <= 0)
 				{
-					throw new ArgumentOutOfRangeException("order", order, "\"order\" must be greater than zero");
+					throw new ArgumentOutOfRangeException(nameof(order), order, "\"order\" must be greater than zero");
 				}
 
 				if (order == int.MaxValue)
 				{
-					throw new ArgumentOutOfRangeException("order", order, string.Format("\"order\" must be less than {0}", int.MaxValue));
+					throw new ArgumentOutOfRangeException(nameof(order), order, $"\"order\" must be less than {int.MaxValue}");
 				}
 			}
 
 			this.order = order;
 		}
 
-		public int Order { get { return order; } }
+		public int Order => order;
 
-		public Layer MoreSpecific()
+        public Layer MoreSpecific()
 		{
 			if (this == MostSpecific)
 			{
@@ -60,12 +60,9 @@ namespace Routine.Core.Configuration
 			return new Layer(Order - 1);
 		}
 
-		public override string ToString()
-		{
-			return string.Format("Layer ({0})", order);
-		}
+		public override string ToString() => $"Layer ({order})";
 
-		#region Equality & HashCode
+        #region Equality & HashCode
 
 		public static bool operator ==(Layer a, Layer b) { return Equals(a, b); }
 		public static bool operator !=(Layer a, Layer b) { return !(a == b); }

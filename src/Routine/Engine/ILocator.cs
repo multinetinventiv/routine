@@ -14,7 +14,7 @@ namespace Routine.Engine
 			: this(type, ids, null) { }
 
 		public CannotLocateException(IType type, IEnumerable<string> ids, Exception innerException)
-			: base(string.Format("Id: {0}, Type: {1}", ids.ToItemString(), type), innerException){}
+			: base($"Id: {ids.ToItemString()}, Type: {type}", innerException){}
 	}
 }
 

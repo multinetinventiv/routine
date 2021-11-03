@@ -6,11 +6,11 @@ namespace Routine.Core.Rest
 {
 	public class RestRequest
 	{
-		public static readonly RestRequest Empty = new RestRequest(string.Empty);
+		public static readonly RestRequest Empty = new(string.Empty);
 
-		public string Body { get; private set; }
-		public Dictionary<string, string> Headers { get; private set; }
-		public Dictionary<string, string> UrlParameters { get; private set; }
+		public string Body { get; }
+		public Dictionary<string, string> Headers { get; }
+		public Dictionary<string, string> UrlParameters { get; }
 
 		public RestRequest(string body)
 		{
@@ -39,18 +39,17 @@ namespace Routine.Core.Rest
 			return this;
 		}
 
-		public string BuildUrlParameters()
-		{
-			return string.Join("&",
-				UrlParameters.Select(kvp => string.Format("{0}={1}", kvp.Key, HttpUtility.UrlEncode(kvp.Value)))
-			);
-		}
+		public string BuildUrlParameters() =>
+            string.Join("&",
+                UrlParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}")
+            );
 
-		#region ToString & Equality
+        #region ToString & Equality
 
 		public override string ToString()
 		{
-			return string.Format("Body: {0}, Headers: {1}, UrlParameters: {2}", Body, Headers.ToKeyValueString(), UrlParameters.ToKeyValueString());
+			return
+                $"Body: {Body}, Headers: {Headers.ToKeyValueString()}, UrlParameters: {UrlParameters.ToKeyValueString()}";
 		}
 
 		protected bool Equals(RestRequest other)

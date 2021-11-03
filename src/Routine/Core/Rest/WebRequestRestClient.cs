@@ -2,99 +2,130 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Routine.Core.Rest
 {
-	public class WebRequestRestClient : IRestClient
-	{
-		private readonly Func<string, WebRequest> requestFactory;
+    public class WebRequestRestClient : IRestClient
+    {
+        private const string GET = "GET";
+        private const string POST = "POST";
 
-		public WebRequestRestClient() : this(wr => { }) { }
-		public WebRequestRestClient(Action<WebRequest> configurer) 
-			: this(url =>
-				{
-					var result = WebRequest.Create(url);
+        private readonly Func<string, WebRequest> requestFactory;
 
-					configurer(result);
+        public WebRequestRestClient() : this(_ => { }) { }
+        public WebRequestRestClient(Action<WebRequest> configurer)
+            : this(url =>
+                {
+                    var result = WebRequest.Create(url);
 
-					return result;
-				}) {}
-		public WebRequestRestClient(Func<string, WebRequest> requestFactory)
-		{
-			this.requestFactory = requestFactory;
-		}
+                    configurer(result);
 
-		public RestResponse Get(string url, RestRequest request)
-		{
-			var response = CreateRestRequest(url, request, "GET").GetResponse();
+                    return result;
+                })
+        { }
+        public WebRequestRestClient(Func<string, WebRequest> requestFactory)
+        {
+            this.requestFactory = requestFactory;
+        }
 
-			return CreateRestResponse(response);
-		}
+        public RestResponse Get(string url, RestRequest request) => Make(url, request, GET);
+        public RestResponse Post(string url, RestRequest request) => Make(url, request, POST);
 
-		public RestResponse Post(string url, RestRequest request)
-		{
-			var req = CreateRestRequest(url, request, "POST");
+        public async Task<RestResponse> GetAsync(string url, RestRequest request) => await MakeAsync(url, request, GET);
+        public async Task<RestResponse> PostAsync(string url, RestRequest request) => await MakeAsync(url, request, POST);
 
-			req.ContentType = "application/json";
+        private RestResponse Make(string url, RestRequest request, string method)
+        {
+            var req = BuildRequest(url, request, method, out var byteArray);
 
-			byte[] byteArray = Encoding.UTF8.GetBytes(request.Body);
-			req.ContentLength = byteArray.Length;
-			using (var dataStream = req.GetRequestStream())
-			{
-				dataStream.Write(byteArray, 0, byteArray.Length);
-			}
+            if (byteArray != null)
+            {
+                using (var dataStream = req.GetRequestStream())
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+            }
 
-			return CreateRestResponse(req.GetResponse());
-		}
+            var webResponse = req.GetResponse();
+            var rs = webResponse.GetResponseStream();
 
-		private WebRequest CreateRestRequest(string url, RestRequest request, string method)
-		{
-			if (request.UrlParameters.Count > 0)
-			{
-				url += "?" + request.BuildUrlParameters();
-			}
+            if (rs == null) { return RestResponse.Empty; }
 
-			var req = requestFactory(url);
+            string body;
+            using (var reader = new StreamReader(rs))
+            {
+                body = reader.ReadToEnd();
+            }
 
-			req.Method = method;
+            return BuildResponse(webResponse, body);
+        }
 
-			foreach (var header in request.Headers)
-			{
-				req.Headers.Add(header.Key, HttpUtility.UrlEncode(header.Value));
-			}
+        private async Task<RestResponse> MakeAsync(string url, RestRequest request, string method)
+        {
+            var req = BuildRequest(url, request, method, out var byteArray);
 
-			return req;
-		}
+            if (byteArray != null)
+            {
+                await using (var dataStream = await req.GetRequestStreamAsync())
+                {
+                    await dataStream.WriteAsync(byteArray.AsMemory(0, byteArray.Length));
+                }
+            }
 
-		private static RestResponse CreateRestResponse(WebResponse webResponse)
-		{
-			var rs = webResponse.GetResponseStream();
+            var webResponse = await req.GetResponseAsync();
+            var rs = webResponse.GetResponseStream();
 
-			if (rs == null)
-			{
-				return RestResponse.Empty;
-			}
+            if (rs == null) { return RestResponse.Empty; }
 
-			string body;
-			using (var reader = new StreamReader(rs))
-			{
-				body = reader.ReadToEnd();
-			}
+            string body;
+            using (var reader = new StreamReader(rs))
+            {
+                body = await reader.ReadToEndAsync();
+            }
 
-			var result = new RestResponse(body);
-			foreach (var headerKey in webResponse.Headers.AllKeys)
-			{
-				result.Headers.Add(headerKey, HttpUtility.UrlDecode(webResponse.Headers[headerKey]));
-			}
-			return result;
-		}
-	}
+            return BuildResponse(webResponse, body);
+        }
 
-	public static class ContextBuilderWebRequestRestClientExtensions
-	{
-		public static ContextBuilder UsingRestClient(this ContextBuilder source, Action<WebRequest> configurer) { return source.UsingRestClient(new WebRequestRestClient(configurer)); }
-		public static ContextBuilder UsingRestClient(this ContextBuilder source, Func<string, WebRequest> requestFactory) { return source.UsingRestClient(new WebRequestRestClient(requestFactory)); }
-	}
+        private WebRequest BuildRequest(string url, RestRequest request, string method, out byte[] byteArray)
+        {
+            if (request.UrlParameters.Count > 0)
+            {
+                url += "?" + request.BuildUrlParameters();
+            }
+
+            var result = requestFactory(url);
+
+            result.Method = method;
+            foreach (var (key, value) in request.Headers)
+            {
+                result.Headers.Add(key, HttpUtility.UrlEncode(value));
+            }
+
+            if (method == GET)
+            {
+                byteArray = null;
+                return result;
+            }
+
+            byteArray = Encoding.UTF8.GetBytes(request.Body);
+            result.ContentLength = byteArray.Length;
+            result.ContentType = "application/json";
+
+            return result;
+        }
+
+        private static RestResponse BuildResponse(WebResponse response, string body)
+        {
+            var result = new RestResponse(body);
+            foreach (var headerKey in response.Headers.AllKeys)
+            {
+                result.Headers.Add(headerKey, HttpUtility.UrlDecode(response.Headers[headerKey]));
+            }
+
+            return result;
+        }
+    }
 }
 

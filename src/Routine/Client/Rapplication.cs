@@ -8,14 +8,14 @@ namespace Routine.Client
 {
 	public class Rapplication
 	{
-		public IObjectService Service { get; private set; }
+		public IObjectService Service { get; }
 
 		public Rapplication(IObjectService service)
 		{
 			Service = service;
 		}
 
-		private readonly object typesLock = new object();
+		private readonly object typesLock = new();
 		private Dictionary<string, Rtype> types;
 		private void FetchModelIfNecessary()
 		{
@@ -40,8 +40,7 @@ namespace Routine.Client
 			{
 				FetchModelIfNecessary();
 
-				Rtype result;
-				if (!types.TryGetValue(objectModelId, out result))
+                if (!types.TryGetValue(objectModelId, out var result))
 				{
 					throw new TypeNotFoundException(objectModelId);
 				}
@@ -60,51 +59,21 @@ namespace Routine.Client
 			}
 		}
 
-		public Rvariable NewVar<T>(string name, T value, string modelId)
-		{
-			return NewVar(name, value, o => o.ToString(), modelId);
-		}
+		public Rvariable NewVar<T>(string name, T value, string modelId) => NewVar(name, value, o => o.ToString(), modelId);
+        public Rvariable NewVar<T>(string name, T value, Func<T, string> idExtractor, string modelId) => NewVar(name, value, o => Get(o, idExtractor, modelId));
+        public Rvariable NewVar<T>(string name, T value, Func<T, Robject> robjectExtractor) => NewVar(name, Get(value, robjectExtractor));
+        public Rvariable NewVar(string name, Robject robj) => new(name, robj);
 
-		public Rvariable NewVar<T>(string name, T value, Func<T, string> idExtractor, string modelId)
-		{
-			return NewVar(name, value, o => Get(o, idExtractor, modelId));
-		}
+        public Rvariable NewVarList<T>(string name, IEnumerable<T> list, string modelId) => NewVarList(name, list, o => o.ToString(), modelId);
+        public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, string> idExtractor, string modelId) => NewVarList(name, list, o => Get(o, idExtractor, modelId));
+        public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, Robject> robjectExtractor) => NewVarList(name, list.Select(o => Get(o, robjectExtractor)));
+        public Rvariable NewVarList(string name, params Robject[] list) => NewVarList(name, list.AsEnumerable());
+        public Rvariable NewVarList(string name, IEnumerable<Robject> list) => new(name, list);
 
-		public Rvariable NewVar<T>(string name, T value, Func<T, Robject> robjectExtractor)
-		{
-			return NewVar(name, Get(value, robjectExtractor));
-		}
+        public Rvariable NullVariable() => new();
+        public Robject NullObject() => new();
 
-		public Rvariable NewVar(string name, Robject robj)
-		{
-			return new Rvariable(name, robj);
-		}
-
-		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, string modelId)
-		{
-			return NewVarList(name, list, o => o.ToString(), modelId);
-		}
-
-		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, string> idExtractor, string modelId)
-		{
-			return NewVarList(name, list, o => Get(o, idExtractor, modelId));
-		}
-
-		public Rvariable NewVarList<T>(string name, IEnumerable<T> list, Func<T, Robject> robjectExtractor)
-		{
-			return NewVarList(name, list.Select(o => Get(o, robjectExtractor)));
-		}
-
-		public Rvariable NewVarList(string name, params Robject[] list) { return NewVarList(name, list.AsEnumerable()); }
-		public Rvariable NewVarList(string name, IEnumerable<Robject> list)
-		{
-			return new Rvariable(name, list);
-		}
-
-		public Rvariable NullVariable() { return new Rvariable(); }
-		public Robject NullObject() { return new Robject(); }
-
-		private Robject Get<T>(T value, Func<T, Robject> robjectExtractor)
+        private static Robject Get<T>(T value, Func<T, Robject> robjectExtractor)
 		{
 			object boxedValue = value;
 			var robj = new Robject();
@@ -128,22 +97,19 @@ namespace Routine.Client
 			return Get(id, modelId);
 		}
 
-		public Robject Get(string id, string modelId) { return Get(id, modelId, modelId); }
-		public Robject Get(string id, string actualModelId, string viewModelId)
+		public Robject Get(string id, string modelId) => Get(id, modelId, modelId);
+        public Robject Get(string id, string actualModelId, string viewModelId)
 		{
-			if (string.IsNullOrEmpty(actualModelId)) { throw new ArgumentNullException("actualModelId"); }
-			if (string.IsNullOrEmpty(viewModelId)) { throw new ArgumentNullException("viewModelId", "If view model is not needed, pass the same as actualModelId or invoke Get(id, modelId)"); }
+			if (string.IsNullOrEmpty(actualModelId)) { throw new ArgumentNullException(nameof(actualModelId)); }
+			if (string.IsNullOrEmpty(viewModelId)) { throw new ArgumentNullException(nameof(viewModelId), "If view model is not needed, pass the same as actualModelId or invoke Get(id, modelId)"); }
 
 			return this[actualModelId].Get(id, this[viewModelId]);
 		}
 
-		public Robject Init(string modelId, params Rvariable[] initializationParameters) { return Init(modelId, initializationParameters.AsEnumerable()); }
-		public Robject Init(string modelId, IEnumerable<Rvariable> initializationParameters)
-		{
-			return this[modelId].Init(initializationParameters);
-		}
+		public Robject Init(string modelId, params Rvariable[] initializationParameters) => Init(modelId, initializationParameters.AsEnumerable());
+        public Robject Init(string modelId, IEnumerable<Rvariable> initializationParameters) => this[modelId].Init(initializationParameters);
 
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rapplication other)
 		{

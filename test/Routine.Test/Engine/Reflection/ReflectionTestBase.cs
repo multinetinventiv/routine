@@ -6,363 +6,376 @@ using Routine.Engine.Reflection;
 using Routine.Test.Core;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterNamespace;
+using System.Threading.Tasks;
 
 #region Test Model
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable ValueParameterNotUsed
+
+#region Inner Namespace
+
 namespace Routine.Test.Engine.Reflection.Domain
 {
-	#region OOP Model
+    #region OOP Model
 
-	public class TestClassWithoutDefaultConstructor_OOP
-	{
-		public TestClassWithoutDefaultConstructor_OOP(string dummy) { }
-	}
+    public class TestClassWithoutDefaultConstructor_OOP
+    {
+        public TestClassWithoutDefaultConstructor_OOP(string dummy) { }
+    }
 
-	public interface TestBaseInterface_OOP
-	{
-		string ExplicitBaseInterfaceProperty { get; }
-	}
+    public interface TestBaseInterface_OOP
+    {
+        string ExplicitBaseInterfaceProperty { get; }
+    }
 
-	public interface TestInterface_OOP : TestBaseInterface_OOP
-	{
-		string ImplicitInterfaceProperty { get; }
-		string ExplicitInterfaceProperty { get; }
+    public interface TestInterface_OOP : TestBaseInterface_OOP
+    {
+        string ImplicitInterfaceProperty { get; }
+        string ExplicitInterfaceProperty { get; }
 
-		void ImplicitInterfaceMethod();
-		void ImplicitInterfaceWithParameterMethod(string str);
-		void ExplicitInterfaceMethod();
-	}
+        void ImplicitInterfaceMethod();
+        void ImplicitInterfaceWithParameterMethod(string str);
+        void ExplicitInterfaceMethod();
 
-	public abstract class TestAbstractClass_OOP
-	{
-		public virtual string OverriddenProperty { get { return ""; } }
-		public virtual string NotOverriddenProperty { get { return ""; } }
-		public abstract string AbstractProperty { get; }
+        public string DefaultInterfaceMethod(string message) => $"default interface {message}";
+    }
 
-		public virtual void OverriddenMethod() { }
-		public virtual void NotOverriddenMethod() { }
-		public abstract void AbstractMethod();
-	}
+    public abstract class TestAbstractClass_OOP
+    {
+        public virtual string OverriddenProperty => "";
+        public virtual string NotOverriddenProperty => "";
+        public abstract string AbstractProperty { get; }
 
-	public class TestClass_OOP : TestAbstractClass_OOP, TestInterface_OOP, TestOuterInterface_OOP
-	{
-		public TestClass_OOP() { }
-		public TestClass_OOP(string str) { }
-		public TestClass_OOP(Exception ex) { throw ex; }
-		private TestClass_OOP(int i) { }
+        public virtual void OverriddenMethod() { }
+        public virtual void NotOverriddenMethod() { }
+        public abstract void AbstractMethod();
+    }
 
-		public string this[int i, string str] { get { return null; } set { } }
+    public class TestClass_OOP : TestAbstractClass_OOP, TestInterface_OOP, TestOuterInterface_OOP
+    {
+        public TestClass_OOP() { }
+        public TestClass_OOP(string str) { }
+        public TestClass_OOP(Exception ex) => throw ex;
+        private TestClass_OOP(int i) { }
 
-		public string PublicProperty { get; set; }
-		private string PrivateProperty { get; set; }
-		public string PublicGetPrivateSetProperty { get; private set; }
+        public string this[int i, string str] { get => null; set { } }
 
-		public static string PublicStaticProperty { get; set; }
-		private static string PrivateStaticProperty { get; set; }
-		public static string PublicStaticGetPrivateSetProperty { get; private set; }
+        public string PublicProperty { get; set; }
+        private string PrivateProperty { get; set; }
+        public string PublicGetPrivateSetProperty { get; private set; }
 
-		public string OtherNamespaceProperty { get { return ""; } }
+        public static string PublicStaticProperty { get; set; }
+        private static string PrivateStaticProperty { get; set; }
+        public static string PublicStaticGetPrivateSetProperty { get; private set; }
 
-		string TestBaseInterface_OOP.ExplicitBaseInterfaceProperty { get { return ""; } }
-		public string ImplicitInterfaceProperty { get { return ""; } }
-		string TestInterface_OOP.ExplicitInterfaceProperty { get { return ""; } }
+        public string OtherNamespaceProperty => "";
 
-		public override string OverriddenProperty { get { return ""; } }
-		public override string AbstractProperty { get { return ""; } }
+        string TestBaseInterface_OOP.ExplicitBaseInterfaceProperty => "";
+        public string ImplicitInterfaceProperty => "";
+        string TestInterface_OOP.ExplicitInterfaceProperty => "";
 
-		public void PublicMethod() { }
-		private void PrivateMethod() { }
+        public override string OverriddenProperty => "";
+        public override string AbstractProperty => "";
 
-		public override void AbstractMethod() { }
-		public override void OverriddenMethod() { }
+        public void PublicMethod() { }
+        private void PrivateMethod() { }
+        public async Task PublicMethodAsync() => await Task.Delay(10);
+        private async Task PrivateMethodAsync() => await Task.Delay(10);
 
-		public void ImplicitInterfaceMethod() { }
-		public void ImplicitInterfaceWithParameterMethod(string str) { }
-		void TestInterface_OOP.ExplicitInterfaceMethod() { }
+        public override void AbstractMethod() { }
+        public override void OverriddenMethod() { }
 
-		public void OtherNamespaceMethod() { }
-		public override string ToString() { return "TestClass_OOP"; }
+        public void ImplicitInterfaceMethod() { }
+        public void ImplicitInterfaceWithParameterMethod(string str) { }
+        void TestInterface_OOP.ExplicitInterfaceMethod() { }
 
-		public static void PublicStaticMethod() { }
-		private static void PrivateStaticMethod() { }
+        public void OtherNamespaceMethod() { }
+        public override string ToString() => "TestClass_OOP";
 
-		public static string PublicStaticPingMethod(string message) { return "static " + message; }
-		public string PublicPingMethod(string message) { return "instance " + message; }
+        public static void PublicStaticMethod() { }
+        public static async Task PublicStaticMethodAsync() => await Task.Delay(10);
+        private static void PrivateStaticMethod() { }
+        private static async Task PrivateStaticMethodAsync() => await Task.Delay(10);
 
-		public void ExceptionMethod(Exception ex) { throw ex; }
-		public Exception Exception;
-		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
-	}
+        public static string PublicStaticPingMethod(string message) => $"static {message}";
+        public string PublicPingMethod(string message) => $"instance {message}";
+        public static async Task<string> PublicStaticPingMethodAsync(string message) { await Task.Delay(10); return $"static {message}"; }
+        public async Task<string> PublicPingMethodAsync(string message) { await Task.Delay(10); return $"static {message}"; }
 
-	public class TestProxyClass_OOP : TestClass_OOP { }
+        public void ExceptionMethod(Exception ex) => throw ex;
+        public Exception Exception;
+        public string ExceptionProperty
+        {
+            get => throw Exception; set => throw Exception;
+        }
+    }
 
-	#endregion
+    public class TestProxyClass_OOP : TestClass_OOP { }
 
-	#region Parseable Model
+    #endregion
 
-	public class TestClass_Parseable
-	{
-		public static readonly TestClass_Parseable ParsedResult = new TestClass_Parseable();
+    #region Parseable Model
 
-		public static TestClass_Parseable Parse(string value) { return ParsedResult; }
-	}
+    public class TestClass_Parseable
+    {
+        public static readonly TestClass_Parseable ParsedResult = new();
 
-	public class TestClass_NotParseable
-	{
-		public static void Parse(string value) { }
-		public static TestClass_NotParseable Parse() { return null; }
-	}
+        public static TestClass_Parseable Parse(string value) => ParsedResult;
+    }
 
-	#endregion
+    public class TestClass_NotParseable
+    {
+        public static void Parse(string value) { }
+        public static TestClass_NotParseable Parse() => null;
+    }
 
-	#region Members Model
+    #endregion
 
-	public class TestClass_Members
-	{
-		public TestClass_Members() : this(null) { }
-		public TestClass_Members(string str) : this(str, 0) { }
-		public TestClass_Members(int i) : this(null, i) { }
-		public TestClass_Members(string str, int i) { IntProperty = i; StringProperty = str; }
+    #region Members Model
 
-		public int IntProperty { get; set; }
-		public string StringProperty { get; set; }
-		public List<string> StringListProperty { get { return null; } }
-		public IList NonGenericListProperty { get { return null; } }
-		public string PublicAutoProperty { get; set; }
-		public string PublicProperty { get { return null; } set { } }
-		public string PublicReadOnlyProperty { get { return null; } }
-		public string PublicWriteOnlyProperty { set { } }
-		public string PrivateGetProperty { private get; set; }
-		public string PrivateSetProperty { get; private set; }
+    public class TestClass_Members
+    {
+        public TestClass_Members() : this(null) { }
+        public TestClass_Members(string str) : this(str, 0) { }
+        public TestClass_Members(int i) : this(null, i) { }
+        public TestClass_Members(string str, int i) { IntProperty = i; StringProperty = str; }
 
-		public List<string> StringListMethod() { return null; }
-		public IList NonGenericListMethod() { return null; }
+        public int IntProperty { get; set; }
+        public string StringProperty { get; set; }
+        public List<string> StringListProperty => null;
+        public IList NonGenericListProperty => null;
+        public string PublicAutoProperty { get; set; }
+        public string PublicProperty
+        {
+            get => null;
+            set { }
+        }
+        public string PublicReadOnlyProperty => null;
+        public string PublicWriteOnlyProperty { set { } }
+        public string PrivateGetProperty { private get; set; }
+        public string PrivateSetProperty { get; private set; }
 
-		public string StringMethod() { return null; }
-		public void VoidMethod() { }
-		public int IntMethod() { return 0; }
+        public List<string> StringListMethod() => null;
+        public IList NonGenericListMethod() => null;
 
-		public void ParameterlessMethod() { }
-		public void OneParameterMethod(string p1) { }
-		public void TwoParameterMethod(string p1, int p2) { }
-		public void ThreeParameterMethod(string p1, int p2, double p3) { }
-		public void FourParameterMethod(string p1, int p2, double p3, decimal p4) { }
-		public void FiveParameterMethod(string p1, int p2, double p3, decimal p4, float p5) { }
-	}
+        public string StringMethod() => null;
+        public void VoidMethod() { }
+        public int IntMethod() => 0;
 
-	#endregion
+        public void ParameterlessMethod() { }
+        public void OneParameterMethod(string p1) { }
+        public void TwoParameterMethod(string p1, int p2) { }
+        public void ThreeParameterMethod(string p1, int p2, double p3) { }
+        public void FourParameterMethod(string p1, int p2, double p3, decimal p4) { }
+        public void FiveParameterMethod(string p1, int p2, double p3, decimal p4, float p5) { }
+    }
 
-	#region Attribute Model
+    #endregion
 
-	public class TestInterfaceAttribute : Attribute { }
+    #region Attribute Model
 
-	[TestInterface]
-	public interface TestInterface_Attribute
-	{
-		[TestInterface]
-		string InterfaceProperty { get; set; }
+    public class TestInterfaceAttribute : Attribute { }
 
-		[TestInterface]
-		void InterfaceMethod();
-	}
+    [TestInterface]
+    public interface TestInterface_Attribute
+    {
+        [TestInterface]
+        string InterfaceProperty { get; set; }
 
-	public class TestBaseAttribute : Attribute { }
+        [TestInterface]
+        void InterfaceMethod();
+    }
 
-	[TestBase]
-	public abstract class TestBase_Attribute
-	{
-		[TestBase]
-		public string BaseProperty { get; set; }
+    public class TestBaseAttribute : Attribute { }
 
-		[TestBase]
-		public virtual string OverriddenProperty { get; set; }
+    [TestBase]
+    public abstract class TestBase_Attribute
+    {
+        [TestBase]
+        public string BaseProperty { get; set; }
 
-		[TestBase]
-		public void BaseMethod() { }
+        [TestBase]
+        public virtual string OverriddenProperty { get; set; }
 
-		[TestBase]
-		public virtual void OverriddenMethod() { }
-	}
+        [TestBase]
+        public void BaseMethod() { }
 
-	public class TestClassAttribute : Attribute { }
+        [TestBase]
+        public virtual void OverriddenMethod() { }
+    }
 
-	[TestClass]
-	public class TestClass_Attribute : TestBase_Attribute, TestInterface_Attribute
-	{
-		[TestClass]
-		public TestClass_Attribute() { }
+    public class TestClassAttribute : Attribute { }
 
-		[TestClass]
-		public TestClass_Attribute([TestClass] int i) { }
+    [TestClass]
+    public class TestClass_Attribute : TestBase_Attribute, TestInterface_Attribute
+    {
+        [TestClass]
+        public TestClass_Attribute() { }
 
-		[TestClass]
-		public string ClassProperty { [return: TestClass] get; set; }
+        [TestClass]
+        public TestClass_Attribute([TestClass] int i) { }
 
-		public string WriteOnlyProperty { set { } }
+        [TestClass]
+        public string ClassProperty { [return: TestClass] get; set; }
 
-		[TestClass]
-		public override string OverriddenProperty { get; set; }
+        public string WriteOnlyProperty { set { } }
 
-		[TestClass]
-		public string InterfaceProperty { get; set; }
+        [TestClass]
+        public override string OverriddenProperty { get; set; }
 
-		[TestClass]
-		[return: TestClass]
-		public string ClassMethod([TestClass] string parameter) { return null; }
+        [TestClass]
+        public string InterfaceProperty { get; set; }
 
-		[TestClass]
-		public override void OverriddenMethod() { base.OverriddenMethod(); }
+        [TestClass]
+        [return: TestClass]
+        public string ClassMethod([TestClass] string parameter) => null;
 
-		[TestClass]
-		public void InterfaceMethod() { }
-	}
+        [TestClass]
+        public override void OverriddenMethod() { base.OverriddenMethod(); }
 
-	#endregion
+        [TestClass]
+        public void InterfaceMethod() { }
+    }
 
-	#region Parameter Model
+    #endregion
 
-	public class ReflectedParameter
-	{
-		public void AMethod([TestClass] string theParameter) { }
-	}
+    #region Parameter Model
 
-	#endregion
+    public class ReflectedParameter
+    {
+        public void AMethod([TestClass] string theParameter = "default") { }
+    }
+
+    #endregion
 }
-
 #endregion
 
-#region Test Model (Outer Namespace)
+#region Outer Namespace
 
 namespace RoutineTest.OuterNamespace
 {
-	public interface TestOuterInterface_OOP
-	{
-		string OtherNamespaceProperty { get; }
-		void OtherNamespaceMethod();
-	}
+    public interface TestOuterInterface_OOP
+    {
+        string OtherNamespaceProperty { get; }
+        void OtherNamespaceMethod();
+    }
 }
 
 namespace RoutineTest.OuterDomainNamespace
 {
-	public class TestOuterDomainType_OOP
-	{
-		public TestOuterDomainType_OOP() { }
-		public TestOuterDomainType_OOP(Exception ex) { throw ex; }
-		public void ExceptionMethod(Exception ex) { throw ex; }
+    public class TestOuterDomainType_OOP
+    {
+        public TestOuterDomainType_OOP() { }
+        public TestOuterDomainType_OOP(Exception ex) { throw ex; }
+        public void ExceptionMethod(Exception ex) { throw ex; }
 
-		public Exception Exception;
-		public string ExceptionProperty { get { throw Exception; } set { throw Exception; } }
+        public Exception Exception;
+        public string ExceptionProperty
+        {
+            get => throw Exception;
+            set => throw Exception;
+        }
 
-		public TestOuterLaterAddedDomainType_OOP LaterAddedDomainTypeProperty { get; set; }
-	}
+        public TestOuterLaterAddedDomainType_OOP LaterAddedDomainTypeProperty { get; set; }
+    }
 
-	public class TestOuterLaterAddedDomainType_OOP
-	{
-	}
+    public class TestOuterLaterAddedDomainType_OOP
+    {
+    }
 }
+
+#endregion
+
+// ReSharper restore ValueParameterNotUsed
+// ReSharper restore UnusedAutoPropertyAccessor.Local
+// ReSharper restore UnusedMember.Local
+// ReSharper restore UnusedParameter.Local
+// ReSharper restore InconsistentNaming
 
 #endregion
 
 namespace Routine.Test.Engine.Reflection
 {
-	public abstract class ReflectionTestBase : CoreTestBase
-	{
-		public override void SetUp()
-		{
-			base.SetUp();
+    public abstract class ReflectionTestBase : CoreTestBase
+    {
+        public override void SetUp()
+        {
+            base.SetUp();
 
-			TypeInfo.Optimize(GetType().Assembly
-				.GetTypes()
-				.Where(t =>
-					t.Namespace != null && (
-						t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||
-						t.Namespace.StartsWith("RoutineTest.OuterNamespace")
-					)
-				)
-				.ToArray()
-			);
-		}
+            TypeInfo.Optimize(GetType().Assembly
+                .GetTypes()
+                .Where(t =>
+                    t.Namespace != null && (
+                        t.Namespace.StartsWith("Routine.Test.Engine.Reflection.Domain") ||
+                        t.Namespace.StartsWith("RoutineTest.OuterNamespace")
+                    )
+                )
+                .ToArray()
+            );
+        }
 
-		public override void TearDown()
-		{
-			base.TearDown();
+        public override void TearDown()
+        {
+            base.TearDown();
 
-			TypeInfo.Clear();
-		}
+            TypeInfo.Clear();
+        }
 
-		protected ConstructorInfo OOP_Constructor(params TypeInfo[] typeInfos)
-		{
-			return type.of<TestClass_OOP>().GetConstructor(typeInfos);
-		}
+        protected ConstructorInfo OOP_Constructor(params TypeInfo[] typeInfos) =>
+            type.of<TestClass_OOP>().GetConstructor(typeInfos);
 
-		protected MethodInfo OOP_Method(string prefixOrFullName)
-		{
-			return type.of<TestClass_OOP>().GetMethod(prefixOrFullName + "Method") ??
-				   type.of<TestClass_OOP>().GetMethod(prefixOrFullName);
-		}
+        protected MethodInfo OOP_Method(string prefixOrFullName) =>
+            type.of<TestClass_OOP>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestClass_OOP>().GetMethod(prefixOrFullName);
 
-		protected MethodInfo OOP_StaticMethod(string prefixOrFullName)
-		{
-			return type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName + "Method") ??
-				   type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
-		}
+        protected MethodInfo OOP_StaticMethod(string prefixOrFullName) =>
+            type.of<TestClass_OOP>().GetStaticMethod($"{prefixOrFullName}Method") ??
+            type.of<TestClass_OOP>().GetStaticMethod(prefixOrFullName);
 
-		protected PropertyInfo OOP_Property(string prefixOrFullName)
-		{
-			return type.of<TestClass_OOP>().GetProperty(prefixOrFullName + "Property") ??
-				   type.of<TestClass_OOP>().GetProperty(prefixOrFullName);
-		}
+        protected MethodInfo OOP_InterfaceMethod(string prefixOrFullName) =>
+            type.of<TestInterface_OOP>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestInterface_OOP>().GetMethod(prefixOrFullName);
 
-		protected PropertyInfo OOP_StaticProperty(string prefixOrFullName)
-		{
-			return type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName + "Property") ??
-				   type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName);
-		}
+        protected PropertyInfo OOP_Property(string prefixOrFullName) =>
+            type.of<TestClass_OOP>().GetProperty($"{prefixOrFullName}Property") ??
+            type.of<TestClass_OOP>().GetProperty(prefixOrFullName);
 
-		protected ConstructorInfo Members_Constructor(params TypeInfo[] typeInfos)
-		{
-			return type.of<TestClass_Members>().GetConstructor(typeInfos);
-		}
+        protected PropertyInfo OOP_StaticProperty(string prefixOrFullName) =>
+            type.of<TestClass_OOP>().GetStaticProperty($"{prefixOrFullName}Property") ??
+            type.of<TestClass_OOP>().GetStaticProperty(prefixOrFullName);
 
-		protected MethodInfo Members_Method(string prefixOrFullName)
-		{
-			return type.of<TestClass_Members>().GetMethod(prefixOrFullName + "Method") ??
-				   type.of<TestClass_Members>().GetMethod(prefixOrFullName);
-		}
+        protected ConstructorInfo Members_Constructor(params TypeInfo[] typeInfos) =>
+            type.of<TestClass_Members>().GetConstructor(typeInfos);
 
-		protected PropertyInfo Members_Property(string prefixOrFullName)
-		{
-			return type.of<TestClass_Members>().GetProperty(prefixOrFullName + "Property") ??
-				   type.of<TestClass_Members>().GetProperty(prefixOrFullName);
-		}
+        protected MethodInfo Members_Method(string prefixOrFullName) =>
+            type.of<TestClass_Members>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestClass_Members>().GetMethod(prefixOrFullName);
 
-		protected ConstructorInfo Attribute_Constructor(params TypeInfo[] typeInfos)
-		{
-			return type.of<TestClass_Attribute>().GetConstructor(typeInfos);
-		}
+        protected PropertyInfo Members_Property(string prefixOrFullName) =>
+            type.of<TestClass_Members>().GetProperty($"{prefixOrFullName}Property") ??
+            type.of<TestClass_Members>().GetProperty(prefixOrFullName);
 
-		protected MethodInfo Attribute_Method(string prefixOrFullName)
-		{
-			return type.of<TestClass_Attribute>().GetMethod(prefixOrFullName + "Method") ??
-				   type.of<TestClass_Attribute>().GetMethod(prefixOrFullName);
-		}
+        protected ConstructorInfo Attribute_Constructor(params TypeInfo[] typeInfos) =>
+            type.of<TestClass_Attribute>().GetConstructor(typeInfos);
 
-		protected PropertyInfo Attribute_Property(string prefixOrFullName)
-		{
-			return type.of<TestClass_Attribute>().GetProperty(prefixOrFullName + "Property") ??
-				   type.of<TestClass_Attribute>().GetProperty(prefixOrFullName);
-		}
+        protected MethodInfo Attribute_Method(string prefixOrFullName) =>
+            type.of<TestClass_Attribute>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestClass_Attribute>().GetMethod(prefixOrFullName);
 
-		protected MethodInfo Attribute_InterfaceMethod(string prefixOrFullName)
-		{
-			return type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName + "Method") ??
-				   type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName);
-		}
+        protected PropertyInfo Attribute_Property(string prefixOrFullName) =>
+            type.of<TestClass_Attribute>().GetProperty($"{prefixOrFullName}Property") ??
+            type.of<TestClass_Attribute>().GetProperty(prefixOrFullName);
 
-		protected PropertyInfo Attribute_InterfaceProperty(string prefixOrFullName)
-		{
-			return type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName + "Property") ??
-				   type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
-		}
-	}
+        protected MethodInfo Attribute_InterfaceMethod(string prefixOrFullName) =>
+            type.of<TestInterface_Attribute>().GetMethod($"{prefixOrFullName}Method") ??
+            type.of<TestInterface_Attribute>().GetMethod(prefixOrFullName);
+
+        protected PropertyInfo Attribute_InterfaceProperty(string prefixOrFullName) =>
+            type.of<TestInterface_Attribute>().GetProperty($"{prefixOrFullName}Property") ??
+            type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
+    }
 }

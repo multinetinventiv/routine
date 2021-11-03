@@ -47,7 +47,7 @@ namespace Routine.Service.RequestHandlers
                 throw new BadRequestException(ex);
             }
 
-            var variableData = ServiceContext.ObjectService.Do(resolution.Reference, resolution.OperationModel.Name, parameterValues);
+            var variableData = await ServiceContext.ObjectService.DoAsync(resolution.Reference, resolution.OperationModel.Name, parameterValues);
             var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
             await WriteJsonResponse(compressor.Compress(variableData));
@@ -59,17 +59,15 @@ namespace Routine.Service.RequestHandlers
             {
                 return QueryString.Keys.ToDictionary(s => s, s => QueryString[s] as object);
             }
-            HttpContext.Request.EnableBuffering();
 
+            HttpContext.Request.EnableBuffering();
             var req = HttpContext.Request.Body;
             req.Seek(0, SeekOrigin.Begin);
             var requestBody = new StreamReader(req).ReadToEnd();
-            if (string.IsNullOrWhiteSpace(requestBody))
-            {
-                return new Dictionary<string, object>();
-            }
 
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
+            return string.IsNullOrWhiteSpace(requestBody)
+                ? new Dictionary<string, object>()
+                : JsonSerializer.Deserialize<Dictionary<string, object>>(requestBody);
         }
     }
 }

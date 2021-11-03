@@ -1,4 +1,4 @@
-﻿using Routine.Client;
+using Routine.Client;
 using Routine.Client.Context;
 using Routine.Core;
 using Routine.Core.Cache;
@@ -11,76 +11,52 @@ using Routine.Service.Context;
 
 namespace Routine
 {
-	public class ContextBuilder
+    public class ContextBuilder
     {
+        private IInterceptionConfiguration interceptionConfiguration;
+        private ICache cache;
+        private IJsonSerializer serializer;
+        private IRestClient restClient;
+
+        public ContextBuilder Using(
+            IRestClient restClient = null,
+            IJsonSerializer serializer = null,
+            ICache cache = null,
+            IInterceptionConfiguration interceptionConfiguration = null
+        )
+        {
+            this.restClient = restClient ?? new WebRequestRestClient();
+            this.serializer = serializer ?? new JsonSerializerAdapter();
+            this.cache = cache ?? new DictionaryCache();
+
+            this.interceptionConfiguration = interceptionConfiguration;
+
+            return this;
+        }
+
         public IClientContext AsServiceClient(IServiceClientConfiguration serviceClientConfiguration)
         {
-            return ClientContext(ObjectServiceClient(serviceClientConfiguration));
+            var service = InterceptIfConfigured(new RestClientObjectService(serviceClientConfiguration, restClient, serializer));
+
+            return new DefaultClientContext(service, new Rapplication(service));
         }
 
         public IClientContext AsClientApplication(ICodingStyle codingStyle)
         {
-            return ClientContext(ObjectService(codingStyle));
+            var coreContext = new DefaultCoreContext(codingStyle, cache);
+            var service = InterceptIfConfigured(new ObjectService(coreContext, cache));
+
+            return new DefaultClientContext(service, new Rapplication(service));
         }
 
         public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
         {
-            return ServiceContext(serviceConfiguration, codingStyle);
+            var coreContext = new DefaultCoreContext(codingStyle, cache);
+            var service = InterceptIfConfigured(new ObjectService(coreContext, cache));
+
+            return new DefaultServiceContext(coreContext, serviceConfiguration, service);
         }
 
-        private IClientContext ClientContext(IObjectService objectService)
-        {
-            return new DefaultClientContext(objectService, new Rapplication(objectService));
-        }
-
-        private IServiceContext ServiceContext(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
-        {
-            return new DefaultServiceContext(CoreContext(codingStyle), serviceConfiguration, ObjectService(codingStyle));
-        }
-
-        private IObjectService ObjectService(ICodingStyle codingStyle)
-        {
-            return InterceptIfConfigured(new ObjectService(CoreContext(codingStyle), Cache()));
-        }
-
-        private IObjectService ObjectServiceClient(IServiceClientConfiguration serviceClientConfiguration)
-        {
-            return InterceptIfConfigured(new RestClientObjectService(serviceClientConfiguration, RestClient(), Serializer()));
-        }
-
-        private IObjectService InterceptIfConfigured(IObjectService real)
-        {
-            if (InterceptionConfiguration() == null) { return real; }
-
-            return new InterceptedObjectService(real, InterceptionConfiguration());
-        }
-
-        private ICoreContext coreContext;
-        private ICoreContext CoreContext(ICodingStyle codingStyle)
-        {
-            if (coreContext == null)
-            {
-                coreContext = new DefaultCoreContext(codingStyle, Cache());
-            }
-
-            return coreContext;
-        }
-        
-        private IRestClient restClient = new WebRequestRestClient();
-        public ContextBuilder UsingRestClient(IRestClient restClient) { this.restClient = restClient; return this; }
-        private IRestClient RestClient() { return restClient; }
-        
-        private IJsonSerializer serializer = new JsonSerializerAdapter();
-        public ContextBuilder UsingSerializer(IJsonSerializer serializer) { this.serializer = serializer; return this; }
-        private IJsonSerializer Serializer() { return serializer; }
-
-        private ICache cache = new WebCache();
-        public ContextBuilder UsingCache(ICache cache) { this.cache = cache; return this; }
-        private ICache Cache() { return cache; }
-
-        private IInterceptionConfiguration interceptionConfiguration;
-        public ContextBuilder UsingNoInterception() { return UsingInterception(null); }
-        public ContextBuilder UsingInterception(IInterceptionConfiguration interceptionConfiguration) { this.interceptionConfiguration = interceptionConfiguration; return this; }
-        private IInterceptionConfiguration InterceptionConfiguration() { return interceptionConfiguration; }
+        private IObjectService InterceptIfConfigured(IObjectService real) => interceptionConfiguration == null ? real : new InterceptedObjectService(real, interceptionConfiguration);
     }
 }

@@ -1,92 +1,109 @@
+using System;
+using System.Threading.Tasks;
+
 namespace Routine.Engine.Reflection
 {
-	public abstract class MethodInfo : MethodBase, IMethod
-	{
-		internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo)
-		{
-			return new ReflectedMethodInfo(methodInfo).Load();
-		}
+    public abstract class MethodInfo : MethodBase, IMethod
+    {
+        internal static MethodInfo Reflected(System.Reflection.MethodInfo methodInfo) => new ReflectedMethodInfo(methodInfo).Load();
+        internal static MethodInfo Preloaded(System.Reflection.MethodInfo methodInfo) => new PreloadedMethodInfo(methodInfo).Load();
 
-		internal static MethodInfo Preloaded(System.Reflection.MethodInfo methodInfo)
-		{
-			return new PreloadedMethodInfo(methodInfo).Load();
-		}
+        protected static Type IgnoreTask(Type type)
+        {
+            if (type == typeof(Task))
+            {
+                return typeof(void);
+            }
 
-		protected readonly System.Reflection.MethodInfo methodInfo;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                return type.GenericTypeArguments[0];
+            }
 
-		protected MethodInfo(System.Reflection.MethodInfo methodInfo)
-		{
-			this.methodInfo = methodInfo;
-		}
+            return type;
+        }
 
-		public System.Reflection.MethodInfo GetActualMethod()
-		{
-			return methodInfo;
-		}
+        protected readonly System.Reflection.MethodInfo methodInfo;
 
-		protected abstract MethodInfo Load();
+        protected MethodInfo(System.Reflection.MethodInfo methodInfo)
+        {
+            this.methodInfo = methodInfo;
+        }
 
-		public abstract bool IsStatic { get; }
-		public abstract TypeInfo ReturnType { get; }
+        public System.Reflection.MethodInfo GetActualMethod() => methodInfo;
 
-		public abstract TypeInfo GetFirstDeclaringType();
-		public abstract object[] GetReturnTypeCustomAttributes();
+        protected abstract MethodInfo Load();
 
-		public abstract object Invoke(object target, params object[] parameters);
-		public abstract object InvokeStatic(params object[] parameters);
+        public abstract bool IsStatic { get; }
+        public abstract TypeInfo ReturnType { get; }
 
-		protected virtual TypeInfo SearchFirstDeclaringType()
-		{
-			var parameters = GetParameters();
-			var result = methodInfo.GetBaseDefinition().DeclaringType;
-			foreach (var interfaceType in result.GetInterfaces())
-			{
-				foreach (var interfaceMethodInfo in interfaceType.GetMethods())
-				{
-					if (interfaceMethodInfo.Name != methodInfo.Name) { continue; }
-					if (interfaceMethodInfo.GetParameters().Length != parameters.Length) { continue; }
-					if (parameters.Length == 0) { return TypeInfo.Get(interfaceType); }
+        public abstract TypeInfo GetFirstDeclaringType();
+        public abstract object[] GetReturnTypeCustomAttributes();
 
-					var interfaceMethodParameters = interfaceMethodInfo.GetParameters();
-					for (int i = 0; i < parameters.Length; i++)
-					{
-						if (parameters[i].ParameterType.GetActualType() != interfaceMethodParameters[i].ParameterType)
-						{
-							break;
-						}
+        public abstract object Invoke(object target, params object[] parameters);
+        public abstract Task<object> InvokeAsync(object target, params object[] parameters);
+        public abstract object InvokeStatic(params object[] parameters);
+        public abstract Task<object> InvokeStaticAsync(params object[] parameters);
 
-						if (i == parameters.Length - 1)
-						{
-							return TypeInfo.Get(interfaceType);
-						}
-					}
-				}
-			}
+        protected virtual TypeInfo SearchFirstDeclaringType()
+        {
+            var parameters = GetParameters();
+            var result = methodInfo.GetBaseDefinition().DeclaringType;
 
-			return TypeInfo.Get(result);
-		}
+            if (result == null) { throw new NotSupportedException(); }
 
-		#region IReturnable implementation
+            foreach (var interfaceType in result.GetInterfaces())
+            {
+                foreach (var interfaceMethodInfo in interfaceType.GetMethods())
+                {
+                    if (interfaceMethodInfo.Name != methodInfo.Name)
+                    {
+                        continue;
+                    }
 
-		IType IReturnable.ReturnType { get { return ReturnType; } }
+                    if (interfaceMethodInfo.GetParameters().Length != parameters.Length)
+                    {
+                        continue;
+                    }
 
-		#endregion
+                    if (parameters.Length == 0)
+                    {
+                        return TypeInfo.Get(interfaceType);
+                    }
 
-		#region IMethod implementation
+                    var interfaceMethodParameters = interfaceMethodInfo.GetParameters();
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        if (parameters[i].ParameterType.GetActualType() !=
+                            interfaceMethodParameters[i].ParameterType)
+                        {
+                            break;
+                        }
 
-		object IMethod.PerformOn(object target, params object[] parameters)
-		{
-			if (IsStatic)
-			{
-				return InvokeStatic(parameters);
-			}
+                        if (i == parameters.Length - 1)
+                        {
+                            return TypeInfo.Get(interfaceType);
+                        }
+                    }
+                }
+            }
 
-			return Invoke(target, parameters);
-		}
+            return TypeInfo.Get(result);
+        }
 
-		IType IMethod.GetDeclaringType(bool firstDeclaringType) { return firstDeclaringType ? GetFirstDeclaringType() : DeclaringType; }
+        #region IReturnable implementation
 
-		#endregion
-	}
+        IType IReturnable.ReturnType => ReturnType;
+
+        #endregion
+
+        #region IMethod implementation
+
+        object IMethod.PerformOn(object target, params object[] parameters) => IsStatic ? InvokeStatic(parameters) : Invoke(target, parameters);
+        async Task<object> IMethod.PerformOnAsync(object target, params object[] parameters) => IsStatic ? await InvokeStaticAsync(parameters) : await InvokeAsync(target, parameters);
+        IType IMethod.GetDeclaringType(bool firstDeclaringType) => firstDeclaringType ? GetFirstDeclaringType() : DeclaringType;
+
+        #endregion
+    }
 }
 

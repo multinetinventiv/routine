@@ -11,7 +11,7 @@ namespace Routine.Engine.Virtual
 		public MethodAsProperty(IMethod method, params object[] parameters) : this(method, string.Empty, parameters) { }
 		public MethodAsProperty(IMethod method, string ignorePrefix, params object[] parameters)
 		{
-			if (ignorePrefix == null) { throw new ArgumentNullException("ignorePrefix"); }
+			if (ignorePrefix == null) { throw new ArgumentNullException(nameof(ignorePrefix)); }
 			if (method.Parameters.Count != parameters.Length) { throw new ArgumentException("Given parameters and method parameters do not match"); }
 			if (method.ReturnsVoid()) { throw new ArgumentException("Given method must have a return type"); }
 
@@ -20,13 +20,13 @@ namespace Routine.Engine.Virtual
 			this.parameters = parameters;
 		}
 
-		public string Name { get { return method.Name.After(ignorePrefix); } }
-		public object[] GetCustomAttributes() { return method.GetCustomAttributes(); }
-		public IType ParentType { get { return method.ParentType; } }
-		public IType ReturnType { get { return method.ReturnType; } }
-		public object[] GetReturnTypeCustomAttributes() { return method.GetReturnTypeCustomAttributes(); }
-		public bool IsPublic { get { return method.IsPublic; } }
-		public IType GetDeclaringType(bool firstDeclaringType) { return method.GetDeclaringType(firstDeclaringType); }
-		public object FetchFrom(object target) { return method.PerformOn(target, parameters); }
-	}
+		public string Name => method.Name.After(ignorePrefix);
+        public object[] GetCustomAttributes() => method.GetCustomAttributes();
+        public IType ParentType => method.ParentType;
+        public IType ReturnType => method.ReturnType;
+        public object[] GetReturnTypeCustomAttributes() => method.GetReturnTypeCustomAttributes();
+        public bool IsPublic => method.IsPublic;
+        public IType GetDeclaringType(bool firstDeclaringType) => method.GetDeclaringType(firstDeclaringType);
+        public object FetchFrom(object target) => method.PerformOn(target, parameters);
+    }
 }

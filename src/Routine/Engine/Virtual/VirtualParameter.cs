@@ -1,4 +1,5 @@
 ﻿using Routine.Core.Configuration;
+using System;
 
 namespace Routine.Engine.Virtual
 {
@@ -6,35 +7,38 @@ namespace Routine.Engine.Virtual
 	{
 		private readonly IParametric owner;
 
-		public SingleConfiguration<VirtualParameter, string> Name { get; private set; }
-		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; private set; }
-		public SingleConfiguration<VirtualParameter, int> Index { get; private set; }
+        public SingleConfiguration<VirtualParameter, string> Name { get; }
+		public SingleConfiguration<VirtualParameter, IType> ParameterType { get; }
+        public SingleConfiguration<VirtualParameter, int> Index { get; }
 
 		public VirtualParameter(IParametric owner)
 		{
 			this.owner = owner;
 
-			Name = new SingleConfiguration<VirtualParameter, string>(this, "Name", true);
-			ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, "ParameterType", true);
-			Index = new SingleConfiguration<VirtualParameter, int>(this, "Index");
+			Name = new SingleConfiguration<VirtualParameter, string>(this, nameof(Name), true);
+			ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, nameof(ParameterType), true);
+			Index = new SingleConfiguration<VirtualParameter, int>(this, nameof(Index));
 		}
 
 		#region ITypeComponent implementation
 
-		object[] ITypeComponent.GetCustomAttributes() { return new object[0]; }
+		object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
-		string ITypeComponent.Name { get { return Name.Get(); } }
-		IType ITypeComponent.ParentType { get { return owner.ParentType; } } 
+        string ITypeComponent.Name => Name.Get();
+        IType ITypeComponent.ParentType => owner.ParentType;
 
-		#endregion
+        #endregion
 		
 		#region IParameter implementation
 
-		IParametric IParameter.Owner { get { return owner; } }
-		IType IParameter.ParameterType { get { return ParameterType.Get(); } }
-		int IParameter.Index { get { return Index.Get(); } } 
+		IParametric IParameter.Owner => owner;
+        IType IParameter.ParameterType => ParameterType.Get();
+        int IParameter.Index => Index.Get();
+        bool IParameter.IsOptional => false;
+        bool IParameter.HasDefaultValue => false;
+        object IParameter.DefaultValue => null;
 
-		#endregion
+        #endregion
 
 	}
 }

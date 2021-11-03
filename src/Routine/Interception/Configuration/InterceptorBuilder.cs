@@ -1,48 +1,53 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Routine.Interception.Configuration
 {
-	public class InterceptorBuilder<TContext>
-		where TContext : InterceptionContext
-	{
-		public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TContext, TVariableType> beforeDelegate)
-		{
-			return new DecoratorInterceptor<TContext, TVariableType>(beforeDelegate);
-		}
+    public class InterceptorBuilder<TContext>
+        where TContext : InterceptionContext
+    {
+        public DecoratorInterceptor<TContext, TVariable> ByDecorating<TVariable>(Func<TVariable> beforeDelegate) => new(beforeDelegate);
+        public DecoratorInterceptor<TContext, TVariable> ByDecorating<TVariable>(Func<TContext, TVariable> beforeDelegate) => new(beforeDelegate);
 
-		public DecoratorInterceptor<TContext, TVariableType> ByDecorating<TVariableType>(Func<TVariableType> beforeDelegate)
-		{
-			return ByDecorating(ctx => beforeDelegate());
-		}
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TVariable> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TContext, TVariable> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<Task<TVariable>> beforeDelegate) => new(beforeDelegate);
+        public AsyncDecoratorInterceptor<TContext, TVariable> ByDecoratingAsync<TVariable>(Func<TContext, Task<TVariable>> beforeDelegate) => new(beforeDelegate);
 
-		public AroundInterceptor<TContext> Do()
-		{
-			return new AroundInterceptor<TContext>();
-		}
+        public AroundInterceptor<TContext> Do() => new();
+        public AsyncAroundInterceptor<TContext> DoAsync() => new();
 
-		//first level facade
-		public AroundInterceptor<TContext> Before(Action beforeDelegate) { return Before(ctx => beforeDelegate()); }
-		public AroundInterceptor<TContext> Before(Action<TContext> beforeDelegate)
-		{
-			return Do().Before(beforeDelegate);
-		}
+        //first level facade
+        public AroundInterceptor<TContext> Before(Action beforeDelegate) => Do().Before(beforeDelegate);
+        public AroundInterceptor<TContext> Before(Action<TContext> beforeDelegate) => Do().Before(beforeDelegate);
 
-		public AroundInterceptor<TContext> Success(Action successDelegate) { return Success(ctx => successDelegate()); }
-		public AroundInterceptor<TContext> Success(Action<TContext> successDelegate)
-		{
-			return Do().Success(successDelegate);
-		}
+        public AroundInterceptor<TContext> Success(Action successDelegate) => Do().Success(successDelegate);
+        public AroundInterceptor<TContext> Success(Action<TContext> successDelegate) => Do().Success(successDelegate);
 
-		public AroundInterceptor<TContext> Fail(Action failDelegate) { return Fail(ctx => failDelegate()); }
-		public AroundInterceptor<TContext> Fail(Action<TContext> failDelegate)
-		{
-			return Do().Fail(failDelegate);
-		}
+        public AroundInterceptor<TContext> Fail(Action failDelegate) => Do().Fail(failDelegate);
+        public AroundInterceptor<TContext> Fail(Action<TContext> failDelegate) => Do().Fail(failDelegate);
 
-		public AroundInterceptor<TContext> After(Action afterDelegate) { return Fail(ctx => afterDelegate()); }
-		public AroundInterceptor<TContext> After(Action<TContext> afterDelegate)
-		{
-			return Do().After(afterDelegate);
-		}
-	}
+        public AroundInterceptor<TContext> After(Action afterDelegate) => Do().After(afterDelegate);
+        public AroundInterceptor<TContext> After(Action<TContext> afterDelegate) => Do().After(afterDelegate);
+
+        public AsyncAroundInterceptor<TContext> BeforeAsync(Action beforeDelegate) => DoAsync().Before(beforeDelegate);
+        public AsyncAroundInterceptor<TContext> BeforeAsync(Action<TContext> beforeDelegate) => DoAsync().Before(beforeDelegate);
+        public AsyncAroundInterceptor<TContext> BeforeAsync(Func<Task> beforeDelegate) => DoAsync().Before(beforeDelegate);
+        public AsyncAroundInterceptor<TContext> BeforeAsync(Func<TContext, Task> beforeDelegate) => DoAsync().Before(beforeDelegate);
+
+        public AsyncAroundInterceptor<TContext> SuccessAsync(Action successDelegate) => DoAsync().Success(successDelegate);
+        public AsyncAroundInterceptor<TContext> SuccessAsync(Action<TContext> successDelegate) => DoAsync().Success(successDelegate);
+        public AsyncAroundInterceptor<TContext> SuccessAsync(Func<Task> successDelegate) => DoAsync().Success(successDelegate);
+        public AsyncAroundInterceptor<TContext> SuccessAsync(Func<TContext, Task> successDelegate) => DoAsync().Success(successDelegate);
+
+        public AsyncAroundInterceptor<TContext> FailAsync(Action failDelegate) => DoAsync().Fail(failDelegate);
+        public AsyncAroundInterceptor<TContext> FailAsync(Action<TContext> failDelegate) => DoAsync().Fail(failDelegate);
+        public AsyncAroundInterceptor<TContext> FailAsync(Func<Task> failDelegate) => DoAsync().Fail(failDelegate);
+        public AsyncAroundInterceptor<TContext> FailAsync(Func<TContext, Task> failDelegate) => DoAsync().Fail(failDelegate);
+
+        public AsyncAroundInterceptor<TContext> AfterAsync(Action afterDelegate) => DoAsync().After(afterDelegate);
+        public AsyncAroundInterceptor<TContext> AfterAsync(Action<TContext> afterDelegate) => DoAsync().After(afterDelegate);
+        public AsyncAroundInterceptor<TContext> AfterAsync(Func<Task> afterDelegate) => DoAsync().After(afterDelegate);
+        public AsyncAroundInterceptor<TContext> AfterAsync(Func<TContext, Task> afterDelegate) => DoAsync().After(afterDelegate);
+    }
 }

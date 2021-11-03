@@ -8,25 +8,22 @@ namespace Routine.Core.Configuration.Convention
 
 		protected ConventionBase()
 		{
-			whenDelegate = o => true;
+			whenDelegate = _ => true;
 		}
 
-		public IConvention<TFrom, TResult> WhenDefault() { return When(default(TFrom)); }
-		public IConvention<TFrom, TResult> When(TFrom expected) { return When(o => Equals(o, expected)); }
+		public IConvention<TFrom, TResult> WhenDefault() => When(default(TFrom));
+        public IConvention<TFrom, TResult> When(TFrom expected) => When(o => Equals(o, expected));
 
-		public ConventionBase<TFrom, TResult> When(Func<TFrom, bool> whenDelegate)
+        public ConventionBase<TFrom, TResult> When(Func<TFrom, bool> whenDelegate)
 		{
 			this.whenDelegate = this.whenDelegate.And(whenDelegate);
 
 			return this;
 		}
 
-		protected virtual bool AppliesTo(TFrom obj)
-		{
-			return whenDelegate(obj);
-		}
+		protected virtual bool AppliesTo(TFrom obj) => whenDelegate(obj);
 
-		private TResult SafeApply(TFrom obj)
+        private TResult SafeApply(TFrom obj)
 		{
 			if (!AppliesTo(obj)) { throw new ConfigurationException(obj); }
 
@@ -37,16 +34,9 @@ namespace Routine.Core.Configuration.Convention
 
 		#region IConvention implementation
 
-		bool IConvention<TFrom, TResult>.AppliesTo(TFrom obj)
-		{
-			return AppliesTo(obj);
-		}
+		bool IConvention<TFrom, TResult>.AppliesTo(TFrom obj) => AppliesTo(obj);
+        TResult IConvention<TFrom, TResult>.Apply(TFrom obj) => SafeApply(obj);
 
-		TResult IConvention<TFrom, TResult>.Apply(TFrom obj)
-		{
-			return SafeApply(obj);
-		}
-
-		#endregion
+        #endregion
 	}
 }

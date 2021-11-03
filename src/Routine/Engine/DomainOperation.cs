@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Routine.Core;
+using System.Threading.Tasks;
 
 namespace Routine.Engine
 {
@@ -64,14 +65,10 @@ namespace Routine.Engine
             Marks.Join(ctx.CodingStyle.GetMarks(method));
         }
 
-        public bool MarkedAs(string mark)
-        {
-            return Marks.Has(mark);
-        }
+        public bool MarkedAs(string mark) => Marks.Has(mark);
 
-        public OperationModel GetModel()
-        {
-            return new OperationModel
+        public OperationModel GetModel() =>
+            new()
             {
                 Name = Name,
                 Marks = Marks.List,
@@ -84,20 +81,33 @@ namespace Routine.Engine
                     ViewModelId = ResultType.Id
                 }
             };
-        }
 
         public VariableData Perform(object target, Dictionary<string, ParameterValueData> parameterValues)
         {
-            var resolution = new DomainParameterResolver<IMethod>(groups, parameterValues).Resolve();
+            var (method, parameters) = Resolve(parameterValues);
+            var result = method.PerformOn(target, parameters);
 
-            var resultValue = resolution.Result.PerformOn(target, resolution.Parameters);
+            return ResultData(result);
+        }
 
-            if (ResultIsVoid)
-            {
-                return new VariableData();
-            }
+        public async Task<VariableData> PerformAsync(object target, Dictionary<string, ParameterValueData> parameterValues)
+        {
+            var (method, parameters) = Resolve(parameterValues);
+            var result = await method.PerformOnAsync(target, parameters);
 
-            return ctx.CreateValueData(resultValue, ResultIsList, ResultType, true);
+            return ResultData(result);
+        }
+
+        private DomainParameterResolver<IMethod>.Resolution Resolve(Dictionary<string, ParameterValueData> parameterValues)
+        {
+            return new DomainParameterResolver<IMethod>(groups, parameterValues).Resolve();
+        }
+
+        private VariableData ResultData(object result)
+        {
+            return ResultIsVoid
+                ? new VariableData()
+                : ctx.CreateValueData(result, ResultIsList, ResultType, true);
         }
 
         #region Formatting & Equality

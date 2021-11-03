@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Routine.Core.Configuration.Convention;
 
@@ -26,40 +25,21 @@ namespace Routine.Core.Configuration
 			}
 		}
 
-		public TConfiguration AddNoneWhen(TFrom obj)
-		{
-			return Add(new NoConventionShouldBeAppliedConvention<TFrom, List<TResultItem>>().When(obj));
-		}
+		public TConfiguration AddNoneWhen(TFrom obj) => Add(new NoConventionShouldBeAppliedConvention<TFrom, List<TResultItem>>().When(obj));
+        public TConfiguration AddNoneWhen(Func<TFrom, bool> whenDelegate) => Add(new NoConventionShouldBeAppliedConvention<TFrom, List<TResultItem>>().When(whenDelegate));
 
-		public TConfiguration AddNoneWhen(Func<TFrom, bool> whenDelegate)
-		{
-			return Add(new NoConventionShouldBeAppliedConvention<TFrom, List<TResultItem>>().When(whenDelegate));
-		}
+        public TConfiguration Add(TResultItem result) => Add(new List<TResultItem> { result });
+        public TConfiguration Add(IEnumerable<TResultItem> result) => Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(_ => result.ToList()));
 
-		public TConfiguration Add(TResultItem result) { return Add(new List<TResultItem> { result }); }
-		public TConfiguration Add(IEnumerable<TResultItem> result)
-		{
-			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()));
-		}
+        public TConfiguration Add(TResultItem result, TFrom obj) => Add(new List<TResultItem> { result }, obj);
+        public TConfiguration Add(IEnumerable<TResultItem> result, TFrom obj) => Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(_ => result.ToList()).When(obj));
 
-		public TConfiguration Add(TResultItem result, TFrom obj) { return Add(new List<TResultItem> { result }, obj); }
-		public TConfiguration Add(IEnumerable<TResultItem> result, TFrom obj)
-		{
-			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()).When(obj));
-		}
+        public TConfiguration Add(TResultItem result, Func<TFrom, bool> whenDelegate) => Add(new List<TResultItem> { result }, whenDelegate);
+        public TConfiguration Add(IEnumerable<TResultItem> result, Func<TFrom, bool> whenDelegate) => Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(_ => result.ToList()).When(whenDelegate));
 
-		public TConfiguration Add(TResultItem result, Func<TFrom, bool> whenDelegate) { return Add(new List<TResultItem> { result }, whenDelegate); }
-		public TConfiguration Add(IEnumerable<TResultItem> result, Func<TFrom, bool> whenDelegate)
-		{
-			return Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(o => result.ToList()).When(whenDelegate));
-		}
+        public TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention) => Add(convention, configuration.CurrentLayer);
 
-		public TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention)
-		{
-			return Add(convention, configuration.CurrentLayer);
-		}
-
-		private TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention, Layer layer)
+        private TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention, Layer layer)
 		{
 			lock (conventions)
 			{
@@ -108,9 +88,7 @@ namespace Routine.Core.Configuration
 		{
 			try
 			{
-				List<TResultItem> result;
-
-				if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out result))
+                if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out var result))
 				{
 					return result;
 				}

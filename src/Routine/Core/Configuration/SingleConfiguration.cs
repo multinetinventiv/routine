@@ -19,9 +19,9 @@ namespace Routine.Core.Configuration
 
 		private TItem value;
 
-		public TConfiguration SetDefault() { return Set(default(TItem)); }
-		public TConfiguration Set(Func<TConfiguration, TItem> valueDelegate) { return Set(valueDelegate(configuration)); }
-		public TConfiguration Set(TItem value)
+		public TConfiguration SetDefault() => Set(default(TItem));
+        public TConfiguration Set(Func<TConfiguration, TItem> valueDelegate) => Set(valueDelegate(configuration));
+        public TConfiguration Set(TItem value)
 		{
 			this.value = value;
 

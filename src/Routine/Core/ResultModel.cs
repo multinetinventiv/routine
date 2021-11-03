@@ -26,7 +26,7 @@ namespace Routine.Core
 
 		public override string ToString()
 		{
-			return string.Format("[ResultModel: [ViewModelId: {0}, IsList: {1}, IsVoid: {2}]]", ViewModelId, IsList, IsVoid);
+			return $"[ResultModel: [ViewModelId: {ViewModelId}, IsList: {IsList}, IsVoid: {IsVoid}]]";
 		}
 
 		protected bool Equals(ResultModel other)

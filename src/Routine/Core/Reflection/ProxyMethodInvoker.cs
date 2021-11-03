@@ -1,11 +1,10 @@
+using System.Threading.Tasks;
+
 namespace Routine.Core.Reflection
 {
     public static class SystemReflectionFacadeExtensions
     {
-        public static IMethodInvoker CreateInvoker(this System.Reflection.MethodBase source)
-        {
-            return new ProxyMethodInvoker(source);
-        }
+        public static IMethodInvoker CreateInvoker(this System.Reflection.MethodBase source) => new ProxyMethodInvoker(source);
     }
 
     internal class ProxyMethodInvoker : IMethodInvoker
@@ -20,19 +19,9 @@ namespace Routine.Core.Reflection
         }
 
         private IMethodInvoker real;
-        public IMethodInvoker Real
-        {
-            get
-            {
-                if (!ReflectionOptimizer.Enabled) { return new ReflectionMethodInvoker(method); }
+        public IMethodInvoker Real => real ??= ReflectionOptimizer.CreateInvoker(method);
 
-                return real ??= ReflectionOptimizer.CreateInvoker(method);
-            }
-        }
-
-        public object Invoke(object target, params object[] args)
-        {
-            return Real.Invoke(target, args);
-        }
+        public object Invoke(object target, params object[] args) => Real.Invoke(target, args);
+        public async Task<object> InvokeAsync(object target, params object[] args) => await Real.InvokeAsync(target, args);
     }
 }

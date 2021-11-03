@@ -7,246 +7,218 @@ using Routine.Engine;
 
 namespace Routine
 {
-	public static class ReflectionExtensions
-	{
-		#region string
+    public static class ReflectionExtensions
+    {
+        #region string
+        
+        public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch = false)
+        {
+            try
+            {
+                var type = Type.GetType(typeName);
 
-		public static TypeInfo ToTypeInfo(this string typeName) { return typeName.ToTypeInfo(false); }
-		public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch)
-		{
-			try
-			{
-				var type = Type.GetType(typeName);
+                if (type == null && deepSearch)
+                {
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        type = assembly.GetTypes().SingleOrDefault(t => t.FullName == typeName);
+                        if (type != null)
+                        {
+                            break;
+                        }
+                    }
+                }
 
-				if (type == null && deepSearch)
-				{
-					foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-					{
-						type = assembly.GetTypes().SingleOrDefault(t => t.FullName == typeName);
-						if (type != null)
-						{
-							break;
-						}
-					}
-				}
+                if (type == null)
+                {
+                    throw new Exception("Type cannot be found: " + typeName);
+                }
 
-				if (type == null)
-				{
-					throw new Exception("Type cannot be found: " + typeName);
-				}
+                return TypeInfo.Get(type);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Type cannot be found: " + typeName, ex);
+            }
+        }
 
-				return TypeInfo.Get(type);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("Type cannot be found: " + typeName, ex);
-			}
-		}
+        #endregion
 
-		#endregion
+        #region internal Type
+        
+        public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo().ToCSharpString(useFullName);
+        public static string ToCSharpString(this IType source, bool useFullName = true)
+        {
+            if (source.IsVoid)
+            {
+                return "void";
+            }
 
-		#region internal Type
+            if (!source.IsGenericType)
+            {
+                if (useFullName)
+                {
+                    return "global::" + source.FullName.Replace("+", ".");
+                }
 
-		public static string ToCSharpString(this Type source) { return source.ToCSharpString(true); }
-		public static string ToCSharpString(this IType source) { return source.ToCSharpString(true); }
-		public static string ToCSharpString(this Type source, bool useFullName) { return source.ToTypeInfo().ToCSharpString(useFullName); }
-		public static string ToCSharpString(this IType source, bool useFullName)
-		{
-			if (source.IsVoid)
-			{
-				return "void";
-			}
+                return source.Name;
+            }
 
-			if (!source.IsGenericType)
-			{
-				if (useFullName)
-				{
-					return "global::" + source.FullName.Replace("+", ".");
-				}
+            var result = (source.Namespace != null && useFullName) ? "global::" + source.Namespace + "." : "";
+            result += source.Name.Before("`");
 
-				return source.Name;
-			}
+            result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName))) + ">";
 
-			var result = (source.Namespace != null && useFullName) ? "global::" + source.Namespace + "." : "";
-			result += source.Name.Before("`");
+            return result.Replace("+", ".");
+        }
 
-			result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName))) + ">";
+        public static bool IsNullable(this Type source) => source.IsGenericType && source.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-			return result.Replace("+", ".");
-		}
+        public static bool CanParse(this Type source)
+        {
+            var parse = source.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
 
-		public static bool IsNullable(this Type source)
-		{
-			return source.IsGenericType && source.GetGenericTypeDefinition() == typeof (Nullable<>);
-		}
+            if (parse == null) { return false; }
 
-		public static bool CanParse(this Type source)
-		{
-			var parse = source.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new[]{typeof(string)}, null);
+            var parameters = parse.GetParameters();
 
-			if (parse == null) { return false;}
+            if (parameters.Length != 1) { return false; }
 
-			var parameters = parse.GetParameters();
+            return parameters[0].ParameterType == typeof(string) && parse.ReturnType == source;
+        }
 
-			if (parameters.Length != 1) { return false;}
+        #endregion
 
-			return parameters[0].ParameterType == typeof (string) && parse.ReturnType == source;
-		}
+        #region IType
 
-		#endregion
+        public static bool CanBe<T>(this IType source) => source.CanBe(type.of<T>());
 
-		#region IType
+        public static bool CanBeCollection(this IType source) => source.CanBeCollection<object>();
+        public static bool CanBeCollection<T>(this IType source) => source.CanBeCollection(type.of<T>());
+        public static bool CanBeCollection(this IType source, IType itemType) =>
+            source.CanBe<ICollection>() &&
+            source.IsGenericType && source.GetGenericArguments()[0].CanBe(itemType) ||
+            source.IsArray && source.GetElementType().CanBe(itemType);
 
-		public static bool CanBe<T>(this IType source) { return source.CanBe(type.of<T>()); }
+        public static IType GetItemType(this IType source)
+        {
+            if (!source.CanBeCollection()) { throw new ArgumentException("Type should be a generic collection or an array to have an item type", nameof(source)); }
+            if (source.IsGenericType) { return source.GetGenericArguments()[0]; }
+            if (source.IsArray) { return source.GetElementType(); }
 
-		public static bool CanBeCollection(this IType source) { return source.CanBeCollection<object>(); }
-		public static bool CanBeCollection<T>(this IType source) { return source.CanBeCollection(type.of<T>()); }
-		public static bool CanBeCollection(this IType source, IType itemType)
-		{
-			return source.CanBe<ICollection>() &&
-				(source.IsGenericType && source.GetGenericArguments()[0].CanBe(itemType)) ||
-				(source.IsArray && source.GetElementType().CanBe(itemType));
-		}
+            throw new NotSupportedException();
+        }
 
-		public static IType GetItemType(this IType source)
-		{
-			if (!source.CanBeCollection()) { throw new ArgumentException("Type should be a generic collection or an array to have an item type", "source"); }
-			if (source.IsGenericType) { return source.GetGenericArguments()[0]; }
-			if (source.IsArray) { return source.GetElementType(); }
+        public static bool CanParse(this IType source) => source.GetParseMethod() != null;
+        public static object Parse(this IType source, string value) => source.GetParseMethod().PerformOn(null, value);
 
-			throw new NotSupportedException();
-		}
+        #endregion
 
-		public static bool CanParse(this IType source) { return source.GetParseMethod() != null; }
-		public static object Parse(this IType source, string value) { return source.GetParseMethod().PerformOn(null, value); }
+        #region ITypeComponent
 
-		#endregion
+        public static bool Has<TAttribute>(this ITypeComponent source) where TAttribute : Attribute => source.Has(type.of<TAttribute>());
+        public static bool Has(this ITypeComponent source, TypeInfo attributeType) =>
+            source.GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 
-		#region ITypeComponent
+        #endregion
 
-		public static bool Has<TAttribute>(this ITypeComponent source) where TAttribute : Attribute { return source.Has(type.of<TAttribute>()); }
-		public static bool Has(this ITypeComponent source, TypeInfo attributeType)
-		{
-			return source.GetCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
-		}
+        #region IParametric
 
-		#endregion
+        public static bool HasNoParameters(this IParametric source) => source.Parameters.Count == 0;
+        public static bool HasParameters<T>(this IParametric source) => source.HasParameters(type.of<T>());
+        public static bool HasParameters<T1, T2>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>());
+        public static bool HasParameters<T1, T2, T3>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>());
+        public static bool HasParameters<T1, T2, T3, T4>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>());
+        public static bool HasParameters<T1, T2, T3, T4, T5>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>());
+        public static bool HasParameters<T1, T2, T3, T4, T5, T6>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>(), type.of<T6>());
+        public static bool HasParameters<T1, T2, T3, T4, T5, T6, T7>(this IParametric source) => source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>(), type.of<T6>(), type.of<T7>());
+        public static bool HasParameters(this IParametric source, IType firstParameterType, params IType[] otherParameterTypes)
+        {
+            var parameterTypes = new List<IType> { firstParameterType };
+            parameterTypes.AddRange(otherParameterTypes);
 
-		#region IParametric
+            if (source.Parameters.Count != parameterTypes.Count) { return false; }
 
-		public static bool HasNoParameters(this IParametric source) { return source.Parameters.Count == 0; }
-		public static bool HasParameters<T>(this IParametric source) { return source.HasParameters(type.of<T>()); }
-		public static bool HasParameters<T1, T2>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>()); }
-		public static bool HasParameters<T1, T2, T3>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>()); }
-		public static bool HasParameters<T1, T2, T3, T4>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>()); }
-		public static bool HasParameters<T1, T2, T3, T4, T5>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>()); }
-		public static bool HasParameters<T1, T2, T3, T4, T5, T6>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>(), type.of<T6>()); }
-		public static bool HasParameters<T1, T2, T3, T4, T5, T6, T7>(this IParametric source) { return source.HasParameters(type.of<T1>(), type.of<T2>(), type.of<T3>(), type.of<T4>(), type.of<T5>(), type.of<T6>(), type.of<T7>()); }
-		public static bool HasParameters(this IParametric source, IType firstParameterType, params IType[] otherParameterTypes)
-		{
-			var parameterTypes = new List<IType>();
-			parameterTypes.Add(firstParameterType);
-			parameterTypes.AddRange(otherParameterTypes);
+            for (var i = 0; i < source.Parameters.Count; i++)
+            {
+                if (!parameterTypes[i].CanBe(source.Parameters[i].ParameterType))
+                {
+                    return false;
+                }
+            }
 
-			if (source.Parameters.Count != parameterTypes.Count) { return false; }
+            return true;
+        }
 
-			for (int i = 0; i < source.Parameters.Count; i++)
-			{
-				if (!parameterTypes[i].CanBe(source.Parameters[i].ParameterType))
-				{
-					return false;
-				}
-			}
+        #endregion
 
-			return true;
-		}
+        #region IMethod
 
-		#endregion
+        public static bool ReturnsVoid(this IMethod method) => method.ReturnType.IsVoid;
 
-		#region IMethod
+        public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace = false, bool useFirstDeclaration = false)
+        {
+            var parent = method.ParentType;
+            var declaring = method.GetDeclaringType(useFirstDeclaration);
 
-		public static bool ReturnsVoid(this IMethod method)
-		{
-			return method.ReturnType.IsVoid;
-		}
+            if (!ignoreSameRootNamespace)
+            {
+                return !declaring.Equals(parent);
+            }
 
-		public static bool IsInherited(this IMethod method) { return method.IsInherited(false); }
-		public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace) { return method.IsInherited(ignoreSameRootNamespace, false); }
-		public static bool IsInherited(this IMethod method, bool ignoreSameRootNamespace, bool useFirstDeclaration)
-		{
-			var parent = method.ParentType;
-			var declaring = method.GetDeclaringType(useFirstDeclaration);
+            if (parent.Namespace == null && declaring.Namespace == null) { return true; }
+            if (parent.Namespace == null || declaring.Namespace == null) { return false; }
 
-			if (!ignoreSameRootNamespace)
-			{
-				return !declaring.Equals(parent);
-			}
+            return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
+        }
 
-			if (parent.Namespace == null && declaring.Namespace == null) { return true; }
-			if (parent.Namespace == null || declaring.Namespace == null) { return false; }
+        #endregion
 
-			return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
-		}
+        #region IProperty
 
-		#endregion
+        public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace = false, bool useFirstDeclaration = false)
+        {
+            var parent = property.ParentType;
+            var declaring = property.GetDeclaringType(useFirstDeclaration);
 
-		#region IProperty
+            if (!ignoreSameRootNamespace)
+            {
+                return !declaring.Equals(parent);
+            }
 
-		public static bool IsInherited(this IProperty property) { return property.IsInherited(false); }
-		public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace) { return property.IsInherited(ignoreSameRootNamespace, false); }
-		public static bool IsInherited(this IProperty property, bool ignoreSameRootNamespace, bool useFirstDeclaration)
-		{
-			var parent = property.ParentType;
-			var declaring = property.GetDeclaringType(useFirstDeclaration);
+            if (parent.Namespace == null && declaring.Namespace == null) { return true; }
+            if (parent.Namespace == null || declaring.Namespace == null) { return false; }
 
-			if (!ignoreSameRootNamespace)
-			{
-				return !declaring.Equals(parent);
-			}
+            return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
+        }
 
-			if (parent.Namespace == null && declaring.Namespace == null) { return true; }
-			if (parent.Namespace == null || declaring.Namespace == null) { return false; }
+        #endregion
 
-			return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
-		}
+        #region IReturnable
 
-		#endregion
+        public static bool Returns<T>(this IReturnable source) => source.Returns(type.of<T>());
+        public static bool Returns(this IReturnable source, IType returnType) =>
+            source.ReturnType.CanBe(returnType);
 
-		#region IReturnable
+        public static bool Returns<T>(this IReturnable source, string name) => source.Returns(type.of<T>(), name);
+        public static bool Returns(this IReturnable source, IType returnType, string name) =>
+            source.Returns(returnType) && source.Name == name;
 
-		public static bool Returns<T>(this IReturnable source) { return source.Returns(type.of<T>()); }
-		public static bool Returns(this IReturnable source, IType returnType)
-		{
-			return source.ReturnType.CanBe(returnType);
-		}
+        public static bool ReturnsCollection(this IReturnable source) => source.ReturnsCollection<object>();
+        public static bool ReturnsCollection<T>(this IReturnable source) => source.ReturnsCollection(type.of<T>());
+        public static bool ReturnsCollection(this IReturnable source, IType itemType) =>
+            source.ReturnType.CanBeCollection(itemType);
 
-		public static bool Returns<T>(this IReturnable source, string name) { return source.Returns(type.of<T>(), name); }
-		public static bool Returns(this IReturnable source, IType returnType, string name)
-		{
-			return source.Returns(returnType) && source.Name == name;
-		}
+        public static bool ReturnsCollection(this IReturnable source, string name) => source.ReturnsCollection<object>(name);
+        public static bool ReturnsCollection<T>(this IReturnable source, string name) => source.ReturnsCollection(type.of<T>(), name);
+        public static bool ReturnsCollection(this IReturnable source, IType itemType, string name) =>
+            source.ReturnsCollection(itemType) && source.Name == name;
 
-		public static bool ReturnsCollection(this IReturnable source) { return source.ReturnsCollection<object>(); }
-		public static bool ReturnsCollection<T>(this IReturnable source) { return source.ReturnsCollection(type.of<T>()); }
-		public static bool ReturnsCollection(this IReturnable source, IType itemType)
-		{
-			return source.ReturnType.CanBeCollection(itemType);
-		}
+        public static bool ReturnTypeHas<TAttribute>(this IReturnable source) where TAttribute : Attribute => source.ReturnTypeHas(type.of<TAttribute>());
+        public static bool ReturnTypeHas(this IReturnable source, TypeInfo attributeType) =>
+            source.GetReturnTypeCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
 
-		public static bool ReturnsCollection(this IReturnable source, string name) { return source.ReturnsCollection<object>(name); }
-		public static bool ReturnsCollection<T>(this IReturnable source, string name) { return source.ReturnsCollection(type.of<T>(), name); }
-		public static bool ReturnsCollection(this IReturnable source, IType itemType, string name)
-		{
-			return source.ReturnsCollection(itemType) && source.Name == name;
-		}
-
-		public static bool ReturnTypeHas<TAttribute>(this IReturnable source) where TAttribute : Attribute { return source.ReturnTypeHas(type.of<TAttribute>()); }
-		public static bool ReturnTypeHas(this IReturnable source, TypeInfo attributeType)
-		{
-			return source.GetReturnTypeCustomAttributes().Any(a => a.GetTypeInfo() == attributeType);
-		}
-
-		#endregion
-	}
+        #endregion
+    }
 }
 

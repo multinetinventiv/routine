@@ -4,247 +4,271 @@ using NUnit.Framework;
 using Routine.Engine.Reflection;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterDomainNamespace;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Routine.Test.Engine.Reflection
 {
-	[TestFixture]
-	public class MethodInfoTest : ReflectionTestBase
-	{
-		private System.Reflection.MethodInfo methodInfo;
-		private MethodInfo testing;
+    [TestFixture]
+    public class MethodInfoTest : ReflectionTestBase
+    {
+        private System.Reflection.MethodInfo methodInfo;
+        private MethodInfo testing;
 
-		[SetUp]
-		public override void SetUp()
-		{
-			base.SetUp();
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
 
-			methodInfo = typeof(TestClass_OOP).GetMethod("PublicMethod");
-			testing = type.of<TestClass_OOP>().GetMethod("PublicMethod");
-		}
+            methodInfo = typeof(TestClass_OOP).GetMethod("PublicMethod");
+            testing = type.of<TestClass_OOP>().GetMethod("PublicMethod");
+        }
 
-		[Test]
-		public void System_MethodInfo_is_wrapped_by_Routine_MethodInfo()
-		{
-			Assert.AreSame(methodInfo.Name, testing.Name);
-			Assert.AreSame(methodInfo.DeclaringType, testing.DeclaringType.GetActualType());
-			Assert.AreSame(methodInfo.ReflectedType, testing.ReflectedType.GetActualType());
-			Assert.AreSame(methodInfo.ReturnType, testing.ReturnType.GetActualType());
-		}
+        [Test]
+        public void System_MethodInfo_is_wrapped_by_Routine_MethodInfo()
+        {
+            Assert.AreSame(methodInfo.Name, testing.Name);
+            Assert.AreSame(methodInfo.DeclaringType, testing.DeclaringType.GetActualType());
+            Assert.AreSame(methodInfo.ReflectedType, testing.ReflectedType.GetActualType());
+            Assert.AreSame(methodInfo.ReturnType, testing.ReturnType.GetActualType());
+        }
 
-		[Test]
-		public void System_MethodInfo_GetParameters_is_wrapped_by_Routine_MethodInfo()
-		{
-			methodInfo = typeof(TestClass_Members).GetMethod("FiveParameterMethod");
-			testing = type.of<TestClass_Members>().GetMethod("FiveParameterMethod");
+        [TestCase("PublicMethod", "PublicMethodAsync")]
+        [TestCase("PrivateMethod", "PrivateMethodAsync")]
+        [TestCase("PublicStaticMethod", "PublicStaticMethodAsync")]
+        [TestCase("PublicPingMethod", "PublicPingMethodAsync")]
+        [TestCase("PublicStaticPingMethod", "PublicStaticPingMethodAsync")]
+        public void Given_an_async_method__task_is_ignored_and_return_type_becomes_void(string sync, string async)
+        {
+            Assert.AreSame(
+                (type.of<TestClass_OOP>().GetMethod(sync) ?? type.of<TestClass_OOP>().GetStaticMethod(sync)).ReturnType,
+                (type.of<TestClass_OOP>().GetMethod(async) ?? type.of<TestClass_OOP>().GetStaticMethod(async)).ReturnType
+            );
+        }
 
-			var expected = methodInfo.GetParameters();
-			var actual = testing.GetParameters();
+        [Test, SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public void System_MethodInfo_GetParameters_is_wrapped_by_Routine_MethodInfo()
+        {
+            methodInfo = typeof(TestClass_Members).GetMethod("FiveParameterMethod");
+            testing = type.of<TestClass_Members>().GetMethod("FiveParameterMethod");
 
-			foreach(var parameter in actual)
-			{
-				Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), parameter.Name + " was not expected in parameters of " + methodInfo);
-			}
+            var expected = methodInfo.GetParameters();
+            var actual = testing.GetParameters();
 
-			foreach(var parameter in expected)
-			{
-				Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), parameter.Name + " was expected in index parameters of " + methodInfo);
-			}
-		}
+            foreach (var parameter in actual)
+            {
+                Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), parameter.Name + " was not expected in parameters of " + methodInfo);
+            }
 
-		[Test]
-		public void Routine_MethodInfo_caches_wrapped_properties()
-		{
-			Assert.AreSame(testing.Name, testing.Name);
-			Assert.AreSame(testing.DeclaringType, testing.DeclaringType);
-			Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
-			Assert.AreSame(testing.ReturnType, testing.ReturnType);
-			Assert.AreSame(testing.GetParameters(), testing.GetParameters());
-			Assert.AreSame(Attribute_Method("Class").GetCustomAttributes(), Attribute_Method("Class").GetCustomAttributes());
-		}
+            foreach (var parameter in expected)
+            {
+                Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), parameter.Name + " was expected in index parameters of " + methodInfo);
+            }
+        }
 
-		[Test]
-		public void Routine_MethodInfo_can_invoke_static_methods()
-		{
-			testing = OOP_StaticMethod("PublicStaticPingMethod");
+        [Test]
+        public void Routine_MethodInfo_caches_wrapped_properties()
+        {
+            Assert.AreSame(testing.Name, testing.Name);
+            Assert.AreSame(testing.DeclaringType, testing.DeclaringType);
+            Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
+            Assert.AreSame(testing.ReturnType, testing.ReturnType);
+            Assert.AreSame(testing.GetParameters(), testing.GetParameters());
+            Assert.AreSame(Attribute_Method("Class").GetCustomAttributes(), Attribute_Method("Class").GetCustomAttributes());
+        }
 
-			Assert.AreEqual("static test", testing.InvokeStatic("test"));
-		}
+        [Test]
+        public void Routine_MethodInfo_can_invoke_static_methods()
+        {
+            testing = OOP_StaticMethod("PublicStaticPingMethod");
 
-		[Test]
-		public void Routine_MethodInfo_can_invoke_instance_methods()
-		{
-			testing = OOP_Method("PublicPingMethod");
+            Assert.AreEqual("static test", testing.InvokeStatic("test"));
+        }
 
-			var obj = new TestClass_OOP();
+        [Test]
+        public void Routine_MethodInfo_can_invoke_instance_methods()
+        {
+            testing = OOP_Method("PublicPingMethod");
 
-			Assert.AreEqual("instance test", testing.Invoke(obj, "test"));
-		}
+            var obj = new TestClass_OOP();
 
-		[Test]
-		public void RoutineMethodInfo_throws_null_exception_when_target_is_null()
-		{
-			testing = OOP_Method("PublicPingMethod");
+            Assert.AreEqual("instance test", testing.Invoke(obj, "test"));
+        }
 
-			Assert.Throws<NullReferenceException>(()  => testing.Invoke(null, "test"));
+        [Test]
+        public void Routine_MethodInfo_can_invoke_default_interface_methods()
+        {
+            testing = OOP_InterfaceMethod("DefaultInterfaceMethod");
 
-			testing = OOP_Method("PrivateMethod");
+            var obj = new TestClass_OOP();
 
-			Assert.Throws<NullReferenceException>(()  => testing.Invoke(null, "test"));
-		}
+            Assert.AreEqual("default interface test", testing.Invoke(obj, "test"));
+        }
 
-		[Test]
-		public void Routine_MethodInfo_lists_custom_attributes_with_inherit_behaviour()
-		{
-			testing = Attribute_Method("Class");
+        [Test]
+        public void Routine_MethodInfo_throws_null_exception_when_target_is_null()
+        {
+            testing = OOP_Method("PublicPingMethod");
 
-			var actual = testing.GetCustomAttributes();
+            Assert.Throws<NullReferenceException>(() => testing.Invoke(null, "test"));
 
-			Assert.AreEqual(1, actual.Length);
-			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+            testing = OOP_Method("PrivateMethod");
 
-			testing = Attribute_Method("Base");
+            Assert.Throws<NullReferenceException>(() => testing.Invoke(null, "test"));
+        }
 
-			actual = testing.GetCustomAttributes();
+        [Test]
+        public void Routine_MethodInfo_lists_custom_attributes_with_inherit_behaviour()
+        {
+            testing = Attribute_Method("Class");
 
-			Assert.AreEqual(1, actual.Length);
-			Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
+            var actual = testing.GetCustomAttributes();
 
-			testing = Attribute_Method("Overridden");
+            Assert.AreEqual(1, actual.Length);
+            Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
 
-			actual = testing.GetCustomAttributes();
+            testing = Attribute_Method("Base");
 
-			Assert.AreEqual(2, actual.Length);
-			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
-			Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
+            actual = testing.GetCustomAttributes();
 
-			testing = Attribute_InterfaceMethod("Interface");
+            Assert.AreEqual(1, actual.Length);
+            Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
 
-			actual = testing.GetCustomAttributes();
+            testing = Attribute_Method("Overridden");
 
-			Assert.AreEqual(1, actual.Length);
-			Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
-		}
+            actual = testing.GetCustomAttributes();
 
-		[Test]
-		public void Routine_MethodInfo_lists_return_type_custom_attributes_with_inherit_behaviour()
-		{
-			testing = Attribute_Method("Class");
+            Assert.AreEqual(2, actual.Length);
+            Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+            Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
 
-			var actual = testing.GetReturnTypeCustomAttributes();
-			
-			Assert.AreEqual(1, actual.Length);
-			Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
-		}
+            testing = Attribute_InterfaceMethod("Interface");
 
-		[Test]
-		public void When_exception_occurs_during_invocation__preloaded_and_reflected_implementations_behave_the_same()
-		{
-			var preloaded = type.of<TestClass_OOP>().GetMethod("ExceptionMethod");
-			var reflected = type.of<TestOuterDomainType_OOP>().GetMethod("ExceptionMethod");
+            actual = testing.GetCustomAttributes();
 
-			Assert.IsInstanceOf<PreloadedMethodInfo>(preloaded);
-			Assert.IsInstanceOf<ReflectedMethodInfo>(reflected);
+            Assert.AreEqual(1, actual.Length);
+            Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
+        }
 
-			var expectedException = new Exception("expected");
+        [Test]
+        public void Routine_MethodInfo_lists_return_type_custom_attributes_with_inherit_behaviour()
+        {
+            testing = Attribute_Method("Class");
 
-			try
-			{
-				preloaded.Invoke(new TestClass_OOP(), new object[] { expectedException });
-				Assert.Fail("exception not thrown");
-			}
-			catch (Exception ex)
-			{
-				Assert.AreSame(expectedException, ex);
-			}
+            var actual = testing.GetReturnTypeCustomAttributes();
 
-			try
-			{
-				reflected.Invoke(new TestOuterDomainType_OOP(), new object[] { expectedException });
-				Assert.Fail("exception not thrown");
-			}
-			catch (Exception ex)
-			{
-				Assert.AreSame(expectedException, ex);
-			}
-		}
+            Assert.AreEqual(1, actual.Length);
+            Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+        }
 
-		[Test]
-		public void Extension_IsInherited()
-		{
-			Assert.IsFalse(OOP_Method("Public").IsInherited(false, false));
-			Assert.IsFalse(OOP_Method("Overridden").IsInherited(false, false));
-			Assert.IsFalse(OOP_Method("ImplicitInterface").IsInherited(false, false));
-			Assert.IsFalse(OOP_Method("ImplicitInterfaceWithParameter").IsInherited(false, false));
-			Assert.IsTrue(OOP_Method("NotOverridden").IsInherited(false, false));
+        [Test]
+        public void When_exception_occurs_during_invocation__preloaded_and_reflected_implementations_behave_the_same()
+        {
+            var preloaded = type.of<TestClass_OOP>().GetMethod("ExceptionMethod");
+            var reflected = type.of<TestOuterDomainType_OOP>().GetMethod("ExceptionMethod");
 
-			Assert.IsFalse(OOP_Method("Public").IsInherited(false, true));
-			Assert.IsTrue(OOP_Method("Overridden").IsInherited(false, true));
-			Assert.IsTrue(OOP_Method("ImplicitInterface").IsInherited(false, true));
-			Assert.IsTrue(OOP_Method("ImplicitInterfaceWithParameter").IsInherited(false, true));
-			Assert.IsTrue(OOP_Method("NotOverridden").IsInherited(false, true));
+            Assert.IsInstanceOf<PreloadedMethodInfo>(preloaded);
+            Assert.IsInstanceOf<ReflectedMethodInfo>(reflected);
 
-			Assert.IsFalse(OOP_Method("Public").IsInherited(true, false));
-			Assert.IsFalse(OOP_Method("Overridden").IsInherited(true, false));
-			Assert.IsFalse(OOP_Method("NotOverridden").IsInherited(true, false));
-			Assert.IsFalse(OOP_Method("OtherNamespace").IsInherited(true, false));
-			Assert.IsFalse(OOP_Method("ToString").IsInherited(true, false));
-			Assert.IsTrue(OOP_Method("GetHashCode").IsInherited(true, false));
+            var expectedException = new Exception("expected");
 
-			Assert.IsFalse(OOP_Method("Public").IsInherited(true, true));
-			Assert.IsFalse(OOP_Method("Overridden").IsInherited(true, true));
-			Assert.IsFalse(OOP_Method("NotOverridden").IsInherited(true, true));
-			Assert.IsTrue(OOP_Method("OtherNamespace").IsInherited(true, true));
-			Assert.IsTrue(OOP_Method("ToString").IsInherited(true, true));
-			Assert.IsTrue(OOP_Method("GetHashCode").IsInherited(true, true));
-		}
+            try
+            {
+                preloaded.Invoke(new TestClass_OOP(), expectedException);
+                Assert.Fail("exception not thrown");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreSame(expectedException, ex);
+            }
 
-		[Test]
-		public void Extension_HasParameters()
-		{
-			Assert.IsTrue(Members_Method("Parameterless").HasNoParameters());
-			Assert.IsTrue(Members_Method("OneParameter").HasParameters<string>());
-			Assert.IsTrue(Members_Method("TwoParameter").HasParameters<string, int>());
-			Assert.IsTrue(Members_Method("ThreeParameter").HasParameters<string, int, double>());
-			Assert.IsTrue(Members_Method("FourParameter").HasParameters<string, int, double, decimal>());
+            try
+            {
+                reflected.Invoke(new TestOuterDomainType_OOP(), expectedException);
+                Assert.Fail("exception not thrown");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreSame(expectedException, ex);
+            }
+        }
 
-			Assert.IsFalse(Members_Method("ThreeParameter").HasParameters<string, int>());;
-		}
+        [Test]
+        public void Extension_IsInherited()
+        {
+            Assert.IsFalse(OOP_Method("Public").IsInherited(false, false));
+            Assert.IsFalse(OOP_Method("Overridden").IsInherited(false, false));
+            Assert.IsFalse(OOP_Method("ImplicitInterface").IsInherited(false, false));
+            Assert.IsFalse(OOP_Method("ImplicitInterfaceWithParameter").IsInherited(false, false));
+            Assert.IsTrue(OOP_Method("NotOverridden").IsInherited(false, false));
 
-		[Test]
-		public void Extension_Returns()
-		{
-			Assert.IsTrue(Members_Method("Void").ReturnsVoid());
-			Assert.IsFalse(Members_Method("String").ReturnsVoid());
+            Assert.IsFalse(OOP_Method("Public").IsInherited(false, true));
+            Assert.IsTrue(OOP_Method("Overridden").IsInherited(false, true));
+            Assert.IsTrue(OOP_Method("ImplicitInterface").IsInherited(false, true));
+            Assert.IsTrue(OOP_Method("ImplicitInterfaceWithParameter").IsInherited(false, true));
+            Assert.IsTrue(OOP_Method("NotOverridden").IsInherited(false, true));
 
-			Assert.IsTrue(Members_Method("String").Returns(type.of<object>()));
-			Assert.IsFalse(Members_Method("Int").Returns(type.of<string>()));
+            Assert.IsFalse(OOP_Method("Public").IsInherited(true, false));
+            Assert.IsFalse(OOP_Method("Overridden").IsInherited(true, false));
+            Assert.IsFalse(OOP_Method("NotOverridden").IsInherited(true, false));
+            Assert.IsFalse(OOP_Method("OtherNamespace").IsInherited(true, false));
+            Assert.IsFalse(OOP_Method("ToString").IsInherited(true, false));
+            Assert.IsTrue(OOP_Method("GetHashCode").IsInherited(true, false));
 
-			Assert.IsTrue(Members_Method("StringList").ReturnsCollection());
-			Assert.IsTrue(Members_Method("StringList").ReturnsCollection(type.of<object>()));
-			Assert.IsFalse(Members_Method("NonGenericList").ReturnsCollection(type.of<string>()));
+            Assert.IsFalse(OOP_Method("Public").IsInherited(true, true));
+            Assert.IsFalse(OOP_Method("Overridden").IsInherited(true, true));
+            Assert.IsFalse(OOP_Method("NotOverridden").IsInherited(true, true));
+            Assert.IsTrue(OOP_Method("OtherNamespace").IsInherited(true, true));
+            Assert.IsTrue(OOP_Method("ToString").IsInherited(true, true));
+            Assert.IsTrue(OOP_Method("GetHashCode").IsInherited(true, true));
+        }
 
-			//generics
-			Assert.IsTrue(Members_Method("String").Returns<string>());
-			Assert.IsTrue(Members_Method("StringList").ReturnsCollection<string>());
+        [Test]
+        public void Extension_HasParameters()
+        {
+            Assert.IsTrue(Members_Method("Parameterless").HasNoParameters());
+            Assert.IsTrue(Members_Method("OneParameter").HasParameters<string>());
+            Assert.IsTrue(Members_Method("TwoParameter").HasParameters<string, int>());
+            Assert.IsTrue(Members_Method("ThreeParameter").HasParameters<string, int, double>());
+            Assert.IsTrue(Members_Method("FourParameter").HasParameters<string, int, double, decimal>());
 
-			//with name parameter
-			Assert.IsFalse(Members_Method("String").Returns(type.of<string>(), "Wrong"));
-			Assert.IsFalse(Members_Method("StringList").ReturnsCollection(type.of<string>(), "Wrong"));
-		}
+            Assert.IsFalse(Members_Method("ThreeParameter").HasParameters<string, int>());
+        }
 
-		[Test]
-		public void Extension_Has()
-		{
-			Assert.IsTrue(Attribute_Method("Class").Has<TestClassAttribute>());
-			Assert.IsTrue(Attribute_Method("Class").Has(type.of<TestClassAttribute>()));
-		}
+        [Test]
+        public void Extension_Returns()
+        {
+            Assert.IsTrue(Members_Method("Void").ReturnsVoid());
+            Assert.IsFalse(Members_Method("String").ReturnsVoid());
 
-		[Test]
-		public void Extension_ReturnTypeHas()
-		{
-			Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas<TestClassAttribute>());
-			Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas(type.of<TestClassAttribute>()));
-		}
-	}
+            Assert.IsTrue(Members_Method("String").Returns(type.of<object>()));
+            Assert.IsFalse(Members_Method("Int").Returns(type.of<string>()));
+
+            Assert.IsTrue(Members_Method("StringList").ReturnsCollection());
+            Assert.IsTrue(Members_Method("StringList").ReturnsCollection(type.of<object>()));
+            Assert.IsFalse(Members_Method("NonGenericList").ReturnsCollection(type.of<string>()));
+
+            //generics
+            Assert.IsTrue(Members_Method("String").Returns<string>());
+            Assert.IsTrue(Members_Method("StringList").ReturnsCollection<string>());
+
+            //with name parameter
+            Assert.IsFalse(Members_Method("String").Returns(type.of<string>(), "Wrong"));
+            Assert.IsFalse(Members_Method("StringList").ReturnsCollection(type.of<string>(), "Wrong"));
+        }
+
+        [Test]
+        public void Extension_Has()
+        {
+            Assert.IsTrue(Attribute_Method("Class").Has<TestClassAttribute>());
+            Assert.IsTrue(Attribute_Method("Class").Has(type.of<TestClassAttribute>()));
+        }
+
+        [Test]
+        public void Extension_ReturnTypeHas()
+        {
+            Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas<TestClassAttribute>());
+            Assert.IsTrue(Attribute_Method("Class").ReturnTypeHas(type.of<TestClassAttribute>()));
+        }
+    }
 }
 

@@ -22,11 +22,9 @@ namespace Routine.Engine
                 GroupIndex = groupIndex;
             }
 
-            public bool ContainsSameParameters(T parametric)
-            {
-                return Parametric.Parameters.Count == parametric.Parameters.Count &&
-                       Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
-            }
+            public bool ContainsSameParameters(T parametric) =>
+                Parametric.Parameters.Count == parametric.Parameters.Count &&
+                Parametric.Parameters.All(p1 => parametric.Parameters.Any(p2 => p1.Name == p2.Name));
         }
 
         #endregion
@@ -90,10 +88,13 @@ namespace Routine.Engine
         private readonly IParameter parameter;
 
         public string Name { get; }
+        public DomainType ParameterType { get; }
         public Marks Marks { get; }
         public List<int> Groups { get; }
         public bool IsList { get; }
-        public DomainType ParameterType { get; }
+        public bool IsOptional { get; }
+        
+        private readonly object defaultValue;
 
         private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
         {
@@ -101,10 +102,13 @@ namespace Routine.Engine
             this.parameter = parameter;
 
             Name = ctx.CodingStyle.GetName(parameter);
+            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
             Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
             Groups = new List<int> { initialGroupIndex };
             IsList = parameter.ParameterType.CanBeCollection();
-            ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
+            IsOptional = ctx.CodingStyle.IsOptional(parameter);
+            
+            defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
         }
 
         private void AddGroup(IParameter parameter, int groupIndex)
@@ -114,22 +118,19 @@ namespace Routine.Engine
             Marks.Join(ctx.CodingStyle.GetMarks(parameter));
         }
 
-        public bool MarkedAs(string mark)
-        {
-            return Marks.Has(mark);
-        }
+        public bool MarkedAs(string mark) => Marks.Has(mark);
 
-        public ParameterModel GetModel()
-        {
-            return new ParameterModel
+        public ParameterModel GetModel() =>
+            new()
             {
                 Name = Name,
+                ViewModelId = ParameterType.Id,
                 Marks = Marks.List,
                 Groups = Groups,
                 IsList = IsList,
-                ViewModelId = ParameterType.Id
+                IsOptional = IsOptional,
+                DefaultValue = ctx.CreateValueData(defaultValue, IsList, ParameterType, false)
             };
-        }
 
         internal object Locate(ParameterValueData parameterValueData)
         {
@@ -142,7 +143,7 @@ namespace Routine.Engine
 
             var objects = GetObjects(parameterValueData);
 
-            for (int i = 0; i < objects.Count; i++)
+            for (var i = 0; i < objects.Count; i++)
             {
                 if (parameter.ParameterType.IsArray)
                 {
@@ -178,11 +179,11 @@ namespace Routine.Engine
 
             var result = new List<object>();
 
-            var domainTypes = parameterValueData.Values.Select(pd => GetDomainType(pd)).ToList();
+            var domainTypes = parameterValueData.Values.Select(GetDomainType).ToList();
 
             if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
             {
-                for (int i = 0; i < parameterValueData.Values.Count; i++)
+                for (var i = 0; i < parameterValueData.Values.Count; i++)
                 {
                     var parameterData = parameterValueData.Values[i];
                     var domainType = domainTypes[i];

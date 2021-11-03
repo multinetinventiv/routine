@@ -19,7 +19,7 @@ namespace Routine.Service.RequestHandlers.Helper
 			this.operation = operation;
 		}
 
-		public ReferenceData Reference => new ReferenceData { Id = id, ModelId = modelId, ViewModelId = viewModelId };
+		public ReferenceData Reference => new() { Id = id, ModelId = modelId, ViewModelId = viewModelId };
 		public ObjectModel Model => appModel.Model[Reference.ModelId];
 		public ObjectModel ViewModel => appModel.Model[Reference.ViewModelId];
 		public OperationModel OperationModel => ViewModel.Operation[operation];

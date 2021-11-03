@@ -8,8 +8,8 @@ namespace Routine.Client
 	{
 		private readonly DataModel model;
 
-		public Rtype Type { get; private set; }
-		public Rtype DataType { get; private set; }
+		public Rtype Type { get; }
+		public Rtype DataType { get; }
 
 		public Rdata(DataModel model, Rtype type)
 		{
@@ -19,17 +19,14 @@ namespace Routine.Client
 			DataType = Application[model.ViewModelId];
 		}
 
-		public Rapplication Application { get { return Type.Application; } }
-		public string Name { get { return model.Name; } }
-		public bool IsList { get { return model.IsList; } }
-		public List<string> Marks { get { return model.Marks; } }
+		public Rapplication Application => Type.Application;
+        public string Name => model.Name;
+        public bool IsList => model.IsList;
+        public List<string> Marks => model.Marks;
 
-		public bool MarkedAs(string mark)
-		{
-			return model.Marks.Any(m => m == mark);
-		}
+        public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
 
-		#region Equality & Hashcode
+        #region Equality & Hashcode
 
 		protected bool Equals(Rdata other)
 		{
