@@ -21,9 +21,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore -c Release
+        run: dotnet build -c Release --no-restore
       - name: Test
-        run: dotnet test test/Routine.Test/Routine.Test.csproj --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test test/Routine.Test/Routine.Test.csproj -c Release --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
       - name: Code Coverage Summary Report
         uses: 5monkeys/cobertura-action@master
         with:
