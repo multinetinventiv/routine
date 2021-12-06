@@ -9,6 +9,9 @@ namespace Routine.Service.Configuration
 	{
 		public SingleConfiguration<ConventionBasedServiceConfiguration, string> RootPath { get; }
 
+        public SingleConfiguration<ConventionBasedServiceConfiguration, bool> EnableTestApp { get; }
+        public SingleConfiguration<ConventionBasedServiceConfiguration, string> TestAppPath { get; }
+
 		public ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool> AllowGet { get; }
 
 		public ListConfiguration<ConventionBasedServiceConfiguration, string> RequestHeaders { get; }
@@ -22,6 +25,9 @@ namespace Routine.Service.Configuration
 		public ConventionBasedServiceConfiguration()
 		{
 			RootPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(RootPath), true);
+
+            EnableTestApp = new SingleConfiguration<ConventionBasedServiceConfiguration, bool>(this, nameof(EnableTestApp), true);
+            TestAppPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(TestAppPath), true);
 
 			AllowGet = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool>(this, nameof(AllowGet), true);
 
@@ -49,6 +55,8 @@ namespace Routine.Service.Configuration
 		#region IServiceConfiguration implementation
 
 		string IServiceConfiguration.GetRootPath() => RootPath.Get();
+		bool IServiceConfiguration.GetEnableTestApp() => EnableTestApp.Get();
+		string IServiceConfiguration.GetTestAppPath() => TestAppPath.Get();
         bool IServiceConfiguration.GetAllowGet(ObjectModel objectModel, OperationModel operationModel) => AllowGet.Get(new OperationWithObjectModel(objectModel, operationModel));
         List<string> IServiceConfiguration.GetRequestHeaders() => RequestHeaders.Get();
         List<IHeaderProcessor> IServiceConfiguration.GetRequestHeaderProcessors() => RequestHeaderProcessors.Get();

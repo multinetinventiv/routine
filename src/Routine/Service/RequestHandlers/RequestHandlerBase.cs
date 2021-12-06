@@ -93,17 +93,23 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status400BadRequest, $"Cannot resolve parameters from request body. The exception is; {ex}");
+            HttpContext.Response.SetStatus(StatusCodes.Status400BadRequest, 
+                $"Cannot resolve parameters from request body. The exception is; {ex}"
+            );
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status404NotFound, $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}");
+            HttpContext.Response.SetStatus(StatusCodes.Status404NotFound, 
+                $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}"
+            );
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status405MethodNotAllowed, allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported");
+            HttpContext.Response.SetStatus(StatusCodes.Status405MethodNotAllowed, 
+                allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported"
+            );
         }
 
         protected virtual async Task WriteFileResponse(string path)
@@ -116,7 +122,7 @@ namespace Routine.Service.RequestHandlers
             sr.Close();
             stream.Close();
 
-            fileContent = fileContent.Replace("$urlbase$", UrlBase);
+            fileContent = fileContent.Replace("$urlbase$", $"/{UrlBase}");
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));

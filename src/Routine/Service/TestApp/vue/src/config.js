@@ -1,3 +1,3 @@
 ﻿window.config = {
-        URL_BASE: "$urlbase$"
+    URL_BASE: "$urlbase$"
 };
