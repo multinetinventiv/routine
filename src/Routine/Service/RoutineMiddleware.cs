@@ -37,29 +37,30 @@ namespace Routine.Service
 
 		public async Task Invoke(HttpContext context)
 		{
-			var path = $"{context.Request.Path}".ToLowerInvariant();
+			var loweredPath = $"{context.Request.Path}".ToLowerInvariant();
+            var loweredRootPath = rootPath.ToLowerInvariant();
 
-			if (path == "/")
+			if (loweredPath == "/")
 			{
 				await indexHandler.WriteResponse();
 			}
-			else if (path == $"/{rootPath}file")
+			else if (loweredPath == $"/{loweredRootPath}file")
 			{
 				await fileHandler.WriteResponse();
 			}
-			else if (Regex.IsMatch(path, $"/{rootPath}fonts/[^/]*/f"))
+			else if (Regex.IsMatch(loweredPath, $"/{loweredRootPath}fonts/[^/]*/f"))
 			{
 				await fontsHandler.WriteResponse();
 			}
-			else if (path == $"/{rootPath}configuration")
+			else if (loweredPath == $"/{loweredRootPath}configuration")
 			{
 				await configurationHandler.WriteResponse();
 			}
-			else if (path == $"/{rootPath}applicationmodel")
+			else if (loweredPath == $"/{loweredRootPath}applicationmodel")
 			{
 				await applicationModelHandler.WriteResponse();
 			}
-			else if (path.StartsWith($"/{rootPath}"))
+			else if (loweredPath.StartsWith($"/{loweredRootPath}"))
 			{
 				await handleHandler.WriteResponse();
 			}

@@ -55,22 +55,28 @@ namespace Routine
                 .AddSingleton<IJsonSerializer, TJsonSerializer>();
 
         public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
-            Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration,
             Func<CodingStyleBuilder, ICodingStyle> codingStyle,
+            Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration = null,
             IRestClient restClient = null,
             IJsonSerializer serializer = null,
             ICache cache = null,
             Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration = null
-        ) => source.UseMiddleware<RoutineMiddleware>(
-            BuildRoutine.Context()
-                .Using(
-                    restClient: restClient,
-                    serializer: serializer,
-                    cache: cache,
-                    interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
-                )
-                .AsServiceApplication(serviceConfiguration, codingStyle)
-        );
+        )
+        {
+            serviceConfiguration ??= s => s.FromBasic();
+            interceptionConfiguration ??= i => i.FromBasic();
+
+            return source.UseMiddleware<RoutineMiddleware>(
+                BuildRoutine.Context()
+                    .Using(
+                        restClient: restClient,
+                        serializer: serializer,
+                        cache: cache,
+                        interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
+                    )
+                    .AsServiceApplication(serviceConfiguration, codingStyle)
+            );
+        }
 
         public static IApplicationBuilder UseRoutineInDevelopmentMode(this IApplicationBuilder source)
         {

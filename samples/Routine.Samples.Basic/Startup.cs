@@ -23,10 +23,6 @@ namespace Routine.Samples.Basic
             }
 
             app.UseRoutine(
-                serviceConfiguration: sc => sc.FromBasic()
-                    .RootPath.Set("api")
-                    .RequestHeaders.Add("Accept-Language"),
-
                 codingStyle: cs => cs.FromBasic()
                     .AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
                     .Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))
