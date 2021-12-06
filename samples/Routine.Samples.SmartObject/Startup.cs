@@ -12,7 +12,7 @@ namespace Routine.Samples.SmartObject
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRoutineDependencies();
+            services.AddRoutine();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
