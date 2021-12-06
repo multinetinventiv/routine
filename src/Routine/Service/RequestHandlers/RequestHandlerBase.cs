@@ -48,6 +48,7 @@ namespace Routine.Service.RequestHandlers
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
+        protected string TestApp => ServiceContext.ServiceConfiguration.GetTestAppPath();
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
@@ -123,6 +124,7 @@ namespace Routine.Service.RequestHandlers
             stream.Close();
 
             fileContent = fileContent.Replace("$urlbase$", $"/{UrlBase}");
+            fileContent = fileContent.Replace("$testapp$", $"{TestApp}");
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
@@ -131,7 +133,7 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual async Task WriteFontResponse(string fileName)
         {
-            var stream = GetStream("assets/fonts/" + fileName);
+            var stream = GetStream($"assets/fonts/{fileName}");
             var outputStream = new MemoryStream { Position = 0 };
 
             await using (stream)

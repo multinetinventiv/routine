@@ -37,8 +37,8 @@
         }
     },
     components: {
-        'parameter': httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/parameter.vue'),
-        'json-table': httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/json-table.vue')
+        'parameter': httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/parameter.vue'),
+        'json-table': httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/json-table.vue')
     },
     mounted() {
         this.$store.dispatch('loadConfiguration');

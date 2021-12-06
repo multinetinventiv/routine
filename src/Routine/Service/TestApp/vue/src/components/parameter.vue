@@ -46,7 +46,7 @@
         name: 'Parameter',
         props: ['pmodel', 'data', 'viewmodel'],
         components: {
-            'parameter-value': httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/parameter-value.vue')
+            'parameter-value': httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/parameter-value.vue')
         },
         mounted() {
             this.addValue();

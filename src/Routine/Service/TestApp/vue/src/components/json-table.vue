@@ -32,7 +32,7 @@
             }
         },
         components: {
-            'json-cell': httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/json-cell.vue')
+            'json-cell': httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/json-cell.vue')
         },
         methods: {
             buildTable: function (data) {

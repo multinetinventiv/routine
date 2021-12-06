@@ -54,7 +54,7 @@
             }
         },
         components: {
-            parameter: httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/parameter.vue')
+            parameter: httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/parameter.vue')
         },
 
         watch: {

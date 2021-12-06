@@ -15,7 +15,7 @@
             }
         },
         components: {
-            'json-table': httpVueLoader('$urlbase$/TestApp/File?path=vue/src/components/json-table.vue')
+            'json-table': httpVueLoader('$urlbase$/$testapp$/File?path=vue/src/components/json-table.vue')
         },
         mounted() {
             this.setChildTable();
