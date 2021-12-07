@@ -48,20 +48,22 @@ namespace Routine.Service.RequestHandlers
             }
             catch (AmbiguousModelException ex)
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                HttpContext.Response.Headers["X-Status-Description"] = $"More than one model found with given modelId ({modelId}). " +
-                                                             $"Try sending full names. Available models are {string.Join(",", ex.AvailableModels.Select(om => om.Id))}.";
+                HttpContext.Response.SetStatus(StatusCodes.Status404NotFound,
+                    $"More than one model found with given modelId ({modelId}). " +
+                    $"Try sending full names. Available models are {string.Join(",", ex.AvailableModels.Select(om => om.Id))}."
+                );
 
                 return;
             }
             catch (ModelNotFoundException)
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                HttpContext.Response.Headers["X-Status-Description"] = $"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
+                HttpContext.Response.SetStatus(StatusCodes.Status404NotFound,
+                    $"Could not resolve modelId or find an existing model from this modelId ({modelId}). " +
                     "Make sure given modelId has a corresponding model and url is in one of the following format; " +
                     "- serviceurlbase/modelId - serviceurlbase/modelId/id - serviceurlbase/modelId/operation " +
                     "- serviceurlbase/modelId/viewModelId - serviceurlbase/modelId/id/operation " +
-                    "- serviceurlbase/modelId/id/viewModelId - serviceurlbase/modelId/id/viewModelId/operation";
+                    "- serviceurlbase/modelId/id/viewModelId - serviceurlbase/modelId/id/viewModelId/operation"
+                );
 
                 return;
             }

@@ -8,6 +8,9 @@ namespace Routine.Service
     {
         string GetRootPath();
 
+        bool GetEnableTestApp();
+        string GetTestAppPath();
+
         bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
 
         List<string> GetRequestHeaders();

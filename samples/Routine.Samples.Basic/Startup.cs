@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -12,19 +11,7 @@ namespace Routine.Samples.Basic
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRoutineDependencies();
-
-            // If using Kestrel:
-            services.Configure<KestrelServerOptions>(options =>
-            {
-                options.AllowSynchronousIO = true;
-            });
-
-            // If using IIS:
-            services.Configure<IISServerOptions>(options =>
-            {
-                options.AllowSynchronousIO = true;
-            });
+            services.AddRoutine();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,10 +23,6 @@ namespace Routine.Samples.Basic
             }
 
             app.UseRoutine(
-                serviceConfiguration: sc => sc.FromBasic()
-                    .RootPath.Set("api")
-                    .RequestHeaders.Add("Accept-Language"),
-
                 codingStyle: cs => cs.FromBasic()
                     .AddTypes(typeof(Startup).Assembly, t => t.IsPublic)
                     .Module.Set(c => c.By(t => t.Namespace.After("Routine.Samples.Basic.")))

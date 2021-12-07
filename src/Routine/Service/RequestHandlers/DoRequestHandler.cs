@@ -30,7 +30,7 @@ namespace Routine.Service.RequestHandlers
             Dictionary<string, ParameterValueData> parameterValues;
             try
             {
-                parameterValues = GetParameterDictionary()
+                parameterValues = (await GetParameterDictionary())
                     .Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
                     .ToDictionary(kvp => kvp.Key, kvp =>
                         new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
@@ -53,7 +53,7 @@ namespace Routine.Service.RequestHandlers
             await WriteJsonResponse(compressor.Compress(variableData));
         }
 
-        private IDictionary<string, object> GetParameterDictionary()
+        private async Task<IDictionary<string, object>> GetParameterDictionary()
         {
             if (IsGet)
             {
@@ -63,7 +63,7 @@ namespace Routine.Service.RequestHandlers
             HttpContext.Request.EnableBuffering();
             var req = HttpContext.Request.Body;
             req.Seek(0, SeekOrigin.Begin);
-            var requestBody = new StreamReader(req).ReadToEnd();
+            var requestBody = await new StreamReader(req).ReadToEndAsync();
 
             return string.IsNullOrWhiteSpace(requestBody)
                 ? new Dictionary<string, object>()

@@ -4,6 +4,7 @@ using Microsoft.Net.Http.Headers;
 using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Engine.Context;
+using Routine.Service.RequestHandlers.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,10 +48,11 @@ namespace Routine.Service.RequestHandlers
         protected HttpContext HttpContext => HttpContextAccessor.HttpContext;
         protected IQueryCollection QueryString => HttpContext.Request.Query;
         protected string UrlBase => ServiceContext.ServiceConfiguration.GetPath(string.Empty).BeforeLast('/');
+        protected string TestApp => ServiceContext.ServiceConfiguration.GetTestAppPath();
         protected bool IsGet => "GET".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
         protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
-        
+
         private static volatile Dictionary<string, List<ObjectModel>> modelIndex;
         public static void ClearModelIndex()
         {
@@ -92,20 +94,23 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            HttpContext.Response.Headers["X-Status-Description"] = $"Cannot resolve parameters from request body. The exception is; {ex}";
+            HttpContext.Response.SetStatus(StatusCodes.Status400BadRequest, 
+                $"Cannot resolve parameters from request body. The exception is; {ex}"
+            );
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            HttpContext.Response.Headers["X-Status-Description"] = $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}";
+            HttpContext.Response.SetStatus(StatusCodes.Status404NotFound, 
+                $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}"
+            );
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
-            HttpContext.Response.Headers["X-Status-Description"] = allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported";
+            HttpContext.Response.SetStatus(StatusCodes.Status405MethodNotAllowed, 
+                allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported"
+            );
         }
 
         protected virtual async Task WriteFileResponse(string path)
@@ -118,7 +123,8 @@ namespace Routine.Service.RequestHandlers
             sr.Close();
             stream.Close();
 
-            fileContent = fileContent.Replace("$urlbase$", UrlBase);
+            fileContent = fileContent.Replace("$urlbase$", $"/{UrlBase}");
+            fileContent = fileContent.Replace("$testapp$", $"{TestApp}");
 
             AddResponseCaching();
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(path.AfterLast("."));
@@ -127,7 +133,7 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual async Task WriteFontResponse(string fileName)
         {
-            var stream = GetStream("assets/fonts/" + fileName);
+            var stream = GetStream($"assets/fonts/{fileName}");
             var outputStream = new MemoryStream { Position = 0 };
 
             await using (stream)
@@ -150,7 +156,7 @@ namespace Routine.Service.RequestHandlers
             HttpContext.Response.ContentType = MimeTypeMap.GetMimeType(fileName);
 
             await HttpContext.Response.Body.WriteAsync(outputStream.ToArray(), new CancellationTokenSource().Token);
-			await HttpContext.Response.Body.FlushAsync();
+            await HttpContext.Response.Body.FlushAsync();
         }
 
         protected virtual async Task WriteJsonResponse(object result, HttpStatusCode statusCode = HttpStatusCode.OK, bool clearError = false)
