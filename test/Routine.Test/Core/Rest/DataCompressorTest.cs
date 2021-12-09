@@ -12,8 +12,8 @@ namespace Routine.Test.Core.Rest
     {
         #region SetUp & Helpers
 
-        private string Serialize(object @object) => new JsonSerializerAdapter().Serialize(@object);
-        private object Deserialize(string json) => new JsonSerializerAdapter().DeserializeObject(json);
+        private static string Serialize(object @object) => new JsonSerializerAdapter().Serialize(@object);
+        private static object Deserialize(string json) => new JsonSerializerAdapter().DeserializeObject(json);
 
         private DataCompressor Compressor() => Compressor(null);
         private DataCompressor Compressor(string knownViewModelId) => new(ApplicationModel, knownViewModelId);
@@ -588,7 +588,7 @@ namespace Routine.Test.Core.Rest
         }
 
         [Test]
-        public void When_decompressing__ParameterData_ignores_nonexisting_initialization_parameters()
+        public void When_compressing__ParameterData_ignores_nonexisting_initialization_parameters()
         {
             ModelsAre(
                 Model("mid")
@@ -684,6 +684,14 @@ namespace Routine.Test.Core.Rest
         public void When_decompressing__ReferenceData_is_null_when_given_object_is_null()
         {
             var actual = Compressor().DecompressReferenceData(Deserialize("null"));
+
+            Assert.IsNull(actual);
+        }
+
+        [Test]
+        public void When_decompressing__ReferenceData_is_null_when_given_json_is_empty()
+        {
+            var actual = Compressor().DecompressReferenceData(Deserialize(""));
 
             Assert.IsNull(actual);
         }
