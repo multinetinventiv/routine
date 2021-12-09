@@ -39,6 +39,10 @@ namespace Routine.Samples.Basic
                     .IdExtractor.Set(c => c.Id(id => id.Constant("Dto")).When(t => t.Name.EndsWith("Dto")))
                     .ValueExtractor.Set(c => c.ValueByPublicProperty(p => p.Returns<string>()).When(t => t.Name.EndsWith("Dto"))),
 
+                serviceConfiguration: sc => sc.FromBasic()
+                    .ResponseHeaders.Add("X-Response-Header")
+                    .ResponseHeaderValue.Set("response-header-value"),
+
                 interceptionConfiguration: ic => ic.FromBasic()
                     .ServiceInterceptors.Add(c => c.Interceptor(i => i
                         .ByDecoratingAsync(Stopwatch.StartNew)

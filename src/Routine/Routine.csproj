@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <Version>0.9.3</Version>
+        <Version>0.9.4</Version>
         <Authors>inventiv</Authors>
         <Company>Multinet Teknoloji A.S.</Company>
         <PackageIcon>routine-logo.png</PackageIcon>
