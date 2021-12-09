@@ -21,8 +21,8 @@ namespace Routine.Core.Rest
             this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter(), new ObjectConverter() } };
         }
 
-        public object DeserializeObject(string jsonString) => JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions);
-        public T Deserialize<T>(string jsonString) => JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions);
+        public object DeserializeObject(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions) : null;
+        public T Deserialize<T>(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions) : default;
         public string Serialize(object @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
     }
 
@@ -279,18 +279,13 @@ namespace Routine.Core.Rest
 
     public class BooleanJsonConverter : JsonConverter<bool>
     {
-        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            switch (reader.TokenType)
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            reader.TokenType switch
             {
-                case JsonTokenType.True:
-                    return true;
-                case JsonTokenType.False:
-                    return false;
-                default:
-                    return bool.Parse(reader.GetString());
-            }
-        }
+                JsonTokenType.True => true,
+                JsonTokenType.False => false,
+                _ => bool.Parse(reader.GetString())
+            };
 
         public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) => writer.WriteBooleanValue(value);
     }

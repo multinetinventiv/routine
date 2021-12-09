@@ -13,7 +13,7 @@ namespace Routine
             if (source.Length == 0) { return source; }
             if (source.Length == 1) { return source.ToUpperInvariant(); }
 
-            return char.ToUpperInvariant(source[0]) + source.Substring(1);
+            return char.ToUpperInvariant(source[0]) + source[1..];
         }
 
         public static string ToLowerInitial(this string source)
@@ -22,13 +22,13 @@ namespace Routine
             if (source.Length == 0) { return source; }
             if (source.Length == 1) { return source.ToLowerInvariant(); }
 
-            return char.ToLowerInvariant(source[0]) + source.Substring(1);
+            return char.ToLowerInvariant(source[0]) + source[1..];
         }
 
         public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
         public static string SplitCamelCase(this string source, char splitter)
         {
-            var pattern = "(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])";
+            const string pattern = "(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])";
 
             return Regex.Replace(source, pattern, splitter.ToString(CultureInfo.InvariantCulture));
         }
