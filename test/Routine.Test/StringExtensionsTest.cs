@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 
 namespace Routine.Test
 {
@@ -68,6 +69,9 @@ namespace Routine.Test
             Assert.AreEqual("a", "a.b".BeforeLast("."));
             Assert.AreEqual("a.b", "a.b.c".BeforeLast("."));
 
+            Assert.AreEqual(".", ".a.a".Before("A", StringComparison.OrdinalIgnoreCase));
+            Assert.AreEqual(".a.", ".a.a".BeforeLast("A", StringComparison.OrdinalIgnoreCase));
+
             Assert.AreEqual("Reference", "ReferenceCoreX".Before("Core"));
             Assert.AreEqual("Reference", "ReferenceCore".Before("Core"));
         }
@@ -82,6 +86,9 @@ namespace Routine.Test
             Assert.AreEqual("a", "a".AfterLast("."));
             Assert.AreEqual("b", "a.b".AfterLast("."));
             Assert.AreEqual("c", "a.b.c".AfterLast("."));
+
+            Assert.AreEqual(".a.", "a.a.".After("A", StringComparison.OrdinalIgnoreCase));
+            Assert.AreEqual(".", "a.a.".AfterLast("A", StringComparison.OrdinalIgnoreCase));
 
             Assert.AreEqual("Reference", "CoreReference".After("Core"));
             Assert.AreEqual("Reference", "XCoreReference".After("Core"));

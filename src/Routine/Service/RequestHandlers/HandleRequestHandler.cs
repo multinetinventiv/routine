@@ -26,7 +26,7 @@ namespace Routine.Service.RequestHandlers
 
         public override async Task WriteResponse()
         {
-            var pathItems = $"{HttpContext.Request.Path}".After($"{UrlBase}").Trim('/').Split('/');
+            var pathItems = $"{HttpContext.Request.Path}".After($"{UrlBase}", StringComparison.OrdinalIgnoreCase).Trim('/').Split('/');
 
             await Handle(
                 modelId: $"{(pathItems.Length > 0 ? pathItems[0] : null)}",
