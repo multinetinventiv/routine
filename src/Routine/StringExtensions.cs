@@ -5,77 +5,77 @@ using System.Text.RegularExpressions;
 
 namespace Routine
 {
-	public static class StringExtensions
-	{
-		public static string ToUpperInitial(this string source)
-		{
-			if(source == null) { return null; }
-			if(source.Length == 0) { return source; }
-			if(source.Length == 1) { return source.ToUpperInvariant(); }
+    public static class StringExtensions
+    {
+        public static string ToUpperInitial(this string source)
+        {
+            if (source == null) { return null; }
+            if (source.Length == 0) { return source; }
+            if (source.Length == 1) { return source.ToUpperInvariant(); }
 
-			return char.ToUpperInvariant(source[0]) + source.Substring(1);
-		}
+            return char.ToUpperInvariant(source[0]) + source[1..];
+        }
 
-		public static string ToLowerInitial(this string source)
-		{
-			if (source == null) { return null; }
-			if (source.Length == 0) { return source; }
-			if (source.Length == 1) { return source.ToLowerInvariant(); }
+        public static string ToLowerInitial(this string source)
+        {
+            if (source == null) { return null; }
+            if (source.Length == 0) { return source; }
+            if (source.Length == 1) { return source.ToLowerInvariant(); }
 
-			return char.ToLowerInvariant(source[0]) + source.Substring(1);
-		}
+            return char.ToLowerInvariant(source[0]) + source[1..];
+        }
 
-		public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
-		public static string SplitCamelCase(this string source, char splitter)
-		{
-			var pattern = "(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])";
+        public static string SplitCamelCase(this string source) { return source.SplitCamelCase(' '); }
+        public static string SplitCamelCase(this string source, char splitter)
+        {
+            const string pattern = "(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])";
 
-			return Regex.Replace(source, pattern, splitter.ToString(CultureInfo.InvariantCulture));
-		}
+            return Regex.Replace(source, pattern, splitter.ToString(CultureInfo.InvariantCulture));
+        }
 
-		public static string SnakeCaseToCamelCase(this string source) { return source.SnakeCaseToCamelCase('_'); }
-		public static string SnakeCaseToCamelCase(this string source, char splitter)
-		{
-			if(source == null) {return null;}
-			if (!source.Contains(splitter.ToString(CultureInfo.InvariantCulture))) { return source; }
+        public static string SnakeCaseToCamelCase(this string source) { return source.SnakeCaseToCamelCase('_'); }
+        public static string SnakeCaseToCamelCase(this string source, char splitter)
+        {
+            if (source == null) { return null; }
+            if (!source.Contains(splitter.ToString(CultureInfo.InvariantCulture))) { return source; }
 
-			var words = source.Split(splitter);
+            var words = source.Split(splitter);
 
-			var result = words[0];
-			for(var i = 1; i < words.Length; i++)
-			{
-				result += words[i].ToUpperInitial();
-			}
+            var result = words[0];
+            for (var i = 1; i < words.Length; i++)
+            {
+                result += words[i].ToUpperInitial();
+            }
 
-			return result;
-		}
+            return result;
+        }
 
-		public static string Before(this string source, char searchChar) => source.Before(searchChar.ToString(CultureInfo.InvariantCulture));
-        public static string Before(this string source, string searchString) => source.Before(searchString, true);
-        public static string BeforeLast(this string source, char searchChar) => source.BeforeLast(searchChar.ToString(CultureInfo.InvariantCulture));
-        public static string BeforeLast(this string source, string searchString) => source.Before(searchString, false);
-        private static string Before(this string source, string searchString, bool first)
-		{
-			var ix = first ? source.IndexOf(searchString, StringComparison.Ordinal) : source.LastIndexOf(searchString, StringComparison.Ordinal);
+        public static string Before(this string source, char searchChar, StringComparison comparisonType = StringComparison.Ordinal) => source.Before(searchChar.ToString(CultureInfo.InvariantCulture), comparisonType);
+        public static string Before(this string source, string searchString, StringComparison comparisonType = StringComparison.Ordinal) => source.Before(searchString, true, comparisonType);
+        public static string BeforeLast(this string source, char searchChar, StringComparison comparisonType = StringComparison.Ordinal) => source.BeforeLast(searchChar.ToString(CultureInfo.InvariantCulture), comparisonType);
+        public static string BeforeLast(this string source, string searchString, StringComparison comparisonType = StringComparison.Ordinal) => source.Before(searchString, false, comparisonType);
+        private static string Before(this string source, string searchString, bool first, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            var ix = first ? source.IndexOf(searchString, comparisonType) : source.LastIndexOf(searchString, comparisonType);
 
-			return ix < 0 ? source : source.Substring(0, ix);
-		}
-		
-		public static string After(this string source, char searchChar) => source.After(searchChar.ToString(CultureInfo.InvariantCulture));
-        public static string After(this string source, string searchString) => source.After(searchString, true);
-        public static string AfterLast(this string source, char searchChar) => source.AfterLast(searchChar.ToString(CultureInfo.InvariantCulture));
-        public static string AfterLast(this string source, string searchString) => source.After(searchString, false);
-        private static string After(this string source, string searchString, bool first)
-		{
-			var ix = first ? source.IndexOf(searchString, StringComparison.Ordinal) : source.LastIndexOf(searchString, StringComparison.Ordinal);
-			
-			if(ix < 0) { return source; }
-			ix = ix + searchString.Length;
-			return source.Substring(ix, source.Length - ix);
-		}
+            return ix < 0 ? source : source[..ix];
+        }
 
-		public static string SurroundWith(this string source, string prefixAndSuffix) => source.SurroundWith(prefixAndSuffix, prefixAndSuffix);
-        public static string SurroundWith(this string source, string prefix, string suffix) => 
+        public static string After(this string source, char searchChar, StringComparison comparisonType = StringComparison.Ordinal) => source.After(searchChar.ToString(CultureInfo.InvariantCulture), comparisonType);
+        public static string After(this string source, string searchString, StringComparison comparisonType = StringComparison.Ordinal) => source.After(searchString, true, comparisonType);
+        public static string AfterLast(this string source, char searchChar, StringComparison comparisonType = StringComparison.Ordinal) => source.AfterLast(searchChar.ToString(CultureInfo.InvariantCulture), comparisonType);
+        public static string AfterLast(this string source, string searchString, StringComparison comparisonType = StringComparison.Ordinal) => source.After(searchString, false, comparisonType);
+        private static string After(this string source, string searchString, bool first, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            var ix = first ? source.IndexOf(searchString, comparisonType) : source.LastIndexOf(searchString, comparisonType);
+
+            if (ix < 0) { return source; }
+            ix += searchString.Length;
+            return source.Substring(ix, source.Length - ix);
+        }
+
+        public static string SurroundWith(this string source, string prefixAndSuffix) => source.SurroundWith(prefixAndSuffix, prefixAndSuffix);
+        public static string SurroundWith(this string source, string prefix, string suffix) =>
             source.Prepend(prefix).Append(suffix);
 
         public static string Append(this string source, string suffix) => new StringBuilder(source).Append(suffix).ToString();
