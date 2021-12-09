@@ -23,7 +23,7 @@ namespace Routine.Service.RequestHandlers
         }
 
         protected override bool AllowGet => ServiceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
-        protected override async Task Process()
+        protected override async Task<object> Process()
         {
             var appModel = ApplicationModel;
 
@@ -36,7 +36,6 @@ namespace Routine.Service.RequestHandlers
                         new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
                             .DecompressParameterValueData(kvp.Value)
                     );
-
             }
             catch (TypeNotFoundException)
             {
@@ -50,7 +49,7 @@ namespace Routine.Service.RequestHandlers
             var variableData = await ServiceContext.ObjectService.DoAsync(resolution.Reference, resolution.OperationModel.Name, parameterValues);
             var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
 
-            await WriteJsonResponse(compressor.Compress(variableData));
+            return compressor.Compress(variableData);
         }
 
         private async Task<IDictionary<string, object>> GetParameterDictionary()

@@ -17,12 +17,12 @@ namespace Routine.Service.RequestHandlers
 
 		protected override bool AllowGet => true;
 
-		protected override async Task Process()
+		protected override Task<object> Process()
 		{
 			var objectData = ServiceContext.ObjectService.Get(resolution.Reference);
 			var compressor = new DataCompressor(ApplicationModel, resolution.Reference.ViewModelId);
 
-			await WriteJsonResponse(compressor.Compress(objectData));
+			return Task.FromResult(compressor.Compress(objectData));
 		}
 	}
 }
