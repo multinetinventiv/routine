@@ -24,7 +24,7 @@ namespace Routine.Client
         public Rtype Type => Owner.Type;
         public string Name => model.Name;
         public bool IsList => model.IsList;
-        internal List<int> Groups => model.Groups;
+        public List<int> Groups => model.Groups;
         public List<string> Marks => model.Marks;
 
         public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
@@ -34,10 +34,10 @@ namespace Routine.Client
 		{
 			var result = new Rvariable(Name, robjs);
 
-			return IsList 
+			return IsList
                 ? result
                 : result.ToSingle();
-        }
+    }
 
 		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());
         internal ParameterValueData CreateParameterValueData(List<Robject> robjs) =>
