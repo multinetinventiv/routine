@@ -1,17 +1,16 @@
-using System;
+using Routine.Core.Configuration;
+using Routine.Engine.Configuration.ConventionBased;
+using Routine.Engine.Virtual;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using Routine.Core.Configuration;
-using Routine.Engine;
-using Routine.Engine.Configuration.ConventionBased;
-using Routine.Engine.Virtual;
+using System;
 
 namespace Routine
 {
-	public static class CodingStylePatterns
-	{
-		public static ConventionBasedCodingStyle FromEmpty(this PatternBuilder<ConventionBasedCodingStyle> source) => new();
+    public static class CodingStylePatterns
+    {
+        public static ConventionBasedCodingStyle FromEmpty(this PatternBuilder<ConventionBasedCodingStyle> source) => new();
 
         public static ConventionBasedCodingStyle ParseableValueTypePattern(
             this PatternBuilder<ConventionBasedCodingStyle> source
@@ -84,4 +83,3 @@ namespace Routine
                 .TypeMarks.Add(virtualMark, t => t is VirtualType);
     }
 }
-
