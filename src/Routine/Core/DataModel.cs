@@ -32,7 +32,7 @@ namespace Routine.Core
 
             if (model.TryGetValue("IsList", out var isList))
             {
-                IsList = (bool)model["IsList"];
+                IsList = (bool)isList;
             }
         }
 
