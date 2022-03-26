@@ -1,26 +1,26 @@
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
 
 namespace Routine.Client
 {
-	public class Rparameter
-	{
-		private readonly ParameterModel model;
+    public class Rparameter
+    {
+        private readonly ParameterModel model;
 
-		public Rparametric Owner { get; }
-		public Rtype ParameterType { get; }
+        public Rparametric Owner { get; }
+        public Rtype ParameterType { get; }
 
-		public Rparameter(ParameterModel model, Rparametric owner)
-		{
-			this.model = model;
+        public Rparameter(ParameterModel model, Rparametric owner)
+        {
+            this.model = model;
 
-			Owner = owner;
+            Owner = owner;
 
-			ParameterType = Application[model.ViewModelId];
-		}
+            ParameterType = Application[model.ViewModelId];
+        }
 
-		public Rapplication Application => Owner.Type.Application;
+        public Rapplication Application => Owner.Type.Application;
         public Rtype Type => Owner.Type;
         public string Name => model.Name;
         public bool IsList => model.IsList;
@@ -31,15 +31,15 @@ namespace Routine.Client
 
         public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());
         public Rvariable CreateVariable(List<Robject> robjs)
-		{
-			var result = new Rvariable(Name, robjs);
+        {
+            var result = new Rvariable(Name, robjs);
 
-			return IsList
+            return IsList
                 ? result
                 : result.ToSingle();
-    }
+        }
 
-		internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());
+        internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());
         internal ParameterValueData CreateParameterValueData(List<Robject> robjs) =>
             new()
             {
@@ -49,28 +49,28 @@ namespace Routine.Client
 
         #region Equality & Hashcode
 
-		protected bool Equals(Rparameter other)
-		{
-			return Equals(Owner, other.Owner) && Equals(model, other.model);
-		}
+        protected bool Equals(Rparameter other)
+        {
+            return Equals(Owner, other.Owner) && Equals(model, other.model);
+        }
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
 
-			return Equals((Rparameter) obj);
-		}
+            return Equals((Rparameter)obj);
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return ((Owner != null ? Owner.GetHashCode() : 0)*397) ^ (model != null ? model.GetHashCode() : 0);
-			}
-		}
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Owner != null ? Owner.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
