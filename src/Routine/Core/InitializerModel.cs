@@ -1,30 +1,33 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
 namespace Routine.Core
 {
     public class InitializerModel
     {
-        public List<string> Marks { get; set; }
+        public List<string> Marks { get; set; } = new List<string>();
         public int GroupCount { get; set; }
 
-        internal Dictionary<string, ParameterModel> Parameter { get; private set; }
+        internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new Dictionary<string, ParameterModel>();
 
-        public InitializerModel()
-            : this(new Dictionary<string, object>
-            {
-                {"Marks", new List<string>()},
-                {"GroupCount", 0},
-                {"Parameters", new List<Dictionary<string, object>>()}
-            })
-        { }
+        public InitializerModel() { }
         public InitializerModel(IDictionary<string, object> model)
         {
-            Marks = ((IEnumerable)model["Marks"]).Cast<string>().ToList();
-            GroupCount = (int)model["GroupCount"];
+            if (model.TryGetValue("Marks", out var marks))
+            {
+                Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            }
 
-            Parameters = ((IEnumerable)model["Parameters"]).Cast<IDictionary<string, object>>().Select(p => new ParameterModel(p)).ToList();
+            if (model.TryGetValue("GroupCount", out var groupCount))
+            {
+                GroupCount = (int)groupCount;
+            }
+
+            if (model.TryGetValue("Parameters", out var parameters))
+            {
+                Parameters = ((IEnumerable)parameters).Cast<IDictionary<string, object>>().Select(p => new ParameterModel(p)).ToList();
+            }
         }
 
         public List<ParameterModel> Parameters
@@ -32,6 +35,15 @@ namespace Routine.Core
             get => Parameter.Values.ToList();
             set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
         }
+
+        public ParameterModel GetParameter(string name)
+        {
+            Parameter.TryGetValue(name, out var result);
+
+            return result;
+        }
+
+        public void AddParameter(string name, ParameterModel model) => Parameter.Add(name, model);
 
         #region ToString & Equality
 

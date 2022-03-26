@@ -1,9 +1,9 @@
-﻿using System;
+﻿using NUnit.Framework;
+using Routine.Core.Rest;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using Routine.Core;
-using Routine.Core.Rest;
+using System;
 
 namespace Routine.Test.Core.Rest
 {
@@ -27,7 +27,7 @@ namespace Routine.Test.Core.Rest
         {
             var actual = Serialize(Compressor().Compress((ReferenceData)null));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(reference));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(reference));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\",\"ViewModelId\":\"vmid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid"",""ViewModelId"":""vmid""}", actual);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(reference));
 
-            Assert.AreEqual("\"id\"", actual);
+            AssertJsonEquals(@"""id""", actual);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(reference));
 
-            Assert.AreEqual("\"\"", actual);
+            AssertJsonEquals(@"""""", actual);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(reference));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("vmid").Compress(reference));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(reference));
 
-            Assert.AreEqual("\"id\"", actual);
+            AssertJsonEquals(@"""id""", actual);
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(reference));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace Routine.Test.Core.Rest
         {
             var actual = Serialize(Compressor().Compress((ObjectData)null));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -168,7 +168,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"Display\":\"value\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""Display"":""value""}", actual);
         }
 
         [TestCase("id")]
@@ -187,7 +187,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("\"id\"", actual);
+            AssertJsonEquals(@"""id""", actual);
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"Display\":\"value\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""Display"":""value""}", actual);
         }
 
         [Test]
@@ -227,13 +227,13 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
 
             data.Values.Add(null);
 
             actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -251,19 +251,20 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("vmid").Compress(data));
 
-            Assert.AreEqual(
-                "[" +
-                    "{" +
-                        "\"Id\":\"id\"," +
-                        "\"Display\":\"value\"," +
-                        "\"ModelId\":\"mid\"" +
-                    "}," +
-                    "{" +
-                        "\"Id\":\"id2\"," +
-                        "\"Display\":\"value2\"," +
-                        "\"ModelId\":\"mid2\"" +
-                    "}" +
-                "]", actual);
+            AssertJsonEquals(
+                @"[
+                    {
+                        ""Id"":""id"",
+                        ""Display"":""value"",
+                        ""ModelId"":""mid""
+                    },
+                    {
+                        ""Id"":""id2"",
+                        ""Display"":""value2"",
+                        ""ModelId"":""mid2""
+                    }
+                ]",
+                actual);
         }
 
         [Test]
@@ -273,7 +274,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(data));
 
-            Assert.AreEqual("[]", actual);
+            AssertJsonEquals("[]", actual);
         }
 
         [Test]
@@ -287,7 +288,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("[\"id\",null]", actual);
+            AssertJsonEquals(@"[""id"",null]", actual);
         }
 
         [Test]
@@ -314,17 +315,17 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(data));
 
-            Assert.AreEqual(
-                "{" +
-                    "\"Id\":\"id\"," +
-                    "\"Display\":\"value\"," +
-                    "\"ModelId\":\"mid\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"mmid1\":\"mmid1_id\"," +
-                        "\"mmid2\":\"mmid2_id\"" +
-                    "}" +
-                "}",
+            AssertJsonEquals(
+                @"{
+                    ""Id"":""id"",
+                    ""Display"":""value"",
+                    ""ModelId"":""mid"",
+                    ""Data"":
+                    {
+                       ""mmid1"":""mmid1_id"",
+                       ""mmid2"":""mmid2_id""
+                    }
+                }".Replace(Environment.NewLine, string.Empty),
                 actual
             );
         }
@@ -352,16 +353,16 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(data));
 
-            Assert.AreEqual(
-                "{" +
-                    "\"Id\":\"id\"," +
-                    "\"Display\":\"value\"," +
-                    "\"ModelId\":\"mid\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"mmid1\":\"mmid1_id\"" +
-                    "}" +
-                "}",
+            AssertJsonEquals(@"
+                {
+                   ""Id"":""id"",
+                   ""Display"":""value"",
+                   ""ModelId"":""mid"",
+                   ""Data"":
+                   {
+                      ""mmid1"":""mmid1_id""
+                   }
+                }",
                 actual
             );
         }
@@ -382,7 +383,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"Display\":\"" + display + "\",\"Data\":{\"Name\":null}}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""Display"":""" + display + "\",\"Data\":{\"Name\":null}}", actual);
         }
 
         [Test]
@@ -390,7 +391,7 @@ namespace Routine.Test.Core.Rest
         {
             var actual = Serialize(Compressor().Compress((ParameterData)null));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -402,7 +403,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor().Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -414,7 +415,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("\"id\"", actual);
+            AssertJsonEquals(@"""id""", actual);
         }
 
         [Test]
@@ -429,7 +430,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("vmid").Compress(data));
 
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
         }
 
         [Test]
@@ -443,10 +444,10 @@ namespace Routine.Test.Core.Rest
             };
 
             var actual = Serialize(Compressor("mid").Compress(data));
-            Assert.AreEqual("\"id\"", actual);
+            AssertJsonEquals(@"""id""", actual);
 
             actual = Serialize(Compressor().Compress(data));
-            Assert.AreEqual("{\"Id\":\"id\",\"ModelId\":\"mid\"}", actual);
+            AssertJsonEquals(@"{""Id"":""id"",""ModelId"":""mid""}", actual);
 
             data = new ParameterValueData
             {
@@ -455,7 +456,7 @@ namespace Routine.Test.Core.Rest
 
             actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -464,7 +465,7 @@ namespace Routine.Test.Core.Rest
             var data = new ParameterValueData();
 
             var actual = Serialize(Compressor().Compress(data));
-            Assert.AreEqual("null", actual);
+            AssertJsonEquals("null", actual);
         }
 
         [Test]
@@ -482,7 +483,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("vmid").Compress(data));
 
-            Assert.AreEqual("[{\"Id\":\"id\",\"ModelId\":\"mid\"},{\"Id\":\"id2\",\"ModelId\":\"mid2\"}]", actual);
+            AssertJsonEquals(@"[{""Id"":""id"",""ModelId"":""mid""},{""Id"":""id2"",""ModelId"":""mid2""}]", actual);
         }
 
         [Test]
@@ -492,7 +493,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("vmid").Compress(data));
 
-            Assert.AreEqual("[]", actual);
+            AssertJsonEquals("[]", actual);
         }
 
         [Test]
@@ -506,7 +507,7 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual("[\"id\",null]", actual);
+            AssertJsonEquals(@"[""id"",null]", actual);
         }
 
         [Test]
@@ -566,24 +567,24 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual(
-                "{" +
-                    "\"Data\":" +
-                    "{" +
-                        "\"p1\":\"id1\"," +
-                        "\"p2\":null," +
-                        "\"p3\":[\"id3.1\",\"id3.2\"]," +
-                        "\"p4\":" +
-                        "{" +
-                            "\"ModelId\":\"mid\"," +
-                            "\"Data\":" +
-                            "{" +
-                                "\"p1\":null," +
-                                "\"p2\":\"id4.id2\"" +
-                            "}" +
-                        "}" +
-                    "}" +
-                "}"
+            AssertJsonEquals(@"
+                {
+                   ""Data"":
+                   {
+                      ""p1"":""id1"",
+                      ""p2"":null,
+                      ""p3"":[""id3.1"",""id3.2""],
+                      ""p4"":
+                      {
+                         ""ModelId"":""mid"",
+                         ""Data"":
+                         {
+                            ""p1"":null,
+                            ""p2"":""id4.id2""
+                         }
+                      }
+                   }
+                }"
                 , actual);
         }
 
@@ -611,13 +612,13 @@ namespace Routine.Test.Core.Rest
 
             var actual = Serialize(Compressor("mid").Compress(data));
 
-            Assert.AreEqual(
-                "{" +
-                    "\"Data\":" +
-                    "{" +
-                        "\"p1\":\"id1\"" +
-                    "}" +
-                "}"
+            AssertJsonEquals(@"
+                {
+                   ""Data"":
+                   {
+                      ""p1"":""id1""
+                   }
+                }"
                 , actual);
         }
 
@@ -629,7 +630,7 @@ namespace Routine.Test.Core.Rest
                 Model("vmid").IsView("mid")
             );
 
-            var actual = Compressor().DecompressReferenceData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\",\"ViewModelId\":\"vmid\"}"));
+            var actual = Compressor().DecompressReferenceData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid"",""ViewModelId"":""vmid""}"));
 
             Assert.AreEqual(Id("id", "mid", "vmid"), actual);
         }
@@ -639,7 +640,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor().DecompressReferenceData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\"}"));
+            var actual = Compressor().DecompressReferenceData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid""}"));
 
             Assert.AreEqual(Id("id", "mid", "mid"), actual);
         }
@@ -649,7 +650,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor("mid").DecompressReferenceData(Deserialize("\"id\""));
+            var actual = Compressor("mid").DecompressReferenceData(Deserialize(@"""id"""));
 
             Assert.AreEqual(Id("id", "mid"), actual);
         }
@@ -659,7 +660,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor("mid").DecompressReferenceData(Deserialize("\"\""));
+            var actual = Compressor("mid").DecompressReferenceData(Deserialize(@""""""));
 
             Assert.AreEqual(Id("", "mid"), actual);
         }
@@ -669,7 +670,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor("mid").DecompressReferenceData(Deserialize("{\"Id\":null,\"ModelId\":\"mid\"}"));
+            var actual = Compressor("mid").DecompressReferenceData(Deserialize(@"{""Id"":null,""ModelId"":""mid""}"));
 
             Assert.IsNull(actual);
         }
@@ -677,7 +678,7 @@ namespace Routine.Test.Core.Rest
         [Test]
         public void When_decompressing__ObjectReferenceData_throws_ArgumentException_when_only_id_is_given_and_model_id_is_not_known()
         {
-            Assert.Throws<ArgumentException>(() => Compressor().DecompressReferenceData(Deserialize("\"id\"")));
+            Assert.Throws<ArgumentException>(() => Compressor().DecompressReferenceData(Deserialize(@"""id""")));
         }
 
         [Test]
@@ -701,7 +702,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor().DecompressObjectData(Deserialize("{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}"));
+            var actual = Compressor().DecompressObjectData(Deserialize(@"{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}"));
 
             Assert.AreEqual(Object(Id("id", "mid")).Display("value").Build().Item2, actual);
         }
@@ -711,7 +712,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor().DecompressObjectData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\"}"));
+            var actual = Compressor().DecompressObjectData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid""}"));
 
             Assert.AreEqual(Object(Id("id", "mid")).Display("id").Build().Item2, actual);
         }
@@ -729,7 +730,7 @@ namespace Routine.Test.Core.Rest
         {
             ModelsAre(Model("mid"));
 
-            var actual = Compressor("mid").DecompressObjectData(Deserialize("\"id\""));
+            var actual = Compressor("mid").DecompressObjectData(Deserialize(@"""id"""));
 
             Assert.AreEqual(Object(Id("id", "mid")).Display("id").Build().Item2, actual);
         }
@@ -737,7 +738,7 @@ namespace Routine.Test.Core.Rest
         [Test]
         public void When_decompressing__ObjectData_throws_ArgumentException_when_only_id_string_is_available_and_model_id_is_not_known()
         {
-            Assert.Throws<ArgumentException>(() => Compressor().DecompressObjectData(Deserialize("\"id\"")));
+            Assert.Throws<ArgumentException>(() => Compressor().DecompressObjectData(Deserialize(@"""id""")));
         }
 
         [Test]
@@ -757,7 +758,7 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor().DecompressVariableData(Deserialize("[{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}]"));
+            var actual = Compressor().DecompressVariableData(Deserialize(@"[{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}]"));
 
             Assert.AreEqual(expected, actual);
         }
@@ -780,7 +781,7 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor().DecompressVariableData(Deserialize("{\"Id\":\"id\",\"Display\":\"value\",\"ModelId\":\"mid\"}"));
+            var actual = Compressor().DecompressVariableData(Deserialize(@"{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}"));
 
             Assert.AreEqual(expected, actual);
         }
@@ -803,7 +804,7 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressVariableData(Deserialize("\"id\""));
+            var actual = Compressor("mid").DecompressVariableData(Deserialize(@"""id"""));
 
             Assert.AreEqual(expected, actual);
         }
@@ -825,7 +826,7 @@ namespace Routine.Test.Core.Rest
         [Test]
         public void When_decompressing__VariableData_throws_ArgumentException_when_only_id_string_is_given_and_model_id_is_not_known()
         {
-            Assert.Throws<ArgumentException>(() => Compressor().DecompressVariableData(Deserialize("\"id\"")));
+            Assert.Throws<ArgumentException>(() => Compressor().DecompressVariableData(Deserialize(@"""id""")));
         }
 
         [Test]
@@ -845,15 +846,15 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressObjectData(Deserialize(
-                "{" +
-                    "\"Id\":\"id\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"mmid1\":\"mmid1_id\"," +
-                        "\"mmid2\":\"mmid2_id\"" +
-                    "}" +
-                "}"
+            var actual = Compressor("mid").DecompressObjectData(Deserialize(@"
+                {
+                   ""Id"":""id"",
+                   ""Data"":
+                   {
+                      ""mmid1"":""mmid1_id"",
+                      ""mmid2"":""mmid2_id""
+                   }
+                }"
             ));
 
             Assert.AreEqual(expected, actual);
@@ -875,15 +876,15 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressObjectData(Deserialize(
-                "{" +
-                    "\"Id\":\"id\"," +
-                    "\"Data\":" +
-                    "{" +
-                        "\"mmid1\":\"mmid1_id\"," +
-                        "\"mmid2\":\"mmid2_id\"" +
-                    "}" +
-                "}"
+            var actual = Compressor("mid").DecompressObjectData(Deserialize(@"
+                {
+                   ""Id"":""id"",
+                   ""Data"":
+                   {
+                      ""mmid1"":""mmid1_id"",
+                      ""mmid2"":""mmid2_id""
+                   }
+                }"
             ));
 
             Assert.AreEqual(expected, actual);
@@ -1035,15 +1036,15 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressParameterData(Deserialize(
-                "{" +
-                    "\"Data\":" +
-                    "{" +
-                        "\"p1\":\"p1_id\"," +
-                        "\"p2\":[\"p2_id\"]," +
-                        "\"p3\":null" +
-                    "}" +
-                "}"));
+            var actual = Compressor("mid").DecompressParameterData(Deserialize(@"
+                {
+                   ""Data"":
+                   {
+                      ""p1"":""p1_id"",
+                      ""p2"":[""p2_id""],
+                      ""p3"":null
+                   }
+                }"));
 
             Assert.AreEqual(expected, actual);
         }
@@ -1074,14 +1075,14 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressParameterData(Deserialize(
-                "{" +
-                    "\"Data\":" +
-                    "{" +
-                        "\"p1\":\"p1_id\"," +
-                        "\"p2\":[\"p2_id\"]" +
-                    "}" +
-                "}"));
+            var actual = Compressor("mid").DecompressParameterData(Deserialize(@"
+                {
+                   ""Data"":
+                   {
+                      ""p1"":""p1_id"",
+                      ""p2"":[""p2_id""]
+                   }
+                }"));
 
             Assert.AreEqual(expected, actual);
         }
@@ -1119,13 +1120,13 @@ namespace Routine.Test.Core.Rest
                 }
             };
 
-            var actual = Compressor("mid").DecompressParameterValueData(Deserialize(
-                "{" +
-                    "\"Data\":" +
-                    "{" +
-                        "\"p1\":\"p1_id\"" +
-                    "}" +
-                "}"));
+            var actual = Compressor("mid").DecompressParameterValueData(Deserialize(@"
+                {
+                   ""Data"":
+                   {
+                      ""p1"":""p1_id""
+                   }
+                }"));
 
             Assert.AreEqual(expected, actual);
         }

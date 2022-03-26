@@ -7,62 +7,82 @@ namespace Routine.Core
     public class ObjectModel
     {
         public string Id { get; set; }
-        public List<string> Marks { get; set; }
+        public List<string> Marks { get; set; } = new List<string>();
 
         public string Name { get; set; }
         public string Module { get; set; }
         public bool IsValueModel { get; set; }
         public bool IsViewModel { get; set; }
 
-        public List<string> ViewModelIds { get; set; }
-        public List<string> ActualModelIds { get; set; }
-        public InitializerModel Initializer { get; set; }
-        internal Dictionary<string, DataModel> Data { get; private set; }
-        internal Dictionary<string, OperationModel> Operation { get; private set; }
-        public List<ObjectData> StaticInstances { get; set; }
+        public List<string> ViewModelIds { get; set; } = new List<string>();
+        public List<string> ActualModelIds { get; set; } = new List<string>();
+        public InitializerModel Initializer { get; set; } = new InitializerModel();
+        internal Dictionary<string, DataModel> Data { get; private set; } = new Dictionary<string, DataModel>();
+        internal Dictionary<string, OperationModel> Operation { get; private set; } = new Dictionary<string, OperationModel>();
+        public List<ObjectData> StaticInstances { get; set; } = new List<ObjectData>();
 
-        public ObjectModel()
-            : this(new Dictionary<string, object>
-            {
-                {"Id", null},
-                {"Marks", new List<string>()},
-
-                {"Name", null},
-                {"Module", null},
-                {"IsValueModel", false},
-                {"IsViewModel", false},
-
-                {"ViewModelIds", new List<string>()},
-                {"ActualModelIds", new List<string>()},
-                {
-                    "Initializer", new Dictionary<string, object>
-                    {
-                        {"Marks", new List<string>()},
-                        {"GroupCount", 0},
-                        {"Parameters", new List<Dictionary<string, object>>()}
-                    }
-                },
-                {"Datas", new List<Dictionary<string, object>>()},
-                {"Operations", new List<Dictionary<string, object>>()},
-                {"StaticInstances", new List<Dictionary<string, object>>()}
-            })
-        { }
+        public ObjectModel() { }
         public ObjectModel(IDictionary<string, object> model)
         {
-            Id = (string)model["Id"];
-            Marks = ((IEnumerable)model["Marks"]).Cast<string>().ToList();
+            if (model.TryGetValue("Id", out var id))
+            {
+                Id = (string)id;
+            }
 
-            Name = (string)model["Name"];
-            Module = (string)model["Module"];
-            IsValueModel = (bool)model["IsValueModel"];
-            IsViewModel = (bool)model["IsViewModel"];
+            if (model.TryGetValue("Marks", out var marks))
+            {
+                Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            }
 
-            ViewModelIds = ((IEnumerable)model["ViewModelIds"]).Cast<string>().ToList();
-            ActualModelIds = ((IEnumerable)model["ActualModelIds"]).Cast<string>().ToList();
-            Initializer = new InitializerModel((IDictionary<string, object>)model["Initializer"]);
-            Datas = ((IEnumerable)model["Datas"]).Cast<IDictionary<string, object>>().Select(o => new DataModel(o)).ToList();
-            Operations = ((IEnumerable)model["Operations"]).Cast<IDictionary<string, object>>().Select(o => new OperationModel(o)).ToList();
-            StaticInstances = ((IEnumerable)model["StaticInstances"]).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
+            if (model.TryGetValue("Name", out var name))
+            {
+                Name = (string)name;
+            }
+
+            if (model.TryGetValue("Module", out var module))
+            {
+                Module = (string)module;
+            }
+
+            if (model.TryGetValue("IsValueModel", out var isValueModel))
+            {
+                IsValueModel = (bool)isValueModel;
+            }
+
+            if (model.TryGetValue("IsViewModel", out var isViewModel))
+            {
+                IsViewModel = (bool)isViewModel;
+            }
+
+            if (model.TryGetValue("ViewModelIds", out var viewModelIds))
+            {
+                ViewModelIds = ((IEnumerable)viewModelIds).Cast<string>().ToList();
+            }
+
+            if (model.TryGetValue("ActualModelIds", out var actualModelIds))
+            {
+                ActualModelIds = ((IEnumerable)actualModelIds).Cast<string>().ToList();
+            }
+
+            if (model.TryGetValue("Initializer", out var initializer))
+            {
+                Initializer = new InitializerModel((IDictionary<string, object>)initializer);
+            }
+
+            if (model.TryGetValue("Datas", out var datas))
+            {
+                Datas = ((IEnumerable)datas).Cast<IDictionary<string, object>>().Select(o => new DataModel(o)).ToList();
+            }
+
+            if (model.TryGetValue("Operations", out var operations))
+            {
+                Operations = ((IEnumerable)operations).Cast<IDictionary<string, object>>().Select(o => new OperationModel(o)).ToList();
+            }
+
+            if (model.TryGetValue("StaticInstances", out var staticInstances))
+            {
+                StaticInstances = ((IEnumerable)staticInstances).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
+            }
         }
 
         public List<DataModel> Datas

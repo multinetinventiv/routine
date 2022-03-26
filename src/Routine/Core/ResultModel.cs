@@ -8,18 +8,23 @@ namespace Routine.Core
 		public bool IsList { get; set; }
 		public bool IsVoid { get; set; }
 
-		public ResultModel()
-			: this(new Dictionary<string, object>
-			{
-				{"ViewModelId", null},
-				{"IsList", false},
-				{"IsVoid", false}
-			}) { }
+		public ResultModel() { }
 		public ResultModel(IDictionary<string, object> model)
 		{
-			ViewModelId = (string)model["ViewModelId"];
-			IsList = (bool)model["IsList"];
-			IsVoid = (bool)model["IsVoid"];
+            if(model.TryGetValue("ViewModelId", out var viewModelId))
+            {
+                ViewModelId = (string)viewModelId;
+            }
+
+            if(model.TryGetValue("IsList", out var isList))
+            {
+                IsList = (bool)isList;
+            }
+
+            if(model.TryGetValue("IsVoid", out var isVoid))
+            {
+                IsVoid = (bool)isVoid;
+            }
 		}
 
 		#region ToString & Equality
