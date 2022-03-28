@@ -18,6 +18,8 @@ namespace Routine.Core
         public ParameterModel() { }
         public ParameterModel(IDictionary<string, object> model)
         {
+            if(model == null) return;
+
             if(model.TryGetValue("Marks", out var marks))
             {
                 Marks = ((IEnumerable)marks).Cast<string>().ToList();

@@ -11,6 +11,8 @@ namespace Routine.Core
         public ApplicationModel() { }
         public ApplicationModel(IDictionary<string, object> model)
         {
+            if(model == null) return;
+
             if (model.TryGetValue("Models", out object models))
             {
                 Models = ((IEnumerable)models).Cast<IDictionary<string, object>>().Select(o => new ObjectModel(o)).ToList();

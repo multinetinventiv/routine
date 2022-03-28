@@ -27,6 +27,13 @@ namespace Routine.Client
         public List<int> Groups => model.Groups;
         public List<string> Marks => model.Marks;
 
+        public bool IsOptional => model.IsOptional;
+        public Rvariable Default =>
+            CreateVariable(model.DefaultValue.Values
+                .Select(v => Application.Get(v.Id, v.ModelId))
+                .ToList()
+            );
+
         public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
 
         public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());

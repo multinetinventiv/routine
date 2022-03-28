@@ -11,6 +11,8 @@ namespace Routine.Core
 		public ResultModel() { }
 		public ResultModel(IDictionary<string, object> model)
 		{
+            if(model == null) return;
+
             if(model.TryGetValue("ViewModelId", out var viewModelId))
             {
                 ViewModelId = (string)viewModelId;
