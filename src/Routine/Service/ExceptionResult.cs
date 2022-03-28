@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Routine.Core.Rest;
+﻿using Routine.Core.Rest;
+using System.Text.Json.Serialization;
 
 namespace Routine.Service
 {

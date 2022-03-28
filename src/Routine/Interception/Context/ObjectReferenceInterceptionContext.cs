@@ -2,21 +2,21 @@
 
 namespace Routine.Interception.Context
 {
-	public class ObjectReferenceInterceptionContext : InterceptionContext
-	{
-		protected readonly IObjectService objectService;
+    public class ObjectReferenceInterceptionContext : InterceptionContext
+    {
+        protected readonly IObjectService objectService;
 
-		public ObjectReferenceInterceptionContext(string target, IObjectService objectService, ReferenceData targetReference)
-			: base(target)
-		{
-			this.objectService = objectService;
+        public ObjectReferenceInterceptionContext(string target, IObjectService objectService, ReferenceData targetReference)
+            : base(target)
+        {
+            this.objectService = objectService;
 
-			TargetReference = targetReference;
-		}
+            TargetReference = targetReference;
+        }
 
         public ReferenceData TargetReference
-		{
-			get => this[nameof(TargetReference)] as ReferenceData;
+        {
+            get => this[nameof(TargetReference)] as ReferenceData;
             set => this[nameof(TargetReference)] = value;
         }
 

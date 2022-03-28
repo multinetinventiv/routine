@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Routine.Engine;
-using System;
 using System.Linq;
+using System;
 
 namespace Routine.Samples.SmartObject
 {
@@ -14,7 +14,7 @@ namespace Routine.Samples.SmartObject
         {
             services.AddRoutine();
         }
-        
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

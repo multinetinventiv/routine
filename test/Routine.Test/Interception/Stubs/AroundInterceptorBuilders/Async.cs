@@ -1,7 +1,7 @@
-﻿using Routine.Interception;
-using Routine.Interception.Configuration;
-using System;
+﻿using Routine.Interception.Configuration;
+using Routine.Interception;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Test.Interception.Stubs.AroundInterceptorBuilders
 {

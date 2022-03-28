@@ -1,5 +1,5 @@
-﻿using System;
-using Routine.Engine.Virtual;
+﻿using Routine.Engine.Virtual;
+using System;
 
 namespace Routine.Engine.Configuration
 {

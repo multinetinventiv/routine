@@ -1,11 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Engine;
 using Routine.Test.Core;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -167,4 +167,3 @@ namespace Routine.Test.Engine.Reflection
         }
     }
 }
-

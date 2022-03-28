@@ -1,8 +1,8 @@
-using Routine.Core;
 using Routine.Core.Configuration;
-using System;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using static Routine.Constants;
 
 namespace Routine.Engine
@@ -315,4 +315,3 @@ namespace Routine.Engine
             : base($"Type '{(type == null ? "null" : type.ToString())}' is not configured.") { }
     }
 }
-

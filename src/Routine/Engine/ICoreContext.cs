@@ -1,25 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using Routine.Core;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace Routine.Engine
 {
-	public interface IDomainObjectFactory
-	{
-		DomainObject CreateDomainObject(DomainType type, string id);
-	}
+    public interface IDomainObjectFactory
+    {
+        DomainObject CreateDomainObject(DomainType type, string id);
+    }
 
-	public interface ICoreContext
-	{
-		ICodingStyle CodingStyle { get; }
-		DomainType GetDomainType(string typeId);
-		DomainType GetDomainType(IType type);
-		List<DomainType> GetDomainTypes();
+    public interface ICoreContext
+    {
+        ICodingStyle CodingStyle { get; }
+        DomainType GetDomainType(string typeId);
+        DomainType GetDomainType(IType type);
+        List<DomainType> GetDomainTypes();
 
-		object GetObject(ReferenceData aReference);
+        object GetObject(ReferenceData aReference);
 
-		DomainObject CreateDomainObject(object @object, DomainType viewDomainType);
-		DomainObject CreateDomainObject(ReferenceData reference);
+        DomainObject CreateDomainObject(object @object, DomainType viewDomainType);
+        DomainObject CreateDomainObject(ReferenceData reference);
 
         public DomainObject CreateDomainObject(string id, string modelId) => CreateDomainObject(id, modelId, modelId);
         public DomainObject CreateDomainObject(string id, string modelId, string viewModelId) =>
@@ -59,4 +59,3 @@ namespace Routine.Engine
         internal string BuildTypeId(string module, string name) => string.IsNullOrEmpty(module) ? name : $"{module}.{name}";
     }
 }
-

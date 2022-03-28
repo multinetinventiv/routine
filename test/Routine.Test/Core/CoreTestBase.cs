@@ -1,8 +1,9 @@
-﻿using System;
+﻿using NUnit.Framework;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using Routine.Core;
+using System.Text.Json;
+using System;
 
 namespace Routine.Test.Core
 {
@@ -26,6 +27,14 @@ namespace Routine.Test.Core
         public virtual void TearDown() { }
 
         protected T Throw<T>(Exception ex) => throw ex;
+
+        protected void AssertJsonEquals(string expected, string actual)
+        {
+            Assert.AreEqual(
+                JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(expected)),
+                JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(actual))
+            );
+        }
 
         #region Model Builders
 
@@ -185,13 +194,35 @@ namespace Routine.Test.Core
         protected ParameterModel PModel(string name, string viewModelId, params int[] groups) => PModel(name, viewModelId, false, groups);
         protected ParameterModel PModel(string name, bool isList, params int[] groups) => PModel(name, DefaultObjectModelId, isList, groups);
         protected ParameterModel PModel(string name, string viewModelId, bool isList, params int[] groups) =>
-            new()
-            {
-                Name = name,
-                IsList = isList,
-                ViewModelId = viewModelId,
-                Groups = groups.Any() ? groups.ToList() : new List<int> { 0 }
-            };
+            PModel(name, viewModelId: viewModelId, isList: isList, defaultValue: null, groups: groups);
+
+        protected ParameterModel PModel(string name,
+            string viewModelId = null,
+            bool isList = false,
+            string defaultValue = null,
+            int[] groups = null
+        ) => new()
+        {
+            Name = name,
+            IsList = isList,
+            ViewModelId = viewModelId ?? DefaultObjectModelId,
+            Groups = (groups ?? new[] { 0 }).ToList(),
+            DefaultValue = defaultValue == null
+                ? null
+                : new()
+                {
+                    IsList = isList,
+                    Values = new()
+                    {
+                        new()
+                        {
+                            Id = defaultValue,
+                            ModelId = viewModelId ?? DefaultObjectModelId
+                        }
+                    }
+                },
+            IsOptional = defaultValue != null
+        };
 
         #endregion
 
@@ -374,4 +405,3 @@ namespace Routine.Test.Core
         #endregion
     }
 }
-

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Routine.Service;
+using System.Collections.Generic;
 
 namespace Routine.Test.Service.HeaderProcessor
 {

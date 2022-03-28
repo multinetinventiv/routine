@@ -1,14 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
-using Routine.Engine;
 using Routine.Engine.Reflection;
+using Routine.Engine;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterDomainNamespace;
 using RoutineTest.OuterNamespace;
+using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System;
 
 namespace Routine.Test.Engine.Reflection
 {
@@ -460,4 +460,3 @@ namespace Routine.Test.Engine.Reflection
         }
     }
 }
-

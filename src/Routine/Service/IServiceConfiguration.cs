@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Routine.Core;
 using System.Collections.Generic;
-using Routine.Core;
+using System;
 
 namespace Routine.Service
 {
@@ -45,4 +45,3 @@ namespace Routine.Service
         }
     }
 }
-

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Routine.Engine.Context;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Engine.Context;
+using System;
 
 namespace Routine.Core.Rest
 {
@@ -332,12 +332,7 @@ namespace Routine.Core.Rest
             return result;
         }
 
-        private DataModel GetDataModel(string modelId, string dataModelName)
-        {
-            GetObjectModel(modelId).Data.TryGetValue(dataModelName, out var result);
-
-            return result;
-        }
+        private DataModel GetDataModel(string modelId, string dataModelName) => GetObjectModel(modelId).GetData(dataModelName);
 
         private ParameterModel GetInitializationParameterModel(string modelId, string initializationParameterName)
         {

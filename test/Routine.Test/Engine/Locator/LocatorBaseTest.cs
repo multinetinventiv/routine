@@ -1,9 +1,9 @@
+using NUnit.Framework;
+using Routine.Engine.Locator;
+using Routine.Engine;
+using Routine.Test.Core;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using Routine.Engine;
-using Routine.Engine.Locator;
-using Routine.Test.Core;
 
 namespace Routine.Test.Engine.Locator
 {
@@ -62,4 +62,3 @@ namespace Routine.Test.Engine.Locator
         }
     }
 }
-

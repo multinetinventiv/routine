@@ -1,7 +1,7 @@
 namespace Routine.Engine
 {
-	public interface IIdExtractor
-	{
-		string GetId(object obj);
-	}
+    public interface IIdExtractor
+    {
+        string GetId(object obj);
+    }
 }

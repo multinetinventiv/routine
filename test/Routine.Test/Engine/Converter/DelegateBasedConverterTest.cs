@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Engine;
 using Routine.Engine.Converter;
+using Routine.Engine;
+using System.Collections.Generic;
+using System;
 
 namespace Routine.Test.Engine.Converter
 {

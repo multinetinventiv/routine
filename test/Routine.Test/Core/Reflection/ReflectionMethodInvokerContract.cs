@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Routine.Core.Reflection;
-using System;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Test.Core.Reflection
 {
@@ -67,7 +67,7 @@ namespace Routine.Test.Core.Reflection
                 Assert.AreSame(expected, actual);
             }
         }
-        
+
         [TestCase(nameof(Throw))]
         [TestCase(nameof(ThrowAsync))]
         public void When_throwing_actual_exception_it_preserves_stack_trace(string method)
