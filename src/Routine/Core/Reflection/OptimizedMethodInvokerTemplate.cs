@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Core.Reflection
 {
@@ -46,7 +46,7 @@ namespace {Namespace}
             InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
             InvocationType.Get => $"return {Target}.{MethodName};",
             InvocationType.Set => $@"
-            {Target}.{MethodName} = {LastParameter}; 
+            {Target}.{MethodName} = {LastParameter};
             return null;
 ",
             InvocationType.IndexerGet => $"return {Target}[{Parameters}];",
@@ -66,8 +66,8 @@ namespace {Namespace}
             }}
             catch({NameOf<AggregateException>()} ex)
             {{
-                if(ex.InnerException != null) 
-                {{ 
+                if(ex.InnerException != null)
+                {{
                     throw ex.InnerException;
                 }}
 
@@ -85,8 +85,8 @@ namespace {Namespace}
             }}
             catch({NameOf<AggregateException>()} ex)
             {{
-                if(ex.InnerException != null) 
-                {{ 
+                if(ex.InnerException != null)
+                {{
                     throw ex.InnerException;
                 }}
 

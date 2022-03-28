@@ -1,10 +1,10 @@
-using System;
+using Routine.Core.Rest;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Routine.Core;
-using Routine.Core.Rest;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Service
 {
@@ -77,10 +77,9 @@ namespace Routine.Service
 
         private OperationModel GetOperationModel(ReferenceData target, string operation)
         {
-            if (!GetObjectModel(target).Operation.TryGetValue(operation, out var operationModel))
-            {
-                throw OperationNotFound(target.ViewModelId, operation);
-            }
+            var operationModel = GetObjectModel(target).GetOperation(operation);
+
+            if (operationModel == null) { throw OperationNotFound(target.ViewModelId, operation); }
 
             return operationModel;
         }

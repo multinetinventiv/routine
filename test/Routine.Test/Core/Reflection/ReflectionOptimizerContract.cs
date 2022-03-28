@@ -1,11 +1,11 @@
 ﻿using Moq;
 using NUnit.Framework;
 using Routine.Core.Reflection;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Test.Core.Reflection
 {

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Routine.Engine.Converter;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Engine.Converter;
+using System;
 
 namespace Routine.Engine.Configuration
 {
@@ -22,7 +22,7 @@ namespace Routine.Engine.Configuration
             return By(() => new List<IType> { targetTypeDelegate() }, converterDelegate);
         }
 
-        public DelegateBasedConverter By(Func<IEnumerable<IType>> targetTypesDelegate, Func<object, IType, object> converterDelegate) => 
+        public DelegateBasedConverter By(Func<IEnumerable<IType>> targetTypesDelegate, Func<object, IType, object> converterDelegate) =>
             new(targetTypesDelegate, converterDelegate);
 
         public TypeCastConverter ByCasting() => ByCasting(_ => true);

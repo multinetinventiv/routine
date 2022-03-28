@@ -1,7 +1,7 @@
-using System;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
+using System;
 
 namespace Routine.Engine
 {
@@ -93,7 +93,7 @@ namespace Routine.Engine
         public List<int> Groups { get; }
         public bool IsList { get; }
         public bool IsOptional { get; }
-        
+
         private readonly object defaultValue;
 
         private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
@@ -107,7 +107,7 @@ namespace Routine.Engine
             Groups = new List<int> { initialGroupIndex };
             IsList = parameter.ParameterType.CanBeCollection();
             IsOptional = ctx.CodingStyle.IsOptional(parameter);
-            
+
             defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
         }
 

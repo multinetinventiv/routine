@@ -1,15 +1,14 @@
 using NUnit.Framework;
 using Routine.Client;
-using Routine.Core;
-using Routine.Core.Cache;
 using Routine.Core.Reflection;
+using Routine.Core;
 using Routine.Engine;
 using Routine.Test.Performance.Domain;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System;
 
 #region Test Model
 
@@ -303,7 +302,7 @@ namespace Routine.Test.Performance
                                         ModelId = subType,
                                         Id = sub.Id.ToString(CultureInfo.InvariantCulture),
                                         Display = sub.ToString(),
-										
+
 										#region Prop1 - Prop10
 										Data = new Dictionary<string, VariableData>
                                         {
@@ -871,7 +870,7 @@ namespace Routine.Test.Performance
                                                 }
                                             }
                                         }
-                                    } 
+                                    }
 								#endregion
 
 								).ToList()
@@ -994,7 +993,7 @@ namespace Routine.Test.Performance
                                                 }
                                             }
                                         }
-                                    } 
+                                    }
 								#endregion
 
 								).ToList()
@@ -1037,4 +1036,3 @@ namespace Routine.Test.Performance
         }
     }
 }
-

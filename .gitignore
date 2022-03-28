@@ -18,3 +18,5 @@ packages/**/*
 
 /.vs
 /test/Routine.Test.Performance/Properties/launchSettings.json
+
+**/*.sw?

@@ -1,18 +1,18 @@
-﻿using System.Reflection;
-using Routine.Engine.Virtual;
+﻿using Routine.Engine.Virtual;
+using System.Reflection;
 
 namespace Routine.Engine.Configuration
 {
-	public class ParameterBuilder
-	{
-		private readonly IParametric owner;
+    public class ParameterBuilder
+    {
+        private readonly IParametric owner;
 
-		public ParameterBuilder(IParametric owner)
-		{
-			this.owner = owner;
-		}
+        public ParameterBuilder(IParametric owner)
+        {
+            this.owner = owner;
+        }
 
-		public IParametric Owner => owner;
+        public IParametric Owner => owner;
 
         public VirtualParameter Virtual() => new(owner);
 

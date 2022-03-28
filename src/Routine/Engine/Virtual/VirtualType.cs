@@ -1,89 +1,89 @@
-﻿using System;
-using System.Collections;
+﻿using Routine.Core.Configuration;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
-using Routine.Core.Configuration;
+using System;
 
 namespace Routine.Engine.Virtual
 {
-	public class VirtualType : IType
-	{
-		public SingleConfiguration<VirtualType, string> Name { get; }
-		public SingleConfiguration<VirtualType, string> Namespace { get; }
-		public SingleConfiguration<VirtualType, bool> IsInterface { get; }
-		public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; }
-		public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; }
-		public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; }
-		public ListConfiguration<VirtualType, IMethod> Methods { get; }
+    public class VirtualType : IType
+    {
+        public SingleConfiguration<VirtualType, string> Name { get; }
+        public SingleConfiguration<VirtualType, string> Namespace { get; }
+        public SingleConfiguration<VirtualType, bool> IsInterface { get; }
+        public SingleConfiguration<VirtualType, string> DefaultInstanceId { get; }
+        public SingleConfiguration<VirtualType, Func<VirtualObject, string>> ToStringMethod { get; }
+        public ListConfiguration<VirtualType, VirtualType> AssignableTypes { get; }
+        public ListConfiguration<VirtualType, IMethod> Methods { get; }
 
-		public VirtualType()
-		{
-			Name = new SingleConfiguration<VirtualType, string>(this, nameof(Name), true);
-			Namespace = new SingleConfiguration<VirtualType, string>(this, nameof(Namespace), true);
-			IsInterface = new SingleConfiguration<VirtualType, bool>(this, nameof(IsInterface));
-			DefaultInstanceId = new SingleConfiguration<VirtualType, string>(this, nameof(DefaultInstanceId), true);
-			ToStringMethod = new SingleConfiguration<VirtualType, Func<VirtualObject, string>>(this, nameof(ToStringMethod));
-			AssignableTypes = new ListConfiguration<VirtualType, VirtualType>(this, nameof(AssignableTypes));
-			Methods = new ListConfiguration<VirtualType, IMethod>(this, nameof(Methods));
-		}
+        public VirtualType()
+        {
+            Name = new SingleConfiguration<VirtualType, string>(this, nameof(Name), true);
+            Namespace = new SingleConfiguration<VirtualType, string>(this, nameof(Namespace), true);
+            IsInterface = new SingleConfiguration<VirtualType, bool>(this, nameof(IsInterface));
+            DefaultInstanceId = new SingleConfiguration<VirtualType, string>(this, nameof(DefaultInstanceId), true);
+            ToStringMethod = new SingleConfiguration<VirtualType, Func<VirtualObject, string>>(this, nameof(ToStringMethod));
+            AssignableTypes = new ListConfiguration<VirtualType, VirtualType>(this, nameof(AssignableTypes));
+            Methods = new ListConfiguration<VirtualType, IMethod>(this, nameof(Methods));
+        }
 
-		private object Cast(object @object, IType otherType)
-		{
+        private object Cast(object @object, IType otherType)
+        {
             if (@object is not VirtualObject vobject)
-			{
-				throw new InvalidCastException(
+            {
+                throw new InvalidCastException(
                     $"Cannot cast a real object to a virtual type. {@object} as {ToString()} -> {otherType}");
-			}
+            }
 
-			if (!CanBe(otherType))
-			{
-				throw new InvalidCastException(
+            if (!CanBe(otherType))
+            {
+                throw new InvalidCastException(
                     $"Cannot cast object to given type. {vobject} as {ToString()} -> {otherType}");
-			}
+            }
 
-			return @object;
-		}
+            return @object;
+        }
 
-		private bool CanBe(IType otherType) => Equals(this, otherType) || Equals(type.of<object>(), otherType) || AssignableTypes.Get().Contains(otherType);
+        private bool CanBe(IType otherType) => Equals(this, otherType) || Equals(type.of<object>(), otherType) || AssignableTypes.Get().Contains(otherType);
         public override string ToString() => $"{Namespace.Get()}.{Name.Get()}";
 
         #region Equality & Hashcode
 
-		protected bool Equals(VirtualType other)
-		{
-			return Equals(Name.Get(), other.Name.Get()) && Equals(Namespace.Get(), other.Namespace.Get());
-		}
+        protected bool Equals(VirtualType other)
+        {
+            return Equals(Name.Get(), other.Name.Get()) && Equals(Namespace.Get(), other.Namespace.Get());
+        }
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
 
-			return Equals((VirtualType)obj);
-		}
+            return Equals((VirtualType)obj);
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return (Name.Get().GetHashCode() * 397) ^ Namespace.Get().GetHashCode();
-			}
-		} 
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Name.Get().GetHashCode() * 397) ^ Namespace.Get().GetHashCode();
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region ITypeComponent implementation
+        #region ITypeComponent implementation
 
-		string ITypeComponent.Name => Name.Get();
+        string ITypeComponent.Name => Name.Get();
         IType ITypeComponent.ParentType => null;
         object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
         #endregion
 
-		#region IType implementation
+        #region IType implementation
 
-		bool IType.IsPublic => true;
+        bool IType.IsPublic => true;
         bool IType.IsAbstract => false;
         bool IType.IsInterface => IsInterface.Get();
         bool IType.IsValueType => false;
@@ -111,5 +111,5 @@ namespace Routine.Engine.Virtual
         IList IType.CreateListInstance(int length) => throw new NotSupportedException("Virtual types does not support list type");
 
         #endregion
-	}
+    }
 }

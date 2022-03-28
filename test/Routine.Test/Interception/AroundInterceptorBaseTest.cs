@@ -12,7 +12,7 @@ namespace Routine.Test.Interception
     [TestFixture(typeof(SyncAround), typeof(AsyncInvocation))]
     [TestFixture(typeof(AsyncAround), typeof(SyncInvocation))]
     [TestFixture(typeof(AsyncAround), typeof(AsyncInvocation))]
-    public class AroundInterceptorBaseTest<TInterceptor, TInvocation> : CoreTestBase 
+    public class AroundInterceptorBaseTest<TInterceptor, TInvocation> : CoreTestBase
         where TInterceptor : IAroundInterceptor<TInterceptor>, new()
         where TInvocation : IInvocation, new()
     {

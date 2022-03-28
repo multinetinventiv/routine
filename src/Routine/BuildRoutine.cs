@@ -1,23 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Routine.Client;
-using Routine.Core.Cache;
-using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
-using Routine.Core.Reflection;
-using Routine.Core.Rest;
-using Routine.Engine;
-using Routine.Engine.Configuration;
+using Routine.Core.Configuration;
+using Routine.Core;
 using Routine.Engine.Configuration.ConventionBased;
+using Routine.Engine.Configuration;
 using Routine.Engine.Extractor;
 using Routine.Engine.Virtual;
-using Routine.Interception;
+using Routine.Engine;
 using Routine.Interception.Configuration;
-using Routine.Service;
+using Routine.Interception;
 using Routine.Service.Configuration;
+using Routine.Service;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace Routine
 {
@@ -70,6 +66,17 @@ namespace Routine
         ) => source.AsServiceClient(
             serviceClientConfiguration(BuildRoutine.ServiceClientConfig())
         );
+
+        #endregion
+
+        #region IObjectService
+
+        public static IObjectService Intercept(this IObjectService source, IInterceptionConfiguration interceptionConfiguration)
+        {
+            if (interceptionConfiguration == null) { return source; }
+
+            return new InterceptedObjectService(source, interceptionConfiguration);
+        }
 
         #endregion
 

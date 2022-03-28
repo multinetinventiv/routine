@@ -9,7 +9,7 @@ namespace Routine.Test.Core.Reflection
     public class ReflectionOptimizerSyncTest : ReflectionOptimizerContract
     {
         protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.Invoke(target, args);
-        
+
         [Test]
         public void Waits_for_async_methods_to_run()
         {

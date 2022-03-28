@@ -1,16 +1,16 @@
-using System;
-using System.Collections;
+using Routine.Engine;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
-using Routine.Engine;
+using System;
 
 namespace Routine
 {
     public static class ReflectionExtensions
     {
         #region string
-        
+
         public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch = false)
         {
             try
@@ -45,7 +45,7 @@ namespace Routine
         #endregion
 
         #region internal Type
-        
+
         public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo().ToCSharpString(useFullName);
         public static string ToCSharpString(this IType source, bool useFullName = true)
         {
@@ -221,4 +221,3 @@ namespace Routine
         #endregion
     }
 }
-

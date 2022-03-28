@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Routine.Engine.Reflection;
+using Routine.Engine.Virtual;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Engine.Reflection;
-using Routine.Engine.Virtual;
+using System;
 
 namespace Routine.Engine.Configuration
 {
-	public partial class MethodBuilder
-	{
-		private readonly IType parentType;
+    public partial class MethodBuilder
+    {
+        private readonly IType parentType;
 
-		public MethodBuilder(IType parentType)
-		{
-			this.parentType = parentType;
-		}
+        public MethodBuilder(IType parentType)
+        {
+            this.parentType = parentType;
+        }
 
-		public IType ParentType => parentType;
+        public IType ParentType => parentType;
 
         public IEnumerable<IMethod> Proxy<T>(T target) => Proxy<T>().Target(target);
 
@@ -28,7 +28,7 @@ namespace Routine.Engine.Configuration
 
         private VirtualMethod Virtual() => new(parentType);
 
-        public VirtualMethod Virtual(string name) => 
+        public VirtualMethod Virtual(string name) =>
             Virtual()
                 .Name.Set(name)
                 .ReturnType.Set(type.ofvoid());

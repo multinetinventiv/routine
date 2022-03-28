@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using Routine.Core;
 using Routine.Core.Rest;
+using Routine.Core;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Helper;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
+using System;
 
 namespace Routine.Service.RequestHandlers
 {
@@ -94,21 +94,21 @@ namespace Routine.Service.RequestHandlers
 
         protected virtual void BadRequest(Exception ex)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status400BadRequest, 
+            HttpContext.Response.SetStatus(StatusCodes.Status400BadRequest,
                 $"Cannot resolve parameters from request body. The exception is; {ex}"
             );
         }
 
         protected virtual void ModelNotFound(TypeNotFoundException ex)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status404NotFound, 
+            HttpContext.Response.SetStatus(StatusCodes.Status404NotFound,
                 $"Specified model ({ex.TypeId}) was not found in service model. The exception is; {ex}"
             );
         }
 
         protected virtual void MethodNotAllowed(bool allowGet)
         {
-            HttpContext.Response.SetStatus(StatusCodes.Status405MethodNotAllowed, 
+            HttpContext.Response.SetStatus(StatusCodes.Status405MethodNotAllowed,
                 allowGet ? "Only GET, POST and OPTIONS are supported" : "Only POST and OPTIONS are supported"
             );
         }

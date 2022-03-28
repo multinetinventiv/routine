@@ -1,55 +1,59 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
 namespace Routine.Core
 {
-	public class VariableData
-	{
-		public bool IsList { get; set; }
-		public List<ObjectData> Values { get; set; }
+    public class VariableData
+    {
+        public bool IsList { get; set; }
+        public List<ObjectData> Values { get; set; } = new List<ObjectData>();
 
-		public VariableData()
-			: this(new Dictionary<string, object>
-			{
-				{"IsList", false},
-				{"Values", new List<Dictionary<string, object>>()}
-			}) { }
-		public VariableData(IDictionary<string, object> data)
-		{
-			IsList = (bool)data["IsList"];
-			Values = ((IEnumerable)data["Values"]).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
-		}
+        public VariableData() { }
+        public VariableData(IDictionary<string, object> data)
+        {
+            if (data == null) return;
 
-		#region ToString & Equality
+            if (data.TryGetValue("IsList", out var isList))
+            {
+                IsList = (bool)isList;
+            }
 
-		public override string ToString()
-		{
-			return $"[VariableData: [IsList: {IsList}, Values: {Values.ToItemString()}]]";
-		}
+            if (data.TryGetValue("Values", out var values))
+            {
+                Values = ((IEnumerable)values).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
+            }
+        }
 
-		protected bool Equals(VariableData other)
-		{
-			return IsList == other.IsList && Values.ItemEquals(other.Values);
-		}
+        #region ToString & Equality
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != GetType()) return false;
+        public override string ToString()
+        {
+            return $"[VariableData: [IsList: {IsList}, Values: {Values.ToItemString()}]]";
+        }
 
-			return Equals((VariableData)obj);
-		}
+        protected bool Equals(VariableData other)
+        {
+            return IsList == other.IsList && Values.ItemEquals(other.Values);
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return (IsList.GetHashCode() * 397) ^ (Values != null ? Values.GetItemHashCode() : 0);
-			}
-		}
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
 
-		#endregion
-	}
+            return Equals((VariableData)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (IsList.GetHashCode() * 397) ^ (Values != null ? Values.GetItemHashCode() : 0);
+            }
+        }
+
+        #endregion
+    }
 }

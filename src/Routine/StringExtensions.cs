@@ -1,7 +1,7 @@
-using System;
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Text;
+using System;
 
 namespace Routine
 {
@@ -83,4 +83,3 @@ namespace Routine
         public static bool Matches(this string source, string regexPattern) => Regex.IsMatch(source, "^" + regexPattern + "$");
     }
 }
-

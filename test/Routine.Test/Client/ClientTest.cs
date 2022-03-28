@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Routine.Client;
 using Routine.Core;
 using Routine.Engine.Context;
 using Routine.Test.Client.Stubs;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace Routine.Test.Client
 {
@@ -460,6 +459,25 @@ namespace Routine.Test.Client
         }
 
         [Test]
+        public void Rparameter_returns_its_default_value_when_its_optional()
+        {
+            ModelsAre(
+                Model("model")
+                .Operation("operation", PModel("param", "param_model", defaultValue: "default")),
+                Model("param_model"));
+
+            ObjectsAre(
+                Object(Id("id_root", "model")),
+                Object(Id("default", "param_model")));
+
+            var root = Robj("id_root", "model");
+            var rparam = root.Type.Operations[0].Parameters[0];
+
+            Assert.IsTrue(rparam.IsOptional);
+            Assert.AreEqual("default", rparam.Default.Object.Id);
+        }
+
+        [Test]
         public void Robject_does_not_fetch_object_data_if_model_is_value()
         {
             ModelsAre(Model("model").IsValue());
@@ -693,277 +711,5 @@ namespace Routine.Test.Client
 
             Assert.Throws<InvalidOperationException>(() => Rtyp("model"));
         }
-
-        [Test]
-        public void Rapplication_implements_equality_members()
-        {
-            ModelsAre(Model("model"));
-
-            var left = new Rapplication(objectServiceMock.Object);
-            var right = new Rapplication(objectServiceMock.Object);
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-        }
-
-        [Test]
-        public void Rtype_implements_formatting_and_equality_members()
-        {
-            ModelsAre(Model("model"), Model("model2"));
-
-            var left = new Rapplication(objectServiceMock.Object)["model"];
-            var right = new Rapplication(objectServiceMock.Object)["model"];
-            var other = new Rapplication(objectServiceMock.Object)["model2"];
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Rinitializer_implements_formatting_and_equality_datas()
-        {
-            ModelsAre(Model("model").Initializer(), Model("model2").Initializer());
-
-            var left = new Rapplication(objectServiceMock.Object)["model"].Initializer;
-            var right = new Rapplication(objectServiceMock.Object)["model"].Initializer;
-            var other = new Rapplication(objectServiceMock.Object)["model2"].Initializer;
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Rdata_implements_formatting_and_equality_members()
-        {
-            ModelsAre(Model("model").Data("data"), Model("model2").Data("data2"));
-
-            var left = new Rapplication(objectServiceMock.Object)["model"].Data["data"];
-            var right = new Rapplication(objectServiceMock.Object)["model"].Data["data"];
-            var other = new Rapplication(objectServiceMock.Object)["model2"].Data["data2"];
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Roperation_implements_formatting_and_equality_members()
-        {
-            ModelsAre(Model("model").Operation("operation"), Model("model2").Operation("operation2"));
-
-            var left = new Rapplication(objectServiceMock.Object)["model"].Operation["operation"];
-            var right = new Rapplication(objectServiceMock.Object)["model"].Operation["operation"];
-            var other = new Rapplication(objectServiceMock.Object)["model2"].Operation["operation2"];
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Rparameter_implements_formatting_and_equality_members()
-        {
-            ModelsAre(Model("model").Operation("operation", PModel("arg1")), Model("model2").Operation("operation2", PModel("arg1")));
-
-            var left = new Rapplication(objectServiceMock.Object)["model"].Operation["operation"].Parameter["arg1"];
-            var right = new Rapplication(objectServiceMock.Object)["model"].Operation["operation"].Parameter["arg1"];
-            var other = new Rapplication(objectServiceMock.Object)["model2"].Operation["operation2"].Parameter["arg1"];
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Robjects_implements_formatting_and_equality_members()
-        {
-            ObjectsAre(Object(Id("value", "model")), Object(Id("value2", "model")));
-
-            var left = Robj("value", "model");
-            var right = Robj("value", "model");
-            var other = Robj("value2", "model");
-
-            Assert.AreEqual(left, right);
-            Assert.AreNotSame(left, right);
-            Assert.AreNotEqual(left, other);
-
-            Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
-            Assert.AreNotEqual(left.GetHashCode(), other.GetHashCode());
-        }
-
-        [Test]
-        public void Facade_Rvariable_As()
-        {
-            ModelsAre(Model("s-int-32").IsValue());
-
-            int result = Rvar("value", Robj("10", "s-int-32")).As(robj => int.Parse(robj.Display));
-
-            Assert.AreEqual(10, result);
-        }
-
-        [Test]
-        public void Facade_Rvariable_As_Returns_default_when_value_is_null()
-        {
-            int intResult = Rvar("value", RobjNull()).As(robj => int.Parse(robj.Display));
-
-            Assert.AreEqual(0, intResult);
-
-            string stringResult = Rvar("value", RobjNull()).As(robj => robj.Display);
-
-            Assert.IsNull(stringResult);
-        }
-
-        [Test]
-        public void Facade_Rvariable_AsList()
-        {
-            ModelsAre(Model("s-int-32").IsValue());
-
-            List<int> result = Rvarlist("value", new[] { Robj("10", "s-int-32"), Robj("11", "s-int-32") }).AsList(robj => int.Parse(robj.Display));
-
-            Assert.AreEqual(10, result[0]);
-            Assert.AreEqual(11, result[1]);
-        }
-
-        [Test]
-        public void Facade_Rvariable_AsList_Puts_default_value_when_an_item_is_null()
-        {
-            List<int> intResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => int.Parse(robj.Display));
-
-            Assert.AreEqual(0, intResult[0]);
-
-            List<string> stringResult = Rvarlist("value", new[] { RobjNull() }).AsList(robj => robj.Display);
-
-            Assert.IsNull(stringResult[0]);
-        }
-
-        [Test]
-        public void Facade_Rapplication_NewVar()
-        {
-            ModelsAre(Model("s-int-32").IsValue());
-
-            var actual = testingRapplication.NewVar("name", Robj("10", "s-int-32"));
-
-            Assert.AreEqual("10", actual.Object.Id);
-            Assert.AreEqual("name", actual.Name);
-
-            actual = testingRapplication.NewVar("name", 10, "s-int-32");
-
-            Assert.AreEqual("10", actual.Object.Id);
-            Assert.AreEqual("name", actual.Name);
-
-            actual = testingRapplication.NewVar("name", 10, o => o.ToString(CultureInfo.InvariantCulture), "s-int-32");
-
-            Assert.AreEqual("10", actual.Object.Id);
-            Assert.AreEqual("name", actual.Name);
-
-            actual = testingRapplication.NewVar("name", 10, o => testingRapplication["s-int-32"].Get(o.ToString(CultureInfo.InvariantCulture)));
-
-            Assert.AreEqual("10", actual.Object.Id);
-            Assert.AreEqual("name", actual.Name);
-        }
-
-        [Test]
-        public void Facade_Rapplication_NewVar_creates_null_variable_when_object_is_null()
-        {
-            ModelsAre(
-                Model("s-int-32").IsValue(),
-                Model("s-string").IsValue());
-
-            var actual = testingRapplication.NewVar("name", RobjNull());
-            Assert.IsTrue(actual.IsNull);
-
-            actual = testingRapplication.NewVar("name", 0, "s-int-32");
-            Assert.IsTrue(!actual.IsNull);
-            Assert.AreEqual("0", actual.Object.Id);
-
-            // ReSharper disable ExpressionIsAlwaysNull
-            string nullStringValue = null;
-            actual = testingRapplication.NewVar("name", nullStringValue, "s-string");
-            Assert.IsTrue(actual.IsNull);
-
-            actual = testingRapplication.NewVar("name", nullStringValue, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
-            Assert.IsTrue(actual.IsNull);
-
-            actual = testingRapplication.NewVar("name", nullStringValue, o => testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
-            Assert.IsTrue(actual.IsNull);
-            // ReSharper restore ExpressionIsAlwaysNull
-        }
-
-        [Test]
-        public void Facade_Rapplication_NewVarList()
-        {
-            ModelsAre(Model("s-int-32").IsValue());
-
-            var actual = testingRapplication.NewVarList("name", new List<Robject> { Robj("10", "s-int-32"), Robj("11", "s-int-32") });
-
-            Assert.AreEqual("name", actual.Name);
-            Assert.AreEqual("10", actual.List[0].Id);
-            Assert.AreEqual("11", actual.List[1].Id);
-
-            actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, "s-int-32");
-
-            Assert.AreEqual("name", actual.Name);
-            Assert.AreEqual("10", actual.List[0].Id);
-            Assert.AreEqual("11", actual.List[1].Id);
-
-            actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, o => o.ToString(CultureInfo.InvariantCulture), "s-int-32");
-
-            Assert.AreEqual("name", actual.Name);
-            Assert.AreEqual("10", actual.List[0].Id);
-            Assert.AreEqual("11", actual.List[1].Id);
-
-            actual = testingRapplication.NewVarList("name", new List<int> { 10, 11 }, o => testingRapplication["s-int-32"].Get(o.ToString(CultureInfo.InvariantCulture)));
-
-            Assert.AreEqual("name", actual.Name);
-            Assert.AreEqual("10", actual.List[0].Id);
-            Assert.AreEqual("11", actual.List[1].Id);
-        }
-
-        [Test]
-        public void Facade_Rapplication_NewVarList_creates_null_variable_when_list_is_null()
-        {
-            ModelsAre(
-                Model("s-int-32").IsValue(),
-                Model("s-string").IsValue());
-
-            var actual = testingRapplication.NewVarList("name", new List<Robject> { RobjNull() });
-            Assert.IsTrue(actual.List[0].IsNull);
-
-            actual = testingRapplication.NewVarList("name", new List<int> { 0 }, "s-int-32");
-            Assert.IsTrue(!actual.List[0].IsNull);
-            Assert.AreEqual("0", actual.List[0].Id);
-
-            // ReSharper disable ExpressionIsAlwaysNull
-            string nullString = null;
-            actual = testingRapplication.NewVarList("name", new List<string> { nullString }, "s-string");
-            Assert.IsTrue(actual.List[0].IsNull);
-
-            actual = testingRapplication.NewVarList("name", new List<string> { nullString }, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
-            Assert.IsTrue(actual.List[0].IsNull);
-
-            actual = testingRapplication.NewVarList("name", new List<string> { nullString }, o => testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
-            Assert.IsTrue(actual.List[0].IsNull);
-            // ReSharper restore ExpressionIsAlwaysNull
-        }
     }
 }
-

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
-using Routine.Client;
 using Routine.Client.Context;
+using Routine.Client;
 using Routine.Core;
 using Routine.Test.Core;
+using System.Collections.Generic;
 
 namespace Routine.Test.Client
 {
@@ -56,4 +56,3 @@ namespace Routine.Test.Client
         protected Rvariable Rvarlist(string name, IEnumerable<Robject> values) => new(name, values);
     }
 }
-

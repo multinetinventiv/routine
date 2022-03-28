@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System;
 
 namespace Routine.Interception
 {
@@ -33,12 +33,12 @@ namespace Routine.Interception
         public AsyncDecoratorInterceptor<TContext, TVariable> Success(Action<TContext, TVariable> successDelegate) => Success(Wrap(successDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> Success(Func<TVariable, Task> successDelegate) => Success(Wrap(successDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> Success(Func<TContext, TVariable, Task> successDelegate) { this.successDelegate = successDelegate ?? this.successDelegate; return this; }
-        
+
         public AsyncDecoratorInterceptor<TContext, TVariable> Fail(Action<TVariable> failDelegate) => Fail(Wrap(failDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> Fail(Action<TContext, TVariable> failDelegate) => Fail(Wrap(failDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> Fail(Func<TVariable, Task> failDelegate) => Fail(Wrap(failDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> Fail(Func<TContext, TVariable, Task> failDelegate) { this.failDelegate = failDelegate ?? this.failDelegate; return this; }
-        
+
         public AsyncDecoratorInterceptor<TContext, TVariable> After(Action<TVariable> afterDelegate) => After(Wrap(afterDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> After(Action<TContext, TVariable> afterDelegate) => After(Wrap(afterDelegate));
         public AsyncDecoratorInterceptor<TContext, TVariable> After(Func<TVariable, Task> afterDelegate) => After(Wrap(afterDelegate));

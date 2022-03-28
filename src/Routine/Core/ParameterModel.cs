@@ -1,48 +1,59 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
 namespace Routine.Core
 {
     public class ParameterModel
     {
-        public List<string> Marks { get; set; }
-        public List<int> Groups { get; set; }
+        public List<string> Marks { get; set; } = new List<string>();
+        public List<int> Groups { get; set; } = new List<int>();
 
         public string Name { get; set; }
         public string ViewModelId { get; set; }
         public bool IsList { get; set; }
         public bool IsOptional { get; set; }
-        public VariableData DefaultValue { get; set; }
+        public VariableData DefaultValue { get; set; } = new VariableData();
 
-        public ParameterModel()
-            : this(new Dictionary<string, object>
-            {
-                {"Marks", new List<string>()},
-                {"Groups", new List<int>()},
-
-                {"Name", null},
-                {"ViewModelId", null},
-                {"IsList", false},
-                {"IsOptional",false},
-                {
-                    "DefaultValue", new Dictionary<string, object>
-                    {
-                        {"IsList", false},
-                        {"Values", new List<Dictionary<string, object>>()}
-                    }
-                }
-            }) { }
+        public ParameterModel() { }
         public ParameterModel(IDictionary<string, object> model)
         {
-            Marks = ((IEnumerable)model["Marks"]).Cast<string>().ToList();
-            Groups = ((IEnumerable)model["Groups"]).Cast<int>().ToList();
+            if (model == null) return;
 
-            Name = (string)model["Name"];
-            ViewModelId = (string)model["ViewModelId"];
-            IsList = (bool)model["IsList"];
-            IsOptional = (bool)model["IsOptional"];
-            DefaultValue = new VariableData((IDictionary<string, object>)model["DefaultValue"]);
+            if (model.TryGetValue("Marks", out var marks))
+            {
+                Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            }
+
+            if (model.TryGetValue("Groups", out var groups))
+            {
+                Groups = ((IEnumerable)groups).Cast<int>().ToList();
+            }
+
+            if (model.TryGetValue("Name", out var name))
+            {
+                Name = (string)name;
+            }
+
+            if (model.TryGetValue("ViewModelId", out var viewModelId))
+            {
+                ViewModelId = (string)viewModelId;
+            }
+
+            if (model.TryGetValue("IsList", out var isList))
+            {
+                IsList = (bool)isList;
+            }
+
+            if (model.TryGetValue("IsOptional", out var isOptional))
+            {
+                IsOptional = (bool)isOptional;
+            }
+
+            if (model.TryGetValue("DefaultValue", out var defaultValue))
+            {
+                DefaultValue = new VariableData((IDictionary<string, object>)defaultValue);
+            }
         }
 
         #region ToString & Equality

@@ -1,0 +1,16 @@
+ {
+   "configurations": {
+     "launch": {
+       "adapter": "netcoredbg",
+       "configuration": {
+         "request": "launch",
+         "program": "${workspaceRoot}/bin/Debug/net5.0/Routine.Samples.Basic.dll",
+         "args": [],
+         "stopAtEntry": false,
+         "env": {
+             "ASPNETCORE_ENVIRONMENT": "Development"
+         }
+       }
+     }
+   }
+ }

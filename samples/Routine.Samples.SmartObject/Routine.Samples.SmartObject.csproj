@@ -8,4 +8,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove=".vimspector.json" />
+    <Content Remove=".vimspector.json" />
+  </ItemGroup>
+
 </Project>
