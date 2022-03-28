@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
 namespace Routine
@@ -41,4 +41,3 @@ namespace Routine
         }
     }
 }
-

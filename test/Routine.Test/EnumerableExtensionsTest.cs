@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Collections;
 using System;
 
 namespace Routine.Test
@@ -40,4 +40,3 @@ namespace Routine.Test
         }
     }
 }
-

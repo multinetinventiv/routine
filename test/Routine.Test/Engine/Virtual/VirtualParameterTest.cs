@@ -1,8 +1,8 @@
 ﻿using Moq;
 using NUnit.Framework;
 using Routine.Core.Configuration;
-using Routine.Engine;
 using Routine.Engine.Virtual;
+using Routine.Engine;
 using Routine.Test.Core;
 
 namespace Routine.Test.Engine.Virtual

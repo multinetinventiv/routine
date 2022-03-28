@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Routine.Core.Configuration;
 using Routine.Engine.Virtual;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace Routine.Engine.Configuration.ConventionBased
 {
@@ -60,7 +60,7 @@ namespace Routine.Engine.Configuration.ConventionBased
             Operations = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod>(this, nameof(Operations));
 
             DataFetchedEagerly = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool>(this, nameof(DataFetchedEagerly));
-            
+
             ParameterIsOptional = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, bool>(this, nameof(ParameterIsOptional));
             ParameterDefaultValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, object>(this, nameof(ParameterDefaultValue));
 
@@ -182,7 +182,7 @@ namespace Routine.Engine.Configuration.ConventionBased
 
             //TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
             for (var i = 0; i < types.Count; i++)
-            {   
+            {
                 if (types[i] is not TypeInfo type) { continue; }
 
                 types[i] = TypeInfo.Get(type.GetActualType());
@@ -241,4 +241,3 @@ namespace Routine.Engine.Configuration.ConventionBased
         #endregion
     }
 }
-

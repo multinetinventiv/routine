@@ -1,9 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Routine.Engine;
 using Routine.Engine.Reflection;
+using Routine.Engine;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System;
 
 namespace Routine
 {
@@ -337,4 +337,3 @@ namespace Routine
         public static TypeInfo ToTypeInfo(this Type source) => TypeInfo.Get(source);
     }
 }
-

@@ -1,15 +1,15 @@
-using System;
 using System.Collections;
 using System.Linq;
+using System;
 
 namespace Routine.Engine.Reflection
 {
-	internal class ReflectedTypeInfo : TypeInfo
-	{
-		internal ReflectedTypeInfo(Type type)
-			: base(type) { }
+    internal class ReflectedTypeInfo : TypeInfo
+    {
+        internal ReflectedTypeInfo(Type type)
+            : base(type) { }
 
-		public override ConstructorInfo[] GetAllConstructors() => type.GetConstructors(ALL_INSTANCE).Select(ConstructorInfo.Reflected).ToArray();
+        public override ConstructorInfo[] GetAllConstructors() => type.GetConstructors(ALL_INSTANCE).Select(ConstructorInfo.Reflected).ToArray();
         public override PropertyInfo[] GetAllProperties() => type.GetProperties(ALL_INSTANCE).Select(PropertyInfo.Reflected).ToArray();
         public override PropertyInfo[] GetAllStaticProperties() => type.GetProperties(ALL_STATIC).Select(PropertyInfo.Reflected).ToArray();
         public override MethodInfo[] GetAllMethods() => type.GetMethods(ALL_INSTANCE).Where(m => !m.IsSpecialName).Select(MethodInfo.Reflected).ToArray();
@@ -23,7 +23,7 @@ namespace Routine.Engine.Reflection
 
         protected override void Load() { }
 
-		public override string Name => type.Name;
+        public override string Name => type.Name;
         public override string FullName => type.FullName;
         public override string Namespace => type.Namespace;
         public override TypeInfo BaseType => Get(type.BaseType);

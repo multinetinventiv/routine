@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Routine.Core.Reflection;
-using System;
 using System.Threading.Tasks;
+using System;
 
 namespace Routine.Test.Core.Reflection
 {
@@ -9,7 +9,7 @@ namespace Routine.Test.Core.Reflection
     public class ReflectionMethodInvokerSyncTest : ReflectionMethodInvokerContract
     {
         protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.Invoke(target, args);
-        
+
         private string testTaskAsyncResponse;
         public async Task TestVoidAsync(TimeSpan delay, string response) { await Task.Delay(delay); testTaskAsyncResponse = response; }
 

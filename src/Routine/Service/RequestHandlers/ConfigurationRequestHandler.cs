@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 namespace Routine.Service.RequestHandlers
 {
     public class ConfigurationRequestHandler : RequestHandlerBase
-	{
-		public ConfigurationRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
-			: base(serviceContext, jsonSerializer, httpContextAccessor) { }
+    {
+        public ConfigurationRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+            : base(serviceContext, jsonSerializer, httpContextAccessor) { }
 
-		public override async Task WriteResponse() =>
+        public override async Task WriteResponse() =>
             await WriteJsonResponse(new
             {
                 url = UrlBase,

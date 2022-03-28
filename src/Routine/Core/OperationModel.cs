@@ -16,7 +16,7 @@ namespace Routine.Core
         public OperationModel() { }
         public OperationModel(IDictionary<string, object> model)
         {
-            if(model == null) return;
+            if (model == null) return;
 
             if (model.TryGetValue("Marks", out var marks))
             {

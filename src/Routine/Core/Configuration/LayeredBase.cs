@@ -2,40 +2,40 @@
 
 namespace Routine.Core.Configuration
 {
-	public class LayeredBase<TConcrete> : ILayered
-		where TConcrete : LayeredBase<TConcrete>
-	{
-		private Layer currentLayer;
+    public class LayeredBase<TConcrete> : ILayered
+        where TConcrete : LayeredBase<TConcrete>
+    {
+        private Layer currentLayer;
 
-		protected LayeredBase()
-		{
-			currentLayer = Layer.LeastSpecific;
-		}
+        protected LayeredBase()
+        {
+            currentLayer = Layer.LeastSpecific;
+        }
 
-		public TConcrete Override(Func<TConcrete, TConcrete> @override)
-		{
-			var oldLayer = currentLayer;
+        public TConcrete Override(Func<TConcrete, TConcrete> @override)
+        {
+            var oldLayer = currentLayer;
 
-			currentLayer = Layer.MostSpecific;
+            currentLayer = Layer.MostSpecific;
 
-			@override((TConcrete)this);
+            @override((TConcrete)this);
 
-			currentLayer = oldLayer;
+            currentLayer = oldLayer;
 
-			return (TConcrete)this;
-		}
+            return (TConcrete)this;
+        }
 
-		public TConcrete NextLayer()
-		{
-			currentLayer = currentLayer.MoreSpecific();
+        public TConcrete NextLayer()
+        {
+            currentLayer = currentLayer.MoreSpecific();
 
-			return (TConcrete)this;
-		}
+            return (TConcrete)this;
+        }
 
-		#region ILayered implementation
+        #region ILayered implementation
 
-		Layer ILayered.CurrentLayer => currentLayer;
+        Layer ILayered.CurrentLayer => currentLayer;
 
         #endregion
-	}
+    }
 }

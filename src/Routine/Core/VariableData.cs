@@ -12,7 +12,7 @@ namespace Routine.Core
         public VariableData() { }
         public VariableData(IDictionary<string, object> data)
         {
-            if(data == null) return;
+            if (data == null) return;
 
             if (data.TryGetValue("IsList", out var isList))
             {

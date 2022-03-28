@@ -2,23 +2,23 @@
 
 namespace Routine.Engine.Virtual
 {
-	public class ProxyParameter : IParameter
-	{
-		private readonly IParameter real;
-		private readonly int index;
+    public class ProxyParameter : IParameter
+    {
+        private readonly IParameter real;
+        private readonly int index;
 
-		public IParametric Owner { get; }
+        public IParametric Owner { get; }
 
-		public ProxyParameter(IParameter real, IParametric owner) : this(real, owner, 0) { }
-		public ProxyParameter(IParameter real, IParametric owner, int index)
-		{
+        public ProxyParameter(IParameter real, IParametric owner) : this(real, owner, 0) { }
+        public ProxyParameter(IParameter real, IParametric owner, int index)
+        {
             if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index), index, "'index' cannot be less than zero"); }
 
-			this.real = real ?? throw new ArgumentNullException(nameof(real));
-			this.index = index;
+            this.real = real ?? throw new ArgumentNullException(nameof(real));
+            this.index = index;
 
-			Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-		}
+            Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+        }
 
         public string Name => real.Name;
         public IType ParentType => Owner.ParentType;

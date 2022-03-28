@@ -73,7 +73,7 @@ namespace Routine.Test.Interception
                 failCtx: ctx => ctx.Value += " - fail",
                 afterCtx: ctx => ctx.Value += " - after"
             );
-            
+
             invocation.Context.Value = "begin";
 
             invocation.Intercept(testing);

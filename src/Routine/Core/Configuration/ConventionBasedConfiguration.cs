@@ -1,7 +1,7 @@
-using System;
+using Routine.Core.Configuration.Convention;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core.Configuration.Convention;
+using System;
 
 namespace Routine.Core.Configuration
 {

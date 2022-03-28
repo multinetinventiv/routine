@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using NUnit.Framework;
-using Routine.Core;
 using Routine.Core.Configuration;
+using Routine.Core;
 using Routine.Engine;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData;
+using System.Collections.Generic;
 
 #region Test Model
 
@@ -260,7 +260,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Null_objects_represented_as_empty_variable_data()
         {
-            AddToRepository(new BusinessData { Id = "obj", Title = null, NullableInt = null});
+            AddToRepository(new BusinessData { Id = "obj", Title = null, NullableInt = null });
 
             var actual = testing.Get(Id("obj"));
             var title = actual.Data["Title"];

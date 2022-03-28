@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
 namespace Routine.Core
@@ -18,39 +18,39 @@ namespace Routine.Core
         public ParameterModel() { }
         public ParameterModel(IDictionary<string, object> model)
         {
-            if(model == null) return;
+            if (model == null) return;
 
-            if(model.TryGetValue("Marks", out var marks))
+            if (model.TryGetValue("Marks", out var marks))
             {
                 Marks = ((IEnumerable)marks).Cast<string>().ToList();
             }
 
-            if(model.TryGetValue("Groups", out var groups))
+            if (model.TryGetValue("Groups", out var groups))
             {
                 Groups = ((IEnumerable)groups).Cast<int>().ToList();
             }
 
-            if(model.TryGetValue("Name", out var name))
+            if (model.TryGetValue("Name", out var name))
             {
                 Name = (string)name;
             }
 
-            if(model.TryGetValue("ViewModelId", out var viewModelId))
+            if (model.TryGetValue("ViewModelId", out var viewModelId))
             {
                 ViewModelId = (string)viewModelId;
             }
 
-            if(model.TryGetValue("IsList", out var isList))
+            if (model.TryGetValue("IsList", out var isList))
             {
                 IsList = (bool)isList;
             }
 
-            if(model.TryGetValue("IsOptional", out var isOptional))
+            if (model.TryGetValue("IsOptional", out var isOptional))
             {
                 IsOptional = (bool)isOptional;
             }
 
-            if(model.TryGetValue("DefaultValue", out var defaultValue))
+            if (model.TryGetValue("DefaultValue", out var defaultValue))
             {
                 DefaultValue = new VariableData((IDictionary<string, object>)defaultValue);
             }

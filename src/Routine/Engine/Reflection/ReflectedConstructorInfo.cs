@@ -1,14 +1,14 @@
-﻿using System.Linq;
-using Routine.Core.Reflection;
+﻿using Routine.Core.Reflection;
+using System.Linq;
 
 namespace Routine.Engine.Reflection
 {
-	public class ReflectedConstructorInfo : ConstructorInfo
-	{
-		internal ReflectedConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
-			: base(constructorInfo) { }
+    public class ReflectedConstructorInfo : ConstructorInfo
+    {
+        internal ReflectedConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
+            : base(constructorInfo) { }
 
-		protected override ConstructorInfo Load() => this;
+        protected override ConstructorInfo Load() => this;
         public override ParameterInfo[] GetParameters() => constructorInfo.GetParameters().Select(ParameterInfo.Reflected).ToArray();
         public override object[] GetCustomAttributes() => constructorInfo.GetCustomAttributes(true);
 

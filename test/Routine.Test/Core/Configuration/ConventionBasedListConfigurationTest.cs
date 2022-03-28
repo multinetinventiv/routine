@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
-using Routine.Core.Configuration;
 using Routine.Core.Configuration.Convention;
+using Routine.Core.Configuration;
 using Routine.Engine;
+using System.Collections.Generic;
+using System;
 
 namespace Routine.Test.Core.Configuration
 {

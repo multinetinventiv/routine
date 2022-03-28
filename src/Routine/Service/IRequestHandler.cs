@@ -2,8 +2,8 @@
 
 namespace Routine.Service
 {
-	public interface IRequestHandler
-	{
-		Task WriteResponse();
-	}
+    public interface IRequestHandler
+    {
+        Task WriteResponse();
+    }
 }

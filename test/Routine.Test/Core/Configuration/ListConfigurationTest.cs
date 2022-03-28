@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using NUnit.Framework;
+using Routine.Core.Configuration;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using NUnit.Framework;
-using Routine.Core.Configuration;
 
 namespace Routine.Test.Core.Configuration
 {

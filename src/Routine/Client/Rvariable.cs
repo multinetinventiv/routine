@@ -1,38 +1,39 @@
-using System;
+using Routine.Core;
 using System.Collections.Generic;
 using System.Linq;
-using Routine.Core;
+using System;
 
 namespace Routine.Client
 {
-	public class Rvariable
-	{
-		private const string ANONYMOUS = "__anonymous__";
+    public class Rvariable
+    {
+        private const string ANONYMOUS = "__anonymous__";
 
-		private readonly string name;
-		private readonly List<Robject> value;
-		private readonly bool list;
-		private readonly bool @void;
+        private readonly string name;
+        private readonly List<Robject> value;
+        private readonly bool list;
+        private readonly bool @void;
 
-		internal Rvariable() : this(false) { }
-		internal Rvariable(bool @void) : this(ANONYMOUS, new List<Robject>(), false, @void) { }
-		internal Rvariable(string name) : this(name, new Robject()) { }
-		internal Rvariable(Rapplication application, VariableData data, string viewModelId)
-			: this(ANONYMOUS, data.Values.Select(od => od == null 
-                ? new Robject() 
+        internal Rvariable() : this(false) { }
+        internal Rvariable(bool @void) : this(ANONYMOUS, new List<Robject>(), false, @void) { }
+        internal Rvariable(string name) : this(name, new Robject()) { }
+        internal Rvariable(Rapplication application, VariableData data, string viewModelId)
+            : this(ANONYMOUS, data.Values.Select(od => od == null
+                ? new Robject()
                 : new Robject(od, application[od.ModelId], application[viewModelId])
-            ), data.IsList, false) { }
-		public Rvariable(string name, Robject single) : this(name, new[] { single }, false, false) { }
-		public Rvariable(string name, IEnumerable<Robject> list) : this(name, list, true, false) { }
-		private Rvariable(string name, IEnumerable<Robject> value, bool list, bool @void)
-		{
-			this.name = name;
-			this.value = value.ToList();
-			this.list = list;
-			this.@void = @void;
-		}
+            ), data.IsList, false)
+        { }
+        public Rvariable(string name, Robject single) : this(name, new[] { single }, false, false) { }
+        public Rvariable(string name, IEnumerable<Robject> list) : this(name, list, true, false) { }
+        private Rvariable(string name, IEnumerable<Robject> value, bool list, bool @void)
+        {
+            this.name = name;
+            this.value = value.ToList();
+            this.list = list;
+            this.@void = @void;
+        }
 
-		internal VariableData GetValueData() =>
+        internal VariableData GetValueData() =>
             new()
             {
                 IsList = list,

@@ -11,7 +11,7 @@ namespace Routine.Core
         public ApplicationModel() { }
         public ApplicationModel(IDictionary<string, object> model)
         {
-            if(model == null) return;
+            if (model == null) return;
 
             if (model.TryGetValue("Models", out object models))
             {

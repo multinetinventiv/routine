@@ -24,7 +24,7 @@ namespace Routine.Core
         public ObjectModel() { }
         public ObjectModel(IDictionary<string, object> model)
         {
-            if(model == null) return;
+            if (model == null) return;
 
             if (model.TryGetValue("Id", out var id))
             {
