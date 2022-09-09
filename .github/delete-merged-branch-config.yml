@@ -1,6 +1,0 @@
-exclude: 
-  - development
-  - dev
-  - develop
-  - release/*
-  - master
