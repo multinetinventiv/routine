@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project>
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Routine\Routine.csproj" />
+    <None Remove=".vimspector.json" />
+    <Content Remove=".vimspector.json" />
   </ItemGroup>
 
 </Project>

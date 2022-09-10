@@ -1,49 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <Product>Routine</Product>
         <Version>0.9.6</Version>
         <Authors>inventiv</Authors>
-        <Company>Multinet Teknoloji A.S.</Company>
-        <PackageIcon>routine-logo.png</PackageIcon>
-        <PackageIconUrl />
+        <Company>inventiv</Company>
+        <Copyright>Copyright (c) 2016 - 2022 inventiv</Copyright>
+        <PackageIcon>logo.png</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>http://routineframework.org</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/multinetinventiv/routine.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageProjectUrl>http://routineframework.org</PackageProjectUrl>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <AssemblyTitle>Routine</AssemblyTitle>
+        <Title>Routine</Title>
         <Description>Routine is a service framework that can adapt to any coding style.</Description>
+        <PackageId>Routine</PackageId>
         <PackageTags>rest, service, client</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Copyright>Copyright (c) 2016 - 2021 inventiv</Copyright>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\logo.png" Pack="true" PackagePath="\" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Routine.Test" />
+    </ItemGroup>
+
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
-    </ItemGroup>
-    <ItemGroup>
-        <Content Remove="Service\TestApp\**\*.*" />
-    </ItemGroup>
-    <ItemGroup>
-        <EmbeddedResource Include="Service\TestApp\**\*.*" />
-    </ItemGroup>
-    <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-            <_Parameter1>Routine.Test</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
-    <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
     </ItemGroup>
+
     <ItemGroup>
-        <None Include="..\..\docs\routine-logo.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="..\..\LICENSE">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="..\..\README.md">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
+        <Content Remove="Service\TestApp\**\*.*" />
+        <EmbeddedResource Include="Service\TestApp\**\*.*" />
     </ItemGroup>
+
 </Project>

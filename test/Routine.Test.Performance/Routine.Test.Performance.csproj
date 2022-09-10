@@ -4,18 +4,6 @@
     <ProjectReference Include="..\..\src\Routine\Routine.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
-
-    <ApplicationIcon />
-
-    <OutputType>Library</OutputType>
-
-    <StartupObject />
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="3.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
