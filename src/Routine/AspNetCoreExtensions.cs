@@ -16,11 +16,20 @@ namespace Microsoft.AspNetCore.Builder;
 
 public static class AspNetCoreExtensions
 {
-    public static IServiceCollection AddRoutine(this IServiceCollection source) => source.AddRoutine<JsonSerializerAdapter>();
-    public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source) where TJsonSerializer : class, IJsonSerializer =>
-        source
+    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default) => source.AddRoutine<JsonSerializerAdapter>();
+    public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source, Action<RoutineOptions> options = default) where TJsonSerializer : class, IJsonSerializer
+    {
+        options ??= _ => { };
+        var o = new RoutineOptions();
+        options(o);
+
+        if (o.DevelopmentMode) ReflectionOptimizer.Enable();
+        else ReflectionOptimizer.Disable();
+
+        return source
             .AddHttpContextAccessor()
             .AddSingleton<IJsonSerializer, TJsonSerializer>();
+    }
 
     public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
         Func<CodingStyleBuilder, ICodingStyle> codingStyle,
@@ -44,19 +53,5 @@ public static class AspNetCoreExtensions
                 )
                 .AsServiceApplication(serviceConfiguration, codingStyle)
         );
-    }
-
-    public static IApplicationBuilder UseRoutineInDevelopmentMode(this IApplicationBuilder source)
-    {
-        ReflectionOptimizer.Disable();
-
-        return source;
-    }
-
-    public static IApplicationBuilder UseRoutineInProductionMode(this IApplicationBuilder source)
-    {
-        ReflectionOptimizer.Enable();
-
-        return source;
     }
 }
