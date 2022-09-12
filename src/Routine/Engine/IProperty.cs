@@ -1,11 +1,10 @@
-namespace Routine.Engine
+namespace Routine.Engine;
+
+public interface IProperty : IReturnable
 {
-    public interface IProperty : IReturnable
-    {
-        bool IsPublic { get; }
+    bool IsPublic { get; }
 
-        IType GetDeclaringType(bool firstDeclaringType);
+    IType GetDeclaringType(bool firstDeclaringType);
 
-        object FetchFrom(object target);
-    }
+    object FetchFrom(object target);
 }

@@ -1,7 +1,6 @@
-﻿namespace Routine.Core.Configuration
+﻿namespace Routine.Core.Configuration;
+
+public interface ILayered
 {
-    public interface ILayered
-    {
-        Layer CurrentLayer { get; }
-    }
+    Layer CurrentLayer { get; }
 }

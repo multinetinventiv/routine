@@ -1,7 +1,6 @@
-﻿namespace Routine.Interception.Configuration
+﻿namespace Routine.Interception.Configuration;
+
+public class InterceptionConfigurationBuilder
 {
-    public class InterceptionConfigurationBuilder
-    {
-        public ConventionBasedInterceptionConfiguration FromBasic() => new();
-    }
+    public ConventionBasedInterceptionConfiguration FromBasic() => new();
 }

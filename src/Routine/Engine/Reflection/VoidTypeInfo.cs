@@ -1,11 +1,10 @@
-namespace Routine.Engine.Reflection
+namespace Routine.Engine.Reflection;
+
+internal class VoidTypeInfo : PreloadedTypeInfo
 {
-    internal class VoidTypeInfo : PreloadedTypeInfo
+    internal VoidTypeInfo()
+        : base(typeof(void))
     {
-        internal VoidTypeInfo()
-            : base(typeof(void))
-        {
-            IsVoid = true;
-        }
+        IsVoid = true;
     }
 }

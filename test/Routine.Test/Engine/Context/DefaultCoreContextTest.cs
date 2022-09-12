@@ -5,71 +5,57 @@ using Routine.Engine;
 using Routine.Test.Core;
 using Routine.Test.Engine.Context.Domain;
 
-namespace Routine.Test.Engine.Context.Domain
+namespace Routine.Test.Engine.Context;
+
+[TestFixture]
+public class DefaultCoreContextTest : CoreTestBase
 {
-    public class CachedBusiness
+    [Test]
+    public void Caches_domain_types_by_object_model_id()
     {
-        public string Id { get; set; }
+        ICodingStyle codingStyle =
+            BuildRoutine.CodingStyle().FromBasic()
+                .AddTypes(GetType().Assembly, t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Routine.Test.Engine.Context.Domain"))
+                .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<string>("Id")))
+                .Locator.Set(c => c.Locator(l => l.Constant(null)))
+                .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
+
+        var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
+
+        testing.GetDomainTypes();
+
+        var domainType = testing.GetDomainType(type.of<CachedBusiness>());
+
+        var expected = testing.GetDomainType(domainType.Id);
+        var actual = testing.GetDomainType(domainType.Id);
+
+        Assert.AreSame(expected, actual);
     }
 
-    public class LaterAddedType
+    [Test]
+    public void Refreshes_added_types_within_coding_style_when_a_new_type_is_added_so_that_old_IType_instances_are_not_stored()
     {
-        public string Id { get; set; }
-    }
-}
+        var codingStyle =
+            BuildRoutine.CodingStyle().FromBasic()
+                .AddTypes(typeof(CachedBusiness))
+                .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<string>("Id")))
+                .Locator.Set(c => c.Locator(l => l.Constant(null)))
+                .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
 
-namespace Routine.Test.Engine.Context
-{
-    [TestFixture]
-    public class DefaultCoreContextTest : CoreTestBase
-    {
-        [Test]
-        public void Caches_domain_types_by_object_model_id()
-        {
-            ICodingStyle codingStyle =
-                BuildRoutine.CodingStyle().FromBasic()
-                    .AddTypes(GetType().Assembly, t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Routine.Test.Engine.Context.Domain"))
-                    .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<string>("Id")))
-                    .Locator.Set(c => c.Locator(l => l.Constant(null)))
-                    .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
+        var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
 
-            var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
+        testing.GetDomainTypes();
 
-            testing.GetDomainTypes();
+        var expected = testing.GetDomainType(type.of<CachedBusiness>());
 
-            var domainType = testing.GetDomainType(type.of<CachedBusiness>());
+        codingStyle.AddTypes(typeof(LaterAddedType));
 
-            var expected = testing.GetDomainType(domainType.Id);
-            var actual = testing.GetDomainType(domainType.Id);
+        testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
 
-            Assert.AreSame(expected, actual);
-        }
+        testing.GetDomainTypes();
 
-        [Test]
-        public void Refreshes_added_types_within_coding_style_when_a_new_type_is_added_so_that_old_IType_instances_are_not_stored()
-        {
-            var codingStyle =
-                BuildRoutine.CodingStyle().FromBasic()
-                    .AddTypes(typeof(CachedBusiness))
-                    .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<string>("Id")))
-                    .Locator.Set(c => c.Locator(l => l.Constant(null)))
-                    .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
+        var actual = testing.GetDomainType(type.of<CachedBusiness>());
 
-            var testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
-
-            testing.GetDomainTypes();
-
-            var expected = testing.GetDomainType(type.of<CachedBusiness>());
-
-            codingStyle.AddTypes(typeof(LaterAddedType));
-
-            testing = new DefaultCoreContext(codingStyle, new DictionaryCache());
-
-            testing.GetDomainTypes();
-
-            var actual = testing.GetDomainType(type.of<CachedBusiness>());
-
-            Assert.AreNotSame(expected.Type, actual.Type);
-        }
+        Assert.AreNotSame(expected.Type, actual.Type);
     }
 }

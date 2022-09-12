@@ -1,16 +1,15 @@
 ﻿using NUnit.Framework;
 using Routine.Test.Core;
 
-namespace Routine.Test.Engine.Virtual
+namespace Routine.Test.Engine.Virtual;
+
+[TestFixture]
+public class PropertyAsMethodTest : CoreTestBase
 {
-    [TestFixture]
-    public class PropertyAsMethodTest : CoreTestBase
+    [Test]
+    [Ignore("")]
+    public void Write_tests()
     {
-        [Test]
-        [Ignore("")]
-        public void Write_tests()
-        {
-            Assert.Fail();
-        }
+        Assert.Fail();
     }
 }

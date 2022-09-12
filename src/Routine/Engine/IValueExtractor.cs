@@ -1,7 +1,6 @@
-namespace Routine.Engine
+namespace Routine.Engine;
+
+public interface IValueExtractor
 {
-    public interface IValueExtractor
-    {
-        string GetValue(object obj);
-    }
+    string GetValue(object obj);
 }

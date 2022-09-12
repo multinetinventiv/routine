@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 
-namespace Routine.Engine
+namespace Routine.Engine;
+
+public interface IParametric : ITypeComponent
 {
-    public interface IParametric : ITypeComponent
-    {
-        List<IParameter> Parameters { get; }
-    }
+    List<IParameter> Parameters { get; }
 }

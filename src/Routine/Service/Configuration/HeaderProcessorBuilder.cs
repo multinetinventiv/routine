@@ -1,6 +1,5 @@
-﻿namespace Routine.Service.Configuration
+﻿namespace Routine.Service.Configuration;
+
+public partial class HeaderProcessorBuilder
 {
-    public partial class HeaderProcessorBuilder
-    {
-    }
 }

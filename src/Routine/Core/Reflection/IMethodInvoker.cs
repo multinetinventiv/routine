@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace Routine.Core.Reflection
+namespace Routine.Core.Reflection;
+
+public interface IMethodInvoker
 {
-    public interface IMethodInvoker
-    {
-        object Invoke(object target, params object[] args);
-        Task<object> InvokeAsync(object target, params object[] args);
-    }
+    object Invoke(object target, params object[] args);
+    Task<object> InvokeAsync(object target, params object[] args);
 }

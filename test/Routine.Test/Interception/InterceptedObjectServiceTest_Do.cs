@@ -8,175 +8,174 @@ using Routine.Test.Core;
 using Routine.Test.Engine.Stubs.DoInvokers;
 using System;
 
-namespace Routine.Test.Interception
+namespace Routine.Test.Interception;
+
+[TestFixture(typeof(Sync))]
+[TestFixture(typeof(Async))]
+public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
+    where TDoInvoker : IDoInvoker, new()
 {
-    [TestFixture(typeof(Sync))]
-    [TestFixture(typeof(Async))]
-    public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
-        where TDoInvoker : IDoInvoker, new()
+    #region Setup & Helpers
+
+    private Mock<IObjectService> mock;
+    private IDoInvoker invoker;
+
+    [SetUp]
+    public override void SetUp()
     {
-        #region Setup & Helpers
+        base.SetUp();
 
-        private Mock<IObjectService> mock;
-        private IDoInvoker invoker;
+        mock = new Mock<IObjectService>();
+        mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
+        mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
 
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
+        invoker = new TDoInvoker();
+    }
 
-            mock = new Mock<IObjectService>();
-            mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
-            mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
+    private InterceptedObjectService Build(
+        Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration
+    ) => new(mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
 
-            invoker = new TDoInvoker();
-        }
+    #endregion
 
-        private InterceptedObjectService Build(
-            Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration
-        ) => new(mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
+    [Test]
+    public void Do_method_is_intercepted_with_service_context()
+    {
+        ModelsAre(Model("model").Operation("operation"));
+        ObjectsAre(Object(Id("id", "model")));
 
-        #endregion
+        var hit = false;
 
-        [Test]
-        public void Do_method_is_intercepted_with_service_context()
-        {
-            ModelsAre(Model("model").Operation("operation"));
-            ObjectsAre(Object(Id("id", "model")));
+        var testing = Build(ic => ic.FromBasic()
+            .Interceptors.Add(c => c.Interceptor(i => i.BeforeAsync(ctx =>
+                {
+                    Assert.AreEqual($"{InterceptionTarget.Do}", ctx.Target);
+                    Assert.IsInstanceOf<ServiceInterceptionContext>(ctx);
 
-            var hit = false;
+                    var sCtx = (ServiceInterceptionContext)ctx;
+                    Assert.AreEqual(Id("id", "model"), sCtx.TargetReference);
+                    Assert.AreEqual("model", sCtx.Model.Id);
+                    Assert.AreEqual("operation", sCtx.OperationName);
 
-            var testing = Build(ic => ic.FromBasic()
-                .Interceptors.Add(c => c.Interceptor(i => i.BeforeAsync(ctx =>
-                    {
-                        Assert.AreEqual($"{InterceptionTarget.Do}", ctx.Target);
-                        Assert.IsInstanceOf<ServiceInterceptionContext>(ctx);
+                    hit = true;
+                }
+            )))
+        );
 
-                        var sCtx = (ServiceInterceptionContext)ctx;
-                        Assert.AreEqual(Id("id", "model"), sCtx.TargetReference);
-                        Assert.AreEqual("model", sCtx.Model.Id);
-                        Assert.AreEqual("operation", sCtx.OperationName);
+        invoker.InvokeDo(testing, Id("id", "model"), "operation", Params());
 
-                        hit = true;
-                    }
-                )))
-            );
+        Assert.IsTrue(hit);
+    }
 
-            invoker.InvokeDo(testing, Id("id", "model"), "operation", Params());
+    [Test]
+    public void An_interceptor_can_be_defined_for_all_three_methods()
+    {
+        ModelsAre(Model().Operation("operation"));
+        ObjectsAre(Object(Id("id")));
 
-            Assert.IsTrue(hit);
-        }
+        var hitCount = 0;
 
-        [Test]
-        public void An_interceptor_can_be_defined_for_all_three_methods()
-        {
-            ModelsAre(Model().Operation("operation"));
-            ObjectsAre(Object(Id("id")));
+        var testing = Build(ic => ic.FromBasic()
+            .Interceptors.Add(c => c.Interceptor(i => i.Before(() => hitCount++)))
+        );
 
-            var hitCount = 0;
+        var _ = testing.ApplicationModel;
+        testing.Get(Id("id"));
+        invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-            var testing = Build(ic => ic.FromBasic()
-                .Interceptors.Add(c => c.Interceptor(i => i.Before(() => hitCount++)))
-            );
+        Assert.AreEqual(3, hitCount);
+    }
 
-            var _ = testing.ApplicationModel;
-            testing.Get(Id("id"));
-            invoker.InvokeDo(testing, Id("id"), "operation", Params());
+    [Test]
+    public void An_interceptor_can_be_defined_for_a_specific_method()
+    {
+        ModelsAre(Model().Operation("operation"));
+        ObjectsAre(Object(Id("id")));
 
-            Assert.AreEqual(3, hitCount);
-        }
+        var hitCount = 0;
 
-        [Test]
-        public void An_interceptor_can_be_defined_for_a_specific_method()
-        {
-            ModelsAre(Model().Operation("operation"));
-            ObjectsAre(Object(Id("id")));
+        var testing = Build(ic => ic.FromBasic()
+            .Interceptors.Add(c => c
+                .Interceptor(i => i.Before(() => hitCount++))
+                .When(InterceptionTarget.Do)
+            )
+        );
 
-            var hitCount = 0;
+        var _ = testing.ApplicationModel;
+        testing.Get(Id("id"));
+        invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-            var testing = Build(ic => ic.FromBasic()
-                .Interceptors.Add(c => c
-                    .Interceptor(i => i.Before(() => hitCount++))
-                    .When(InterceptionTarget.Do)
-                )
-            );
+        Assert.AreEqual(1, hitCount);
+    }
 
-            var _ = testing.ApplicationModel;
-            testing.Get(Id("id"));
-            invoker.InvokeDo(testing, Id("id"), "operation", Params());
+    [Test]
+    public void Service_interceptors_can_be_defined_for_a_specific_target_model_and_or_operation_model()
+    {
+        ModelsAre(
+            Model("model-a").Operation("operation-a").Operation("operation-b"),
+            Model("model-b").Operation("operation-a")
+        );
+        ObjectsAre(
+            Object(Id("id", "model-a")),
+            Object(Id("id", "model-b"))
+        );
 
-            Assert.AreEqual(1, hitCount);
-        }
+        var hitCount = 0;
 
-        [Test]
-        public void Service_interceptors_can_be_defined_for_a_specific_target_model_and_or_operation_model()
-        {
-            ModelsAre(
-                Model("model-a").Operation("operation-a").Operation("operation-b"),
-                Model("model-b").Operation("operation-a")
-            );
-            ObjectsAre(
-                Object(Id("id", "model-a")),
-                Object(Id("id", "model-b"))
-            );
+        var testing = Build(ic => ic.FromBasic()
+            .ServiceInterceptors.Add(c => c
+                .Interceptor(i => i.Before(() => hitCount++))
+                .When(owom => owom.ObjectModel.Id == "model-a" && owom.OperationModel.Name == "operation-a")
+            )
+        );
 
-            var hitCount = 0;
+        invoker.InvokeDo(testing, Id("id", "model-a"), "operation-a", Params());
+        invoker.InvokeDo(testing, Id("id", "model-a"), "operation-b", Params());
+        invoker.InvokeDo(testing, Id("id", "model-b"), "operation-a", Params());
 
-            var testing = Build(ic => ic.FromBasic()
-                .ServiceInterceptors.Add(c => c
-                    .Interceptor(i => i.Before(() => hitCount++))
-                    .When(owom => owom.ObjectModel.Id == "model-a" && owom.OperationModel.Name == "operation-a")
-                )
-            );
+        Assert.AreEqual(1, hitCount);
+    }
 
-            invoker.InvokeDo(testing, Id("id", "model-a"), "operation-a", Params());
-            invoker.InvokeDo(testing, Id("id", "model-a"), "operation-b", Params());
-            invoker.InvokeDo(testing, Id("id", "model-b"), "operation-a", Params());
+    [Test]
+    public void When_intercepting_do_method__do_interceptors_always_come_before_service_interceptors()
+    {
+        ModelsAre(Model().Operation("operation"));
+        ObjectsAre(Object(Id("id")));
 
-            Assert.AreEqual(1, hitCount);
-        }
+        var hitCount = 0;
+        var testing = Build(ic => ic.FromBasic()
+            .ServiceInterceptors.Add(c => c.Interceptor(i => i
+                .Before(() => Assert.AreEqual(1, hitCount++))
+            ))
+            .Interceptors.Add(c => c.Interceptor(i => i
+                .Before(() => hitCount++)
+            ))
+        );
 
-        [Test]
-        public void When_intercepting_do_method__do_interceptors_always_come_before_service_interceptors()
-        {
-            ModelsAre(Model().Operation("operation"));
-            ObjectsAre(Object(Id("id")));
+        invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-            var hitCount = 0;
-            var testing = Build(ic => ic.FromBasic()
-                .ServiceInterceptors.Add(c => c.Interceptor(i => i
-                    .Before(() => Assert.AreEqual(1, hitCount++))
-                ))
-                .Interceptors.Add(c => c.Interceptor(i => i
-                    .Before(() => hitCount++)
-                ))
-            );
+        Assert.AreEqual(2, hitCount);
+    }
 
-            invoker.InvokeDo(testing, Id("id"), "operation", Params());
+    [Test]
+    public void Service_interceptors_use_the_same_context_with_do_interceptors_within_the_same_invocation()
+    {
+        ModelsAre(Model().Operation("operation"));
+        ObjectsAre(Object(Id("id")));
 
-            Assert.AreEqual(2, hitCount);
-        }
+        var expected = string.Empty;
 
-        [Test]
-        public void Service_interceptors_use_the_same_context_with_do_interceptors_within_the_same_invocation()
-        {
-            ModelsAre(Model().Operation("operation"));
-            ObjectsAre(Object(Id("id")));
+        var testing = Build(ic => ic.FromBasic()
+            .Interceptors.Add(c => c.Interceptor(i => i
+                .Before(ctx => ctx["expected"] = "test")
+            ))
+            .ServiceInterceptors.Add(c => c.Interceptor(i => i
+                .Before(ctx => expected = (string)ctx["expected"])
+            ))
+        );
 
-            var expected = string.Empty;
+        invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-            var testing = Build(ic => ic.FromBasic()
-                .Interceptors.Add(c => c.Interceptor(i => i
-                    .Before(ctx => ctx["expected"] = "test")
-                ))
-                .ServiceInterceptors.Add(c => c.Interceptor(i => i
-                    .Before(ctx => expected = (string)ctx["expected"])
-                ))
-            );
-
-            invoker.InvokeDo(testing, Id("id"), "operation", Params());
-
-            Assert.AreEqual("test", expected);
-        }
+        Assert.AreEqual("test", expected);
     }
 }

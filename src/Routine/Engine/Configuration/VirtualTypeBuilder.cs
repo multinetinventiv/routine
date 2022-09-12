@@ -1,11 +1,10 @@
 ﻿using Routine.Engine.Virtual;
 
-namespace Routine.Engine.Configuration
+namespace Routine.Engine.Configuration;
+
+public class VirtualTypeBuilder
 {
-    public class VirtualTypeBuilder
-    {
-        public VirtualType FromBasic() =>
-            new VirtualType()
-                .ToStringMethod.Set(o => $"{o.Id} ({o.Type})");
-    }
+    public VirtualType FromBasic() =>
+        new VirtualType()
+            .ToStringMethod.Set(o => $"{o.Id} ({o.Type})");
 }

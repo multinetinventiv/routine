@@ -27,6 +27,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Routine.Test" />
+        <InternalsVisibleTo Include="Routine.Test.Performance" />
     </ItemGroup>
 
     <ItemGroup>

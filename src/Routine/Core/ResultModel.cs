@@ -1,66 +1,65 @@
 using System.Collections.Generic;
 
-namespace Routine.Core
+namespace Routine.Core;
+
+public class ResultModel
 {
-    public class ResultModel
+    public string ViewModelId { get; set; }
+    public bool IsList { get; set; }
+    public bool IsVoid { get; set; }
+
+    public ResultModel() { }
+    public ResultModel(IDictionary<string, object> model)
     {
-        public string ViewModelId { get; set; }
-        public bool IsList { get; set; }
-        public bool IsVoid { get; set; }
+        if (model == null) return;
 
-        public ResultModel() { }
-        public ResultModel(IDictionary<string, object> model)
+        if (model.TryGetValue("ViewModelId", out var viewModelId))
         {
-            if (model == null) return;
-
-            if (model.TryGetValue("ViewModelId", out var viewModelId))
-            {
-                ViewModelId = (string)viewModelId;
-            }
-
-            if (model.TryGetValue("IsList", out var isList))
-            {
-                IsList = (bool)isList;
-            }
-
-            if (model.TryGetValue("IsVoid", out var isVoid))
-            {
-                IsVoid = (bool)isVoid;
-            }
+            ViewModelId = (string)viewModelId;
         }
 
-        #region ToString & Equality
-
-        public override string ToString()
+        if (model.TryGetValue("IsList", out var isList))
         {
-            return $"[ResultModel: [ViewModelId: {ViewModelId}, IsList: {IsList}, IsVoid: {IsVoid}]]";
+            IsList = (bool)isList;
         }
 
-        protected bool Equals(ResultModel other)
+        if (model.TryGetValue("IsVoid", out var isVoid))
         {
-            return string.Equals(ViewModelId, other.ViewModelId) && IsList == other.IsList && IsVoid == other.IsVoid;
+            IsVoid = (bool)isVoid;
         }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-
-            return Equals((ResultModel)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (ViewModelId != null ? ViewModelId.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ IsList.GetHashCode();
-                hashCode = (hashCode * 397) ^ IsVoid.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        #endregion
     }
+
+    #region ToString & Equality
+
+    public override string ToString()
+    {
+        return $"[ResultModel: [ViewModelId: {ViewModelId}, IsList: {IsList}, IsVoid: {IsVoid}]]";
+    }
+
+    protected bool Equals(ResultModel other)
+    {
+        return string.Equals(ViewModelId, other.ViewModelId) && IsList == other.IsList && IsVoid == other.IsVoid;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+
+        return Equals((ResultModel)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = (ViewModelId != null ? ViewModelId.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ IsList.GetHashCode();
+            hashCode = (hashCode * 397) ^ IsVoid.GetHashCode();
+            return hashCode;
+        }
+    }
+
+    #endregion
 }
