@@ -1,4 +1,4 @@
-using Routine.Client.Context;
+﻿using Routine.Client.Context;
 using Routine.Client;
 using Routine.Core.Cache;
 using Routine.Core.Rest;
@@ -19,7 +19,7 @@ namespace Routine
 
         public ContextBuilder()
         {
-            RestClient = new WebRequestRestClient();
+            RestClient = new HttpClientRestClient();
             Cache = new DictionaryCache();
             Serializer = new JsonSerializerAdapter();
 
