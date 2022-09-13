@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Engine.Virtual;
 
 public class MethodAsProperty : IProperty

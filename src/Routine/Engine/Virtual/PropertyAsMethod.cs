@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-
-namespace Routine.Engine.Virtual;
+﻿namespace Routine.Engine.Virtual;
 
 public class PropertyAsMethod : IMethod
 {

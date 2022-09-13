@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class ChainInterceptor<TContext> : IInterceptor<TContext>
     where TContext : InterceptionContext

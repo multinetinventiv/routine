@@ -9,7 +9,6 @@ using Routine.Interception;
 using Routine.Service.Configuration;
 using Routine.Service;
 using Routine;
-using System;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;

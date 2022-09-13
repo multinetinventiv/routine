@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Test;
+﻿namespace Routine.Test;
 
 [Serializable]
 public struct Text : IEquatable<Text>

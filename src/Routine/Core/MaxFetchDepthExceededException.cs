@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Core;
 
 public class MaxFetchDepthExceededException : Exception

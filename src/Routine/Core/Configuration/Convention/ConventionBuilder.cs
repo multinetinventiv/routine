@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Core.Configuration.Convention;
+﻿namespace Routine.Core.Configuration.Convention;
 
 public class ConventionBuilder<TFrom, TData>
 {

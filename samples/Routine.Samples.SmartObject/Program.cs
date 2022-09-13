@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
-using Routine;
 using Routine.Engine;
-using System;
-using System.Linq;
 using System.Reflection;
+
 using TypeInfo = Routine.TypeInfo;
 
 var builder = WebApplication.CreateBuilder(args);

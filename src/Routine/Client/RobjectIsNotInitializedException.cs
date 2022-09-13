@@ -1,5 +1,3 @@
-﻿using System;
-
-namespace Routine.Client;
+﻿namespace Routine.Client;
 
 public class RobjectIsInitializedOnClientException : Exception { }

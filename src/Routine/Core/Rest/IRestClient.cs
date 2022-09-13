@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Routine.Core.Rest;
+﻿namespace Routine.Core.Rest;
 
 public interface IRestClient
 {

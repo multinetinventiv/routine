@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using Routine.Service;
-using System;
+﻿using Routine.Service;
 
 namespace Routine.Test.Service;
 

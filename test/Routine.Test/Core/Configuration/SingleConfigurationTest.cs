@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using Routine.Core.Configuration;
+﻿using Routine.Core.Configuration;
 
 namespace Routine.Test.Core.Configuration;
 

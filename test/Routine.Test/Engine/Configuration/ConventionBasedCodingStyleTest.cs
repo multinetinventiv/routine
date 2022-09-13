@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
-using NUnit.Framework;
 using Routine.Engine;
-using System;
 
 namespace Routine.Test.Engine.Configuration;
 

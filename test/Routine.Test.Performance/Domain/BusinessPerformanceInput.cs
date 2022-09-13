@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Test.Performance.Domain;
+﻿namespace Routine.Test.Performance.Domain;
 
 public readonly struct BusinessPerformanceInput
 {

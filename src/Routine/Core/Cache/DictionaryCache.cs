@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Routine.Core.Cache;
 
 public class DictionaryCache : ICache

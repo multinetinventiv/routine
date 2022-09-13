@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Core.Configuration.Convention;
 
 public class DelegateBasedConvention<TFrom, TResult> : ConventionBase<TFrom, TResult>

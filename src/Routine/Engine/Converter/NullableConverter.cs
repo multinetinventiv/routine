@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace Routine.Engine.Converter;
+﻿namespace Routine.Engine.Converter;
 
 public class NullableConverter : ConverterBase<NullableConverter>
 {

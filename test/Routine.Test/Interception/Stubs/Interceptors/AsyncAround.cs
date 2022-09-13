@@ -1,6 +1,4 @@
 ﻿using Routine.Interception;
-using System.Threading.Tasks;
-using System;
 
 namespace Routine.Test.Interception.Stubs.Interceptors;
 

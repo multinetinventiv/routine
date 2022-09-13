@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class AsyncAroundInterceptor<TContext> : AsyncAroundInterceptorBase<AsyncAroundInterceptor<TContext>, TContext>
     where TContext : InterceptionContext

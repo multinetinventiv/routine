@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System;
-
-namespace Routine.Core.Configuration;
+﻿namespace Routine.Core.Configuration;
 
 public class ListConfiguration<TConfiguration, TItem>
 {

@@ -1,10 +1,7 @@
-using NUnit.Framework;
 using Routine.Core.Configuration.Convention;
 using Routine.Engine.Extractor;
 using Routine.Engine;
 using Routine.Test.Core;
-using System.Collections.Generic;
-using System;
 
 namespace Routine.Test.Engine.Extractor;
 

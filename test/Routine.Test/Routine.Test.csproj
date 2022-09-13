@@ -20,4 +20,9 @@
     <Folder Include="Core\Cache\" />
   </ItemGroup>
 
+  <ItemGroup>
+      <Using Include="Moq" />
+      <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
 </Project>

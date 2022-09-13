@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace Routine.Service;
+﻿namespace Routine.Service;
 
 public static class MimeTypeMap
 {

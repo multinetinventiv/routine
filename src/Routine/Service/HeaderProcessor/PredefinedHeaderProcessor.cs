@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Service.HeaderProcessor;
+﻿namespace Routine.Service.HeaderProcessor;
 
 public class Predefined1HeaderProcessor : PredefinedHeaderProcessorBase<Predefined1HeaderProcessor>
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Engine;
+﻿namespace Routine.Engine;
 
 public class InitializedTypeDoNotMatchException : Exception
 {

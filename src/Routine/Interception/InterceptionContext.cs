@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class InterceptionContext
 {

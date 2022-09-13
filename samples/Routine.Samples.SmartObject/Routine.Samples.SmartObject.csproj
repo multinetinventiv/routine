@@ -8,4 +8,8 @@
     <ProjectReference Include="..\..\src\Routine\Routine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+      <Using Include="Routine" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using Routine.Core.Cache;
+﻿using Routine.Core.Cache;
 
 namespace Routine.Test.Core.Cache;
 

@@ -1,8 +1,6 @@
-﻿using NUnit.Framework;
-using Routine.Interception;
+﻿using Routine.Interception;
 using Routine.Test.Interception.Stubs.Interceptors;
 using Routine.Test.Interception.Stubs;
-using System.Threading.Tasks;
 
 namespace Routine.Test.Interception;
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Routine.Service;
+﻿namespace Routine.Service;
 
 public interface IHeaderProcessor
 {

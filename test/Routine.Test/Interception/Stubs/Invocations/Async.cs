@@ -1,6 +1,5 @@
 ﻿using Routine.Core.Runtime;
 using Routine.Interception;
-using System.Threading.Tasks;
 
 namespace Routine.Test.Interception.Stubs.Invocations;
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Service.Configuration;
+﻿namespace Routine.Service.Configuration;
 
 public class ServiceClientConfigurationBuilder
 {

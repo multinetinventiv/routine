@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Core.Configuration;
+﻿namespace Routine.Core.Configuration;
 
 public class LayeredBase<TConcrete> : ILayered
     where TConcrete : LayeredBase<TConcrete>

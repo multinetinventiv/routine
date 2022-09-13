@@ -1,9 +1,5 @@
-﻿using NUnit.Framework;
-using Routine.Core.Rest;
+﻿using Routine.Core.Rest;
 using Routine.Core;
-using System.Collections.Generic;
-using System.Linq;
-using System;
 
 namespace Routine.Test.Core.Rest;
 

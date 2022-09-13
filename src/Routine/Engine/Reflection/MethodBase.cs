@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Routine.Engine.Reflection;
+﻿namespace Routine.Engine.Reflection;
 
 public abstract class MethodBase : MemberInfo, IParametric
 {

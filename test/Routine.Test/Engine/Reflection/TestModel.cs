@@ -6,10 +6,6 @@
 
 namespace Routine.Test.Engine.Reflection.Domain
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using RoutineTest.OuterNamespace;
 
     #region OOP Model
@@ -257,8 +253,6 @@ namespace RoutineTest.OuterNamespace
 
 namespace RoutineTest.OuterDomainNamespace
 {
-    using System;
-
     public class TestOuterDomainType_OOP
     {
         public TestOuterDomainType_OOP() { }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Engine.Extractor;
 
 public class PropertyValueExtractor : ExtractorBase

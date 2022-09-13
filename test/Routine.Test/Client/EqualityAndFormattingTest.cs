@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using Routine.Client;
 
 namespace Routine.Test.Client;

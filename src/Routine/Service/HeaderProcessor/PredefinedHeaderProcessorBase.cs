@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace Routine.Service.HeaderProcessor;
+﻿namespace Routine.Service.HeaderProcessor;
 
 public abstract class PredefinedHeaderProcessorBase<TConcrete> : IHeaderProcessor
     where TConcrete : PredefinedHeaderProcessorBase<TConcrete>

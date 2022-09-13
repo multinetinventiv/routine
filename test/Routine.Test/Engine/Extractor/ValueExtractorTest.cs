@@ -1,8 +1,6 @@
-using NUnit.Framework;
 using Routine.Core.Configuration.Convention;
 using Routine.Engine.Extractor;
 using Routine.Engine;
-using System;
 
 namespace Routine.Test.Engine.Extractor;
 

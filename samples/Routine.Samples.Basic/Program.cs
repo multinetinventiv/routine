@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
-using Routine;
-using System.Diagnostics;
-using System;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

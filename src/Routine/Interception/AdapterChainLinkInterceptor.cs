@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class AdapterChainLinkInterceptor<TContext> : IChainLinkInterceptor<TContext>
     where TContext : InterceptionContext

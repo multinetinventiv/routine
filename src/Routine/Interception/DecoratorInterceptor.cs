@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class DecoratorInterceptor<TContext, TVariable> : AroundInterceptorBase<DecoratorInterceptor<TContext, TVariable>, TContext>
     where TContext : InterceptionContext

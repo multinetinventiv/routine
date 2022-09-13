@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using Routine.Interception;
+﻿using Routine.Interception;
 
 namespace Routine.Test.Interception;
 

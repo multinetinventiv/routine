@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Routine.Samples.Basic.HelloWorld;
+﻿namespace Routine.Samples.Basic.HelloWorld;
 
 public class HelloWorldService
 {

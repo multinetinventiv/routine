@@ -1,10 +1,6 @@
 using Routine.Core.Rest;
 using Routine.Core;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using System;
 
 namespace Routine.Service;
 

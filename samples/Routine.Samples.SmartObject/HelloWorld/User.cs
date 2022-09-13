@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Routine.Samples.SmartObject.HelloWorld;
+﻿namespace Routine.Samples.SmartObject.HelloWorld;
 
 public class User
 {

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Routine.Test.Performance.Domain;
 
 public class BusinessPerformance

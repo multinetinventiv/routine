@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Routine.Core.Rest;
-using System.Threading.Tasks;
 
 namespace Routine.Service.RequestHandlers;
 

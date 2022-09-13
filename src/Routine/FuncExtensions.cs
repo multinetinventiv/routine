@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine;
+﻿namespace Routine;
 
 public static class FuncExtensions
 {

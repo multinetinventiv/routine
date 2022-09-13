@@ -1,8 +1,6 @@
-﻿using Moq;
-using Routine.Core.Rest;
+﻿using Routine.Core.Rest;
 using System.Linq.Expressions;
 using System.Net;
-using System;
 
 namespace Routine.Test.Service.Stubs;
 

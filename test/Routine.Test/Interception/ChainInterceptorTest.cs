@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
-using Routine.Interception;
+﻿using Routine.Interception;
 using Routine.Test.Core;
 using Routine.Test.Interception.Stubs.Invocations;
 using Routine.Test.Interception.Stubs;
-using System;
+
+using IInvocation = Routine.Test.Interception.Stubs.Invocations.IInvocation;
 
 namespace Routine.Test.Interception;
 

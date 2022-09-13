@@ -1,6 +1,4 @@
-using NUnit.Framework;
 using Routine.Core;
-using System.Collections.Generic;
 
 namespace Routine.Test.Core;
 

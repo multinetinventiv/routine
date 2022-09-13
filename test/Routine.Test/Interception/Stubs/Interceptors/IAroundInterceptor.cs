@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Test.Interception.Stubs.Interceptors;
+﻿namespace Routine.Test.Interception.Stubs.Interceptors;
 
 public interface IAroundInterceptor<out TConcrete> : Routine.Interception.IInterceptor<Context>
     where TConcrete : IAroundInterceptor<TConcrete>

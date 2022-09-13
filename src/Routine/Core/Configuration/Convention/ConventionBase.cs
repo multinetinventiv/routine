@@ -1,5 +1,3 @@
-using System;
-
 namespace Routine.Core.Configuration.Convention;
 
 public abstract class ConventionBase<TFrom, TResult> : IConvention<TFrom, TResult>

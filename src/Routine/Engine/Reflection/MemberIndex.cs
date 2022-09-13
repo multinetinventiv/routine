@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace Routine.Engine.Reflection;
+﻿namespace Routine.Engine.Reflection;
 
 internal static class MemberIndex
 {

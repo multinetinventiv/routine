@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Service.RequestHandlers.Exceptions;
+﻿namespace Routine.Service.RequestHandlers.Exceptions;
 
 public class ModelNotFoundException : Exception
 {

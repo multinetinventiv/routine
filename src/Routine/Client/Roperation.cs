@@ -1,6 +1,4 @@
 using Routine.Core;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Routine.Client;
 

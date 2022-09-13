@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using Routine.Engine.Virtual;
+﻿using Routine.Engine.Virtual;
 
 namespace Routine.Test.Engine.Virtual;
 

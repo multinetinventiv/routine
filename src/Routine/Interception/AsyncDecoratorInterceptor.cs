@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class AsyncDecoratorInterceptor<TContext, TVariable> : AsyncAroundInterceptorBase<AsyncDecoratorInterceptor<TContext, TVariable>, TContext>
     where TContext : InterceptionContext

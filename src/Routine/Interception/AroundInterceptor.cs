@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public class AroundInterceptor<TContext> : AroundInterceptorBase<AroundInterceptor<TContext>, TContext>
     where TContext : InterceptionContext

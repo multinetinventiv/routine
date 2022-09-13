@@ -1,5 +1,4 @@
 ﻿using Routine.Interception;
-using System;
 
 namespace Routine.Test.Interception.Stubs.AroundInterceptorBuilders;
 

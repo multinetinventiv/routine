@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception.Configuration;
+﻿namespace Routine.Interception.Configuration;
 
 public class InterceptorBuilder<TContext>
     where TContext : InterceptionContext

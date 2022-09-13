@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Engine.Virtual;
+﻿namespace Routine.Engine.Virtual;
 
 public class ProxyParameter : IParameter
 {

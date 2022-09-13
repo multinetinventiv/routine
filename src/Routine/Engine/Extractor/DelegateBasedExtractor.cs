@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Routine.Engine.Extractor;
+﻿namespace Routine.Engine.Extractor;
 
 public class DelegateBasedExtractor : ExtractorBase
 {

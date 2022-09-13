@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
-
-namespace Routine.Interception;
+﻿namespace Routine.Interception;
 
 public abstract class AsyncAroundInterceptorBase<TConcrete, TContext> : AsyncInterceptorBase<TContext>
     where TConcrete : AsyncAroundInterceptorBase<TConcrete, TContext>
