@@ -1,8 +1,10 @@
 namespace Routine.Core.Configuration.Convention;
 
 public abstract class ConventionBase<TFrom, TResult> : IConvention<TFrom, TResult>
+    where TFrom : notnull
+    where TResult : notnull
 {
-    private Func<TFrom, bool> whenDelegate;
+    private Func<TFrom?, bool> whenDelegate;
 
     protected ConventionBase()
     {
@@ -10,30 +12,30 @@ public abstract class ConventionBase<TFrom, TResult> : IConvention<TFrom, TResul
     }
 
     public IConvention<TFrom, TResult> WhenDefault() => When(default(TFrom));
-    public IConvention<TFrom, TResult> When(TFrom expected) => When(o => Equals(o, expected));
+    public IConvention<TFrom, TResult> When(TFrom? expected) => When(o => Equals(o, expected));
 
-    public ConventionBase<TFrom, TResult> When(Func<TFrom, bool> whenDelegate)
+    public ConventionBase<TFrom, TResult> When(Func<TFrom?, bool> whenDelegate)
     {
         this.whenDelegate = this.whenDelegate.And(whenDelegate);
 
         return this;
     }
 
-    protected virtual bool AppliesTo(TFrom obj) => whenDelegate(obj);
+    protected virtual bool AppliesTo(TFrom? obj) => whenDelegate(obj);
 
-    private TResult SafeApply(TFrom obj)
+    private TResult? SafeApply(TFrom? obj)
     {
         if (!AppliesTo(obj)) { throw new ConfigurationException(obj); }
 
         return Apply(obj);
     }
 
-    protected abstract TResult Apply(TFrom obj);
+    protected abstract TResult? Apply(TFrom? obj);
 
     #region IConvention implementation
 
-    bool IConvention<TFrom, TResult>.AppliesTo(TFrom obj) => AppliesTo(obj);
-    TResult IConvention<TFrom, TResult>.Apply(TFrom obj) => SafeApply(obj);
+    bool IConvention<TFrom, TResult>.AppliesTo(TFrom? obj) => AppliesTo(obj);
+    TResult? IConvention<TFrom, TResult>.Apply(TFrom? obj) => SafeApply(obj);
 
     #endregion
 }

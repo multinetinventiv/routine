@@ -2,14 +2,14 @@ namespace Routine.Core;
 
 public class DataModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
+    public List<string> Marks { get; set; } = new();
 
-    public string Name { get; set; }
-    public string ViewModelId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string ViewModelId { get; set; } = string.Empty;
     public bool IsList { get; set; }
 
     public DataModel() { }
-    public DataModel(IDictionary<string, object> model)
+    public DataModel(IDictionary<string, object>? model)
     {
         if (model == null) return;
 
@@ -47,7 +47,7 @@ public class DataModel
         return Marks.ItemEquals(other.Marks) && string.Equals(Name, other.Name) && string.Equals(ViewModelId, other.ViewModelId) && IsList == other.IsList;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

@@ -2,6 +2,6 @@
 
 public interface IMethodInvoker
 {
-    object Invoke(object target, params object[] args);
-    Task<object> InvokeAsync(object target, params object[] args);
+    object? Invoke(object? target, params object[] args);
+    Task<object?> InvokeAsync(object? target, params object[] args);
 }

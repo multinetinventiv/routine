@@ -8,7 +8,7 @@ public class HttpClientRestClient : IRestClient
     private readonly Func<HttpClient> newClient;
     private readonly Func<HttpRequestMessage> newRequest;
 
-    public HttpClientRestClient(Func<HttpClient> newClient = default, Func<HttpRequestMessage> newRequest = default)
+    public HttpClientRestClient(Func<HttpClient>? newClient = default, Func<HttpRequestMessage>? newRequest = default)
     {
         this.newClient = newClient ?? (() => new());
         this.newRequest = newRequest ?? (() => new());

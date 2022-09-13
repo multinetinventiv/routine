@@ -2,11 +2,9 @@ namespace Routine.Core;
 
 public class ParameterData
 {
-    public string ModelId { get; set; }
-    public string Id { get; set; }
-    public Dictionary<string, ParameterValueData> InitializationParameters { get; set; }
-
-    public ParameterData() { InitializationParameters = new Dictionary<string, ParameterValueData>(); }
+    public string? ModelId { get; set; }
+    public string? Id { get; set; }
+    public Dictionary<string, ParameterValueData> InitializationParameters { get; set; } = new();
 
     #region ToString & Equality
 
@@ -21,7 +19,7 @@ public class ParameterData
         return string.Equals(ModelId, other.ModelId) && string.Equals(Id, other.Id) && InitializationParameters.KeyValueEquals(other.InitializationParameters);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

@@ -2,12 +2,12 @@ namespace Routine.Core;
 
 public class ResultModel
 {
-    public string ViewModelId { get; set; }
+    public string ViewModelId { get; set; } = string.Empty;
     public bool IsList { get; set; }
     public bool IsVoid { get; set; }
 
     public ResultModel() { }
-    public ResultModel(IDictionary<string, object> model)
+    public ResultModel(IDictionary<string, object>? model)
     {
         if (model == null) return;
 
@@ -39,7 +39,7 @@ public class ResultModel
         return string.Equals(ViewModelId, other.ViewModelId) && IsList == other.IsList && IsVoid == other.IsVoid;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

@@ -5,7 +5,7 @@ public class OperationWithObjectModel
     public ObjectModel ObjectModel { get; set; }
     public OperationModel OperationModel { get; set; }
 
-    public OperationWithObjectModel() : this(new ObjectModel(), new OperationModel()) { }
+    public OperationWithObjectModel() : this(new(), new()) { }
     public OperationWithObjectModel(ObjectModel objectModel, OperationModel operationModel)
     {
         ObjectModel = objectModel;
@@ -24,7 +24,7 @@ public class OperationWithObjectModel
         return Equals(ObjectModel, other.ObjectModel) && Equals(OperationModel, other.OperationModel);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

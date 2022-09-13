@@ -14,8 +14,8 @@ public interface IType : ITypeComponent
     bool IsArray { get; }
 
     string FullName { get; }
-    string Namespace { get; }
-    IType BaseType { get; }
+    string? Namespace { get; }
+    IType? BaseType { get; }
 
     List<IType> AssignableTypes { get; }
     List<IConstructor> Constructors { get; }
@@ -23,12 +23,12 @@ public interface IType : ITypeComponent
     List<IMethod> Methods { get; }
 
     List<IType> GetGenericArguments();
-    IType GetElementType();
-    IMethod GetParseMethod();
+    IType? GetElementType();
+    IMethod? GetParseMethod();
 
     List<string> GetEnumNames();
     List<object> GetEnumValues();
-    IType GetEnumUnderlyingType();
+    IType? GetEnumUnderlyingType();
 
     bool CanBe(IType otherType);
     object Cast(object @object, IType otherType);

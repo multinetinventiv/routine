@@ -15,12 +15,12 @@ public static class SystemExtensions
         return ex.InnerException;
     }
 
-    public static object GetResult(this Task task) =>
+    public static object? GetResult(this Task task) =>
         task.GetType().IsGenericType
             ? task.GetType().GetProperty("Result")?.GetValue(task)
             : null;
 
-    public static object WaitAndGetResult(this Task task)
+    public static object? WaitAndGetResult(this Task task)
     {
         try
         {

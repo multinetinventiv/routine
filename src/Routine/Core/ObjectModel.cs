@@ -2,23 +2,23 @@ namespace Routine.Core;
 
 public class ObjectModel
 {
-    public string Id { get; set; }
-    public List<string> Marks { get; set; } = new List<string>();
+    public string Id { get; set; } = string.Empty;
+    public List<string> Marks { get; set; } = new();
 
-    public string Name { get; set; }
-    public string Module { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Module { get; set; } = string.Empty;
     public bool IsValueModel { get; set; }
     public bool IsViewModel { get; set; }
 
-    public List<string> ViewModelIds { get; set; } = new List<string>();
-    public List<string> ActualModelIds { get; set; } = new List<string>();
-    public InitializerModel Initializer { get; set; } = new InitializerModel();
-    internal Dictionary<string, DataModel> Data { get; private set; } = new Dictionary<string, DataModel>();
-    internal Dictionary<string, OperationModel> Operation { get; private set; } = new Dictionary<string, OperationModel>();
-    public List<ObjectData> StaticInstances { get; set; } = new List<ObjectData>();
+    public List<string> ViewModelIds { get; set; } = new();
+    public List<string> ActualModelIds { get; set; } = new();
+    public InitializerModel Initializer { get; set; } = new();
+    internal Dictionary<string, DataModel> Data { get; private set; } = new();
+    internal Dictionary<string, OperationModel> Operation { get; private set; } = new();
+    public List<ObjectData> StaticInstances { get; set; } = new();
 
     public ObjectModel() { }
-    public ObjectModel(IDictionary<string, object> model)
+    public ObjectModel(IDictionary<string, object>? model)
     {
         if (model == null) return;
 
@@ -64,7 +64,7 @@ public class ObjectModel
 
         if (model.TryGetValue("Initializer", out var initializer))
         {
-            Initializer = new InitializerModel((IDictionary<string, object>)initializer);
+            Initializer = new((IDictionary<string, object>)initializer);
         }
 
         if (model.TryGetValue("Datas", out var datas))
@@ -95,14 +95,14 @@ public class ObjectModel
         set => Operation = value.ToDictionary(o => o.Name, o => o);
     }
 
-    public DataModel GetData(string name)
+    public DataModel? GetData(string name)
     {
         Data.TryGetValue(name, out var result);
 
         return result;
     }
 
-    public OperationModel GetOperation(string name)
+    public OperationModel? GetOperation(string name)
     {
         Operation.TryGetValue(name, out var result);
 
@@ -134,7 +134,7 @@ public class ObjectModel
             Operations.ItemEquals(other.Operations) && StaticInstances.ItemEquals(other.StaticInstances);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

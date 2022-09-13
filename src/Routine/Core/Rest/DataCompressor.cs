@@ -12,21 +12,21 @@ public class DataCompressor
     private const string PARAMS_KEY = "Data";
 
     private readonly ApplicationModel model;
-    private readonly string knownViewModelId;
+    private readonly string? knownViewModelId;
 
     public DataCompressor(ApplicationModel model) : this(model, null) { }
-    public DataCompressor(ApplicationModel model, string knownViewModelId)
+    public DataCompressor(ApplicationModel model, string? knownViewModelId)
     {
         this.model = model;
         this.knownViewModelId = knownViewModelId;
     }
 
-    public object Compress(ReferenceData source)
+    public object? Compress(ReferenceData? source)
     {
         if (source?.Id == null) { return null; }
 
         if (string.IsNullOrEmpty(source.ModelId)) { throw new ArgumentException("ModelId value of a ReferenceData cannot be null or empty. If null value was plannig to be sent, then the given ReferenceData itself should be null"); }
-        if (string.IsNullOrEmpty(source.ViewModelId))
+        if (string.IsNullOrEmpty(source.ViewModelId) && knownViewModelId != null)
         {
             source.ViewModelId = knownViewModelId;
         }
@@ -36,7 +36,7 @@ public class DataCompressor
             return source.Id;
         }
 
-        var result = new Dictionary<string, object>
+        var result = new Dictionary<string, object?>
         {
             [ID_KEY] = source.Id,
             [MODEL_ID_KEY] = source.ModelId
@@ -50,7 +50,7 @@ public class DataCompressor
         return result;
     }
 
-    public object Compress(ObjectData source)
+    public object? Compress(ObjectData? source)
     {
         if (source?.Id == null)
         {
@@ -59,7 +59,7 @@ public class DataCompressor
 
         if (string.IsNullOrEmpty(source.ModelId)) { throw new ArgumentException("ModelId value of a ObjectData cannot be null or empty. If null value was plannig to be sent, then the given ObjectData itself should be null"); }
 
-        var result = new Dictionary<string, object>();
+        var result = new Dictionary<string, object?>();
 
         if (ShouldBeSerializedAsReference(source))
         {
@@ -76,7 +76,7 @@ public class DataCompressor
 
         if (source.Data.Count > 0)
         {
-            var dataDict = new Dictionary<string, object>();
+            var dataDict = new Dictionary<string, object?>();
 
             foreach (var (key, value) in source.Data)
             {
@@ -92,7 +92,7 @@ public class DataCompressor
         return result;
     }
 
-    public object Compress(VariableData source)
+    public object? Compress(VariableData source)
     {
         if (source == null) { return null; }
 
@@ -106,24 +106,24 @@ public class DataCompressor
         return source.Values.Select(Compress).ToList();
     }
 
-    public object Compress(ParameterData source)
+    public object? Compress(ParameterData? source)
     {
         if (source == null) { return null; }
 
         if (source.Id == null && source.InitializationParameters.Count > 0)
         {
-            var result = new Dictionary<string, object>();
+            var result = new Dictionary<string, object?>();
 
             if (source.ModelId != knownViewModelId)
             {
                 result.Add(MODEL_ID_KEY, source.ModelId);
             }
 
-            var data = new Dictionary<string, object>();
+            var data = new Dictionary<string, object?>();
 
             foreach (var paramName in source.InitializationParameters.Keys)
             {
-                var paramModel = GetInitializationParameterModel(source.ModelId, paramName);
+                var paramModel = GetInitializationParameterModel(source.ModelId!, paramName);
                 if (paramModel == null) { continue; }
 
                 data.Add(paramName, new DataCompressor(model, paramModel.ViewModelId).Compress(source.InitializationParameters[paramName]));
@@ -137,7 +137,7 @@ public class DataCompressor
         return Compress(new ReferenceData { Id = source.Id, ModelId = source.ModelId, ViewModelId = source.ModelId });
     }
 
-    public object Compress(ParameterValueData source)
+    public object? Compress(ParameterValueData source)
     {
         if (source == null) { return null; }
 
@@ -151,7 +151,7 @@ public class DataCompressor
         return source.Values.Select(Compress).ToList();
     }
 
-    public ReferenceData DecompressReferenceData(object @object)
+    public ReferenceData? DecompressReferenceData(object @object)
     {
         if (@object == null) { return null; }
 
@@ -191,11 +191,11 @@ public class DataCompressor
         return result;
     }
 
-    public ObjectData DecompressObjectData(object @object)
+    public ObjectData? DecompressObjectData(object? @object)
     {
         if (@object == null) { return null; }
 
-        var reference = DecompressReferenceData(@object);
+        var reference = DecompressReferenceData(@object)!;
         var result = new ObjectData
         {
             Id = reference.Id,
@@ -226,7 +226,7 @@ public class DataCompressor
 
         foreach (var dataKey in dataDictionary.Keys)
         {
-            var dataModel = GetDataModel(reference.ViewModelId, dataKey);
+            var dataModel = GetDataModel(reference.ViewModelId!, dataKey);
             if (dataModel == null) { continue; }
 
             result.Data.Add(dataKey, new DataCompressor(model, dataModel.ViewModelId).DecompressVariableData(dataDictionary[dataKey]));
@@ -235,14 +235,14 @@ public class DataCompressor
         return result;
     }
 
-    public VariableData DecompressVariableData(object @object)
+    public VariableData DecompressVariableData(object? @object)
     {
         if (@object is null or string or Dictionary<string, object>)
         {
-            return new VariableData { Values = new List<ObjectData> { DecompressObjectData(@object) } };
+            return new VariableData { Values = new() { DecompressObjectData(@object) } };
         }
 
-        if (@object is not object[] objects) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, nameof(@object)); }
+        if (@object is not object?[] objects) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, nameof(@object)); }
 
         var result = new VariableData { IsList = true };
 
@@ -254,13 +254,13 @@ public class DataCompressor
         return result;
     }
 
-    public ParameterData DecompressParameterData(object @object)
+    public ParameterData? DecompressParameterData(object? @object)
     {
         if (@object == null) { return null; }
 
         if (@object is string)
         {
-            var referenceData = DecompressReferenceData(@object);
+            var referenceData = DecompressReferenceData(@object)!;
 
             return new ParameterData
             {
@@ -315,7 +315,7 @@ public class DataCompressor
     {
         if (@object is null or string or Dictionary<string, object>)
         {
-            return new ParameterValueData { Values = new List<ParameterData> { DecompressParameterData(@object) } };
+            return new ParameterValueData { Values = new() { DecompressParameterData(@object) } };
         }
 
         if (@object is not object[] objects) { throw new ArgumentException("Given parameter value should be null, string, Dictionary<string, object> or object[], but was " + @object, nameof(@object)); }
@@ -329,9 +329,9 @@ public class DataCompressor
         return result;
     }
 
-    private DataModel GetDataModel(string modelId, string dataModelName) => GetObjectModel(modelId).GetData(dataModelName);
+    private DataModel? GetDataModel(string modelId, string dataModelName) => GetObjectModel(modelId).GetData(dataModelName);
 
-    private ParameterModel GetInitializationParameterModel(string modelId, string initializationParameterName)
+    private ParameterModel? GetInitializationParameterModel(string modelId, string initializationParameterName)
     {
         GetObjectModel(modelId).Initializer.Parameter.TryGetValue(initializationParameterName, out var result);
 
