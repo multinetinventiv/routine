@@ -1,25 +1,24 @@
 ﻿using Routine.Engine.Virtual;
 using System.Reflection;
 
-namespace Routine.Engine.Configuration
+namespace Routine.Engine.Configuration;
+
+public class ParameterBuilder
 {
-    public class ParameterBuilder
+    private readonly IParametric owner;
+
+    public ParameterBuilder(IParametric owner)
     {
-        private readonly IParametric owner;
-
-        public ParameterBuilder(IParametric owner)
-        {
-            this.owner = owner;
-        }
-
-        public IParametric Owner => owner;
-
-        public VirtualParameter Virtual() => new(owner);
-
-        public VirtualParameter Virtual(ParameterInfo parameterInfo) =>
-            Virtual()
-                .Name.Set(parameterInfo.Name)
-                .Index.Set(parameterInfo.Position)
-                .ParameterType.Set(parameterInfo.ParameterType.ToTypeInfo());
+        this.owner = owner;
     }
+
+    public IParametric Owner => owner;
+
+    public VirtualParameter Virtual() => new(owner);
+
+    public VirtualParameter Virtual(ParameterInfo parameterInfo) =>
+        Virtual()
+            .Name.Set(parameterInfo.Name)
+            .Index.Set(parameterInfo.Position)
+            .ParameterType.Set(parameterInfo.ParameterType.ToTypeInfo());
 }

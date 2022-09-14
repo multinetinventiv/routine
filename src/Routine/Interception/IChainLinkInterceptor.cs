@@ -1,8 +1,7 @@
-﻿namespace Routine.Interception
+﻿namespace Routine.Interception;
+
+public interface IChainLinkInterceptor<TContext> : IInterceptor<TContext>
+    where TContext : InterceptionContext
 {
-    public interface IChainLinkInterceptor<TContext> : IInterceptor<TContext>
-        where TContext : InterceptionContext
-    {
-        IChainLinkInterceptor<TContext> Next { get; set; }
-    }
+    IChainLinkInterceptor<TContext> Next { get; set; }
 }

@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System;
+﻿namespace Routine.Service;
 
-namespace Routine.Service
+public interface IServiceClientConfiguration
 {
-    public interface IServiceClientConfiguration
-    {
-        string GetServiceUrlBase();
+    string GetServiceUrlBase();
 
-        Exception GetException(ExceptionResult exceptionResult);
+    Exception GetException(ExceptionResult exceptionResult);
 
-        List<string> GetRequestHeaders();
-        string GetRequestHeaderValue(string requestHeader);
-        List<IHeaderProcessor> GetResponseHeaderProcessors();
-    }
+    List<string> GetRequestHeaders();
+    string GetRequestHeaderValue(string requestHeader);
+    List<IHeaderProcessor> GetResponseHeaderProcessors();
 }

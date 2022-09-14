@@ -1,10 +1,8 @@
 using Routine.Core;
-using System.Collections.Generic;
 
-namespace Routine.Test.Engine.Stubs.DoInvokers
+namespace Routine.Test.Engine.Stubs.DoInvokers;
+
+public interface IDoInvoker
 {
-    public interface IDoInvoker
-    {
-        VariableData InvokeDo(IObjectService testing, ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters);
-    }
+    VariableData InvokeDo(IObjectService testing, ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters);
 }

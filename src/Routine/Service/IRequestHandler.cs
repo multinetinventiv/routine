@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace Routine.Service;
 
-namespace Routine.Service
+public interface IRequestHandler
 {
-    public interface IRequestHandler
-    {
-        Task WriteResponse();
-    }
+    Task WriteResponse();
 }

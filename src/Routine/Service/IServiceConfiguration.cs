@@ -1,47 +1,44 @@
 ﻿using Routine.Core;
-using System.Collections.Generic;
-using System;
 
-namespace Routine.Service
+namespace Routine.Service;
+
+public interface IServiceConfiguration
 {
-    public interface IServiceConfiguration
+    string GetRootPath();
+
+    bool GetEnableTestApp();
+    string GetTestAppPath();
+
+    bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
+
+    List<string> GetRequestHeaders();
+    List<IHeaderProcessor> GetRequestHeaderProcessors();
+
+    List<string> GetResponseHeaders();
+    string GetResponseHeaderValue(string responseHeader);
+
+    ExceptionResult GetExceptionResult(Exception exception);
+
+    public string GetPath() => GetPath(string.Empty);
+    public string GetPath(string path)
     {
-        string GetRootPath();
+        var rootPath = GetRootPath() ?? string.Empty;
 
-        bool GetEnableTestApp();
-        string GetTestAppPath();
-
-        bool GetAllowGet(ObjectModel objectModel, OperationModel operationModel);
-
-        List<string> GetRequestHeaders();
-        List<IHeaderProcessor> GetRequestHeaderProcessors();
-
-        List<string> GetResponseHeaders();
-        string GetResponseHeaderValue(string responseHeader);
-
-        ExceptionResult GetExceptionResult(Exception exception);
-
-        public string GetPath() => GetPath(string.Empty);
-        public string GetPath(string path)
+        if (rootPath.StartsWith("/"))
         {
-            var rootPath = GetRootPath() ?? string.Empty;
-
-            if (rootPath.StartsWith("/"))
-            {
-                rootPath = rootPath.After("/");
-            }
-
-            if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
-            {
-                rootPath += "/";
-            }
-
-            if (path.StartsWith("/"))
-            {
-                path = path.After("/");
-            }
-
-            return rootPath + path;
+            rootPath = rootPath.After("/");
         }
+
+        if (!string.IsNullOrEmpty(rootPath) && !rootPath.EndsWith("/"))
+        {
+            rootPath += "/";
+        }
+
+        if (path.StartsWith("/"))
+        {
+            path = path.After("/");
+        }
+
+        return rootPath + path;
     }
 }

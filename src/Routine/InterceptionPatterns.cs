@@ -1,10 +1,9 @@
 ﻿using Routine.Core.Configuration;
 using Routine.Interception.Configuration;
 
-namespace Routine
+namespace Routine;
+
+public static class InterceptionPatterns
 {
-    public static class InterceptionPatterns
-    {
-        public static ConventionBasedInterceptionConfiguration FromEmpty(this PatternBuilder<ConventionBasedInterceptionConfiguration> source) => new();
-    }
+    public static ConventionBasedInterceptionConfiguration FromEmpty(this PatternBuilder<ConventionBasedInterceptionConfiguration> source) => new();
 }

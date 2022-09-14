@@ -9,55 +9,48 @@ using Routine.Interception;
 using Routine.Service.Configuration;
 using Routine.Service;
 using Routine;
-using System;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.AspNetCore.Builder
+namespace Microsoft.AspNetCore.Builder;
+
+public static class AspNetCoreExtensions
 {
-    public static class AspNetCoreExtensions
+    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default) => source.AddRoutine<JsonSerializerAdapter>();
+    public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source, Action<RoutineOptions> options = default) where TJsonSerializer : class, IJsonSerializer
     {
-        public static IServiceCollection AddRoutine(this IServiceCollection source) => source.AddRoutine<JsonSerializerAdapter>();
-        public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source) where TJsonSerializer : class, IJsonSerializer =>
-            source
-                .AddHttpContextAccessor()
-                .AddSingleton<IJsonSerializer, TJsonSerializer>();
+        options ??= _ => { };
+        var o = new RoutineOptions();
+        options(o);
 
-        public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
-            Func<CodingStyleBuilder, ICodingStyle> codingStyle,
-            Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration = null,
-            IRestClient restClient = null,
-            IJsonSerializer serializer = null,
-            ICache cache = null,
-            Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration = null
-        )
-        {
-            serviceConfiguration ??= s => s.FromBasic();
-            interceptionConfiguration ??= i => i.FromBasic();
+        if (o.DevelopmentMode) ReflectionOptimizer.Enable();
+        else ReflectionOptimizer.Disable();
 
-            return source.UseMiddleware<RoutineMiddleware>(
-                BuildRoutine.Context()
-                    .Using(
-                        restClient: restClient,
-                        serializer: serializer,
-                        cache: cache,
-                        interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
-                    )
-                    .AsServiceApplication(serviceConfiguration, codingStyle)
-            );
-        }
+        return source
+            .AddHttpContextAccessor()
+            .AddSingleton<IJsonSerializer, TJsonSerializer>();
+    }
 
-        public static IApplicationBuilder UseRoutineInDevelopmentMode(this IApplicationBuilder source)
-        {
-            ReflectionOptimizer.Disable();
+    public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
+        Func<CodingStyleBuilder, ICodingStyle> codingStyle,
+        Func<ServiceConfigurationBuilder, IServiceConfiguration> serviceConfiguration = null,
+        IRestClient restClient = null,
+        IJsonSerializer serializer = null,
+        ICache cache = null,
+        Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration = null
+    )
+    {
+        serviceConfiguration ??= s => s.FromBasic();
+        interceptionConfiguration ??= i => i.FromBasic();
 
-            return source;
-        }
-
-        public static IApplicationBuilder UseRoutineInProductionMode(this IApplicationBuilder source)
-        {
-            ReflectionOptimizer.Enable();
-
-            return source;
-        }
+        return source.UseMiddleware<RoutineMiddleware>(
+            BuildRoutine.Context()
+                .Using(
+                    restClient: restClient,
+                    serializer: serializer,
+                    cache: cache,
+                    interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
+                )
+                .AsServiceApplication(serviceConfiguration, codingStyle)
+        );
     }
 }

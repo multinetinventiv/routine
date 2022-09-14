@@ -1,25 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿namespace Routine.Engine.Reflection;
 
-namespace Routine.Engine.Reflection
+public abstract class MethodBase : MemberInfo, IParametric
 {
-    public abstract class MethodBase : MemberInfo, IParametric
-    {
-        public abstract bool IsPublic { get; }
+    public abstract bool IsPublic { get; }
 
-        public abstract ParameterInfo[] GetParameters();
-        public abstract object[] GetCustomAttributes();
+    public abstract ParameterInfo[] GetParameters();
+    public abstract object[] GetCustomAttributes();
 
-        #region ITypeComponent implementation
+    #region ITypeComponent implementation
 
-        IType ITypeComponent.ParentType => ReflectedType;
+    IType ITypeComponent.ParentType => ReflectedType;
 
-        #endregion
+    #endregion
 
-        #region IParametric implementation
+    #region IParametric implementation
 
-        List<IParameter> IParametric.Parameters => GetParameters().Cast<IParameter>().ToList();
+    List<IParameter> IParametric.Parameters => GetParameters().Cast<IParameter>().ToList();
 
-        #endregion
-    }
+    #endregion
 }

@@ -1,10 +1,9 @@
-namespace Routine.Engine
-{
-    public interface ITypeComponent
-    {
-        string Name { get; }
-        IType ParentType { get; }
+namespace Routine.Engine;
 
-        object[] GetCustomAttributes();
-    }
+public interface ITypeComponent
+{
+    string Name { get; }
+    IType ParentType { get; }
+
+    object[] GetCustomAttributes();
 }

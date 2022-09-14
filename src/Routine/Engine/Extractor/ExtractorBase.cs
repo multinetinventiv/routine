@@ -1,19 +1,18 @@
-﻿namespace Routine.Engine.Extractor
+﻿namespace Routine.Engine.Extractor;
+
+public abstract class ExtractorBase : IIdExtractor, IValueExtractor
 {
-    public abstract class ExtractorBase : IIdExtractor, IValueExtractor
-    {
-        protected abstract string Extract(object obj);
+    protected abstract string Extract(object obj);
 
-        #region IIdExtractor implementation
+    #region IIdExtractor implementation
 
-        string IValueExtractor.GetValue(object obj) => Extract(obj);
+    string IValueExtractor.GetValue(object obj) => Extract(obj);
 
-        #endregion
+    #endregion
 
-        #region IValueExtractor implementation
+    #region IValueExtractor implementation
 
-        string IIdExtractor.GetId(object obj) => Extract(obj);
+    string IIdExtractor.GetId(object obj) => Extract(obj);
 
-        #endregion
-    }
+    #endregion
 }

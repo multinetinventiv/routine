@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace Routine.Service;
 
-namespace Routine.Service
+public interface IHeaderProcessor
 {
-    public interface IHeaderProcessor
-    {
-        void Process(IDictionary<string, string> responseHeaders);
-    }
+    void Process(IDictionary<string, string> responseHeaders);
 }

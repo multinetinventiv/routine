@@ -1,10 +1,9 @@
-namespace Routine.Engine
-{
-    public interface IConstructor : IParametric
-    {
-        bool IsPublic { get; }
-        IType InitializedType { get; }
+namespace Routine.Engine;
 
-        object Initialize(params object[] parameters);
-    }
+public interface IConstructor : IParametric
+{
+    bool IsPublic { get; }
+    IType InitializedType { get; }
+
+    object Initialize(params object[] parameters);
 }

@@ -1,8 +1,7 @@
-namespace Routine.Engine
+namespace Routine.Engine;
+
+public interface IReturnable : ITypeComponent
 {
-    public interface IReturnable : ITypeComponent
-    {
-        IType ReturnType { get; }
-        object[] GetReturnTypeCustomAttributes();
-    }
+    IType ReturnType { get; }
+    object[] GetReturnTypeCustomAttributes();
 }

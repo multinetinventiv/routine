@@ -16,4 +16,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+      <Using Include="Moq" />
+      <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
 </Project>

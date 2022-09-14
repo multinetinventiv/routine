@@ -1,35 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿namespace Routine.Engine;
 
-namespace Routine.Engine
+public class Marks
 {
-    public class Marks
+    private readonly Dictionary<string, bool> marks;
+
+    public Marks() : this(new string[] { }) { }
+    public Marks(IEnumerable<string> list)
     {
-        private readonly Dictionary<string, bool> marks;
+        marks = new Dictionary<string, bool>();
 
-        public Marks() : this(new string[] { }) { }
-        public Marks(IEnumerable<string> list)
+        foreach (var mark in list)
         {
-            marks = new Dictionary<string, bool>();
+            marks.Add(mark, true);
+        }
+    }
 
-            foreach (var mark in list)
+    public List<string> List => marks.Keys.ToList();
+
+    public bool Has(string mark) { return marks.ContainsKey(mark); }
+
+    public void Join(IEnumerable<string> list)
+    {
+        foreach (var mark in list)
+        {
+            if (!marks.ContainsKey(mark))
             {
                 marks.Add(mark, true);
-            }
-        }
-
-        public List<string> List => marks.Keys.ToList();
-
-        public bool Has(string mark) { return marks.ContainsKey(mark); }
-
-        public void Join(IEnumerable<string> list)
-        {
-            foreach (var mark in list)
-            {
-                if (!marks.ContainsKey(mark))
-                {
-                    marks.Add(mark, true);
-                }
             }
         }
     }

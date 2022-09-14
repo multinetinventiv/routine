@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Samples.Basic", "sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Routine.Samples.SmartObject", "samples\Routine.Samples.SmartObject\Routine.Samples.SmartObject.csproj", "{1D5716B2-306B-47E9-915E-80096DED20A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Routine.Samples.Client", "samples\Routine.Samples.Client\Routine.Samples.Client.csproj", "{6907F6D3-6ED7-4991-9DDB-639210F7AAE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{1D5716B2-306B-47E9-915E-80096DED20A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D5716B2-306B-47E9-915E-80096DED20A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D5716B2-306B-47E9-915E-80096DED20A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6907F6D3-6ED7-4991-9DDB-639210F7AAE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6907F6D3-6ED7-4991-9DDB-639210F7AAE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6907F6D3-6ED7-4991-9DDB-639210F7AAE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6907F6D3-6ED7-4991-9DDB-639210F7AAE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{094FF43A-5E19-451D-8446-26FCB2B6EF95} = {5C327EC2-B27E-41BE-BCBC-845F16B43576}
 		{762CA0D7-1210-4EFA-A6FA-BD7F0E76CE81} = {B7F5933D-DA7B-4664-BC9E-FDF8C2BDE63A}
 		{1D5716B2-306B-47E9-915E-80096DED20A9} = {B7F5933D-DA7B-4664-BC9E-FDF8C2BDE63A}
+		{6907F6D3-6ED7-4991-9DDB-639210F7AAE3} = {B7F5933D-DA7B-4664-BC9E-FDF8C2BDE63A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF1ECBBF-B59A-449B-B2EE-097960552376}

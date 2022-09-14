@@ -1,103 +1,98 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System;
 
-namespace Routine.Core.Reflection
+namespace Routine.Core.Reflection;
+
+public class CodeCompiler
 {
-    public class CodeCompiler
+    private readonly StringBuilder code = new();
+    private readonly Dictionary<string, MetadataReference> references = new();
+
+    public bool HasCode => code.Length > 0;
+
+    public void AddCode(string code)
     {
-        private readonly StringBuilder code = new();
-        private readonly Dictionary<string, MetadataReference> references = new();
+        this.code.AppendLine(code);
+    }
 
-        public bool HasCode => code.Length > 0;
+    public void AddReference(Assembly assembly)
+    {
+        if (references.ContainsKey(assembly.Location)) { return; }
 
-        public void AddCode(string code)
+        references.Add(assembly.Location, MetadataReference.CreateFromFile(assembly.Location));
+
+        foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
         {
-            this.code.AppendLine(code);
+            AddReference(Assembly.Load(referencedAssembly));
         }
+    }
 
-        public void AddReference(Assembly assembly)
+    public void AddReferenceFrom<T>() => AddReferenceFrom(typeof(T));
+    public void AddReferenceFrom(Type type) => RecursiveAddReferenceFrom(type, new HashSet<Type>());
+    private void RecursiveAddReferenceFrom(Type type, HashSet<Type> visits)
+    {
+        if (type == null) { return; }
+        if (visits.Contains(type)) { return; }
+
+        visits.Add(type);
+
+        AddReference(type.Assembly);
+
+        if (type.IsGenericType)
         {
-            if (references.ContainsKey(assembly.Location)) { return; }
-
-            references.Add(assembly.Location, MetadataReference.CreateFromFile(assembly.Location));
-
-            foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
+            foreach (var genericArg in type.GetGenericArguments())
             {
-                AddReference(Assembly.Load(referencedAssembly));
+                RecursiveAddReferenceFrom(genericArg, visits);
             }
         }
 
-        public void AddReferenceFrom<T>() => AddReferenceFrom(typeof(T));
-        public void AddReferenceFrom(Type type) => RecursiveAddReferenceFrom(type, new HashSet<Type>());
-        private void RecursiveAddReferenceFrom(Type type, HashSet<Type> visits)
+        RecursiveAddReferenceFrom(type.BaseType, visits);
+
+        foreach (var interfaceType in type.GetInterfaces())
         {
-            if (type == null) { return; }
-            if (visits.Contains(type)) { return; }
+            RecursiveAddReferenceFrom(interfaceType, visits);
+        }
+    }
 
-            visits.Add(type);
+    public Assembly Compile()
+    {
+        var compilation = CSharpCompilation.Create(
+            Path.GetRandomFileName(),
+            syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{code}") },
+            references: references.Values,
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        );
 
-            AddReference(type.Assembly);
+        using var ms = new MemoryStream();
 
-            if (type.IsGenericType)
-            {
-                foreach (var genericArg in type.GetGenericArguments())
-                {
-                    RecursiveAddReferenceFrom(genericArg, visits);
-                }
-            }
+        var results = compilation.Emit(ms);
 
-            RecursiveAddReferenceFrom(type.BaseType, visits);
+        ValidateCompilerResults(results);
 
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                RecursiveAddReferenceFrom(interfaceType, visits);
-            }
+        ms.Seek(0, SeekOrigin.Begin);
+
+        return Assembly.Load(ms.ToArray());
+    }
+
+    private void ValidateCompilerResults(EmitResult result)
+    {
+        if (result.Success) { return; }
+
+        var failures = result.Diagnostics.Where(diagnostic =>
+            diagnostic.IsWarningAsError ||
+            diagnostic.Severity == DiagnosticSeverity.Error
+        );
+        var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
+
+        foreach (var diagnostic in failures)
+        {
+            errors.Append($"{diagnostic.Location.GetLineSpan()} - {diagnostic.Id}: {diagnostic.GetMessage()}\r\n");
+            errors.AppendLine();
         }
 
-        public Assembly Compile()
-        {
-            var compilation = CSharpCompilation.Create(
-                Path.GetRandomFileName(),
-                syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{code}") },
-                references: references.Values,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            );
-
-            using var ms = new MemoryStream();
-
-            var results = compilation.Emit(ms);
-
-            ValidateCompilerResults(results);
-
-            ms.Seek(0, SeekOrigin.Begin);
-
-            return Assembly.Load(ms.ToArray());
-        }
-
-        private void ValidateCompilerResults(EmitResult result)
-        {
-            if (result.Success) { return; }
-
-            var failures = result.Diagnostics.Where(diagnostic =>
-                diagnostic.IsWarningAsError ||
-                diagnostic.Severity == DiagnosticSeverity.Error
-            );
-            var errors = new StringBuilder("Compiler Errors:").AppendLine().AppendLine();
-
-            foreach (var diagnostic in failures)
-            {
-                errors.Append($"{diagnostic.Location.GetLineSpan()} - {diagnostic.Id}: {diagnostic.GetMessage()}\r\n");
-                errors.AppendLine();
-            }
-
-            throw new Exception($"{errors}; \r\n {code}");
-        }
+        throw new Exception($"{errors}; \r\n {code}");
     }
 }

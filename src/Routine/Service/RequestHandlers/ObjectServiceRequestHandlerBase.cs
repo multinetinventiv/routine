@@ -2,61 +2,57 @@
 using Routine.Core.Rest;
 using Routine.Engine.Context;
 using Routine.Service.RequestHandlers.Exceptions;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
-using System;
 
-namespace Routine.Service.RequestHandlers
+namespace Routine.Service.RequestHandlers;
+
+public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
 {
-    public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
+    protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
+        : base(serviceContext, jsonSerializer, httpContextAccessor) { }
+
+    protected abstract bool AllowGet { get; }
+    protected abstract Task<object> Process();
+
+    public sealed override async Task WriteResponse()
     {
-        protected ObjectServiceRequestHandlerBase(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor)
-            : base(serviceContext, jsonSerializer, httpContextAccessor) { }
+        if (!IsPost && !IsGet) { MethodNotAllowed(AllowGet); return; }
+        if (IsGet && !AllowGet) { MethodNotAllowed(false); return; }
 
-        protected abstract bool AllowGet { get; }
-        protected abstract Task<object> Process();
+        var requestHeaders = HttpContext.Request.Headers.Keys
+            .ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
 
-        public sealed override async Task WriteResponse()
+        foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())
         {
-            if (!IsPost && !IsGet) { MethodNotAllowed(AllowGet); return; }
-            if (IsGet && !AllowGet) { MethodNotAllowed(false); return; }
+            processor.Process(requestHeaders);
+        }
 
-            var requestHeaders = HttpContext.Request.Headers.Keys
-                .ToDictionary(key => key, key => HttpUtility.HtmlDecode(HttpContext.Request.Headers[key]));
+        try
+        {
+            var response = await Process();
 
-            foreach (var processor in ServiceContext.ServiceConfiguration.GetRequestHeaderProcessors())
+            foreach (var responseHeader in ServiceContext.ServiceConfiguration.GetResponseHeaders())
             {
-                processor.Process(requestHeaders);
-            }
-
-            try
-            {
-                var response = await Process();
-
-                foreach (var responseHeader in ServiceContext.ServiceConfiguration.GetResponseHeaders())
+                var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
+                if (!string.IsNullOrEmpty(responseHeaderValue))
                 {
-                    var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
-                    if (!string.IsNullOrEmpty(responseHeaderValue))
-                    {
-                        HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
-                    }
+                    HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
                 }
+            }
 
-                await WriteJsonResponse(response);
-            }
-            catch (TypeNotFoundException ex)
-            {
-                ModelNotFound(ex);
-            }
-            catch (BadRequestException ex)
-            {
-                BadRequest(ex.InnerException);
-            }
-            catch (Exception ex)
-            {
-                await WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
-            }
+            await WriteJsonResponse(response);
+        }
+        catch (TypeNotFoundException ex)
+        {
+            ModelNotFound(ex);
+        }
+        catch (BadRequestException ex)
+        {
+            BadRequest(ex.InnerException);
+        }
+        catch (Exception ex)
+        {
+            await WriteJsonResponse(ServiceContext.ServiceConfiguration.GetExceptionResult(ex), clearError: true);
         }
     }
 }
