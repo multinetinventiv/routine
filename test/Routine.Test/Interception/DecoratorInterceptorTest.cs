@@ -4,14 +4,11 @@ using Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders;
 using AsyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.Async;
 using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
 using IInvocation = Routine.Test.Interception.Stubs.Invocations.IInvocation;
-using SyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.Sync;
 using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
 using SyncOverAsyncBuilder = Routine.Test.Interception.Stubs.DecoratorInterceptorBuilders.SyncOverAsync;
 
 namespace Routine.Test.Interception;
 
-[TestFixture(typeof(SyncBuilder), typeof(SyncInvocation))]
-[TestFixture(typeof(SyncBuilder), typeof(AsyncInvocation))]
 [TestFixture(typeof(AsyncBuilder), typeof(SyncInvocation))]
 [TestFixture(typeof(AsyncBuilder), typeof(AsyncInvocation))]
 [TestFixture(typeof(SyncOverAsyncBuilder), typeof(SyncInvocation))]

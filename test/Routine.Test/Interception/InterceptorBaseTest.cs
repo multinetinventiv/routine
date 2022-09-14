@@ -4,7 +4,6 @@ using Routine.Test.Interception.Stubs;
 
 namespace Routine.Test.Interception;
 
-[TestFixture(typeof(SyncBase))]
 [TestFixture(typeof(AsyncBase))]
 public class InterceptorBaseTest<TInterceptor>
     where TInterceptor : IInterceptor<Context>, new()

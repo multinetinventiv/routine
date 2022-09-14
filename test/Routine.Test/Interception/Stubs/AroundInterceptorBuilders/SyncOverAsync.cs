@@ -11,23 +11,23 @@ public class SyncOverAsync : IBuilder
         Action before = null, Action success = null, Action fail = null, Action after = null,
         Action<Context> beforeCtx = null, Action<Context> successCtx = null,
         Action<Context> failCtx = null, Action<Context> afterCtx = null
-    ) => Builder.DoAsync()
+    ) => Builder.Do()
         .Before(before).Success(success).Fail(fail).After(after)
         .Before(beforeCtx).Success(successCtx).Fail(failCtx).After(afterCtx);
 
     public IInterceptor<Context> FacadeBefore(
         Action before = null, Action<Context> beforeCtx = null
-    ) => before != null ? Builder.BeforeAsync(before) : Builder.BeforeAsync(beforeCtx);
+    ) => before != null ? Builder.Before(before) : Builder.Before(beforeCtx);
 
     public IInterceptor<Context> FacadeSuccess(
         Action success = null, Action<Context> successCtx = null
-    ) => success != null ? Builder.SuccessAsync(success) : Builder.SuccessAsync(successCtx);
+    ) => success != null ? Builder.Success(success) : Builder.Success(successCtx);
 
     public IInterceptor<Context> FacadeFail(
         Action fail = null, Action<Context> failCtx = null
-    ) => fail != null ? Builder.FailAsync(fail) : Builder.FailAsync(failCtx);
+    ) => fail != null ? Builder.Fail(fail) : Builder.Fail(failCtx);
 
     public IInterceptor<Context> FacadeAfter(
         Action after = null, Action<Context> afterCtx = null
-    ) => after != null ? Builder.AfterAsync(after) : Builder.AfterAsync(afterCtx);
+    ) => after != null ? Builder.After(after) : Builder.After(afterCtx);
 }

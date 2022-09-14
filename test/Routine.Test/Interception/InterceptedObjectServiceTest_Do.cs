@@ -44,7 +44,7 @@ public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
         var hit = false;
 
         var testing = Build(ic => ic.FromBasic()
-            .Interceptors.Add(c => c.Interceptor(i => i.BeforeAsync(ctx =>
+            .Interceptors.Add(c => c.Interceptor(i => i.Before(ctx =>
                 {
                     Assert.AreEqual($"{InterceptionTarget.Do}", ctx.Target);
                     Assert.IsInstanceOf<ServiceInterceptionContext>(ctx);
