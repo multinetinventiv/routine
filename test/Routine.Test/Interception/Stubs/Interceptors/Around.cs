@@ -2,7 +2,7 @@
 
 namespace Routine.Test.Interception.Stubs.Interceptors;
 
-public class Around : AroundInterceptorBase<Around, Context>, IAroundInterceptor<Around>
+public class Around : AroundInterceptorBase<Around, Context>
 {
     private readonly int delay;
 
