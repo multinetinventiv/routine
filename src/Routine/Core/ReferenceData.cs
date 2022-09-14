@@ -2,11 +2,11 @@ namespace Routine.Core;
 
 public class ReferenceData
 {
-    private string? viewModelId;
+    private string viewModelId;
 
-    public string? ModelId { get; set; }
-    public string? Id { get; set; }
-    public string? ViewModelId { get => viewModelId ?? ModelId; set => viewModelId = value; }
+    public string ModelId { get; set; }
+    public string Id { get; set; }
+    public string ViewModelId { get => viewModelId ?? ModelId; set => viewModelId = value; }
 
     #region ToString & Equality
 
@@ -19,7 +19,7 @@ public class ReferenceData
         return string.Equals(ModelId, other.ModelId) && string.Equals(Id, other.Id) && string.Equals(ViewModelId, other.ViewModelId);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

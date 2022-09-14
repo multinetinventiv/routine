@@ -34,6 +34,7 @@ public class CodeCompiler
     public void AddReferenceFrom(Type type) => RecursiveAddReferenceFrom(type, new HashSet<Type>());
     private void RecursiveAddReferenceFrom(Type type, HashSet<Type> visits)
     {
+        if (type == null) { return; }
         if (visits.Contains(type)) { return; }
 
         visits.Add(type);
@@ -48,10 +49,7 @@ public class CodeCompiler
             }
         }
 
-        if (type.BaseType != null)
-        {
-            RecursiveAddReferenceFrom(type.BaseType, visits);
-        }
+        RecursiveAddReferenceFrom(type.BaseType, visits);
 
         foreach (var interfaceType in type.GetInterfaces())
         {

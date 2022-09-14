@@ -2,13 +2,13 @@ namespace Routine.Core;
 
 public class InitializerModel
 {
-    public List<string> Marks { get; set; } = new();
+    public List<string> Marks { get; set; } = new List<string>();
     public int GroupCount { get; set; }
 
-    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new();
+    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new Dictionary<string, ParameterModel>();
 
     public InitializerModel() { }
-    public InitializerModel(IDictionary<string, object>? model)
+    public InitializerModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
@@ -34,7 +34,7 @@ public class InitializerModel
         set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
     }
 
-    public ParameterModel? GetParameter(string name)
+    public ParameterModel GetParameter(string name)
     {
         Parameter.TryGetValue(name, out var result);
 
@@ -56,7 +56,7 @@ public class InitializerModel
         return Marks.ItemEquals(other.Marks) && GroupCount == other.GroupCount && Parameters.ItemEquals(other.Parameters);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

@@ -6,6 +6,6 @@ public interface IMethod : IReturnable, IParametric
 
     IType GetDeclaringType(bool firstDeclaringType);
 
-    object? PerformOn(object? target, params object[] parameters);
-    Task<object?> PerformOnAsync(object? target, params object[] parameters);
+    object PerformOn(object target, params object[] parameters);
+    Task<object> PerformOnAsync(object target, params object[] parameters);
 }

@@ -12,7 +12,7 @@ public class ReflectionMethodInvoker : IMethodInvoker
         this.method = method;
     }
 
-    public object? Invoke(object? target, params object[] args)
+    public object Invoke(object target, params object[] args)
     {
         var result = InvokeInner(target, args);
 
@@ -21,7 +21,7 @@ public class ReflectionMethodInvoker : IMethodInvoker
         return task.WaitAndGetResult();
     }
 
-    public async Task<object?> InvokeAsync(object? target, params object[] args)
+    public async Task<object> InvokeAsync(object target, params object[] args)
     {
         var result = InvokeInner(target, args);
 
@@ -32,7 +32,7 @@ public class ReflectionMethodInvoker : IMethodInvoker
         return task.GetResult();
     }
 
-    private object? InvokeInner(object? target, object[] args)
+    private object InvokeInner(object target, object[] args)
     {
         try
         {

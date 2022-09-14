@@ -2,17 +2,17 @@ namespace Routine.Core;
 
 public class ParameterModel
 {
-    public List<string> Marks { get; set; } = new();
-    public List<int> Groups { get; set; } = new();
+    public List<string> Marks { get; set; } = new List<string>();
+    public List<int> Groups { get; set; } = new List<int>();
 
-    public string Name { get; set; } = string.Empty;
-    public string ViewModelId { get; set; } = string.Empty;
+    public string Name { get; set; }
+    public string ViewModelId { get; set; }
     public bool IsList { get; set; }
     public bool IsOptional { get; set; }
-    public VariableData DefaultValue { get; set; } = new();
+    public VariableData DefaultValue { get; set; } = new VariableData();
 
     public ParameterModel() { }
-    public ParameterModel(IDictionary<string, object>? model)
+    public ParameterModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
@@ -48,7 +48,7 @@ public class ParameterModel
 
         if (model.TryGetValue("DefaultValue", out var defaultValue))
         {
-            DefaultValue = new((IDictionary<string, object>)defaultValue);
+            DefaultValue = new VariableData((IDictionary<string, object>)defaultValue);
         }
     }
 
@@ -69,7 +69,7 @@ public class ParameterModel
                Equals(DefaultValue, other.DefaultValue);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

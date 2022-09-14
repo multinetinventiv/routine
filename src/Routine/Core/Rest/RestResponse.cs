@@ -26,7 +26,7 @@ public class RestResponse
         return string.Equals(Body, other.Body) && Headers.KeyValueEquals(other.Headers);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

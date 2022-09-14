@@ -20,12 +20,12 @@ namespace {Namespace}
 {{
     public class {Name} : {NameOf<IMethodInvoker>()}
     {{
-        public object? Invoke(object? target, params object[] args)
+        public object Invoke(object target, params object[] args)
         {{
             {Invocation}
         }}
 
-        public async {NameOf<Task<object?>>()} InvokeAsync(object? target, params object[] args)
+        public async {NameOf<Task<object>>()} InvokeAsync(object target, params object[] args)
         {{
             {AsyncInvocation}
         }}
@@ -33,13 +33,13 @@ namespace {Namespace}
 }}
 ";
 
-    private string? Namespace => method.ReflectedType?.Namespace;
-    private string Name => $"{Fix(NameOf(method.ReflectedType!))}_{MethodName}_Invoker_{method.GetHashCode()}";
+    private string Namespace => method.ReflectedType?.Namespace;
+    private string Name => $"{Fix(NameOf(method.ReflectedType))}_{MethodName}_Invoker_{method.GetHashCode()}";
 
     private string Invocation => invocationType switch
     {
         InvocationType.NotSupported => $"throw new {NameOf<NotSupportedException>()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");",
-        InvocationType.Constructor => $"return new {NameOf(method.ReflectedType!)}({Parameters});",
+        InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
         InvocationType.Get => $"return {Target}.{MethodName};",
         InvocationType.Set => $@"
             {Target}.{MethodName} = {LastParameter};
@@ -163,7 +163,7 @@ namespace {Namespace}
 
     }
 
-    private string Target => method.IsStatic ? NameOf(method.ReflectedType!) : $"(({NameOf(method.ReflectedType!)})target)";
+    private string Target => method.IsStatic ? NameOf(method.ReflectedType) : $"(({NameOf(method.ReflectedType)})target)";
     private string MethodName => method.IsConstructor ? "Constructor" : method.IsSpecialName ? method.Name.After("_") : method.Name;
 
     private string Parameters => RenderParameters(method.GetParameters());
@@ -171,7 +171,7 @@ namespace {Namespace}
     private string LastParameter => RenderParameter(method.GetParameters().LastOrDefault());
 
     private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(RenderParameter));
-    private static string RenderParameter(ParameterInfo? parameterInfo) =>
+    private static string RenderParameter(ParameterInfo parameterInfo) =>
         parameterInfo == null
         ? ""
         : $"(({NameOf(parameterInfo.ParameterType)})(args[{parameterInfo.Position}]??default({NameOf(parameterInfo.ParameterType)})))";

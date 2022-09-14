@@ -18,11 +18,10 @@ public abstract class TypeInfo : IType
 
     static TypeInfo()
     {
-        TYPE_CACHE = new();
-        OPTIMIZED_TYPES = new();
+        TYPE_CACHE = new Dictionary<Type, TypeInfo>();
+        OPTIMIZED_TYPES = new List<Type>();
 
-        proxyMatcher = _ => false;
-        actualTypeGetter = t => t;
+        SetProxyMatcher(null, null);
     }
 
     public static void Clear()
@@ -30,10 +29,10 @@ public abstract class TypeInfo : IType
         TYPE_CACHE.Clear();
         OPTIMIZED_TYPES.Clear();
 
-        SetProxyMatcher(default, default);
+        SetProxyMatcher(null, null);
     }
 
-    public static List<TypeInfo> GetOptimizedTypes() => OPTIMIZED_TYPES.Select(t => t.ToTypeInfo()!).ToList();
+    public static List<TypeInfo> GetOptimizedTypes() => OPTIMIZED_TYPES.Select(t => t.ToTypeInfo()).ToList();
 
     public static void Optimize(params Type[] newDomainTypes)
     {
@@ -42,15 +41,15 @@ public abstract class TypeInfo : IType
         TYPE_CACHE.Clear();
     }
 
-    public static void SetProxyMatcher(Func<Type, bool>? proxyMatcher, Func<Type, Type>? actualTypeGetter)
+    public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
     {
         TypeInfo.proxyMatcher = proxyMatcher ?? (_ => false);
         TypeInfo.actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
-    public static TypeInfo Void() => Get(typeof(void))!;
-    public static TypeInfo Get<T>() => Get(typeof(T))!;
-    public static TypeInfo? Get(Type? type)
+    public static TypeInfo Void() => Get(typeof(void));
+    public static TypeInfo Get<T>() => Get(typeof(T));
+    public static TypeInfo Get(Type type)
     {
         if (type == null)
         {
@@ -101,7 +100,7 @@ public abstract class TypeInfo : IType
         {
             result = new VoidTypeInfo();
         }
-        else if (type.GetMethod("Parse", new[] { typeof(string) }) != null && type.GetMethod("Parse", new[] { typeof(string) })?.ReturnType == type)
+        else if (type.GetMethod("Parse", new[] { typeof(string) }) != null && type.GetMethod("Parse", new[] { typeof(string) }).ReturnType == type)
         {
             result = new ParseableTypeInfo(type);
         }
@@ -161,7 +160,7 @@ public abstract class TypeInfo : IType
     public abstract string Name { get; }
     public abstract string FullName { get; }
     public abstract string Namespace { get; }
-    public abstract TypeInfo? BaseType { get; }
+    public abstract TypeInfo BaseType { get; }
 
     public abstract ConstructorInfo[] GetAllConstructors();
     public abstract PropertyInfo[] GetAllProperties();
@@ -170,14 +169,14 @@ public abstract class TypeInfo : IType
     public abstract MethodInfo[] GetAllStaticMethods();
     public abstract object[] GetCustomAttributes();
     protected abstract TypeInfo[] GetGenericArguments();
-    protected abstract TypeInfo? GetElementType();
+    protected abstract TypeInfo GetElementType();
     protected abstract TypeInfo[] GetInterfaces();
     public abstract bool CanBe(TypeInfo other);
-    public virtual List<string> GetEnumNames() { return new(); }
-    public virtual List<object> GetEnumValues() { return new(); }
-    protected virtual TypeInfo? GetEnumUnderlyingType() { return default; }
+    public virtual List<string> GetEnumNames() { return new List<string>(); }
+    public virtual List<object> GetEnumValues() { return new List<object>(); }
+    protected virtual TypeInfo GetEnumUnderlyingType() { return null; }
 
-    protected abstract MethodInfo? GetParseMethod();
+    protected abstract MethodInfo GetParseMethod();
     protected abstract void Load();
 
     public abstract object CreateInstance();
@@ -197,7 +196,7 @@ public abstract class TypeInfo : IType
         return result.ToArray();
     }
 
-    protected static void FillInheritance(TypeInfo? root, List<TypeInfo> state)
+    protected static void FillInheritance(TypeInfo root, List<TypeInfo> state)
     {
         var cur = root;
         while (cur != null)
@@ -213,7 +212,7 @@ public abstract class TypeInfo : IType
 
     public virtual List<ConstructorInfo> GetPublicConstructors() => GetAllConstructors().Where(c => c.IsPublic).ToList();
 
-    public virtual ConstructorInfo? GetConstructor(params TypeInfo[] typeInfos)
+    public virtual ConstructorInfo GetConstructor(params TypeInfo[] typeInfos)
     {
         if (typeInfos.Length > 0)
         {
@@ -248,27 +247,27 @@ public abstract class TypeInfo : IType
         return GetAllStaticProperties().Where(p => p.IsPubliclyReadable).ToList();
     }
 
-    public virtual PropertyInfo? GetProperty(string name) => GetAllProperties().SingleOrDefault(p => p.Name == name);
+    public virtual PropertyInfo GetProperty(string name) => GetAllProperties().SingleOrDefault(p => p.Name == name);
     public virtual List<PropertyInfo> GetProperties(string name) => GetAllProperties().Where(p => p.Name == name).ToList();
-    public virtual PropertyInfo? GetStaticProperty(string name) => GetAllStaticProperties().SingleOrDefault(p => p.Name == name);
+    public virtual PropertyInfo GetStaticProperty(string name) => GetAllStaticProperties().SingleOrDefault(p => p.Name == name);
     public virtual List<PropertyInfo> GetStaticProperties(string name) => GetAllStaticProperties().Where(p => p.Name == name).ToList();
     public virtual ICollection<MethodInfo> GetPublicMethods() => GetAllMethods().Where(m => m.IsPublic).ToList();
     public virtual ICollection<MethodInfo> GetPublicStaticMethods() => GetAllStaticMethods().Where(m => m.IsPublic).ToList();
-    public virtual MethodInfo? GetMethod(string name) => GetAllMethods().SingleOrDefault(m => m.Name == name);
+    public virtual MethodInfo GetMethod(string name) => GetAllMethods().SingleOrDefault(m => m.Name == name);
     public virtual List<MethodInfo> GetMethods(string name) => GetAllMethods().Where(m => m.Name == name).ToList();
-    public virtual MethodInfo? GetStaticMethod(string name) => GetAllStaticMethods().SingleOrDefault(m => m.Name == name);
+    public virtual MethodInfo GetStaticMethod(string name) => GetAllStaticMethods().SingleOrDefault(m => m.Name == name);
     public virtual List<MethodInfo> GetStaticMethods(string name) => GetAllStaticMethods().Where(m => m.Name == name).ToList();
 
     public override string ToString() => type.ToString();
 
-    public static bool operator ==(TypeInfo? l, TypeInfo? r) { return Equals(l, r); }
-    public static bool operator !=(TypeInfo? l, TypeInfo? r) { return !(l == r); }
-    public static bool operator ==(TypeInfo? l, IType? r) { return Equals(l, r); }
-    public static bool operator !=(TypeInfo? l, IType? r) { return !(l == r); }
-    public static bool operator ==(IType? l, TypeInfo? r) { return Equals(l, r); }
-    public static bool operator !=(IType? l, TypeInfo? r) { return !(l == r); }
+    public static bool operator ==(TypeInfo l, TypeInfo r) { return Equals(l, r); }
+    public static bool operator !=(TypeInfo l, TypeInfo r) { return !(l == r); }
+    public static bool operator ==(TypeInfo l, IType r) { return Equals(l, r); }
+    public static bool operator !=(TypeInfo l, IType r) { return !(l == r); }
+    public static bool operator ==(IType l, TypeInfo r) { return Equals(l, r); }
+    public static bool operator !=(IType l, TypeInfo r) { return !(l == r); }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (obj == null) { return false; }
         if (obj is Type typeObj) { return type == typeObj; }
@@ -281,13 +280,13 @@ public abstract class TypeInfo : IType
 
     #region ITypeComponent implementation
 
-    IType? ITypeComponent.ParentType => null;
+    IType ITypeComponent.ParentType => null;
 
     #endregion
 
     #region IType implementation
 
-    IType? IType.BaseType => BaseType;
+    IType IType.BaseType => BaseType;
 
     List<IType> IType.AssignableTypes => GetAssignableTypes().Cast<IType>().ToList();
     List<IConstructor> IType.Constructors => GetAllConstructors().Cast<IConstructor>().ToList();
@@ -295,9 +294,9 @@ public abstract class TypeInfo : IType
     List<IMethod> IType.Methods => GetAllMethods().Cast<IMethod>().ToList();
 
     List<IType> IType.GetGenericArguments() => GetGenericArguments().Cast<IType>().ToList();
-    IType? IType.GetElementType() => GetElementType();
-    IMethod? IType.GetParseMethod() => GetParseMethod();
-    IType? IType.GetEnumUnderlyingType() => GetEnumUnderlyingType();
+    IType IType.GetElementType() => GetElementType();
+    IMethod IType.GetParseMethod() => GetParseMethod();
+    IType IType.GetEnumUnderlyingType() => GetEnumUnderlyingType();
 
     bool IType.CanBe(IType otherType) => otherType is TypeInfo otherTypeInfo && CanBe(otherTypeInfo);
 
@@ -326,10 +325,10 @@ public static class type
 
 public static class TypeInfoObjectExtensions
 {
-    public static TypeInfo? GetTypeInfo(this object source) =>
+    public static TypeInfo GetTypeInfo(this object source) =>
         source == null
             ? null
             : TypeInfo.Get(source.GetType());
 
-    public static TypeInfo? ToTypeInfo(this Type source) => TypeInfo.Get(source);
+    public static TypeInfo ToTypeInfo(this Type source) => TypeInfo.Get(source);
 }

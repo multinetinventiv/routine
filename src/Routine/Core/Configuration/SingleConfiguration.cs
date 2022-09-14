@@ -15,11 +15,11 @@ public class SingleConfiguration<TConfiguration, TItem>
         this.required = required;
     }
 
-    private TItem? value;
+    private TItem value;
 
     public TConfiguration SetDefault() => Set(default(TItem));
-    public TConfiguration Set(Func<TConfiguration, TItem?> valueDelegate) => Set(valueDelegate(configuration));
-    public TConfiguration Set(TItem? value)
+    public TConfiguration Set(Func<TConfiguration, TItem> valueDelegate) => Set(valueDelegate(configuration));
+    public TConfiguration Set(TItem value)
     {
         this.value = value;
 
@@ -28,7 +28,7 @@ public class SingleConfiguration<TConfiguration, TItem>
         return configuration;
     }
 
-    public TItem? Get()
+    public TItem Get()
     {
         if (required && !valueSet)
         {

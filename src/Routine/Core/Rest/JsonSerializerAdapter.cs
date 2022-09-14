@@ -7,7 +7,7 @@ public class JsonSerializerAdapter : IJsonSerializer
 {
     private readonly JsonSerializerOptions jsonSerializerOptions;
 
-    public JsonSerializerAdapter(JsonSerializerOptions? jsonSerializerOptions = default)
+    public JsonSerializerAdapter(JsonSerializerOptions jsonSerializerOptions = null)
     {
         if (jsonSerializerOptions != null)
         {
@@ -19,14 +19,14 @@ public class JsonSerializerAdapter : IJsonSerializer
         this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter(), new ObjectConverter() } };
     }
 
-    public object? DeserializeObject(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions) : null;
-    public T? Deserialize<T>(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions) : default;
-    public string Serialize(object? @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
+    public object DeserializeObject(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions) : null;
+    public T Deserialize<T>(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions) : default;
+    public string Serialize(object @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
 }
 
 internal class ObjectConverter : JsonConverter<object>
 {
-    public override object? Read(ref Utf8JsonReader reader, Type? typeToConvert, JsonSerializerOptions options)
+    public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         switch (reader.TokenType)
         {
@@ -46,7 +46,7 @@ internal class ObjectConverter : JsonConverter<object>
                 return reader.GetString();
             case JsonTokenType.StartObject:
                 {
-                    var dictionary = new Dictionary<string, object?>();
+                    var dictionary = new Dictionary<string, object>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndObject)
@@ -75,7 +75,7 @@ internal class ObjectConverter : JsonConverter<object>
                 }
             case JsonTokenType.StartArray:
                 {
-                    var list = new List<object?>();
+                    var list = new List<object>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
@@ -93,7 +93,7 @@ internal class ObjectConverter : JsonConverter<object>
         }
     }
 
-    private object? ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private object ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         switch (reader.TokenType)
         {
@@ -118,7 +118,7 @@ internal class ObjectConverter : JsonConverter<object>
             case JsonTokenType.StartObject:
                 return Read(ref reader, null, options);
             case JsonTokenType.StartArray:
-                var list = new List<object?>();
+                var list = new List<object>();
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
                     list.Add(ExtractValue(ref reader, options));
@@ -132,16 +132,16 @@ internal class ObjectConverter : JsonConverter<object>
     public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, value, value.GetType(), options);
 }
 
-internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<string, object?>>
+internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<string, object>>
 {
-    public override Dictionary<string, object?> Read(ref Utf8JsonReader reader, Type? typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<string, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartObject)
         {
             throw new JsonException($"JsonTokenType was of type {reader.TokenType}, only objects are supported");
         }
 
-        var dictionary = new Dictionary<string, object?>();
+        var dictionary = new Dictionary<string, object>();
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
@@ -169,7 +169,7 @@ internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<st
         return dictionary;
     }
 
-    private object? ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private object ExtractValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         switch (reader.TokenType)
         {
@@ -186,7 +186,7 @@ internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<st
             case JsonTokenType.StartObject:
                 return Read(ref reader, null, options);
             case JsonTokenType.StartArray:
-                var list = new List<object?>();
+                var list = new List<object>();
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
                     list.Add(ExtractValue(ref reader, options));
@@ -197,7 +197,7 @@ internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<st
         }
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<string, object?> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
 
@@ -209,7 +209,7 @@ internal class DictionaryStringObjectJsonConverter : JsonConverter<Dictionary<st
         writer.WriteEndObject();
     }
 
-    private static void HandleValue(Utf8JsonWriter writer, string? key, object? objectValue)
+    private static void HandleValue(Utf8JsonWriter writer, string key, object objectValue)
     {
         if (key != null)
         {
@@ -282,7 +282,7 @@ public class BooleanJsonConverter : JsonConverter<bool>
         {
             JsonTokenType.True => true,
             JsonTokenType.False => false,
-            _ => bool.Parse(reader.GetString() ?? $"{false}")
+            _ => bool.Parse(reader.GetString())
         };
 
     public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) => writer.WriteBooleanValue(value);

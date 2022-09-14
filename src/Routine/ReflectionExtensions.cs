@@ -7,11 +7,12 @@ public static class ReflectionExtensions
 {
     #region string
 
-    public static TypeInfo? ToTypeInfo(this string typeName, bool deepSearch = false)
+    public static TypeInfo ToTypeInfo(this string typeName, bool deepSearch = false)
     {
         try
         {
             var type = Type.GetType(typeName);
+
             if (type == null && deepSearch)
             {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -41,7 +42,7 @@ public static class ReflectionExtensions
 
     #region internal Type
 
-    public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo()!.ToCSharpString(useFullName);
+    public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo().ToCSharpString(useFullName);
     public static string ToCSharpString(this IType source, bool useFullName = true)
     {
         if (source.IsVoid)
@@ -72,9 +73,11 @@ public static class ReflectionExtensions
     public static bool CanParse(this Type source)
     {
         var parse = source.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
+
         if (parse == null) { return false; }
 
         var parameters = parse.GetParameters();
+
         if (parameters.Length != 1) { return false; }
 
         return parameters[0].ParameterType == typeof(string) && parse.ReturnType == source;
@@ -91,19 +94,19 @@ public static class ReflectionExtensions
     public static bool CanBeCollection(this IType source, IType itemType) =>
         source.CanBe<ICollection>() &&
         source.IsGenericType && source.GetGenericArguments()[0].CanBe(itemType) ||
-        source.IsArray && source.GetElementType()?.CanBe(itemType) == true;
+        source.IsArray && source.GetElementType().CanBe(itemType);
 
     public static IType GetItemType(this IType source)
     {
         if (!source.CanBeCollection()) { throw new ArgumentException("Type should be a generic collection or an array to have an item type", nameof(source)); }
         if (source.IsGenericType) { return source.GetGenericArguments()[0]; }
-        if (source.IsArray) { return source.GetElementType()!; }
+        if (source.IsArray) { return source.GetElementType(); }
 
         throw new NotSupportedException();
     }
 
     public static bool CanParse(this IType source) => source.GetParseMethod() != null;
-    public static object Parse(this IType source, string value) => source.GetParseMethod()!.PerformOn(null, value)!;
+    public static object Parse(this IType source, string value) => source.GetParseMethod().PerformOn(null, value);
 
     #endregion
 
@@ -159,8 +162,8 @@ public static class ReflectionExtensions
             return !declaring.Equals(parent);
         }
 
-        if (parent?.Namespace == null && declaring.Namespace == null) { return true; }
-        if (parent?.Namespace == null || declaring.Namespace == null) { return false; }
+        if (parent.Namespace == null && declaring.Namespace == null) { return true; }
+        if (parent.Namespace == null || declaring.Namespace == null) { return false; }
 
         return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
     }
@@ -179,8 +182,8 @@ public static class ReflectionExtensions
             return !declaring.Equals(parent);
         }
 
-        if (parent?.Namespace == null && declaring.Namespace == null) { return true; }
-        if (parent?.Namespace == null || declaring.Namespace == null) { return false; }
+        if (parent.Namespace == null && declaring.Namespace == null) { return true; }
+        if (parent.Namespace == null || declaring.Namespace == null) { return false; }
 
         return parent.Namespace.Before(".") != declaring.Namespace.Before(".");
     }

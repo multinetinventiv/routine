@@ -3,10 +3,10 @@ namespace Routine.Core;
 public class VariableData
 {
     public bool IsList { get; set; }
-    public List<ObjectData?> Values { get; set; } = new();
+    public List<ObjectData> Values { get; set; } = new List<ObjectData>();
 
     public VariableData() { }
-    public VariableData(IDictionary<string, object>? data)
+    public VariableData(IDictionary<string, object> data)
     {
         if (data == null) return;
 
@@ -17,7 +17,7 @@ public class VariableData
 
         if (data.TryGetValue("Values", out var values))
         {
-            Values = ((IEnumerable)values).Cast<IDictionary<string, object>>().Select(o => (ObjectData?)new ObjectData(o)).ToList();
+            Values = ((IEnumerable)values).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
         }
     }
 
@@ -33,7 +33,7 @@ public class VariableData
         return IsList == other.IsList && Values.ItemEquals(other.Values);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

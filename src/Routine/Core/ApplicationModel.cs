@@ -2,14 +2,14 @@ namespace Routine.Core;
 
 public class ApplicationModel
 {
-    internal Dictionary<string, ObjectModel> Model { get; private set; } = new();
+    internal Dictionary<string, ObjectModel> Model { get; private set; } = new Dictionary<string, ObjectModel>();
 
     public ApplicationModel() { }
-    public ApplicationModel(IDictionary<string, object>? model)
+    public ApplicationModel(IDictionary<string, object> model)
     {
-        if(model == null) return;
+        if (model == null) return;
 
-        if (model.TryGetValue("Models", out var models))
+        if (model.TryGetValue("Models", out object models))
         {
             Models = ((IEnumerable)models).Cast<IDictionary<string, object>>().Select(o => new ObjectModel(o)).ToList();
         }
@@ -21,7 +21,7 @@ public class ApplicationModel
         set => Model = value.ToDictionary(om => om.Id, om => om);
     }
 
-    public ObjectModel? GetModel(string name)
+    public ObjectModel GetModel(string name)
     {
         Model.TryGetValue(name, out var result);
 
@@ -42,7 +42,7 @@ public class ApplicationModel
         return Models.ItemEquals(other.Models);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

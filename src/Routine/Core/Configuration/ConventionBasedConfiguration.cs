@@ -2,17 +2,14 @@ using Routine.Core.Configuration.Convention;
 
 namespace Routine.Core.Configuration;
 
-public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult>
-    where TConfiguration : ILayered
-    where TFrom : notnull
-    where TResult : notnull
+public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where TConfiguration : ILayered
 {
     private readonly TConfiguration configuration;
     private readonly string name;
     private readonly List<LayeredConvention<TFrom, TResult>> conventions;
-    private readonly Dictionary<TFrom, TResult?>? cache;
+    private readonly Dictionary<TFrom, TResult> cache;
 
-    private Func<TFrom?, ConfigurationException> exceptionDelegate;
+    private Func<TFrom, ConfigurationException> exceptionDelegate;
 
     public ConventionBasedConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
     public ConventionBasedConfiguration(TConfiguration configuration, string name, bool cacheResult)
@@ -20,30 +17,25 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult>
         this.configuration = configuration;
         this.name = name;
 
-        conventions = new();
+        conventions = new List<LayeredConvention<TFrom, TResult>>();
         if (cacheResult)
         {
-            cache = new();
+            cache = new Dictionary<TFrom, TResult>();
         }
 
-        exceptionDelegate = o => new ConfigurationException(name, o);
+        OnFailThrow(o => new ConfigurationException(name, o));
     }
 
     public TConfiguration OnFailThrow(ConfigurationException exception) => OnFailThrow(_ => exception);
-    public TConfiguration OnFailThrow(Func<TFrom?, ConfigurationException> exceptionDelegate)
-    {
-        this.exceptionDelegate = exceptionDelegate;
-
-        return configuration;
-    }
+    public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { this.exceptionDelegate = exceptionDelegate; return configuration; }
 
     public TConfiguration SetDefault() => Set(default(TResult));
-    public TConfiguration SetDefault(TFrom? obj) => Set(default, obj);
-    public TConfiguration SetDefault(Func<TFrom?, bool> whenDelegate) => Set(default, whenDelegate);
+    public TConfiguration SetDefault(TFrom obj) => Set(default, obj);
+    public TConfiguration SetDefault(Func<TFrom, bool> whenDelegate) => Set(default, whenDelegate);
 
-    public TConfiguration Set(TResult? result) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result));
-    public TConfiguration Set(TResult? result, TFrom? obj) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(obj));
-    public TConfiguration Set(TResult? result, Func<TFrom?, bool> whenDelegate) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(whenDelegate));
+    public TConfiguration Set(TResult result) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result));
+    public TConfiguration Set(TResult result, TFrom obj) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(obj));
+    public TConfiguration Set(TResult result, Func<TFrom, bool> whenDelegate) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(whenDelegate));
     public TConfiguration Set(IConvention<TFrom, TResult> convention)
     {
         Add(convention, configuration.CurrentLayer);
@@ -94,7 +86,7 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult>
         return configuration;
     }
 
-    public virtual TResult? Get(TFrom? obj)
+    public virtual TResult Get(TFrom obj)
     {
         try
         {

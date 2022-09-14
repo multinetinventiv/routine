@@ -98,12 +98,9 @@ internal class ReflectionOptimizer
             methodsByName[template.InvokerTypeName] = method;
 
             compiler.AddCode(template.Render());
-            compiler.AddReferenceFrom(method.ReflectedType);
 
-            if(method.DeclaringType != null)
-            {
-                compiler.AddReferenceFrom(method.DeclaringType);
-            }
+            compiler.AddReferenceFrom(method.ReflectedType);
+            compiler.AddReferenceFrom(method.DeclaringType);
 
             foreach (var parameter in method.GetParameters())
             {
@@ -124,7 +121,7 @@ internal class ReflectionOptimizer
         {
             if (!methodsByName.TryGetValue(invokerType.Name, out var method)) { continue; }
 
-            result.TryAdd(method, (IMethodInvoker)Activator.CreateInstance(invokerType)!);
+            result.TryAdd(method, (IMethodInvoker)Activator.CreateInstance(invokerType));
         }
 
         return result;

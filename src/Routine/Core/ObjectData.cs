@@ -2,10 +2,10 @@ namespace Routine.Core;
 
 public class ObjectData
 {
-    public string? Id { get; set; }
-    public string? ModelId { get; set; }
-    public string? Display { get; set; }
-    public Dictionary<string, VariableData> Data { get; set; } = new();
+    public string Id { get; set; }
+    public string ModelId { get; set; }
+    public string Display { get; set; }
+    public Dictionary<string, VariableData> Data { get; set; } = new Dictionary<string, VariableData>();
 
     public ObjectData() { }
     public ObjectData(IDictionary<string, object> data)
@@ -43,7 +43,7 @@ public class ObjectData
         return string.Equals(Id, other.Id) && string.Equals(ModelId, other.ModelId) && string.Equals(Display, other.Display) && Data.KeyValueEquals(other.Data);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

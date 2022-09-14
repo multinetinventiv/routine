@@ -3,8 +3,6 @@ using Routine.Core.Configuration.Convention;
 namespace Routine.Core.Configuration;
 
 internal class LayeredConvention<TFrom, TResult>
-    where TFrom : notnull
-    where TResult : notnull
 {
     public IConvention<TFrom, TResult> Convention { get; }
     public Layer Layer { get; }

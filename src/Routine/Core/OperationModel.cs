@@ -2,15 +2,15 @@ namespace Routine.Core;
 
 public class OperationModel
 {
-    public List<string> Marks { get; set; } = new();
+    public List<string> Marks { get; set; } = new List<string>();
     public int GroupCount { get; set; }
 
-    public string Name { get; set; } = string.Empty;
-    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new();
-    public ResultModel Result { get; set; } = new();
+    public string Name { get; set; }
+    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new Dictionary<string, ParameterModel>();
+    public ResultModel Result { get; set; } = new ResultModel();
 
     public OperationModel() { }
-    public OperationModel(IDictionary<string, object>? model)
+    public OperationModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
@@ -36,7 +36,7 @@ public class OperationModel
 
         if (model.TryGetValue("Result", out var result))
         {
-            Result = new((IDictionary<string, object>)result);
+            Result = new ResultModel((IDictionary<string, object>)result);
         }
     }
 
@@ -46,7 +46,7 @@ public class OperationModel
         set => Parameter = value.ToDictionary(kvp => kvp.Name, kvp => kvp);
     }
 
-    public ParameterModel? GetParameter(string name)
+    public ParameterModel GetParameter(string name)
     {
         Parameter.TryGetValue(name, out var result);
 
@@ -68,7 +68,7 @@ public class OperationModel
         return Marks.ItemEquals(other.Marks) && GroupCount == other.GroupCount && string.Equals(Name, other.Name) && Parameters.ItemEquals(other.Parameters) && Equals(Result, other.Result);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

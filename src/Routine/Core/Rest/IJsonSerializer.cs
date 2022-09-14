@@ -2,7 +2,7 @@
 
 public interface IJsonSerializer
 {
-    object? DeserializeObject(string jsonString);
-    T? Deserialize<T>(string jsonString);
-    string Serialize(object? @object);
+    object DeserializeObject(string jsonString);
+    T Deserialize<T>(string jsonString);
+    string Serialize(object @object);
 }

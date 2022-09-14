@@ -55,7 +55,7 @@ public class RestRequest
         return string.Equals(Body, other.Body) && Headers.KeyValueEquals(other.Headers) && UrlParameters.KeyValueEquals(other.UrlParameters);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

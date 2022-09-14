@@ -9,7 +9,7 @@ public class DictionaryCache : ICache
         dictionary = new Dictionary<string, object>();
     }
 
-    public object? this[string key]
+    public object this[string key]
     {
         get
         {
@@ -26,7 +26,6 @@ public class DictionaryCache : ICache
         if (Contains(key))
         {
             dictionary[key] = value;
-
             return;
         }
 
