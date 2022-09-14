@@ -7,8 +7,8 @@ using IInvocation = Routine.Test.Interception.Stubs.Invocations.IInvocation;
 
 namespace Routine.Test.Interception;
 
-[TestFixture(typeof(AsyncAround), typeof(SyncInvocation))]
-[TestFixture(typeof(AsyncAround), typeof(AsyncInvocation))]
+[TestFixture(typeof(Around), typeof(SyncInvocation))]
+[TestFixture(typeof(Around), typeof(AsyncInvocation))]
 public class AroundInterceptorBaseTest<TInterceptor, TInvocation> : CoreTestBase
     where TInterceptor : IAroundInterceptor<TInterceptor>, new()
     where TInvocation : IInvocation, new()
