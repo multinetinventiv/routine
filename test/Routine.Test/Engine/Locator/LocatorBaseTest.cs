@@ -1,34 +1,25 @@
-using Routine.Engine.Locator;
 using Routine.Engine;
 using Routine.Test.Core;
+using Routine.Test.Engine.Stubs.LocateInvokers;
+using Routine.Test.Engine.Stubs.Locators;
 
 namespace Routine.Test.Engine.Locator;
 
-[TestFixture]
-public class LocatorBaseTest : CoreTestBase
+[TestFixture(typeof(Async))]
+[TestFixture(typeof(Sync))]
+public class LocatorBaseTest<TLocateInvoker> : CoreTestBase
+    where TLocateInvoker : ILocateInvoker, new()
 {
-    #region SetUp & Helpers
+    #region SetUp
 
-    private class TestLocator : LocatorBase<TestLocator>
+    private TLocateInvoker invoker;
+
+    [SetUp]
+    public override void SetUp()
     {
-        private readonly bool provideDifferentNumberOfObjects;
+        base.SetUp();
 
-        public TestLocator(bool provideDifferentNumberOfObjects)
-        {
-            this.provideDifferentNumberOfObjects = provideDifferentNumberOfObjects;
-        }
-
-        protected override List<object> Locate(IType type, List<string> ids)
-        {
-            var result = ids.Select(_ => (object)null).ToList();
-
-            if (provideDifferentNumberOfObjects)
-            {
-                result.Add(null);
-            }
-
-            return result;
-        }
+        invoker = new TLocateInvoker();
     }
 
     #endregion
@@ -36,25 +27,23 @@ public class LocatorBaseTest : CoreTestBase
     [Test]
     public void Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
     {
-        var testing = new TestLocator(false);
-        var testingInterface = (ILocator)testing;
+        var testing = new Base(false);
 
         testing.AcceptNullResult(true);
 
-        var actual = testingInterface.Locate(type.of<string>(), new List<string> { "dummy" });
+        var actual = invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" });
         Assert.IsNull(actual[0]);
 
         testing.AcceptNullResult(false);
 
-        Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
+        Assert.Throws<CannotLocateException>(() => invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" }));
     }
 
     [Test]
     public void Locate_throws_cannot_locate_exception_when_result_count_is_different_than_given_id_count()
     {
-        var testing = new TestLocator(true);
-        var testingInterface = testing as ILocator;
+        var testing = new Base(true);
 
-        Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
+        Assert.Throws<CannotLocateException>(() => invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" }));
     }
 }
