@@ -6,7 +6,7 @@ public class SingletonLocator : LocatorBase<SingletonLocator>
 
     public SingletonLocator(Func<IType, object> locatorDelegate)
     {
-        this.locatorDelegate = locatorDelegate;
+        this.locatorDelegate = locatorDelegate ?? throw new ArgumentNullException(nameof(locatorDelegate));
     }
 
     protected override Task<List<object>> LocateAsync(IType type, List<string> ids)

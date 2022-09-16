@@ -22,4 +22,11 @@ public class SingletonLocatorTest<TLocateInvoker> : LocatorTestBase<TLocateInvok
         Assert.AreEqual("located: System.String", actual[0]);
         Assert.AreEqual("located: System.String", actual[1]);
     }
+
+    [Test]
+    public void When_no_delegate_was_given__it_throws_ArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().Singleton(null as Func<IType, IEnumerable>));
+        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().Singleton(null as Func<IType, Task<IEnumerable>>));
+    }
 }
