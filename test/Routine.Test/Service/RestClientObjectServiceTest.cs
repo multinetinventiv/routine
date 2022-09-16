@@ -122,6 +122,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         Assert.AreEqual(null, actual);
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+        mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
     }
@@ -143,12 +144,13 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         invoker.InvokeGet(testing, Id("3", "model"));
 
-        mock.Verify(rc => rc.Get(It.IsAny<string>(), It.Is<RestRequest>(req =>
-            req.Headers.ContainsKey("header1") &&
-            req.Headers["header1"] == "header1_value" &&
-            req.Headers.ContainsKey("header2") &&
-            req.Headers["header2"] == "header2_value"
-        )));
+        stubber.VerifyGet(mock,
+            match: req =>
+                req.Headers.ContainsKey("header1") &&
+                req.Headers["header1"] == "header1_value" &&
+                req.Headers.ContainsKey("header2") &&
+                req.Headers["header2"] == "header2_value"
+        );
     }
 
     [Test]
@@ -221,6 +223,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         Assert.AreEqual(new VariableData(), actual);
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+        mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
     }

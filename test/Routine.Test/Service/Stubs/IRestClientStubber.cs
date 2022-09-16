@@ -24,5 +24,6 @@ public interface IRestClientStubber
     public void SetUpPost(Mock<IRestClient> mock, string url, WebException exception) => SetUpPost(mock, url, req => true, exception);
     void SetUpPost(Mock<IRestClient> mock, string url, Expression<Func<RestRequest, bool>> match, WebException exception);
 
+    void VerifyGet(Mock<IRestClient> mock, Expression<Func<RestRequest, bool>> match);
     void VerifyPost(Mock<IRestClient> mock, Expression<Func<RestRequest, bool>> match);
 }
