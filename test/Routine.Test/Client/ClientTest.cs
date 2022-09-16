@@ -107,8 +107,16 @@ public class ClientTest : ClientTestBase
     }
 
     [Test]
+    public void Robjects_can_be_loaded_on_demand()
+    {
+        Assert.Fail("LoadObject & LoadObjectAsync");
+    }
+
+    [Test]
     public void Robjects_fetch_data_only_when_asked()
     {
+        Assert.Fail("add GetAsync");
+
         ModelsAre(
             Model("model")
             .Data("data1")
@@ -144,6 +152,8 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Robjects_fetch_value_along_with_data()
     {
+        Assert.Fail("add GetAsync");
+
         ModelsAre(Model("model").Data("data1"));
         ObjectsAre(
             Object(Id("id1")).Display("value1"),
@@ -230,6 +240,8 @@ public class ClientTest : ClientTestBase
     [TestCaseSource(nameof(SyncAndAsync))]
     public void Robject_behaves_optimistic_when_it_is_null(IPerformer performer)
     {
+        Assert.Fail("add GetAsync");
+
         ModelsAre(Model("model").Data("data"));
 
         ObjectsAre(Object(Id("id", "model")).Data("data", Null()));
@@ -475,6 +487,7 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Robject_does_not_fetch_object_data_if_model_is_value()
     {
+        Assert.Fail("Add LoadObject & LoadObjectAsync");
         ModelsAre(Model("model").IsValue());
 
         ObjectsAre(Object(Id("value", "model")));
@@ -574,6 +587,8 @@ public class ClientTest : ClientTestBase
     [Test]
     public void When_invalidated__Robject_clears_fetched_data()
     {
+        Assert.Fail("add GetAsync");
+
         ModelsAre(
             Model("model")
             .Data("data1")
