@@ -2,6 +2,7 @@ using Routine.Core.Cache;
 using Routine.Core;
 
 using static Routine.Constants;
+using Routine.Core.Runtime;
 
 namespace Routine.Engine;
 
@@ -38,9 +39,11 @@ public class ObjectService : IObjectService
         }
     }
 
-    public ObjectData Get(ReferenceData reference) => ctx.CreateDomainObject(reference).GetObjectData(true);
-    public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => ctx.CreateDomainObject(target).Perform(operation, parameters);
-    public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => await ctx.CreateDomainObject(target).PerformAsync(operation, parameters);
+    public ObjectData Get(ReferenceData reference) => ctx.GetDomainObjectAsync(reference).WaitAndGetResult().GetObjectData(true);
+    public async Task<ObjectData> GetAsync(ReferenceData reference) => (await ctx.GetDomainObjectAsync(reference)).GetObjectData(true);
+
+    public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => ctx.GetDomainObjectAsync(target).WaitAndGetResult().Perform(operation, parameters);
+    public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => await (await ctx.GetDomainObjectAsync(target)).PerformAsync(operation, parameters);
 }
 
 public class DataDoesNotExistException : Exception

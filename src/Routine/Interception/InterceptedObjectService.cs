@@ -23,7 +23,9 @@ public class InterceptedObjectService : IObjectService
     }
 
     public ApplicationModel ApplicationModel => applicationModel.Intercept(NewContext(), () => real.ApplicationModel) as ApplicationModel;
+
     public ObjectData Get(ReferenceData reference) => get.Intercept(NewContext(reference), () => real.Get(reference)) as ObjectData;
+    public async Task<ObjectData> GetAsync(ReferenceData reference) => await get.InterceptAsync(NewContext(reference), async () => await real.GetAsync(reference)) as ObjectData;
 
     public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
     {

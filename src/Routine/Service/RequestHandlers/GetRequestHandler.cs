@@ -16,11 +16,11 @@ public class GetRequestHandler : ObjectServiceRequestHandlerBase
 
     protected override bool AllowGet => true;
 
-    protected override Task<object> Process()
+    protected override async Task<object> Process()
     {
-        var objectData = ServiceContext.ObjectService.Get(resolution.Reference);
+        var objectData = await ServiceContext.ObjectService.GetAsync(resolution.Reference);
         var compressor = new DataCompressor(ApplicationModel, resolution.Reference.ViewModelId);
 
-        return Task.FromResult(compressor.Compress(objectData));
+        return compressor.Compress(objectData);
     }
 }

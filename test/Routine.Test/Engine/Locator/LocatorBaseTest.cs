@@ -1,49 +1,31 @@
 using Routine.Engine;
-using Routine.Test.Core;
-using Routine.Test.Engine.Stubs.LocateInvokers;
 using Routine.Test.Engine.Stubs.Locators;
 
 namespace Routine.Test.Engine.Locator;
 
-[TestFixture(typeof(Async))]
-[TestFixture(typeof(Sync))]
-public class LocatorBaseTest<TLocateInvoker> : CoreTestBase
-    where TLocateInvoker : ILocateInvoker, new()
+public class LocatorBaseTest
 {
-    #region SetUp
-
-    private TLocateInvoker invoker;
-
-    [SetUp]
-    public override void SetUp()
-    {
-        base.SetUp();
-
-        invoker = new TLocateInvoker();
-    }
-
-    #endregion
-
     [Test]
-    public void Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
+    public async Task Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
     {
-        var testing = new Base(false);
+        var locatorBase = new Base(false);
+        var locator = locatorBase as ILocator;
 
-        testing.AcceptNullResult(true);
+        locatorBase.AcceptNullResult(true);
 
-        var actual = invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" });
+        var actual = await locator.LocateAsync(type.of<string>(), new List<string> { "dummy" });
         Assert.IsNull(actual[0]);
 
-        testing.AcceptNullResult(false);
+        locatorBase.AcceptNullResult(false);
 
-        Assert.Throws<CannotLocateException>(() => invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" }));
+        Assert.ThrowsAsync<CannotLocateException>(async () => await locator.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
     }
 
     [Test]
     public void Locate_throws_cannot_locate_exception_when_result_count_is_different_than_given_id_count()
     {
-        var testing = new Base(true);
+        var locator = new Base(true) as ILocator;
 
-        Assert.Throws<CannotLocateException>(() => invoker.InvokeLocate(testing, type.of<string>(), new List<string> { "dummy" }));
+        Assert.ThrowsAsync<CannotLocateException>(async () => await locator.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
     }
 }

@@ -2,6 +2,7 @@ using Routine.Core.Configuration;
 using Routine.Core;
 using Routine.Engine;
 using Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData;
+using Routine.Test.Engine.Stubs.ObjectServiceInvokers;
 
 #region Test Model
 
@@ -54,8 +55,10 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData
 
 namespace Routine.Test.Engine
 {
-    [TestFixture]
-    public class ObjectServiceTest_GetObjectData : ObjectServiceTestBase
+    [TestFixture(typeof(Async))]
+    [TestFixture(typeof(Sync))]
+    public class ObjectServiceTest_GetObjectData<TObjectServiceInvoker> : ObjectServiceTestBase
+        where TObjectServiceInvoker : IObjectServiceInvoker, new()
     {
         #region Setup & Helpers
 
@@ -67,6 +70,8 @@ namespace Routine.Test.Engine
         protected override string DefaultModelId => ACTUAL_OMID;
         protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData";
 
+        private IObjectServiceInvoker invoker;
+
         [SetUp]
         public override void SetUp()
         {
@@ -76,6 +81,8 @@ namespace Routine.Test.Engine
                 .Module.Set("Test", t => t.Namespace.StartsWith("Routine.Test"))
                 .ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
                 ;
+
+            invoker = new TObjectServiceInvoker();
         }
 
         #endregion
@@ -85,7 +92,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj" });
 
-            var actual = testing.Get(Id("obj"));
+            var actual = invoker.InvokeGet(testing, Id("obj"));
 
             Assert.AreEqual("obj", actual.Id);
         }
@@ -97,7 +104,7 @@ namespace Routine.Test.Engine
 
             try
             {
-                testing.Get(Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
+                invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
                 Assert.Fail("exception not thrown");
             }
             catch (ConfigurationException ex)
@@ -117,7 +124,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(new BusinessData { Id = "obj" });
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("obj", actual.Id);
         }
@@ -127,7 +134,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = testing.Get(Id("obj"));
+            var actual = invoker.InvokeGet(testing, Id("obj"));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -141,7 +148,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("view value", actual.Display);
         }
@@ -155,7 +162,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -165,7 +172,7 @@ namespace Routine.Test.Engine
         {
             var _ = testing.ApplicationModel;
 
-            var actual = testing.Get(Id("sample", VALUE_OMID));
+            var actual = invoker.InvokeGet(testing, Id("sample", VALUE_OMID));
 
             Assert.AreEqual("sample", actual.Id);
             Assert.AreEqual("sample", actual.Display);
@@ -188,7 +195,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Converted Obj Title", actual.Display);
         }
@@ -207,7 +214,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -217,7 +224,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.IsTrue(actual.Data.ContainsKey("SubData"));
         }
@@ -237,7 +244,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualSubdata = actual.Data["SubData"].Values[0];
 
             Assert.AreEqual("sub_obj_converted", actualSubdata.Id);
@@ -248,7 +255,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = testing.Get(Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualData = actual.Data["SubData"];
 
             Assert.AreEqual("sub_obj", actualData.Values[0].Id);
@@ -260,7 +267,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = null, NullableInt = null });
 
-            var actual = testing.Get(Id("obj"));
+            var actual = invoker.InvokeGet(testing, Id("obj"));
             var title = actual.Data["Title"];
             var nullableInt = actual.Data["NullableInt"];
 
@@ -286,7 +293,7 @@ namespace Routine.Test.Engine
                 }
             });
 
-            var actual = testing.Get(Id("obj"));
+            var actual = invoker.InvokeGet(testing, Id("obj"));
             var actualData = actual.Data["SubDatas"];
 
             Assert.AreEqual("sub1_1", actualData.Values[0].Data["Items"].Values[0].Id);
@@ -302,7 +309,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(new BusinessData { Id = "obj", NotLocatable = new NotLocatable { Title = "fetched eagerly" } });
 
-            var actual = testing.Get(Id("obj"));
+            var actual = invoker.InvokeGet(testing, Id("obj"));
             var actualDataValue = actual.Data["NotLocatable"].Values[0];
 
             Assert.IsTrue(actualDataValue.Data.ContainsKey("Title"), "Member was not fetched eagerly");
@@ -323,7 +330,7 @@ namespace Routine.Test.Engine
             AddToRepository(subBusinessdata);
             AddToRepository(rootBusinessdata);
 
-            var actualRootBusinessdata = testing.Get(Id("root_businessdata"));
+            var actualRootBusinessdata = invoker.InvokeGet(testing, Id("root_businessdata"));
             var actualNotlocatable = actualRootBusinessdata.Data["NotLocatable"].Values[0];
 
             var actualSubNotlocatable = actualNotlocatable.Data["SubData"].Values[0];
@@ -348,7 +355,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(rootBusinessdata);
 
-            Assert.Throws<MaxFetchDepthExceededException>(() => testing.Get(Id("root_businessdata")));
+            Assert.Throws<MaxFetchDepthExceededException>(() => invoker.InvokeGet(testing, Id("root_businessdata")));
         }
     }
 }

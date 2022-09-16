@@ -1,4 +1,5 @@
 using Routine.Core;
+using Routine.Core.Runtime;
 
 namespace Routine.Engine;
 
@@ -18,19 +19,19 @@ public class DomainOperation : IDomainParametric<IMethod>
 
     ICoreContext IDomainParametric<IMethod>.Ctx => ctx;
     int IDomainParametric<IMethod>.NextGroupIndex => groups.Count;
-    void IDomainParametric<IMethod>.AddGroup(IMethod parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new DomainParameter.Group<IMethod>(parametric, parameters, groupIndex));
+    void IDomainParametric<IMethod>.AddGroup(IMethod parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new(parametric, parameters, groupIndex));
 
     public DomainOperation(ICoreContext ctx, IMethod method)
     {
         this.ctx = ctx;
 
-        groups = new List<DomainParameter.Group<IMethod>>();
+        groups = new();
 
         Name = ctx.CodingStyle.GetName(method);
-        Marks = new Marks();
+        Marks = new();
         ResultIsVoid = method.ReturnType.IsVoid;
         ResultIsList = method.ReturnType.CanBeCollection();
-        Parameter = new Dictionary<string, DomainParameter>();
+        Parameter = new();
 
         var returnType = ResultIsList ? method.ReturnType.GetItemType() : method.ReturnType;
 
@@ -71,7 +72,7 @@ public class DomainOperation : IDomainParametric<IMethod>
             Marks = Marks.List,
             GroupCount = groups.Count,
             Parameters = Parameters.Select(p => p.GetModel()).ToList(),
-            Result = new ResultModel
+            Result = new()
             {
                 IsList = ResultIsList,
                 IsVoid = ResultIsVoid,
@@ -81,7 +82,7 @@ public class DomainOperation : IDomainParametric<IMethod>
 
     public VariableData Perform(object target, Dictionary<string, ParameterValueData> parameterValues)
     {
-        var (method, parameters) = Resolve(parameterValues);
+        var (method, parameters) = Resolver(parameterValues).ResolveAsync().WaitAndGetResult();
         var result = method.PerformOn(target, parameters);
 
         return ResultData(result);
@@ -89,23 +90,18 @@ public class DomainOperation : IDomainParametric<IMethod>
 
     public async Task<VariableData> PerformAsync(object target, Dictionary<string, ParameterValueData> parameterValues)
     {
-        var (method, parameters) = Resolve(parameterValues);
+        var (method, parameters) = await Resolver(parameterValues).ResolveAsync();
         var result = await method.PerformOnAsync(target, parameters);
 
         return ResultData(result);
     }
 
-    private DomainParameterResolver<IMethod>.Resolution Resolve(Dictionary<string, ParameterValueData> parameterValues)
-    {
-        return new DomainParameterResolver<IMethod>(groups, parameterValues).Resolve();
-    }
+    private DomainParameterResolver<IMethod> Resolver(Dictionary<string, ParameterValueData> parameterValues) => new(groups, parameterValues);
 
-    private VariableData ResultData(object result)
-    {
-        return ResultIsVoid
-            ? new VariableData()
+    private VariableData ResultData(object result) =>
+        ResultIsVoid
+            ? new()
             : ctx.CreateValueData(result, ResultIsList, ResultType, true);
-    }
 
     #region Formatting & Equality
 

@@ -79,6 +79,16 @@ public class DefaultCoreContext : ICoreContext
         return DomainTypes.Values.ToList();
     }
 
+    public async Task<object> GetObjectAsync(ReferenceData referenceData) =>
+        await GetActualDomainType(referenceData).LocateAsync(referenceData);
+
+    public async Task<DomainObject> GetDomainObjectAsync(ReferenceData referenceData)
+    {
+        var (actualDomainType, viewDomainType) = GetDomainTypes(referenceData);
+
+        return new DomainObject(await actualDomainType.LocateAsync(referenceData), actualDomainType, viewDomainType);
+    }
+
     public DomainObject CreateDomainObject(object @object, DomainType viewDomainType)
     {
         var type = @object == null ? null : CodingStyle.GetType(@object);
@@ -89,21 +99,19 @@ public class DefaultCoreContext : ICoreContext
         return new DomainObject(@object, actualDomainType, viewDomainType);
     }
 
-    public DomainObject CreateDomainObject(ReferenceData referenceData)
+    private (DomainType, DomainType) GetDomainTypes(ReferenceData referenceData)
     {
         var actualDomainType = GetActualDomainType(referenceData);
         var viewDomainType = referenceData.ModelId != referenceData.ViewModelId
             ? GetDomainType(referenceData.ViewModelId)
             : actualDomainType;
 
-        return new DomainObject(actualDomainType.Locate(referenceData), actualDomainType, viewDomainType);
+        return (actualDomainType, viewDomainType);
     }
 
-    private DomainType GetActualDomainType(ReferenceData aReference) => aReference == null
+    private DomainType GetActualDomainType(ReferenceData referenceData) => referenceData == null
         ? GetDomainType((IType)null)
-        : GetDomainType(aReference.ModelId);
-
-    public object GetObject(ReferenceData aReference) => GetActualDomainType(aReference).Locate(aReference);
+        : GetDomainType(referenceData.ModelId);
 }
 
 public class TypeNotFoundException : Exception

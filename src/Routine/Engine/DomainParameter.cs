@@ -100,8 +100,8 @@ public class DomainParameter
 
         Name = ctx.CodingStyle.GetName(parameter);
         ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
-        Marks = new Marks(ctx.CodingStyle.GetMarks(parameter));
-        Groups = new List<int> { initialGroupIndex };
+        Marks = new(ctx.CodingStyle.GetMarks(parameter));
+        Groups = new() { initialGroupIndex };
         IsList = parameter.ParameterType.CanBeCollection();
         IsOptional = ctx.CodingStyle.IsOptional(parameter);
 
@@ -129,16 +129,13 @@ public class DomainParameter
             DefaultValue = ctx.CreateValueData(defaultValue, IsList, ParameterType, false)
         };
 
-    internal object Locate(ParameterValueData parameterValueData)
+    internal async Task<object> LocateAsync(ParameterValueData parameterValueData)
     {
-        if (!IsList)
-        {
-            return GetObject(parameterValueData);
-        }
+        if (!IsList) { return await GetObjectAsync(parameterValueData); }
 
         var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
 
-        var objects = GetObjects(parameterValueData);
+        var objects = await GetObjectsAsync(parameterValueData);
 
         for (var i = 0; i < objects.Count; i++)
         {
@@ -155,29 +152,25 @@ public class DomainParameter
         return result;
     }
 
-    private object GetObject(ParameterValueData parameterValueData)
+    private async Task<object> GetObjectAsync(ParameterValueData parameterValueData)
     {
         if (!parameterValueData.Values.Any())
         {
             return null;
         }
 
-        var parameterData = parameterValueData.Values[0];
+        var parameterData = parameterValueData.Values.First();
 
-        return GetDomainType(parameterData).Locate(parameterData);
+        return await GetDomainType(parameterData).LocateAsync(parameterData);
     }
 
-    private List<object> GetObjects(ParameterValueData parameterValueData)
+    private async Task<List<object>> GetObjectsAsync(ParameterValueData parameterValueData)
     {
-        if (!parameterValueData.Values.Any())
-        {
-            return new List<object>();
-        }
+        if (!parameterValueData.Values.Any()) { return new(); }
 
         var result = new List<object>();
 
         var domainTypes = parameterValueData.Values.Select(GetDomainType).ToList();
-
         if (domainTypes.Any(dt => !Equals(dt, ParameterType)))
         {
             for (var i = 0; i < parameterValueData.Values.Count; i++)
@@ -185,12 +178,12 @@ public class DomainParameter
                 var parameterData = parameterValueData.Values[i];
                 var domainType = domainTypes[i];
 
-                result.Add(domainType.Locate(parameterData));
+                result.Add(await domainType.LocateAsync(parameterData));
             }
         }
         else
         {
-            result.AddRange(ParameterType.LocateMany(parameterValueData.Values));
+            result.AddRange(await ParameterType.LocateManyAsync(parameterValueData.Values));
         }
 
         return result;

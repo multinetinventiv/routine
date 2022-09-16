@@ -195,9 +195,9 @@ public class DomainType
             StaticInstances = staticInstances.Select(o => ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
         };
 
-    internal object Locate(ParameterData parameterData) => LocateMany(new List<ParameterData> { parameterData })[0];
+    internal async Task<object> LocateAsync(ParameterData parameterData) => (await LocateManyAsync(new List<ParameterData> { parameterData })).First();
 
-    internal List<object> LocateMany(List<ParameterData> parameterDatas)
+    internal async Task<List<object>> LocateManyAsync(List<ParameterData> parameterDatas)
     {
         var result = new object[parameterDatas.Count];
 
@@ -208,7 +208,7 @@ public class DomainType
             var parameterData = parameterDatas[i];
             if (Initializable && parameterData != null && string.IsNullOrEmpty(parameterData.Id))
             {
-                result[i] = Initializer.Initialize(parameterData.InitializationParameters);
+                result[i] = await Initializer.InitializeAsync(parameterData.InitializationParameters);
             }
             else if (parameterData == null)
             {
@@ -223,7 +223,7 @@ public class DomainType
         if (locateIdsWithOriginalIndex.Any())
         {
             var locateIds = locateIdsWithOriginalIndex.Select(t => t.Item2).ToList();
-            var located = LocateMany(locateIds);
+            var located = await LocateManyAsync(locateIds);
 
             if (located.Count != locateIdsWithOriginalIndex.Count)
             {
@@ -240,24 +240,17 @@ public class DomainType
         return result.ToList();
     }
 
-    public object Locate(ReferenceData referenceData) => referenceData == null ? null : Locate(referenceData.Id);
-    public object Locate(string id) => LocateMany(new List<string> { id })[0];
+    public async Task<object> LocateAsync(ReferenceData referenceData) => referenceData == null ? null : await LocateAsync(referenceData.Id);
+    public async Task<object> LocateAsync(string id) => (await LocateManyAsync(new List<string> { id })).First();
 
-    public List<object> LocateMany(List<string> ids)
+    public async Task<List<object>> LocateManyAsync(List<string> ids)
     {
-        if (!Locatable)
-        {
-            throw new CannotLocateException(Type, ids);
-        }
-
-        if (!ids.Any())
-        {
-            return new List<object>();
-        }
+        if (!Locatable) { throw new CannotLocateException(Type, ids); }
+        if (!ids.Any()) { return new(); }
 
         var notNullIds = ids.Select(id => id ?? string.Empty).ToList();
 
-        return locator.Locate(Type, notNullIds);
+        return await locator.LocateAsync(Type, notNullIds);
     }
 
     public object Convert(object target, DomainType viewDomainType)

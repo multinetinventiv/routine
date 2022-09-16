@@ -1,12 +1,8 @@
 using Routine.Engine;
-using Routine.Test.Engine.Stubs.LocateInvokers;
 
 namespace Routine.Test.Engine.Locator;
 
-[TestFixture(typeof(Async))]
-[TestFixture(typeof(Sync))]
-public class SingleDelegateLocatorTest<TLocateInvoker> : LocatorTestBase<TLocateInvoker>
-    where TLocateInvoker : ILocateInvoker, new()
+public class SingleDelegateLocatorTest
 {
     static object[] Locators = new object[]
     {
@@ -17,9 +13,9 @@ public class SingleDelegateLocatorTest<TLocateInvoker> : LocatorTestBase<TLocate
     };
 
     [TestCaseSource(nameof(Locators))]
-    public void Uses_delegate_to_locate_objects(ILocator locator)
+    public async Task Uses_delegate_to_locate_objects(ILocator locator)
     {
-        var actual = invoker.InvokeLocate(locator, type.of<string>(), new List<string> { "test1", "test2" });
+        var actual = await locator.LocateAsync(type.of<string>(), new List<string> { "test1", "test2" });
 
         Assert.AreEqual("located: test1", actual[0]);
         Assert.AreEqual("located: test2", actual[1]);

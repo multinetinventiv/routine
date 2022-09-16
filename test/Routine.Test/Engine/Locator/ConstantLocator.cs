@@ -1,18 +1,15 @@
-using Routine.Test.Engine.Stubs.LocateInvokers;
+using Routine.Engine;
 
 namespace Routine.Test.Engine.Locator;
 
-[TestFixture(typeof(Async))]
-[TestFixture(typeof(Sync))]
-public class ConstantLocator<TLocateInvoker> : LocatorTestBase<TLocateInvoker>
-    where TLocateInvoker : ILocateInvoker, new()
+public class ConstantLocator
 {
     [Test]
-    public void Always_locates_given_constant()
+    public async Task Always_locates_given_constant()
     {
-        var locator = BuildRoutine.Locator().Constant("constant");
+        var locator = BuildRoutine.Locator().Constant("constant") as ILocator;
 
-        var actual = invoker.InvokeLocate(locator, type.of<string>(), new List<string> { string.Empty, string.Empty });
+        var actual = await locator.LocateAsync(type.of<string>(), new List<string> { string.Empty, string.Empty });
 
         Assert.AreEqual("constant", actual[0]);
         Assert.AreEqual("constant", actual[1]);

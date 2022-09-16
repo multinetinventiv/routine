@@ -3,23 +3,23 @@ using Routine.Core.Rest;
 using Routine.Service;
 using Routine.Service.Configuration;
 using Routine.Test.Core;
-using Routine.Test.Engine.Stubs.DoInvokers;
+using Routine.Test.Engine.Stubs.ObjectServiceInvokers;
 using Routine.Test.Service.Stubs;
 using System.Linq.Expressions;
 using System.Net;
 
-using AsyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Async;
+using AsyncInvoker = Routine.Test.Engine.Stubs.ObjectServiceInvokers.Async;
 using AsyncStubber = Routine.Test.Service.Stubs.Async;
-using SyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Sync;
+using SyncInvoker = Routine.Test.Engine.Stubs.ObjectServiceInvokers.Sync;
 using SyncStubber = Routine.Test.Service.Stubs.Sync;
 
 namespace Routine.Test.Service;
 
 [TestFixture(typeof(SyncStubber), typeof(SyncInvoker))]
 [TestFixture(typeof(AsyncStubber), typeof(AsyncInvoker))]
-public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreTestBase
+public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvoker> : CoreTestBase
     where TRestClientStubber : IRestClientStubber, new()
-    where TDoInvoker : IDoInvoker, new()
+    where TObjectServiceInvoker : IObjectServiceInvoker, new()
 {
     #region SetUp & Helpers
 
@@ -30,7 +30,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     private IJsonSerializer serializer;
     private RestClientObjectService testing;
     private IRestClientStubber stubber;
-    private IDoInvoker invoker;
+    private IObjectServiceInvoker invoker;
 
     public override void SetUp()
     {
@@ -43,7 +43,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
         mock = new Mock<IRestClient>();
         testing = new RestClientObjectService(config, mock.Object, serializer);
         stubber = new TRestClientStubber();
-        invoker = new TDoInvoker();
+        invoker = new TObjectServiceInvoker();
 
         mock.Setup(rc => rc.Get($"{URL_BASE}/ApplicationModel", It.IsAny<RestRequest>()))
             .Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
@@ -54,7 +54,6 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, string response) => SetUpGet(url, match, new RestResponse(response));
     private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, RestResponse response) =>
         mock.Setup(rc => rc.Get(url, It.Is(match))).Returns(response);
-
 
     private void SetUpGet(string url, WebException exception) => SetUpGet(url, req => true, exception);
     private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, WebException exception) =>
@@ -103,7 +102,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             response: @"{""Id"":""3"",""Display"":""Test""}"
         );
 
-        var actual = testing.Get(Id("3", "model"));
+        var actual = invoker.InvokeGet(testing, Id("3", "model"));
 
         Assert.AreEqual("Test", actual.Display);
     }
@@ -121,7 +120,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             response: @"{""Id"":""3"",""Display"":""Test""}"
         );
 
-        var actual = testing.Get(Id("3", "model", "viewmodel"));
+        var actual = invoker.InvokeGet(testing, Id("3", "model", "viewmodel"));
 
         Assert.AreEqual("Test", actual.Display);
     }
@@ -129,7 +128,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     [Test]
     public void When_given_reference_data_is_null__returns_null_without_making_a_remote_call()
     {
-        var actual = testing.Get(Null());
+        var actual = invoker.InvokeGet(testing, Null());
 
         Assert.AreEqual(null, actual);
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
@@ -152,7 +151,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             response: @"""3"""
         );
 
-        testing.Get(Id("3", "model"));
+        invoker.InvokeGet(testing, Id("3", "model"));
 
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.Is<RestRequest>(req =>
             req.Headers.ContainsKey("header1") &&
@@ -182,7 +181,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             )
         );
 
-        testing.Get(Id("3", "model"));
+        invoker.InvokeGet(testing, Id("3", "model"));
 
         mockHeaderProcessor.Verify(hp => hp.Process(It.Is<IDictionary<string, string>>(h =>
             h.ContainsKey("header1") &&
@@ -304,7 +303,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            testing.Get(Id("3", "model"));
+            invoker.InvokeGet(testing, Id("3", "model"));
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -344,7 +343,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            testing.Get(Id("3", "model"));
+            invoker.InvokeGet(testing, Id("3", "model"));
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
