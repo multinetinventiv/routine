@@ -6,6 +6,20 @@ namespace Routine.Test.Service.Stubs;
 
 public class Async : IRestClientStubber
 {
+    public void SetUpGet(
+        Mock<IRestClient> mock,
+        string url,
+        Expression<Func<RestRequest, bool>> match,
+        RestResponse response
+    ) => mock.Setup(rc => rc.GetAsync(url, It.Is(match))).ReturnsAsync(response);
+
+    public void SetUpGet(
+        Mock<IRestClient> mock,
+        string url,
+        Expression<Func<RestRequest, bool>> match,
+        WebException exception
+    ) => mock.Setup(rc => rc.GetAsync(url, It.Is(match))).ThrowsAsync(exception);
+
     public void SetUpPost(Mock<IRestClient> mock,
         string url,
         Expression<Func<RestRequest, bool>> match,
