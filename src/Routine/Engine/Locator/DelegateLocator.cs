@@ -9,5 +9,6 @@ public class DelegateLocator : LocatorBase<DelegateLocator>
         this.locatorDelegate = locatorDelegate ?? throw new ArgumentNullException(nameof(locatorDelegate));
     }
 
-    protected override Task<List<object>> LocateAsync(IType type, List<string> ids) => Task.FromResult(locatorDelegate(type, ids).Cast<object>().ToList());
+    protected override Task<List<object>> LocateAsync(IType type, List<string> ids) =>
+        Task.FromResult(locatorDelegate(type, ids).Cast<object>().ToList());
 }

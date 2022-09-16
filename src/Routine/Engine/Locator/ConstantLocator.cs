@@ -2,15 +2,13 @@ namespace Routine.Engine.Locator;
 
 public class ConstantLocator : LocatorBase<ConstantLocator>
 {
-    private object staticResult;
+    private object constant;
 
-    public ConstantLocator(object staticResult)
+    public ConstantLocator(object constant)
     {
-        this.staticResult = staticResult;
+        this.constant = constant;
     }
 
-    protected override Task<List<object>> LocateAsync(IType type, List<string> ids)
-    {
-        throw new NotImplementedException();
-    }
+    protected override Task<List<object>> LocateAsync(IType type, List<string> ids) =>
+        Task.FromResult(ids.Select(_ => constant).ToList());
 }

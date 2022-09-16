@@ -10,5 +10,5 @@ public class SingleDelegateLocator : LocatorBase<SingleDelegateLocator>
     }
 
     protected override Task<List<object>> LocateAsync(IType type, List<string> ids) =>
-        Task.FromResult(ids.Select(id => locatorDelegate(type, id)).Cast<object>().ToList());
+        Task.FromResult(ids.Select(id => locatorDelegate(type, id)).ToList());
 }

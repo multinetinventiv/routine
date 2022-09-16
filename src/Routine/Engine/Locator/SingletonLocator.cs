@@ -11,6 +11,8 @@ public class SingletonLocator : LocatorBase<SingletonLocator>
 
     protected override Task<List<object>> LocateAsync(IType type, List<string> ids)
     {
-        throw new NotImplementedException();
+        var result = locatorDelegate(type);
+
+        return Task.FromResult(ids.Select(_ => result).ToList());
     }
 }

@@ -9,8 +9,10 @@ public class SingletonAsyncLocator : LocatorBase<SingletonAsyncLocator>
         this.locatorDelegate = locatorDelegate;
     }
 
-    protected override Task<List<object>> LocateAsync(IType type, List<string> ids)
+    protected override async Task<List<object>> LocateAsync(IType type, List<string> ids)
     {
-        throw new NotImplementedException();
+        var result = await locatorDelegate(type);
+
+        return ids.Select(_ => result).ToList();
     }
 }
