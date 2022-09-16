@@ -7,7 +7,7 @@ public class LocatorBaseTest
 {
     #region SetUp & Helpers
 
-    public class TestLocator : LocatorBase<TestLocator>
+    private class TestLocator : LocatorBase<TestLocator>
     {
         private readonly bool provideDifferentNumberOfObjects;
 
@@ -35,7 +35,7 @@ public class LocatorBaseTest
     public async Task Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
     {
         var testing = new TestLocator(false);
-        var testingInterface = (ILocator)testing;
+        var testingInterface = testing as ILocator;
 
         testing.AcceptNullResult(true);
 
@@ -51,7 +51,7 @@ public class LocatorBaseTest
     public void Locate_throws_cannot_locate_exception_when_result_count_is_different_than_given_id_count()
     {
         var testing = new TestLocator(true);
-        var testingInterface = (ILocator)testing;
+        var testingInterface = testing as ILocator;
 
         Assert.ThrowsAsync<CannotLocateException>(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
     }
