@@ -1,14 +1,21 @@
 using Routine.Client;
 using Routine.Core;
 using Routine.Engine.Context;
-using Routine.Test.Client.Stubs;
+using Routine.Test.Client.Stubs.Performers;
+using Routine.Test.Client.Stubs.Getters;
+
+using SyncGetter = Routine.Test.Client.Stubs.Getters.Sync;
+using AsyncGetter = Routine.Test.Client.Stubs.Getters.Async;
+using SyncPerformer = Routine.Test.Client.Stubs.Performers.Sync;
+using AsyncPerformer = Routine.Test.Client.Stubs.Performers.Async;
 
 namespace Routine.Test.Client;
 
 [TestFixture]
 public class ClientTest : ClientTestBase
 {
-    public static List<IPerformer> SyncAndAsync() => new() { new Sync(), new Async() };
+    public static List<IPerformer> Performers() => new() { new SyncPerformer(), new AsyncPerformer() };
+    public static List<IGetter> Getters() => new() { new SyncGetter(), new AsyncGetter() };
 
     [Test]
     public void Client_gets_all_types_in_application_via_Rapplication()
@@ -106,17 +113,90 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("viewModule", testingRobject.Type.Module);
     }
 
-    [Test]
-    public void Robjects_can_be_loaded_on_demand()
+    [TestCaseSource(nameof(Getters))]
+    public void Robjects_fetch_data_when_asked(IGetter getter)
     {
-        Assert.Fail("LoadObject & LoadObjectAsync");
+        ModelsAre(
+            Model("model")
+            .Data("data1")
+            .Data("data2")
+        );
+
+        ObjectsAre(
+            Object(Id("id1")),
+            Object(Id("id2"))
+        );
+
+        ObjectsAre(
+            Object(Id("id", "model"))
+            .Data("data1", Id("id1"))
+            .Data("data2", Id("id2"))
+        );
+
+        var testingRobject = Robj("id", "model");
+
+        var datasFirstFetch = testingRobject.DataValues;
+        Assert.AreEqual("data1", datasFirstFetch[0].Data.Name);
+        Assert.AreEqual("id1", getter.Get(datasFirstFetch[0]).Object.Id);
+
+        Assert.AreEqual("data2", datasFirstFetch[1].Data.Name);
+        Assert.AreEqual("id2", getter.Get(datasFirstFetch[1]).Object.Id);
+
+        getter.VerifyGet(objectServiceMock);
     }
 
-    [Test]
-    public void Robjects_fetch_data_only_when_asked()
+    [TestCaseSource(nameof(Getters))]
+    public void Robjects_fetch_data_only_once(IGetter getter)
     {
-        Assert.Fail("add GetAsync");
+        ModelsAre(
+            Model("model")
+            .Data("data1")
+            .Data("data2")
+        );
 
+        ObjectsAre(
+            Object(Id("id1")),
+            Object(Id("id2"))
+        );
+
+        ObjectsAre(
+            Object(Id("id", "model"))
+            .Data("data1", Id("id1"))
+            .Data("data2", Id("id2"))
+        );
+
+        var testingRobject = Robj("id", "model");
+
+        var datasFirstFetch = testingRobject.DataValues;
+        getter.Get(datasFirstFetch[0]);
+        getter.Get(datasFirstFetch[1]);
+
+        var datasSecondFetch = testingRobject.DataValues;
+        getter.Get(datasSecondFetch[0]);
+
+        getter.VerifyGet(objectServiceMock, Times.Once());
+    }
+
+    [TestCaseSource(nameof(Getters))]
+    public void Robjects_fetch_value_along_with_data(IGetter getter)
+    {
+        ModelsAre(Model("model").Data("data1"));
+        ObjectsAre(
+            Object(Id("id1")).Display("value1"),
+            Object(Id("id", "model"))
+            .Display("value")
+            .Data("data1", Id("id1")));
+
+        var testingRobject = Robj("id", "model");
+        getter.Get(testingRobject.DataValues[0]);
+
+        Assert.AreEqual("value", testingRobject.Display);
+    }
+
+    // [TestCaseSource(nameof(Loaders))]
+    public void Robjects_load_data_on_demand()
+    {
+        Assert.Fail("not tested");
         ModelsAre(
             Model("model")
             .Data("data1")
@@ -131,6 +211,8 @@ public class ClientTest : ClientTestBase
             .Data("data2", Id("id2")));
 
         var testingRobject = Robj("id", "model");
+
+        testingRobject.LoadObject();
 
         var datasFirstFetch = testingRobject.DataValues;
         Assert.AreEqual("data1", datasFirstFetch[0].Data.Name);
@@ -149,25 +231,7 @@ public class ClientTest : ClientTestBase
         objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Once());
     }
 
-    [Test]
-    public void Robjects_fetch_value_along_with_data()
-    {
-        Assert.Fail("add GetAsync");
-
-        ModelsAre(Model("model").Data("data1"));
-        ObjectsAre(
-            Object(Id("id1")).Display("value1"),
-            Object(Id("id", "model"))
-            .Display("value")
-            .Data("data1", Id("id1")));
-
-        var testingRobject = Robj("id", "model");
-        testingRobject.DataValues[0].Get();
-
-        Assert.AreEqual("value", testingRobject.Display);
-    }
-
-    [TestCaseSource(nameof(SyncAndAsync))]
+    [TestCaseSource(nameof(Performers))]
     public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode(IPerformer performer)
     {
         ModelsAre(
@@ -237,7 +301,7 @@ public class ClientTest : ClientTestBase
         Assert.IsTrue(testingRvariable.Object.IsNull);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
+    [TestCaseSource(nameof(Performers))]
     public void Robject_behaves_optimistic_when_it_is_null(IPerformer performer)
     {
         Assert.Fail("add GetAsync");
@@ -254,7 +318,7 @@ public class ClientTest : ClientTestBase
         Assert.IsTrue(performer.Perform(testingRobject, "some non existing operation").IsNull);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
+    [TestCaseSource(nameof(Performers))]
     public void Client_performs_operation_via_Robject(IPerformer performer)
     {
         ModelsAre(
@@ -287,7 +351,7 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("id_result", result.Object.Id);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
+    [TestCaseSource(nameof(Performers))]
     public void Client_can_initialize_objects_via_Robject(IPerformer performer)
     {
         ModelsAre(
@@ -389,7 +453,7 @@ public class ClientTest : ClientTestBase
         Assert.AreNotEqual(robj1, robj2);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
+    [TestCaseSource(nameof(Performers))]
     public void Roperation_can_return_void_result(IPerformer performer)
     {
         ModelsAre(

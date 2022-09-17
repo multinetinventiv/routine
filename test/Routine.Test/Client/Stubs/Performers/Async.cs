@@ -3,7 +3,7 @@ using Routine.Core.Runtime;
 using Routine.Core;
 using System.Linq.Expressions;
 
-namespace Routine.Test.Client.Stubs;
+namespace Routine.Test.Client.Stubs.Performers;
 
 public class Async : IPerformer
 {

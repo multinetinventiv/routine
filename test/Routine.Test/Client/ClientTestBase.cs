@@ -28,6 +28,8 @@ public abstract class ClientTestBase : CoreTestBase
             .Returns(GetApplicationModel);
         objectServiceMock.Setup(o => o.Get(It.IsAny<ReferenceData>()))
             .Returns((ReferenceData ord) => ObjectData(ord));
+        objectServiceMock.Setup(o => o.GetAsync(It.IsAny<ReferenceData>()))
+            .ReturnsAsync((ReferenceData ord) => ObjectData(ord));
         objectServiceMock.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
             .Returns(Void());
         objectServiceMock.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
