@@ -26,7 +26,7 @@ public class HttpClientRestClient : IRestClient
         {
             var req = BuildRequest(url, request, method);
 
-            var res = newClient().Send(req);
+            var res = newClient().Send(req).EnsureSuccessStatusCode();
             var rs = res.Content.ReadAsStream();
 
             if (rs == null) { return RestResponse.Empty; }
@@ -51,7 +51,7 @@ public class HttpClientRestClient : IRestClient
         {
             var req = BuildRequest(url, request, method);
 
-            var res = await newClient().SendAsync(req);
+            var res = (await newClient().SendAsync(req)).EnsureSuccessStatusCode();
             var rs = await res.Content.ReadAsStreamAsync();
 
             if (rs == null) { return RestResponse.Empty; }
