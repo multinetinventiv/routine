@@ -82,11 +82,19 @@ public abstract class CoreTestBase
             return this;
         }
 
-        public ObjectModelBuilder Mark(params string[] marks) { result.Marks.AddRange(marks); return this; }
-        public ObjectModelBuilder MarkInitializer(params string[] marks) { result.Initializer.Marks.AddRange(marks); return this; }
-        public ObjectModelBuilder MarkData(string dataName, params string[] marks) { result.Datas.Single(m => m.Name == dataName).Marks.AddRange(marks); return this; }
-        public ObjectModelBuilder MarkOperation(string operationName, params string[] marks) { result.Operations.Single(o => o.Name == operationName).Marks.AddRange(marks); return this; }
-        public ObjectModelBuilder MarkParameter(string operationName, string parameterName, params string[] marks) { result.Operations.Single(o => o.Name == operationName).Parameters.Single(p => p.Name == parameterName).Marks.AddRange(marks); return this; }
+        public ObjectModelBuilder Mark(params string[] marks) { AddMarks(marks, result.Marks); return this; }
+        public ObjectModelBuilder MarkInitializer(params string[] marks) { AddMarks(marks, result.Initializer.Marks); return this; }
+        public ObjectModelBuilder MarkData(string dataName, params string[] marks) { AddMarks(marks, result.Datas.Single(m => m.Name == dataName).Marks); return this; }
+        public ObjectModelBuilder MarkOperation(string operationName, params string[] marks) { AddMarks(marks, result.Operations.Single(o => o.Name == operationName).Marks); return this; }
+        public ObjectModelBuilder MarkParameter(string operationName, string parameterName, params string[] marks) { AddMarks(marks, result.Operations.Single(o => o.Name == operationName).Parameters.Single(p => p.Name == parameterName).Marks); return this; }
+
+        private void AddMarks(IEnumerable<string> marks, HashSet<string> target)
+        {
+            foreach (var mark in marks)
+            {
+                target.Add(mark);
+            }
+        }
 
         public ObjectModelBuilder IsValue() { result.IsValueModel = true; return this; }
 

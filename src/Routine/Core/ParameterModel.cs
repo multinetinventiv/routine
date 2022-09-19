@@ -2,14 +2,14 @@ namespace Routine.Core;
 
 public class ParameterModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
-    public List<int> Groups { get; set; } = new List<int>();
+    public HashSet<string> Marks { get; set; } = new();
+    public List<int> Groups { get; set; } = new();
 
     public string Name { get; set; }
     public string ViewModelId { get; set; }
     public bool IsList { get; set; }
     public bool IsOptional { get; set; }
-    public VariableData DefaultValue { get; set; } = new VariableData();
+    public VariableData DefaultValue { get; set; } = new();
 
     public ParameterModel() { }
     public ParameterModel(IDictionary<string, object> model)
@@ -18,7 +18,7 @@ public class ParameterModel
 
         if (model.TryGetValue("Marks", out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
         if (model.TryGetValue("Groups", out var groups))

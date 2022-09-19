@@ -182,7 +182,7 @@ public class DomainType
         new()
         {
             Id = Id,
-            Marks = Marks.List,
+            Marks = Marks.Set,
             Name = Name,
             Module = Module,
             IsViewModel = IsViewModel,

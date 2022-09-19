@@ -2,30 +2,30 @@
 
 public class Marks
 {
-    private readonly Dictionary<string, bool> marks;
+    private readonly HashSet<string> marks;
 
     public Marks() : this(new string[] { }) { }
     public Marks(IEnumerable<string> list)
     {
-        marks = new Dictionary<string, bool>();
+        marks = new();
 
         foreach (var mark in list)
         {
-            marks.Add(mark, true);
+            marks.Add(mark);
         }
     }
 
-    public List<string> List => marks.Keys.ToList();
+    public HashSet<string> Set => marks;
 
-    public bool Has(string mark) { return marks.ContainsKey(mark); }
+    public bool Has(string mark) { return marks.Contains(mark); }
 
     public void Join(IEnumerable<string> list)
     {
         foreach (var mark in list)
         {
-            if (!marks.ContainsKey(mark))
+            if (!marks.Contains(mark))
             {
-                marks.Add(mark, true);
+                marks.Add(mark);
             }
         }
     }

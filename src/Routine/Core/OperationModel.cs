@@ -2,12 +2,12 @@ namespace Routine.Core;
 
 public class OperationModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
+    public HashSet<string> Marks { get; set; } = new();
     public int GroupCount { get; set; }
 
     public string Name { get; set; }
-    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new Dictionary<string, ParameterModel>();
-    public ResultModel Result { get; set; } = new ResultModel();
+    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new();
+    public ResultModel Result { get; set; } = new();
 
     public OperationModel() { }
     public OperationModel(IDictionary<string, object> model)
@@ -16,7 +16,7 @@ public class OperationModel
 
         if (model.TryGetValue("Marks", out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
         if (model.TryGetValue("GroupCount", out var groupCount))

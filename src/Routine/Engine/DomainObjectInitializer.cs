@@ -59,7 +59,7 @@ public class DomainObjectInitializer : IDomainParametric<IConstructor>
     public InitializerModel GetModel() =>
         new()
         {
-            Marks = Marks.List,
+            Marks = Marks.Set,
             GroupCount = groups.Count,
             Parameters = Parameters.Select(p => p.GetModel()).ToList()
         };

@@ -69,7 +69,7 @@ public class Rtype
     public List<Rdata> Datas => Data.Values.ToList();
     public List<Roperation> Operations => Operation.Values.ToList();
 
-    public List<string> Marks => model.Marks;
+    public HashSet<string> Marks => model.Marks;
 
     public bool MarkedAs(string mark) => model.Marks.Contains(mark);
 

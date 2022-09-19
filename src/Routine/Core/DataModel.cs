@@ -2,7 +2,7 @@ namespace Routine.Core;
 
 public class DataModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
+    public HashSet<string> Marks { get; set; } = new();
 
     public string Name { get; set; }
     public string ViewModelId { get; set; }
@@ -15,7 +15,7 @@ public class DataModel
 
         if (model.TryGetValue("Marks", out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
         if (model.TryGetValue("Name", out var name))

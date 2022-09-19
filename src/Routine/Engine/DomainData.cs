@@ -39,7 +39,7 @@ public class DomainData
         new()
         {
             Name = Name,
-            Marks = Marks.List,
+            Marks = Marks.Set,
             IsList = IsList,
             ViewModelId = DataType.Id
         };

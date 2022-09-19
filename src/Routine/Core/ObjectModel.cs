@@ -10,12 +10,12 @@ public class ObjectModel
     public bool IsValueModel { get; set; }
     public bool IsViewModel { get; set; }
 
-    public List<string> ViewModelIds { get; set; } = new List<string>();
-    public List<string> ActualModelIds { get; set; } = new List<string>();
-    public InitializerModel Initializer { get; set; } = new InitializerModel();
-    internal Dictionary<string, DataModel> Data { get; private set; } = new Dictionary<string, DataModel>();
-    internal Dictionary<string, OperationModel> Operation { get; private set; } = new Dictionary<string, OperationModel>();
-    public List<ObjectData> StaticInstances { get; set; } = new List<ObjectData>();
+    public List<string> ViewModelIds { get; set; } = new();
+    public List<string> ActualModelIds { get; set; } = new();
+    public InitializerModel Initializer { get; set; } = new();
+    internal Dictionary<string, DataModel> Data { get; private set; } = new();
+    internal Dictionary<string, OperationModel> Operation { get; private set; } = new();
+    public List<ObjectData> StaticInstances { get; set; } = new();
 
     public ObjectModel() { }
     public ObjectModel(IDictionary<string, object> model)

@@ -69,7 +69,7 @@ public class DomainOperation : IDomainParametric<IMethod>
         new()
         {
             Name = Name,
-            Marks = Marks.List,
+            Marks = Marks.Set,
             GroupCount = groups.Count,
             Parameters = Parameters.Select(p => p.GetModel()).ToList(),
             Result = new()

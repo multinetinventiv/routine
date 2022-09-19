@@ -2,10 +2,10 @@ namespace Routine.Core;
 
 public class InitializerModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
+    public HashSet<string> Marks { get; set; } = new();
     public int GroupCount { get; set; }
 
-    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new Dictionary<string, ParameterModel>();
+    internal Dictionary<string, ParameterModel> Parameter { get; private set; } = new();
 
     public InitializerModel() { }
     public InitializerModel(IDictionary<string, object> model)
@@ -14,7 +14,7 @@ public class InitializerModel
 
         if (model.TryGetValue("Marks", out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
         if (model.TryGetValue("GroupCount", out var groupCount))
