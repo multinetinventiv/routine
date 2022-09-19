@@ -1,7 +1,7 @@
 using Routine.Core;
 using Routine.Engine;
 using Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation;
-using Routine.Test.Engine.Stubs.DoInvokers;
+using Routine.Test.Engine.Stubs.ObjectServiceInvokers;
 using System.Globalization;
 
 #region Test Model
@@ -122,10 +122,10 @@ namespace Routine.Test.Engine
 {
     [TestFixture(typeof(Sync))]
     [TestFixture(typeof(Async))]
-    public class ObjectServiceTest_PerformOperation<TDoInvoker> : ObjectServiceTestBase
-        where TDoInvoker : IDoInvoker, new()
+    public class ObjectServiceTest_PerformOperation<TObjectServiceInvoker> : ObjectServiceTestBase
+        where TObjectServiceInvoker : IObjectServiceInvoker, new()
     {
-        #region Setup & Helpers
+        #region Setup & Helper
 
         private const string ACTUAL_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.BusinessOperation";
         private const string VIEW_OMID = "Routine.Test.Engine.Domain.ObjectServiceTest_PerformOperation.IBusinessOperation";
@@ -141,7 +141,7 @@ namespace Routine.Test.Engine
         private Mock<IBusinessOperation> businessMock;
         private BusinessOperation businessObj;
 
-        private IDoInvoker invoker;
+        private IObjectServiceInvoker invoker;
 
         [SetUp]
         public override void SetUp()
@@ -157,7 +157,7 @@ namespace Routine.Test.Engine
             businessMock = new Mock<IBusinessOperation>();
             businessObj = new BusinessOperation(businessMock.Object);
 
-            invoker = new TDoInvoker();
+            invoker = new TObjectServiceInvoker();
         }
 
         private void SetUpObject(string id) { SetUpObject(id, id); }

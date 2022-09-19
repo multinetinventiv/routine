@@ -12,7 +12,7 @@ public class SyncOverAsync : IBuilder
         Action<TVariableType> fail = null, Action<TVariableType> after = null,
         Func<Context, TVariableType> beforeCtx = null, Action<Context, TVariableType> successCtx = null,
         Action<Context, TVariableType> failCtx = null, Action<Context, TVariableType> afterCtx = null
-    ) => (before != null ? Builder.ByDecoratingAsync(before) : Builder.ByDecoratingAsync(beforeCtx))
+    ) => (before != null ? Builder.ByDecorating(before) : Builder.ByDecorating(beforeCtx))
         .Success(success).Fail(fail).After(after)
         .Success(successCtx).Fail(failCtx).After(afterCtx);
 }

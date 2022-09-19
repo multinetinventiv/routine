@@ -55,7 +55,7 @@ public class HandleRequestHandlerTest : CoreTestBase
         config = BuildRoutine.ServiceConfig().FromBasic();
         serviceContext.Setup(sc => sc.ServiceConfiguration).Returns(config);
         objectService.Setup(os => os.ApplicationModel).Returns(() => GetApplicationModel());
-        objectService.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData referenceData) =>
+        objectService.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData referenceData) =>
         {
             if (referenceData.Id == null)
             {
@@ -135,7 +135,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         await testing.Handle("model", "3", null, null);
 
-        objectService.Verify(os => os.Get(Id("3", "model")));
+        objectService.Verify(os => os.GetAsync(Id("3", "model")));
     }
 
     [Test]
@@ -171,35 +171,35 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         // /modelId
         await testing.Handle("model", null, null, null);
-        objectService.Verify(os => os.Get(Id(null, "model")));
+        objectService.Verify(os => os.GetAsync(Id(null, "model")));
 
         // /modelId-short
         await testing.Handle("model2", null, null, null);
-        objectService.Verify(os => os.Get(Id(null, "prefix.model2")));
+        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2")));
 
         // /modelId/id
         await testing.Handle("model", "instance", null, null);
-        objectService.Verify(os => os.Get(Id("instance", "model")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "model")));
 
         // /modelId-short/id
         await testing.Handle("model2", "instance", null, null);
-        objectService.Verify(os => os.Get(Id("instance", "prefix.model2")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2")));
 
         // /modelId/viewModelId
         await testing.Handle("model", "viewmodel", null, null);
-        objectService.Verify(os => os.Get(Id(null, "model", "viewmodel")));
+        objectService.Verify(os => os.GetAsync(Id(null, "model", "viewmodel")));
 
         // /modelId-short/viewModelId
         await testing.Handle("model2", "viewmodel", null, null);
-        objectService.Verify(os => os.Get(Id(null, "prefix.model2", "viewmodel")));
+        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "viewmodel")));
 
         // /modelId/viewModelId-short
         await testing.Handle("model", "viewmodel2", null, null);
-        objectService.Verify(os => os.Get(Id(null, "model", "prefix.viewmodel2")));
+        objectService.Verify(os => os.GetAsync(Id(null, "model", "prefix.viewmodel2")));
 
         // /modelId-short/viewModelId-short
         await testing.Handle("model2", "viewmodel2", null, null);
-        objectService.Verify(os => os.Get(Id(null, "prefix.model2", "prefix.viewmodel2")));
+        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "prefix.viewmodel2")));
 
         // /modelId/operation
         await testing.Handle("model", "action", null, null);
@@ -211,19 +211,19 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         // /modelId/id/viewModelId
         await testing.Handle("model", "instance", "viewmodel", null);
-        objectService.Verify(os => os.Get(Id("instance", "model", "viewmodel")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "model", "viewmodel")));
 
         // /modelId-short/id/viewModelId
         await testing.Handle("model2", "instance", "viewmodel", null);
-        objectService.Verify(os => os.Get(Id("instance", "prefix.model2", "viewmodel")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "viewmodel")));
 
         // /modelId/id/viewModelId-short
         await testing.Handle("model", "instance", "viewmodel2", null);
-        objectService.Verify(os => os.Get(Id("instance", "model", "prefix.viewmodel2")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "model", "prefix.viewmodel2")));
 
         // /modelId-short/id/viewModelId-short
         await testing.Handle("model2", "instance", "viewmodel2", null);
-        objectService.Verify(os => os.Get(Id("instance", "prefix.model2", "prefix.viewmodel2")));
+        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "prefix.viewmodel2")));
 
         // /modelId/id/operation
         await testing.Handle("model", "instance", "action", null);
@@ -260,7 +260,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         await testing.Handle("model", "3", null, null);
 
-        objectService.Verify(os => os.Get(Id("3", "model")));
+        objectService.Verify(os => os.GetAsync(Id("3", "model")));
     }
 
     [Test]
@@ -283,7 +283,8 @@ public class HandleRequestHandlerTest : CoreTestBase
         objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
         await testing.Handle("model", "3", "post", null);
-        objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
+
+        objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
         Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
         Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
     }
@@ -305,8 +306,8 @@ public class HandleRequestHandlerTest : CoreTestBase
         Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
         Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
-        objectService.Verify(os => os.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-        objectService.Verify(os => os.Get(It.IsAny<ReferenceData>()), Times.Never());
+        objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
+        objectService.Verify(os => os.GetAsync(It.IsAny<ReferenceData>()), Times.Never());
     }
 
     [Test]
@@ -599,26 +600,5 @@ public class HandleRequestHandlerTest : CoreTestBase
         objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
             pvd.Count == 0
         )));
-    }
-
-    [Test]
-    [Ignore("")]
-    public void Handles_exception()
-    {
-        Assert.Fail("not implemented");
-    }
-
-    [Test]
-    [Ignore("")]
-    public void IgnoreCase_for_parameternames()
-    {
-        Assert.Fail();
-    }
-
-    [Test]
-    [Ignore("")]
-    public void Clients_should_be_able_to_know_application_model_version_so_that_they_can_invalidate_their_cache()
-    {
-        Assert.Fail("not implemented");
     }
 }

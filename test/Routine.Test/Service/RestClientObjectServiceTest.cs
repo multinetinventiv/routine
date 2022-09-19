@@ -3,23 +3,22 @@ using Routine.Core.Rest;
 using Routine.Service;
 using Routine.Service.Configuration;
 using Routine.Test.Core;
-using Routine.Test.Engine.Stubs.DoInvokers;
+using Routine.Test.Engine.Stubs.ObjectServiceInvokers;
 using Routine.Test.Service.Stubs;
-using System.Linq.Expressions;
 using System.Net;
 
-using AsyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Async;
+using AsyncInvoker = Routine.Test.Engine.Stubs.ObjectServiceInvokers.Async;
 using AsyncStubber = Routine.Test.Service.Stubs.Async;
-using SyncInvoker = Routine.Test.Engine.Stubs.DoInvokers.Sync;
+using SyncInvoker = Routine.Test.Engine.Stubs.ObjectServiceInvokers.Sync;
 using SyncStubber = Routine.Test.Service.Stubs.Sync;
 
 namespace Routine.Test.Service;
 
 [TestFixture(typeof(SyncStubber), typeof(SyncInvoker))]
 [TestFixture(typeof(AsyncStubber), typeof(AsyncInvoker))]
-public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreTestBase
+public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvoker> : CoreTestBase
     where TRestClientStubber : IRestClientStubber, new()
-    where TDoInvoker : IDoInvoker, new()
+    where TObjectServiceInvoker : IObjectServiceInvoker, new()
 {
     #region SetUp & Helpers
 
@@ -30,7 +29,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     private IJsonSerializer serializer;
     private RestClientObjectService testing;
     private IRestClientStubber stubber;
-    private IDoInvoker invoker;
+    private IObjectServiceInvoker invoker;
 
     public override void SetUp()
     {
@@ -40,25 +39,15 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
         config = BuildRoutine.ServiceClientConfig().FromBasic()
             .ServiceUrlBase.Set(URL_BASE)
         ;
-        mock = new Mock<IRestClient>();
-        testing = new RestClientObjectService(config, mock.Object, serializer);
+
+        mock = new();
+        testing = new(config, mock.Object, serializer);
         stubber = new TRestClientStubber();
-        invoker = new TDoInvoker();
+        invoker = new TObjectServiceInvoker();
 
         mock.Setup(rc => rc.Get($"{URL_BASE}/ApplicationModel", It.IsAny<RestRequest>()))
-            .Returns(() => new RestResponse(serializer.Serialize(GetApplicationModel())));
+            .Returns(() => new(serializer.Serialize(GetApplicationModel())));
     }
-
-    private void SetUpGet(string url, string response) => SetUpGet(url, req => true, response);
-    private void SetUpGet(string url, RestResponse response) => SetUpGet(url, req => true, response);
-    private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, string response) => SetUpGet(url, match, new RestResponse(response));
-    private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, RestResponse response) =>
-        mock.Setup(rc => rc.Get(url, It.Is(match))).Returns(response);
-
-
-    private void SetUpGet(string url, WebException exception) => SetUpGet(url, req => true, exception);
-    private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, WebException exception) =>
-        mock.Setup(rc => rc.Get(url, It.Is(match))).Throws(exception);
 
     private class TestException : Exception { public TestException(string message) : base(message) { } }
 
@@ -68,7 +57,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
         mock.Setup(wr => wr.StatusCode).Returns(HttpStatusCode.NotFound);
         mock.Setup(wr => wr.StatusDescription).Returns(message);
 
-        return new WebException(message, null, WebExceptionStatus.Success, mock.Object);
+        return new(message, null, WebExceptionStatus.Success, mock.Object);
     }
 
     #endregion
@@ -98,12 +87,12 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     {
         ModelsAre(Model("model"));
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3",
             response: @"{""Id"":""3"",""Display"":""Test""}"
         );
 
-        var actual = testing.Get(Id("3", "model"));
+        var actual = invoker.InvokeGet(testing, Id("3", "model"));
 
         Assert.AreEqual("Test", actual.Display);
     }
@@ -116,12 +105,12 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             Model("viewmodel").IsView("model")
         );
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3/viewmodel",
             response: @"{""Id"":""3"",""Display"":""Test""}"
         );
 
-        var actual = testing.Get(Id("3", "model", "viewmodel"));
+        var actual = invoker.InvokeGet(testing, Id("3", "model", "viewmodel"));
 
         Assert.AreEqual("Test", actual.Display);
     }
@@ -129,10 +118,11 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     [Test]
     public void When_given_reference_data_is_null__returns_null_without_making_a_remote_call()
     {
-        var actual = testing.Get(Null());
+        var actual = invoker.InvokeGet(testing, Null());
 
         Assert.AreEqual(null, actual);
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+        mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
     }
@@ -147,19 +137,20 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         ModelsAre(Model("model"));
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3",
             response: @"""3"""
         );
 
-        testing.Get(Id("3", "model"));
+        invoker.InvokeGet(testing, Id("3", "model"));
 
-        mock.Verify(rc => rc.Get(It.IsAny<string>(), It.Is<RestRequest>(req =>
-            req.Headers.ContainsKey("header1") &&
-            req.Headers["header1"] == "header1_value" &&
-            req.Headers.ContainsKey("header2") &&
-            req.Headers["header2"] == "header2_value"
-        )));
+        stubber.VerifyGet(mock,
+            match: req =>
+                req.Headers.ContainsKey("header1") &&
+                req.Headers["header1"] == "header1_value" &&
+                req.Headers.ContainsKey("header2") &&
+                req.Headers["header2"] == "header2_value"
+        );
     }
 
     [Test]
@@ -171,7 +162,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         ModelsAre(Model("model"));
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3",
             response: new RestResponse("null",
                 new Dictionary<string, string>
@@ -182,7 +173,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             )
         );
 
-        testing.Get(Id("3", "model"));
+        invoker.InvokeGet(testing, Id("3", "model"));
 
         mockHeaderProcessor.Verify(hp => hp.Process(It.Is<IDictionary<string, string>>(h =>
             h.ContainsKey("header1") &&
@@ -207,14 +198,17 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
         );
 
         var actual = invoker.InvokeDo(testing, Id("3", "model"), "action",
-            new Dictionary<string, ParameterValueData>
+            new()
             {
                 {
                     "arg1",
-                    new ParameterValueData {Values = new List<ParameterData>
+                    new()
                     {
-                        new() {Id = "4", ModelId = "model"}
-                    }}
+                        Values = new()
+                        {
+                            new() { Id = "4", ModelId = "model" }
+                        }
+                    }
                 }
             });
 
@@ -225,10 +219,11 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
     [Test]
     public void When_given_target_is_null__returns_empty_variable_data_without_making_a_remote_call()
     {
-        var actual = invoker.InvokeDo(testing, Null(), "doesn't matter", new Dictionary<string, ParameterValueData>());
+        var actual = invoker.InvokeDo(testing, Null(), "doesn't matter", new());
 
         Assert.AreEqual(new VariableData(), actual);
         mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
+        mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         mock.Verify(rc => rc.PostAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
     }
@@ -248,7 +243,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             response: "null"
         );
 
-        invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+        invoker.InvokeDo(testing, Id("3", "model"), "action", new());
 
         stubber.VerifyPost(mock,
             match: req =>
@@ -278,7 +273,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
                 })
             );
 
-        invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+        invoker.InvokeDo(testing, Id("3", "model"), "action", new());
 
         mockHeaderProcessor.Verify(hp => hp.Process(It.Is<IDictionary<string, string>>(h =>
             h.ContainsKey("header1") &&
@@ -297,14 +292,14 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         ModelsAre(Model("model").Operation("action"));
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3",
             response: @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
         );
 
         try
         {
-            testing.Get(Id("3", "model"));
+            invoker.InvokeGet(testing, Id("3", "model"));
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -319,7 +314,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "model"), "action", new());
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -335,7 +330,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
             .Exception.Set(c => c.By(er => new TestException(er.Message)).When(er => er.Type == "Http.NotFound"))
         ;
 
-        SetUpGet(
+        stubber.SetUpGet(mock,
             url: $"{URL_BASE}/model/3",
             exception: HttpNotFound("server message")
         );
@@ -344,7 +339,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            testing.Get(Id("3", "model"));
+            invoker.InvokeGet(testing, Id("3", "model"));
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -359,7 +354,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            invoker.InvokeDo(testing, Id("3", "model"), "action", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "model"), "action", new());
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -380,7 +375,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            invoker.InvokeDo(testing, Id("3", "model"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "model"), "nonexistingaction", new());
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)
@@ -390,7 +385,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
         try
         {
-            invoker.InvokeDo(testing, Id("3", "nonexistingmodel"), "nonexistingaction", new Dictionary<string, ParameterValueData>());
+            invoker.InvokeDo(testing, Id("3", "nonexistingmodel"), "nonexistingaction", new());
             Assert.Fail("exception not thrown");
         }
         catch (TestException ex)

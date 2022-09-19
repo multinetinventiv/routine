@@ -1,18 +1,14 @@
 ﻿using Routine.Test.Core;
 using Routine.Test.Interception.Stubs.AroundInterceptorBuilders;
-using Routine.Test.Interception.Stubs.Invocations;
 
 using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
 using AsyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.Async;
 using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
-using SyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.Sync;
 using SyncOverAsyncBuilder = Routine.Test.Interception.Stubs.AroundInterceptorBuilders.SyncOverAsync;
 using IInvocation = Routine.Test.Interception.Stubs.Invocations.IInvocation;
 
 namespace Routine.Test.Interception;
 
-[TestFixture(typeof(SyncBuilder), typeof(SyncInvocation))]
-[TestFixture(typeof(SyncBuilder), typeof(AsyncInvocation))]
 [TestFixture(typeof(AsyncBuilder), typeof(SyncInvocation))]
 [TestFixture(typeof(AsyncBuilder), typeof(AsyncInvocation))]
 [TestFixture(typeof(SyncOverAsyncBuilder), typeof(SyncInvocation))]

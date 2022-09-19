@@ -1,11 +1,9 @@
-using Routine.Engine.Locator;
 using Routine.Engine;
-using Routine.Test.Core;
+using Routine.Engine.Locator;
 
 namespace Routine.Test.Engine.Locator;
 
-[TestFixture]
-public class LocatorBaseTest : CoreTestBase
+public class LocatorBaseTest
 {
     #region SetUp & Helpers
 
@@ -18,7 +16,7 @@ public class LocatorBaseTest : CoreTestBase
             this.provideDifferentNumberOfObjects = provideDifferentNumberOfObjects;
         }
 
-        protected override List<object> Locate(IType type, List<string> ids)
+        protected override Task<List<object>> LocateAsync(IType type, List<string> ids)
         {
             var result = ids.Select(_ => (object)null).ToList();
 
@@ -27,26 +25,26 @@ public class LocatorBaseTest : CoreTestBase
                 result.Add(null);
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 
     #endregion
 
     [Test]
-    public void Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
+    public async Task Locate_throws_cannot_locate_exception_when_result_is_null_and_locator_does_not_accept_null()
     {
         var testing = new TestLocator(false);
-        var testingInterface = (ILocator)testing;
+        var testingInterface = testing as ILocator;
 
         testing.AcceptNullResult(true);
 
-        var actual = testingInterface.Locate(type.of<string>(), new List<string> { "dummy" });
+        var actual = await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" });
         Assert.IsNull(actual[0]);
 
         testing.AcceptNullResult(false);
 
-        Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
+        Assert.ThrowsAsync<CannotLocateException>(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
     }
 
     [Test]
@@ -55,6 +53,6 @@ public class LocatorBaseTest : CoreTestBase
         var testing = new TestLocator(true);
         var testingInterface = testing as ILocator;
 
-        Assert.Throws<CannotLocateException>(() => testingInterface.Locate(type.of<string>(), new List<string> { "dummy" }));
+        Assert.ThrowsAsync<CannotLocateException>(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
     }
 }

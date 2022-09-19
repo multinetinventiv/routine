@@ -4,35 +4,34 @@ namespace Routine.Engine;
 
 internal class DomainParameterResolver<T> where T : class, IParametric
 {
-    private readonly List<DomainParameter.Group<T>> alternatives;
+    private readonly List<DomainParameter.Group<T>> groups;
     private readonly Dictionary<string, ParameterValueData> parameterValueDatas;
 
-    public DomainParameterResolver(List<DomainParameter.Group<T>> alternatives, Dictionary<string, ParameterValueData> parameterValueDatas)
+    public DomainParameterResolver(List<DomainParameter.Group<T>> groups, Dictionary<string, ParameterValueData> parameterValueDatas)
     {
         parameterValueDatas ??= new Dictionary<string, ParameterValueData>();
 
-        this.alternatives = alternatives;
+        this.groups = groups;
         this.parameterValueDatas = parameterValueDatas;
     }
 
-    public Resolution Resolve()
+    public async Task<Resolution> ResolveAsync()
     {
-        var mostCompatibleAlternative = FindMostCompatibleAlternative();
+        var mostCompatibleGroup = FindMostCompatibleGroup();
+        var parameters = await PrepareParametersForAsync(mostCompatibleGroup);
 
-        var parameters = PrepareParametersFor(mostCompatibleAlternative);
-
-        return new Resolution(mostCompatibleAlternative.Parametric, parameters);
+        return new Resolution(mostCompatibleGroup.Parametric, parameters);
     }
 
-    private object[] PrepareParametersFor(DomainParameter.Group<T> alternative)
+    private async Task<object[]> PrepareParametersForAsync(DomainParameter.Group<T> group)
     {
-        var result = new object[alternative.Parameters.Count];
+        var result = new object[group.Parameters.Count];
 
-        foreach (var parameter in alternative.Parametric.Parameters)
+        foreach (var parameter in group.Parametric.Parameters)
         {
             if (parameterValueDatas.TryGetValue(parameter.Name, out var parameterValueData))
             {
-                result[parameter.Index] = alternative.Parameters[parameter.Index].Locate(parameterValueData);
+                result[parameter.Index] = await group.Parameters[parameter.Index].LocateAsync(parameterValueData);
             }
             else if (parameter.IsOptional && parameter.HasDefaultValue)
             {
@@ -43,69 +42,69 @@ internal class DomainParameterResolver<T> where T : class, IParametric
         return result;
     }
 
-    private DomainParameter.Group<T> FindMostCompatibleAlternative()
+    private DomainParameter.Group<T> FindMostCompatibleGroup()
     {
-        if (alternatives.Count == 1)
+        if (groups.Count == 1)
         {
-            return alternatives[0];
+            return groups[0];
         }
 
-        var exactMatch = alternatives.SingleOrDefault(MatchesExactlyWithValues);
+        var exactMatch = groups.SingleOrDefault(MatchesExactlyWithValues);
 
         if (exactMatch != null)
         {
             return exactMatch;
         }
 
-        var foundAlternatives = FindAlternativesWithMostMatchedParameters();
+        var foundGroups = FindGroupsWithMostMatchedParameters();
 
-        return foundAlternatives.Count == 1
-            ? foundAlternatives[0]
-            : GetFirstAlternativeWithLeastNonMatchedParameters(foundAlternatives);
+        return foundGroups.Count == 1
+            ? foundGroups[0]
+            : GetFirstGroupWithLeastNonMatchedParameters(foundGroups);
     }
 
-    private bool MatchesExactlyWithValues(DomainParameter.Group<T> alternative) =>
-        alternative.Parametric.Parameters.Count == parameterValueDatas.Count &&
-        alternative.Parametric.Parameters.All(p => parameterValueDatas.ContainsKey(p.Name));
+    private bool MatchesExactlyWithValues(DomainParameter.Group<T> group) =>
+        group.Parametric.Parameters.Count == parameterValueDatas.Count &&
+        group.Parametric.Parameters.All(p => parameterValueDatas.ContainsKey(p.Name));
 
-    private List<DomainParameter.Group<T>> FindAlternativesWithMostMatchedParameters()
+    private List<DomainParameter.Group<T>> FindGroupsWithMostMatchedParameters()
     {
         var result = new List<DomainParameter.Group<T>>();
 
         var matchCount = int.MinValue;
 
-        foreach (var alternative in alternatives.OrderByDescending(o => o.Parameters.Count))
+        foreach (var group in groups.OrderByDescending(o => o.Parameters.Count))
         {
-            var tempCount = alternative.Parametric.Parameters.Count(p => parameterValueDatas.ContainsKey(p.Name));
+            var tempCount = group.Parametric.Parameters.Count(p => parameterValueDatas.ContainsKey(p.Name));
 
             if (tempCount > matchCount)
             {
                 result.Clear();
-                result.Add(alternative);
+                result.Add(group);
                 matchCount = tempCount;
             }
             else if (tempCount == matchCount)
             {
-                result.Add(alternative);
+                result.Add(group);
             }
         }
 
         return result;
     }
 
-    private DomainParameter.Group<T> GetFirstAlternativeWithLeastNonMatchedParameters(List<DomainParameter.Group<T>> foundAlternatives)
+    private DomainParameter.Group<T> GetFirstGroupWithLeastNonMatchedParameters(List<DomainParameter.Group<T>> foundGroups)
     {
         DomainParameter.Group<T> result = null;
 
         var nonMatchCount = int.MaxValue;
 
-        foreach (var alternative in foundAlternatives.OrderByDescending(o => o.Parameters.Count))
+        foreach (var group in foundGroups.OrderByDescending(o => o.Parameters.Count))
         {
-            var tempCount = alternative.Parametric.Parameters.Count(p => !parameterValueDatas.ContainsKey(p.Name));
+            var tempCount = group.Parametric.Parameters.Count(p => !parameterValueDatas.ContainsKey(p.Name));
 
             if (tempCount < nonMatchCount)
             {
-                result = alternative;
+                result = group;
                 nonMatchCount = tempCount;
             }
         }

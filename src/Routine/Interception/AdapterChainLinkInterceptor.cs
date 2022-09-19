@@ -19,6 +19,5 @@ public class AdapterChainLinkInterceptor<TContext> : IChainLinkInterceptor<TCont
         set => next = value ?? new LastChainLinkInterceptor<TContext>();
     }
 
-    public object Intercept(TContext context, Func<object> invocation) => real.Intercept(context, () => next.Intercept(context, invocation));
     public async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) => await real.InterceptAsync(context, async () => await next.InterceptAsync(context, invocation));
 }

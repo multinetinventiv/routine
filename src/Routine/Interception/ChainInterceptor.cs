@@ -46,11 +46,6 @@ public class ChainInterceptor<TContext> : IInterceptor<TContext>
         last = other.last;
     }
 
-    private object Intercept(TContext context, Func<object> invocation) =>
-        first == null
-            ? invocation()
-            : first.Intercept(context, invocation);
-
     private async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) =>
         first == null
             ? await invocation()
@@ -58,7 +53,6 @@ public class ChainInterceptor<TContext> : IInterceptor<TContext>
 
     #region IInterceptor<TContext> implementation
 
-    object IInterceptor<TContext>.Intercept(TContext context, Func<object> invocation) => Intercept(context, invocation);
     async Task<object> IInterceptor<TContext>.InterceptAsync(TContext context, Func<Task<object>> invocation) => await InterceptAsync(context, invocation);
 
     #endregion
