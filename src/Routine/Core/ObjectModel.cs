@@ -3,7 +3,7 @@ namespace Routine.Core;
 public class ObjectModel
 {
     public string Id { get; set; }
-    public List<string> Marks { get; set; } = new List<string>();
+    public HashSet<string> Marks { get; set; } = new HashSet<string>();
 
     public string Name { get; set; }
     public string Module { get; set; }
@@ -29,7 +29,7 @@ public class ObjectModel
 
         if (model.TryGetValue("Marks", out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
         if (model.TryGetValue("Name", out var name))
