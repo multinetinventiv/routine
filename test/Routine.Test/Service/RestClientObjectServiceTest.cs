@@ -64,6 +64,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
 
     private static WebException HttpNotFound(string message)
     {
+        Assert.Fail("migrate web exceptions to http client exceptions");
         var mock = new Mock<HttpWebResponse>();
         mock.Setup(wr => wr.StatusCode).Returns(HttpStatusCode.NotFound);
         mock.Setup(wr => wr.StatusDescription).Returns(message);
