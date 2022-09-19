@@ -7,7 +7,7 @@ namespace Routine.Test.Client;
 
 public abstract class ClientTestBase : CoreTestBase
 {
-    protected Mock<IObjectService> objectServiceMock;
+    protected Mock<IObjectService> mockObjectService;
 
     protected IClientContext ctx;
     protected Rapplication testingRapplication;
@@ -17,22 +17,22 @@ public abstract class ClientTestBase : CoreTestBase
     {
         base.SetUp();
 
-        objectServiceMock = new Mock<IObjectService>();
+        mockObjectService = new Mock<IObjectService>();
 
-        var clientContext = new DefaultClientContext(objectServiceMock.Object, new Rapplication(objectServiceMock.Object));
+        var clientContext = new DefaultClientContext(mockObjectService.Object, new Rapplication(mockObjectService.Object));
 
         ctx = clientContext;
         testingRapplication = clientContext.Application;
 
-        objectServiceMock.Setup(o => o.ApplicationModel)
+        mockObjectService.Setup(o => o.ApplicationModel)
             .Returns(GetApplicationModel);
-        objectServiceMock.Setup(o => o.Get(It.IsAny<ReferenceData>()))
+        mockObjectService.Setup(o => o.Get(It.IsAny<ReferenceData>()))
             .Returns((ReferenceData ord) => ObjectData(ord));
-        objectServiceMock.Setup(o => o.GetAsync(It.IsAny<ReferenceData>()))
+        mockObjectService.Setup(o => o.GetAsync(It.IsAny<ReferenceData>()))
             .ReturnsAsync((ReferenceData ord) => ObjectData(ord));
-        objectServiceMock.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
+        mockObjectService.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
             .Returns(Void());
-        objectServiceMock.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
+        mockObjectService.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
             .ReturnsAsync(Void());
 
         ModelsAre(Model());
