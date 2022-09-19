@@ -16,7 +16,7 @@ public class Async : IRestClientStubber
         Mock<IRestClient> mock,
         string url,
         Expression<Func<RestRequest, bool>> match,
-        WebException exception
+        RestRequestException exception
     ) => mock.Setup(rc => rc.GetAsync(url, It.Is(match))).ThrowsAsync(exception);
 
     public void SetUpPost(

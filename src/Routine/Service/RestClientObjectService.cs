@@ -128,19 +128,8 @@ public class RestClientObjectService : IObjectService
 
     private async Task<RestResponse> GetAsync(string url)
     {
-        try
-        {
-            return await restClient.GetAsync(url, BuildRequest(string.Empty));
-        }
-        catch (WebException ex)
-        {
-            if (ex.Response is not HttpWebResponse res)
-            {
-                throw;
-            }
-
-            return Wrap(res);
-        }
+        try { return await restClient.GetAsync(url, BuildRequest(string.Empty)); }
+        catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private RestResponse Post(string url, string body)
@@ -162,18 +151,17 @@ public class RestClientObjectService : IObjectService
                     .ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
             );
 
-    private RestResponse Wrap(RestRequestException ex) => new(
-        serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false))
-    );
+    private RestResponse Wrap(RestRequestException ex) =>
+        new(serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false)));
 
     private Exception OperationNotFound(string modelId, string operation) =>
-        serviceClientConfiguration.GetException(new ExceptionResult(nameof(OperationNotFound),
+        serviceClientConfiguration.GetException(new(nameof(OperationNotFound),
             $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.",
             false
         ));
 
     private Exception TypeNotFound(string modelId) =>
-        serviceClientConfiguration.GetException(new ExceptionResult(nameof(TypeNotFound),
+        serviceClientConfiguration.GetException(new(nameof(TypeNotFound),
             $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
             false
         ));

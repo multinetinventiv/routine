@@ -16,7 +16,7 @@ public class Sync : IRestClientStubber
         Mock<IRestClient> mock,
         string url,
         Expression<Func<RestRequest, bool>> match,
-        WebException exception
+        RestRequestException exception
     ) => mock.Setup(rc => rc.Get(url, It.Is(match))).Throws(exception);
 
     public void SetUpPost(
