@@ -1,4 +1,4 @@
-﻿using Routine.Core;
+using Routine.Core;
 using Routine.Core.Rest;
 using Routine.Service;
 using Routine.Service.Configuration;
@@ -51,14 +51,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
     private class TestException : Exception { public TestException(string message) : base(message) { } }
 
-    private static WebException HttpNotFound(string message)
-    {
-        var mock = new Mock<HttpWebResponse>();
-        mock.Setup(wr => wr.StatusCode).Returns(HttpStatusCode.NotFound);
-        mock.Setup(wr => wr.StatusDescription).Returns(message);
-
-        return new(message, null, WebExceptionStatus.Success, mock.Object);
-    }
+    private static RestRequestException HttpNotFound(string message) => new(HttpStatusCode.NotFound, new(message));
 
     #endregion
 

@@ -1,6 +1,5 @@
 ﻿using Routine.Core.Rest;
 using System.Linq.Expressions;
-using System.Net;
 
 namespace Routine.Test.Service.Stubs;
 
@@ -17,7 +16,7 @@ public class Async : IRestClientStubber
         Mock<IRestClient> mock,
         string url,
         Expression<Func<RestRequest, bool>> match,
-        WebException exception
+        RestRequestException exception
     ) => mock.Setup(rc => rc.GetAsync(url, It.Is(match))).ThrowsAsync(exception);
 
     public void SetUpPost(
@@ -31,7 +30,7 @@ public class Async : IRestClientStubber
         Mock<IRestClient> mock,
         string url,
         Expression<Func<RestRequest, bool>> match,
-        WebException exception
+        RestRequestException exception
     ) => mock.Setup(rc => rc.PostAsync(url, It.Is(match))).ThrowsAsync(exception);
 
     public void VerifyGet(
