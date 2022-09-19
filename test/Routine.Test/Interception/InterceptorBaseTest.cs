@@ -4,15 +4,12 @@ using Routine.Test.Interception.Stubs;
 
 namespace Routine.Test.Interception;
 
-[TestFixture(typeof(SyncBase))]
-[TestFixture(typeof(AsyncBase))]
-public class InterceptorBaseTest<TInterceptor>
-    where TInterceptor : IInterceptor<Context>, new()
+public class InterceptorBaseTest
 {
     [Test]
     public void Delegates_Intercept_as_is()
     {
-        var testing = new TInterceptor();
+        var testing = new Base() as IInterceptor<Context>;
         var expected = new object();
 
         var actual = testing.Intercept(new Context(), () => expected);
@@ -23,7 +20,7 @@ public class InterceptorBaseTest<TInterceptor>
     [Test]
     public async Task Delegates_InterceptAsync_as_is()
     {
-        var testing = new TInterceptor();
+        var testing = new Base() as IInterceptor<Context>;
         var expected = new object();
 
         var actual = await testing.InterceptAsync(new Context(), () => Task.FromResult(expected));

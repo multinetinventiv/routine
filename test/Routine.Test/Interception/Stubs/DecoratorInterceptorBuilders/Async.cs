@@ -17,7 +17,7 @@ public class Async : IBuilder
         Action<TVariable> fail = null, Action<TVariable> after = null,
         Func<Context, TVariable> beforeCtx = null, Action<Context, TVariable> successCtx = null,
         Action<Context, TVariable> failCtx = null, Action<Context, TVariable> afterCtx = null
-    ) => (before != null ? Builder.ByDecoratingAsync(Wrap(before)) : Builder.ByDecoratingAsync(Wrap(beforeCtx)))
+    ) => (before != null ? Builder.ByDecorating(Wrap(before)) : Builder.ByDecorating(Wrap(beforeCtx)))
         .Success(Wrap(success)).Fail(Wrap(fail)).After(Wrap(after))
         .Success(Wrap(successCtx)).Fail(Wrap(failCtx)).After(Wrap(afterCtx));
 }

@@ -46,14 +46,15 @@ public class DomainObjectInitializer : IDomainParametric<IConstructor>
         Marks.Join(ctx.CodingStyle.GetMarks(constructor));
     }
 
-    public object Initialize(Dictionary<string, ParameterValueData> parameterValues)
+    public async Task<object> InitializeAsync(Dictionary<string, ParameterValueData> parameterValues)
     {
-        var resolution = new DomainParameterResolver<IConstructor>(groups, parameterValues).Resolve();
+        var resolution = await Resolver(parameterValues).ResolveAsync();
 
-        var result = resolution.Result.Initialize(resolution.Parameters);
-
-        return result;
+        return resolution.Result.Initialize(resolution.Parameters);
     }
+
+    private DomainParameterResolver<IConstructor> Resolver(Dictionary<string, ParameterValueData> parameterValues) =>
+        new(groups, parameterValues);
 
     public InitializerModel GetModel() =>
         new()

@@ -3,19 +3,19 @@ using Routine.Interception.Configuration;
 using Routine.Interception.Context;
 using Routine.Interception;
 using Routine.Test.Core;
-using Routine.Test.Engine.Stubs.DoInvokers;
+using Routine.Test.Engine.Stubs.ObjectServiceInvokers;
 
 namespace Routine.Test.Interception;
 
 [TestFixture(typeof(Sync))]
 [TestFixture(typeof(Async))]
-public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
-    where TDoInvoker : IDoInvoker, new()
+public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBase
+    where TObjectServiceInvoker : IObjectServiceInvoker, new()
 {
     #region Setup & Helpers
 
     private Mock<IObjectService> mock;
-    private IDoInvoker invoker;
+    private IObjectServiceInvoker invoker;
 
     [SetUp]
     public override void SetUp()
@@ -25,8 +25,9 @@ public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
         mock = new Mock<IObjectService>();
         mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
         mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
+        mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => objectDictionary[id]);
 
-        invoker = new TDoInvoker();
+        invoker = new TObjectServiceInvoker();
     }
 
     private InterceptedObjectService Build(
@@ -44,7 +45,7 @@ public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
         var hit = false;
 
         var testing = Build(ic => ic.FromBasic()
-            .Interceptors.Add(c => c.Interceptor(i => i.BeforeAsync(ctx =>
+            .Interceptors.Add(c => c.Interceptor(i => i.Before(ctx =>
                 {
                     Assert.AreEqual($"{InterceptionTarget.Do}", ctx.Target);
                     Assert.IsInstanceOf<ServiceInterceptionContext>(ctx);
@@ -77,7 +78,7 @@ public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
         );
 
         var _ = testing.ApplicationModel;
-        testing.Get(Id("id"));
+        invoker.InvokeGet(testing, Id("id"));
         invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual(3, hitCount);
@@ -99,7 +100,7 @@ public class InterceptedObjectServiceTest_Do<TDoInvoker> : CoreTestBase
         );
 
         var _ = testing.ApplicationModel;
-        testing.Get(Id("id"));
+        invoker.InvokeGet(testing, Id("id"));
         invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual(1, hitCount);

@@ -7,9 +7,12 @@ public interface IServiceContext
 {
     IServiceConfiguration ServiceConfiguration { get; }
     IObjectService ObjectService { get; }
-    ReferenceData GetObjectReference(object @object);
-    object GetObject(ReferenceData reference);
-    object GetObject(IType type, string id);
+
     string GetModelId(IType type);
     IType GetType(string modelId);
+
+    ReferenceData GetObjectReference(object @object);
+
+    Task<object> GetObjectAsync(ReferenceData reference);
+    Task<object> GetObjectAsync(IType type, string id);
 }

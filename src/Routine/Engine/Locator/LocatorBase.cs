@@ -12,9 +12,9 @@ public abstract class LocatorBase<TConcrete> : ILocator
 
     public TConcrete AcceptNullResult(bool acceptNullResult) { this.acceptNullResult = acceptNullResult; return (TConcrete)this; }
 
-    private List<object> LocateInner(IType type, List<string> ids)
+    private async Task<List<object>> LocateInnerAsync(IType type, List<string> ids)
     {
-        var result = Locate(type, ids) ?? new List<object>();
+        var result = await LocateAsync(type, ids) ?? new();
 
         if (!acceptNullResult && result.Contains(null))
         {
@@ -32,11 +32,11 @@ public abstract class LocatorBase<TConcrete> : ILocator
         return result;
     }
 
-    protected abstract List<object> Locate(IType type, List<string> ids);
+    protected abstract Task<List<object>> LocateAsync(IType type, List<string> ids);
 
     #region ILocator implementation
 
-    List<object> ILocator.Locate(IType type, List<string> ids) => LocateInner(type, ids);
+    async Task<List<object>> ILocator.LocateAsync(IType type, List<string> ids) => await LocateInnerAsync(type, ids);
 
     #endregion
 }

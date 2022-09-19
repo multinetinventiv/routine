@@ -14,23 +14,23 @@ public class Async : IBuilder
         Action before = null, Action success = null, Action fail = null, Action after = null,
         Action<Context> beforeCtx = null, Action<Context> successCtx = null,
         Action<Context> failCtx = null, Action<Context> afterCtx = null
-    ) => Builder.DoAsync()
+    ) => Builder.Do()
         .Before(Wrap(before)).Success(Wrap(success)).Fail(Wrap(fail)).After(Wrap(after))
         .Before(Wrap(beforeCtx)).Success(Wrap(successCtx)).Fail(Wrap(failCtx)).After(Wrap(afterCtx));
 
     public IInterceptor<Context> FacadeBefore(
         Action before = null, Action<Context> beforeCtx = null
-    ) => before != null ? Builder.BeforeAsync(Wrap(before)) : Builder.BeforeAsync(Wrap(beforeCtx));
+    ) => before != null ? Builder.Before(Wrap(before)) : Builder.Before(Wrap(beforeCtx));
 
     public IInterceptor<Context> FacadeSuccess(
         Action success = null, Action<Context> successCtx = null
-    ) => success != null ? Builder.SuccessAsync(Wrap(success)) : Builder.SuccessAsync(Wrap(successCtx));
+    ) => success != null ? Builder.Success(Wrap(success)) : Builder.Success(Wrap(successCtx));
 
     public IInterceptor<Context> FacadeFail(
         Action fail = null, Action<Context> failCtx = null
-    ) => fail != null ? Builder.FailAsync(Wrap(fail)) : Builder.FailAsync(Wrap(failCtx));
+    ) => fail != null ? Builder.Fail(Wrap(fail)) : Builder.Fail(Wrap(failCtx));
 
     public IInterceptor<Context> FacadeAfter(
         Action after = null, Action<Context> afterCtx = null
-    ) => after != null ? Builder.AfterAsync(Wrap(after)) : Builder.AfterAsync(Wrap(afterCtx));
+    ) => after != null ? Builder.After(Wrap(after)) : Builder.After(Wrap(afterCtx));
 }

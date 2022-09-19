@@ -15,25 +15,25 @@ public abstract class AroundInterceptorBase<TConcrete, TContext> : InterceptorBa
 
     protected virtual bool CanIntercept(TContext context) => whenDelegate(context);
 
-    protected override object Intercept(TContext context, Func<object> invocation)
+    protected override async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation)
     {
-        if (!CanIntercept(context)) { return invocation(); }
+        if (!CanIntercept(context)) { return await invocation(); }
 
         try
         {
-            OnBefore(context);
+            await OnBefore(context);
 
             if (!context.Canceled)
             {
-                context.Result = invocation();
+                context.Result = await invocation();
             }
 
-            OnSuccess(context);
+            await OnSuccess(context);
         }
         catch (Exception ex)
         {
             context.Exception = ex;
-            OnFail(context);
+            await OnFail(context);
             if (!context.ExceptionHandled)
             {
                 if (ex == context.Exception) // if exception was not changed, preserve stack trace
@@ -48,14 +48,14 @@ public abstract class AroundInterceptorBase<TConcrete, TContext> : InterceptorBa
         }
         finally
         {
-            OnAfter(context);
+            await OnAfter(context);
         }
 
         return context.Result;
     }
 
-    protected abstract void OnBefore(TContext context);
-    protected abstract void OnSuccess(TContext context);
-    protected abstract void OnFail(TContext context);
-    protected abstract void OnAfter(TContext context);
+    protected abstract Task OnBefore(TContext context);
+    protected abstract Task OnSuccess(TContext context);
+    protected abstract Task OnFail(TContext context);
+    protected abstract Task OnAfter(TContext context);
 }

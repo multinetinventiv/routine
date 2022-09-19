@@ -2,7 +2,7 @@ namespace Routine.Engine;
 
 public interface ILocator
 {
-    List<object> Locate(IType type, List<string> ids);
+    Task<List<object>> LocateAsync(IType type, List<string> ids);
 }
 
 public class CannotLocateException : Exception

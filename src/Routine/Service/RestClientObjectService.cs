@@ -32,6 +32,16 @@ public class RestClientObjectService : IObjectService
         return Compressor(reference.ViewModelId).DecompressObjectData(result);
     }
 
+    public async Task<ObjectData> GetAsync(ReferenceData reference)
+    {
+        if (reference == null) { return null; }
+
+        var response = await GetAsync(Url(reference));
+        var result = Result(response);
+
+        return Compressor(reference.ViewModelId).DecompressObjectData(result);
+    }
+
     public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
     {
         if (target == null) { return new VariableData(); }
@@ -116,6 +126,23 @@ public class RestClientObjectService : IObjectService
         catch (RestRequestException ex) { return Wrap(ex); }
     }
 
+    private async Task<RestResponse> GetAsync(string url)
+    {
+        try
+        {
+            return await restClient.GetAsync(url, BuildRequest(string.Empty));
+        }
+        catch (WebException ex)
+        {
+            if (ex.Response is not HttpWebResponse res)
+            {
+                throw;
+            }
+
+            return Wrap(res);
+        }
+    }
+
     private RestResponse Post(string url, string body)
     {
         try { return restClient.Post(url, BuildRequest(body)); }
@@ -135,8 +162,6 @@ public class RestClientObjectService : IObjectService
                     .ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
             );
 
-    #region Exceptions
-
     private RestResponse Wrap(RestRequestException ex) => new(
         serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false))
     );
@@ -152,6 +177,4 @@ public class RestClientObjectService : IObjectService
             $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
             false
         ));
-
-    #endregion
 }

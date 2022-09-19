@@ -8,7 +8,7 @@ namespace Routine.Test.Client;
 [TestFixture]
 public class ClientTest : ClientTestBase
 {
-    public static List<IPerformer> SyncAndAsync() => new() { new Sync(), new Async() };
+    public static List<IStubber> Stubbers() => new() { new Sync(), new Async() };
 
     [Test]
     public void Client_gets_all_types_in_application_via_Rapplication()
@@ -42,7 +42,7 @@ public class ClientTest : ClientTestBase
         Robj("id", "actualModel");
         Robj("id", "actualModel");
 
-        objectServiceMock.Verify(o => o.ApplicationModel, Times.Once());
+        mockObjectService.Verify(o => o.ApplicationModel, Times.Once());
     }
 
     [Test]
@@ -95,6 +95,7 @@ public class ClientTest : ClientTestBase
             Model("actualModel").Module("actualModule").ViewModelIds("viewModel"),
             Model("viewModel").Module("viewModule").IsView("actualModel")
         );
+
         ObjectsAre(Object(Id("id", "actualModel", "viewModel")).Display("value"));
 
         var testingRobject = Robj("id", "actualModel", "viewModel");
@@ -106,68 +107,118 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("viewModule", testingRobject.Type.Module);
     }
 
-    [Test]
-    public void Robjects_fetch_data_only_when_asked()
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robjects_fetch_data_when_asked(IStubber stubber)
     {
         ModelsAre(
             Model("model")
-            .Data("data1")
-            .Data("data2"));
-
-        ObjectsAre(
-            Object(Id("id1")),
-            Object(Id("id2")));
-        ObjectsAre(
-            Object(Id("id", "model"))
-            .Data("data1", Id("id1"))
-            .Data("data2", Id("id2")));
-
-        var testingRobject = Robj("id", "model");
-
-        var datasFirstFetch = testingRobject.DataValues;
-        Assert.AreEqual("data1", datasFirstFetch[0].Data.Name);
-        Assert.AreEqual("id1", datasFirstFetch[0].Get().Object.Id);
-
-        Assert.AreEqual("data2", datasFirstFetch[1].Data.Name);
-        Assert.AreEqual("id2", datasFirstFetch[1].Get().Object.Id);
-
-        var datasSecondFetch = testingRobject.DataValues;
-        Assert.AreEqual("data1", datasSecondFetch[0].Data.Name);
-        Assert.AreEqual("id1", datasSecondFetch[0].Get().Object.Id);
-
-        Assert.AreEqual("data2", datasSecondFetch[1].Data.Name);
-        Assert.AreEqual("id2", datasSecondFetch[1].Get().Object.Id);
-
-        objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Once());
-    }
-
-    [Test]
-    public void Robjects_fetch_value_along_with_data()
-    {
-        ModelsAre(Model("model").Data("data1"));
-        ObjectsAre(
-            Object(Id("id1")).Display("value1"),
-            Object(Id("id", "model"))
-            .Display("value")
-            .Data("data1", Id("id1")));
-
-        var testingRobject = Robj("id", "model");
-        testingRobject.DataValues[0].Get();
-
-        Assert.AreEqual("value", testingRobject.Display);
-    }
-
-    [TestCaseSource(nameof(SyncAndAsync))]
-    public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode(IPerformer performer)
-    {
-        ModelsAre(
-            Model("model")
-            .Operation("operation", true));
+                .Data("data1")
+                .Data("data2")
+        );
 
         ObjectsAre(
             Object(Id("id1")),
             Object(Id("id2")),
-            Object(Id("id3", "model")));
+            Object(Id("id", "model"))
+                .Data("data1", Id("id1"))
+                .Data("data2", Id("id2"))
+        );
+
+        var testingRobject = Robj("id", "model");
+        var data1 = testingRobject.DataValues[0];
+        var data2 = testingRobject.DataValues[1];
+
+        Assert.AreEqual("data1", data1.Data.Name);
+        Assert.AreEqual("id1", stubber.Get(data1).Object.Id);
+
+        Assert.AreEqual("data2", data2.Data.Name);
+        Assert.AreEqual("id2", stubber.Get(data2).Object.Id);
+
+        stubber.VerifyGet(mockObjectService);
+    }
+
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robjects_fetch_data_only_once(IStubber stubber)
+    {
+        ModelsAre(
+            Model("model")
+                .Data("data1")
+                .Data("data2")
+        );
+
+        ObjectsAre(
+            Object(Id("id1")),
+            Object(Id("id2")),
+            Object(Id("id", "model"))
+                .Data("data1", Id("id1"))
+                .Data("data2", Id("id2"))
+        );
+
+        var testingRobject = Robj("id", "model");
+
+        var datasFirstFetch = testingRobject.DataValues;
+        stubber.Get(datasFirstFetch[0]);
+        stubber.Get(datasFirstFetch[1]);
+
+        var datasSecondFetch = testingRobject.DataValues;
+        stubber.Get(datasSecondFetch[0]);
+
+        stubber.VerifyGet(mockObjectService, Times.Once());
+    }
+
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robjects_fetch_value_along_with_data(IStubber stubber)
+    {
+        ModelsAre(Model("model").Data("data1"));
+
+        ObjectsAre(
+            Object(Id("id1")).Display("value1"),
+            Object(Id("id", "model"))
+                .Display("value")
+                .Data("data1", Id("id1"))
+        );
+
+        var testingRobject = Robj("id", "model");
+        stubber.Get(testingRobject.DataValues[0]);
+
+        Assert.AreEqual("value", testingRobject.Display);
+    }
+
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robjects_load_data_on_demand(IStubber stubber)
+    {
+        ModelsAre(Model("model").Data("data1"));
+
+        ObjectsAre(
+            Object(Id("id1")),
+            Object(Id("id", "model"))
+                .Data("data1", Id("id1"))
+        );
+
+        var testingRobject = Robj("id", "model");
+
+        stubber.Load(testingRobject);
+
+        stubber.VerifyGet(mockObjectService);
+
+        stubber.Get(testingRobject.DataValues[0]);
+
+        stubber.VerifyGet(mockObjectService, Times.Once());
+    }
+
+    [TestCaseSource(nameof(Stubbers))]
+    public void Rvariable_behaves_optimistic_on_single__list__void_and_null_mode(IStubber stubber)
+    {
+        ModelsAre(
+            Model("model")
+                .Operation("operation", true)
+        );
+
+        ObjectsAre(
+            Object(Id("id1")),
+            Object(Id("id2")),
+            Object(Id("id3", "model"))
+        );
 
         var obj1 = Robj("id1");
         var obj2 = Robj("id2");
@@ -187,12 +238,12 @@ public class ClientTest : ClientTestBase
         Assert.IsTrue(testingRvariable.Object.IsNull);
 
         //accessing void as single returns null object
-        performer.SetUp(objectServiceMock,
+        stubber.SetUp(mockObjectService,
             id: Id("id3", "model"),
             operation: "operation",
             result: Void()
         );
-        testingRvariable = performer.Perform(obj3, "operation");
+        testingRvariable = stubber.Perform(obj3, "operation");
         Assert.IsTrue(testingRvariable.IsNull);
         Assert.IsTrue(testingRvariable.Object.IsNull);
 
@@ -227,36 +278,41 @@ public class ClientTest : ClientTestBase
         Assert.IsTrue(testingRvariable.Object.IsNull);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
-    public void Robject_behaves_optimistic_when_it_is_null(IPerformer performer)
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robject_behaves_optimistic_when_it_is_null(IStubber stubber)
     {
         ModelsAre(Model("model").Data("data"));
 
         ObjectsAre(Object(Id("id", "model")).Data("data", Null()));
 
         var robj = Robj("id", "model");
-        var testingRobject = robj.DataValues[0].Get().Object;
+        var testingRobject = stubber.Get(robj.DataValues[0]).Object;
 
         Assert.AreEqual(0, testingRobject.DataValues.Count);
         Assert.IsNull(testingRobject.Type);
-        Assert.IsTrue(performer.Perform(testingRobject, "some non existing operation").IsNull);
+        Assert.IsTrue(stubber.Perform(testingRobject, "some non existing operation").IsNull);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
-    public void Client_performs_operation_via_Robject(IPerformer performer)
+    [TestCaseSource(nameof(Stubbers))]
+    public void Client_performs_operation_via_Robject(IStubber stubber)
     {
         ModelsAre(
             Model("view_model").IsView("actual_model")
-            .Operation("operation", DefaultObjectModelId, PModel("param1"), PModel("param2")),
-            Model("actual_model").ViewModelIds("view_model"));
+                .Operation("operation", DefaultObjectModelId,
+                    PModel("param1"),
+                    PModel("param2")
+                ),
+            Model("actual_model").ViewModelIds("view_model")
+        );
 
         ObjectsAre(
             Object(Id("id", "actual_model", "view_model")),
             Object(Id("id_param1")),
             Object(Id("id_param2")),
-            Object(Id("id_result")));
+            Object(Id("id_result"))
+        );
 
-        performer.SetUp(objectServiceMock,
+        stubber.SetUp(mockObjectService,
             id: Id("id", "actual_model", "view_model"),
             operation: "operation",
             match: p =>
@@ -267,7 +323,7 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "actual_model", "view_model");
 
-        var result = performer.Perform(testingRobject, "operation",
+        var result = stubber.Perform(testingRobject, "operation",
             Rvar("param1", Robj("id_param1")),
             Rvar("param2", Robj("id_param2"))
         );
@@ -275,14 +331,17 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("id_result", result.Object.Id);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
-    public void Client_can_initialize_objects_via_Robject(IPerformer performer)
+    [TestCaseSource(nameof(Stubbers))]
+    public void Client_can_initialize_objects_via_Robject(IStubber stubber)
     {
         ModelsAre(
             Model("sub_data_model")
                 .Initializer(PModel("param1")),
             Model("data_model")
-                .Initializer(PModel("param1", "sub_data_model"), PModel("param2")),
+                .Initializer(
+                    PModel("param1", "sub_data_model"),
+                    PModel("param2")
+                ),
             Model("operational_model")
                 .Operation("data_input", DefaultObjectModelId, PModel("data", "data_model"))
         );
@@ -294,7 +353,7 @@ public class ClientTest : ClientTestBase
             Object(Id("id_result"))
         );
 
-        performer.SetUp(objectServiceMock,
+        stubber.SetUp(mockObjectService,
             id: Id("id", "operational_model"),
             operation: "data_input",
             match: p =>
@@ -309,7 +368,7 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "operational_model");
 
-        var result = performer.Perform(testingRobject, "data_input",
+        var result = stubber.Perform(testingRobject, "data_input",
             Rvar("data",
                 Robj("data_model",
                     Rvar("param1",
@@ -330,14 +389,12 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Initialized_robjects_throws_RobjectIsInitializedOnClientException_when_value_is_accessed()
     {
-        ModelsAre(
-            Model("data_model")
-                .Initializer(PModel("param1"))
-        );
+        ModelsAre(Model("data_model").Initializer(PModel("param1")));
 
-        var robj = Robj("data_model",
-                        Rvar("param1", Robj("id_data_param1"))
-                    );
+        var robj =
+            Robj("data_model",
+                Rvar("param1", Robj("id_data_param1"))
+            );
 
         Assert.Throws<RobjectIsInitializedOnClientException>(() => { var _ = robj.Display; }, "exception not thrown");
     }
@@ -345,14 +402,12 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Initialized_robjects_return_null_when_id_is_accessed()
     {
-        ModelsAre(
-            Model("data_model")
-                .Initializer(PModel("param1"))
-        );
+        ModelsAre(Model("data_model").Initializer(PModel("param1")));
 
-        var robj = Robj("data_model",
-                        Rvar("param1", Robj("id_data_param1"))
-                    );
+        var robj =
+            Robj("data_model",
+                Rvar("param1", Robj("id_data_param1"))
+            );
 
         Assert.IsNull(robj.Id);
     }
@@ -360,39 +415,36 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Initialized_robjects_are_only_equal_to_themselves()
     {
-        ModelsAre(
-            Model("data_model")
-                .Initializer(PModel("param1"))
-        );
+        ModelsAre(Model("data_model").Initializer(PModel("param1")));
 
-        var robj1 = Robj("data_model",
-                        Rvar("param1", Robj("id_data_param1"))
-                    );
+        var robj1 =
+            Robj("data_model",
+                Rvar("param1", Robj("id_data_param1"))
+            );
 
-        var robj2 = Robj("data_model",
-                        Rvar("param1", Robj("id_data_param1"))
-                    );
+        var robj2 =
+            Robj("data_model",
+                Rvar("param1", Robj("id_data_param1"))
+            );
 
         Assert.AreEqual(robj1, robj1);
         Assert.AreNotEqual(robj1, robj2);
     }
 
-    [TestCaseSource(nameof(SyncAndAsync))]
-    public void Roperation_can_return_void_result(IPerformer performer)
+    [TestCaseSource(nameof(Stubbers))]
+    public void Roperation_can_return_void_result(IStubber stubber)
     {
-        ModelsAre(
-            Model("model")
-            .Operation("operation1", true));
+        ModelsAre(Model("model").Operation("operation1", true));
 
         ObjectsAre(Object(Id("id", "model")));
 
-        performer.SetUp(objectServiceMock,
+        stubber.SetUp(mockObjectService,
             id: Id("id", "model"),
             operation: "operation1",
             result: Void()
         );
 
-        var result = performer.Perform(Robj("id", "model"), "operation1");
+        var result = stubber.Perform(Robj("id", "model"), "operation1");
 
         Assert.IsTrue(result.IsVoid);
     }
@@ -420,12 +472,14 @@ public class ClientTest : ClientTestBase
         ModelsAre(
             Model("value_model").IsValue(),
             Model("domain_model1"),
-            Model("domain_model2"));
+            Model("domain_model2")
+        );
 
         ObjectsAre(
             Object(Id("id", "value_model")),
             Object(Id("id1", "domain_model1")),
-            Object(Id("id2", "domain_model2")));
+            Object(Id("id2", "domain_model2"))
+        );
 
         Assert.IsTrue(Robj("id", "value_model").Type.IsValueType);
         Assert.IsFalse(Robj("id1", "domain_model1").Type.IsValueType);
@@ -436,13 +490,14 @@ public class ClientTest : ClientTestBase
     public void Rparameter_can_create_value_variable_using_given_Robjects()
     {
         ModelsAre(
-            Model("model")
-            .Operation("operation", PModel("param", "param_model", true)),
-            Model("param_model"));
+            Model("model").Operation("operation", PModel("param", "param_model", true)),
+            Model("param_model")
+        );
 
         ObjectsAre(
             Object(Id("id_root", "model")),
-            Object(Id("id_param_value")));
+            Object(Id("id_param_value"))
+        );
 
         var root = Robj("id_root", "model");
         var rparam = root.Type.Operations[0].Parameters[0];
@@ -457,13 +512,14 @@ public class ClientTest : ClientTestBase
     public void Rparameter_returns_its_default_value_when_its_optional()
     {
         ModelsAre(
-            Model("model")
-            .Operation("operation", PModel("param", "param_model", defaultValue: "default")),
-            Model("param_model"));
+            Model("model").Operation("operation", PModel("param", "param_model", defaultValue: "default")),
+            Model("param_model")
+        );
 
         ObjectsAre(
             Object(Id("id_root", "model")),
-            Object(Id("default", "param_model")));
+            Object(Id("default", "param_model"))
+        );
 
         var root = Robj("id_root", "model");
         var rparam = root.Type.Operations[0].Parameters[0];
@@ -472,8 +528,8 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("default", rparam.Default.Object.Id);
     }
 
-    [Test]
-    public void Robject_does_not_fetch_object_data_if_model_is_value()
+    [TestCaseSource(nameof(Stubbers))]
+    public void Robject_does_not_fetch_object_data_if_model_is_value(IStubber stubber)
     {
         ModelsAre(Model("model").IsValue());
 
@@ -482,9 +538,11 @@ public class ClientTest : ClientTestBase
         var robj = Robj("value", "model");
 
         var actual = robj.Display;
-
         Assert.AreEqual("value", actual);
-        objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Never());
+        stubber.VerifyGet(mockObjectService, Times.Never());
+
+        stubber.Load(robj);
+        stubber.VerifyGet(mockObjectService, Times.Never());
     }
 
     [Test]
@@ -504,20 +562,19 @@ public class ClientTest : ClientTestBase
         ModelsAre(
             Model("string").IsValue(),
             Model("view").IsView("actual")
-            .Data("Text", "string"),
+                .Data("Text", "string"),
             Model("actual").ViewModelIds("view")
-            .Data("Text", "string")
+                .Data("Text", "string")
         );
 
         ObjectsAre(
             Object(Id("id", "actual"))
-            .Data("Text", Id("from actual", "string")),
+                .Data("Text", Id("from actual", "string")),
             Object(Id("id", "actual", "view"))
-            .Data("Text", Id("from view", "string"))
+                .Data("Text", Id("from view", "string"))
         );
 
         var robjActual = Robj("id", "actual");
-
         var robjView = robjActual.As(Rtyp("view"));
 
         Assert.AreEqual("id", robjView.Id);
@@ -534,9 +591,7 @@ public class ClientTest : ClientTestBase
             Model("actual2")
         );
 
-        ObjectsAre(
-            Object(Id("id", "actual2"))
-        );
+        ObjectsAre(Object(Id("id", "actual2")));
 
         var robjActual = Robj("id", "actual2");
 
@@ -546,7 +601,7 @@ public class ClientTest : ClientTestBase
     [Test]
     public void When_no_model_is_found_TypeNotFoundException_is_thrown()
     {
-        objectServiceMock.Setup(o => o.ApplicationModel).Returns(new ApplicationModel());
+        mockObjectService.Setup(o => o.ApplicationModel).Returns(new ApplicationModel());
 
         ObjectsAre(Object(Id("value", "model")));
 
@@ -560,7 +615,8 @@ public class ClientTest : ClientTestBase
 
         ObjectsAre(
             Object(Id("id1", "model")).Display("value 1"),
-            Object(Id("id2", "model")).Display("value 2"));
+            Object(Id("id2", "model")).Display("value 2")
+        );
 
         var actual = Rtyp("model").StaticInstances;
 
@@ -571,47 +627,39 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("value 2", actual[1].Display);
     }
 
-    [Test]
-    public void When_invalidated__Robject_clears_fetched_data()
+    [TestCaseSource(nameof(Stubbers))]
+    public void When_invalidated__Robject_clears_fetched_data(IStubber stubber)
     {
-        ModelsAre(
-            Model("model")
-            .Data("data1")
-            .Data("data2"));
+        ModelsAre(Model("model").Data("data1"));
 
         ObjectsAre(
             Object(Id("id1")),
-            Object(Id("id2")));
-        ObjectsAre(
             Object(Id("id", "model")).Display("value")
-            .Data("data1", Id("id1"))
-            .Data("data2", Id("id2")));
+                .Data("data1", Id("id1"))
+        );
 
         var testingRobject = Robj("id", "model");
+
+        stubber.Get(testingRobject["data1"]);
         var value1 = testingRobject.Display;
-        testingRobject["data1"].Get();
-        testingRobject["data2"].Get();
 
         Assert.AreEqual("value", value1);
 
         testingRobject.Invalidate();
 
+        stubber.Get(testingRobject["data1"]);
         var value2 = testingRobject.Display;
-        testingRobject["data1"].Get();
-        testingRobject["data2"].Get();
 
         Assert.AreEqual("value", value2);
-        objectServiceMock.Verify(o => o.Get(It.IsAny<ReferenceData>()), Times.Exactly(2));
+        stubber.VerifyGet(mockObjectService, Times.Exactly(2));
     }
 
     [Test]
     public void Rtype_can_check_if_its_model_is_marked_as_given_mark()
     {
-        ModelsAre(
-            Model("model").Mark("mark"));
+        ModelsAre(Model("model").Mark("mark"));
 
-        ObjectsAre(
-            Object(Id("id1", "model")));
+        ObjectsAre(Object(Id("id1", "model")));
 
         var testingRobject = Robj("id", "model");
 
@@ -624,15 +672,15 @@ public class ClientTest : ClientTestBase
     {
         ModelsAre(
             Model("model")
-            .Data("data")
-            .MarkData("data", "mark"));
+                .Data("data")
+                .MarkData("data", "mark")
+        );
 
         ObjectsAre(
-            Object(Id("id")));
-
-        ObjectsAre(
+            Object(Id("id")),
             Object(Id("id1", "model"))
-            .Data("data", Id("id")));
+                .Data("data", Id("id"))
+        );
 
         var testingRdata = Robj("id", "model")["data"];
 
@@ -645,11 +693,11 @@ public class ClientTest : ClientTestBase
     {
         ModelsAre(
             Model("model")
-            .Operation("operation")
-            .MarkOperation("operation", "mark"));
+                .Operation("operation")
+                .MarkOperation("operation", "mark")
+        );
 
-        ObjectsAre(
-            Object(Id("id1", "model")));
+        ObjectsAre(Object(Id("id1", "model")));
 
         var testingRoperation = Robj("id", "model").Type.Operations.Single(o => o.Name == "operation");
 
@@ -666,8 +714,8 @@ public class ClientTest : ClientTestBase
                 {
                     GroupCount = 1,
                     Name = "operation",
-                    Result = new ResultModel { IsVoid = true },
-                    Parameters = new List<ParameterModel> { PModel("id", 0, 1) }
+                    Result = new() { IsVoid = true },
+                    Parameters = new() { PModel("id", 0, 1) }
                 })
             );
 
@@ -679,8 +727,12 @@ public class ClientTest : ClientTestBase
     {
         ModelsAre(
             Model("model")
-            .Operation("operation", PModel("param1", "param_model", 0, 1), PModel("param2", "param_model", 1, 2)),
-            Model("param_model"));
+                .Operation("operation",
+                    PModel("param1", "param_model", 0, 1),
+                    PModel("param2", "param_model", 1, 2)
+                ),
+            Model("param_model")
+        );
 
         ObjectsAre(Object(Id("id_root", "model")));
 
@@ -699,10 +751,7 @@ public class ClientTest : ClientTestBase
     [Test]
     public void Rinitializer_throws_exception_when_a_parameter_has_a_group_that_does_not_exist_on_or_initializer()
     {
-        ModelsAre(
-            Model("model")
-                .Initializer(1, PModel("id", 0, 1))
-            );
+        ModelsAre(Model("model").Initializer(1, PModel("id", 0, 1)));
 
         Assert.Throws<InvalidOperationException>(() => Rtyp("model"));
     }

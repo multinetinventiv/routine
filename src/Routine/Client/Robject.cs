@@ -109,12 +109,20 @@ public class Robject
         LoadObject();
     }
 
-    internal void LoadObject()
+    public void LoadObject()
     {
         if (IsNull) { return; }
         if (Type.IsValueType) { return; }
 
         FillObject(Application.Service.Get(ReferenceData));
+    }
+
+    public async Task LoadObjectAsync()
+    {
+        if (IsNull) { return; }
+        if (Type.IsValueType) { return; }
+
+        FillObject(await Application.Service.GetAsync(ReferenceData));
     }
 
     internal ParameterData GetParameterData()
@@ -205,6 +213,16 @@ public class Robject
             if (data == null)
             {
                 Object.LoadObject();
+            }
+
+            return value;
+        }
+
+        public async Task<Rvariable> GetAsync()
+        {
+            if (data == null)
+            {
+                await Object.LoadObjectAsync();
             }
 
             return value;
