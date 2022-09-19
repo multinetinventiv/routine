@@ -56,21 +56,13 @@ public class RestClientObjectServiceTest<TRestClientStubber, TDoInvoker> : CoreT
         mock.Setup(rc => rc.Get(url, It.Is(match))).Returns(response);
 
 
-    private void SetUpGet(string url, WebException exception) => SetUpGet(url, req => true, exception);
-    private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, WebException exception) =>
+    private void SetUpGet(string url, RestRequestException exception) => SetUpGet(url, req => true, exception);
+    private void SetUpGet(string url, Expression<Func<RestRequest, bool>> match, RestRequestException exception) =>
         mock.Setup(rc => rc.Get(url, It.Is(match))).Throws(exception);
 
     private class TestException : Exception { public TestException(string message) : base(message) { } }
 
-    private static WebException HttpNotFound(string message)
-    {
-        Assert.Fail("migrate web exceptions to http client exceptions");
-        var mock = new Mock<HttpWebResponse>();
-        mock.Setup(wr => wr.StatusCode).Returns(HttpStatusCode.NotFound);
-        mock.Setup(wr => wr.StatusDescription).Returns(message);
-
-        return new WebException(message, null, WebExceptionStatus.Success, mock.Object);
-    }
+    private static RestRequestException HttpNotFound(string message) => new(HttpStatusCode.NotFound, new(message));
 
     #endregion
 

@@ -1,6 +1,5 @@
 ﻿using Routine.Core.Rest;
 using System.Linq.Expressions;
-using System.Net;
 
 namespace Routine.Test.Service.Stubs;
 
@@ -13,8 +12,8 @@ public interface IRestClientStubber
     public void SetUpPost(Mock<IRestClient> mock, string url, Expression<Func<RestRequest, bool>> match, string response) => SetUpPost(mock, url, match, new RestResponse(response));
     void SetUpPost(Mock<IRestClient> mock, string url, Expression<Func<RestRequest, bool>> match, RestResponse response);
 
-    public void SetUpPost(Mock<IRestClient> mock, string url, WebException exception) => SetUpPost(mock, url, req => true, exception);
-    void SetUpPost(Mock<IRestClient> mock, string url, Expression<Func<RestRequest, bool>> match, WebException exception);
+    public void SetUpPost(Mock<IRestClient> mock, string url, RestRequestException exception) => SetUpPost(mock, url, req => true, exception);
+    void SetUpPost(Mock<IRestClient> mock, string url, Expression<Func<RestRequest, bool>> match, RestRequestException exception);
 
     void VerifyPost(Mock<IRestClient> mock, Expression<Func<RestRequest, bool>> match);
 }

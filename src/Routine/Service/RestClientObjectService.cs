@@ -1,6 +1,5 @@
 using Routine.Core.Rest;
 using Routine.Core;
-using System.Net;
 
 namespace Routine.Service;
 
@@ -71,14 +70,8 @@ public class RestClientObjectService : IObjectService
 
     private DataCompressor Compressor(string resultViewModelId) => new(ApplicationModel, resultViewModelId);
 
-    private OperationModel GetOperationModel(ReferenceData target, string operation)
-    {
-        var operationModel = GetObjectModel(target).GetOperation(operation);
-
-        if (operationModel == null) { throw OperationNotFound(target.ViewModelId, operation); }
-
-        return operationModel;
-    }
+    private OperationModel GetOperationModel(ReferenceData target, string operation) =>
+        GetObjectModel(target).GetOperation(operation) ?? throw OperationNotFound(target.ViewModelId, operation);
 
     private ObjectModel GetObjectModel(ReferenceData target)
     {
@@ -119,53 +112,20 @@ public class RestClientObjectService : IObjectService
 
     private RestResponse Get(string url)
     {
-        try
-        {
-            return restClient.Get(url, BuildRequest(string.Empty));
-        }
-        catch (WebException ex)
-        {
-            if (ex.Response is not HttpWebResponse res)
-            {
-                throw;
-            }
-
-            return Wrap(res);
-        }
+        try { return restClient.Get(url, BuildRequest(string.Empty)); }
+        catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private RestResponse Post(string url, string body)
     {
-        try
-        {
-            return restClient.Post(url, BuildRequest(body));
-        }
-        catch (WebException ex)
-        {
-            if (ex.Response is not HttpWebResponse res)
-            {
-                throw;
-            }
-
-            return Wrap(res);
-        }
+        try { return restClient.Post(url, BuildRequest(body)); }
+        catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private async Task<RestResponse> PostAsync(string url, string body)
     {
-        try
-        {
-            return await restClient.PostAsync(url, BuildRequest(body));
-        }
-        catch (WebException ex)
-        {
-            if (ex.Response is not HttpWebResponse res)
-            {
-                throw;
-            }
-
-            return Wrap(res);
-        }
+        try { return await restClient.PostAsync(url, BuildRequest(body)); }
+        catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private RestRequest BuildRequest(string body) =>
@@ -177,8 +137,8 @@ public class RestClientObjectService : IObjectService
 
     #region Exceptions
 
-    private RestResponse Wrap(HttpWebResponse res) => new(
-        serializer.Serialize(new ExceptionResult($"Http.{res.StatusCode}", res.StatusDescription, false))
+    private RestResponse Wrap(RestRequestException ex) => new(
+        serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false))
     );
 
     private Exception OperationNotFound(string modelId, string operation) =>

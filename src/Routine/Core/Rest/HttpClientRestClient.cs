@@ -22,38 +22,52 @@ public class HttpClientRestClient : IRestClient
 
     private RestResponse Make(string url, RestRequest request, HttpMethod method)
     {
-        var req = BuildRequest(url, request, method);
-
-        var res = newClient().Send(req);
-        var rs = res.Content.ReadAsStream();
-
-        if (rs == null) { return RestResponse.Empty; }
-
-        string body;
-        using (var reader = new StreamReader(rs))
+        try
         {
-            body = reader.ReadToEnd();
-        }
+            var req = BuildRequest(url, request, method);
 
-        return BuildResponse(res, body);
+            var res = newClient().Send(req);
+            var rs = res.Content.ReadAsStream();
+
+            if (rs == null) { return RestResponse.Empty; }
+
+            string body;
+            using (var reader = new StreamReader(rs))
+            {
+                body = reader.ReadToEnd();
+            }
+
+            return BuildResponse(res, body);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new RestRequestException(ex.StatusCode, ex);
+        }
     }
 
     private async Task<RestResponse> MakeAsync(string url, RestRequest request, HttpMethod method)
     {
-        var req = BuildRequest(url, request, method);
-
-        var res = await newClient().SendAsync(req);
-        var rs = await res.Content.ReadAsStreamAsync();
-
-        if (rs == null) { return RestResponse.Empty; }
-
-        string body;
-        using (var reader = new StreamReader(rs))
+        try
         {
-            body = await reader.ReadToEndAsync();
-        }
+            var req = BuildRequest(url, request, method);
 
-        return BuildResponse(res, body);
+            var res = await newClient().SendAsync(req);
+            var rs = await res.Content.ReadAsStreamAsync();
+
+            if (rs == null) { return RestResponse.Empty; }
+
+            string body;
+            using (var reader = new StreamReader(rs))
+            {
+                body = await reader.ReadToEndAsync();
+            }
+
+            return BuildResponse(res, body);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new RestRequestException(ex.StatusCode, ex);
+        }
     }
 
     private HttpRequestMessage BuildRequest(string url, RestRequest request, HttpMethod method)
