@@ -3,9 +3,7 @@ namespace Routine.Core;
 public class ParameterValueData
 {
     public bool IsList { get; set; }
-    public List<ParameterData> Values { get; set; }
-
-    public ParameterValueData() { Values = new List<ParameterData>(); }
+    public List<ParameterData> Values { get; set; } = new();
 
     #region ToString & Equality
 

@@ -14,27 +14,27 @@ public class OperationModel
     {
         if (model == null) return;
 
-        if (model.TryGetValue("Marks", out var marks))
+        if (model.TryGetValue(nameof(Marks), out var marks))
         {
             Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
-        if (model.TryGetValue("GroupCount", out var groupCount))
+        if (model.TryGetValue(nameof(GroupCount), out var groupCount))
         {
             GroupCount = (int)groupCount;
         }
 
-        if (model.TryGetValue("Name", out var name))
+        if (model.TryGetValue(nameof(Name), out var name))
         {
             Name = (string)name;
         }
 
-        if (model.TryGetValue("Parameters", out var parameters))
+        if (model.TryGetValue(nameof(Parameters), out var parameters))
         {
             Parameters = ((IEnumerable)parameters).Cast<IDictionary<string, object>>().Select(p => new ParameterModel(p)).ToList();
         }
 
-        if (model.TryGetValue("Result", out var result))
+        if (model.TryGetValue(nameof(Result), out var result))
         {
             Result = new ResultModel((IDictionary<string, object>)result);
         }

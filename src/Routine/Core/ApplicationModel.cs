@@ -2,14 +2,14 @@ namespace Routine.Core;
 
 public class ApplicationModel
 {
-    internal Dictionary<string, ObjectModel> Model { get; private set; } = new Dictionary<string, ObjectModel>();
+    internal Dictionary<string, ObjectModel> Model { get; private set; } = new();
 
     public ApplicationModel() { }
     public ApplicationModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
-        if (model.TryGetValue("Models", out object models))
+        if (model.TryGetValue(nameof(Models), out object models))
         {
             Models = ((IEnumerable)models).Cast<IDictionary<string, object>>().Select(o => new ObjectModel(o)).ToList();
         }

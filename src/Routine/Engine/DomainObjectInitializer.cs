@@ -20,10 +20,10 @@ public class DomainObjectInitializer : IDomainParametric<IConstructor>
     {
         this.ctx = ctx;
 
-        groups = new List<DomainParameter.Group<IConstructor>>();
-        Parameter = new Dictionary<string, DomainParameter>();
+        groups = new();
+        Parameter = new();
 
-        Marks = new Marks();
+        Marks = new();
 
         AddGroup(constructor);
     }

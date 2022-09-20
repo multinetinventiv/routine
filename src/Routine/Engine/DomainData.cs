@@ -19,7 +19,7 @@ public class DomainData
         this.property = property;
 
         Name = ctx.CodingStyle.GetName(property);
-        Marks = new Marks(ctx.CodingStyle.GetMarks(property));
+        Marks = new(ctx.CodingStyle.GetMarks(property));
         IsList = property.ReturnType.CanBeCollection();
         FetchedEagerly = ctx.CodingStyle.IsFetchedEagerly(property);
 

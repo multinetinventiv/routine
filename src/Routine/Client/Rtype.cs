@@ -45,17 +45,17 @@ public class Rtype
 
         if (model.Initializer.GroupCount > 0)
         {
-            Initializer = new Rinitializer(model.Initializer, this);
+            Initializer = new(model.Initializer, this);
         }
 
         foreach (var data in model.Datas)
         {
-            Data.Add(data.Name, new Rdata(data, this));
+            Data.Add(data.Name, new(data, this));
         }
 
         foreach (var operation in model.Operations)
         {
-            Operation.Add(operation.Name, new Roperation(operation, this));
+            Operation.Add(operation.Name, new(operation, this));
         }
     }
 
@@ -71,7 +71,7 @@ public class Rtype
 
     public HashSet<string> Marks => model.Marks;
 
-    public bool MarkedAs(string mark) => model.Marks.Contains(mark);
+    public bool MarkedAs(string mark) => Marks.Contains(mark);
 
     public bool CanBe(Rtype viewType)
     {

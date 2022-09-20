@@ -40,38 +40,38 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     public ConventionBasedCodingStyle()
     {
-        types = new List<IType>();
+        types = new();
 
-        MaxFetchDepth = new SingleConfiguration<ConventionBasedCodingStyle, int>(this, nameof(MaxFetchDepth), true);
+        MaxFetchDepth = new(this, nameof(MaxFetchDepth), true);
 
-        Type = new ConventionBasedConfiguration<ConventionBasedCodingStyle, object, IType>(this, nameof(Type));
-        TypeIsValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, nameof(TypeIsValue));
-        TypeIsView = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, bool>(this, nameof(TypeIsView));
-        IdExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IIdExtractor>(this, nameof(IdExtractor));
-        ValueExtractor = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, IValueExtractor>(this, nameof(ValueExtractor));
-        Locator = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, ILocator>(this, nameof(Locator));
-        Converters = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConverter>(this, nameof(Converters));
-        StaticInstances = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, object>(this, nameof(StaticInstances));
-        Initializers = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IConstructor>(this, nameof(Initializers));
-        Datas = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IProperty>(this, nameof(Datas));
-        Operations = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, IMethod>(this, nameof(Operations));
+        Type = new(this, nameof(Type));
+        TypeIsValue = new(this, nameof(TypeIsValue));
+        TypeIsView = new(this, nameof(TypeIsView));
+        IdExtractor = new(this, nameof(IdExtractor));
+        ValueExtractor = new(this, nameof(ValueExtractor));
+        Locator = new(this, nameof(Locator));
+        Converters = new(this, nameof(Converters));
+        StaticInstances = new(this, nameof(StaticInstances));
+        Initializers = new(this, nameof(Initializers));
+        Datas = new(this, nameof(Datas));
+        Operations = new(this, nameof(Operations));
 
-        DataFetchedEagerly = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, bool>(this, nameof(DataFetchedEagerly));
+        DataFetchedEagerly = new(this, nameof(DataFetchedEagerly));
 
-        ParameterIsOptional = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, bool>(this, nameof(ParameterIsOptional));
-        ParameterDefaultValue = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, object>(this, nameof(ParameterDefaultValue));
+        ParameterIsOptional = new(this, nameof(ParameterIsOptional));
+        ParameterDefaultValue = new(this, nameof(ParameterDefaultValue));
 
-        Module = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(Module), true);
-        TypeName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(TypeName), true);
-        DataName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, nameof(DataName), true);
-        OperationName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, nameof(OperationName), true);
-        ParameterName = new ConventionBasedConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, nameof(ParameterName), true);
+        Module = new(this, nameof(Module), true);
+        TypeName = new(this, nameof(TypeName), true);
+        DataName = new(this, nameof(DataName), true);
+        OperationName = new(this, nameof(OperationName), true);
+        ParameterName = new(this, nameof(ParameterName), true);
 
-        TypeMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IType, string>(this, nameof(TypeMarks));
-        InitializerMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IConstructor, string>(this, nameof(InitializerMarks));
-        DataMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IProperty, string>(this, nameof(DataMarks));
-        OperationMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IMethod, string>(this, nameof(OperationMarks));
-        ParameterMarks = new ConventionBasedListConfiguration<ConventionBasedCodingStyle, IParameter, string>(this, nameof(ParameterMarks));
+        TypeMarks = new(this, nameof(TypeMarks));
+        InitializerMarks = new(this, nameof(InitializerMarks));
+        DataMarks = new(this, nameof(DataMarks));
+        OperationMarks = new(this, nameof(OperationMarks));
+        ParameterMarks = new(this, nameof(ParameterMarks));
     }
 
     public ConventionBasedCodingStyle Merge(ConventionBasedCodingStyle other)

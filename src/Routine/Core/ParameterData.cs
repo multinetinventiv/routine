@@ -4,9 +4,7 @@ public class ParameterData
 {
     public string ModelId { get; set; }
     public string Id { get; set; }
-    public Dictionary<string, ParameterValueData> InitializationParameters { get; set; }
-
-    public ParameterData() { InitializationParameters = new Dictionary<string, ParameterValueData>(); }
+    public Dictionary<string, ParameterValueData> InitializationParameters { get; set; } = new();
 
     #region ToString & Equality
 

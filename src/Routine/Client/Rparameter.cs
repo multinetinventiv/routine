@@ -32,7 +32,7 @@ public class Rparameter
             .ToList()
         );
 
-    public bool MarkedAs(string mark) => model.Marks.Contains(mark);
+    public bool MarkedAs(string mark) => Marks.Contains(mark);
 
     public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());
     public Rvariable CreateVariable(List<Robject> robjs)

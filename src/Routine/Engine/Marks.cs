@@ -17,7 +17,7 @@ public class Marks
 
     public HashSet<string> Set => marks;
 
-    public bool Has(string mark) { return marks.Contains(mark); }
+    public bool Has(string mark) => marks.Contains(mark);
 
     public void Join(IEnumerable<string> list)
     {

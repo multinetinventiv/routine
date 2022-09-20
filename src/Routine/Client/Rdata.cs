@@ -22,7 +22,7 @@ public class Rdata
     public bool IsList => model.IsList;
     public HashSet<string> Marks => model.Marks;
 
-    public bool MarkedAs(string mark) => model.Marks.Contains(mark);
+    public bool MarkedAs(string mark) => Marks.Contains(mark);
 
     #region Equality & Hashcode
 

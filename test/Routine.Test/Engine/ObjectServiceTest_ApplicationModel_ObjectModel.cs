@@ -187,11 +187,11 @@ namespace Routine.Test.Engine
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
             var vam = testing.ApplicationModel.Model[TESTED_VAM_ID];
 
-            Assert.IsFalse(om.Marks.Any(m => m == "value"));
-            Assert.IsTrue(vam.Marks.Any(m => m == "value"));
+            Assert.IsFalse(om.Marks.Contains("value"));
+            Assert.IsTrue(vam.Marks.Contains("value"));
 
-            Assert.IsTrue(om.Marks.Any(m => m == "all"));
-            Assert.IsTrue(vam.Marks.Any(m => m == "all"));
+            Assert.IsTrue(om.Marks.Contains("all"));
+            Assert.IsTrue(vam.Marks.Contains("all"));
         }
 
         [Test]
@@ -349,8 +349,8 @@ namespace Routine.Test.Engine
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(om.Datas.Single(m => m.Name == "Id").Marks.Any(m => m == "heavy"));
-            Assert.IsTrue(om.Datas.Single(m => m.Name == "List").Marks.Any(m => m == "heavy"));
+            Assert.IsFalse(om.Datas.Single(m => m.Name == "Id").Marks.Contains("heavy"));
+            Assert.IsTrue(om.Datas.Single(m => m.Name == "List").Marks.Contains("heavy"));
         }
 
         [Test]
@@ -395,9 +395,9 @@ namespace Routine.Test.Engine
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "VoidOp").Marks.Any(m => m == "heavy"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Marks.Any(m => m == "heavy"));
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Marks.Any(m => m == "heavy"));
+            Assert.IsFalse(om.Operations.Single(o => o.Name == "VoidOp").Marks.Contains("heavy"));
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Marks.Contains("heavy"));
+            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Marks.Contains("heavy"));
         }
 
         [Test]
@@ -521,8 +521,8 @@ namespace Routine.Test.Engine
 
             var om = testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Parameters[0].Marks.Any(m => m == "list"));
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Parameters[0].Marks.Any(m => m == "list"));
+            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Parameters[0].Marks.Contains("list"));
+            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Parameters[0].Marks.Contains("list"));
         }
 
         [Test]
