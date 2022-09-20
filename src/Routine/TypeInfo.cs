@@ -11,15 +11,15 @@ public abstract class TypeInfo : IType
     protected const System.Reflection.BindingFlags ALL_INSTANCE = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
 
     private static readonly Dictionary<Type, TypeInfo> TYPE_CACHE;
-    private static readonly List<Type> OPTIMIZED_TYPES;
+    private static readonly HashSet<Type> OPTIMIZED_TYPES;
 
     private static Func<Type, bool> proxyMatcher;
     private static Func<Type, Type> actualTypeGetter;
 
     static TypeInfo()
     {
-        TYPE_CACHE = new Dictionary<Type, TypeInfo>();
-        OPTIMIZED_TYPES = new List<Type>();
+        TYPE_CACHE = new();
+        OPTIMIZED_TYPES = new();
 
         SetProxyMatcher(null, null);
     }
@@ -36,7 +36,10 @@ public abstract class TypeInfo : IType
 
     public static void Optimize(params Type[] newDomainTypes)
     {
-        OPTIMIZED_TYPES.AddRange(newDomainTypes.Where(t => !OPTIMIZED_TYPES.Contains(t)));
+        foreach (var newDomainType in newDomainTypes.Where(t => !OPTIMIZED_TYPES.Contains(t)))
+        {
+            OPTIMIZED_TYPES.Add(newDomainType);
+        }
 
         TYPE_CACHE.Clear();
     }
