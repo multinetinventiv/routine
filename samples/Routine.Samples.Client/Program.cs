@@ -1,6 +1,6 @@
 ﻿var client = BuildRoutine.Context()
     .AsServiceClient(c => c.FromBasic()
-        .ServiceUrlBase.Set("http://localhost:5001/service")
+        .ServiceUrlBase.Set("http://localhost:5000/service")
     )
     .Application;
 

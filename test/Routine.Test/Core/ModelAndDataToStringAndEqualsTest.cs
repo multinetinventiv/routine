@@ -55,9 +55,9 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void DataModel()
     {
-        var prototype = new TestDataPrototype<DataModel>(() => new DataModel
+        var prototype = new TestDataPrototype<DataModel>(() => new()
         {
-            Marks = new List<string> { "mark1", "mark2" },
+            Marks = new() { "mark1", "mark2" },
             IsList = false,
             Name = "name",
             ViewModelId = "view_model_id"
@@ -85,18 +85,18 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ParameterModel()
     {
-        var prototype = new TestDataPrototype<ParameterModel>(() => new ParameterModel
+        var prototype = new TestDataPrototype<ParameterModel>(() => new()
         {
-            Marks = new List<string> { "mark1", "mark2" },
-            Groups = new List<int> { 1, 2 },
+            Marks = new() { "mark1", "mark2" },
+            Groups = new() { 1, 2 },
             IsList = true,
             Name = "name",
             ViewModelId = "view_model_id",
             IsOptional = true,
-            DefaultValue = new VariableData
+            DefaultValue = new()
             {
                 IsList = true,
-                Values = new List<ObjectData> { new() { Id = "obj1" }, new() { Id = "obj2" } }
+                Values = new() { new() { Id = "obj1" }, new() { Id = "obj2" } }
             }
         });
 
@@ -128,7 +128,7 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ResultModel()
     {
-        var prototype = new TestDataPrototype<ResultModel>(() => new ResultModel
+        var prototype = new TestDataPrototype<ResultModel>(() => new()
         {
             IsList = true,
             IsVoid = false,
@@ -155,13 +155,13 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void OperationModel()
     {
-        var prototype = new TestDataPrototype<OperationModel>(() => new OperationModel
+        var prototype = new TestDataPrototype<OperationModel>(() => new()
         {
-            Marks = new List<string> { "mark1", "mark2" },
+            Marks = new() { "mark1", "mark2" },
             Name = "Operation",
             GroupCount = 2,
-            Parameters = new List<ParameterModel> { new() { Name = "parameter" } },
-            Result = new ResultModel { ViewModelId = "view_model_id" }
+            Parameters = new() { new() { Name = "parameter" } },
+            Result = new() { ViewModelId = "view_model_id" }
         });
 
         var testing = prototype.Create();
@@ -192,11 +192,11 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void InitializerModel()
     {
-        var prototype = new TestDataPrototype<InitializerModel>(() => new InitializerModel
+        var prototype = new TestDataPrototype<InitializerModel>(() => new()
         {
-            Marks = new List<string> { "mark1", "mark2" },
+            Marks = new() { "mark1", "mark2" },
             GroupCount = 2,
-            Parameters = new List<ParameterModel> { new() { Name = "parameter" } }
+            Parameters = new() { new() { Name = "parameter" } }
         });
 
         var testing = prototype.Create();
@@ -221,20 +221,20 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ObjectModel()
     {
-        var prototype = new TestDataPrototype<ObjectModel>(() => new ObjectModel
+        var prototype = new TestDataPrototype<ObjectModel>(() => new()
         {
             Id = "object",
-            Marks = new List<string> { "mark1", "mark2" },
+            Marks = new() { "mark1", "mark2" },
             Name = "object",
             Module = "system",
             IsValueModel = true,
             IsViewModel = false,
-            ViewModelIds = new List<string> { "interface" },
-            ActualModelIds = new List<string> { "implementation" },
-            Initializer = new InitializerModel { GroupCount = 2 },
-            Datas = new List<DataModel> { new() { Name = "data" } },
-            Operations = new List<OperationModel> { new() { Name = "operation" } },
-            StaticInstances = new List<ObjectData> { new() { Display = "value1" }, new() { Display = "value2" } }
+            ViewModelIds = new() { "interface" },
+            ActualModelIds = new() { "implementation" },
+            Initializer = new() { GroupCount = 2 },
+            Datas = new() { new() { Name = "data" } },
+            Operations = new() { new() { Name = "operation" } },
+            StaticInstances = new() { new() { Display = "value1" }, new() { Display = "value2" } }
         });
 
         var testing = prototype.Create();
@@ -283,9 +283,9 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ApplicationModel()
     {
-        var prototype = new TestDataPrototype<ApplicationModel>(() => new ApplicationModel
+        var prototype = new TestDataPrototype<ApplicationModel>(() => new()
         {
-            Models = new List<ObjectModel> { new() { Id = "model" } }
+            Models = new() { new() { Id = "model" } }
         });
 
         var testing = prototype.Create();
@@ -305,10 +305,10 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void OperationWithObjectModel()
     {
-        var prototype = new TestDataPrototype<OperationWithObjectModel>(() => new OperationWithObjectModel
+        var prototype = new TestDataPrototype<OperationWithObjectModel>(() => new()
         {
-            ObjectModel = new ObjectModel { Id = "model" },
-            OperationModel = new OperationModel { Name = "operation" }
+            ObjectModel = new() { Id = "model" },
+            OperationModel = new() { Name = "operation" }
         });
 
         var testing = prototype.Create();
@@ -331,7 +331,7 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ReferenceData()
     {
-        var prototype = new TestDataPrototype<ReferenceData>(() => new ReferenceData
+        var prototype = new TestDataPrototype<ReferenceData>(() => new()
         {
             Id = "object",
             ModelId = "actual",
@@ -358,10 +358,10 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ParameterValueData()
     {
-        var prototype = new TestDataPrototype<ParameterValueData>(() => new ParameterValueData
+        var prototype = new TestDataPrototype<ParameterValueData>(() => new()
         {
             IsList = true,
-            Values = new List<ParameterData> { new() { Id = "id" } },
+            Values = new() { new() { Id = "id" } },
         });
 
         var testing = prototype.Create();
@@ -383,18 +383,18 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ParameterData()
     {
-        var prototype = new TestDataPrototype<ParameterData>(() => new ParameterData
+        var prototype = new TestDataPrototype<ParameterData>(() => new()
         {
             Id = "id",
             ModelId = "modelid",
-            InitializationParameters = new Dictionary<string, ParameterValueData>
+            InitializationParameters = new()
             {
                 {
                     "param1",
-                    new ParameterValueData
+                    new()
                     {
                         IsList = false,
-                        Values = new List<ParameterData>
+                        Values = new()
                         {
                             new()
                             {
@@ -428,10 +428,10 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void VariableData()
     {
-        var prototype = new TestDataPrototype<VariableData>(() => new VariableData
+        var prototype = new TestDataPrototype<VariableData>(() => new()
         {
             IsList = true,
-            Values = new List<ObjectData> { new() { Display = "value" } },
+            Values = new() { new() { Display = "value" } },
         });
 
         var testing = prototype.Create();
@@ -453,21 +453,21 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     [Test]
     public void ObjectData()
     {
-        var prototype = new TestDataPrototype<ObjectData>(() => new ObjectData
+        var prototype = new TestDataPrototype<ObjectData>(() => new()
         {
             Display = "value",
             Id = "id",
-            Data = new Dictionary<string, VariableData>
+            Data = new()
             {
                 {
                     "mmodel",
-                    new VariableData
+                    new()
                     {
-                        Values = new List<ObjectData>
+                        Values = new()
                         {
                             new()
                             {
-                                Id="childid",
+                                Id = "childid",
                                 Display = "childvalue"
                             }
                         }

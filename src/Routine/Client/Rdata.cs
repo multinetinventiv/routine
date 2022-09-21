@@ -20,9 +20,9 @@ public class Rdata
     public Rapplication Application => Type.Application;
     public string Name => model.Name;
     public bool IsList => model.IsList;
-    public List<string> Marks => model.Marks;
+    public HashSet<string> Marks => model.Marks;
 
-    public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
+    public bool MarkedAs(string mark) => Marks.Contains(mark);
 
     #region Equality & Hashcode
 

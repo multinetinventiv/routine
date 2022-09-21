@@ -11,17 +11,17 @@ public class ResultModel
     {
         if (model == null) return;
 
-        if (model.TryGetValue("ViewModelId", out var viewModelId))
+        if (model.TryGetValue(nameof(ViewModelId), out var viewModelId))
         {
             ViewModelId = (string)viewModelId;
         }
 
-        if (model.TryGetValue("IsList", out var isList))
+        if (model.TryGetValue(nameof(IsList), out var isList))
         {
             IsList = (bool)isList;
         }
 
-        if (model.TryGetValue("IsVoid", out var isVoid))
+        if (model.TryGetValue(nameof(IsVoid), out var isVoid))
         {
             IsVoid = (bool)isVoid;
         }

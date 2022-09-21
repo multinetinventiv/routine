@@ -23,7 +23,7 @@ public class Rparameter
     public string Name => model.Name;
     public bool IsList => model.IsList;
     public List<int> Groups => model.Groups;
-    public List<string> Marks => model.Marks;
+    public HashSet<string> Marks => model.Marks;
 
     public bool IsOptional => model.IsOptional;
     public Rvariable Default =>
@@ -32,16 +32,14 @@ public class Rparameter
             .ToList()
         );
 
-    public bool MarkedAs(string mark) => model.Marks.Any(m => m == mark);
+    public bool MarkedAs(string mark) => Marks.Contains(mark);
 
     public Rvariable CreateVariable(params Robject[] robjs) => CreateVariable(robjs.ToList());
     public Rvariable CreateVariable(List<Robject> robjs)
     {
         var result = new Rvariable(Name, robjs);
 
-        return IsList
-            ? result
-            : result.ToSingle();
+        return IsList ? result : result.ToSingle();
     }
 
     internal ParameterValueData CreateParameterValueData(params Robject[] robjs) => CreateParameterValueData(robjs.ToList());

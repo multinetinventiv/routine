@@ -45,10 +45,10 @@ public class DomainType
         this.ctx = ctx;
 
         Type = type;
-        Data = new Dictionary<string, DomainData>();
-        Operation = new Dictionary<string, DomainOperation>();
+        Data = new();
+        Operation = new();
 
-        Marks = new Marks(ctx.CodingStyle.GetMarks(Type));
+        Marks = new(ctx.CodingStyle.GetMarks(Type));
 
         Name = ctx.CodingStyle.GetName(Type);
         Module = ctx.CodingStyle.GetModule(Type);
@@ -61,7 +61,7 @@ public class DomainType
         IdExtractor = ctx.CodingStyle.GetIdExtractor(Type);
         ValueExtractor = ctx.CodingStyle.GetValueExtractor(Type);
 
-        converter = new Dictionary<IType, IConverter>();
+        converter = new();
         var converters = ctx.CodingStyle.GetConverters(Type);
         foreach (var converterInstance in converters)
         {
@@ -81,8 +81,8 @@ public class DomainType
         IsValueModel = ctx.CodingStyle.IsValue(Type);
         IsViewModel = ctx.CodingStyle.IsView(Type);
 
-        actualTypes = new List<DomainType>();
-        viewTypes = new List<DomainType>();
+        actualTypes = new();
+        viewTypes = new();
     }
 
     internal void Initialize()
@@ -182,7 +182,7 @@ public class DomainType
         new()
         {
             Id = Id,
-            Marks = Marks.List,
+            Marks = Marks.Set,
             Name = Name,
             Module = Module,
             IsViewModel = IsViewModel,

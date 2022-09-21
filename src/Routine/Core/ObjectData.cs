@@ -5,27 +5,27 @@ public class ObjectData
     public string Id { get; set; }
     public string ModelId { get; set; }
     public string Display { get; set; }
-    public Dictionary<string, VariableData> Data { get; set; } = new Dictionary<string, VariableData>();
+    public Dictionary<string, VariableData> Data { get; set; } = new();
 
     public ObjectData() { }
     public ObjectData(IDictionary<string, object> data)
     {
-        if (data.TryGetValue("Id", out var id))
+        if (data.TryGetValue(nameof(Id), out var id))
         {
             Id = (string)id;
         }
 
-        if (data.TryGetValue("ModelId", out var modelId))
+        if (data.TryGetValue(nameof(ModelId), out var modelId))
         {
             ModelId = (string)modelId;
         }
 
-        if (data.TryGetValue("Display", out var display))
+        if (data.TryGetValue(nameof(Display), out var display))
         {
             Display = (string)display;
         }
 
-        if (data.TryGetValue("Data", out var dataValue))
+        if (data.TryGetValue(nameof(Data), out var dataValue))
         {
             Data = ((IDictionary<string, object>)dataValue).ToDictionary(kvp => kvp.Key, kvp => new VariableData((IDictionary<string, object>)kvp.Value));
         }

@@ -3,81 +3,81 @@ namespace Routine.Core;
 public class ObjectModel
 {
     public string Id { get; set; }
-    public List<string> Marks { get; set; } = new List<string>();
+    public HashSet<string> Marks { get; set; } = new();
 
     public string Name { get; set; }
     public string Module { get; set; }
     public bool IsValueModel { get; set; }
     public bool IsViewModel { get; set; }
 
-    public List<string> ViewModelIds { get; set; } = new List<string>();
-    public List<string> ActualModelIds { get; set; } = new List<string>();
-    public InitializerModel Initializer { get; set; } = new InitializerModel();
-    internal Dictionary<string, DataModel> Data { get; private set; } = new Dictionary<string, DataModel>();
-    internal Dictionary<string, OperationModel> Operation { get; private set; } = new Dictionary<string, OperationModel>();
-    public List<ObjectData> StaticInstances { get; set; } = new List<ObjectData>();
+    public List<string> ViewModelIds { get; set; } = new();
+    public List<string> ActualModelIds { get; set; } = new();
+    public InitializerModel Initializer { get; set; } = new();
+    internal Dictionary<string, DataModel> Data { get; private set; } = new();
+    internal Dictionary<string, OperationModel> Operation { get; private set; } = new();
+    public List<ObjectData> StaticInstances { get; set; } = new();
 
     public ObjectModel() { }
     public ObjectModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
-        if (model.TryGetValue("Id", out var id))
+        if (model.TryGetValue(nameof(Id), out var id))
         {
             Id = (string)id;
         }
 
-        if (model.TryGetValue("Marks", out var marks))
+        if (model.TryGetValue(nameof(Marks), out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
-        if (model.TryGetValue("Name", out var name))
+        if (model.TryGetValue(nameof(Name), out var name))
         {
             Name = (string)name;
         }
 
-        if (model.TryGetValue("Module", out var module))
+        if (model.TryGetValue(nameof(Module), out var module))
         {
             Module = (string)module;
         }
 
-        if (model.TryGetValue("IsValueModel", out var isValueModel))
+        if (model.TryGetValue(nameof(IsValueModel), out var isValueModel))
         {
             IsValueModel = (bool)isValueModel;
         }
 
-        if (model.TryGetValue("IsViewModel", out var isViewModel))
+        if (model.TryGetValue(nameof(IsViewModel), out var isViewModel))
         {
             IsViewModel = (bool)isViewModel;
         }
 
-        if (model.TryGetValue("ViewModelIds", out var viewModelIds))
+        if (model.TryGetValue(nameof(ViewModelIds), out var viewModelIds))
         {
             ViewModelIds = ((IEnumerable)viewModelIds).Cast<string>().ToList();
         }
 
-        if (model.TryGetValue("ActualModelIds", out var actualModelIds))
+        if (model.TryGetValue(nameof(ActualModelIds), out var actualModelIds))
         {
             ActualModelIds = ((IEnumerable)actualModelIds).Cast<string>().ToList();
         }
 
-        if (model.TryGetValue("Initializer", out var initializer))
+        if (model.TryGetValue(nameof(Initializer), out var initializer))
         {
             Initializer = new InitializerModel((IDictionary<string, object>)initializer);
         }
 
-        if (model.TryGetValue("Datas", out var datas))
+        if (model.TryGetValue(nameof(Datas), out var datas))
         {
             Datas = ((IEnumerable)datas).Cast<IDictionary<string, object>>().Select(o => new DataModel(o)).ToList();
         }
 
-        if (model.TryGetValue("Operations", out var operations))
+        if (model.TryGetValue(nameof(Operations), out var operations))
         {
             Operations = ((IEnumerable)operations).Cast<IDictionary<string, object>>().Select(o => new OperationModel(o)).ToList();
         }
 
-        if (model.TryGetValue("StaticInstances", out var staticInstances))
+        if (model.TryGetValue(nameof(StaticInstances), out var staticInstances))
         {
             StaticInstances = ((IEnumerable)staticInstances).Cast<IDictionary<string, object>>().Select(o => new ObjectData(o)).ToList();
         }

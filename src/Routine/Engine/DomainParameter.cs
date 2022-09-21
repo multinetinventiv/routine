@@ -122,7 +122,7 @@ public class DomainParameter
         {
             Name = Name,
             ViewModelId = ParameterType.Id,
-            Marks = Marks.List,
+            Marks = Marks.Set,
             Groups = Groups,
             IsList = IsList,
             IsOptional = IsOptional,

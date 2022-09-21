@@ -5,7 +5,7 @@ public class OperationWithObjectModel
     public ObjectModel ObjectModel { get; set; }
     public OperationModel OperationModel { get; set; }
 
-    public OperationWithObjectModel() : this(new ObjectModel(), new OperationModel()) { }
+    public OperationWithObjectModel() : this(new(), new()) { }
     public OperationWithObjectModel(ObjectModel objectModel, OperationModel operationModel)
     {
         ObjectModel = objectModel;

@@ -2,51 +2,51 @@ namespace Routine.Core;
 
 public class ParameterModel
 {
-    public List<string> Marks { get; set; } = new List<string>();
-    public List<int> Groups { get; set; } = new List<int>();
+    public HashSet<string> Marks { get; set; } = new();
+    public List<int> Groups { get; set; } = new();
 
     public string Name { get; set; }
     public string ViewModelId { get; set; }
     public bool IsList { get; set; }
     public bool IsOptional { get; set; }
-    public VariableData DefaultValue { get; set; } = new VariableData();
+    public VariableData DefaultValue { get; set; } = new();
 
     public ParameterModel() { }
     public ParameterModel(IDictionary<string, object> model)
     {
         if (model == null) return;
 
-        if (model.TryGetValue("Marks", out var marks))
+        if (model.TryGetValue(nameof(Marks), out var marks))
         {
-            Marks = ((IEnumerable)marks).Cast<string>().ToList();
+            Marks = ((IEnumerable)marks).Cast<string>().ToHashSet();
         }
 
-        if (model.TryGetValue("Groups", out var groups))
+        if (model.TryGetValue(nameof(Groups), out var groups))
         {
             Groups = ((IEnumerable)groups).Cast<int>().ToList();
         }
 
-        if (model.TryGetValue("Name", out var name))
+        if (model.TryGetValue(nameof(Name), out var name))
         {
             Name = (string)name;
         }
 
-        if (model.TryGetValue("ViewModelId", out var viewModelId))
+        if (model.TryGetValue(nameof(ViewModelId), out var viewModelId))
         {
             ViewModelId = (string)viewModelId;
         }
 
-        if (model.TryGetValue("IsList", out var isList))
+        if (model.TryGetValue(nameof(IsList), out var isList))
         {
             IsList = (bool)isList;
         }
 
-        if (model.TryGetValue("IsOptional", out var isOptional))
+        if (model.TryGetValue(nameof(IsOptional), out var isOptional))
         {
             IsOptional = (bool)isOptional;
         }
 
-        if (model.TryGetValue("DefaultValue", out var defaultValue))
+        if (model.TryGetValue(nameof(DefaultValue), out var defaultValue))
         {
             DefaultValue = new VariableData((IDictionary<string, object>)defaultValue);
         }
