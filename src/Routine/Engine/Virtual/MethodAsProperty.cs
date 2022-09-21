@@ -20,10 +20,13 @@ public class MethodAsProperty : IProperty
 
     public string Name => method.Name.After(ignorePrefix);
     public object[] GetCustomAttributes() => method.GetCustomAttributes();
+
     public IType ParentType => method.ParentType;
     public IType ReturnType => method.ReturnType;
     public object[] GetReturnTypeCustomAttributes() => method.GetReturnTypeCustomAttributes();
+
     public bool IsPublic => method.IsPublic;
     public IType GetDeclaringType(bool firstDeclaringType) => method.GetDeclaringType(firstDeclaringType);
+
     public object FetchFrom(object target) => method.PerformOn(target, parameters);
 }

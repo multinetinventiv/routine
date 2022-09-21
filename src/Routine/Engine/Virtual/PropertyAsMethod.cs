@@ -8,8 +8,8 @@ public class PropertyAsMethod : IMethod
     public PropertyAsMethod(IProperty property) : this(property, Constants.PROPERTY_AS_METHOD_DEFAULT_PREFIX) { }
     public PropertyAsMethod(IProperty property, string namePrefix)
     {
-        this.property = property;
-        this.namePrefix = namePrefix ?? throw new ArgumentNullException(nameof(namePrefix));
+        this.property = property ?? throw new ArgumentNullException(nameof(property));
+        this.namePrefix = namePrefix ?? string.Empty;
     }
 
     public string Name => property.Name.Prepend(namePrefix);
@@ -22,6 +22,7 @@ public class PropertyAsMethod : IMethod
     public List<IParameter> Parameters => new();
     public bool IsPublic => property.IsPublic;
     public IType GetDeclaringType(bool firstDeclaringType) => property.GetDeclaringType(firstDeclaringType);
+
     public object PerformOn(object target, params object[] parameters) => property.FetchFrom(target);
     public Task<object> PerformOnAsync(object target, params object[] parameters) => Task.FromResult(property.FetchFrom(target));
 }

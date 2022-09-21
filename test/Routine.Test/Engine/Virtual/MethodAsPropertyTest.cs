@@ -32,7 +32,7 @@ public class MethodAsPropertyTest : CoreTestBase
     public void Ignore_prefix_removes_given_prefix_from_method_name()
     {
         IMethod method = type.of<string>().GetMethods(nameof(string.ToUpper)).First();
-        var testing = new MethodAsProperty(method, "To");
+        var testing = new MethodAsProperty(method, ignorePrefix: "To");
 
         Assert.That(testing.Name, Is.EqualTo("Upper"));
     }
