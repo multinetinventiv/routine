@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <Product>Routine</Product>
-        <Version>0.9.6</Version>
+        <Version>6.0.0</Version>
         <Authors>inventiv</Authors>
         <Company>inventiv</Company>
         <Copyright>Copyright (c) 2016 - 2022 inventiv</Copyright>
