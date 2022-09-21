@@ -1,0 +1,98 @@
+name: Project - Regular Checks
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'samples/**'
+      - 'Routine.sln'
+      - 'Directory.Build.props'
+jobs:
+  # outputs matrix json so that windows is only added when head branch is a release branch
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ env.MATRIX }}
+    env:
+      MATRIX: '{ "os": [ "ubuntu-latest" ] }'
+      COLON: ':'
+    steps:
+      - name: Windows
+        id: windows
+        if: startsWith(github.head_ref, 'release/') == true
+        run: echo "MATRIX={ \"os\"$COLON [ \"ubuntu-latest\", \"windows-latest\" ] }" >> $GITHUB_ENV
+  build:
+    name: Build
+    needs: Prepare
+    outputs:
+      matrix: ${{ needs.prepare.outputs.matrix }}
+    strategy:
+      max-parallel: 2
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            6.0.x
+      - name: Build Solution
+        run: dotnet build -c Release
+  test:
+    name: Test
+    needs: build
+    strategy:
+      max-parallel: 2
+      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            6.0.x
+      - name: Test
+        if: ${{ matrix.os != 'ubuntu-latest' }}
+        run: dotnet test -c Release
+      - name: Test w/ Coverage
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          dotnet test -c Release \
+            /p:CollectCoverage=true \
+            /p:SkipAutoProps=true \
+            /p:Exclude=\"[Routine.Samples*]*,[Routine.Test*]*\" \
+            /p:IncludeTestAssembly=false \
+            /p:CoverletOutput=../.coverage/ \
+            /p:MergeWith="../.coverage/coverage.json" \
+            /p:CoverletOutputFormat=\"cobertura,json\" -m:1
+      - name: Upload Reports
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: ./**/.coverage/coverage.cobertura.xml
+  coverage:
+    name: Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Reports
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-reports
+      - name: Publish Report
+        uses: 5monkeys/cobertura-action@master
+        with:
+          path: ./**/.coverage/coverage.cobertura.xml
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 80
+          fail_below_threshold: true
+          only_changed_files: true
+          show_missing: true
+          link_missing_lines: true
+          report_name: Report
