@@ -90,7 +90,7 @@ jobs:
         with:
           path: ./**/.coverage/coverage.cobertura.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 80
+          minimum_coverage: 75
           fail_below_threshold: true
           only_changed_files: true
           show_missing: true
