@@ -1,0 +1,95 @@
+name: Publish
+on:
+  pull_request:
+    types:
+      - labeled
+    branches:
+      - main
+jobs:
+  remove-label:
+    # Remove when not in release branch
+    name: Remove Label
+    if: github.event.label.name == 'Publish' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/') == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-ecosystem/action-remove-labels@v1
+        name: Remove Publish Label
+        with:
+          labels: 'Publish'
+
+  check-version:
+    # Start publish when in release branch
+    # This job fetches current version from Directory.Build.props and checks if this version already pushed to nuget
+    name: Check Version
+    if: github.event.label.name == 'Publish' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/') == true
+    runs-on: ubuntu-latest
+    outputs:
+      # Version number that is parsed from Directory.Build.props
+      version: ${{ steps.parse.outputs.version }}
+      # Flag to indicate a new version should be built or not.
+      #   true means it was already published
+      #   false means pack & push is required
+      action: ${{ steps.check.outputs.action }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Parse Version
+        id: parse
+        run: |
+          # 1. cat outputs content of Directory.Build.props file to stream editor (sed)
+          # 2. first sed removes all lines except with Version info
+          # 3. second sed removes <Version> and </Version> and spaces
+          # 4. result is only version which is set to the $version variable
+          version=$(cat Directory.Build.props | sed -n '/<Version>/p' | sed '/[ <>a-zA-Z\/]/ s///g')
+          # value of $version is set as a step output
+          echo '::set-output name=version::'$version
+      - name: Check Version in NuGet
+        id: check
+        run: |
+          if wget -q --method=HEAD https://api.nuget.org/v3-flatcontainer/Routine/${{ steps.parse.outputs.version }}/Routine.nuspec;
+           then
+            echo '::set-output name=action::nothing'
+           else
+            echo '::set-output name=action::pack'
+          fi
+  pack-project:
+    name: Pack Project
+    needs: check-version
+    # should only run when this version does not exist in nuget
+    #   use contains to check for action value, == operator does not work probably because some space chars in the value
+    if: contains(needs.check-version.outputs.action, 'pack')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ needs.check-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            6.0.x
+      - name: Pack
+        run: |
+          dotnet pack "src/Routine/Routine.csproj" \
+            -o "package" \
+            -c Release
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: package/Routine.${{ needs.check-version.outputs.version }}.nupkg
+  push-package:
+    name: Push Package
+    needs: pack-project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Package
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - name: Push
+        run: |
+          dotnet nuget push "Routine.${{ needs.pack-project.outputs.version }}.nupkg" \
+            -s https://api.nuget.org/v3/index.json \
+            -k ${{ secrets.NUGET_API_KEY }} \
+            --skip-duplicate \
+            -t 3600

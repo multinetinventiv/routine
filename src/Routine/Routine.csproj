@@ -1,22 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Product>Routine</Product>
-        <Version>0.9.6</Version>
-        <Authors>inventiv</Authors>
-        <Company>inventiv</Company>
-        <Copyright>Copyright (c) 2016 - 2022 inventiv</Copyright>
-        <PackageIcon>logo.png</PackageIcon>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>http://routineframework.org</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/multinetinventiv/routine.git</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
         <AssemblyTitle>Routine</AssemblyTitle>
         <Title>Routine</Title>
         <Description>Routine is a service framework that can adapt to any coding style.</Description>
         <PackageId>Routine</PackageId>
-        <PackageTags>rest, service, client</PackageTags>
+        <PackageTags>rest;service;api</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
