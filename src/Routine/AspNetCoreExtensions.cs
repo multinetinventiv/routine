@@ -15,15 +15,17 @@ namespace Microsoft.AspNetCore.Builder;
 
 public static class AspNetCoreExtensions
 {
-    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default) => source.AddRoutine<JsonSerializerAdapter>();
+    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default) => source.AddRoutine<JsonSerializerAdapter>(options);
     public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source, Action<RoutineOptions> options = default) where TJsonSerializer : class, IJsonSerializer
     {
         options ??= _ => { };
         var o = new RoutineOptions();
         options(o);
 
-        if (o.DevelopmentMode) ReflectionOptimizer.Enable();
-        else ReflectionOptimizer.Disable();
+        if (o.DevelopmentMode)
+        {
+            ReflectionOptimizer.Disable();
+        }
 
         return source
             .AddHttpContextAccessor()
