@@ -84,7 +84,7 @@ public class HttpClientRestClient : IRestClient
 
         foreach (var (key, value) in request.Headers)
         {
-            result.Headers.Add(key, HttpUtility.UrlEncode(value));
+            result.Headers.TryAddWithoutValidation(key, HttpUtility.UrlEncode(value));
         }
 
         if (method != HttpMethod.Get)
