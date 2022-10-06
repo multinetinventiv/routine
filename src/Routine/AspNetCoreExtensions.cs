@@ -15,8 +15,7 @@ namespace Microsoft.AspNetCore.Builder;
 
 public static class AspNetCoreExtensions
 {
-    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default) => source.AddRoutine<JsonSerializerAdapter>(options);
-    public static IServiceCollection AddRoutine<TJsonSerializer>(this IServiceCollection source, Action<RoutineOptions> options = default) where TJsonSerializer : class, IJsonSerializer
+    public static IServiceCollection AddRoutine(this IServiceCollection source, Action<RoutineOptions> options = default)
     {
         options ??= _ => { };
         var o = new RoutineOptions();
@@ -26,10 +25,12 @@ public static class AspNetCoreExtensions
         {
             ReflectionOptimizer.Disable();
         }
+        else
+        {
+            ReflectionOptimizer.Enable();
+        }
 
-        return source
-            .AddHttpContextAccessor()
-            .AddSingleton<IJsonSerializer, TJsonSerializer>();
+        return source;
     }
 
     public static IApplicationBuilder UseRoutine(this IApplicationBuilder source,
@@ -44,15 +45,16 @@ public static class AspNetCoreExtensions
         serviceConfiguration ??= s => s.FromBasic();
         interceptionConfiguration ??= i => i.FromBasic();
 
+        var contextBuilder = BuildRoutine.Context().Using(
+            restClient: restClient,
+            serializer: serializer,
+            cache: cache,
+            interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
+        );
+
         return source.UseMiddleware<RoutineMiddleware>(
-            BuildRoutine.Context()
-                .Using(
-                    restClient: restClient,
-                    serializer: serializer,
-                    cache: cache,
-                    interceptionConfiguration: interceptionConfiguration(BuildRoutine.InterceptionConfig())
-                )
-                .AsServiceApplication(serviceConfiguration, codingStyle)
+            contextBuilder.Serializer,
+            contextBuilder.AsServiceApplication(serviceConfiguration, codingStyle)
         );
     }
 }

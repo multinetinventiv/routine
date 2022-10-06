@@ -4,6 +4,7 @@ using System.Reflection;
 using TypeInfo = Routine.TypeInfo;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddRoutine(o => o.DevelopmentMode = builder.Environment.IsDevelopment());
 
 var app = builder.Build();
