@@ -49,17 +49,17 @@ public class ObjectService : IObjectService
 public class DataDoesNotExistException : Exception
 {
     public DataDoesNotExistException(string objectModelId, string dataName)
-        : base("Data '" + dataName + "' does not exist on Object '" + objectModelId + "'") { }
+        : base($"Data '{dataName}' does not exist on Object '{objectModelId}'") { }
 }
 
 public class OperationDoesNotExistException : Exception
 {
     public OperationDoesNotExistException(string objectModelId, string operationName)
-        : base("Operation '" + operationName + "' does not exist on Object '" + objectModelId + "'") { }
+        : base($"Operation '{operationName}' does not exist on Object '{objectModelId}'") { }
 }
 
 public class MissingParameterException : Exception
 {
     public MissingParameterException(string objectModelId, string operationName, string parameterName)
-        : base("Parameter '" + parameterName + "' was not given for Operation '" + operationName + " on Object '" + objectModelId + "'") { }
+        : base($"Parameter '{parameterName}' was not given for Operation '{operationName} on Object '{objectModelId}'") { }
 }
