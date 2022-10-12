@@ -28,7 +28,6 @@ internal class ProxyTypeInfo : TypeInfo
     public override bool CanBe(TypeInfo other) => real.CanBe(other);
     public override object CreateInstance() => real.CreateInstance();
     public override IList CreateListInstance(int length) => real.CreateListInstance(length);
-
     public override Type GetActualType() => real.GetActualType();
     public override ConstructorInfo[] GetAllConstructors() => real.GetAllConstructors();
     public override MethodInfo[] GetAllMethods() => real.GetAllMethods();
@@ -52,7 +51,9 @@ internal class ProxyTypeInfo : TypeInfo
     public override PropertyInfo GetStaticProperty(string name) => real.GetStaticProperty(name);
     protected internal override TypeInfo[] GetAssignableTypes() => real.GetAssignableTypes();
     protected internal override TypeInfo GetElementType() => real.GetElementType();
+    public override List<string> GetEnumNames() => real.GetEnumNames();
     protected internal override TypeInfo GetEnumUnderlyingType() => real.GetEnumUnderlyingType();
+    public override List<object> GetEnumValues() => real.GetEnumValues();
     protected internal override TypeInfo[] GetGenericArguments() => real.GetGenericArguments();
     protected internal override TypeInfo[] GetInterfaces() => real.GetInterfaces();
     protected internal override MethodInfo GetParseMethod() => real.GetParseMethod();

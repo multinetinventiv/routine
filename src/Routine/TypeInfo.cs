@@ -139,8 +139,8 @@ public abstract class TypeInfo : IType
     protected internal abstract TypeInfo GetElementType();
     protected internal abstract TypeInfo[] GetInterfaces();
     public abstract bool CanBe(TypeInfo other);
-    public virtual List<string> GetEnumNames() => new();
-    public virtual List<object> GetEnumValues() => new();
+    public abstract List<string> GetEnumNames();
+    public abstract List<object> GetEnumValues();
     protected internal abstract TypeInfo GetEnumUnderlyingType();
 
     protected internal abstract MethodInfo GetParseMethod();
