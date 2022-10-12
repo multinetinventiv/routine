@@ -3,7 +3,6 @@ using Routine.Engine;
 using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterDomainNamespace;
 using RoutineTest.OuterNamespace;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Routine.Test.Engine.Reflection;
@@ -236,7 +235,7 @@ public class TypeInfoTest : ReflectionTestBase
         catch (MissingMethodException) { }
     }
 
-    [Test, SuppressMessage("ReSharper", "LocalVariableHidesMember")]
+    [Test]
     public void TypeInfo_lists_custom_attributes_with_inherit_behaviour()
     {
         var systemType = typeof(TestClass_Attribute);
@@ -450,7 +449,7 @@ public class TypeInfoTest : ReflectionTestBase
         Assert.IsFalse(type.of<TestClass_NotParseable>().CanParse());
     }
 
-    [Test, SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly")]
+    [Test]
     public void Extension_Parse()
     {
         Assert.AreEqual('c', type.of<char>().Parse('c'.ToString()));

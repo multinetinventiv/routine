@@ -22,7 +22,7 @@ internal class OptimizedTypeInfo : PreloadedTypeInfo
     internal OptimizedTypeInfo(Type type)
         : base(type) { }
 
-    protected override void Load()
+    protected internal override void Load()
     {
         base.Load();
 
@@ -63,7 +63,7 @@ internal class OptimizedTypeInfo : PreloadedTypeInfo
     public override PropertyInfo[] GetAllStaticProperties() => allStaticProperties;
     public override MethodInfo[] GetAllMethods() => allMethods;
     public override MethodInfo[] GetAllStaticMethods() => allStaticMethods;
-    protected override MethodInfo GetParseMethod() => parseMethod;
+    protected internal override MethodInfo GetParseMethod() => parseMethod;
 
     public override PropertyInfo GetProperty(string name) => allPropertiesNameIndex.GetFirstOrDefault(name);
     public override List<PropertyInfo> GetProperties(string name) => allPropertiesNameIndex.GetAll(name);

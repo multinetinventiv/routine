@@ -5,6 +5,6 @@ internal class VoidTypeInfo : PreloadedTypeInfo
     internal VoidTypeInfo()
         : base(typeof(void))
     {
-        IsVoid = true;
+        SetIsVoid(true);
     }
 }
