@@ -10,8 +10,8 @@ public abstract class TypeInfo : IType
     protected const System.Reflection.BindingFlags ALL_STATIC = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
     protected const System.Reflection.BindingFlags ALL_INSTANCE = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
 
-    private static readonly Dictionary<Type, TypeInfo> TYPE_CACHE;
-    private static readonly HashSet<Type> OPTIMIZED_TYPES;
+    private static readonly Dictionary<string, TypeInfo> TYPE_CACHE;
+    private static readonly Dictionary<string, Type> OPTIMIZED_TYPES;
 
     private static Func<Type, bool> proxyMatcher;
     private static Func<Type, Type> actualTypeGetter;
@@ -32,16 +32,20 @@ public abstract class TypeInfo : IType
         SetProxyMatcher(null, null);
     }
 
-    public static List<TypeInfo> GetOptimizedTypes() => OPTIMIZED_TYPES.Select(t => t.ToTypeInfo()).ToList();
-
     public static void Optimize(params Type[] newDomainTypes)
     {
-        foreach (var newDomainType in newDomainTypes.Where(t => !OPTIMIZED_TYPES.Contains(t)))
+        lock (OPTIMIZED_TYPES)
         {
-            OPTIMIZED_TYPES.Add(newDomainType);
+            foreach (var newDomainType in newDomainTypes)
+            {
+                OPTIMIZED_TYPES[KeyOf(newDomainType)] = newDomainType;
+            }
         }
 
-        TYPE_CACHE.Clear();
+        lock (TYPE_CACHE)
+        {
+            TYPE_CACHE.Clear();
+        }
     }
 
     public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
@@ -49,6 +53,8 @@ public abstract class TypeInfo : IType
         TypeInfo.proxyMatcher = proxyMatcher ?? (_ => false);
         TypeInfo.actualTypeGetter = actualTypeGetter ?? (t => t);
     }
+
+    private static string KeyOf(Type type) => $"{type}";
 
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
@@ -59,33 +65,28 @@ public abstract class TypeInfo : IType
             return null;
         }
 
-        if (!TYPE_CACHE.TryGetValue(type, out var result))
+        if (!TYPE_CACHE.TryGetValue(KeyOf(type), out var result))
         {
             lock (TYPE_CACHE)
             {
-                if (!TYPE_CACHE.TryGetValue(type, out result))
+                if (!TYPE_CACHE.TryGetValue(KeyOf(type), out result))
                 {
                     if (proxyMatcher(type))
                     {
                         var actualType = actualTypeGetter(type);
-
-                        if (!TYPE_CACHE.TryGetValue(actualType, out result))
+                        if (!TYPE_CACHE.TryGetValue(KeyOf(actualType), out result))
                         {
                             result = CreateTypeInfo(actualType);
-
-                            TYPE_CACHE.Add(actualType, result);
-
+                            TYPE_CACHE.Add(KeyOf(actualType), result);
                             result.Load();
                         }
 
-                        TYPE_CACHE.Add(type, result);
+                        TYPE_CACHE.Add(KeyOf(type), result);
                     }
                     else
                     {
                         result = CreateTypeInfo(type);
-
-                        TYPE_CACHE.Add(type, result);
-
+                        TYPE_CACHE.Add(KeyOf(type), result);
                         result.Load();
                     }
                 }
@@ -95,41 +96,18 @@ public abstract class TypeInfo : IType
         return result;
     }
 
-    private static TypeInfo CreateTypeInfo(Type type)
+    private static TypeInfo CreateTypeInfo(Type type) => type switch
     {
-        TypeInfo result;
+        _ when type == typeof(void) => new VoidTypeInfo(),
+        _ when GetParseMethod(type)?.ReturnType == type => new ParseableTypeInfo(type),
+        { IsArray: true } => new ArrayTypeInfo(type),
+        { IsEnum: true } => new EnumTypeInfo(type),
+        { ContainsGenericParameters: true } => new ReflectedTypeInfo(type),
+        _ when OPTIMIZED_TYPES.TryGetValue(KeyOf(type), out var optimizedType) => new OptimizedTypeInfo(optimizedType),
+        _ => new ReflectedTypeInfo(type)
+    };
 
-        if (type == typeof(void))
-        {
-            result = new VoidTypeInfo();
-        }
-        else if (type.GetMethod("Parse", new[] { typeof(string) }) != null && type.GetMethod("Parse", new[] { typeof(string) }).ReturnType == type)
-        {
-            result = new ParseableTypeInfo(type);
-        }
-        else if (type.IsArray)
-        {
-            result = new ArrayTypeInfo(type);
-        }
-        else if (type.IsEnum)
-        {
-            result = new EnumTypeInfo(type);
-        }
-        else if (type.ContainsGenericParameters)
-        {
-            result = new ReflectedTypeInfo(type);
-        }
-        else if (OPTIMIZED_TYPES.Contains(type))
-        {
-            result = new OptimizedTypeInfo(type);
-        }
-        else
-        {
-            result = new ReflectedTypeInfo(type);
-        }
-
-        return result;
-    }
+    private static System.Reflection.MethodInfo GetParseMethod(Type type) => type.GetMethod("Parse", new[] { typeof(string) });
 
     #endregion
 

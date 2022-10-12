@@ -4,6 +4,7 @@ using Routine.Test.Engine.Reflection.Domain;
 using RoutineTest.OuterDomainNamespace;
 using RoutineTest.OuterNamespace;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Routine.Test.Engine.Reflection;
 
@@ -67,6 +68,20 @@ public class TypeInfoTest : ReflectionTestBase
         property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
 
         Assert.IsInstanceOf<OptimizedTypeInfo>(property.PropertyType);
+    }
+
+    [Test]
+    public void When_a_type_is_loaded_in_two_different_load_contexts__old_one_should_be_matched_from_its_full_name_and_invalidated()
+    {
+        var typeFromDifferentLoadContext = Assembly.LoadFile(GetType().Assembly.Location).GetType(typeof(TestOuterDomainType_OOP).FullName);
+
+        TypeInfo.Optimize(typeFromDifferentLoadContext);
+        TypeInfo.Optimize(typeof(TestOuterDomainType_OOP));
+
+        var actual = TypeInfo.Get(typeFromDifferentLoadContext);
+        var expected = TypeInfo.Get<TestOuterDomainType_OOP>();
+
+        Assert.AreSame(expected, actual);
     }
 
     [Test]
