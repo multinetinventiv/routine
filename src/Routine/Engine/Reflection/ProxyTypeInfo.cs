@@ -4,12 +4,16 @@ internal class ProxyTypeInfo : TypeInfo
 {
     private volatile TypeInfo real;
 
-    internal ProxyTypeInfo(TypeInfo real)
+    internal TypeInfo Real
     {
-        this.real = real ?? throw new ArgumentNullException(nameof(real));
+        get => real;
+        set => real = value ?? throw new ArgumentNullException(nameof(real));
     }
 
-    internal void SetReal(TypeInfo real) => this.real = real ?? throw new ArgumentNullException(nameof(real));
+    internal ProxyTypeInfo(TypeInfo real)
+    {
+        Real = real;
+    }
 
     public override bool IsPublic => real.IsPublic;
     public override bool IsAbstract => real.IsAbstract;

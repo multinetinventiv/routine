@@ -1,4 +1,5 @@
-﻿using Routine.Engine.Reflection;
+﻿using System.Linq.Expressions;
+using Routine.Engine.Reflection;
 using Routine.Test.Core;
 using Routine.Test.Engine.Reflection.Domain;
 
@@ -81,4 +82,22 @@ public abstract class ReflectionTestBase : CoreTestBase
     protected PropertyInfo Attribute_InterfaceProperty(string prefixOrFullName) =>
         type.of<TestInterface_Attribute>().GetProperty($"{prefixOrFullName}Property") ??
         type.of<TestInterface_Attribute>().GetProperty(prefixOrFullName);
+
+    protected void CallOnProxyAndVerifyOnMock(Expression<Action<TypeInfo>> expression)
+    {
+        var mock = new Mock<TypeInfo>();
+        var testing = new ProxyTypeInfo(mock.Object);
+
+        expression.Compile()(testing);
+        mock.Verify(expression);
+    }
+
+    protected void CallOnProxyAndVerifyOnMock<T>(Expression<Func<TypeInfo, T>> expression)
+    {
+        var mock = new Mock<TypeInfo>();
+        var testing = new ProxyTypeInfo(mock.Object);
+
+        expression.Compile()(testing);
+        mock.Verify(expression);
+    }
 }

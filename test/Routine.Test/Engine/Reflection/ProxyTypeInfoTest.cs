@@ -1,32 +1,15 @@
-using System.Linq.Expressions;
-using Routine.Engine.Reflection;
+﻿using Routine.Engine.Reflection;
 
 namespace Routine.Test.Engine.Reflection;
 
 [TestFixture]
-public class ProxyTypeInfoTest
+public class ProxyTypeInfoTest : ReflectionTestBase
 {
-    #region Helpers
-
-    private void TestProxy(Expression<Action<TypeInfo>> expression)
+    [SetUp]
+    public override void SetUp()
     {
-        var mock = new Mock<TypeInfo>();
-        var testing = new ProxyTypeInfo(mock.Object);
-
-        expression.Compile()(testing);
-        mock.Verify(expression);
+        base.SetUp();
     }
-
-    private void TestProxy<T>(Expression<Func<TypeInfo, T>> expression)
-    {
-        var mock = new Mock<TypeInfo>();
-        var testing = new ProxyTypeInfo(mock.Object);
-
-        expression.Compile()(testing);
-        mock.Verify(expression);
-    }
-
-    #endregion
 
     [Test]
     public void Forwards_properties_to_the_real_object()
@@ -69,47 +52,47 @@ public class ProxyTypeInfoTest
         Assert.That(@string.IsArray, Is.False);
         Assert.That(stringArray.IsArray, Is.True);
 
-        Assert.That(@string.Name, Is.EqualTo("String"));
-        Assert.That(@string.FullName, Is.EqualTo("System.String"));
-        Assert.That(@string.Namespace, Is.EqualTo("System"));
+        Assert.That(@string.Name, Is.EqualTo(typeof(string).Name));
+        Assert.That(@string.FullName, Is.EqualTo(typeof(string).FullName));
+        Assert.That(@string.Namespace, Is.EqualTo(typeof(string).Namespace));
         Assert.That(@string.BaseType.GetActualType(), Is.EqualTo(typeof(object)));
     }
 
     [Test]
     public void Forwards_methods_to_the_real_object()
     {
-        TestProxy(ti => ti.GetAllConstructors());
-        TestProxy(ti => ti.GetAllProperties());
-        TestProxy(ti => ti.GetAllStaticProperties());
-        TestProxy(ti => ti.GetAllMethods());
-        TestProxy(ti => ti.GetAllStaticMethods());
-        TestProxy(ti => ti.GetCustomAttributes());
-        TestProxy(ti => ti.GetGenericArguments());
-        TestProxy(ti => ti.GetElementType());
-        TestProxy(ti => ti.GetInterfaces());
-        TestProxy(ti => ti.CanBe(It.IsAny<TypeInfo>()));
-        TestProxy(ti => ti.GetEnumNames());
-        TestProxy(ti => ti.GetEnumValues());
-        TestProxy(ti => ti.GetEnumUnderlyingType());
-        TestProxy(ti => ti.GetParseMethod());
-        TestProxy(ti => ti.Load());
-        TestProxy(ti => ti.CreateInstance());
-        TestProxy(ti => ti.CreateListInstance(It.IsAny<int>()));
-        TestProxy(ti => ti.GetAssignableTypes());
-        TestProxy(ti => ti.GetPublicConstructors());
-        TestProxy(ti => ti.GetConstructor(It.IsAny<TypeInfo[]>()));
-        TestProxy(ti => ti.GetPublicProperties(It.IsAny<bool>()));
-        TestProxy(ti => ti.GetPublicStaticProperties(It.IsAny<bool>()));
-        TestProxy(ti => ti.GetProperty(It.IsAny<string>()));
-        TestProxy(ti => ti.GetProperties(It.IsAny<string>()));
-        TestProxy(ti => ti.GetStaticProperty(It.IsAny<string>()));
-        TestProxy(ti => ti.GetStaticProperties(It.IsAny<string>()));
-        TestProxy(ti => ti.GetPublicMethods());
-        TestProxy(ti => ti.GetPublicStaticMethods());
-        TestProxy(ti => ti.GetMethod(It.IsAny<string>()));
-        TestProxy(ti => ti.GetMethods(It.IsAny<string>()));
-        TestProxy(ti => ti.GetStaticMethod(It.IsAny<string>()));
-        TestProxy(ti => ti.GetStaticMethods(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAllConstructors());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAllProperties());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAllStaticProperties());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAllMethods());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAllStaticMethods());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetCustomAttributes());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetGenericArguments());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetElementType());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetInterfaces());
+        CallOnProxyAndVerifyOnMock(ti => ti.CanBe(It.IsAny<TypeInfo>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetEnumNames());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetEnumValues());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetEnumUnderlyingType());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetParseMethod());
+        CallOnProxyAndVerifyOnMock(ti => ti.Load());
+        CallOnProxyAndVerifyOnMock(ti => ti.CreateInstance());
+        CallOnProxyAndVerifyOnMock(ti => ti.CreateListInstance(It.IsAny<int>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetAssignableTypes());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetPublicConstructors());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetConstructor(It.IsAny<TypeInfo[]>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetPublicProperties(It.IsAny<bool>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetPublicStaticProperties(It.IsAny<bool>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetProperty(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetProperties(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetStaticProperty(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetStaticProperties(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetPublicMethods());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetPublicStaticMethods());
+        CallOnProxyAndVerifyOnMock(ti => ti.GetMethod(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetMethods(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetStaticMethod(It.IsAny<string>()));
+        CallOnProxyAndVerifyOnMock(ti => ti.GetStaticMethods(It.IsAny<string>()));
     }
 
     [Test]
@@ -117,7 +100,7 @@ public class ProxyTypeInfoTest
     {
         var testing = new ProxyTypeInfo(type.of<string>());
 
-        testing.SetReal(type.of<int>());
+        testing.Real = type.of<int>();
 
         Assert.That(testing.GetActualType(), Is.EqualTo(typeof(int)));
     }

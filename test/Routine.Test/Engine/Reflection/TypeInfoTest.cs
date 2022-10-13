@@ -46,11 +46,22 @@ public class TypeInfoTest : ReflectionTestBase
     [Test]
     public void When_a_previously_cached_type_is_being_optimized__previously_created_reflected_type_info_instance_is_invalidated()
     {
-        Assert.IsInstanceOf<ReflectedTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
+        var oldType = TypeInfo.Get<TestOuterDomainType_OOP>();
+        Assert.IsInstanceOf<ProxyTypeInfo>(oldType);
+
+        var oldProxy = (ProxyTypeInfo)oldType;
+        Assert.IsInstanceOf<ReflectedTypeInfo>(oldProxy.Real);
 
         TypeInfo.Optimize(typeof(TestOuterDomainType_OOP));
 
-        Assert.IsInstanceOf<OptimizedTypeInfo>(TypeInfo.Get<TestOuterDomainType_OOP>());
+        var newType = TypeInfo.Get<TestOuterDomainType_OOP>();
+        Assert.IsInstanceOf<ProxyTypeInfo>(newType);
+
+        var newProxy = (ProxyTypeInfo)oldType;
+        Assert.IsInstanceOf<OptimizedTypeInfo>(newProxy.Real);
+
+        Assert.AreSame(oldType, newType);
+        Assert.AreSame(oldProxy, newProxy);
     }
 
     [Test]
@@ -59,14 +70,16 @@ public class TypeInfoTest : ReflectionTestBase
         TypeInfo.Optimize(typeof(TestOuterDomainType_OOP));
 
         var property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
+        var propertyType = (ProxyTypeInfo)property.PropertyType;
 
-        Assert.IsInstanceOf<ReflectedTypeInfo>(property.PropertyType);
+        Assert.IsInstanceOf<ReflectedTypeInfo>(propertyType.Real);
 
         TypeInfo.Optimize(typeof(TestOuterLaterAddedDomainType_OOP));
 
         property = TypeInfo.Get<TestOuterDomainType_OOP>().GetAllProperties().First(p => p.Returns<TestOuterLaterAddedDomainType_OOP>());
+        propertyType = (ProxyTypeInfo)property.PropertyType;
 
-        Assert.IsInstanceOf<OptimizedTypeInfo>(property.PropertyType);
+        Assert.IsInstanceOf<OptimizedTypeInfo>(propertyType.Real);
     }
 
     [Test]
@@ -313,11 +326,10 @@ public class TypeInfoTest : ReflectionTestBase
     [Test]
     public void Parseable_types_are_represented_by_ParseableTypeInfo_even_if_they_are_added_for_optimization()
     {
-        Assert.IsFalse(type.of<int>() is OptimizedTypeInfo);
-        Assert.IsFalse(type.of<string>() is OptimizedTypeInfo);
-        Assert.IsFalse(type.of<DateTime>() is OptimizedTypeInfo);
+        Assert.IsInstanceOf<ParseableTypeInfo>(type.of<int>());
+        Assert.IsInstanceOf<ParseableTypeInfo>(type.of<DateTime>());
 
-        Assert.IsTrue(type.of<TestClass_OOP>() is OptimizedTypeInfo);
+        Assert.IsNotInstanceOf<ParseableTypeInfo>(type.of<TestClass_OOP>());
     }
 
     [Test]

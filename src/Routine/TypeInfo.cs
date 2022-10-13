@@ -1,5 +1,6 @@
-using Routine.Engine.Reflection;
+using Routine.Core.Reflection;
 using Routine.Engine;
+using Routine.Engine.Reflection;
 
 namespace Routine;
 
@@ -11,7 +12,7 @@ public abstract class TypeInfo : IType
     protected const System.Reflection.BindingFlags ALL_INSTANCE = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
 
     private static readonly Dictionary<string, TypeInfo> TYPE_CACHE;
-    private static readonly Dictionary<string, Type> OPTIMIZED_TYPES;
+    private static readonly object OPTIMIZE_LOCK = new();
 
     private static volatile Func<Type, bool> proxyMatcher;
     private static volatile Func<Type, Type> actualTypeGetter;
@@ -19,7 +20,6 @@ public abstract class TypeInfo : IType
     static TypeInfo()
     {
         TYPE_CACHE = new();
-        OPTIMIZED_TYPES = new();
 
         SetProxyMatcher(null, null);
     }
@@ -27,24 +27,19 @@ public abstract class TypeInfo : IType
     public static void Clear()
     {
         TYPE_CACHE.Clear();
-        OPTIMIZED_TYPES.Clear();
+        ReflectionOptimizer.ClearOptimizeList();
 
         SetProxyMatcher(null, null);
     }
 
     public static void Optimize(params Type[] newDomainTypes)
     {
-        lock (OPTIMIZED_TYPES)
+        lock (OPTIMIZE_LOCK)
         {
             foreach (var newDomainType in newDomainTypes)
             {
-                OPTIMIZED_TYPES[KeyOf(newDomainType)] = newDomainType;
+                GetOrCreate(newDomainType, true);
             }
-        }
-
-        lock (TYPE_CACHE)
-        {
-            TYPE_CACHE.Clear();
         }
     }
 
@@ -58,7 +53,8 @@ public abstract class TypeInfo : IType
 
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
-    public static TypeInfo Get(Type type)
+    public static TypeInfo Get(Type type) => GetOrCreate(type, false);
+    private static TypeInfo GetOrCreate(Type type, bool optimize)
     {
         if (type == null)
         {
@@ -93,6 +89,23 @@ public abstract class TypeInfo : IType
             }
         }
 
+        if (optimize && result is ProxyTypeInfo proxy)
+        {
+            if (proxyMatcher(type))
+            {
+                var actualType = actualTypeGetter(type);
+                var optimized = new OptimizedTypeInfo(actualType);
+                optimized.Load();
+                proxy.Real = optimized;
+            }
+            else
+            {
+                var optimized = new OptimizedTypeInfo(type);
+                optimized.Load();
+                proxy.Real = optimized;
+            }
+        }
+
         return result;
     }
 
@@ -103,8 +116,7 @@ public abstract class TypeInfo : IType
         { IsArray: true } => new ArrayTypeInfo(type),
         { IsEnum: true } => new EnumTypeInfo(type),
         { ContainsGenericParameters: true } => new ReflectedTypeInfo(type),
-        _ when OPTIMIZED_TYPES.TryGetValue(KeyOf(type), out var optimizedType) => new OptimizedTypeInfo(optimizedType),
-        _ => new ReflectedTypeInfo(type)
+        _ => new ProxyTypeInfo(new ReflectedTypeInfo(type))
     };
 
     private static System.Reflection.MethodInfo GetParseMethod(Type type) => type.GetMethod("Parse", new[] { typeof(string) });

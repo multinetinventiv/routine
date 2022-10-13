@@ -40,6 +40,8 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     public ConventionBasedCodingStyle()
     {
+        TypeInfo.Clear();
+
         types = new();
 
         MaxFetchDepth = new(this, nameof(MaxFetchDepth), true);
@@ -137,8 +139,6 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
         TypeInfo.Optimize(types);
 
-        NeedRefresh();
-
         AddTypes(types.Select(t => TypeInfo.Get(t) as IType));
 
         AddNullableTypes(types);
@@ -169,22 +169,6 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
         }
     }
 
-    private bool needsRefresh;
-    private void NeedRefresh() { needsRefresh = true; }
-    private void RefreshIfNecessary()
-    {
-        if (!needsRefresh) { return; }
-
-        needsRefresh = false;
-
-        //TODO refactor - TypeInfo should handle this by itself. Proxy instances should be given, so that domain type changes affects immediately
-        foreach (TypeInfo type in types.Where(t => t is TypeInfo).ToList())
-        {
-            types.Remove(type);
-            types.Add(TypeInfo.Get(type.GetActualType()));
-        }
-    }
-
     private void AddNullableTypes(Type[] types)
     {
         if (types.Length <= 0) { return; }
@@ -201,8 +185,8 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     int ICodingStyle.GetMaxFetchDepth() => MaxFetchDepth.Get();
 
-    List<IType> ICodingStyle.GetTypes() { RefreshIfNecessary(); return types.ToList(); }
-    bool ICodingStyle.ContainsType(IType type) { RefreshIfNecessary(); return types.Contains(type); }
+    List<IType> ICodingStyle.GetTypes() => types.ToList();
+    bool ICodingStyle.ContainsType(IType type) => types.Contains(type);
 
     IType ICodingStyle.GetType(object @object) => Type.Get(@object);
 
