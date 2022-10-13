@@ -1,36 +1,23 @@
-using Routine.Core.Cache;
 using Routine.Core;
-
-using static Routine.Constants;
 
 namespace Routine.Engine.Context;
 
 public class DefaultCoreContext : ICoreContext
 {
     private readonly ICodingStyle codingStyle;
-    private readonly ICache cache;
 
-    private bool initialized;
+    private readonly object domainTypesLock = new();
+    private volatile Dictionary<string, DomainType> domainTypes;
 
     private Dictionary<string, DomainType> DomainTypes
     {
-        get => cache[CACHE_DOMAIN_TYPES] as Dictionary<string, DomainType>;
-        init
-        {
-            lock (cache)
-            {
-                cache.Add(CACHE_DOMAIN_TYPES, value);
-            }
-        }
+        get => domainTypes ?? throw new InvalidOperationException("Context was not initialized yet");
+        set => domainTypes = value;
     }
 
-    public DefaultCoreContext(ICodingStyle codingStyle, ICache cache)
+    public DefaultCoreContext(ICodingStyle codingStyle)
     {
         this.codingStyle = codingStyle;
-        this.cache = cache;
-
-        DomainTypes = new Dictionary<string, DomainType>();
-        initialized = false;
     }
 
     public ICodingStyle CodingStyle => codingStyle;
@@ -51,32 +38,23 @@ public class DefaultCoreContext : ICoreContext
             CodingStyle.GetName(type)
         ));
 
-    public List<DomainType> GetDomainTypes()
+    private void BuildDomainTypes()
     {
-        if (initialized) { return DomainTypes.Values.ToList(); }
-
-        foreach (var type in CodingStyle.GetTypes())
+        lock (domainTypesLock)
         {
-            var domainType = new DomainType(this, type);
+            DomainTypes = new();
+            foreach (var type in CodingStyle.GetTypes())
+            {
+                var domainType = new DomainType(this, type);
 
-            try
-            {
-                DomainTypes.Add(domainType.Id, domainType);
+                DomainTypes[domainType.Id] = domainType;
             }
-            catch (ArgumentException ex)
+
+            foreach (var domainType in DomainTypes.Values.ToList())
             {
-                throw new InvalidOperationException($"{domainType.Id} was attempted to be added more than once.", ex);
+                domainType.Initialize();
             }
         }
-
-        foreach (var domainType in DomainTypes.Values.ToList())
-        {
-            domainType.Initialize();
-        }
-
-        initialized = true;
-
-        return DomainTypes.Values.ToList();
     }
 
     public async Task<object> GetObjectAsync(ReferenceData referenceData) =>
@@ -84,9 +62,9 @@ public class DefaultCoreContext : ICoreContext
 
     public async Task<DomainObject> GetDomainObjectAsync(ReferenceData referenceData)
     {
-        var (actualDomainType, viewDomainType) = GetDomainTypes(referenceData);
+        var (actualDomainType, viewDomainType) = GetActualAndViewDomainType(referenceData);
 
-        return new DomainObject(await actualDomainType.LocateAsync(referenceData), actualDomainType, viewDomainType);
+        return new(await actualDomainType.LocateAsync(referenceData), actualDomainType, viewDomainType);
     }
 
     public DomainObject CreateDomainObject(object @object, DomainType viewDomainType)
@@ -96,10 +74,10 @@ public class DefaultCoreContext : ICoreContext
 
         viewDomainType ??= actualDomainType;
 
-        return new DomainObject(@object, actualDomainType, viewDomainType);
+        return new(@object, actualDomainType, viewDomainType);
     }
 
-    private (DomainType, DomainType) GetDomainTypes(ReferenceData referenceData)
+    private (DomainType, DomainType) GetActualAndViewDomainType(ReferenceData referenceData)
     {
         var actualDomainType = GetActualDomainType(referenceData);
         var viewDomainType = referenceData.ModelId != referenceData.ViewModelId
@@ -112,19 +90,7 @@ public class DefaultCoreContext : ICoreContext
     private DomainType GetActualDomainType(ReferenceData referenceData) => referenceData == null
         ? GetDomainType((IType)null)
         : GetDomainType(referenceData.ModelId);
-}
 
-public class TypeNotFoundException : Exception
-{
-    public string TypeId { get; }
-
-    public TypeNotFoundException(string typeId)
-        : base(
-            $"Type could not be found with given type id: '{typeId}'. Make sure type id is correct and corresponding type is configured. " +
-            "This can occur when a client with old version of service model tries to connect to server with a new version of service model. " +
-            "Also make sure that ObjectService.GetApplicationModel is called before any other ObjectService methods are called " +
-            "(This is because domain type of the expected type should be accessed via IType before trying to access via type id).")
-    {
-        TypeId = typeId;
-    }
+    List<DomainType> ICoreContext.DomainTypes => DomainTypes.Values.ToList();
+    void ICoreContext.BuildDomainTypes() => BuildDomainTypes();
 }

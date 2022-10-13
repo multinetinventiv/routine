@@ -51,7 +51,7 @@ public class ContextBuilder
 
     public IClientContext AsClientApplication(ICodingStyle codingStyle)
     {
-        var coreContext = new DefaultCoreContext(codingStyle, Cache);
+        var coreContext = new DefaultCoreContext(codingStyle);
         var service = new ObjectService(coreContext, Cache).Intercept(InterceptionConfiguration);
 
         return new DefaultClientContext(service, new Rapplication(service));
@@ -59,7 +59,7 @@ public class ContextBuilder
 
     public IServiceContext AsServiceApplication(IServiceConfiguration serviceConfiguration, ICodingStyle codingStyle)
     {
-        var coreContext = new DefaultCoreContext(codingStyle, Cache);
+        var coreContext = new DefaultCoreContext(codingStyle);
         var service = new ObjectService(coreContext, Cache).Intercept(InterceptionConfiguration);
 
         return new DefaultServiceContext(coreContext, serviceConfiguration, service);

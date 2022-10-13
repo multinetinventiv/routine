@@ -5,9 +5,12 @@ namespace Routine.Engine;
 public interface ICoreContext
 {
     ICodingStyle CodingStyle { get; }
+    List<DomainType> DomainTypes { get; }
+
+    void BuildDomainTypes();
+
     DomainType GetDomainType(string typeId);
     DomainType GetDomainType(IType type);
-    List<DomainType> GetDomainTypes();
 
     Task<object> GetObjectAsync(ReferenceData reference);
     Task<DomainObject> GetDomainObjectAsync(ReferenceData reference);
