@@ -8,19 +8,30 @@ public class RestClientObjectService : IObjectService
     private readonly IServiceClientConfiguration serviceClientConfiguration;
     private readonly IRestClient restClient;
     private readonly IJsonSerializer serializer;
-    private readonly Lazy<ApplicationModel> applicationModel;
 
     public RestClientObjectService(IServiceClientConfiguration serviceClientConfiguration, IRestClient restClient, IJsonSerializer serializer)
     {
         this.serviceClientConfiguration = serviceClientConfiguration;
         this.restClient = restClient;
         this.serializer = serializer;
-
-        applicationModel = new Lazy<ApplicationModel>(FetchApplicationModel);
     }
 
-    private ApplicationModel FetchApplicationModel() => new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
-    public ApplicationModel ApplicationModel => applicationModel.Value;
+    private readonly object applicationModelLock = new();
+    private volatile ApplicationModel applicationModel;
+    public ApplicationModel ApplicationModel
+    {
+        get
+        {
+            if (applicationModel != null) { return applicationModel; }
+
+            lock (applicationModelLock)
+            {
+                if (applicationModel != null) { return applicationModel; }
+
+                return applicationModel = new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
+            }
+        }
+    }
 
     public ObjectData Get(ReferenceData reference)
     {
