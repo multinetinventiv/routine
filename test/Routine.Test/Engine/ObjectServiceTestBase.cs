@@ -36,10 +36,8 @@ public abstract class ObjectServiceTestBase : CoreTestBase
             .NextLayer()
             ;
 
-        var cache = new DictionaryCache();
-        ctx = new DefaultCoreContext(codingStyle, cache);
-
-        testing = new ObjectService(ctx, cache);
+        ctx = new DefaultCoreContext(codingStyle);
+        testing = new ObjectService(ctx, new DictionaryCache());
     }
 
     protected void AddToRepository(object obj)

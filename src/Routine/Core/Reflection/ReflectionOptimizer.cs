@@ -60,6 +60,14 @@ internal class ReflectionOptimizer
         }
     }
 
+    public static void ClearOptimizeList()
+    {
+        lock (OPTIMIZE_LIST_LOCK)
+        {
+            OPTIMIZE_LIST.Clear();
+        }
+    }
+
     private readonly List<MethodBase> methods;
 
     private ReflectionOptimizer(List<MethodBase> methods)

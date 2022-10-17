@@ -9,7 +9,7 @@ internal class EnumTypeInfo : PreloadedTypeInfo
     internal EnumTypeInfo(Type type)
         : base(type)
     {
-        IsEnum = true;
+        SetIsEnum(true);
 
         enumNames = type.GetEnumNames().ToList();
         enumValues = type.GetEnumValues().Cast<object>().ToList();
@@ -18,5 +18,5 @@ internal class EnumTypeInfo : PreloadedTypeInfo
 
     public override List<string> GetEnumNames() => enumNames;
     public override List<object> GetEnumValues() => enumValues;
-    protected override TypeInfo GetEnumUnderlyingType() => enumUnderlyingType;
+    protected internal override TypeInfo GetEnumUnderlyingType() => enumUnderlyingType;
 }

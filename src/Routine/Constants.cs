@@ -8,7 +8,6 @@ internal class Constants
 
     public const int FIRST_DEPTH = 1;
 
-    public const string CACHE_DOMAIN_TYPES = "__routine_domain_types";
     public const string CACHE_APPLICATION_MODEL = "__routine_application_model";
 
     public const string INITIALIZER_ID = "__routine_initializer";

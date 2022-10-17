@@ -1,5 +1,6 @@
-using Routine.Engine.Reflection;
+using Routine.Core.Reflection;
 using Routine.Engine;
+using Routine.Engine.Reflection;
 
 namespace Routine;
 
@@ -10,16 +11,15 @@ public abstract class TypeInfo : IType
     protected const System.Reflection.BindingFlags ALL_STATIC = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
     protected const System.Reflection.BindingFlags ALL_INSTANCE = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
 
-    private static readonly Dictionary<Type, TypeInfo> TYPE_CACHE;
-    private static readonly HashSet<Type> OPTIMIZED_TYPES;
+    private static readonly Dictionary<string, TypeInfo> TYPE_CACHE;
+    private static readonly object OPTIMIZE_LOCK = new();
 
-    private static Func<Type, bool> proxyMatcher;
-    private static Func<Type, Type> actualTypeGetter;
+    private static volatile Func<Type, bool> proxyMatcher;
+    private static volatile Func<Type, Type> actualTypeGetter;
 
     static TypeInfo()
     {
         TYPE_CACHE = new();
-        OPTIMIZED_TYPES = new();
 
         SetProxyMatcher(null, null);
     }
@@ -27,21 +27,20 @@ public abstract class TypeInfo : IType
     public static void Clear()
     {
         TYPE_CACHE.Clear();
-        OPTIMIZED_TYPES.Clear();
+        ReflectionOptimizer.ClearOptimizeList();
 
         SetProxyMatcher(null, null);
     }
 
-    public static List<TypeInfo> GetOptimizedTypes() => OPTIMIZED_TYPES.Select(t => t.ToTypeInfo()).ToList();
-
     public static void Optimize(params Type[] newDomainTypes)
     {
-        foreach (var newDomainType in newDomainTypes.Where(t => !OPTIMIZED_TYPES.Contains(t)))
+        lock (OPTIMIZE_LOCK)
         {
-            OPTIMIZED_TYPES.Add(newDomainType);
+            foreach (var newDomainType in newDomainTypes)
+            {
+                GetOrCreate(newDomainType, true);
+            }
         }
-
-        TYPE_CACHE.Clear();
     }
 
     public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
@@ -50,115 +49,92 @@ public abstract class TypeInfo : IType
         TypeInfo.actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
+    private static string KeyOf(Type type) => $"{type}";
+
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
-    public static TypeInfo Get(Type type)
+    public static TypeInfo Get(Type type) => GetOrCreate(type, false);
+    private static TypeInfo GetOrCreate(Type type, bool optimize)
     {
         if (type == null)
         {
             return null;
         }
 
-        if (!TYPE_CACHE.TryGetValue(type, out var result))
+        if (!TYPE_CACHE.TryGetValue(KeyOf(type), out var result))
         {
             lock (TYPE_CACHE)
             {
-                if (!TYPE_CACHE.TryGetValue(type, out result))
+                if (!TYPE_CACHE.TryGetValue(KeyOf(type), out result))
                 {
                     if (proxyMatcher(type))
                     {
                         var actualType = actualTypeGetter(type);
-
-                        if (!TYPE_CACHE.TryGetValue(actualType, out result))
+                        if (!TYPE_CACHE.TryGetValue(KeyOf(actualType), out result))
                         {
                             result = CreateTypeInfo(actualType);
-
-                            TYPE_CACHE.Add(actualType, result);
-
+                            TYPE_CACHE.Add(KeyOf(actualType), result);
                             result.Load();
                         }
 
-                        TYPE_CACHE.Add(type, result);
+                        TYPE_CACHE.Add(KeyOf(type), result);
                     }
                     else
                     {
                         result = CreateTypeInfo(type);
-
-                        TYPE_CACHE.Add(type, result);
-
+                        TYPE_CACHE.Add(KeyOf(type), result);
                         result.Load();
                     }
                 }
             }
         }
 
+        if (optimize && result is ProxyTypeInfo proxy)
+        {
+            if (proxyMatcher(type))
+            {
+                var actualType = actualTypeGetter(type);
+                var optimized = new OptimizedTypeInfo(actualType);
+                optimized.Load();
+                proxy.Real = optimized;
+            }
+            else
+            {
+                var optimized = new OptimizedTypeInfo(type);
+                optimized.Load();
+                proxy.Real = optimized;
+            }
+        }
+
         return result;
     }
 
-    private static TypeInfo CreateTypeInfo(Type type)
+    private static TypeInfo CreateTypeInfo(Type type) => type switch
     {
-        TypeInfo result;
+        _ when type == typeof(void) => new VoidTypeInfo(),
+        _ when GetParseMethod(type)?.ReturnType == type => new ParseableTypeInfo(type),
+        { IsArray: true } => new ArrayTypeInfo(type),
+        { IsEnum: true } => new EnumTypeInfo(type),
+        { ContainsGenericParameters: true } => new ReflectedTypeInfo(type),
+        _ => new ProxyTypeInfo(new ReflectedTypeInfo(type))
+    };
 
-        if (type == typeof(void))
-        {
-            result = new VoidTypeInfo();
-        }
-        else if (type.GetMethod("Parse", new[] { typeof(string) }) != null && type.GetMethod("Parse", new[] { typeof(string) }).ReturnType == type)
-        {
-            result = new ParseableTypeInfo(type);
-        }
-        else if (type.IsArray)
-        {
-            result = new ArrayTypeInfo(type);
-        }
-        else if (type.IsEnum)
-        {
-            result = new EnumTypeInfo(type);
-        }
-        else if (type.ContainsGenericParameters)
-        {
-            result = new ReflectedTypeInfo(type);
-        }
-        else if (OPTIMIZED_TYPES.Contains(type))
-        {
-            result = new OptimizedTypeInfo(type);
-        }
-        else
-        {
-            result = new ReflectedTypeInfo(type);
-        }
-
-        return result;
-    }
+    private static System.Reflection.MethodInfo GetParseMethod(Type type) => type.GetMethod("Parse", new[] { typeof(string) });
 
     #endregion
 
-    protected readonly Type type;
+    public abstract Type GetActualType();
 
-    protected TypeInfo(Type type)
-    {
-        this.type = type;
+    public abstract bool IsPublic { get; }
+    public abstract bool IsAbstract { get; }
+    public abstract bool IsInterface { get; }
+    public abstract bool IsValueType { get; }
+    public abstract bool IsGenericType { get; }
+    public abstract bool IsPrimitive { get; }
 
-        IsPublic = type.IsPublic;
-        IsAbstract = type.IsAbstract;
-        IsInterface = type.IsInterface;
-        IsValueType = type.IsValueType;
-        IsGenericType = type.IsGenericType;
-        IsPrimitive = type.IsPrimitive;
-    }
-
-    public Type GetActualType() => type;
-
-    public bool IsPublic { get; protected set; }
-    public bool IsAbstract { get; protected set; }
-    public bool IsInterface { get; protected set; }
-    public bool IsValueType { get; protected set; }
-    public bool IsGenericType { get; protected set; }
-    public bool IsPrimitive { get; protected set; }
-
-    public bool IsVoid { get; protected set; }
-    public bool IsEnum { get; protected set; }
-    public bool IsArray { get; protected set; }
+    public abstract bool IsVoid { get; }
+    public abstract bool IsEnum { get; }
+    public abstract bool IsArray { get; }
 
     public abstract string Name { get; }
     public abstract string FullName { get; }
@@ -171,115 +147,58 @@ public abstract class TypeInfo : IType
     public abstract MethodInfo[] GetAllMethods();
     public abstract MethodInfo[] GetAllStaticMethods();
     public abstract object[] GetCustomAttributes();
-    protected abstract TypeInfo[] GetGenericArguments();
-    protected abstract TypeInfo GetElementType();
-    protected abstract TypeInfo[] GetInterfaces();
+    protected internal abstract TypeInfo[] GetGenericArguments();
+    protected internal abstract TypeInfo GetElementType();
+    protected internal abstract TypeInfo[] GetInterfaces();
     public abstract bool CanBe(TypeInfo other);
-    public virtual List<string> GetEnumNames() { return new List<string>(); }
-    public virtual List<object> GetEnumValues() { return new List<object>(); }
-    protected virtual TypeInfo GetEnumUnderlyingType() { return null; }
+    public abstract List<string> GetEnumNames();
+    public abstract List<object> GetEnumValues();
+    protected internal abstract TypeInfo GetEnumUnderlyingType();
 
-    protected abstract MethodInfo GetParseMethod();
-    protected abstract void Load();
+    protected internal abstract MethodInfo GetParseMethod();
+    protected internal abstract void Load();
 
     public abstract object CreateInstance();
     public abstract IList CreateListInstance(int length);
 
-    protected virtual TypeInfo[] GetAssignableTypes()
-    {
-        var result = new List<TypeInfo> { Get<object>() };
+    protected internal abstract TypeInfo[] GetAssignableTypes();
 
-        FillInheritance(this, result);
+    public abstract List<ConstructorInfo> GetPublicConstructors();
+    public abstract ConstructorInfo GetConstructor(params TypeInfo[] typeInfos);
 
-        foreach (var typeInfo in GetInterfaces())
-        {
-            FillInheritance(typeInfo, result);
-        }
+    public abstract ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables = false);
+    public abstract ICollection<PropertyInfo> GetPublicStaticProperties(bool onlyPublicReadableAndWritables = false);
+    public abstract PropertyInfo GetProperty(string name);
+    public abstract List<PropertyInfo> GetProperties(string name);
+    public abstract PropertyInfo GetStaticProperty(string name);
+    public abstract List<PropertyInfo> GetStaticProperties(string name);
 
-        return result.ToArray();
-    }
+    public abstract ICollection<MethodInfo> GetPublicMethods();
+    public abstract ICollection<MethodInfo> GetPublicStaticMethods();
+    public abstract MethodInfo GetMethod(string name);
+    public abstract List<MethodInfo> GetMethods(string name);
+    public abstract MethodInfo GetStaticMethod(string name);
+    public abstract List<MethodInfo> GetStaticMethods(string name);
 
-    protected static void FillInheritance(TypeInfo root, List<TypeInfo> state)
-    {
-        var cur = root;
-        while (cur != null)
-        {
-            if (!state.Contains(cur))
-            {
-                state.Add(cur);
-            }
+    public static bool operator ==(TypeInfo l, TypeInfo r) => Equals(l, r);
+    public static bool operator !=(TypeInfo l, TypeInfo r) => !(l == r);
+    public static bool operator ==(TypeInfo l, IType r) => Equals(l, r);
+    public static bool operator !=(TypeInfo l, IType r) => !(l == r);
+    public static bool operator ==(IType l, TypeInfo r) => Equals(l, r);
+    public static bool operator !=(IType l, TypeInfo r) => !(l == r);
 
-            cur = cur.BaseType;
-        }
-    }
-
-    public virtual List<ConstructorInfo> GetPublicConstructors() => GetAllConstructors().Where(c => c.IsPublic).ToList();
-
-    public virtual ConstructorInfo GetConstructor(params TypeInfo[] typeInfos)
-    {
-        if (typeInfos.Length > 0)
-        {
-            var first = typeInfos[0];
-            var rest = Enumerable.Range(1, typeInfos.Length - 1).Select(i => (IType)typeInfos[i]).ToArray();
-
-            return GetAllConstructors().SingleOrDefault(c => c.HasParameters(first, rest));
-        }
-
-        return GetAllConstructors().SingleOrDefault(c => c.HasNoParameters());
-    }
-
-    public virtual ICollection<PropertyInfo> GetPublicProperties() { return GetPublicProperties(false); }
-    public virtual ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables)
-    {
-        if (onlyPublicReadableAndWritables)
-        {
-            return GetAllProperties().Where(p => p.IsPubliclyReadable && p.IsPubliclyWritable).ToList();
-        }
-
-        return GetAllProperties().Where(p => p.IsPubliclyReadable).ToList();
-    }
-
-    public virtual ICollection<PropertyInfo> GetPublicStaticProperties() { return GetPublicStaticProperties(false); }
-    public virtual ICollection<PropertyInfo> GetPublicStaticProperties(bool onlyPublicReadableAndWritables)
-    {
-        if (onlyPublicReadableAndWritables)
-        {
-            return GetAllStaticProperties().Where(p => p.IsPubliclyReadable && p.IsPubliclyWritable).ToList();
-        }
-
-        return GetAllStaticProperties().Where(p => p.IsPubliclyReadable).ToList();
-    }
-
-    public virtual PropertyInfo GetProperty(string name) => GetAllProperties().SingleOrDefault(p => p.Name == name);
-    public virtual List<PropertyInfo> GetProperties(string name) => GetAllProperties().Where(p => p.Name == name).ToList();
-    public virtual PropertyInfo GetStaticProperty(string name) => GetAllStaticProperties().SingleOrDefault(p => p.Name == name);
-    public virtual List<PropertyInfo> GetStaticProperties(string name) => GetAllStaticProperties().Where(p => p.Name == name).ToList();
-    public virtual ICollection<MethodInfo> GetPublicMethods() => GetAllMethods().Where(m => m.IsPublic).ToList();
-    public virtual ICollection<MethodInfo> GetPublicStaticMethods() => GetAllStaticMethods().Where(m => m.IsPublic).ToList();
-    public virtual MethodInfo GetMethod(string name) => GetAllMethods().SingleOrDefault(m => m.Name == name);
-    public virtual List<MethodInfo> GetMethods(string name) => GetAllMethods().Where(m => m.Name == name).ToList();
-    public virtual MethodInfo GetStaticMethod(string name) => GetAllStaticMethods().SingleOrDefault(m => m.Name == name);
-    public virtual List<MethodInfo> GetStaticMethods(string name) => GetAllStaticMethods().Where(m => m.Name == name).ToList();
-
-    public override string ToString() => type.ToString();
-
-    public static bool operator ==(TypeInfo l, TypeInfo r) { return Equals(l, r); }
-    public static bool operator !=(TypeInfo l, TypeInfo r) { return !(l == r); }
-    public static bool operator ==(TypeInfo l, IType r) { return Equals(l, r); }
-    public static bool operator !=(TypeInfo l, IType r) { return !(l == r); }
-    public static bool operator ==(IType l, TypeInfo r) { return Equals(l, r); }
-    public static bool operator !=(IType l, TypeInfo r) { return !(l == r); }
+    public override string ToString() => GetActualType().ToString();
 
     public override bool Equals(object obj)
     {
         if (obj == null) { return false; }
-        if (obj is Type typeObj) { return type == typeObj; }
+        if (obj is Type typeObj) { return GetActualType() == typeObj; }
         if (obj is not TypeInfo typeInfoObj) { return false; }
 
-        return ReferenceEquals(this, typeInfoObj) || type == typeInfoObj.type;
+        return ReferenceEquals(this, typeInfoObj) || GetActualType() == typeInfoObj.GetActualType();
     }
 
-    public override int GetHashCode() => type.GetHashCode();
+    public override int GetHashCode() => GetActualType().GetHashCode();
 
     #region ITypeComponent implementation
 
@@ -305,7 +224,7 @@ public abstract class TypeInfo : IType
 
     object IType.Cast(object @object, IType otherType)
     {
-        var thisAsIType = this as IType;
+        IType thisAsIType = this;
 
         if (!thisAsIType.CanBe(otherType))
         {
@@ -318,15 +237,13 @@ public abstract class TypeInfo : IType
     #endregion
 }
 
-// ReSharper disable InconsistentNaming
 public static class type
 {
     public static TypeInfo of<T>() => TypeInfo.Get<T>();
     public static TypeInfo ofvoid() => TypeInfo.Void();
 }
-// ReSharper restore InconsistentNaming
 
-public static class TypeInfoObjectExtensions
+public static class TypeInfoExtensions
 {
     public static TypeInfo GetTypeInfo(this object source) =>
         source == null

@@ -1,6 +1,6 @@
 namespace Routine.Engine.Reflection;
 
-internal class ReflectedTypeInfo : TypeInfo
+internal class ReflectedTypeInfo : BaseTypeInfo
 {
     internal ReflectedTypeInfo(Type type)
         : base(type) { }
@@ -11,13 +11,13 @@ internal class ReflectedTypeInfo : TypeInfo
     public override MethodInfo[] GetAllMethods() => type.GetMethods(ALL_INSTANCE).Where(m => !m.IsSpecialName).Select(MethodInfo.Reflected).ToArray();
     public override MethodInfo[] GetAllStaticMethods() => type.GetMethods(ALL_STATIC).Where(m => !m.IsSpecialName).Select(MethodInfo.Reflected).ToArray();
     public override object[] GetCustomAttributes() => type.GetCustomAttributes(true);
-    protected override TypeInfo[] GetGenericArguments() => type.GetGenericArguments().Select(Get).ToArray();
-    protected override TypeInfo GetElementType() => Get(type.GetElementType());
-    protected override TypeInfo[] GetInterfaces() => type.GetInterfaces().Select(Get).ToArray();
+    protected internal override TypeInfo[] GetGenericArguments() => type.GetGenericArguments().Select(Get).ToArray();
+    protected internal override TypeInfo GetElementType() => Get(type.GetElementType());
+    protected internal override TypeInfo[] GetInterfaces() => type.GetInterfaces().Select(Get).ToArray();
     public override bool CanBe(TypeInfo other) => other.GetActualType().IsAssignableFrom(type);
-    protected override MethodInfo GetParseMethod() => null;
+    protected internal override MethodInfo GetParseMethod() => null;
 
-    protected override void Load() { }
+    protected internal override void Load() { }
 
     public override string Name => type.Name;
     public override string FullName => type.FullName;

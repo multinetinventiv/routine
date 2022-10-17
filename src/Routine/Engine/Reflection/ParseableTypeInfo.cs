@@ -7,7 +7,7 @@ internal class ParseableTypeInfo : PreloadedTypeInfo
     internal ParseableTypeInfo(Type type)
         : base(type) { }
 
-    protected override void Load()
+    protected internal override void Load()
     {
         base.Load();
 
@@ -21,5 +21,5 @@ internal class ParseableTypeInfo : PreloadedTypeInfo
         }
     }
 
-    protected override MethodInfo GetParseMethod() => parseMethod;
+    protected internal override MethodInfo GetParseMethod() => parseMethod;
 }

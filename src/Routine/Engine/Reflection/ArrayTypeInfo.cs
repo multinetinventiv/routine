@@ -6,17 +6,17 @@ internal class ArrayTypeInfo : PreloadedTypeInfo
 
     internal ArrayTypeInfo(Type type) : base(type)
     {
-        IsArray = true;
+        SetIsArray(true);
     }
 
-    protected override void Load()
+    protected internal override void Load()
     {
         base.Load();
 
         elementType = Get(type.GetElementType());
     }
 
-    protected override TypeInfo GetElementType() => elementType;
+    protected internal override TypeInfo GetElementType() => elementType;
     public override object CreateInstance() => CreateListInstance(0);
     public override IList CreateListInstance(int length) => Array.CreateInstance(elementType.GetActualType(), length);
 }

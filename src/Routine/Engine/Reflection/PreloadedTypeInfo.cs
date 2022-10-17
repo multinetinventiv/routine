@@ -1,6 +1,6 @@
 ﻿namespace Routine.Engine.Reflection;
 
-public abstract class PreloadedTypeInfo : TypeInfo
+public abstract class PreloadedTypeInfo : BaseTypeInfo
 {
     private string name;
     private string fullName;
@@ -19,7 +19,7 @@ public abstract class PreloadedTypeInfo : TypeInfo
     protected PreloadedTypeInfo(Type type)
         : base(type) { }
 
-    protected override void Load()
+    protected internal override void Load()
     {
         name = type.Name;
         fullName = type.FullName;
@@ -33,12 +33,12 @@ public abstract class PreloadedTypeInfo : TypeInfo
         customAttributes = type.GetCustomAttributes(true);
     }
 
-    protected override TypeInfo[] GetAssignableTypes() => assignableTypes;
+    protected internal override TypeInfo[] GetAssignableTypes() => assignableTypes;
 
-    protected override TypeInfo[] GetGenericArguments() => genericArguments;
-    protected override TypeInfo[] GetInterfaces() => interfaces;
+    protected internal override TypeInfo[] GetGenericArguments() => genericArguments;
+    protected internal override TypeInfo[] GetInterfaces() => interfaces;
     public override bool CanBe(TypeInfo other) => assignableTypes.Any(t => t == other);
-    protected override TypeInfo GetElementType() => null;
+    protected internal override TypeInfo GetElementType() => null;
     public override ConstructorInfo[] GetAllConstructors() => Array.Empty<ConstructorInfo>();
     public override PropertyInfo[] GetAllProperties() => Array.Empty<PropertyInfo>();
     public override PropertyInfo[] GetAllStaticProperties() => Array.Empty<PropertyInfo>();
@@ -46,7 +46,7 @@ public abstract class PreloadedTypeInfo : TypeInfo
     public override MethodInfo[] GetAllStaticMethods() => Array.Empty<MethodInfo>();
     public override object[] GetCustomAttributes() => customAttributes;
 
-    protected override MethodInfo GetParseMethod() => null;
+    protected internal override MethodInfo GetParseMethod() => null;
 
     public override object CreateInstance() => Activator.CreateInstance(type);
     public override IList CreateListInstance(int length) => (IList)Activator.CreateInstance(type, length);

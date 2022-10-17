@@ -6,7 +6,7 @@ public class DictionaryCache : ICache
 
     public DictionaryCache()
     {
-        dictionary = new Dictionary<string, object>();
+        dictionary = new();
     }
 
     public object this[string key]
