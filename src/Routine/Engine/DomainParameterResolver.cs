@@ -4,15 +4,15 @@ namespace Routine.Engine;
 
 internal class DomainParameterResolver<T> where T : class, IParametric
 {
-    private readonly List<DomainParameter.Group<T>> groups;
-    private readonly Dictionary<string, ParameterValueData> parameterValueDatas;
+    private readonly List<DomainParameter.Group<T>> _groups;
+    private readonly Dictionary<string, ParameterValueData> _parameterValueDatas;
 
     public DomainParameterResolver(List<DomainParameter.Group<T>> groups, Dictionary<string, ParameterValueData> parameterValueDatas)
     {
         parameterValueDatas ??= new Dictionary<string, ParameterValueData>();
 
-        this.groups = groups;
-        this.parameterValueDatas = parameterValueDatas;
+        _groups = groups;
+        _parameterValueDatas = parameterValueDatas;
     }
 
     public async Task<Resolution> ResolveAsync()
@@ -29,7 +29,7 @@ internal class DomainParameterResolver<T> where T : class, IParametric
 
         foreach (var parameter in group.Parametric.Parameters)
         {
-            if (parameterValueDatas.TryGetValue(parameter.Name, out var parameterValueData))
+            if (_parameterValueDatas.TryGetValue(parameter.Name, out var parameterValueData))
             {
                 result[parameter.Index] = await group.Parameters[parameter.Index].LocateAsync(parameterValueData);
             }
@@ -44,12 +44,12 @@ internal class DomainParameterResolver<T> where T : class, IParametric
 
     private DomainParameter.Group<T> FindMostCompatibleGroup()
     {
-        if (groups.Count == 1)
+        if (_groups.Count == 1)
         {
-            return groups[0];
+            return _groups[0];
         }
 
-        var exactMatch = groups.SingleOrDefault(MatchesExactlyWithValues);
+        var exactMatch = _groups.SingleOrDefault(MatchesExactlyWithValues);
 
         if (exactMatch != null)
         {
@@ -64,8 +64,8 @@ internal class DomainParameterResolver<T> where T : class, IParametric
     }
 
     private bool MatchesExactlyWithValues(DomainParameter.Group<T> group) =>
-        group.Parametric.Parameters.Count == parameterValueDatas.Count &&
-        group.Parametric.Parameters.All(p => parameterValueDatas.ContainsKey(p.Name));
+        group.Parametric.Parameters.Count == _parameterValueDatas.Count &&
+        group.Parametric.Parameters.All(p => _parameterValueDatas.ContainsKey(p.Name));
 
     private List<DomainParameter.Group<T>> FindGroupsWithMostMatchedParameters()
     {
@@ -73,9 +73,9 @@ internal class DomainParameterResolver<T> where T : class, IParametric
 
         var matchCount = int.MinValue;
 
-        foreach (var group in groups.OrderByDescending(o => o.Parameters.Count))
+        foreach (var group in _groups.OrderByDescending(o => o.Parameters.Count))
         {
-            var tempCount = group.Parametric.Parameters.Count(p => parameterValueDatas.ContainsKey(p.Name));
+            var tempCount = group.Parametric.Parameters.Count(p => _parameterValueDatas.ContainsKey(p.Name));
 
             if (tempCount > matchCount)
             {
@@ -100,7 +100,7 @@ internal class DomainParameterResolver<T> where T : class, IParametric
 
         foreach (var group in foundGroups.OrderByDescending(o => o.Parameters.Count))
         {
-            var tempCount = group.Parametric.Parameters.Count(p => !parameterValueDatas.ContainsKey(p.Name));
+            var tempCount = group.Parametric.Parameters.Count(p => !_parameterValueDatas.ContainsKey(p.Name));
 
             if (tempCount < nonMatchCount)
             {

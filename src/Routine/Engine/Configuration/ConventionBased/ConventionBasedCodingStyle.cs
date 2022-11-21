@@ -5,7 +5,7 @@ namespace Routine.Engine.Configuration.ConventionBased;
 
 public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle>, ICodingStyle
 {
-    private readonly HashSet<IType> types;
+    private readonly HashSet<IType> _types;
 
     public SingleConfiguration<ConventionBasedCodingStyle, int> MaxFetchDepth { get; }
 
@@ -42,7 +42,7 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
     {
         TypeInfo.Clear();
 
-        types = new();
+        _types = new();
 
         MaxFetchDepth = new(this, nameof(MaxFetchDepth), true);
 
@@ -78,7 +78,7 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     public ConventionBasedCodingStyle Merge(ConventionBasedCodingStyle other)
     {
-        AddTypes(other.types);
+        AddTypes(other._types);
 
         Type.Merge(other.Type);
         TypeIsValue.Merge(other.TypeIsValue);
@@ -159,9 +159,9 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     private void AddType(IType type)
     {
-        if (types.Contains(type)) { return; }
+        if (_types.Contains(type)) { return; }
 
-        types.Add(type);
+        _types.Add(type);
 
         if (type is VirtualType)
         {
@@ -185,8 +185,8 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     int ICodingStyle.GetMaxFetchDepth() => MaxFetchDepth.Get();
 
-    List<IType> ICodingStyle.GetTypes() => types.ToList();
-    bool ICodingStyle.ContainsType(IType type) => types.Contains(type);
+    List<IType> ICodingStyle.GetTypes() => _types.ToList();
+    bool ICodingStyle.ContainsType(IType type) => _types.Contains(type);
 
     IType ICodingStyle.GetType(object @object) => Type.Get(@object);
 

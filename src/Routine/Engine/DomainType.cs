@@ -7,12 +7,12 @@ namespace Routine.Engine;
 
 public class DomainType
 {
-    private readonly ICoreContext ctx;
+    private readonly ICoreContext _ctx;
 
     public IType Type { get; }
 
-    private readonly List<DomainType> actualTypes;
-    private readonly List<DomainType> viewTypes;
+    private readonly List<DomainType> _actualTypes;
+    private readonly List<DomainType> _viewTypes;
 
     public DomainObjectInitializer Initializer { get; private set; }
 
@@ -22,12 +22,12 @@ public class DomainType
     public Dictionary<string, DomainOperation> Operation { get; }
     public ICollection<DomainOperation> Operations => Operation.Values;
 
-    private readonly ILocator locator;
+    private readonly ILocator _locator;
     public IIdExtractor IdExtractor { get; }
     public IValueExtractor ValueExtractor { get; }
-    private readonly Dictionary<IType, IConverter> converter;
+    private readonly Dictionary<IType, IConverter> _converter;
 
-    private readonly List<object> staticInstances;
+    private readonly List<object> _staticInstances;
 
     public int MaxFetchDepth { get; }
     public string Id { get; }
@@ -38,11 +38,11 @@ public class DomainType
     public bool IsViewModel { get; }
 
     public bool Initializable => Initializer != null;
-    public bool Locatable => locator != null;
+    public bool Locatable => _locator != null;
 
     public DomainType(ICoreContext ctx, IType type)
     {
-        this.ctx = ctx;
+        _ctx = ctx;
 
         Type = type;
         Data = new();
@@ -57,32 +57,32 @@ public class DomainType
 
         MaxFetchDepth = ctx.CodingStyle.GetMaxFetchDepth();
 
-        locator = ctx.CodingStyle.GetLocator(Type);
+        _locator = ctx.CodingStyle.GetLocator(Type);
         IdExtractor = ctx.CodingStyle.GetIdExtractor(Type);
         ValueExtractor = ctx.CodingStyle.GetValueExtractor(Type);
 
-        converter = new();
+        _converter = new();
         var converters = ctx.CodingStyle.GetConverters(Type);
         foreach (var converterInstance in converters)
         {
             foreach (var targetType in converterInstance.GetTargetTypes(Type))
             {
-                if (converter.ContainsKey(targetType))
+                if (_converter.ContainsKey(targetType))
                 {
                     continue;
                 }
 
-                converter.Add(targetType, converterInstance);
+                _converter.Add(targetType, converterInstance);
             }
         }
 
-        staticInstances = ctx.CodingStyle.GetStaticInstances(Type);
+        _staticInstances = ctx.CodingStyle.GetStaticInstances(Type);
 
         IsValueModel = ctx.CodingStyle.IsValue(Type);
         IsViewModel = ctx.CodingStyle.IsView(Type);
 
-        actualTypes = new();
-        viewTypes = new();
+        _actualTypes = new();
+        _viewTypes = new();
     }
 
     internal void Initialize()
@@ -95,7 +95,7 @@ public class DomainType
 
     private void LoadInitializers()
     {
-        foreach (var initializer in ctx.CodingStyle.GetInitializers(Type))
+        foreach (var initializer in _ctx.CodingStyle.GetInitializers(Type))
         {
             try
             {
@@ -106,7 +106,7 @@ public class DomainType
 
                 if (Initializer == null)
                 {
-                    Initializer = new DomainObjectInitializer(ctx, initializer);
+                    Initializer = new DomainObjectInitializer(_ctx, initializer);
                 }
                 else
                 {
@@ -122,11 +122,11 @@ public class DomainType
 
     private void LoadDatas()
     {
-        foreach (var data in ctx.CodingStyle.GetDatas(Type))
+        foreach (var data in _ctx.CodingStyle.GetDatas(Type))
         {
             try
             {
-                Data.Add(data.Name, new DomainData(ctx, data));
+                Data.Add(data.Name, new DomainData(_ctx, data));
             }
             catch (TypeNotConfiguredException)
             {
@@ -136,7 +136,7 @@ public class DomainType
 
     private void LoadOperations()
     {
-        foreach (var operation in ctx.CodingStyle.GetOperations(Type))
+        foreach (var operation in _ctx.CodingStyle.GetOperations(Type))
         {
             try
             {
@@ -146,7 +146,7 @@ public class DomainType
                 }
                 else
                 {
-                    Operation.Add(operation.Name, new DomainOperation(ctx, operation));
+                    Operation.Add(operation.Name, new DomainOperation(_ctx, operation));
                 }
             }
             catch (TypeNotConfiguredException) { }
@@ -158,21 +158,21 @@ public class DomainType
 
     private void LoadCrossTypeRelations()
     {
-        foreach (var viewType in converter.Keys.Where(t => !Equals(t, Type)))
+        foreach (var viewType in _converter.Keys.Where(t => !Equals(t, Type)))
         {
-            if (!ctx.CodingStyle.ContainsType(viewType))
+            if (!_ctx.CodingStyle.ContainsType(viewType))
             {
                 continue;
             }
 
-            var dt = ctx.GetDomainType(viewType);
+            var dt = _ctx.GetDomainType(viewType);
 
             if (!IsViewModel)
             {
-                dt.actualTypes.Add(this);
+                dt._actualTypes.Add(this);
             }
 
-            viewTypes.Add(dt);
+            _viewTypes.Add(dt);
         }
     }
 
@@ -187,12 +187,12 @@ public class DomainType
             Module = Module,
             IsViewModel = IsViewModel,
             IsValueModel = IsValueModel,
-            ActualModelIds = actualTypes.Select(t => t.Id).ToList(),
-            ViewModelIds = viewTypes.Select(t => t.Id).ToList(),
+            ActualModelIds = _actualTypes.Select(t => t.Id).ToList(),
+            ViewModelIds = _viewTypes.Select(t => t.Id).ToList(),
             Initializer = Initializer != null ? Initializer.GetModel() : new InitializerModel(),
             Datas = Datas.Select(m => m.GetModel()).ToList(),
             Operations = Operations.Select(o => o.GetModel()).ToList(),
-            StaticInstances = staticInstances.Select(o => ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
+            StaticInstances = _staticInstances.Select(o => _ctx.CreateDomainObject(o, this).GetObjectData(false)).ToList()
         };
 
     internal async Task<object> LocateAsync(ParameterData parameterData) => (await LocateManyAsync(new List<ParameterData> { parameterData })).First();
@@ -250,7 +250,7 @@ public class DomainType
 
         var notNullIds = ids.Select(id => id ?? string.Empty).ToList();
 
-        return await locator.LocateAsync(Type, notNullIds);
+        return await _locator.LocateAsync(Type, notNullIds);
     }
 
     public object Convert(object target, DomainType viewDomainType)
@@ -258,17 +258,17 @@ public class DomainType
         if (Equals(viewDomainType)) { return target; }
         if (Id == MODEL_ID_NULL) { return target; }
 
-        if (!viewTypes.Contains(viewDomainType))
+        if (!_viewTypes.Contains(viewDomainType))
         {
             throw new ConfigurationException("Converter", Type, new CannotConvertException(target, viewDomainType.Type));
         }
 
-        if (!converter.ContainsKey(viewDomainType.Type))
+        if (!_converter.ContainsKey(viewDomainType.Type))
         {
             throw new ConfigurationException("Converter", Type);
         }
 
-        return converter[viewDomainType.Type].Convert(target, Type, viewDomainType.Type);
+        return _converter[viewDomainType.Type].Convert(target, Type, viewDomainType.Type);
     }
 
     #region Formatting & Equality

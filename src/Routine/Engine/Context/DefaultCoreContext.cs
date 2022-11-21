@@ -4,23 +4,23 @@ namespace Routine.Engine.Context;
 
 public class DefaultCoreContext : ICoreContext
 {
-    private readonly ICodingStyle codingStyle;
+    private readonly ICodingStyle _codingStyle;
 
-    private readonly object domainTypesLock = new();
-    private volatile Dictionary<string, DomainType> domainTypes;
+    private readonly object _domainTypesLock = new();
+    private volatile Dictionary<string, DomainType> _domainTypes;
 
     private Dictionary<string, DomainType> DomainTypes
     {
-        get => domainTypes ?? throw new InvalidOperationException("Context was not initialized yet");
-        set => domainTypes = value;
+        get => _domainTypes ?? throw new InvalidOperationException("Context was not initialized yet");
+        set => _domainTypes = value;
     }
 
     public DefaultCoreContext(ICodingStyle codingStyle)
     {
-        this.codingStyle = codingStyle;
+        _codingStyle = codingStyle;
     }
 
-    public ICodingStyle CodingStyle => codingStyle;
+    public ICodingStyle CodingStyle => _codingStyle;
 
     public DomainType GetDomainType(string typeId)
     {
@@ -40,7 +40,7 @@ public class DefaultCoreContext : ICoreContext
 
     private void BuildDomainTypes()
     {
-        lock (domainTypesLock)
+        lock (_domainTypesLock)
         {
             DomainTypes = new();
             foreach (var type in CodingStyle.GetTypes())

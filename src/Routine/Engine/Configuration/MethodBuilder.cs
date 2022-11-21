@@ -5,25 +5,25 @@ namespace Routine.Engine.Configuration;
 
 public partial class MethodBuilder
 {
-    private readonly IType parentType;
+    private readonly IType _parentType;
 
     public MethodBuilder(IType parentType)
     {
-        this.parentType = parentType;
+        _parentType = parentType;
     }
 
-    public IType ParentType => parentType;
+    public IType ParentType => _parentType;
 
     public IEnumerable<IMethod> Proxy<T>(T target) => Proxy<T>().Target(target);
 
     public ProxyMethodBuilder<T> Proxy<T>() => Proxy<T>(_ => true);
     public ProxyMethodBuilder<T> Proxy<T>(string targetMethodName) => Proxy<T>(m => m.Name == targetMethodName);
     public ProxyMethodBuilder<T> Proxy<T>(Func<MethodInfo, bool> targetMethodPredicate) =>
-        new ProxyMethodBuilder<T>(parentType, type.of<T>().GetAllMethods().Where(targetMethodPredicate))
+        new ProxyMethodBuilder<T>(_parentType, type.of<T>().GetAllMethods().Where(targetMethodPredicate))
             .Name.Set(c => c.By(o => o.Name))
             .NextLayer();
 
-    private VirtualMethod Virtual() => new(parentType);
+    private VirtualMethod Virtual() => new(_parentType);
 
     public VirtualMethod Virtual(string name) =>
         Virtual()

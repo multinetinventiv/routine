@@ -5,16 +5,16 @@ namespace Routine.Engine.Configuration;
 
 public class ParameterBuilder
 {
-    private readonly IParametric owner;
+    private readonly IParametric _owner;
 
     public ParameterBuilder(IParametric owner)
     {
-        this.owner = owner;
+        _owner = owner;
     }
 
-    public IParametric Owner => owner;
+    public IParametric Owner => _owner;
 
-    public VirtualParameter Virtual() => new(owner);
+    public VirtualParameter Virtual() => new(_owner);
 
     public VirtualParameter Virtual(ParameterInfo parameterInfo) =>
         Virtual()

@@ -2,7 +2,7 @@ namespace Routine.Engine.Reflection;
 
 internal class ParseableTypeInfo : PreloadedTypeInfo
 {
-    private MethodInfo parseMethod;
+    private MethodInfo _parseMethod;
 
     internal ParseableTypeInfo(Type type)
         : base(type) { }
@@ -11,15 +11,15 @@ internal class ParseableTypeInfo : PreloadedTypeInfo
     {
         base.Load();
 
-        parseMethod = MethodInfo.Preloaded(type.GetMethod("Parse", new[] { typeof(string) }));
+        _parseMethod = MethodInfo.Preloaded(_type.GetMethod("Parse", new[] { typeof(string) }));
 
-        if (parseMethod.ReturnType != this)
+        if (_parseMethod.ReturnType != this)
         {
             throw new InvalidOperationException(
-                $"{type} was loaded as Parseable but its static Parse method does not return {type}"
+                $"{_type} was loaded as Parseable but its static Parse method does not return {_type}"
             );
         }
     }
 
-    protected internal override MethodInfo GetParseMethod() => parseMethod;
+    protected internal override MethodInfo GetParseMethod() => _parseMethod;
 }

@@ -20,14 +20,14 @@ public abstract class MethodInfo : MethodBase, IMethod
         return type;
     }
 
-    protected readonly System.Reflection.MethodInfo methodInfo;
+    protected readonly System.Reflection.MethodInfo _methodInfo;
 
     protected MethodInfo(System.Reflection.MethodInfo methodInfo)
     {
-        this.methodInfo = methodInfo;
+        _methodInfo = methodInfo;
     }
 
-    public System.Reflection.MethodInfo GetActualMethod() => methodInfo;
+    public System.Reflection.MethodInfo GetActualMethod() => _methodInfo;
 
     protected abstract MethodInfo Load();
 
@@ -45,7 +45,7 @@ public abstract class MethodInfo : MethodBase, IMethod
     protected virtual TypeInfo SearchFirstDeclaringType()
     {
         var parameters = GetParameters();
-        var result = methodInfo.GetBaseDefinition().DeclaringType;
+        var result = _methodInfo.GetBaseDefinition().DeclaringType;
 
         if (result == null) { throw new NotSupportedException(); }
 
@@ -53,7 +53,7 @@ public abstract class MethodInfo : MethodBase, IMethod
         {
             foreach (var interfaceMethodInfo in interfaceType.GetMethods())
             {
-                if (interfaceMethodInfo.Name != methodInfo.Name)
+                if (interfaceMethodInfo.Name != _methodInfo.Name)
                 {
                     continue;
                 }

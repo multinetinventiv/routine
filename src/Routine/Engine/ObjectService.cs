@@ -8,31 +8,31 @@ namespace Routine.Engine;
 
 public class ObjectService : IObjectService
 {
-    private readonly ICoreContext ctx;
-    private readonly ICache cache;
+    private readonly ICoreContext _ctx;
+    private readonly ICache _cache;
 
     public ObjectService(ICoreContext ctx, ICache cache)
     {
-        this.cache = cache;
-        this.ctx = ctx;
+        _cache = cache;
+        _ctx = ctx;
     }
 
     public ApplicationModel ApplicationModel
     {
         get
         {
-            var result = (ApplicationModel)cache[CACHE_APPLICATION_MODEL];
+            var result = (ApplicationModel)_cache[CACHE_APPLICATION_MODEL];
             if (result == null)
             {
-                lock (cache)
+                lock (_cache)
                 {
-                    if ((result = (ApplicationModel)cache[CACHE_APPLICATION_MODEL]) == null)
+                    if ((result = (ApplicationModel)_cache[CACHE_APPLICATION_MODEL]) == null)
                     {
-                        ctx.BuildDomainTypes();
+                        _ctx.BuildDomainTypes();
 
-                        result = new() { Models = ctx.DomainTypes.Select(dt => dt.GetModel()).ToList() };
+                        result = new() { Models = _ctx.DomainTypes.Select(dt => dt.GetModel()).ToList() };
 
-                        cache.Add(CACHE_APPLICATION_MODEL, result);
+                        _cache.Add(CACHE_APPLICATION_MODEL, result);
                     }
                 }
             }
@@ -41,9 +41,9 @@ public class ObjectService : IObjectService
         }
     }
 
-    public ObjectData Get(ReferenceData reference) => ctx.GetDomainObjectAsync(reference).WaitAndGetResult().GetObjectData(true);
-    public async Task<ObjectData> GetAsync(ReferenceData reference) => (await ctx.GetDomainObjectAsync(reference)).GetObjectData(true);
+    public ObjectData Get(ReferenceData reference) => _ctx.GetDomainObjectAsync(reference).WaitAndGetResult().GetObjectData(true);
+    public async Task<ObjectData> GetAsync(ReferenceData reference) => (await _ctx.GetDomainObjectAsync(reference)).GetObjectData(true);
 
-    public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => ctx.GetDomainObjectAsync(target).WaitAndGetResult().Perform(operation, parameters);
-    public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => await (await ctx.GetDomainObjectAsync(target)).PerformAsync(operation, parameters);
+    public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => _ctx.GetDomainObjectAsync(target).WaitAndGetResult().Perform(operation, parameters);
+    public async Task<VariableData> DoAsync(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => await (await _ctx.GetDomainObjectAsync(target)).PerformAsync(operation, parameters);
 }

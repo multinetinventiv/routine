@@ -4,23 +4,23 @@ namespace Routine.Engine;
 
 public class DomainObjectInitializer : IDomainParametric<IConstructor>
 {
-    private readonly ICoreContext ctx;
-    private readonly List<DomainParameter.Group<IConstructor>> groups;
+    private readonly ICoreContext _ctx;
+    private readonly List<DomainParameter.Group<IConstructor>> _groups;
 
     public Dictionary<string, DomainParameter> Parameter { get; }
     public Marks Marks { get; }
 
     public ICollection<DomainParameter> Parameters => Parameter.Values;
 
-    ICoreContext IDomainParametric<IConstructor>.Ctx => ctx;
-    int IDomainParametric<IConstructor>.NextGroupIndex => groups.Count;
-    void IDomainParametric<IConstructor>.AddGroup(IConstructor parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new DomainParameter.Group<IConstructor>(parametric, parameters, groupIndex));
+    ICoreContext IDomainParametric<IConstructor>.Ctx => _ctx;
+    int IDomainParametric<IConstructor>.NextGroupIndex => _groups.Count;
+    void IDomainParametric<IConstructor>.AddGroup(IConstructor parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => _groups.Add(new DomainParameter.Group<IConstructor>(parametric, parameters, groupIndex));
 
     public DomainObjectInitializer(ICoreContext ctx, IConstructor constructor)
     {
-        this.ctx = ctx;
+        _ctx = ctx;
 
-        groups = new();
+        _groups = new();
         Parameter = new();
 
         Marks = new();
@@ -30,20 +30,20 @@ public class DomainObjectInitializer : IDomainParametric<IConstructor>
 
     public void AddGroup(IConstructor constructor)
     {
-        if (groups.Any() &&
-            !constructor.InitializedType.Equals(groups.Last().Parametric.InitializedType))
+        if (_groups.Any() &&
+            !constructor.InitializedType.Equals(_groups.Last().Parametric.InitializedType))
         {
-            throw new InitializedTypeDoNotMatchException(constructor, groups.Last().Parametric.InitializedType, constructor.InitializedType);
+            throw new InitializedTypeDoNotMatchException(constructor, _groups.Last().Parametric.InitializedType, constructor.InitializedType);
         }
 
-        if (groups.Any(g => g.ContainsSameParameters(constructor)))
+        if (_groups.Any(g => g.ContainsSameParameters(constructor)))
         {
             throw new IdenticalSignatureAlreadyAddedException(constructor);
         }
 
         DomainParameter.AddGroupToTarget(constructor, this);
 
-        Marks.Join(ctx.CodingStyle.GetMarks(constructor));
+        Marks.Join(_ctx.CodingStyle.GetMarks(constructor));
     }
 
     public async Task<object> InitializeAsync(Dictionary<string, ParameterValueData> parameterValues)
@@ -54,13 +54,13 @@ public class DomainObjectInitializer : IDomainParametric<IConstructor>
     }
 
     private DomainParameterResolver<IConstructor> Resolver(Dictionary<string, ParameterValueData> parameterValues) =>
-        new(groups, parameterValues);
+        new(_groups, parameterValues);
 
     public InitializerModel GetModel() =>
         new()
         {
             Marks = Marks.Set,
-            GroupCount = groups.Count,
+            GroupCount = _groups.Count,
             Parameters = Parameters.Select(p => p.GetModel()).ToList()
         };
 }

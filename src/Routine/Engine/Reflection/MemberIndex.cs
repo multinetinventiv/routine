@@ -17,30 +17,30 @@ internal static class MemberIndex
 
 internal class MemberIndex<TKey, TItem>
 {
-    private readonly Dictionary<TKey, List<TItem>> index;
+    private readonly Dictionary<TKey, List<TItem>> _index;
 
     public MemberIndex()
     {
-        index = new Dictionary<TKey, List<TItem>>();
+        _index = new();
     }
 
     public void Add(TKey key, TItem item)
     {
-        if (!index.ContainsKey(key))
+        if (!_index.ContainsKey(key))
         {
-            index.Add(key, new List<TItem>());
+            _index.Add(key, new List<TItem>());
         }
 
-        index[key].Add(item);
+        _index[key].Add(item);
     }
 
     public TItem GetFirstOrDefault(TKey key) =>
-        index.TryGetValue(key, out var result) && result.Count > 0
+        _index.TryGetValue(key, out var result) && result.Count > 0
             ? result[0]
             : default;
 
     public List<TItem> GetAll(TKey key) =>
-        index.TryGetValue(key, out var result)
+        _index.TryGetValue(key, out var result)
             ? result
             : new List<TItem>();
 }

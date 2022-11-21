@@ -4,8 +4,8 @@ namespace Routine.Engine;
 
 public class DomainData
 {
-    private readonly ICoreContext ctx;
-    private readonly IProperty property;
+    private readonly ICoreContext _ctx;
+    private readonly IProperty _property;
 
     public string Name { get; }
     public Marks Marks { get; }
@@ -15,8 +15,8 @@ public class DomainData
 
     public DomainData(ICoreContext ctx, IProperty property)
     {
-        this.ctx = ctx;
-        this.property = property;
+        _ctx = ctx;
+        _property = property;
 
         Name = ctx.CodingStyle.GetName(property);
         Marks = new(ctx.CodingStyle.GetMarks(property));
@@ -47,7 +47,7 @@ public class DomainData
     public VariableData CreateData(object target) => CreateData(target, FetchedEagerly);
     public VariableData CreateData(object target, bool eager) => CreateData(target, Constants.FIRST_DEPTH, eager);
     internal VariableData CreateData(object target, int currentDepth) => CreateData(target, currentDepth, FetchedEagerly);
-    internal VariableData CreateData(object target, int currentDepth, bool eager) => ctx.CreateValueData(property.FetchFrom(target), IsList, DataType, currentDepth, eager);
+    internal VariableData CreateData(object target, int currentDepth, bool eager) => _ctx.CreateValueData(_property.FetchFrom(target), IsList, DataType, currentDepth, eager);
 
     #region Formatting & Equality
 

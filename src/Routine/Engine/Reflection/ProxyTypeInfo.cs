@@ -2,12 +2,12 @@ namespace Routine.Engine.Reflection;
 
 internal class ProxyTypeInfo : TypeInfo
 {
-    private volatile TypeInfo real;
+    private volatile TypeInfo _real;
 
     internal TypeInfo Real
     {
-        get => real;
-        set => real = value ?? throw new ArgumentNullException(nameof(real));
+        get => _real;
+        set => _real = value ?? throw new ArgumentNullException(nameof(_real));
     }
 
     internal ProxyTypeInfo(TypeInfo real)
@@ -15,51 +15,51 @@ internal class ProxyTypeInfo : TypeInfo
         Real = real;
     }
 
-    public override bool IsPublic => real.IsPublic;
-    public override bool IsAbstract => real.IsAbstract;
-    public override bool IsInterface => real.IsInterface;
-    public override bool IsValueType => real.IsValueType;
-    public override bool IsGenericType => real.IsGenericType;
-    public override bool IsPrimitive => real.IsPrimitive;
-    public override bool IsVoid => real.IsVoid;
-    public override bool IsEnum => real.IsEnum;
-    public override bool IsArray => real.IsArray;
-    public override string Name => real.Name;
-    public override string FullName => real.FullName;
-    public override string Namespace => real.Namespace;
-    public override TypeInfo BaseType => real.BaseType;
+    public override bool IsPublic => _real.IsPublic;
+    public override bool IsAbstract => _real.IsAbstract;
+    public override bool IsInterface => _real.IsInterface;
+    public override bool IsValueType => _real.IsValueType;
+    public override bool IsGenericType => _real.IsGenericType;
+    public override bool IsPrimitive => _real.IsPrimitive;
+    public override bool IsVoid => _real.IsVoid;
+    public override bool IsEnum => _real.IsEnum;
+    public override bool IsArray => _real.IsArray;
+    public override string Name => _real.Name;
+    public override string FullName => _real.FullName;
+    public override string Namespace => _real.Namespace;
+    public override TypeInfo BaseType => _real.BaseType;
 
-    public override bool CanBe(TypeInfo other) => real.CanBe(other);
-    public override object CreateInstance() => real.CreateInstance();
-    public override IList CreateListInstance(int length) => real.CreateListInstance(length);
-    public override Type GetActualType() => real.GetActualType();
-    public override ConstructorInfo[] GetAllConstructors() => real.GetAllConstructors();
-    public override MethodInfo[] GetAllMethods() => real.GetAllMethods();
-    public override PropertyInfo[] GetAllProperties() => real.GetAllProperties();
-    public override MethodInfo[] GetAllStaticMethods() => real.GetAllStaticMethods();
-    public override PropertyInfo[] GetAllStaticProperties() => real.GetAllStaticProperties();
-    public override ConstructorInfo GetConstructor(params TypeInfo[] typeInfos) => real.GetConstructor(typeInfos);
-    public override object[] GetCustomAttributes() => real.GetCustomAttributes();
-    public override MethodInfo GetMethod(string name) => real.GetMethod(name);
-    public override List<MethodInfo> GetMethods(string name) => real.GetMethods(name);
-    public override List<PropertyInfo> GetProperties(string name) => real.GetProperties(name);
-    public override PropertyInfo GetProperty(string name) => real.GetProperty(name);
-    public override List<ConstructorInfo> GetPublicConstructors() => real.GetPublicConstructors();
-    public override ICollection<MethodInfo> GetPublicMethods() => real.GetPublicMethods();
-    public override ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables = false) => real.GetPublicProperties(onlyPublicReadableAndWritables);
-    public override ICollection<MethodInfo> GetPublicStaticMethods() => real.GetPublicStaticMethods();
-    public override ICollection<PropertyInfo> GetPublicStaticProperties(bool onlyPublicReadableAndWritables = false) => real.GetPublicStaticProperties(onlyPublicReadableAndWritables);
-    public override MethodInfo GetStaticMethod(string name) => real.GetStaticMethod(name);
-    public override List<MethodInfo> GetStaticMethods(string name) => real.GetStaticMethods(name);
-    public override List<PropertyInfo> GetStaticProperties(string name) => real.GetStaticProperties(name);
-    public override PropertyInfo GetStaticProperty(string name) => real.GetStaticProperty(name);
-    protected internal override TypeInfo[] GetAssignableTypes() => real.GetAssignableTypes();
-    protected internal override TypeInfo GetElementType() => real.GetElementType();
-    public override List<string> GetEnumNames() => real.GetEnumNames();
-    protected internal override TypeInfo GetEnumUnderlyingType() => real.GetEnumUnderlyingType();
-    public override List<object> GetEnumValues() => real.GetEnumValues();
-    protected internal override TypeInfo[] GetGenericArguments() => real.GetGenericArguments();
-    protected internal override TypeInfo[] GetInterfaces() => real.GetInterfaces();
-    protected internal override MethodInfo GetParseMethod() => real.GetParseMethod();
-    protected internal override void Load() => real.Load();
+    public override bool CanBe(TypeInfo other) => _real.CanBe(other);
+    public override object CreateInstance() => _real.CreateInstance();
+    public override IList CreateListInstance(int length) => _real.CreateListInstance(length);
+    public override Type GetActualType() => _real.GetActualType();
+    public override ConstructorInfo[] GetAllConstructors() => _real.GetAllConstructors();
+    public override MethodInfo[] GetAllMethods() => _real.GetAllMethods();
+    public override PropertyInfo[] GetAllProperties() => _real.GetAllProperties();
+    public override MethodInfo[] GetAllStaticMethods() => _real.GetAllStaticMethods();
+    public override PropertyInfo[] GetAllStaticProperties() => _real.GetAllStaticProperties();
+    public override ConstructorInfo GetConstructor(params TypeInfo[] typeInfos) => _real.GetConstructor(typeInfos);
+    public override object[] GetCustomAttributes() => _real.GetCustomAttributes();
+    public override MethodInfo GetMethod(string name) => _real.GetMethod(name);
+    public override List<MethodInfo> GetMethods(string name) => _real.GetMethods(name);
+    public override List<PropertyInfo> GetProperties(string name) => _real.GetProperties(name);
+    public override PropertyInfo GetProperty(string name) => _real.GetProperty(name);
+    public override List<ConstructorInfo> GetPublicConstructors() => _real.GetPublicConstructors();
+    public override ICollection<MethodInfo> GetPublicMethods() => _real.GetPublicMethods();
+    public override ICollection<PropertyInfo> GetPublicProperties(bool onlyPublicReadableAndWritables = false) => _real.GetPublicProperties(onlyPublicReadableAndWritables);
+    public override ICollection<MethodInfo> GetPublicStaticMethods() => _real.GetPublicStaticMethods();
+    public override ICollection<PropertyInfo> GetPublicStaticProperties(bool onlyPublicReadableAndWritables = false) => _real.GetPublicStaticProperties(onlyPublicReadableAndWritables);
+    public override MethodInfo GetStaticMethod(string name) => _real.GetStaticMethod(name);
+    public override List<MethodInfo> GetStaticMethods(string name) => _real.GetStaticMethods(name);
+    public override List<PropertyInfo> GetStaticProperties(string name) => _real.GetStaticProperties(name);
+    public override PropertyInfo GetStaticProperty(string name) => _real.GetStaticProperty(name);
+    protected internal override TypeInfo[] GetAssignableTypes() => _real.GetAssignableTypes();
+    protected internal override TypeInfo GetElementType() => _real.GetElementType();
+    public override List<string> GetEnumNames() => _real.GetEnumNames();
+    protected internal override TypeInfo GetEnumUnderlyingType() => _real.GetEnumUnderlyingType();
+    public override List<object> GetEnumValues() => _real.GetEnumValues();
+    protected internal override TypeInfo[] GetGenericArguments() => _real.GetGenericArguments();
+    protected internal override TypeInfo[] GetInterfaces() => _real.GetInterfaces();
+    protected internal override MethodInfo GetParseMethod() => _real.GetParseMethod();
+    protected internal override void Load() => _real.Load();
 }
