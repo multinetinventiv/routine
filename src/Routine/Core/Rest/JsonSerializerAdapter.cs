@@ -5,7 +5,7 @@ namespace Routine.Core.Rest;
 
 public class JsonSerializerAdapter : IJsonSerializer
 {
-    private readonly JsonSerializerOptions jsonSerializerOptions;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
     public JsonSerializerAdapter(JsonSerializerOptions jsonSerializerOptions = null)
     {
@@ -16,12 +16,12 @@ public class JsonSerializerAdapter : IJsonSerializer
             jsonSerializerOptions.Converters.Add(new ObjectConverter());
         }
 
-        this.jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter(), new ObjectConverter() } };
+        _jsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions { Converters = { new DictionaryStringObjectJsonConverter(), new BooleanJsonConverter(), new ObjectConverter() } };
     }
 
-    public object DeserializeObject(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<object>(jsonString, jsonSerializerOptions) : null;
-    public T Deserialize<T>(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions) : default;
-    public string Serialize(object @object) => JsonSerializer.Serialize(@object, jsonSerializerOptions);
+    public object DeserializeObject(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<object>(jsonString, _jsonSerializerOptions) : null;
+    public T Deserialize<T>(string jsonString) => !string.IsNullOrWhiteSpace(jsonString) ? JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions) : default;
+    public string Serialize(object @object) => JsonSerializer.Serialize(@object, _jsonSerializerOptions);
 }
 
 internal class ObjectConverter : JsonConverter<object>

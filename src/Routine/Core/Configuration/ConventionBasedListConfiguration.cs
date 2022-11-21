@@ -4,21 +4,21 @@ namespace Routine.Core.Configuration;
 
 public class ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem> where TConfiguration : ILayered
 {
-    private readonly TConfiguration configuration;
-    private readonly string name;
-    private readonly List<LayeredConvention<TFrom, List<TResultItem>>> conventions;
-    private readonly Dictionary<TFrom, List<TResultItem>> cache;
+    private readonly TConfiguration _configuration;
+    private readonly string _name;
+    private readonly List<LayeredConvention<TFrom, List<TResultItem>>> _conventions;
+    private readonly Dictionary<TFrom, List<TResultItem>> _cache;
 
     public ConventionBasedListConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
     public ConventionBasedListConfiguration(TConfiguration configuration, string name, bool cacheResult)
     {
-        this.configuration = configuration;
-        this.name = name;
+        _configuration = configuration;
+        _name = name;
 
-        conventions = new List<LayeredConvention<TFrom, List<TResultItem>>>();
+        _conventions = new();
         if (cacheResult)
         {
-            cache = new Dictionary<TFrom, List<TResultItem>>();
+            _cache = new();
         }
     }
 
@@ -34,65 +34,65 @@ public class ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem
     public TConfiguration Add(TResultItem result, Func<TFrom, bool> whenDelegate) => Add(new List<TResultItem> { result }, whenDelegate);
     public TConfiguration Add(IEnumerable<TResultItem> result, Func<TFrom, bool> whenDelegate) => Add(new DelegateBasedConvention<TFrom, List<TResultItem>>().Return(_ => result.ToList()).When(whenDelegate));
 
-    public TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention) => Add(convention, configuration.CurrentLayer);
+    public TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention) => Add(convention, _configuration.CurrentLayer);
 
     private TConfiguration Add(IConvention<TFrom, List<TResultItem>> convention, Layer layer)
     {
-        lock (conventions)
+        lock (_conventions)
         {
-            conventions.Add(new LayeredConvention<TFrom, List<TResultItem>>(convention, layer));
+            _conventions.Add(new LayeredConvention<TFrom, List<TResultItem>>(convention, layer));
 
-            var layerGroups = conventions.GroupBy(c => c.Layer);
+            var layerGroups = _conventions.GroupBy(c => c.Layer);
 
             var newOrder = layerGroups.OrderByDescending(l => l.Key.Order).SelectMany(g => g).ToList();
 
-            conventions.Clear();
-            conventions.AddRange(newOrder);
+            _conventions.Clear();
+            _conventions.AddRange(newOrder);
         }
 
-        return configuration;
+        return _configuration;
     }
 
     public TConfiguration Merge(ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem> other)
     {
-        foreach (var convention in other.conventions)
+        foreach (var convention in other._conventions)
         {
             var layer = convention.Layer;
 
-            if (!Equals(configuration, other.configuration))
+            if (!Equals(_configuration, other._configuration))
             {
-                if (layer == Layer.LeastSpecific && configuration.CurrentLayer == Layer.LeastSpecific)
+                if (layer == Layer.LeastSpecific && _configuration.CurrentLayer == Layer.LeastSpecific)
                 {
                     layer = Layer.LeastSpecific;
                 }
-                else if (configuration.CurrentLayer == Layer.MostSpecific)
+                else if (_configuration.CurrentLayer == Layer.MostSpecific)
                 {
                     layer = Layer.MostSpecific;
                 }
                 else
                 {
-                    layer = new Layer(layer.Order + configuration.CurrentLayer.Order);
+                    layer = new(layer.Order + _configuration.CurrentLayer.Order);
                 }
             }
 
             Add(convention.Convention, layer);
         }
 
-        return configuration;
+        return _configuration;
     }
 
     public List<TResultItem> Get(TFrom obj)
     {
         try
         {
-            if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out var result))
+            if (_cache != null && !Equals(obj, null) && _cache.TryGetValue(obj, out var result))
             {
                 return result;
             }
 
-            result = new List<TResultItem>();
+            result = new();
 
-            foreach (var convention in conventions.Select(c => c.Convention))
+            foreach (var convention in _conventions.Select(c => c.Convention))
             {
                 if (convention.AppliesTo(obj))
                 {
@@ -102,13 +102,13 @@ public class ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem
 
             result = result.Distinct().ToList();
 
-            if (cache != null)
+            if (_cache != null)
             {
-                lock (cache)
+                lock (_cache)
                 {
-                    if (!Equals(obj, null) && !cache.ContainsKey(obj))
+                    if (!Equals(obj, null) && !_cache.ContainsKey(obj))
                     {
-                        cache.Add(obj, result);
+                        _cache.Add(obj, result);
                     }
                 }
             }
@@ -117,7 +117,7 @@ public class ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem
         }
         catch (NoConventionShouldBeAppliedException) { return new List<TResultItem>(); }
         catch (ConfigurationException) { throw; }
-        catch (Exception ex) { throw new ConfigurationException(name, obj, ex); }
+        catch (Exception ex) { throw new ConfigurationException(_name, obj, ex); }
     }
 
     internal class NoConventionShouldBeAppliedException : Exception { }

@@ -5,13 +5,13 @@ namespace Routine.Core.Rest;
 
 public class HttpClientRestClient : IRestClient
 {
-    private readonly Func<HttpClient> newClient;
-    private readonly Func<HttpRequestMessage> newRequest;
+    private readonly Func<HttpClient> _newClient;
+    private readonly Func<HttpRequestMessage> _newRequest;
 
     public HttpClientRestClient(Func<HttpClient> newClient = default, Func<HttpRequestMessage> newRequest = default)
     {
-        this.newClient = newClient ?? (() => new());
-        this.newRequest = newRequest ?? (() => new());
+        _newClient = newClient ?? (() => new());
+        _newRequest = newRequest ?? (() => new());
     }
 
     public RestResponse Get(string url, RestRequest request) => Make(url, request, HttpMethod.Get);
@@ -26,7 +26,7 @@ public class HttpClientRestClient : IRestClient
         {
             var req = BuildRequest(url, request, method);
 
-            var res = newClient().Send(req).EnsureSuccessStatusCode();
+            var res = _newClient().Send(req).EnsureSuccessStatusCode();
             var rs = res.Content.ReadAsStream();
 
             if (rs == null) { return RestResponse.Empty; }
@@ -51,7 +51,7 @@ public class HttpClientRestClient : IRestClient
         {
             var req = BuildRequest(url, request, method);
 
-            var res = (await newClient().SendAsync(req)).EnsureSuccessStatusCode();
+            var res = (await _newClient().SendAsync(req)).EnsureSuccessStatusCode();
             var rs = await res.Content.ReadAsStreamAsync();
 
             if (rs == null) { return RestResponse.Empty; }
@@ -77,7 +77,7 @@ public class HttpClientRestClient : IRestClient
             url += "?" + request.BuildUrlParameters();
         }
 
-        var result = newRequest();
+        var result = _newRequest();
 
         result.RequestUri = new(url);
         result.Method = method;

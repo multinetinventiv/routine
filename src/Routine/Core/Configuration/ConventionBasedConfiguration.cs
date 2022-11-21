@@ -4,30 +4,30 @@ namespace Routine.Core.Configuration;
 
 public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where TConfiguration : ILayered
 {
-    private readonly TConfiguration configuration;
-    private readonly string name;
-    private readonly List<LayeredConvention<TFrom, TResult>> conventions;
-    private readonly Dictionary<TFrom, TResult> cache;
+    private readonly TConfiguration _configuration;
+    private readonly string _name;
+    private readonly List<LayeredConvention<TFrom, TResult>> _conventions;
+    private readonly Dictionary<TFrom, TResult> _cache;
 
-    private Func<TFrom, ConfigurationException> exceptionDelegate;
+    private Func<TFrom, ConfigurationException> _exceptionDelegate;
 
     public ConventionBasedConfiguration(TConfiguration configuration, string name) : this(configuration, name, false) { }
     public ConventionBasedConfiguration(TConfiguration configuration, string name, bool cacheResult)
     {
-        this.configuration = configuration;
-        this.name = name;
+        _configuration = configuration;
+        _name = name;
 
-        conventions = new List<LayeredConvention<TFrom, TResult>>();
+        _conventions = new();
         if (cacheResult)
         {
-            cache = new Dictionary<TFrom, TResult>();
+            _cache = new();
         }
 
         OnFailThrow(o => new ConfigurationException(name, o));
     }
 
     public TConfiguration OnFailThrow(ConfigurationException exception) => OnFailThrow(_ => exception);
-    public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { this.exceptionDelegate = exceptionDelegate; return configuration; }
+    public TConfiguration OnFailThrow(Func<TFrom, ConfigurationException> exceptionDelegate) { _exceptionDelegate = exceptionDelegate; return _configuration; }
 
     public TConfiguration SetDefault() => Set(default(TResult));
     public TConfiguration SetDefault(TFrom obj) => Set(default, obj);
@@ -38,52 +38,52 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where 
     public TConfiguration Set(TResult result, Func<TFrom, bool> whenDelegate) => Set(BuildRoutine.Convention<TFrom, TResult>().Constant(result).When(whenDelegate));
     public TConfiguration Set(IConvention<TFrom, TResult> convention)
     {
-        Add(convention, configuration.CurrentLayer);
+        Add(convention, _configuration.CurrentLayer);
 
-        return configuration;
+        return _configuration;
     }
 
     private void Add(IConvention<TFrom, TResult> convention, Layer layer)
     {
-        lock (conventions)
+        lock (_conventions)
         {
-            conventions.Add(new LayeredConvention<TFrom, TResult>(convention, layer));
+            _conventions.Add(new LayeredConvention<TFrom, TResult>(convention, layer));
 
-            var layerGroups = conventions.GroupBy(c => c.Layer);
+            var layerGroups = _conventions.GroupBy(c => c.Layer);
 
             var newOrder = layerGroups.OrderByDescending(l => l.Key.Order).SelectMany(g => g).ToList();
 
-            conventions.Clear();
-            conventions.AddRange(newOrder);
+            _conventions.Clear();
+            _conventions.AddRange(newOrder);
         }
     }
 
     public TConfiguration Merge(ConventionBasedConfiguration<TConfiguration, TFrom, TResult> other)
     {
-        foreach (var convention in other.conventions)
+        foreach (var convention in other._conventions)
         {
             var layer = convention.Layer;
 
-            if (!Equals(configuration, other.configuration))
+            if (!Equals(_configuration, other._configuration))
             {
-                if (layer == Layer.LeastSpecific && configuration.CurrentLayer == Layer.LeastSpecific)
+                if (layer == Layer.LeastSpecific && _configuration.CurrentLayer == Layer.LeastSpecific)
                 {
                     layer = Layer.LeastSpecific;
                 }
-                else if (configuration.CurrentLayer == Layer.MostSpecific)
+                else if (_configuration.CurrentLayer == Layer.MostSpecific)
                 {
                     layer = Layer.MostSpecific;
                 }
                 else
                 {
-                    layer = new Layer(layer.Order + configuration.CurrentLayer.Order);
+                    layer = new(layer.Order + _configuration.CurrentLayer.Order);
                 }
             }
 
             Add(convention.Convention, layer);
         }
 
-        return configuration;
+        return _configuration;
     }
 
     public virtual TResult Get(TFrom obj)
@@ -91,13 +91,13 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where 
         try
         {
             var result = default(TResult);
-            if (cache != null && !Equals(obj, null) && cache.TryGetValue(obj, out result))
+            if (_cache != null && !Equals(obj, null) && _cache.TryGetValue(obj, out result))
             {
                 return result;
             }
 
             var found = false;
-            foreach (var convention in conventions.Select(c => c.Convention))
+            foreach (var convention in _conventions.Select(c => c.Convention))
             {
                 if (!convention.AppliesTo(obj)) { continue; }
 
@@ -107,15 +107,15 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where 
                 break;
             }
 
-            if (!found) { throw exceptionDelegate(obj); }
+            if (!found) { throw _exceptionDelegate(obj); }
 
-            if (cache != null)
+            if (_cache != null)
             {
-                lock (cache)
+                lock (_cache)
                 {
-                    if (!Equals(obj, null) && !cache.ContainsKey(obj))
+                    if (!Equals(obj, null) && !_cache.ContainsKey(obj))
                     {
-                        cache.Add(obj, result);
+                        _cache.Add(obj, result);
                     }
                 }
             }
@@ -123,6 +123,6 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where 
             return result;
         }
         catch (ConfigurationException) { throw; }
-        catch (Exception ex) { throw new ConfigurationException(name, obj, ex); }
+        catch (Exception ex) { throw new ConfigurationException(_name, obj, ex); }
     }
 }

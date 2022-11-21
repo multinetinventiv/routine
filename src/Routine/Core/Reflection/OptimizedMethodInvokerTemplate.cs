@@ -4,14 +4,14 @@ namespace Routine.Core.Reflection;
 
 public class OptimizedMethodInvokerTemplate
 {
-    private readonly MethodBase method;
-    private readonly InvocationType invocationType;
+    private readonly MethodBase _method;
+    private readonly InvocationType _invocationType;
 
     public OptimizedMethodInvokerTemplate(MethodBase method)
     {
-        this.method = method;
+        _method = method;
 
-        invocationType = ResolveInvocationType();
+        _invocationType = ResolveInvocationType();
     }
 
     public string InvokerTypeName => Name;
@@ -33,13 +33,13 @@ namespace {Namespace}
 }}
 ";
 
-    private string Namespace => method.ReflectedType?.Namespace;
-    private string Name => $"{Fix(NameOf(method.ReflectedType))}_{MethodName}_Invoker_{method.GetHashCode()}";
+    private string Namespace => _method.ReflectedType?.Namespace;
+    private string Name => $"{Fix(NameOf(_method.ReflectedType))}_{MethodName}_Invoker_{_method.GetHashCode()}";
 
-    private string Invocation => invocationType switch
+    private string Invocation => _invocationType switch
     {
         InvocationType.NotSupported => $"throw new {NameOf<NotSupportedException>()}(\"Cannot optimize methods that use ref struct types such as Span<T>, Memory<T> etc.\");",
-        InvocationType.Constructor => $"return new {NameOf(method.ReflectedType)}({Parameters});",
+        InvocationType.Constructor => $"return new {NameOf(_method.ReflectedType)}({Parameters});",
         InvocationType.Get => $"return {Target}.{MethodName};",
         InvocationType.Set => $@"
             {Target}.{MethodName} = {LastParameter};
@@ -91,10 +91,10 @@ namespace {Namespace}
 
             return task.Result;
 ",
-        _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {method}")
+        _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {_method}")
     };
 
-    private string AsyncInvocation => invocationType switch
+    private string AsyncInvocation => _invocationType switch
     {
         InvocationType.ReturnsVoidAsync => $@"
             await {Target}.{MethodName}({Parameters});
@@ -120,28 +120,28 @@ namespace {Namespace}
 
     private InvocationType ResolveInvocationType()
     {
-        if (method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ||
-            method is MethodInfo mi && mi.ReturnType.IsByRefLike)
+        if (_method.GetParameters().Any(p => p.ParameterType.IsByRefLike) ||
+            _method is MethodInfo mi && mi.ReturnType.IsByRefLike)
         {
             return InvocationType.NotSupported;
         }
 
-        if (method.IsConstructor) { return InvocationType.Constructor; }
+        if (_method.IsConstructor) { return InvocationType.Constructor; }
 
-        if (method.IsSpecialName)
+        if (_method.IsSpecialName)
         {
-            if (method.Name.StartsWith("get_"))
+            if (_method.Name.StartsWith("get_"))
             {
-                return method.GetParameters().Any() ? InvocationType.IndexerGet : InvocationType.Get;
+                return _method.GetParameters().Any() ? InvocationType.IndexerGet : InvocationType.Get;
             }
 
-            if (method.Name.StartsWith("set_"))
+            if (_method.Name.StartsWith("set_"))
             {
-                return method.GetParameters().Length > 1 ? InvocationType.IndexerSet : InvocationType.Set;
+                return _method.GetParameters().Length > 1 ? InvocationType.IndexerSet : InvocationType.Set;
             }
         }
 
-        if (method is not MethodInfo methodInfo) { return InvocationType.NotSupported; }
+        if (_method is not MethodInfo methodInfo) { return InvocationType.NotSupported; }
 
         if (methodInfo.ReturnType == typeof(void))
         {
@@ -163,12 +163,12 @@ namespace {Namespace}
 
     }
 
-    private string Target => method.IsStatic ? NameOf(method.ReflectedType) : $"(({NameOf(method.ReflectedType)})target)";
-    private string MethodName => method.IsConstructor ? "Constructor" : method.IsSpecialName ? method.Name.After("_") : method.Name;
+    private string Target => _method.IsStatic ? NameOf(_method.ReflectedType) : $"(({NameOf(_method.ReflectedType)})target)";
+    private string MethodName => _method.IsConstructor ? "Constructor" : _method.IsSpecialName ? _method.Name.After("_") : _method.Name;
 
-    private string Parameters => RenderParameters(method.GetParameters());
-    private string ParametersExceptLast => RenderParameters(method.GetParameters().Where((_, i) => i < method.GetParameters().Length - 1).ToArray());
-    private string LastParameter => RenderParameter(method.GetParameters().LastOrDefault());
+    private string Parameters => RenderParameters(_method.GetParameters());
+    private string ParametersExceptLast => RenderParameters(_method.GetParameters().Where((_, i) => i < _method.GetParameters().Length - 1).ToArray());
+    private string LastParameter => RenderParameter(_method.GetParameters().LastOrDefault());
 
     private static string RenderParameters(IEnumerable<ParameterInfo> parameters) => string.Join(",", parameters.Select(RenderParameter));
     private static string RenderParameter(ParameterInfo parameterInfo) =>

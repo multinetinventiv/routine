@@ -2,41 +2,41 @@ namespace Routine.Core.Cache;
 
 public class DictionaryCache : ICache
 {
-    private readonly Dictionary<string, object> dictionary;
+    private readonly Dictionary<string, object> _dictionary;
 
     public DictionaryCache()
     {
-        dictionary = new();
+        _dictionary = new();
     }
 
     public object this[string key]
     {
         get
         {
-            dictionary.TryGetValue(key, out var result);
+            _dictionary.TryGetValue(key, out var result);
 
             return result;
         }
     }
 
-    public bool Contains(string key) => dictionary.ContainsKey(key);
+    public bool Contains(string key) => _dictionary.ContainsKey(key);
 
     public void Add(string key, object value)
     {
         if (Contains(key))
         {
-            dictionary[key] = value;
+            _dictionary[key] = value;
             return;
         }
 
-        dictionary.Add(key, value);
+        _dictionary.Add(key, value);
     }
 
     public void Remove(string key)
     {
         if (Contains(key))
         {
-            dictionary.Remove(key);
+            _dictionary.Remove(key);
         }
     }
 }

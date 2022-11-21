@@ -8,21 +8,21 @@ namespace Routine.Core.Reflection;
 
 public class CodeCompiler
 {
-    private readonly StringBuilder code = new();
-    private readonly Dictionary<string, MetadataReference> references = new();
+    private readonly StringBuilder _code = new();
+    private readonly Dictionary<string, MetadataReference> _references = new();
 
-    public bool HasCode => code.Length > 0;
+    public bool HasCode => _code.Length > 0;
 
     public void AddCode(string code)
     {
-        this.code.AppendLine(code);
+        _code.AppendLine(code);
     }
 
     public void AddReference(Assembly assembly)
     {
-        if (references.ContainsKey(assembly.Location)) { return; }
+        if (_references.ContainsKey(assembly.Location)) { return; }
 
-        references.Add(assembly.Location, MetadataReference.CreateFromFile(assembly.Location));
+        _references.Add(assembly.Location, MetadataReference.CreateFromFile(assembly.Location));
 
         foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
         {
@@ -61,8 +61,8 @@ public class CodeCompiler
     {
         var compilation = CSharpCompilation.Create(
             Path.GetRandomFileName(),
-            syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{code}") },
-            references: references.Values,
+            syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{_code}") },
+            references: _references.Values,
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
 
@@ -93,6 +93,6 @@ public class CodeCompiler
             errors.AppendLine();
         }
 
-        throw new Exception($"{errors}; \r\n {code}");
+        throw new Exception($"{errors}; \r\n {_code}");
     }
 }

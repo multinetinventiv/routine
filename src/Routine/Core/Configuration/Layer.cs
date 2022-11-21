@@ -5,7 +5,7 @@ public class Layer
     public static readonly Layer LeastSpecific = new(0, true);
     public static readonly Layer MostSpecific = new(int.MaxValue, true);
 
-    private readonly int order;
+    private readonly int _order;
 
     public Layer(int order) : this(order, false) { }
     private Layer(int order, bool internalCall)
@@ -23,10 +23,10 @@ public class Layer
             }
         }
 
-        this.order = order;
+        _order = order;
     }
 
-    public int Order => order;
+    public int Order => _order;
 
     public Layer MoreSpecific()
     {
@@ -58,7 +58,7 @@ public class Layer
         return new Layer(Order - 1);
     }
 
-    public override string ToString() => $"Layer ({order})";
+    public override string ToString() => $"Layer ({_order})";
 
     #region Equality & HashCode
 
