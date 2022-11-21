@@ -14,8 +14,8 @@ public abstract class TypeInfo : IType
     private static readonly Dictionary<string, TypeInfo> TYPE_CACHE;
     private static readonly object OPTIMIZE_LOCK = new();
 
-    private static volatile Func<Type, bool> proxyMatcher;
-    private static volatile Func<Type, Type> actualTypeGetter;
+    private static volatile Func<Type, bool> _proxyMatcher;
+    private static volatile Func<Type, Type> _actualTypeGetter;
 
     static TypeInfo()
     {
@@ -45,8 +45,8 @@ public abstract class TypeInfo : IType
 
     public static void SetProxyMatcher(Func<Type, bool> proxyMatcher, Func<Type, Type> actualTypeGetter)
     {
-        TypeInfo.proxyMatcher = proxyMatcher ?? (_ => false);
-        TypeInfo.actualTypeGetter = actualTypeGetter ?? (t => t);
+        TypeInfo._proxyMatcher = proxyMatcher ?? (_ => false);
+        TypeInfo._actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
     private static string KeyOf(Type type) => $"{type}";
@@ -67,9 +67,9 @@ public abstract class TypeInfo : IType
             {
                 if (!TYPE_CACHE.TryGetValue(KeyOf(type), out result))
                 {
-                    if (proxyMatcher(type))
+                    if (_proxyMatcher(type))
                     {
-                        var actualType = actualTypeGetter(type);
+                        var actualType = _actualTypeGetter(type);
                         if (!TYPE_CACHE.TryGetValue(KeyOf(actualType), out result))
                         {
                             result = CreateTypeInfo(actualType);
@@ -91,9 +91,9 @@ public abstract class TypeInfo : IType
 
         if (optimize && result is ProxyTypeInfo proxy)
         {
-            if (proxyMatcher(type))
+            if (_proxyMatcher(type))
             {
-                var actualType = actualTypeGetter(type);
+                var actualType = _actualTypeGetter(type);
                 var optimized = new OptimizedTypeInfo(actualType);
                 optimized.Load();
                 proxy.Real = optimized;
