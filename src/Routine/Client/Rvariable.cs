@@ -53,7 +53,7 @@ public class Rvariable
     public bool IsVoid => @_void;
     public bool IsNull => Object.IsNull;
 
-    public Robject Object => _value.Count <= 0 ? new Robject() : _value[0];
+    public Robject Object => _value.Count <= 0 ? new() : _value[0];
     public List<Robject> List => _value;
 
     public Rvariable CreateAlias(string name) => new(name, _value, _list, @_void);

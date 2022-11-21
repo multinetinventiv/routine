@@ -47,7 +47,7 @@ public class ConventionBasedConfiguration<TConfiguration, TFrom, TResult> where 
     {
         lock (_conventions)
         {
-            _conventions.Add(new LayeredConvention<TFrom, TResult>(convention, layer));
+            _conventions.Add(new(convention, layer));
 
             var layerGroups = _conventions.GroupBy(c => c.Layer);
 

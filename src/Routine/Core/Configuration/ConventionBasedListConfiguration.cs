@@ -40,7 +40,7 @@ public class ConventionBasedListConfiguration<TConfiguration, TFrom, TResultItem
     {
         lock (_conventions)
         {
-            _conventions.Add(new LayeredConvention<TFrom, List<TResultItem>>(convention, layer));
+            _conventions.Add(new(convention, layer));
 
             var layerGroups = _conventions.GroupBy(c => c.Layer);
 

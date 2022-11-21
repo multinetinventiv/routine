@@ -40,7 +40,7 @@ public class Layer
             return MostSpecific;
         }
 
-        return new Layer(Order + 1);
+        return new(Order + 1);
     }
 
     public Layer LessSpecific()
@@ -55,7 +55,7 @@ public class Layer
             return LeastSpecific;
         }
 
-        return new Layer(Order - 1);
+        return new(Order - 1);
     }
 
     public override string ToString() => $"Layer ({_order})";

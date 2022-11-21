@@ -24,11 +24,11 @@ public class Rtype
         Application = application;
         _model = model;
 
-        ViewTypes = new List<Rtype>();
-        ActualTypes = new List<Rtype>();
+        ViewTypes = new();
+        ActualTypes = new();
         Initializer = null;
-        Data = new Dictionary<string, Rdata>();
-        Operation = new Dictionary<string, Roperation>();
+        Data = new();
+        Operation = new();
     }
 
     internal void Load()

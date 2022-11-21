@@ -63,7 +63,7 @@ public class CodeCompiler
             Path.GetRandomFileName(),
             syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{_code}") },
             references: _references.Values,
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            options: new(OutputKind.DynamicallyLinkedLibrary)
         );
 
         using var ms = new MemoryStream();
