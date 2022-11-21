@@ -29,7 +29,7 @@ public abstract class PredefinedHeaderProcessorBase<TConcrete> : IHeaderProcesso
         _processorDelegate(headers);
     }
 
-    protected TConcrete Do(Action<List<string>> processorDelegate) { this._processorDelegate = processorDelegate; return (TConcrete)this; }
+    protected TConcrete Do(Action<List<string>> processorDelegate) { _processorDelegate = processorDelegate; return (TConcrete)this; }
 
     #region IHeaderProcessor implementation
 

@@ -33,9 +33,9 @@ public abstract class BaseTypeInfo : TypeInfo
     public override bool IsEnum => _isEnum;
     public override bool IsArray => _isArray;
 
-    protected void SetIsVoid(bool isVoid) => this._isVoid = isVoid;
-    protected void SetIsEnum(bool isEnum) => this._isEnum = isEnum;
-    protected void SetIsArray(bool isArray) => this._isArray = isArray;
+    protected void SetIsVoid(bool isVoid) => _isVoid = isVoid;
+    protected void SetIsEnum(bool isEnum) => _isEnum = isEnum;
+    protected void SetIsArray(bool isArray) => _isArray = isArray;
 
     public override List<string> GetEnumNames() => new();
     public override List<object> GetEnumValues() => new();

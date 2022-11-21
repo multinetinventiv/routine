@@ -26,7 +26,7 @@ public class ProxyMethod : IMethod
 
         _parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
 
-        _parameterOffset = this._parameters.Count;
+        _parameterOffset = _parameters.Count;
 
         _parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, _parameterOffset + i) as IParameter));
 

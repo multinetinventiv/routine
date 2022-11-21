@@ -47,45 +47,45 @@ public class OptimizedClass : IOptimizedInterface<string>
 
     public static void StaticVoidMethod() { }
 
-    private readonly IOptimizedInterface<string> real;
-    public OptimizedClass(IOptimizedInterface<string> real) => this.real = real;
+    private readonly IOptimizedInterface<string> _real;
+    public OptimizedClass(IOptimizedInterface<string> real) => _real = real;
 
-    public void VoidMethod() => real.VoidMethod();
+    public void VoidMethod() => _real.VoidMethod();
 
-    void IOptimizedInterface<string>.ExplicitVoidMethod() => real.ExplicitVoidMethod();
+    void IOptimizedInterface<string>.ExplicitVoidMethod() => _real.ExplicitVoidMethod();
 
-    public string StringMethod() => real.StringMethod();
-    public void OneParameterVoidMethod(string str) => real.OneParameterVoidMethod(str);
-    public void TwoParameterVoidMethod(string str, int i) => real.TwoParameterVoidMethod(str, i);
-    public string ThreeParameterStringMethod(string str, int i, decimal d) => real.ThreeParameterStringMethod(str, i, d);
+    public string StringMethod() => _real.StringMethod();
+    public void OneParameterVoidMethod(string str) => _real.OneParameterVoidMethod(str);
+    public void TwoParameterVoidMethod(string str, int i) => _real.TwoParameterVoidMethod(str, i);
+    public string ThreeParameterStringMethod(string str, int i, decimal d) => _real.ThreeParameterStringMethod(str, i, d);
 
-    public List<string> ListMethod() => real.ListMethod();
-    public void ListParameterVoidMethod(List<string> list) => real.ListParameterVoidMethod(list);
-    public void ListListParameterVoidMethod(List<List<string>> listList) => real.ListListParameterVoidMethod(listList);
-    public void DictionaryParameterVoidMethod(Dictionary<string, object> dict) => real.DictionaryParameterVoidMethod(dict);
+    public List<string> ListMethod() => _real.ListMethod();
+    public void ListParameterVoidMethod(List<string> list) => _real.ListParameterVoidMethod(list);
+    public void ListListParameterVoidMethod(List<List<string>> listList) => _real.ListListParameterVoidMethod(listList);
+    public void DictionaryParameterVoidMethod(Dictionary<string, object> dict) => _real.DictionaryParameterVoidMethod(dict);
 
     // ReSharper disable once UnusedMember.Local
     private void NonPublicVoidMethod() { }
 
-    public string StringProperty { get => real.StringProperty; set => real.StringProperty = value; }
+    public string StringProperty { get => _real.StringProperty; set => _real.StringProperty = value; }
 
-    public void Overload() => real.Overload();
-    public void Overload(int i) => real.Overload(i);
+    public void Overload() => _real.Overload();
+    public void Overload(int i) => _real.Overload(i);
 
     public string this[string key, int index]
     {
-        get => real[key, index];
-        set => real[key, index] = value;
+        get => _real[key, index];
+        set => _real[key, index] = value;
     }
 
-    public void GenericParameterMethod(string param) => real.GenericParameterMethod(param);
-    public string GenericReturnMethod() => real.GenericReturnMethod();
+    public void GenericParameterMethod(string param) => _real.GenericParameterMethod(param);
+    public string GenericReturnMethod() => _real.GenericReturnMethod();
 
-    private void PrivateVoidMethod() => real.PrivateVoidMethod();
+    private void PrivateVoidMethod() => _real.PrivateVoidMethod();
     void IOptimizedInterface<string>.PrivateVoidMethod() => PrivateVoidMethod();
 
-    public async Task AsyncVoidMethod() => await real.AsyncVoidMethod();
-    public async Task<string> AsyncStringMethod() => await real.AsyncStringMethod();
+    public async Task AsyncVoidMethod() => await _real.AsyncVoidMethod();
+    public async Task<string> AsyncStringMethod() => await _real.AsyncStringMethod();
 }
 
 public struct Struct
