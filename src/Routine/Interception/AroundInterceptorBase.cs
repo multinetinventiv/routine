@@ -4,16 +4,16 @@ public abstract class AroundInterceptorBase<TConcrete, TContext> : InterceptorBa
     where TConcrete : AroundInterceptorBase<TConcrete, TContext>
     where TContext : InterceptionContext
 {
-    private Func<TContext, bool> whenDelegate;
+    private Func<TContext, bool> _whenDelegate;
 
     protected AroundInterceptorBase()
     {
         When(_ => true);
     }
 
-    public TConcrete When(Func<TContext, bool> whenDelegate) { this.whenDelegate = whenDelegate; return (TConcrete)this; }
+    public TConcrete When(Func<TContext, bool> whenDelegate) { _whenDelegate = whenDelegate; return (TConcrete)this; }
 
-    protected virtual bool CanIntercept(TContext context) => whenDelegate(context);
+    protected virtual bool CanIntercept(TContext context) => _whenDelegate(context);
 
     protected override async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation)
     {

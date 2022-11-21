@@ -2,11 +2,11 @@
 
 public class InterceptionContext
 {
-    protected readonly Dictionary<string, object> data;
+    protected readonly Dictionary<string, object> _data;
 
     public InterceptionContext(string target)
     {
-        data = new Dictionary<string, object>();
+        _data = new();
 
         Target = target;
     }
@@ -15,10 +15,10 @@ public class InterceptionContext
     {
         get
         {
-            data.TryGetValue(key, out var result);
+            _data.TryGetValue(key, out var result);
             return result;
         }
-        set => data[key] = value;
+        set => _data[key] = value;
     }
 
     public string Target { get; }

@@ -5,36 +5,36 @@ namespace Routine.Interception;
 
 public class InterceptedObjectService : IObjectService
 {
-    private readonly IInterceptionConfiguration configuration;
-    private readonly IObjectService real;
+    private readonly IInterceptionConfiguration _configuration;
+    private readonly IObjectService _real;
 
-    private readonly IInterceptor<InterceptionContext> applicationModel;
-    private readonly IInterceptor<InterceptionContext> get;
-    private readonly IInterceptor<InterceptionContext> @do;
+    private readonly IInterceptor<InterceptionContext> _applicationModel;
+    private readonly IInterceptor<InterceptionContext> _get;
+    private readonly IInterceptor<InterceptionContext> @_do;
 
     public InterceptedObjectService(IObjectService real, IInterceptionConfiguration configuration)
     {
-        this.real = real;
-        this.configuration = configuration;
+        _real = real;
+        _configuration = configuration;
 
-        applicationModel = configuration.GetInterceptor(InterceptionTarget.ApplicationModel);
-        get = configuration.GetInterceptor(InterceptionTarget.Get);
-        @do = configuration.GetInterceptor(InterceptionTarget.Do);
+        _applicationModel = configuration.GetInterceptor(InterceptionTarget.ApplicationModel);
+        _get = configuration.GetInterceptor(InterceptionTarget.Get);
+        @_do = configuration.GetInterceptor(InterceptionTarget.Do);
     }
 
-    public ApplicationModel ApplicationModel => applicationModel.Intercept(NewContext(), () => real.ApplicationModel) as ApplicationModel;
+    public ApplicationModel ApplicationModel => _applicationModel.Intercept(NewContext(), () => _real.ApplicationModel) as ApplicationModel;
 
-    public ObjectData Get(ReferenceData reference) => get.Intercept(NewContext(reference), () => real.Get(reference)) as ObjectData;
-    public async Task<ObjectData> GetAsync(ReferenceData reference) => await get.InterceptAsync(NewContext(reference), async () => await real.GetAsync(reference)) as ObjectData;
+    public ObjectData Get(ReferenceData reference) => _get.Intercept(NewContext(reference), () => _real.Get(reference)) as ObjectData;
+    public async Task<ObjectData> GetAsync(ReferenceData reference) => await _get.InterceptAsync(NewContext(reference), async () => await _real.GetAsync(reference)) as ObjectData;
 
     public VariableData Do(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters)
     {
         var context = NewContext(target, operation, parameters);
         var service = GetService(context);
 
-        return @do.Intercept(context,
+        return @_do.Intercept(context,
             () => service.Intercept(context,
-                () => real.Do(context.TargetReference, context.OperationName, context.ParameterValues)
+                () => _real.Do(context.TargetReference, context.OperationName, context.ParameterValues)
             )
         ) as VariableData;
     }
@@ -44,16 +44,16 @@ public class InterceptedObjectService : IObjectService
         var context = NewContext(target, operation, parameters);
         var service = GetService(context);
 
-        return await @do.InterceptAsync(context,
+        return await @_do.InterceptAsync(context,
             async () => await service.InterceptAsync(context,
-                async () => await real.DoAsync(context.TargetReference, context.OperationName, context.ParameterValues)
+                async () => await _real.DoAsync(context.TargetReference, context.OperationName, context.ParameterValues)
             )
         ) as VariableData;
     }
 
     private InterceptionContext NewContext() => new($"{InterceptionTarget.ApplicationModel}");
-    private ObjectReferenceInterceptionContext NewContext(ReferenceData reference) => new($"{InterceptionTarget.Get}", real, reference);
-    private ServiceInterceptionContext NewContext(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => new($"{InterceptionTarget.Do}", real, target, operation, parameters);
+    private ObjectReferenceInterceptionContext NewContext(ReferenceData reference) => new($"{InterceptionTarget.Get}", _real, reference);
+    private ServiceInterceptionContext NewContext(ReferenceData target, string operation, Dictionary<string, ParameterValueData> parameters) => new($"{InterceptionTarget.Do}", _real, target, operation, parameters);
 
-    private IInterceptor<ServiceInterceptionContext> GetService(ServiceInterceptionContext context) => configuration.GetServiceInterceptor(context.TargetModel, context.OperationModel);
+    private IInterceptor<ServiceInterceptionContext> GetService(ServiceInterceptionContext context) => _configuration.GetServiceInterceptor(context.TargetModel, context.OperationModel);
 }
