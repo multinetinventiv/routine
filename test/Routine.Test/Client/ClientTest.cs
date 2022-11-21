@@ -15,7 +15,7 @@ public class ClientTest : ClientTestBase
     {
         ModelsAre(Model("model1"), Model("model2"));
 
-        var actual = testingRapplication.Types;
+        var actual = _testingRapplication.Types;
 
         Assert.IsTrue(actual.Any(m => m.Id == "model1"));
         Assert.IsTrue(actual.Any(m => m.Id == "model2"));
@@ -42,7 +42,7 @@ public class ClientTest : ClientTestBase
         Robj("id", "actualModel");
         Robj("id", "actualModel");
 
-        mockObjectService.Verify(o => o.ApplicationModel, Times.Once());
+        _mockObjectService.Verify(o => o.ApplicationModel, Times.Once());
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class ClientTest : ClientTestBase
         Assert.AreEqual("data2", data2.Data.Name);
         Assert.AreEqual("id2", stubber.Get(data2).Object.Id);
 
-        stubber.VerifyGet(mockObjectService);
+        stubber.VerifyGet(_mockObjectService);
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -163,7 +163,7 @@ public class ClientTest : ClientTestBase
         var datasSecondFetch = testingRobject.DataValues;
         stubber.Get(datasSecondFetch[0]);
 
-        stubber.VerifyGet(mockObjectService, Times.Once());
+        stubber.VerifyGet(_mockObjectService, Times.Once());
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -199,11 +199,11 @@ public class ClientTest : ClientTestBase
 
         stubber.Load(testingRobject);
 
-        stubber.VerifyGet(mockObjectService);
+        stubber.VerifyGet(_mockObjectService);
 
         stubber.Get(testingRobject.DataValues[0]);
 
-        stubber.VerifyGet(mockObjectService, Times.Once());
+        stubber.VerifyGet(_mockObjectService, Times.Once());
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -238,7 +238,7 @@ public class ClientTest : ClientTestBase
         Assert.IsTrue(testingRvariable.Object.IsNull);
 
         //accessing void as single returns null object
-        stubber.SetUp(mockObjectService,
+        stubber.SetUp(_mockObjectService,
             id: Id("id3", "model"),
             operation: "operation",
             result: Void()
@@ -312,7 +312,7 @@ public class ClientTest : ClientTestBase
             Object(Id("id_result"))
         );
 
-        stubber.SetUp(mockObjectService,
+        stubber.SetUp(_mockObjectService,
             id: Id("id", "actual_model", "view_model"),
             operation: "operation",
             match: p =>
@@ -353,7 +353,7 @@ public class ClientTest : ClientTestBase
             Object(Id("id_result"))
         );
 
-        stubber.SetUp(mockObjectService,
+        stubber.SetUp(_mockObjectService,
             id: Id("id", "operational_model"),
             operation: "data_input",
             match: p =>
@@ -438,7 +438,7 @@ public class ClientTest : ClientTestBase
 
         ObjectsAre(Object(Id("id", "model")));
 
-        stubber.SetUp(mockObjectService,
+        stubber.SetUp(_mockObjectService,
             id: Id("id", "model"),
             operation: "operation1",
             result: Void()
@@ -539,10 +539,10 @@ public class ClientTest : ClientTestBase
 
         var actual = robj.Display;
         Assert.AreEqual("value", actual);
-        stubber.VerifyGet(mockObjectService, Times.Never());
+        stubber.VerifyGet(_mockObjectService, Times.Never());
 
         stubber.Load(robj);
-        stubber.VerifyGet(mockObjectService, Times.Never());
+        stubber.VerifyGet(_mockObjectService, Times.Never());
     }
 
     [Test]
@@ -601,7 +601,7 @@ public class ClientTest : ClientTestBase
     [Test]
     public void When_no_model_is_found_TypeNotFoundException_is_thrown()
     {
-        mockObjectService.Setup(o => o.ApplicationModel).Returns(new ApplicationModel());
+        _mockObjectService.Setup(o => o.ApplicationModel).Returns(new ApplicationModel());
 
         ObjectsAre(Object(Id("value", "model")));
 
@@ -651,7 +651,7 @@ public class ClientTest : ClientTestBase
         var value2 = testingRobject.Display;
 
         Assert.AreEqual("value", value2);
-        stubber.VerifyGet(mockObjectService, Times.Exactly(2));
+        stubber.VerifyGet(_mockObjectService, Times.Exactly(2));
     }
 
     [Test]

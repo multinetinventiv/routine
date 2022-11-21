@@ -7,8 +7,8 @@ public class ReflectionMethodInvokerSyncTest : ReflectionMethodInvokerContract
 {
     protected override object Invoke(IMethodInvoker invoker, object target, params object[] args) => invoker.Invoke(target, args);
 
-    private string testTaskAsyncResponse;
-    public async Task TestVoidAsync(TimeSpan delay, string response) { await Task.Delay(delay); testTaskAsyncResponse = response; }
+    private string _testTaskAsyncResponse;
+    public async Task TestVoidAsync(TimeSpan delay, string response) { await Task.Delay(delay); _testTaskAsyncResponse = response; }
 
     [Test]
     public void Given_an_async_method__it_waits_for_returned_task()
@@ -19,7 +19,7 @@ public class ReflectionMethodInvokerSyncTest : ReflectionMethodInvokerContract
 
         testing.Invoke(this, TimeSpan.FromMilliseconds(10), expected);
 
-        Assert.AreEqual(expected, testTaskAsyncResponse);
+        Assert.AreEqual(expected, _testTaskAsyncResponse);
     }
 
     public async Task<string> TestAsync(TimeSpan delay, string response) { await Task.Delay(delay); return response; }

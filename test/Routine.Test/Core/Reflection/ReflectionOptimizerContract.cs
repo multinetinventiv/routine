@@ -104,8 +104,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     private const BindingFlags ALL_MEMBERS = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
     private const BindingFlags ALL_INSTANCE_MEMBERS = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-    protected Mock<IOptimizedInterface<string>> mock;
-    protected OptimizedClass target;
+    protected Mock<IOptimizedInterface<string>> _mock;
+    protected OptimizedClass _target;
 
     public override void SetUp()
     {
@@ -113,9 +113,9 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         ReflectionOptimizer.Enable();
 
-        mock = new Mock<IOptimizedInterface<string>>();
+        _mock = new();
 
-        target = new OptimizedClass(mock.Object);
+        _target = new(_mock.Object);
     }
 
     protected IMethodInvoker InvokerFor<T>(string methodName) { return InvokerFor<T>(methodName, null); }
@@ -152,12 +152,12 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void ReflectionOptimizer_generates_and_compiles_code_to_invoke_given_method_via_invoker_interface()
     {
-        Invoke(InvokerFor<IOptimizedInterface<string>>("VoidMethod"), target);
-        Invoke(InvokerFor<OptimizedClass>("VoidMethod"), target);
-        Invoke(InvokerFor<IOptimizedInterface<string>>("ExplicitVoidMethod"), target);
+        Invoke(InvokerFor<IOptimizedInterface<string>>("VoidMethod"), _target);
+        Invoke(InvokerFor<OptimizedClass>("VoidMethod"), _target);
+        Invoke(InvokerFor<IOptimizedInterface<string>>("ExplicitVoidMethod"), _target);
 
-        mock.Verify(o => o.ExplicitVoidMethod(), Times.Once());
-        mock.Verify(o => o.VoidMethod(), Times.Exactly(2));
+        _mock.Verify(o => o.ExplicitVoidMethod(), Times.Once());
+        _mock.Verify(o => o.VoidMethod(), Times.Exactly(2));
     }
 
     [Test]
@@ -188,18 +188,18 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_void_method()
     {
-        var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("VoidMethod"), target);
+        var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("VoidMethod"), _target);
 
         Assert.IsNull(actual);
-        mock.Verify(o => o.VoidMethod(), Times.Once());
+        _mock.Verify(o => o.VoidMethod(), Times.Once());
     }
 
     [Test]
     public void Test_return_value()
     {
-        mock.Setup(o => o.StringMethod()).Returns("result");
+        _mock.Setup(o => o.StringMethod()).Returns("result");
 
-        var actual = Invoke(InvokerFor<OptimizedClass>("StringMethod"), target);
+        var actual = Invoke(InvokerFor<OptimizedClass>("StringMethod"), _target);
 
         Assert.AreEqual("result", actual);
     }
@@ -207,27 +207,27 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_generic_type_return()
     {
-        Invoke(InvokerFor<OptimizedClass>("ListMethod"), target);
+        Invoke(InvokerFor<OptimizedClass>("ListMethod"), _target);
     }
 
     [Test]
     public void Test_parameter()
     {
-        Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), target, "test");
-        Invoke(InvokerFor<OptimizedClass>("TwoParameterVoidMethod"), target, "test1", 1);
-        Invoke(InvokerFor<OptimizedClass>("ThreeParameterStringMethod"), target, "test2", 2, 0.2m);
+        Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, "test");
+        Invoke(InvokerFor<OptimizedClass>("TwoParameterVoidMethod"), _target, "test1", 1);
+        Invoke(InvokerFor<OptimizedClass>("ThreeParameterStringMethod"), _target, "test2", 2, 0.2m);
 
-        mock.Verify(o => o.OneParameterVoidMethod("test"), Times.Once());
-        mock.Verify(o => o.TwoParameterVoidMethod("test1", 1), Times.Once());
-        mock.Verify(o => o.ThreeParameterStringMethod("test2", 2, 0.2m), Times.Once());
+        _mock.Verify(o => o.OneParameterVoidMethod("test"), Times.Once());
+        _mock.Verify(o => o.TwoParameterVoidMethod("test1", 1), Times.Once());
+        _mock.Verify(o => o.ThreeParameterStringMethod("test2", 2, 0.2m), Times.Once());
     }
 
     [Test]
     public void When_null_is_given_for_a_value_type_parameter__default_value_of_that_type_is_used()
     {
-        Invoke(InvokerFor<OptimizedClass>("TwoParameterVoidMethod"), target, "dummy", null);
+        Invoke(InvokerFor<OptimizedClass>("TwoParameterVoidMethod"), _target, "dummy", null);
 
-        mock.Verify(o => o.TwoParameterVoidMethod(It.IsAny<string>(), 0), Times.Once());
+        _mock.Verify(o => o.TwoParameterVoidMethod(It.IsAny<string>(), 0), Times.Once());
     }
 
     [Test]
@@ -235,14 +235,14 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         try
         {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), target);
+            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target);
             Assert.Fail("exception not thrown");
         }
         catch (IndexOutOfRangeException) { }
 
         try
         {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), target, 0);
+            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, 0);
             Assert.Fail("exception not thrown");
         }
         catch (InvalidCastException) { }
@@ -251,21 +251,21 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_generic_type_parameter()
     {
-        Invoke(InvokerFor<OptimizedClass>("ListParameterVoidMethod"), target, new List<string>());
-        Invoke(InvokerFor<OptimizedClass>("ListListParameterVoidMethod"), target, new List<List<string>>());
-        Invoke(InvokerFor<OptimizedClass>("DictionaryParameterVoidMethod"), target, new Dictionary<string, object>());
+        Invoke(InvokerFor<OptimizedClass>("ListParameterVoidMethod"), _target, new List<string>());
+        Invoke(InvokerFor<OptimizedClass>("ListListParameterVoidMethod"), _target, new List<List<string>>());
+        Invoke(InvokerFor<OptimizedClass>("DictionaryParameterVoidMethod"), _target, new Dictionary<string, object>());
     }
 
     [Test]
     public void Test_generic_method()
     {
-        Invoke(InvokerFor<IOptimizedInterface<string>>("GenericParameterMethod"), target, "param");
+        Invoke(InvokerFor<IOptimizedInterface<string>>("GenericParameterMethod"), _target, "param");
 
-        mock.Verify(o => o.GenericParameterMethod("param"));
+        _mock.Verify(o => o.GenericParameterMethod("param"));
 
-        mock.Setup(o => o.GenericReturnMethod()).Returns("result");
+        _mock.Setup(o => o.GenericReturnMethod()).Returns("result");
 
-        var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("GenericReturnMethod"), target) as string;
+        var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("GenericReturnMethod"), _target) as string;
 
         Assert.AreEqual("result", actual);
     }
@@ -285,9 +285,9 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_property_get()
     {
-        mock.Setup(o => o.StringProperty).Returns("result");
+        _mock.Setup(o => o.StringProperty).Returns("result");
 
-        var actual = Invoke(InvokerFor<OptimizedClass>("get:StringProperty"), target);
+        var actual = Invoke(InvokerFor<OptimizedClass>("get:StringProperty"), _target);
 
         Assert.AreEqual("result", actual);
     }
@@ -295,9 +295,9 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_property_set()
     {
-        Invoke(InvokerFor<OptimizedClass>("set:StringProperty"), target, "result");
+        Invoke(InvokerFor<OptimizedClass>("set:StringProperty"), _target, "result");
 
-        mock.VerifySet(p => p.StringProperty = "result", Times.Once());
+        _mock.VerifySet(p => p.StringProperty = "result", Times.Once());
     }
 
     [Test]
@@ -312,9 +312,9 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_property_get_by_index()
     {
-        mock.Setup(o => o["key", 0]).Returns("result");
+        _mock.Setup(o => o["key", 0]).Returns("result");
 
-        var actual = Invoke(InvokerFor<OptimizedClass>("get:Item"), target, "key", 0);
+        var actual = Invoke(InvokerFor<OptimizedClass>("get:Item"), _target, "key", 0);
 
         Assert.AreEqual("result", actual);
     }
@@ -322,15 +322,15 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Test_property_set_by_index()
     {
-        Invoke(InvokerFor<OptimizedClass>("set:Item"), target, "key", 0, "result");
+        Invoke(InvokerFor<OptimizedClass>("set:Item"), _target, "key", 0, "result");
 
-        mock.VerifySet(o => o["key", 0] = "result", Times.Once());
+        _mock.VerifySet(o => o["key", 0] = "result", Times.Once());
     }
 
     [Test]
     public void Test_create_object()
     {
-        var actual = Invoke(InvokerFor<OptimizedClass>("new"), null, mock.Object);
+        var actual = Invoke(InvokerFor<OptimizedClass>("new"), null, _mock.Object);
         Assert.IsInstanceOf<OptimizedClass>(actual);
     }
 
@@ -378,11 +378,11 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void ReflectionOptimizer_uses_reflection_when_given_method_is_not_public()
     {
-        Invoke(InvokerFor<OptimizedClass>("PrivateVoidMethod"), target);
+        Invoke(InvokerFor<OptimizedClass>("PrivateVoidMethod"), _target);
 
-        mock.Verify(o => o.PrivateVoidMethod(), Times.Once());
+        _mock.Verify(o => o.PrivateVoidMethod(), Times.Once());
 
-        Invoke(InvokerFor<OptimizedClass.InnerClass>("new"), target);
+        Invoke(InvokerFor<OptimizedClass.InnerClass>("new"), _target);
     }
 
     [Test]
@@ -398,33 +398,33 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
             InvokerFor<OptimizedClass>("Overload", 1)
         };
 
-        Invoke(invokers[0], target, new List<string>());
-        Invoke(invokers[1], target);
-        Invoke(invokers[2], target);
-        Invoke(invokers[3], target, "test");
-        Invoke(invokers[4], target);
-        Invoke(invokers[5], target, 1);
+        Invoke(invokers[0], _target, new List<string>());
+        Invoke(invokers[1], _target);
+        Invoke(invokers[2], _target);
+        Invoke(invokers[3], _target, "test");
+        Invoke(invokers[4], _target);
+        Invoke(invokers[5], _target, 1);
 
-        mock.Verify(o => o.ListParameterVoidMethod(It.IsAny<List<string>>()), Times.Once());
-        mock.Verify(o => o.PrivateVoidMethod(), Times.Once());
-        mock.VerifyGet(o => o.StringProperty, Times.Once());
-        mock.VerifySet(o => o.StringProperty = It.IsAny<string>(), Times.Once());
-        mock.Verify(o => o.Overload(), Times.Once());
-        mock.Verify(o => o.Overload(It.IsAny<int>()), Times.Once());
+        _mock.Verify(o => o.ListParameterVoidMethod(It.IsAny<List<string>>()), Times.Once());
+        _mock.Verify(o => o.PrivateVoidMethod(), Times.Once());
+        _mock.VerifyGet(o => o.StringProperty, Times.Once());
+        _mock.VerifySet(o => o.StringProperty = It.IsAny<string>(), Times.Once());
+        _mock.Verify(o => o.Overload(), Times.Once());
+        _mock.Verify(o => o.Overload(It.IsAny<int>()), Times.Once());
     }
 
     [TestCase(nameof(OptimizedClass.VoidMethod))]
     [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
     public void Throws_exception_without_any_change(string method)
     {
-        mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
-        mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
+        _mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
+        _mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
 
         var testing = InvokerFor<OptimizedClass>(method);
 
         try
         {
-            Invoke(testing, target);
+            Invoke(testing, _target);
             Assert.Fail("exception not thrown");
         }
         catch (Exception ex)

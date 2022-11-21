@@ -67,7 +67,7 @@ public class HandleRequestHandlerTest : CoreTestBase
                 };
             }
 
-            return objectDictionary[referenceData];
+            return _objectDictionary[referenceData];
         });
         request.Setup(r => r.Headers).Returns(requestHeaders);
         request.Setup(r => r.QueryString).Returns(requestQueryString);

@@ -14,7 +14,7 @@ public class DataCompressorTest : CoreTestBase
     private DataCompressor Compressor() => Compressor(null);
     private DataCompressor Compressor(string knownViewModelId) => new(ApplicationModel, knownViewModelId);
 
-    private ApplicationModel ApplicationModel => new() { Models = objectModelDictionary.Values.ToList() };
+    private ApplicationModel ApplicationModel => new() { Models = _objectModelDictionary.Values.ToList() };
 
     #endregion
 

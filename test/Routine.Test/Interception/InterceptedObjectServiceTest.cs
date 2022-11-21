@@ -22,8 +22,8 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
 
         mock = new Mock<IObjectService>();
         mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
-        mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
-        mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => objectDictionary[id]);
+        mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => _objectDictionary[id]);
+        mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => _objectDictionary[id]);
 
         invoker = new TObjectServiceInvoker();
     }

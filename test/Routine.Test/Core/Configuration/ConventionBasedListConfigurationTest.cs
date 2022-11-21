@@ -9,38 +9,38 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 {
     #region Setup & Helpers
 
-    private Mock<ILayered> layeredMock;
-    private Mock<ILayered> otherLayeredMock;
+    private Mock<ILayered> _layeredMock;
+    private Mock<ILayered> _otherLayeredMock;
 
-    private ConventionBasedListConfiguration<ILayered, IType, string> testing;
-    private ConventionBasedListConfiguration<ILayered, IType, string> testingOther;
-    private ConventionBasedListConfiguration<ILayered, IType, string> testingOtherConfig;
+    private ConventionBasedListConfiguration<ILayered, IType, string> _testing;
+    private ConventionBasedListConfiguration<ILayered, IType, string> _testingOther;
+    private ConventionBasedListConfiguration<ILayered, IType, string> _testingOtherConfig;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        layeredMock = new Mock<ILayered>();
-        otherLayeredMock = new Mock<ILayered>();
+        _layeredMock = new();
+        _otherLayeredMock = new();
 
-        testing = new ConventionBasedListConfiguration<ILayered, IType, string>(layeredMock.Object, "test");
-        testingOther = new ConventionBasedListConfiguration<ILayered, IType, string>(layeredMock.Object, "test other");
-        testingOtherConfig = new ConventionBasedListConfiguration<ILayered, IType, string>(otherLayeredMock.Object, "test other config");
+        _testing = new(_layeredMock.Object, "test");
+        _testingOther = new(_layeredMock.Object, "test other");
+        _testingOtherConfig = new(_otherLayeredMock.Object, "test other config");
 
-        layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
-        otherLayeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
+        _layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
+        _otherLayeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
     }
 
     private void SetMoreSpecificLayer()
     {
-        var currentLayer = layeredMock.Object.CurrentLayer;
-        layeredMock.Setup(o => o.CurrentLayer).Returns(currentLayer.MoreSpecific());
+        var currentLayer = _layeredMock.Object.CurrentLayer;
+        _layeredMock.Setup(o => o.CurrentLayer).Returns(currentLayer.MoreSpecific());
     }
 
     private void SetOverrideMode()
     {
-        layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.MostSpecific);
+        _layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.MostSpecific);
     }
 
 
@@ -49,9 +49,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Returns_directly_given_convention_s_result()
     {
-        testing.Add(new[] { "result1", "result2" });
+        _testing.Add(new[] { "result1", "result2" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -61,10 +61,10 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Merges_conventions_s_results()
     {
-        testing.Add(new[] { "result1", "result2" });
-        testing.Add(new[] { "result3", "result4" });
+        _testing.Add(new[] { "result1", "result2" });
+        _testing.Add(new[] { "result3", "result4" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(4, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -76,10 +76,10 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Returns_distinct_result()
     {
-        testing.Add(new[] { "result1", "result2" });
-        testing.Add(new[] { "result2", "result3" });
+        _testing.Add(new[] { "result1", "result2" });
+        _testing.Add(new[] { "result2", "result3" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(3, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -90,10 +90,10 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Applies_only_applicable_conventions()
     {
-        testing.Add(new[] { "result1", "result2" }, _ => false);
-        testing.Add(new[] { "result3", "result4" });
+        _testing.Add(new[] { "result1", "result2" }, _ => false);
+        _testing.Add(new[] { "result3", "result4" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result3", actual[0]);
@@ -103,12 +103,12 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Merges_with_other_ConventionBasedListConfiguration_adding_other_s_conventions_to_the_end()
     {
-        testing.Add("result1");
-        testingOther.Add("result2");
+        _testing.Add("result1");
+        _testingOther.Add("result2");
 
-        testing.Merge(testingOther);
+        _testing.Merge(_testingOther);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -118,15 +118,15 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Can_override_empty_result_even_if_there_exists_other_applicable_conventions()
     {
-        testing.Add("result1");
-        testing.Add("result2");
-        testingOther.Add("result3");
+        _testing.Add("result1");
+        _testing.Add("result2");
+        _testingOther.Add("result3");
 
-        testing.AddNoneWhen(type.of<string>());
+        _testing.AddNoneWhen(type.of<string>());
 
-        testing.Merge(testingOther);
+        _testing.Merge(_testingOther);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(0, actual.Count);
     }
@@ -141,18 +141,18 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_set__convention_result_is_cached_for_a_given_input()
     {
-        testing = new ConventionBasedListConfiguration<ILayered, IType, string>(layeredMock.Object, "test", true);
+        _testing = new ConventionBasedListConfiguration<ILayered, IType, string>(_layeredMock.Object, "test", true);
 
         var conventionMock = new Mock<IConvention<IType, List<string>>>();
 
         conventionMock.Setup(o => o.AppliesTo(It.IsAny<IType>())).Returns(true);
         conventionMock.Setup(o => o.Apply(It.IsAny<IType>())).Returns((IType s) => new List<string> { s.FullName });
 
-        testing.Add(conventionMock.Object);
+        _testing.Add(conventionMock.Object);
 
-        testing.Get(type.of<string>());
-        testing.Get(type.of<string>());
-        testing.Get(type.of<int>());
+        _testing.Get(type.of<string>());
+        _testing.Get(type.of<string>());
+        _testing.Get(type.of<int>());
 
         conventionMock.Verify(o => o.AppliesTo(type.of<string>()), Times.Once);
         conventionMock.Verify(o => o.Apply(type.of<string>()), Times.Once);
@@ -164,11 +164,11 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     public void When_an_exception_occurs__wraps_with_ConfigurationException()
     {
         var expected = new Exception("inner");
-        testing.Add(c => c.By(_ => throw expected));
+        _testing.Add(c => c.By(_ => throw expected));
 
         try
         {
-            testing.Get(type.of<string>());
+            _testing.Get(type.of<string>());
 
             Assert.Fail("Exception not thrown");
         }
@@ -182,11 +182,11 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     public void When_a_ConfigurationException_occurs__simply_rethrows_it()
     {
         var expected = new ConfigurationException();
-        testing.Add(c => c.By(_ => throw expected));
+        _testing.Add(c => c.By(_ => throw expected));
 
         try
         {
-            testing.Get(type.of<string>());
+            _testing.Get(type.of<string>());
 
             Assert.Fail("Exception not thrown");
         }
@@ -199,10 +199,10 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void Applies_conventions_in_the_given_order()
     {
-        testing.Add(new[] { "result1", "result2" });
-        testing.Add(new[] { "result3", "result4" });
+        _testing.Add(new[] { "result1", "result2" });
+        _testing.Add(new[] { "result3", "result4" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(4, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -214,13 +214,13 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_layer_is_changed__conventions_are_ordered_first_by_their_layer_order_then_by_the_given_order()
     {
-        testing.Add(new[] { "result1", "result2" });
+        _testing.Add(new[] { "result1", "result2" });
 
         SetMoreSpecificLayer();
 
-        testing.Add(new[] { "result3", "result4" });
+        _testing.Add(new[] { "result3", "result4" });
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(4, actual.Count);
         Assert.AreEqual("result3", actual[0]);
@@ -232,15 +232,15 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_merging__conventions_remain_sorted_by_their_layer()
     {
-        testing.Add(new[] { "result1" });
+        _testing.Add(new[] { "result1" });
 
         SetMoreSpecificLayer();
 
-        testingOther.Add(new[] { "result2" });
+        _testingOther.Add(new[] { "result2" });
 
-        testing.Merge(testingOther);
+        _testing.Merge(_testingOther);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result2", actual[0]);
@@ -250,15 +250,15 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_merging_conventions_from_different_configuration__current_layer_is_added_to_given_conventions()
     {
-        testing.Add(new[] { "result1" });
+        _testing.Add(new[] { "result1" });
 
         SetMoreSpecificLayer();
 
-        testingOtherConfig.Add(new[] { "result2" });
+        _testingOtherConfig.Add(new[] { "result2" });
 
-        testing.Merge(testingOtherConfig);
+        _testing.Merge(_testingOtherConfig);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result2", actual[0]);
@@ -268,12 +268,12 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_merging_conventions_from_different_configuration__if_both_are_at_the_least_specific_layer__other_conventions_are_added_to_the_end()
     {
-        testing.Add(new[] { "result1" });
-        testingOtherConfig.Add(new[] { "result2" });
+        _testing.Add(new[] { "result1" });
+        _testingOtherConfig.Add(new[] { "result2" });
 
-        testing.Merge(testingOtherConfig);
+        _testing.Merge(_testingOtherConfig);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result1", actual[0]);
@@ -283,15 +283,15 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     [Test]
     public void When_merging__if_configuration_is_in_override_layer__other_conventions_added_in_override_layer_and_to_the_end()
     {
-        testing.Add(new[] { "result1" });
+        _testing.Add(new[] { "result1" });
 
         SetOverrideMode();
 
-        testingOtherConfig.Add(new[] { "result2" });
+        _testingOtherConfig.Add(new[] { "result2" });
 
-        testing.Merge(testingOtherConfig);
+        _testing.Merge(_testingOtherConfig);
 
-        var actual = testing.Get(type.of<string>());
+        var actual = _testing.Get(type.of<string>());
 
         Assert.AreEqual(2, actual.Count);
         Assert.AreEqual("result2", actual[0]);
