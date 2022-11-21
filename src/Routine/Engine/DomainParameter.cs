@@ -91,7 +91,7 @@ public class DomainParameter
     public bool IsList { get; }
     public bool IsOptional { get; }
 
-    private readonly object defaultValue;
+    private readonly object _defaultValue;
 
     private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
     {
@@ -105,7 +105,7 @@ public class DomainParameter
         IsList = parameter.ParameterType.CanBeCollection();
         IsOptional = ctx.CodingStyle.IsOptional(parameter);
 
-        defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
+        _defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
     }
 
     private void AddGroup(IParameter parameter, int groupIndex)
@@ -126,7 +126,7 @@ public class DomainParameter
             Groups = Groups,
             IsList = IsList,
             IsOptional = IsOptional,
-            DefaultValue = _ctx.CreateValueData(defaultValue, IsList, ParameterType, false)
+            DefaultValue = _ctx.CreateValueData(_defaultValue, IsList, ParameterType, false)
         };
 
     internal async Task<object> LocateAsync(ParameterValueData parameterValueData)

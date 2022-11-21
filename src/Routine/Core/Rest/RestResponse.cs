@@ -11,7 +11,7 @@ public class RestResponse
     public RestResponse(string body, IDictionary<string, string> headers)
     {
         Body = body;
-        Headers = new Dictionary<string, string>(headers);
+        Headers = new(headers);
     }
 
     #region ToString & Equality

@@ -287,7 +287,8 @@ namespace Routine.Test.Engine
             AddToRepository(new BusinessData
             {
                 Id = "obj",
-                SubDatas = new List<BusinessData> {
+                SubDatas = new()
+                {
                     _objectRepository["sub1"] as BusinessData,
                     _objectRepository["sub2"] as BusinessData
                 }

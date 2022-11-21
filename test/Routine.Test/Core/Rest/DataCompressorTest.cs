@@ -194,7 +194,7 @@ public class DataCompressorTest : CoreTestBase
         var data = new VariableData
         {
             IsList = false,
-            Values = new List<ObjectData>
+            Values = new()
             {
                 new()
                 {
@@ -218,7 +218,7 @@ public class DataCompressorTest : CoreTestBase
         var data = new VariableData
         {
             IsList = false,
-            Values = new List<ObjectData>()
+            Values = new()
         };
 
         var actual = Serialize(Compressor("mid").Compress(data));
@@ -242,8 +242,8 @@ public class DataCompressorTest : CoreTestBase
         );
 
         var data = new VariableData { IsList = true };
-        data.Values.Add(new ObjectData { Id = "id", ModelId = "mid", Display = "value" });
-        data.Values.Add(new ObjectData { Id = "id2", ModelId = "mid2", Display = "value2" });
+        data.Values.Add(new() { Id = "id", ModelId = "mid", Display = "value" });
+        data.Values.Add(new() { Id = "id2", ModelId = "mid2", Display = "value2" });
 
         var actual = Serialize(Compressor("vmid").Compress(data));
 
@@ -279,7 +279,7 @@ public class DataCompressorTest : CoreTestBase
         ModelsAre(Model("mid"));
 
         var data = new VariableData { IsList = true };
-        data.Values.Add(new ObjectData { Id = "id", ModelId = "mid" });
+        data.Values.Add(new() { Id = "id", ModelId = "mid" });
         data.Values.Add(null);
 
         var actual = Serialize(Compressor("mid").Compress(data));
@@ -302,10 +302,10 @@ public class DataCompressorTest : CoreTestBase
             Id = "id",
             ModelId = "mid",
             Display = "value",
-            Data = new Dictionary<string, VariableData>
+            Data = new()
             {
-                {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id",ModelId="mid2"}}}},
-                {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id",ModelId="mid2"}}}}
+                { "mmid1", new() { Values = new() { new() { Id = "mmid1_id", ModelId = "mid2" }}}},
+                { "mmid2", new() { Values = new() { new() { Id = "mmid2_id", ModelId = "mid2" }}}}
             }
         };
 
@@ -340,10 +340,10 @@ public class DataCompressorTest : CoreTestBase
             Id = "id",
             ModelId = "mid",
             Display = "value",
-            Data = new Dictionary<string, VariableData>
+            Data = new()
             {
-                {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id",ModelId="mid2"}}}},
-                {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id",ModelId="mid2"}}}}
+                { "mmid1", new() { Values = new() { new() { Id = "mmid1_id", ModelId = "mid2" }}}},
+                { "mmid2", new() { Values = new() { new() { Id = "mmid2_id", ModelId = "mid2" }}}}
             }
         };
 
@@ -374,7 +374,7 @@ public class DataCompressorTest : CoreTestBase
             Id = "id",
             ModelId = "mid",
             Display = display,
-            Data = new Dictionary<string, VariableData> { { "Name", null } }
+            Data = new() { { "Name", null } }
         };
 
         var actual = Serialize(Compressor("mid").Compress(data));
@@ -436,7 +436,7 @@ public class DataCompressorTest : CoreTestBase
 
         var data = new ParameterValueData
         {
-            Values = new List<ParameterData> { new() { ModelId = "mid", Id = "id" } }
+            Values = new() { new() { ModelId = "mid", Id = "id" } }
         };
 
         var actual = Serialize(Compressor("mid").Compress(data));
@@ -447,7 +447,7 @@ public class DataCompressorTest : CoreTestBase
 
         data = new ParameterValueData
         {
-            Values = new List<ParameterData> { null }
+            Values = new() { null }
         };
 
         actual = Serialize(Compressor("mid").Compress(data));
@@ -474,8 +474,8 @@ public class DataCompressorTest : CoreTestBase
         );
 
         var data = new ParameterValueData { IsList = true };
-        data.Values.Add(new ParameterData { Id = "id", ModelId = "mid" });
-        data.Values.Add(new ParameterData { Id = "id2", ModelId = "mid2" });
+        data.Values.Add(new() { Id = "id", ModelId = "mid" });
+        data.Values.Add(new() { Id = "id2", ModelId = "mid2" });
 
         var actual = Serialize(Compressor("vmid").Compress(data));
 
@@ -498,7 +498,7 @@ public class DataCompressorTest : CoreTestBase
         ModelsAre(Model("mid"));
 
         var data = new ParameterValueData { IsList = true };
-        data.Values.Add(new ParameterData { Id = "id", ModelId = "mid" });
+        data.Values.Add(new() { Id = "id", ModelId = "mid" });
         data.Values.Add(null);
 
         var actual = Serialize(Compressor("mid").Compress(data));
@@ -524,35 +524,35 @@ public class DataCompressorTest : CoreTestBase
         var data = new ParameterData
         {
             ModelId = "mid",
-            InitializationParameters = new Dictionary<string, ParameterValueData>
+            InitializationParameters = new()
             {
-                {"p1",new ParameterValueData{Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id1"}}}},
-                {"p2",null},
+                { "p1", new(){Values = new() { new() { ModelId = "mid", Id = "id1" }}}},
+                { "p2", null },
                 {
                     "p3",
-                    new ParameterValueData
+                    new()
                     {
                         IsList = true,
-                        Values = new List<ParameterData>
+                        Values = new()
                         {
-                            new() {ModelId = "mid", Id = "id3.1"},
-                            new() {ModelId = "mid", Id = "id3.2"}
+                            new() { ModelId = "mid", Id = "id3.1" },
+                            new() { ModelId = "mid", Id = "id3.2" }
                         }
                     }
                 },
                 {
                     "p4",
-                    new ParameterValueData
+                    new()
                     {
-                        Values = new List<ParameterData>
+                        Values = new()
                         {
                             new()
                             {
                                 ModelId = "mid",
-                                InitializationParameters = new Dictionary<string, ParameterValueData>
+                                InitializationParameters = new()
                                 {
-                                    {"p1",new ParameterValueData{Values = new List<ParameterData> {null}}},
-                                    {"p2",new ParameterValueData{Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id4.id2"}}}}
+                                    { "p1", new() { Values = new() { null }}},
+                                    { "p2", new() { Values = new() { new() { ModelId = "mid", Id = "id4.id2" }}}}
                                 }
                             }
                         }
@@ -599,10 +599,10 @@ public class DataCompressorTest : CoreTestBase
         var data = new ParameterData
         {
             ModelId = "mid",
-            InitializationParameters = new Dictionary<string, ParameterValueData>
+            InitializationParameters = new()
             {
-                {"p1", new ParameterValueData {Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id1"}}}},
-                {"p2", new ParameterValueData {Values = new List<ParameterData> {new() {ModelId = "mid", Id = "id2"}}}},
+                { "p1", new() { Values = new() { new() { ModelId = "mid", Id = "id1" }}}},
+                { "p2", new() { Values = new() { new() { ModelId = "mid", Id = "id2" }}}},
             }
         };
 
@@ -745,7 +745,8 @@ public class DataCompressorTest : CoreTestBase
         var expected = new VariableData
         {
             IsList = true,
-            Values = new List<ObjectData>{
+            Values = new()
+            {
                 new()
                 {
                     Id = "id", ModelId = "mid",
@@ -767,7 +768,8 @@ public class DataCompressorTest : CoreTestBase
         var expected = new VariableData
         {
             IsList = false,
-            Values = new List<ObjectData>{
+            Values = new()
+            {
                 new()
                 {
                     Id = "id",
@@ -790,7 +792,8 @@ public class DataCompressorTest : CoreTestBase
         var expected = new VariableData
         {
             IsList = false,
-            Values = new List<ObjectData>{
+            Values = new()
+            {
                 new()
                 {
                     Id = "id",
@@ -811,7 +814,7 @@ public class DataCompressorTest : CoreTestBase
         var expected = new VariableData
         {
             IsList = false,
-            Values = new List<ObjectData> { null }
+            Values = new() { null }
         };
 
         var actual = Compressor().DecompressVariableData(Deserialize("null"));
@@ -835,10 +838,10 @@ public class DataCompressorTest : CoreTestBase
             Id = "id",
             ModelId = "mid",
             Display = "id",
-            Data = new Dictionary<string, VariableData>
+            Data = new()
             {
-                {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}},
-                {"mmid2", new VariableData{Values=new List<ObjectData>{new() {Id="mmid2_id", ModelId="mid", Display="mmid2_id"}}}}
+                { "mmid1", new() { Values = new() { new() { Id = "mmid1_id", ModelId = "mid", Display = "mmid1_id" }}}},
+                { "mmid2", new() { Values = new() { new() { Id = "mmid2_id", ModelId = "mid", Display="mmid2_id" }}}}
             }
         };
 
@@ -866,9 +869,9 @@ public class DataCompressorTest : CoreTestBase
             Id = "id",
             ModelId = "mid",
             Display = "id",
-            Data = new Dictionary<string, VariableData>
+            Data = new()
             {
-                {"mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id", ModelId="mid", Display="mmid1_id"}}}}
+                { "mmid1", new VariableData{Values=new List<ObjectData>{new() {Id="mmid1_id", ModelId="mid", Display="mmid1_id" }}}}
             }
         };
 
@@ -924,7 +927,8 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterValueData
         {
             IsList = true,
-            Values = new List<ParameterData>{
+            Values = new()
+            {
                 new() { Id = "id", ModelId = "mid" }
             }
         };
@@ -942,7 +946,8 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterValueData
         {
             IsList = false,
-            Values = new List<ParameterData>{
+            Values = new()
+            {
                 new() { Id = "id", ModelId = "mid" }
             }
         };
@@ -958,7 +963,7 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterValueData
         {
             IsList = false,
-            Values = new List<ParameterData> { null }
+            Values = new() { null }
         };
 
         var actual = Compressor("mid").DecompressParameterValueData(Deserialize("null"));
@@ -1005,28 +1010,28 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterData
         {
             ModelId = "mid",
-            InitializationParameters = new Dictionary<string, ParameterValueData>
+            InitializationParameters = new()
             {
                 {
                     "p1",
-                    new ParameterValueData
+                    new()
                     {
-                        Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
+                        Values = new() { new() { Id = "p1_id", ModelId = "p1_mid" }}
                     }
                 },
                 {
                     "p2",
-                    new ParameterValueData
+                    new()
                     {
                         IsList = true,
-                        Values = new List<ParameterData> {new() {Id = "p2_id", ModelId = "p2_mid"}}
+                        Values = new() { new() { Id = "p2_id", ModelId = "p2_mid" }}
                     }
                 },
                 {
                     "p3",
-                    new ParameterValueData
+                    new()
                     {
-                        Values = new List<ParameterData> {null}
+                        Values = new() { null }
                     }
                 },
             }
@@ -1059,13 +1064,13 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterData
         {
             ModelId = "mid",
-            InitializationParameters = new Dictionary<string, ParameterValueData>
+            InitializationParameters = new()
             {
                 {
                     "p1",
                     new ParameterValueData
                     {
-                        Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
+                        Values = new() { new() { Id = "p1_id", ModelId = "p1_mid" }}
                     }
                 }
             }
@@ -1097,18 +1102,18 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterValueData
         {
             IsList = false,
-            Values = new List<ParameterData>
+            Values = new()
             {
                 new()
                 {
                     ModelId = "mid",
-                    InitializationParameters = new Dictionary<string, ParameterValueData>
+                    InitializationParameters = new()
                     {
                         {
                             "p1",
-                            new ParameterValueData
+                            new()
                             {
-                                Values = new List<ParameterData> {new() {Id = "p1_id", ModelId = "p1_mid"}}
+                                Values = new() { new() { Id = "p1_id", ModelId = "p1_mid" }}
                             }
                         }
                     }

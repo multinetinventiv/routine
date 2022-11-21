@@ -69,7 +69,7 @@ public class CorePerformanceTest
 
         for (var i = 0; i < subObjectCount; i++)
         {
-            result.Items.Add(new BusinessPerformanceSub
+            result.Items.Add(new()
             {
                 Id = id * (subObjectCount + 1) + i,
                 Prop1 = i + "_prop1",
@@ -222,8 +222,8 @@ public class CorePerformanceTest
                     {
                         ModelId = ord.ModelId,
                         Id = foundObj.Id.ToString(CultureInfo.InvariantCulture),
-                        Data = new Dictionary<string, VariableData>{
-                        {"Items", new VariableData {
+                        Data = new(){
+                        { "Items", new() {
                                 IsList = true,
                                 Values = foundObj.Items.Select(sub => new ObjectData{
                                     ModelId = subType,
@@ -231,14 +231,14 @@ public class CorePerformanceTest
                                     Display = sub.ToString(),
 
 										#region Prop1 - Prop10
-										Data = new Dictionary<string, VariableData>
+										Data = new ()
                                     {
                                         {
                                             "Prop1",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -251,10 +251,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop2",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -267,10 +267,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop3",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -283,10 +283,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop4",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -299,10 +299,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop5",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -315,10 +315,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop6",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -331,10 +331,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop7",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -347,10 +347,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop8",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -363,10 +363,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop9",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -379,10 +379,10 @@ public class CorePerformanceTest
                                         },
                                         {
                                             "Prop10",
-                                            new VariableData
+                                            new()
                                             {
                                                 IsList =  false,
-                                                Values = new List<ObjectData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -464,21 +464,21 @@ public class CorePerformanceTest
                 var _ = new VariableData
                 {
                     IsList = false,
-                    Values = new List<ObjectData> {
+                    Values = new() {
                         new()
                         {
                             Display = sub.ToString(),
                             ModelId = subType,
                             Id = sub.Id.ToString(CultureInfo.InvariantCulture),
 								#region Prop1 - Prop10
-								Data = new Dictionary<string, VariableData>
+								Data = new()
                             {
                                 {
                                     "Prop1",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -491,10 +491,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop2",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -507,10 +507,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop3",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -523,10 +523,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop4",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -539,10 +539,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop5",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -555,10 +555,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop6",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -571,10 +571,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop7",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -587,10 +587,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop8",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -603,10 +603,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop9",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -619,10 +619,10 @@ public class CorePerformanceTest
                                 },
                                 {
                                     "Prop10",
-                                    new VariableData
+                                    new()
                                     {
                                         IsList =  false,
-                                        Values = new List<ObjectData>
+                                        Values = new()
                                         {
                                             new()
                                             {
@@ -650,10 +650,10 @@ public class CorePerformanceTest
                     ViewModelId = objType,
                     Id = objId.ToString(CultureInfo.InvariantCulture)
                 };
-                var _ = _objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
-                {"index", new ParameterValueData {
+                var _ = _objectService.Do(ord, "GetSub", new(){
+                {"index", new() {
                         IsList = false,
-                        Values = new List<ParameterData> {
+                        Values = new() {
                             new()
                             {
                                 ModelId= "System.Int32",
@@ -713,7 +713,7 @@ public class CorePerformanceTest
             var parameters = new Dictionary<string, ParameterValueData>
             {
                 {
-                    "input", new ParameterValueData
+                    "input", new()
                     {
                         IsList = false,
                         Values = Enumerable
@@ -724,13 +724,13 @@ public class CorePerformanceTest
 									new ParameterData
                                 {
                                     ModelId = inputType,
-                                    InitializationParameters = new Dictionary<string, ParameterValueData>
+                                    InitializationParameters = new ()
                                     {
                                         {
-                                            "s", new ParameterValueData
+                                            "s", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -741,10 +741,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "i", new ParameterValueData
+                                            "i", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -755,10 +755,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s2", new ParameterValueData
+                                            "s2", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -769,10 +769,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s3", new ParameterValueData
+                                            "s3", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -783,10 +783,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s4", new ParameterValueData
+                                            "s4", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -836,7 +836,7 @@ public class CorePerformanceTest
             var parameters = new Dictionary<string, ParameterValueData>
             {
                 {
-                    "input", new ParameterValueData
+                    "input", new()
                     {
                         IsList = false,
                         Values = Enumerable
@@ -847,13 +847,13 @@ public class CorePerformanceTest
 									new ParameterData
                                 {
                                     ModelId = inputType,
-                                    InitializationParameters = new Dictionary<string, ParameterValueData>
+                                    InitializationParameters = new()
                                     {
                                         {
-                                            "s", new ParameterValueData
+                                            "s", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -864,10 +864,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "i", new ParameterValueData
+                                            "i", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -878,10 +878,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s2", new ParameterValueData
+                                            "s2", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -892,10 +892,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s3", new ParameterValueData
+                                            "s3", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {
@@ -906,10 +906,10 @@ public class CorePerformanceTest
                                             }
                                         },
                                         {
-                                            "s4", new ParameterValueData
+                                            "s4", new()
                                             {
                                                 IsList = false,
-                                                Values = new List<ParameterData>
+                                                Values = new()
                                                 {
                                                     new()
                                                     {

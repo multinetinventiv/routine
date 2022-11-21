@@ -447,7 +447,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
         {
-            Values = new List<ObjectData>
+            Values = new()
             {
                 Object(Id("2", "model", "viewmodel"))
                 .Display("model 2")
@@ -482,7 +482,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
         {
-            Values = new List<ObjectData>
+            Values = new()
             {
                 Object(Id("2", "model"))
                 .Display("model 2")
