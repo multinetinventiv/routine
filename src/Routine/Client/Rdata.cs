@@ -4,23 +4,23 @@ namespace Routine.Client;
 
 public class Rdata
 {
-    private readonly DataModel model;
+    private readonly DataModel _model;
 
     public Rtype Type { get; }
     public Rtype DataType { get; }
 
     public Rdata(DataModel model, Rtype type)
     {
-        this.model = model;
+        _model = model;
 
         Type = type;
         DataType = Application[model.ViewModelId];
     }
 
     public Rapplication Application => Type.Application;
-    public string Name => model.Name;
-    public bool IsList => model.IsList;
-    public HashSet<string> Marks => model.Marks;
+    public string Name => _model.Name;
+    public bool IsList => _model.IsList;
+    public HashSet<string> Marks => _model.Marks;
 
     public bool MarkedAs(string mark) => Marks.Contains(mark);
 
@@ -28,7 +28,7 @@ public class Rdata
 
     protected bool Equals(Rdata other)
     {
-        return Equals(Type, other.Type) && Equals(model, other.model);
+        return Equals(Type, other.Type) && Equals(_model, other._model);
     }
 
     public override bool Equals(object obj)
@@ -43,7 +43,7 @@ public class Rdata
     {
         unchecked
         {
-            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (_model != null ? _model.GetHashCode() : 0);
         }
     }
 
