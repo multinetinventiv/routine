@@ -31,7 +31,7 @@ jobs:
       #   false means pack & push is required
       action: ${{ steps.check.outputs.action }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Parse Version
         id: parse
         run: |
@@ -41,15 +41,15 @@ jobs:
           # 4. result is only version which is set to the $version variable
           version=$(cat Directory.Build.props | sed -n '/<Version>/p' | sed '/[ <>a-zA-Z\/]/ s///g')
           # value of $version is set as a step output
-          echo '::set-output name=version::'$version
+          echo "version="$version >> $GITHUB_OUTPUT
       - name: Check Version in NuGet
         id: check
         run: |
           if wget -q --method=HEAD https://api.nuget.org/v3-flatcontainer/Routine/${{ steps.parse.outputs.version }}/Routine.nuspec;
            then
-            echo '::set-output name=action::nothing'
+            echo "action=nothing" >> $GITHUB_OUTPUT
            else
-            echo '::set-output name=action::pack'
+            echo "action=pack" >> $GITHUB_OUTPUT
           fi
   pack-project:
     name: Pack Project
@@ -61,9 +61,9 @@ jobs:
     outputs:
       version: ${{ needs.check-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
             6.0.x
