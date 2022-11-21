@@ -8,7 +8,7 @@ namespace Routine.Service.RequestHandlers;
 
 public class HandleRequestHandler : RequestHandlerBase
 {
-    private readonly Func<Resolution, IRequestHandler> actionFactory;
+    private readonly Func<Resolution, IRequestHandler> _actionFactory;
 
     public HandleRequestHandler(
         IServiceContext serviceContext,
@@ -18,7 +18,7 @@ public class HandleRequestHandler : RequestHandlerBase
     )
         : base(serviceContext, jsonSerializer, httpContextAccessor)
     {
-        this.actionFactory = actionFactory;
+        _actionFactory = actionFactory;
     }
 
     public override async Task WriteResponse()
@@ -65,7 +65,7 @@ public class HandleRequestHandler : RequestHandlerBase
             return;
         }
 
-        await actionFactory(Resolve(
+        await _actionFactory(Resolve(
             model: model,
             idOrViewModelIdOrOperation: idOrViewModelIdOrOperation,
             viewModelIdOrOperation: viewModelIdOrOperation,

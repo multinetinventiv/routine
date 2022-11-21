@@ -9,15 +9,15 @@ namespace Routine.Service.RequestHandlers;
 
 public class DoRequestHandler : ObjectServiceRequestHandlerBase
 {
-    private readonly Resolution resolution;
+    private readonly Resolution _resolution;
 
     public DoRequestHandler(IServiceContext serviceContext, IJsonSerializer jsonSerializer, IHttpContextAccessor httpContextAccessor, Resolution resolution)
         : base(serviceContext, jsonSerializer, httpContextAccessor)
     {
-        this.resolution = resolution;
+        _resolution = resolution;
     }
 
-    protected override bool AllowGet => ServiceContext.ServiceConfiguration.GetAllowGet(resolution.ViewModel, resolution.OperationModel);
+    protected override bool AllowGet => ServiceContext.ServiceConfiguration.GetAllowGet(_resolution.ViewModel, _resolution.OperationModel);
     protected override async Task<object> Process()
     {
         var appModel = ApplicationModel;
@@ -26,9 +26,9 @@ public class DoRequestHandler : ObjectServiceRequestHandlerBase
         try
         {
             parameterValues = (await GetParameterDictionary())
-                .Where(kvp => resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
+                .Where(kvp => _resolution.OperationModel.Parameter.ContainsKey(kvp.Key))
                 .ToDictionary(kvp => kvp.Key, kvp =>
-                    new DataCompressor(appModel, resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
+                    new DataCompressor(appModel, _resolution.OperationModel.Parameter[kvp.Key].ViewModelId)
                         .DecompressParameterValueData(kvp.Value)
                 );
         }
@@ -41,8 +41,8 @@ public class DoRequestHandler : ObjectServiceRequestHandlerBase
             throw new BadRequestException(ex);
         }
 
-        var variableData = await ServiceContext.ObjectService.DoAsync(resolution.Reference, resolution.OperationModel.Name, parameterValues);
-        var compressor = new DataCompressor(appModel, resolution.OperationModel.Result.ViewModelId);
+        var variableData = await ServiceContext.ObjectService.DoAsync(_resolution.Reference, _resolution.OperationModel.Name, parameterValues);
+        var compressor = new DataCompressor(appModel, _resolution.OperationModel.Result.ViewModelId);
 
         return compressor.Compress(variableData);
     }

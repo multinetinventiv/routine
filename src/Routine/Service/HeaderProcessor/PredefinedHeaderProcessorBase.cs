@@ -3,20 +3,20 @@
 public abstract class PredefinedHeaderProcessorBase<TConcrete> : IHeaderProcessor
     where TConcrete : PredefinedHeaderProcessorBase<TConcrete>
 {
-    private readonly string[] headerKeys;
-    private Action<List<string>> processorDelegate;
+    private readonly string[] _headerKeys;
+    private Action<List<string>> _processorDelegate;
 
     protected PredefinedHeaderProcessorBase(params string[] headerKeys)
     {
-        this.headerKeys = headerKeys;
+        _headerKeys = headerKeys;
 
-        processorDelegate = _ => { };
+        _processorDelegate = _ => { };
     }
 
     protected void Process(IDictionary<string, string> responseHeaders)
     {
         var headers = new List<string>();
-        foreach (var headerKey in headerKeys)
+        foreach (var headerKey in _headerKeys)
         {
             if (!responseHeaders.TryGetValue(headerKey, out var header))
             {
@@ -26,10 +26,10 @@ public abstract class PredefinedHeaderProcessorBase<TConcrete> : IHeaderProcesso
             headers.Add(header);
         }
 
-        processorDelegate(headers);
+        _processorDelegate(headers);
     }
 
-    protected TConcrete Do(Action<List<string>> processorDelegate) { this.processorDelegate = processorDelegate; return (TConcrete)this; }
+    protected TConcrete Do(Action<List<string>> processorDelegate) { this._processorDelegate = processorDelegate; return (TConcrete)this; }
 
     #region IHeaderProcessor implementation
 

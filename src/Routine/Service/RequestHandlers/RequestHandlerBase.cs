@@ -47,12 +47,12 @@ public abstract class RequestHandlerBase : IRequestHandler
     protected bool IsPost => "POST".Equals(HttpContext.Request.Method, StringComparison.InvariantCultureIgnoreCase);
     protected ApplicationModel ApplicationModel => ServiceContext.ObjectService.ApplicationModel;
 
-    private static volatile Dictionary<string, List<ObjectModel>> modelIndex;
+    private static volatile Dictionary<string, List<ObjectModel>> _modelIndex;
     public static void ClearModelIndex()
     {
         lock (MODEL_INDEX_LOCK)
         {
-            modelIndex = null;
+            _modelIndex = null;
         }
     }
 
@@ -60,18 +60,18 @@ public abstract class RequestHandlerBase : IRequestHandler
     {
         get
         {
-            if (modelIndex == null)
+            if (_modelIndex == null)
             {
                 lock (MODEL_INDEX_LOCK)
                 {
-                    if (modelIndex == null)
+                    if (_modelIndex == null)
                     {
-                        modelIndex = BuildModelIndex();
+                        _modelIndex = BuildModelIndex();
                     }
                 }
             }
 
-            return modelIndex;
+            return _modelIndex;
         }
     }
 
