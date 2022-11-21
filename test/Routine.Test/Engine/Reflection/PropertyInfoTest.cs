@@ -8,59 +8,59 @@ namespace Routine.Test.Engine.Reflection;
 [TestFixture]
 public class PropertyInfoTest : ReflectionTestBase
 {
-    private System.Reflection.PropertyInfo propertyInfo;
-    private PropertyInfo testing;
+    private System.Reflection.PropertyInfo _propertyInfo;
+    private PropertyInfo _testing;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        propertyInfo = typeof(TestClass_OOP).GetProperty("PublicProperty");
-        testing = type.of<TestClass_OOP>().GetProperty("PublicProperty");
+        _propertyInfo = typeof(TestClass_OOP).GetProperty("PublicProperty");
+        _testing = type.of<TestClass_OOP>().GetProperty("PublicProperty");
     }
 
     [Test]
     public void System_PropertyInfo_is_wrapped_by_Routine_PropertyInfo()
     {
-        Assert.AreEqual(propertyInfo.Name, testing.Name);
-        Assert.AreEqual(propertyInfo.GetGetMethod()?.Name, testing.GetGetMethod().Name);
-        Assert.AreEqual(propertyInfo.GetSetMethod()?.Name, testing.GetSetMethod().Name);
-        Assert.AreSame(propertyInfo.DeclaringType, testing.DeclaringType.GetActualType());
-        Assert.AreSame(propertyInfo.ReflectedType, testing.ReflectedType.GetActualType());
-        Assert.AreSame(propertyInfo.PropertyType, testing.PropertyType.GetActualType());
+        Assert.AreEqual(_propertyInfo.Name, _testing.Name);
+        Assert.AreEqual(_propertyInfo.GetGetMethod()?.Name, _testing.GetGetMethod().Name);
+        Assert.AreEqual(_propertyInfo.GetSetMethod()?.Name, _testing.GetSetMethod().Name);
+        Assert.AreSame(_propertyInfo.DeclaringType, _testing.DeclaringType.GetActualType());
+        Assert.AreSame(_propertyInfo.ReflectedType, _testing.ReflectedType.GetActualType());
+        Assert.AreSame(_propertyInfo.PropertyType, _testing.PropertyType.GetActualType());
     }
 
     [Test, SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public void System_PropertyInfo_GetIndexParameters_is_wrapped_by_Routine_PropertyInfo()
     {
-        propertyInfo = typeof(TestClass_OOP).GetProperty("Item");
-        testing = type.of<TestClass_OOP>().GetProperty("Item");
+        _propertyInfo = typeof(TestClass_OOP).GetProperty("Item");
+        _testing = type.of<TestClass_OOP>().GetProperty("Item");
 
-        var expected = propertyInfo.GetIndexParameters();
-        var actual = testing.GetIndexParameters();
+        var expected = _propertyInfo.GetIndexParameters();
+        var actual = _testing.GetIndexParameters();
 
         foreach (var parameter in actual)
         {
-            Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), $"{parameter.Name} was not expected in index parameters of {propertyInfo}");
+            Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), $"{parameter.Name} was not expected in index parameters of {_propertyInfo}");
         }
 
         foreach (var parameter in expected)
         {
-            Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), $"{parameter.Name} was expected in index parameters of  {propertyInfo}");
+            Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), $"{parameter.Name} was expected in index parameters of  {_propertyInfo}");
         }
     }
 
     [Test]
     public void Routine_PropertyInfo_caches_wrapped_properties()
     {
-        Assert.AreSame(testing.Name, testing.Name);
-        Assert.AreSame(testing.GetGetMethod(), testing.GetGetMethod());
-        Assert.AreSame(testing.GetSetMethod(), testing.GetSetMethod());
-        Assert.AreSame(testing.DeclaringType, testing.DeclaringType);
-        Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
-        Assert.AreSame(testing.PropertyType, testing.PropertyType);
-        Assert.AreSame(testing.GetIndexParameters(), testing.GetIndexParameters());
+        Assert.AreSame(_testing.Name, _testing.Name);
+        Assert.AreSame(_testing.GetGetMethod(), _testing.GetGetMethod());
+        Assert.AreSame(_testing.GetSetMethod(), _testing.GetSetMethod());
+        Assert.AreSame(_testing.DeclaringType, _testing.DeclaringType);
+        Assert.AreSame(_testing.ReflectedType, _testing.ReflectedType);
+        Assert.AreSame(_testing.PropertyType, _testing.PropertyType);
+        Assert.AreSame(_testing.GetIndexParameters(), _testing.GetIndexParameters());
         Assert.AreSame(Attribute_Property("Class").GetCustomAttributes(), Attribute_Property("Class").GetCustomAttributes());
     }
 
@@ -72,17 +72,17 @@ public class PropertyInfoTest : ReflectionTestBase
             PublicProperty = "expected_get"
         };
 
-        Assert.AreEqual("expected_get", testing.GetValue(obj));
+        Assert.AreEqual("expected_get", _testing.GetValue(obj));
     }
 
     [Test]
     public void Routine_PropertyInfo_can_get_static_value()
     {
-        testing = OOP_StaticProperty("PublicStaticProperty");
+        _testing = OOP_StaticProperty("PublicStaticProperty");
 
         TestClass_OOP.PublicStaticProperty = "expected_get";
 
-        Assert.AreEqual("expected_get", testing.GetStaticValue());
+        Assert.AreEqual("expected_get", _testing.GetStaticValue());
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class PropertyInfoTest : ReflectionTestBase
     {
         var obj = new TestClass_OOP();
 
-        testing.SetValue(obj, "expected_set");
+        _testing.SetValue(obj, "expected_set");
 
         Assert.AreEqual("expected_set", obj.PublicProperty);
     }
@@ -98,9 +98,9 @@ public class PropertyInfoTest : ReflectionTestBase
     [Test]
     public void Routine_PropertyInfo_can_set_static_value()
     {
-        testing = OOP_StaticProperty("PublicStaticProperty");
+        _testing = OOP_StaticProperty("PublicStaticProperty");
 
-        testing.SetStaticValue("expected_set");
+        _testing.SetStaticValue("expected_set");
 
         Assert.AreEqual("expected_set", TestClass_OOP.PublicStaticProperty);
     }
@@ -108,31 +108,31 @@ public class PropertyInfoTest : ReflectionTestBase
     [Test]
     public void Routine_PropertyInfo_lists_custom_attributes_with_inherit_behaviour()
     {
-        testing = Attribute_Property("Class");
+        _testing = Attribute_Property("Class");
 
-        var actual = testing.GetCustomAttributes();
+        var actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
 
-        testing = Attribute_Property("Base");
+        _testing = Attribute_Property("Base");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
 
-        testing = Attribute_Property("Overridden");
+        _testing = Attribute_Property("Overridden");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(2, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
         Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
 
-        testing = Attribute_InterfaceProperty("Interface");
+        _testing = Attribute_InterfaceProperty("Interface");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
@@ -141,16 +141,16 @@ public class PropertyInfoTest : ReflectionTestBase
     [Test]
     public void Routine_PropertyInfo_lists_return_type_custom_attributes_of_its_get_method()
     {
-        testing = Attribute_Property("Class");
+        _testing = Attribute_Property("Class");
 
-        var actual = testing.GetReturnTypeCustomAttributes();
+        var actual = _testing.GetReturnTypeCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
 
-        testing = Attribute_Property("WriteOnly");
+        _testing = Attribute_Property("WriteOnly");
 
-        actual = testing.GetReturnTypeCustomAttributes();
+        actual = _testing.GetReturnTypeCustomAttributes();
 
         Assert.AreEqual(0, actual.Length);
     }

@@ -35,13 +35,13 @@ namespace Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData
     {
         public static BusinessValue Parse(string value) => new(value);
 
-        private readonly string value;
+        private readonly string _value;
         public BusinessValue(string value)
         {
-            this.value = value;
+            _value = value;
         }
 
-        public override string ToString() => value;
+        public override string ToString() => _value;
     }
 
     public class NotLocatable : IBusinessData
@@ -70,19 +70,19 @@ namespace Routine.Test.Engine
         protected override string DefaultModelId => ACTUAL_OMID;
         protected override string RootNamespace => "Routine.Test.Engine.Domain.ObjectServiceTest_GetObjectData";
 
-        private IObjectServiceInvoker invoker;
+        private IObjectServiceInvoker _invoker;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
-            codingStyle
+            _codingStyle
                 .Module.Set("Test", t => t.Namespace.StartsWith("Routine.Test"))
                 .ValueExtractor.Set(c => c.ValueByProperty(m => m.Returns<string>("Title")))
                 ;
 
-            invoker = new TObjectServiceInvoker();
+            _invoker = new TObjectServiceInvoker();
         }
 
         #endregion
@@ -92,7 +92,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj"));
+            var actual = _invoker.InvokeGet(_testing, Id("obj"));
 
             Assert.AreEqual("obj", actual.Id);
         }
@@ -104,7 +104,7 @@ namespace Routine.Test.Engine
 
             try
             {
-                invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
+                _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
                 Assert.Fail("exception not thrown");
             }
             catch (ConfigurationException ex)
@@ -116,7 +116,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Locating_and_id_extraction_is_done_via_actual_model_id__even_if_there_exists_a_view_model_id()
         {
-            codingStyle
+            _codingStyle
                 .IdExtractor.Set(c => c.Id(i => i.Constant("wrong")).When(type.of<IBusinessData>()))
                 .ValueExtractor.Set(c => c.Value(v => v.Constant("dummy")).When(type.of<IBusinessData>()))
                 .Locator.Set(c => c.Locator(l => l.Constant(new BusinessData { Id = "wrong" })).When(type.of<IBusinessData>()))
@@ -124,7 +124,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(new BusinessData { Id = "obj" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("obj", actual.Id);
         }
@@ -134,7 +134,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj"));
+            var actual = _invoker.InvokeGet(_testing, Id("obj"));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -142,13 +142,13 @@ namespace Routine.Test.Engine
         [Test]
         public void Value_is_extracted_using_corresponding_extractor_of_view_types()
         {
-            codingStyle
+            _codingStyle
                 .ValueExtractor.Set(c => c.Value(v => v.Constant("view value")).When(type.of<IBusinessData>()))
             ;
 
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("view value", actual.Display);
         }
@@ -156,13 +156,13 @@ namespace Routine.Test.Engine
         [Test]
         public void When_view_type_does_not_have_a_value_extractor__extractor_of_actual_type_is_used()
         {
-            codingStyle
+            _codingStyle
                 .ValueExtractor.Set(null, type.of<IBusinessData>())
             ;
 
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -170,9 +170,9 @@ namespace Routine.Test.Engine
         [Test]
         public void Value_is_id_when_model_is_value_type()
         {
-            var _ = testing.ApplicationModel;
+            var _ = _testing.ApplicationModel;
 
-            var actual = invoker.InvokeGet(testing, Id("sample", VALUE_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("sample", VALUE_OMID));
 
             Assert.AreEqual("sample", actual.Id);
             Assert.AreEqual("sample", actual.Display);
@@ -184,7 +184,7 @@ namespace Routine.Test.Engine
             var obj = new BusinessData { Id = "obj" };
             var objConverted = new BusinessData { Id = "obj_converted", Title = "Converted Obj Title" };
 
-            codingStyle
+            _codingStyle
                 .Override(cs => cs
                     .Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (_, _) => objConverted))
                                          .When(type.of<BusinessData>()))
@@ -195,7 +195,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Converted Obj Title", actual.Display);
         }
@@ -206,7 +206,7 @@ namespace Routine.Test.Engine
             var obj = new BusinessData { Id = "obj", Title = "Obj Title" };
             var objConverted = new BusinessData { Id = "obj_converted" };
 
-            codingStyle
+            _codingStyle
                 .Converters.Add(c => c.Convert(cb => cb.ToConstant(objConverted))
                                      .When(type.of<BusinessData>()))
                 .ValueExtractor.Set(null, type.of<IBusinessData>())
@@ -214,7 +214,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.AreEqual("Obj Title", actual.Display);
         }
@@ -224,7 +224,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
             Assert.IsTrue(actual.Data.ContainsKey("SubData"));
         }
@@ -235,7 +235,7 @@ namespace Routine.Test.Engine
             var obj = new BusinessData { Id = "obj" };
             var objConverted = new BusinessData { Id = "obj_converted" };
 
-            codingStyle
+            _codingStyle
                 .Override(cs => cs
                     .Converters.Add(c => c.Convert(cb => cb.By(type.of<IBusinessData>(), (_, _) => objConverted))
                                          .When(type.of<BusinessData>()))
@@ -244,7 +244,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(obj);
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualSubdata = actual.Data["SubData"].Values[0];
 
             Assert.AreEqual("sub_obj_converted", actualSubdata.Id);
@@ -255,7 +255,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = "Obj Title" });
 
-            var actual = invoker.InvokeGet(testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
+            var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualData = actual.Data["SubData"];
 
             Assert.AreEqual("sub_obj", actualData.Values[0].Id);
@@ -267,7 +267,7 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj", Title = null, NullableInt = null });
 
-            var actual = invoker.InvokeGet(testing, Id("obj"));
+            var actual = _invoker.InvokeGet(_testing, Id("obj"));
             var title = actual.Data["Title"];
             var nullableInt = actual.Data["NullableInt"];
 
@@ -278,7 +278,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Datas_are_fetched_eagerly_when_configured_so()
         {
-            codingStyle
+            _codingStyle
                 .DataFetchedEagerly.Set(true, m => m.Name == "SubDatas")
                 ;
 
@@ -288,12 +288,12 @@ namespace Routine.Test.Engine
             {
                 Id = "obj",
                 SubDatas = new List<BusinessData> {
-                    objectRepository["sub1"] as BusinessData,
-                    objectRepository["sub2"] as BusinessData
+                    _objectRepository["sub1"] as BusinessData,
+                    _objectRepository["sub2"] as BusinessData
                 }
             });
 
-            var actual = invoker.InvokeGet(testing, Id("obj"));
+            var actual = _invoker.InvokeGet(_testing, Id("obj"));
             var actualData = actual.Data["SubDatas"];
 
             Assert.AreEqual("sub1_1", actualData.Values[0].Data["Items"].Values[0].Id);
@@ -305,11 +305,11 @@ namespace Routine.Test.Engine
         [Test]
         public void When_data_type_cannot_be_located__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
         {
-            codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
+            _codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
 
             AddToRepository(new BusinessData { Id = "obj", NotLocatable = new NotLocatable { Title = "fetched eagerly" } });
 
-            var actual = invoker.InvokeGet(testing, Id("obj"));
+            var actual = _invoker.InvokeGet(_testing, Id("obj"));
             var actualDataValue = actual.Data["NotLocatable"].Values[0];
 
             Assert.IsTrue(actualDataValue.Data.ContainsKey("Title"), "Member was not fetched eagerly");
@@ -320,7 +320,7 @@ namespace Routine.Test.Engine
         [Test]
         public void When_data_type_is_locatable_but_actual_type_of_that_data_is_not_locatable__it_is_fetched_eagerly_no_matter_what_configuration_was_given()
         {
-            codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
+            _codingStyle.DataFetchedEagerly.Set(false, m => m.Returns<NotLocatable>("NotLocatable"));
 
             var subBusinessdata = new BusinessData { Id = "sub_businessdata" };
             var subNotlocatable = new NotLocatable { SubData = subBusinessdata, Title = "sub not locatable" };
@@ -330,7 +330,7 @@ namespace Routine.Test.Engine
             AddToRepository(subBusinessdata);
             AddToRepository(rootBusinessdata);
 
-            var actualRootBusinessdata = invoker.InvokeGet(testing, Id("root_businessdata"));
+            var actualRootBusinessdata = _invoker.InvokeGet(_testing, Id("root_businessdata"));
             var actualNotlocatable = actualRootBusinessdata.Data["NotLocatable"].Values[0];
 
             var actualSubNotlocatable = actualNotlocatable.Data["SubData"].Values[0];
@@ -347,7 +347,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Eager_fetching_is_allowed_to_a_max_depth_to_prevent_infinite_recursion()
         {
-            codingStyle.MaxFetchDepth.Set(2);
+            _codingStyle.MaxFetchDepth.Set(2);
 
             var notlocatable2 = new NotLocatable { Title = "notlocatable2" };
             var notlocatable1 = new NotLocatable { Title = "notlocatable1", SubData = notlocatable2 };
@@ -355,7 +355,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(rootBusinessdata);
 
-            Assert.Throws<MaxFetchDepthExceededException>(() => invoker.InvokeGet(testing, Id("root_businessdata")));
+            Assert.Throws<MaxFetchDepthExceededException>(() => _invoker.InvokeGet(_testing, Id("root_businessdata")));
         }
     }
 }

@@ -9,18 +9,18 @@ public class LocatorBaseTest
 
     private class TestLocator : LocatorBase<TestLocator>
     {
-        private readonly bool provideDifferentNumberOfObjects;
+        private readonly bool _provideDifferentNumberOfObjects;
 
         public TestLocator(bool provideDifferentNumberOfObjects)
         {
-            this.provideDifferentNumberOfObjects = provideDifferentNumberOfObjects;
+            _provideDifferentNumberOfObjects = provideDifferentNumberOfObjects;
         }
 
         protected override Task<List<object>> LocateAsync(IType type, List<string> ids)
         {
             var result = ids.Select(_ => (object)null).ToList();
 
-            if (provideDifferentNumberOfObjects)
+            if (_provideDifferentNumberOfObjects)
             {
                 result.Add(null);
             }

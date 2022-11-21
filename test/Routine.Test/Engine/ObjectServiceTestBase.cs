@@ -9,21 +9,21 @@ namespace Routine.Test.Engine;
 
 public abstract class ObjectServiceTestBase : CoreTestBase
 {
-    protected Dictionary<string, object> objectRepository;
+    protected Dictionary<string, object> _objectRepository;
 
-    protected ICoreContext ctx;
-    protected ConventionBasedCodingStyle codingStyle;
+    protected ICoreContext _ctx;
+    protected ConventionBasedCodingStyle _codingStyle;
 
-    protected ObjectService testing;
+    protected ObjectService _testing;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        objectRepository = new Dictionary<string, object>();
+        _objectRepository = new();
 
-        codingStyle = BuildRoutine.CodingStyle().FromBasic()
+        _codingStyle = BuildRoutine.CodingStyle().FromBasic()
             .AddTypes(GetType().Assembly, t => t.IsPublic && t.Namespace != null && t.Namespace.StartsWith(RootNamespace))
 
             .Initializers.Add(c => c.Constructors().When(t => t.IsValueType && t.Namespace?.StartsWith(RootNamespace) == true))
@@ -31,22 +31,22 @@ public abstract class ObjectServiceTestBase : CoreTestBase
             .Operations.Add(c => c.PublicMethods(m => !m.IsInherited()).When(t => t.Namespace?.StartsWith(RootNamespace) == true))
 
             .IdExtractor.Set(c => c.IdByProperty(p => p.Returns<string>("Id")).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace)))
-            .Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace) && t.Properties.Any(m => m.Returns<string>("Id"))))
+            .Locator.Set(c => c.Locator(l => l.SingleBy(id => _objectRepository[id])).When(t => t.Namespace != null && t.Namespace.StartsWith(RootNamespace) && t.Properties.Any(m => m.Returns<string>("Id"))))
 
             .NextLayer()
             ;
 
-        ctx = new DefaultCoreContext(codingStyle);
-        testing = new ObjectService(ctx, new DictionaryCache());
+        _ctx = new DefaultCoreContext(_codingStyle);
+        _testing = new(_ctx, new DictionaryCache());
     }
 
     protected void AddToRepository(object obj)
     {
-        var _ = testing.ApplicationModel;
+        var _ = _testing.ApplicationModel;
 
-        var idExtractor = ctx.CodingStyle.GetIdExtractor(obj.GetTypeInfo());
+        var idExtractor = _ctx.CodingStyle.GetIdExtractor(obj.GetTypeInfo());
         var id = idExtractor.GetId(obj);
-        objectRepository.Add(id, obj);
+        _objectRepository.Add(id, obj);
     }
 
     protected ReferenceData IdNull() => Id(null, null, null, true);

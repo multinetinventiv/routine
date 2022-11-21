@@ -12,25 +12,25 @@ namespace Routine.Test.Interception;
 public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
     where TObjectServiceInvoker : IObjectServiceInvoker, new()
 {
-    private Mock<IObjectService> mock;
-    private IObjectServiceInvoker invoker;
+    private Mock<IObjectService> _mock;
+    private IObjectServiceInvoker _invoker;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        mock = new Mock<IObjectService>();
-        mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
-        mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => _objectDictionary[id]);
-        mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => _objectDictionary[id]);
+        _mock = new Mock<IObjectService>();
+        _mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
+        _mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => _objectDictionary[id]);
+        _mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => _objectDictionary[id]);
 
-        invoker = new TObjectServiceInvoker();
+        _invoker = new TObjectServiceInvoker();
     }
 
     private InterceptedObjectService Build(
         Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration
-    ) => new(mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
+    ) => new(_mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
 
     [Test]
     public void ApplicationModel_property_is_intercepted_with_default_context()
@@ -75,7 +75,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
             )))
         );
 
-        invoker.InvokeGet(testing, Id("id", "model"));
+        _invoker.InvokeGet(testing, Id("id", "model"));
 
         Assert.IsTrue(hit);
     }
@@ -93,7 +93,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         );
 
         var _ = testing.ApplicationModel;
-        invoker.InvokeGet(testing, Id("id"));
+        _invoker.InvokeGet(testing, Id("id"));
 
         Assert.AreEqual(2, hitCount);
     }
@@ -113,7 +113,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         );
 
         var _ = testing.ApplicationModel;
-        invoker.InvokeGet(testing, Id("id"));
+        _invoker.InvokeGet(testing, Id("id"));
 
         Assert.AreEqual(1, hitCount);
     }

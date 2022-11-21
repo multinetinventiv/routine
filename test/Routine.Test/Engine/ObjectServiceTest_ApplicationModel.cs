@@ -48,7 +48,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Iterates_through_all_given_types_and_creates_ObjectModel_for_each_type()
         {
-            var actual = testing.ApplicationModel;
+            var actual = _testing.ApplicationModel;
 
             Assert.IsTrue(actual.Models.Any(m => m.Id == typeof(BusinessModel1).FullName), $"BusinessModel1 not found in {actual.Models.ToItemString()}");
             Assert.IsTrue(actual.Models.Any(m => m.Id == typeof(IBusinessModel2).FullName), $"BusinessModel2 not found in {actual.Models.ToItemString()}");
@@ -58,7 +58,7 @@ namespace Routine.Test.Engine
         [Test]
         public void Does_not_include_types_that_were_not_added()
         {
-            var actual = testing.ApplicationModel;
+            var actual = _testing.ApplicationModel;
 
             Assert.IsFalse(actual.Models.Any(m => m.Id == "Int64"), $"Int64 found in {actual.Models.ToItemString()}");
         }
@@ -66,8 +66,8 @@ namespace Routine.Test.Engine
         [Test]
         public void Application_model_should_be_cached()
         {
-            var expected = testing.ApplicationModel;
-            var actual = testing.ApplicationModel;
+            var expected = _testing.ApplicationModel;
+            var actual = _testing.ApplicationModel;
 
             Assert.AreSame(expected, actual);
         }
@@ -75,9 +75,9 @@ namespace Routine.Test.Engine
         [Test]
         public void Later_added_types_cause_an_invalidation_on_cached_types()
         {
-            codingStyle.AddTypes(typeof(BusinessModel4));
+            _codingStyle.AddTypes(typeof(BusinessModel4));
 
-            var actual = testing.ApplicationModel.Models.First(m => m.Name == "BusinessModel1");
+            var actual = _testing.ApplicationModel.Models.First(m => m.Name == "BusinessModel1");
 
             Assert.IsTrue(actual.Datas.Any(m => m.Name == "PropertyWithLaterAddedType"));
         }

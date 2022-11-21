@@ -10,15 +10,15 @@ public class VirtualMethodTest : CoreTestBase
 {
     #region Setup & Helpers
 
-    private Mock<IType> parentTypeMock;
-    private IType parentType;
+    private Mock<IType> _parentTypeMock;
+    private IType _parentType;
 
     public override void SetUp()
     {
         base.SetUp();
 
-        parentTypeMock = new Mock<IType>();
-        parentType = parentTypeMock.Object;
+        _parentTypeMock = new();
+        _parentType = _parentTypeMock.Object;
     }
 
     #endregion
@@ -26,24 +26,24 @@ public class VirtualMethodTest : CoreTestBase
     [Test]
     public void Parent_type_is_what_is_given_as_parent_type()
     {
-        IMethod testing = new VirtualMethod(parentType);
+        IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.AreSame(parentType, testing.ParentType);
+        Assert.AreSame(_parentType, testing.ParentType);
     }
 
     [Test]
     public void Declaring_type_is_always_the_given_parent_type()
     {
-        IMethod testing = new VirtualMethod(parentType);
+        IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.AreSame(parentType, testing.GetDeclaringType(false));
-        Assert.AreSame(parentType, testing.GetDeclaringType(true));
+        Assert.AreSame(_parentType, testing.GetDeclaringType(false));
+        Assert.AreSame(_parentType, testing.GetDeclaringType(true));
     }
 
     [Test]
     public void Virtual_methods_are_public()
     {
-        IMethod testing = new VirtualMethod(parentType);
+        IMethod testing = new VirtualMethod(_parentType);
 
         Assert.IsTrue(testing.IsPublic);
     }
@@ -51,13 +51,13 @@ public class VirtualMethodTest : CoreTestBase
     [Test]
     public void Name_is_required()
     {
-        IMethod testing = new VirtualMethod(parentType)
+        IMethod testing = new VirtualMethod(_parentType)
             .Name.Set("virtual")
         ;
 
         Assert.AreEqual("virtual", testing.Name);
 
-        testing = new VirtualMethod(parentType);
+        testing = new VirtualMethod(_parentType);
 
         Assert.Throws<ConfigurationException>(() => { var dummy = testing.Name; });
     }
@@ -67,13 +67,13 @@ public class VirtualMethodTest : CoreTestBase
     {
         var typeMock = new Mock<IType>();
 
-        IMethod testing = new VirtualMethod(parentType)
+        IMethod testing = new VirtualMethod(_parentType)
             .ReturnType.Set(typeMock.Object)
         ;
 
         Assert.AreSame(typeMock.Object, testing.ReturnType);
 
-        testing = new VirtualMethod(parentType);
+        testing = new VirtualMethod(_parentType);
 
         Assert.Throws<ConfigurationException>(() => { var dummy = testing.ReturnType; });
     }
@@ -407,18 +407,18 @@ public class VirtualMethodTest : CoreTestBase
     [Test]
     public void Strategy_for_getting_type_of_an_object_can_be_altered_so_that_when_coding_style_is_configured_for_a_custom_type_getting_strategy__it_can_be_applied_to_virtual_methods()
     {
-        parentTypeMock.Setup(o => o.CanBe(parentType)).Returns(true);
+        _parentTypeMock.Setup(o => o.CanBe(_parentType)).Returns(true);
 
-        IMethod testing = new VirtualMethod(parentType)
+        IMethod testing = new VirtualMethod(_parentType)
             .Name.Set("VirtualMethod")
             .Parameters.Add(p => p.Virtual()
                 .Name.Set("param1")
                 .Index.Set(0)
-                .ParameterType.Set(parentType)
+                .ParameterType.Set(_parentType)
             )
-            .ReturnType.Set(parentType)
+            .ReturnType.Set(_parentType)
             .Body.Set((target, parameters) => $"virtual -> {target} {parameters[0]}")
-            .TypeRetrieveStrategy.Set(_ => parentType)
+            .TypeRetrieveStrategy.Set(_ => _parentType)
         ;
 
         var actual = testing.PerformOn("target", "arg1");
@@ -429,7 +429,7 @@ public class VirtualMethodTest : CoreTestBase
     [Test]
     public void Not_supported_features()
     {
-        IMethod testing = new VirtualMethod(parentType);
+        IMethod testing = new VirtualMethod(_parentType);
 
         Assert.AreEqual(0, testing.GetCustomAttributes().Length);
         Assert.AreEqual(0, testing.GetReturnTypeCustomAttributes().Length);

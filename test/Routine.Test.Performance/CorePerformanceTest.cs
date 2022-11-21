@@ -14,22 +14,22 @@ public class CorePerformanceTest
 {
     #region Setup & Helpers
 
-    private Dictionary<string, object> objectRepository;
+    private Dictionary<string, object> _objectRepository;
 
-    private ICodingStyle codingStyle;
-    private IObjectService objectService;
-    private Rapplication rapp;
+    private ICodingStyle _codingStyle;
+    private IObjectService _objectService;
+    private Rapplication _rapp;
 
     [SetUp]
     public void SetUp()
     {
-        objectRepository = new Dictionary<string, object>();
+        _objectRepository = new();
 
         ReflectionOptimizer.Enable();
 
         var apiCtx = BuildRoutine.Context()
             .AsClientApplication(
-                codingStyle = BuildRoutine.CodingStyle()
+                _codingStyle = BuildRoutine.CodingStyle()
                     .FromBasic()
                     .AddCommonSystemTypes()
                     .AddTypes(GetType().Assembly, t => t.Namespace?.StartsWith("Routine.Test.Performance.Domain") == true)
@@ -41,22 +41,22 @@ public class CorePerformanceTest
                     .DataFetchedEagerly.Set(true)
                     .Operations.Add(c => c.Methods(o => !o.IsInherited(true, true)))
                     .IdExtractor.Set(c => c.IdByProperty(m => m.Returns<int>("Id")))
-                    .Locator.Set(c => c.Locator(l => l.SingleBy(id => objectRepository[id])))
+                    .Locator.Set(c => c.Locator(l => l.SingleBy(id => _objectRepository[id])))
                     .ValueExtractor.Set(c => c.Value(e => e.By(o => $"{o}")))
             );
 
-        objectService = apiCtx.ObjectService;
-        rapp = apiCtx.Application;
+        _objectService = apiCtx.ObjectService;
+        _rapp = apiCtx.Application;
 
-        var _ = objectService.ApplicationModel;
+        var _ = _objectService.ApplicationModel;
     }
 
     protected void AddToRepository(BusinessPerformance obj)
     {
-        objectRepository.Add(codingStyle.GetIdExtractor(obj.GetTypeInfo()).GetId(obj), obj);
+        _objectRepository.Add(_codingStyle.GetIdExtractor(obj.GetTypeInfo()).GetId(obj), obj);
         foreach (var sub in obj.Items)
         {
-            objectRepository.Add(codingStyle.GetIdExtractor(sub.GetTypeInfo()).GetId(sub), sub);
+            _objectRepository.Add(_codingStyle.GetIdExtractor(sub.GetTypeInfo()).GetId(sub), sub);
         }
     }
 
@@ -199,7 +199,7 @@ public class CorePerformanceTest
         var subType = typeof(BusinessPerformanceSub).FullName;
 
         AddToRepository(obj);
-        var __ = objectService.Get(new ReferenceData
+        var __ = _objectService.Get(new ReferenceData
         {
             ModelId = objType,
             ViewModelId = objType,
@@ -217,7 +217,7 @@ public class CorePerformanceTest
                         Id = objId.ToString(CultureInfo.InvariantCulture)
                     };
 
-                    var foundObj = (BusinessPerformance)objectRepository[ord.Id];
+                    var foundObj = (BusinessPerformance)_objectRepository[ord.Id];
                     var _ = new ObjectData
                     {
                         ModelId = ord.ModelId,
@@ -407,7 +407,7 @@ public class CorePerformanceTest
         #region engine
         var engineTime = Run("engine", () =>
                 {
-                    var _ = objectService.Get(new ReferenceData
+                    var _ = _objectService.Get(new ReferenceData
                     {
                         ModelId = objType,
                         ViewModelId = objType,
@@ -419,7 +419,7 @@ public class CorePerformanceTest
         #region client
         var clientTime = Run("client api", () =>
                 {
-                    var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType)["Items"].Get().List.Select(r => r.Display);
+                    var _ = _rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType)["Items"].Get().List.Select(r => r.Display);
                 }, load);
         #endregion
 
@@ -458,7 +458,7 @@ public class CorePerformanceTest
                     ViewModelId = objType,
                     Id = objId.ToString(CultureInfo.InvariantCulture)
                 };
-                var foundObj = (BusinessPerformance)objectRepository[ord.Id];
+                var foundObj = (BusinessPerformance)_objectRepository[ord.Id];
 
                 var sub = foundObj.GetSub(int.Parse("0"));
                 var _ = new VariableData
@@ -650,7 +650,7 @@ public class CorePerformanceTest
                     ViewModelId = objType,
                     Id = objId.ToString(CultureInfo.InvariantCulture)
                 };
-                var _ = objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
+                var _ = _objectService.Do(ord, "GetSub", new Dictionary<string, ParameterValueData>{
                 {"index", new ParameterValueData {
                         IsList = false,
                         Values = new List<ParameterData> {
@@ -670,8 +670,8 @@ public class CorePerformanceTest
         #region client
         var clientTime = Run("client api", () =>
             {
-                var rvar = rapp.NewVar("index", rapp.Get("0", "System.Int32"));
-                var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("GetSub", rvar);
+                var rvar = _rapp.NewVar("index", _rapp.Get("0", "System.Int32"));
+                var _ = _rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("GetSub", rvar);
             }, load);
 
         #endregion
@@ -812,7 +812,7 @@ public class CorePerformanceTest
                 Id = objId.ToString(CultureInfo.InvariantCulture)
             };
 
-            var foundObj = (BusinessPerformance)objectRepository[ord.Id];
+            var foundObj = (BusinessPerformance)_objectRepository[ord.Id];
 
             var parameter = parameters["input"];
             var _ = foundObj
@@ -933,27 +933,27 @@ public class CorePerformanceTest
                 ViewModelId = objType,
                 Id = objId.ToString(CultureInfo.InvariantCulture)
             };
-            var _ = objectService.Do(ord, "Create", parameters);
+            var _ = _objectService.Do(ord, "Create", parameters);
         }, load);
         #endregion
 
         #region client
         var clientTime = Run("client api", () =>
         {
-            var rvar = rapp.NewVarList("input",
+            var rvar = _rapp.NewVarList("input",
                 Enumerable
                     .Range(0, inputCount)
                     .Select(_ =>
-                        rapp.Init(inputType,
-                            rapp.NewVar("s", strIn, "System.String"),
-                            rapp.NewVar("i", intIn, "System.Int32"),
-                            rapp.NewVar("s2", strIn, "System.String"),
-                            rapp.NewVar("s3", strIn, "System.String"),
-                            rapp.NewVar("s4", strIn, "System.String")
+                        _rapp.Init(inputType,
+                            _rapp.NewVar("s", strIn, "System.String"),
+                            _rapp.NewVar("i", intIn, "System.Int32"),
+                            _rapp.NewVar("s2", strIn, "System.String"),
+                            _rapp.NewVar("s3", strIn, "System.String"),
+                            _rapp.NewVar("s4", strIn, "System.String")
                         )
                     )
                 );
-            var _ = rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("Create", rvar);
+            var _ = _rapp.Get(objId.ToString(CultureInfo.InvariantCulture), objType).Perform("Create", rvar);
         }, load);
 
         #endregion
