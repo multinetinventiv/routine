@@ -10,5 +10,5 @@ public class User
     }
 
     public string GetMessage() => $"Hello {Name}!";
-    public void Delete() => Users._users.Remove(this);
+    public void Delete() => Users.List.Remove(this);
 }
