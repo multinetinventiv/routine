@@ -9,7 +9,7 @@ public class Rvariable
     private readonly string _name;
     private readonly List<Robject> _value;
     private readonly bool _list;
-    private readonly bool @_void;
+    private readonly bool _void;
 
     internal Rvariable() : this(false) { }
     internal Rvariable(bool @void) : this(ANONYMOUS, new List<Robject>(), false, @void) { }
@@ -27,7 +27,7 @@ public class Rvariable
         _name = name;
         _value = value.ToList();
         _list = list;
-        @_void = @void;
+        _void = @void;
     }
 
     internal VariableData GetValueData() =>
@@ -50,13 +50,13 @@ public class Rvariable
 
     public string Name => _name;
     public bool IsList => _list;
-    public bool IsVoid => @_void;
+    public bool IsVoid => _void;
     public bool IsNull => Object.IsNull;
 
     public Robject Object => _value.Count <= 0 ? new() : _value[0];
     public List<Robject> List => _value;
 
-    public Rvariable CreateAlias(string name) => new(name, _value, _list, @_void);
+    public Rvariable CreateAlias(string name) => new(name, _value, _list, _void);
 
     public Rvariable ToSingle() => new(_name, Object);
     public Rvariable ToList() => new(_name, List);

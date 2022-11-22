@@ -10,7 +10,7 @@ public class InterceptedObjectService : IObjectService
 
     private readonly IInterceptor<InterceptionContext> _applicationModel;
     private readonly IInterceptor<InterceptionContext> _get;
-    private readonly IInterceptor<InterceptionContext> @_do;
+    private readonly IInterceptor<InterceptionContext> _do;
 
     public InterceptedObjectService(IObjectService real, IInterceptionConfiguration configuration)
     {
@@ -19,7 +19,7 @@ public class InterceptedObjectService : IObjectService
 
         _applicationModel = configuration.GetInterceptor(InterceptionTarget.ApplicationModel);
         _get = configuration.GetInterceptor(InterceptionTarget.Get);
-        @_do = configuration.GetInterceptor(InterceptionTarget.Do);
+        _do = configuration.GetInterceptor(InterceptionTarget.Do);
     }
 
     public ApplicationModel ApplicationModel => _applicationModel.Intercept(NewContext(), () => _real.ApplicationModel) as ApplicationModel;
@@ -32,7 +32,7 @@ public class InterceptedObjectService : IObjectService
         var context = NewContext(target, operation, parameters);
         var service = GetService(context);
 
-        return @_do.Intercept(context,
+        return _do.Intercept(context,
             () => service.Intercept(context,
                 () => _real.Do(context.TargetReference, context.OperationName, context.ParameterValues)
             )
@@ -44,7 +44,7 @@ public class InterceptedObjectService : IObjectService
         var context = NewContext(target, operation, parameters);
         var service = GetService(context);
 
-        return await @_do.InterceptAsync(context,
+        return await _do.InterceptAsync(context,
             async () => await service.InterceptAsync(context,
                 async () => await _real.DoAsync(context.TargetReference, context.OperationName, context.ParameterValues)
             )

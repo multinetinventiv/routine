@@ -4,7 +4,7 @@ public abstract class PreloadedTypeInfo : BaseTypeInfo
 {
     private string _name;
     private string _fullName;
-    private string @_namespace;
+    private string _namespace;
     private TypeInfo _baseType;
     private TypeInfo[] _genericArguments;
     private TypeInfo[] _interfaces;
@@ -13,7 +13,7 @@ public abstract class PreloadedTypeInfo : BaseTypeInfo
 
     public override string Name => _name;
     public override string FullName => _fullName;
-    public override string Namespace => @_namespace;
+    public override string Namespace => _namespace;
     public override TypeInfo BaseType => _baseType;
 
     protected PreloadedTypeInfo(Type type)
@@ -23,7 +23,7 @@ public abstract class PreloadedTypeInfo : BaseTypeInfo
     {
         _name = _type.Name;
         _fullName = _type.FullName;
-        @_namespace = _type.Namespace;
+        _namespace = _type.Namespace;
         _baseType = Get(_type.BaseType);
 
         _genericArguments = _type.GetGenericArguments().Select(Get).ToArray();
