@@ -4,7 +4,7 @@ namespace Routine.Engine.Virtual;
 
 public class VirtualMethod : IMethod
 {
-    private readonly IType parentType;
+    private readonly IType _parentType;
 
     public SingleConfiguration<VirtualMethod, string> Name { get; }
     public SingleConfiguration<VirtualMethod, IType> ReturnType { get; }
@@ -14,13 +14,13 @@ public class VirtualMethod : IMethod
 
     public VirtualMethod(IType parentType)
     {
-        this.parentType = parentType;
+        _parentType = parentType;
 
-        Name = new SingleConfiguration<VirtualMethod, string>(this, nameof(Name), true);
-        ReturnType = new SingleConfiguration<VirtualMethod, IType>(this, nameof(ReturnType), true);
-        Body = new SingleConfiguration<VirtualMethod, Func<object, object[], object>>(this, nameof(Body), true);
-        TypeRetrieveStrategy = new SingleConfiguration<VirtualMethod, Func<object, IType>>(this, nameof(TypeRetrieveStrategy), true);
-        Parameters = new ListConfiguration<VirtualMethod, IParameter>(this, nameof(Parameters));
+        Name = new(this, nameof(Name), true);
+        ReturnType = new(this, nameof(ReturnType), true);
+        Body = new(this, nameof(Body), true);
+        TypeRetrieveStrategy = new(this, nameof(TypeRetrieveStrategy), true);
+        Parameters = new(this, nameof(Parameters));
 
         TypeRetrieveStrategy.Set(o => o is VirtualObject vo ? vo.Type : o.GetTypeInfo());
     }
@@ -46,10 +46,10 @@ public class VirtualMethod : IMethod
             throw new NullReferenceException($"Cannot perform {Name.Get()} method on null target");
         }
 
-        if (!ValidateType(target, parentType))
+        if (!ValidateType(target, _parentType))
         {
             throw new InvalidCastException(
-                $"Parent type of '{Name.Get()}' method is configured as {parentType}, but given target is of type {GetType(target)}");
+                $"Parent type of '{Name.Get()}' method is configured as {_parentType}, but given target is of type {GetType(target)}");
         }
     }
 
@@ -106,7 +106,7 @@ public class VirtualMethod : IMethod
 
     object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
-    IType ITypeComponent.ParentType => parentType;
+    IType ITypeComponent.ParentType => _parentType;
     string ITypeComponent.Name => Name.Get();
 
     #endregion
@@ -129,7 +129,7 @@ public class VirtualMethod : IMethod
 
     bool IMethod.IsPublic => true;
 
-    IType IMethod.GetDeclaringType(bool firstDeclaringType) => parentType;
+    IType IMethod.GetDeclaringType(bool firstDeclaringType) => _parentType;
     object IMethod.PerformOn(object target, params object[] parameters) => Perform(target, parameters);
     Task<object> IMethod.PerformOnAsync(object target, params object[] parameters) => Task.FromResult(Perform(target, parameters));
 

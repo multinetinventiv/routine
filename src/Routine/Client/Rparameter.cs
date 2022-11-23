@@ -4,14 +4,14 @@ namespace Routine.Client;
 
 public class Rparameter
 {
-    private readonly ParameterModel model;
+    private readonly ParameterModel _model;
 
     public Rparametric Owner { get; }
     public Rtype ParameterType { get; }
 
     public Rparameter(ParameterModel model, Rparametric owner)
     {
-        this.model = model;
+        _model = model;
 
         Owner = owner;
 
@@ -20,14 +20,14 @@ public class Rparameter
 
     public Rapplication Application => Owner.Type.Application;
     public Rtype Type => Owner.Type;
-    public string Name => model.Name;
-    public bool IsList => model.IsList;
-    public List<int> Groups => model.Groups;
-    public HashSet<string> Marks => model.Marks;
+    public string Name => _model.Name;
+    public bool IsList => _model.IsList;
+    public List<int> Groups => _model.Groups;
+    public HashSet<string> Marks => _model.Marks;
 
-    public bool IsOptional => model.IsOptional;
+    public bool IsOptional => _model.IsOptional;
     public Rvariable Default =>
-        CreateVariable(model.DefaultValue.Values
+        CreateVariable(_model.DefaultValue.Values
             .Select(v => Application.Get(v.Id, v.ModelId))
             .ToList()
         );
@@ -54,7 +54,7 @@ public class Rparameter
 
     protected bool Equals(Rparameter other)
     {
-        return Equals(Owner, other.Owner) && Equals(model, other.model);
+        return Equals(Owner, other.Owner) && Equals(_model, other._model);
     }
 
     public override bool Equals(object obj)
@@ -70,7 +70,7 @@ public class Rparameter
     {
         unchecked
         {
-            return ((Owner != null ? Owner.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            return ((Owner != null ? Owner.GetHashCode() : 0) * 397) ^ (_model != null ? _model.GetHashCode() : 0);
         }
     }
 

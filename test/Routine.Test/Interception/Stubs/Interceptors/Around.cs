@@ -4,99 +4,99 @@ namespace Routine.Test.Interception.Stubs.Interceptors;
 
 public class Around : AroundInterceptorBase<Around, Context>
 {
-    private readonly int delay;
+    private readonly int _delay;
 
     public Around() : this(1) { }
     public Around(int delay)
     {
-        this.delay = delay;
+        _delay = delay;
     }
 
-    private Exception exceptionBefore;
-    public void FailOnBeforeWith(Exception exceptionBefore) => this.exceptionBefore = exceptionBefore;
+    private Exception _exceptionBefore;
+    public void FailOnBeforeWith(Exception exceptionBefore) => _exceptionBefore = exceptionBefore;
 
-    private object result;
-    public void CancelAndReturn(object result) => this.result = result;
+    private object _result;
+    public void CancelAndReturn(object result) => _result = result;
 
-    private object resultOverride;
-    public void OverrideActualResultWith(object resultOverride) => this.resultOverride = resultOverride;
+    private object _resultOverride;
+    public void OverrideActualResultWith(object resultOverride) => _resultOverride = resultOverride;
 
-    private Exception exceptionSuccess;
-    public void FailOnSuccessWith(Exception exceptionSuccess) => this.exceptionSuccess = exceptionSuccess;
+    private Exception _exceptionSuccess;
+    public void FailOnSuccessWith(Exception exceptionSuccess) => _exceptionSuccess = exceptionSuccess;
 
-    private object resultOnFail;
-    public void HideFailAndReturn(object resultOnFail) => this.resultOnFail = resultOnFail;
+    private object _resultOnFail;
+    public void HideFailAndReturn(object resultOnFail) => _resultOnFail = resultOnFail;
 
-    private Exception exception;
-    public void OverrideExceptionWith(Exception exception) => this.exception = exception;
+    private Exception _exception;
+    public void OverrideExceptionWith(Exception exception) => _exception = exception;
 
     protected override async Task OnBefore(Context context)
     {
-        await Task.Delay(delay);
+        await Task.Delay(_delay);
 
-        if (exceptionBefore != null)
+        if (_exceptionBefore != null)
         {
-            throw exceptionBefore;
+            throw _exceptionBefore;
         }
 
         context["before"] = true;
 
-        if (result != null)
+        if (_result != null)
         {
             context.Canceled = true;
-            context.Result = result;
+            context.Result = _result;
         }
     }
 
     protected override async Task OnSuccess(Context context)
     {
-        await Task.Delay(delay);
+        await Task.Delay(_delay);
 
-        if (exceptionSuccess != null)
+        if (_exceptionSuccess != null)
         {
-            throw exceptionSuccess;
+            throw _exceptionSuccess;
         }
 
         context["success"] = true;
 
-        if (resultOverride != null)
+        if (_resultOverride != null)
         {
-            context.Result = resultOverride;
+            context.Result = _resultOverride;
         }
     }
 
     protected override async Task OnFail(Context context)
     {
-        await Task.Delay(delay);
+        await Task.Delay(_delay);
 
         context["fail"] = true;
 
-        if (resultOnFail != null)
+        if (_resultOnFail != null)
         {
             context.ExceptionHandled = true;
-            context.Result = resultOnFail;
+            context.Result = _resultOnFail;
         }
 
-        if (exception != null)
+        if (_exception != null)
         {
-            context.Exception = exception;
+            context.Exception = _exception;
         }
     }
 
     protected override async Task OnAfter(Context context)
     {
-        await Task.Delay(delay);
+        await Task.Delay(_delay);
 
         context["after"] = true;
     }
 
     protected override bool CanIntercept(Context context) =>
-        key != null && context[key] != null || base.CanIntercept(context);
+        _key != null && context[_key] != null || base.CanIntercept(context);
 
-    private string key;
+    private string _key;
     public Around WhenContextHas(string key)
     {
-        this.key = key;
+        _key = key;
 
         return this;
     }

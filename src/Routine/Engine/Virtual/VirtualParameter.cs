@@ -4,7 +4,7 @@ namespace Routine.Engine.Virtual;
 
 public class VirtualParameter : IParameter
 {
-    private readonly IParametric owner;
+    private readonly IParametric _owner;
 
     public SingleConfiguration<VirtualParameter, string> Name { get; }
     public SingleConfiguration<VirtualParameter, IType> ParameterType { get; }
@@ -12,11 +12,11 @@ public class VirtualParameter : IParameter
 
     public VirtualParameter(IParametric owner)
     {
-        this.owner = owner;
+        _owner = owner;
 
-        Name = new SingleConfiguration<VirtualParameter, string>(this, nameof(Name), true);
-        ParameterType = new SingleConfiguration<VirtualParameter, IType>(this, nameof(ParameterType), true);
-        Index = new SingleConfiguration<VirtualParameter, int>(this, nameof(Index));
+        Name = new(this, nameof(Name), true);
+        ParameterType = new(this, nameof(ParameterType), true);
+        Index = new(this, nameof(Index));
     }
 
     #region ITypeComponent implementation
@@ -24,13 +24,13 @@ public class VirtualParameter : IParameter
     object[] ITypeComponent.GetCustomAttributes() => Array.Empty<object>();
 
     string ITypeComponent.Name => Name.Get();
-    IType ITypeComponent.ParentType => owner.ParentType;
+    IType ITypeComponent.ParentType => _owner.ParentType;
 
     #endregion
 
     #region IParameter implementation
 
-    IParametric IParameter.Owner => owner;
+    IParametric IParameter.Owner => _owner;
     IType IParameter.ParameterType => ParameterType.Get();
     int IParameter.Index => Index.Get();
     bool IParameter.IsOptional => false;

@@ -11,17 +11,17 @@ public class ConverterBaseTest : CoreTestBase
 
     private class TestConverter : ConverterBase<TestConverter>
     {
-        private readonly Func<object> conversionDelegate;
-        private readonly IType theOnlyAcceptedTargetType;
+        private readonly Func<object> _conversionDelegate;
+        private readonly IType _theOnlyAcceptedTargetType;
 
         public TestConverter(Func<object> conversionDelegate, IType theOnlyAcceptedTargetType)
         {
-            this.conversionDelegate = conversionDelegate;
-            this.theOnlyAcceptedTargetType = theOnlyAcceptedTargetType;
+            _conversionDelegate = conversionDelegate;
+            _theOnlyAcceptedTargetType = theOnlyAcceptedTargetType;
         }
 
-        protected override List<IType> GetTargetTypes(IType type) => new() { theOnlyAcceptedTargetType };
-        protected override object Convert(object @object, IType from, IType to) => conversionDelegate();
+        protected override List<IType> GetTargetTypes(IType type) => new() { _theOnlyAcceptedTargetType };
+        protected override object Convert(object @object, IType from, IType to) => _conversionDelegate();
     }
 
     #endregion

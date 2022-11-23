@@ -5,11 +5,11 @@ namespace Routine.Core.Reflection;
 
 public class ReflectionMethodInvoker : IMethodInvoker
 {
-    private readonly MethodBase method;
+    private readonly MethodBase _method;
 
     public ReflectionMethodInvoker(MethodBase method)
     {
-        this.method = method;
+        _method = method;
     }
 
     public object Invoke(object target, params object[] args)
@@ -36,16 +36,16 @@ public class ReflectionMethodInvoker : IMethodInvoker
     {
         try
         {
-            if (method.IsConstructor)
+            if (_method.IsConstructor)
             {
-                var ctor = (ConstructorInfo)method;
+                var ctor = (ConstructorInfo)_method;
 
                 return ctor.Invoke(args);
             }
 
-            if (!method.IsStatic && target == null) { throw new NullReferenceException(); }
+            if (!_method.IsStatic && target == null) { throw new NullReferenceException(); }
 
-            return method.Invoke(target, args);
+            return _method.Invoke(target, args);
         }
         catch (TargetInvocationException ex)
         {

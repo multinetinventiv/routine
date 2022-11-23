@@ -8,25 +8,25 @@ namespace Routine.Test.Engine.Reflection;
 [TestFixture]
 public class MethodInfoTest : ReflectionTestBase
 {
-    private System.Reflection.MethodInfo methodInfo;
-    private MethodInfo testing;
+    private System.Reflection.MethodInfo _methodInfo;
+    private MethodInfo _testing;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        methodInfo = typeof(TestClass_OOP).GetMethod("PublicMethod");
-        testing = type.of<TestClass_OOP>().GetMethod("PublicMethod");
+        _methodInfo = typeof(TestClass_OOP).GetMethod("PublicMethod");
+        _testing = type.of<TestClass_OOP>().GetMethod("PublicMethod");
     }
 
     [Test]
     public void System_MethodInfo_is_wrapped_by_Routine_MethodInfo()
     {
-        Assert.AreSame(methodInfo.Name, testing.Name);
-        Assert.AreSame(methodInfo.DeclaringType, testing.DeclaringType.GetActualType());
-        Assert.AreSame(methodInfo.ReflectedType, testing.ReflectedType.GetActualType());
-        Assert.AreSame(methodInfo.ReturnType, testing.ReturnType.GetActualType());
+        Assert.AreSame(_methodInfo.Name, _testing.Name);
+        Assert.AreSame(_methodInfo.DeclaringType, _testing.DeclaringType.GetActualType());
+        Assert.AreSame(_methodInfo.ReflectedType, _testing.ReflectedType.GetActualType());
+        Assert.AreSame(_methodInfo.ReturnType, _testing.ReturnType.GetActualType());
     }
 
     [TestCase("PublicMethod", "PublicMethodAsync")]
@@ -45,102 +45,102 @@ public class MethodInfoTest : ReflectionTestBase
     [Test, SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public void System_MethodInfo_GetParameters_is_wrapped_by_Routine_MethodInfo()
     {
-        methodInfo = typeof(TestClass_Members).GetMethod("FiveParameterMethod");
-        testing = type.of<TestClass_Members>().GetMethod("FiveParameterMethod");
+        _methodInfo = typeof(TestClass_Members).GetMethod("FiveParameterMethod");
+        _testing = type.of<TestClass_Members>().GetMethod("FiveParameterMethod");
 
-        var expected = methodInfo.GetParameters();
-        var actual = testing.GetParameters();
+        var expected = _methodInfo.GetParameters();
+        var actual = _testing.GetParameters();
 
         foreach (var parameter in actual)
         {
-            Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), parameter.Name + " was not expected in parameters of " + methodInfo);
+            Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), parameter.Name + " was not expected in parameters of " + _methodInfo);
         }
 
         foreach (var parameter in expected)
         {
-            Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), parameter.Name + " was expected in index parameters of " + methodInfo);
+            Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), parameter.Name + " was expected in index parameters of " + _methodInfo);
         }
     }
 
     [Test]
     public void Routine_MethodInfo_caches_wrapped_properties()
     {
-        Assert.AreSame(testing.Name, testing.Name);
-        Assert.AreSame(testing.DeclaringType, testing.DeclaringType);
-        Assert.AreSame(testing.ReflectedType, testing.ReflectedType);
-        Assert.AreSame(testing.ReturnType, testing.ReturnType);
-        Assert.AreSame(testing.GetParameters(), testing.GetParameters());
+        Assert.AreSame(_testing.Name, _testing.Name);
+        Assert.AreSame(_testing.DeclaringType, _testing.DeclaringType);
+        Assert.AreSame(_testing.ReflectedType, _testing.ReflectedType);
+        Assert.AreSame(_testing.ReturnType, _testing.ReturnType);
+        Assert.AreSame(_testing.GetParameters(), _testing.GetParameters());
         Assert.AreSame(Attribute_Method("Class").GetCustomAttributes(), Attribute_Method("Class").GetCustomAttributes());
     }
 
     [Test]
     public void Routine_MethodInfo_can_invoke_static_methods()
     {
-        testing = OOP_StaticMethod("PublicStaticPingMethod");
+        _testing = OOP_StaticMethod("PublicStaticPingMethod");
 
-        Assert.AreEqual("static test", testing.InvokeStatic("test"));
+        Assert.AreEqual("static test", _testing.InvokeStatic("test"));
     }
 
     [Test]
     public void Routine_MethodInfo_can_invoke_instance_methods()
     {
-        testing = OOP_Method("PublicPingMethod");
+        _testing = OOP_Method("PublicPingMethod");
 
         var obj = new TestClass_OOP();
 
-        Assert.AreEqual("instance test", testing.Invoke(obj, "test"));
+        Assert.AreEqual("instance test", _testing.Invoke(obj, "test"));
     }
 
     [Test]
     public void Routine_MethodInfo_can_invoke_default_interface_methods()
     {
-        testing = OOP_InterfaceMethod("DefaultInterfaceMethod");
+        _testing = OOP_InterfaceMethod("DefaultInterfaceMethod");
 
         var obj = new TestClass_OOP();
 
-        Assert.AreEqual("default interface test", testing.Invoke(obj, "test"));
+        Assert.AreEqual("default interface test", _testing.Invoke(obj, "test"));
     }
 
     [Test]
     public void Routine_MethodInfo_throws_null_exception_when_target_is_null()
     {
-        testing = OOP_Method("PublicPingMethod");
+        _testing = OOP_Method("PublicPingMethod");
 
-        Assert.Throws<NullReferenceException>(() => testing.Invoke(null, "test"));
+        Assert.Throws<NullReferenceException>(() => _testing.Invoke(null, "test"));
 
-        testing = OOP_Method("PrivateMethod");
+        _testing = OOP_Method("PrivateMethod");
 
-        Assert.Throws<NullReferenceException>(() => testing.Invoke(null, "test"));
+        Assert.Throws<NullReferenceException>(() => _testing.Invoke(null, "test"));
     }
 
     [Test]
     public void Routine_MethodInfo_lists_custom_attributes_with_inherit_behaviour()
     {
-        testing = Attribute_Method("Class");
+        _testing = Attribute_Method("Class");
 
-        var actual = testing.GetCustomAttributes();
+        var actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
 
-        testing = Attribute_Method("Base");
+        _testing = Attribute_Method("Base");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
 
-        testing = Attribute_Method("Overridden");
+        _testing = Attribute_Method("Overridden");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(2, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
         Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
 
-        testing = Attribute_InterfaceMethod("Interface");
+        _testing = Attribute_InterfaceMethod("Interface");
 
-        actual = testing.GetCustomAttributes();
+        actual = _testing.GetCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
@@ -149,9 +149,9 @@ public class MethodInfoTest : ReflectionTestBase
     [Test]
     public void Routine_MethodInfo_lists_return_type_custom_attributes_with_inherit_behaviour()
     {
-        testing = Attribute_Method("Class");
+        _testing = Attribute_Method("Class");
 
-        var actual = testing.GetReturnTypeCustomAttributes();
+        var actual = _testing.GetReturnTypeCustomAttributes();
 
         Assert.AreEqual(1, actual.Length);
         Assert.IsInstanceOf<TestClassAttribute>(actual[0]);

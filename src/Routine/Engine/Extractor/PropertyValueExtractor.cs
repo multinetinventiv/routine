@@ -2,19 +2,19 @@ namespace Routine.Engine.Extractor;
 
 public class PropertyValueExtractor : ExtractorBase
 {
-    private readonly IProperty property;
+    private readonly IProperty _property;
 
-    private Func<object, object, string> converterDelegate;
+    private Func<object, object, string> _converterDelegate;
 
     public PropertyValueExtractor(IProperty property)
     {
-        this.property = property ?? throw new ArgumentNullException(nameof(property));
+        _property = property ?? throw new ArgumentNullException(nameof(property));
 
         Return(result => result?.ToString());
     }
 
     public PropertyValueExtractor Return(Func<object, string> converterDelegate) => Return((o, _) => converterDelegate(o));
-    public PropertyValueExtractor Return(Func<object, object, string> converterDelegate) { this.converterDelegate = converterDelegate; return this; }
+    public PropertyValueExtractor Return(Func<object, object, string> converterDelegate) { _converterDelegate = converterDelegate; return this; }
 
     protected override string Extract(object obj)
     {
@@ -23,8 +23,8 @@ public class PropertyValueExtractor : ExtractorBase
             return null;
         }
 
-        var result = property.FetchFrom(obj);
+        var result = _property.FetchFrom(obj);
 
-        return converterDelegate(result, obj);
+        return _converterDelegate(result, obj);
     }
 }

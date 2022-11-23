@@ -4,25 +4,25 @@ namespace Routine.Service.RequestHandlers.Helper;
 
 public class Resolution
 {
-    private readonly ApplicationModel appModel;
-    private readonly string modelId;
-    private readonly string id;
-    private readonly string viewModelId;
-    private readonly string operation;
+    private readonly ApplicationModel _appModel;
+    private readonly string _modelId;
+    private readonly string _id;
+    private readonly string _viewModelId;
+    private readonly string _operation;
 
     public Resolution(ApplicationModel appModel, string modelId, string id, string viewModelId, string operation)
     {
-        this.appModel = appModel;
-        this.modelId = modelId;
-        this.id = id;
-        this.viewModelId = viewModelId;
-        this.operation = operation;
+        _appModel = appModel;
+        _modelId = modelId;
+        _id = id;
+        _viewModelId = viewModelId;
+        _operation = operation;
     }
 
-    public ReferenceData Reference => new() { Id = id, ModelId = modelId, ViewModelId = viewModelId };
-    public ObjectModel Model => appModel.Model[Reference.ModelId];
-    public ObjectModel ViewModel => appModel.Model[Reference.ViewModelId];
-    public OperationModel OperationModel => ViewModel.Operation[operation];
+    public ReferenceData Reference => new() { Id = _id, ModelId = _modelId, ViewModelId = _viewModelId };
+    public ObjectModel Model => _appModel.Model[Reference.ModelId];
+    public ObjectModel ViewModel => _appModel.Model[Reference.ViewModelId];
+    public OperationModel OperationModel => ViewModel.Operation[_operation];
 
-    public bool HasOperation => !string.IsNullOrWhiteSpace(operation);
+    public bool HasOperation => !string.IsNullOrWhiteSpace(_operation);
 }

@@ -18,44 +18,44 @@ public class HandleRequestHandlerTest : CoreTestBase
 {
     #region SetUp & Helpers
 
-    private Mock<IHttpContextAccessor> httpContextAccessor;
-    private Mock<IServiceContext> serviceContext;
-    private Mock<IObjectService> objectService;
-    private Mock<HttpRequest> request;
-    private Mock<HttpResponse> response;
-    private IHeaderDictionary requestHeaders;
-    private IHeaderDictionary responseHeaders;
-    private QueryString requestQueryString;
-    private IQueryCollection requestQuery;
-    private HandleRequestHandler testing;
-    private ConventionBasedServiceConfiguration config;
-    private Mock<IFeatureCollection> featureCollection;
-    private Mock<IHttpResponseFeature> httpResponseFeature;
-    private IJsonSerializer serializer;
+    private Mock<IHttpContextAccessor> _httpContextAccessor;
+    private Mock<IServiceContext> _serviceContext;
+    private Mock<IObjectService> _objectService;
+    private Mock<HttpRequest> _request;
+    private Mock<HttpResponse> _response;
+    private IHeaderDictionary _requestHeaders;
+    private IHeaderDictionary _responseHeaders;
+    private QueryString _requestQueryString;
+    private IQueryCollection _requestQuery;
+    private HandleRequestHandler _testing;
+    private ConventionBasedServiceConfiguration _config;
+    private Mock<IFeatureCollection> _featureCollection;
+    private Mock<IHttpResponseFeature> _httpResponseFeature;
+    private IJsonSerializer _serializer;
 
     public override void SetUp()
     {
         base.SetUp();
 
-        httpContextAccessor = new Mock<IHttpContextAccessor>();
+        _httpContextAccessor = new();
         var httpContext = new Mock<HttpContext>();
-        serviceContext = new Mock<IServiceContext>();
-        objectService = new Mock<IObjectService>();
-        request = new Mock<HttpRequest>();
-        response = new Mock<HttpResponse>();
-        featureCollection = new Mock<IFeatureCollection>();
-        httpResponseFeature = new Mock<IHttpResponseFeature>();
-        requestHeaders = new HeaderDictionary();
-        responseHeaders = new HeaderDictionary();
-        requestQueryString = new QueryString();
-        requestQuery = new QueryCollection();
-        serializer = new JsonSerializerAdapter();
+        _serviceContext = new();
+        _objectService = new();
+        _request = new();
+        _response = new();
+        _featureCollection = new();
+        _httpResponseFeature = new();
+        _requestHeaders = new HeaderDictionary();
+        _responseHeaders = new HeaderDictionary();
+        _requestQueryString = new();
+        _requestQuery = new QueryCollection();
+        _serializer = new JsonSerializerAdapter();
 
-        serviceContext.Setup(sc => sc.ObjectService).Returns(objectService.Object);
-        config = BuildRoutine.ServiceConfig().FromBasic();
-        serviceContext.Setup(sc => sc.ServiceConfiguration).Returns(config);
-        objectService.Setup(os => os.ApplicationModel).Returns(() => GetApplicationModel());
-        objectService.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData referenceData) =>
+        _serviceContext.Setup(sc => sc.ObjectService).Returns(_objectService.Object);
+        _config = BuildRoutine.ServiceConfig().FromBasic();
+        _serviceContext.Setup(sc => sc.ServiceConfiguration).Returns(_config);
+        _objectService.Setup(os => os.ApplicationModel).Returns(() => GetApplicationModel());
+        _objectService.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData referenceData) =>
         {
             if (referenceData.Id == null)
             {
@@ -67,51 +67,51 @@ public class HandleRequestHandlerTest : CoreTestBase
                 };
             }
 
-            return objectDictionary[referenceData];
+            return _objectDictionary[referenceData];
         });
-        request.Setup(r => r.Headers).Returns(requestHeaders);
-        request.Setup(r => r.QueryString).Returns(requestQueryString);
-        request.Setup(r => r.Query).Returns(requestQuery);
-        request.Setup(r => r.Method).Returns("POST");
-        request.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
+        _request.Setup(r => r.Headers).Returns(_requestHeaders);
+        _request.Setup(r => r.QueryString).Returns(_requestQueryString);
+        _request.Setup(r => r.Query).Returns(_requestQuery);
+        _request.Setup(r => r.Method).Returns("POST");
+        _request.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
 
         // https://stackoverflow.com/questions/34677203/testing-the-result-of-httpresponse-statuscode/34677864#34677864
-        response.SetupAllProperties();
-        response.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
-        response.Setup(r => r.Headers).Returns(responseHeaders);
-        httpContextAccessor.Setup(hca => hca.HttpContext).Returns(httpContext.Object);
-        httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(request.Object);
-        httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(response.Object);
-        httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(featureCollection.Object);
-        httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>()).Returns(httpResponseFeature.Object);
-        httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
+        _response.SetupAllProperties();
+        _response.Setup(r => r.Body).Returns(new MemoryStream()).Verifiable();
+        _response.Setup(r => r.Headers).Returns(_responseHeaders);
+        _httpContextAccessor.Setup(hca => hca.HttpContext).Returns(httpContext.Object);
+        _httpContextAccessor.Setup(hca => hca.HttpContext.Request).Returns(_request.Object);
+        _httpContextAccessor.Setup(hca => hca.HttpContext.Response).Returns(_response.Object);
+        _httpContextAccessor.Setup(hca => hca.HttpContext.Features).Returns(_featureCollection.Object);
+        _httpContextAccessor.Setup(hca => hca.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>()).Returns(_httpResponseFeature.Object);
+        _httpContextAccessor.Setup(hca => hca.HttpContext.Items).Returns(new Dictionary<object, object>());
 
         RequestHandlerBase.ClearModelIndex();
-        testing = new HandleRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object,
+        _testing = new HandleRequestHandler(_serviceContext.Object, _serializer, _httpContextAccessor.Object,
             actionFactory: resolution => resolution.HasOperation
-                ? new DoRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, resolution)
-                : new GetRequestHandler(serviceContext.Object, serializer, httpContextAccessor.Object, resolution)
+                ? new DoRequestHandler(_serviceContext.Object, _serializer, _httpContextAccessor.Object, resolution)
+                : new GetRequestHandler(_serviceContext.Object, _serializer, _httpContextAccessor.Object, resolution)
         );
     }
 
-    protected ObjectStubber When(ReferenceData referenceData) => new(objectService, referenceData);
+    protected ObjectStubber When(ReferenceData referenceData) => new(_objectService, referenceData);
 
     protected class ObjectStubber
     {
-        private readonly Mock<IObjectService> objectService;
-        private readonly ReferenceData referenceData;
+        private readonly Mock<IObjectService> _objectService;
+        private readonly ReferenceData _referenceData;
 
         public ObjectStubber(Mock<IObjectService> objectService, ReferenceData referenceData)
         {
-            this.objectService = objectService;
-            this.referenceData = referenceData;
+            _objectService = objectService;
+            _referenceData = referenceData;
         }
 
         public ISetup<IObjectService, Task<VariableData>> Performs(string operationName) => Performs(operationName, p => true);
         public ISetup<IObjectService, Task<VariableData>> Performs(string operationName, Expression<Func<Dictionary<string, ParameterValueData>, bool>> parameterMatcher) =>
-            objectService.Setup(o => o
+            _objectService.Setup(o => o
                 .DoAsync(
-                    referenceData,
+                    _referenceData,
                     operationName,
                     It.Is(parameterMatcher)
                 )
@@ -120,7 +120,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
     private void SetUpRequestBody(string body)
     {
-        var sw = new StreamWriter(request.Object.Body);
+        var sw = new StreamWriter(_request.Object.Body);
         sw.Write(body);
         sw.Flush();
     }
@@ -133,9 +133,9 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model"));
         ObjectsAre(Object(Id("3", "model")));
 
-        await testing.Handle("model", "3", null, null);
+        await _testing.Handle("model", "3", null, null);
 
-        objectService.Verify(os => os.GetAsync(Id("3", "model")));
+        _objectService.Verify(os => os.GetAsync(Id("3", "model")));
     }
 
     [Test]
@@ -145,9 +145,9 @@ public class HandleRequestHandlerTest : CoreTestBase
             Model("model").Operation("action", true)
         );
 
-        await testing.Handle("model", "3", "action", null);
+        await _testing.Handle("model", "3", "action", null);
 
-        objectService.Verify(os => os.DoAsync(Id("3", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(p => p.Count == 0)));
+        _objectService.Verify(os => os.DoAsync(Id("3", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(p => p.Count == 0)));
     }
 
     [Test]
@@ -170,84 +170,84 @@ public class HandleRequestHandlerTest : CoreTestBase
         );
 
         // /modelId
-        await testing.Handle("model", null, null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "model")));
+        await _testing.Handle("model", null, null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "model")));
 
         // /modelId-short
-        await testing.Handle("model2", null, null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2")));
+        await _testing.Handle("model2", null, null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2")));
 
         // /modelId/id
-        await testing.Handle("model", "instance", null, null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "model")));
+        await _testing.Handle("model", "instance", null, null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "model")));
 
         // /modelId-short/id
-        await testing.Handle("model2", "instance", null, null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2")));
+        await _testing.Handle("model2", "instance", null, null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2")));
 
         // /modelId/viewModelId
-        await testing.Handle("model", "viewmodel", null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "model", "viewmodel")));
+        await _testing.Handle("model", "viewmodel", null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "model", "viewmodel")));
 
         // /modelId-short/viewModelId
-        await testing.Handle("model2", "viewmodel", null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "viewmodel")));
+        await _testing.Handle("model2", "viewmodel", null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "viewmodel")));
 
         // /modelId/viewModelId-short
-        await testing.Handle("model", "viewmodel2", null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "model", "prefix.viewmodel2")));
+        await _testing.Handle("model", "viewmodel2", null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "model", "prefix.viewmodel2")));
 
         // /modelId-short/viewModelId-short
-        await testing.Handle("model2", "viewmodel2", null, null);
-        objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "prefix.viewmodel2")));
+        await _testing.Handle("model2", "viewmodel2", null, null);
+        _objectService.Verify(os => os.GetAsync(Id(null, "prefix.model2", "prefix.viewmodel2")));
 
         // /modelId/operation
-        await testing.Handle("model", "action", null, null);
-        objectService.Verify(os => os.DoAsync(Id(null, "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model", "action", null, null);
+        _objectService.Verify(os => os.DoAsync(Id(null, "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId-short/operation
-        await testing.Handle("model2", "action", null, null);
-        objectService.Verify(os => os.DoAsync(Id(null, "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model2", "action", null, null);
+        _objectService.Verify(os => os.DoAsync(Id(null, "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId/id/viewModelId
-        await testing.Handle("model", "instance", "viewmodel", null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "model", "viewmodel")));
+        await _testing.Handle("model", "instance", "viewmodel", null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "model", "viewmodel")));
 
         // /modelId-short/id/viewModelId
-        await testing.Handle("model2", "instance", "viewmodel", null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "viewmodel")));
+        await _testing.Handle("model2", "instance", "viewmodel", null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "viewmodel")));
 
         // /modelId/id/viewModelId-short
-        await testing.Handle("model", "instance", "viewmodel2", null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "model", "prefix.viewmodel2")));
+        await _testing.Handle("model", "instance", "viewmodel2", null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "model", "prefix.viewmodel2")));
 
         // /modelId-short/id/viewModelId-short
-        await testing.Handle("model2", "instance", "viewmodel2", null);
-        objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "prefix.viewmodel2")));
+        await _testing.Handle("model2", "instance", "viewmodel2", null);
+        _objectService.Verify(os => os.GetAsync(Id("instance", "prefix.model2", "prefix.viewmodel2")));
 
         // /modelId/id/operation
-        await testing.Handle("model", "instance", "action", null);
-        objectService.Verify(os => os.DoAsync(Id("instance", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model", "instance", "action", null);
+        _objectService.Verify(os => os.DoAsync(Id("instance", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId-short/id/operation
-        await testing.Handle("model2", "instance", "action", null);
-        objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model2", "instance", "action", null);
+        _objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId/id/viewModelId/operation
-        await testing.Handle("model", "instance", "viewmodel", "action");
-        objectService.Verify(os => os.DoAsync(Id("instance", "model", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model", "instance", "viewmodel", "action");
+        _objectService.Verify(os => os.DoAsync(Id("instance", "model", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId-short/id/viewModelId/operation
-        await testing.Handle("model2", "instance", "viewmodel", "action");
-        objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model2", "instance", "viewmodel", "action");
+        _objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "viewmodel"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId/id/viewModelId-short/operation
-        await testing.Handle("model", "instance", "viewmodel2", "action");
-        objectService.Verify(os => os.DoAsync(Id("instance", "model", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model", "instance", "viewmodel2", "action");
+        _objectService.Verify(os => os.DoAsync(Id("instance", "model", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
 
         // /modelId-short/id/viewModelId-short/operation
-        await testing.Handle("model2", "instance", "viewmodel2", "action");
-        objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
+        await _testing.Handle("model2", "instance", "viewmodel2", "action");
+        _objectService.Verify(os => os.DoAsync(Id("instance", "prefix.model2", "prefix.viewmodel2"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd => pvd.Count == 0)));
     }
 
     [Test]
@@ -256,20 +256,20 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model"));
         ObjectsAre(Object(Id("3", "model")));
 
-        request.Setup(r => r.Method).Returns("GET");
+        _request.Setup(r => r.Method).Returns("GET");
 
-        await testing.Handle("model", "3", null, null);
+        await _testing.Handle("model", "3", null, null);
 
-        objectService.Verify(os => os.GetAsync(Id("3", "model")));
+        _objectService.Verify(os => os.GetAsync(Id("3", "model")));
     }
 
     [Test]
     public async Task GET_method_is_available_for_only_configured_do_actions()
     {
-        request.Setup(r => r.Method).Returns("GET");
+        _request.Setup(r => r.Method).Returns("GET");
 
-        config.AllowGet.Set(true, m => m.OperationModel.Name == "get");
-        config.AllowGet.Set(false, m => m.OperationModel.Name == "post");
+        _config.AllowGet.Set(true, m => m.OperationModel.Name == "get");
+        _config.AllowGet.Set(false, m => m.OperationModel.Name == "post");
 
         ModelsAre(
             Model("model")
@@ -278,15 +278,15 @@ public class HandleRequestHandlerTest : CoreTestBase
         );
         ObjectsAre(Object(Id("3", "model")));
 
-        await testing.Handle("model", "3", "get", null);
+        await _testing.Handle("model", "3", "get", null);
 
-        objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
+        _objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "get", It.IsAny<Dictionary<string, ParameterValueData>>()));
 
-        await testing.Handle("model", "3", "post", null);
+        await _testing.Handle("model", "3", "post", null);
 
-        objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        _objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
     }
 
     [Test]
@@ -296,28 +296,28 @@ public class HandleRequestHandlerTest : CoreTestBase
             Model("model").Operation("action")
         );
 
-        request.Setup(r => r.Method).Returns("DELETE");
-        await testing.Handle("model", "action", null, null);
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        _request.Setup(r => r.Method).Returns("DELETE");
+        await _testing.Handle("model", "action", null, null);
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
-        request.Setup(r => r.Method).Returns("PUT");
-        await testing.Handle("model", "action", null, null);
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        _request.Setup(r => r.Method).Returns("PUT");
+        await _testing.Handle("model", "action", null, null);
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext.Response);
+        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
 
-        objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-        objectService.Verify(os => os.GetAsync(It.IsAny<ReferenceData>()), Times.Never());
+        _objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
+        _objectService.Verify(os => os.GetAsync(It.IsAny<ReferenceData>()), Times.Never());
     }
 
     [Test]
     public async Task When_given_model_id_does_not_exist__returns_404()
     {
-        await testing.Handle("nonexistingmodel", null, null, null);
+        await _testing.Handle("nonexistingmodel", null, null, null);
 
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-        Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), "StatusDescription should contain given model id");
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.IsTrue(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), "StatusDescription should contain given model id");
     }
 
     [Test]
@@ -325,12 +325,12 @@ public class HandleRequestHandlerTest : CoreTestBase
     {
         ModelsAre(Model("prefix1.model"), Model("prefix2.model"));
 
-        await testing.Handle("model", null, null, null);
+        await _testing.Handle("model", null, null, null);
 
-        var statusDescription = httpContextAccessor.Object.HttpContext?.Response.Headers["X-Status-Description"].ToString();
+        var statusDescription = _httpContextAccessor.Object.HttpContext?.Response.Headers["X-Status-Description"].ToString();
 
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
         Assert.IsTrue(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"),
             "Status description should contain available model ids");
     }
@@ -344,11 +344,11 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         SetUpRequestBody("{\"arg\":{\"ModelId\":\"nonexistingmodel\",\"Data\":{\"arg\":null}}}");
 
-        await testing.Handle("model", "action", null, null);
+        await _testing.Handle("model", "action", null, null);
 
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
-        Assert.IsTrue(httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.IsTrue(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
             "Status description should contain given model id");
     }
 
@@ -361,10 +361,10 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         SetUpRequestBody("{");
 
-        await testing.Handle("model", "action", null, null);
+        await _testing.Handle("model", "action", null, null);
 
-        Assert.IsNotNull(httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
+        Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
     }
 
     [Test]
@@ -375,12 +375,12 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model"));
         ObjectsAre(Object(Id("3", "model")));
 
-        requestHeaders.Add("test", "value");
+        _requestHeaders.Add("test", "value");
 
-        config.RequestHeaders.Add("test");
-        config.RequestHeaderProcessors.Add(header.Object);
+        _config.RequestHeaders.Add("test");
+        _config.RequestHeaderProcessors.Add(header.Object);
 
-        await testing.Handle("model", "3", null, null);
+        await _testing.Handle("model", "3", null, null);
 
         header.Verify(h => h.Process(It.Is<Dictionary<string, string>>(d =>
             d.ContainsKey("test") && d["test"] == "value"
@@ -395,12 +395,12 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model").Operation("action"));
         ObjectsAre(Object(Id("3", "model")));
 
-        requestHeaders.Add("test", "value");
+        _requestHeaders.Add("test", "value");
 
-        config.RequestHeaders.Add("test");
-        config.RequestHeaderProcessors.Add(header.Object);
+        _config.RequestHeaders.Add("test");
+        _config.RequestHeaderProcessors.Add(header.Object);
 
-        await testing.Handle("model", "3", "action", null);
+        await _testing.Handle("model", "3", "action", null);
 
         header.Verify(h => h.Process(It.Is<Dictionary<string, string>>(d =>
             d.ContainsKey("test") && d["test"] == "value"
@@ -412,12 +412,12 @@ public class HandleRequestHandlerTest : CoreTestBase
     {
         var header = new Mock<IHeaderProcessor>();
 
-        requestHeaders.Add("test", "value");
+        _requestHeaders.Add("test", "value");
 
-        config.RequestHeaders.Add("test");
-        config.RequestHeaderProcessors.Add(header.Object);
+        _config.RequestHeaders.Add("test");
+        _config.RequestHeaderProcessors.Add(header.Object);
 
-        await testing.Handle("model", "3", "action", null);
+        await _testing.Handle("model", "3", "action", null);
 
         header.Verify(h => h.Process(It.IsAny<Dictionary<string, string>>()), Times.Never());
     }
@@ -425,15 +425,15 @@ public class HandleRequestHandlerTest : CoreTestBase
     [Test]
     public async Task Configured_response_headers_are_put_into_response_headers()
     {
-        config.ResponseHeaders.Add("test");
-        config.ResponseHeaderValue.Set("value", "test");
+        _config.ResponseHeaders.Add("test");
+        _config.ResponseHeaderValue.Set("value", "test");
 
         ModelsAre(Model("model"));
         ObjectsAre(Object(Id("3", "model")));
 
-        await testing.Handle("model", "3", null, null);
+        await _testing.Handle("model", "3", null, null);
 
-        Assert.AreEqual("value", responseHeaders["test"]);
+        Assert.AreEqual("value", _responseHeaders["test"]);
     }
 
     [Test]
@@ -447,7 +447,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
         {
-            Values = new List<ObjectData>
+            Values = new()
             {
                 Object(Id("2", "model", "viewmodel"))
                 .Display("model 2")
@@ -456,7 +456,7 @@ public class HandleRequestHandlerTest : CoreTestBase
             }
         });
 
-        await testing.Handle("model", "2", "action", null);
+        await _testing.Handle("model", "2", "action", null);
         var body = "{" +
                    "\"Id\":\"2\"," +
                    "\"Display\":\"model 2\"," +
@@ -467,7 +467,7 @@ public class HandleRequestHandlerTest : CoreTestBase
                    "}" +
                    "}";
 
-        var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
+        var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
         Assert.AreEqual(body, actual);
     }
@@ -482,7 +482,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         When(Id("2", "model")).Performs("action").ReturnsAsync(new VariableData
         {
-            Values = new List<ObjectData>
+            Values = new()
             {
                 Object(Id("2", "model"))
                 .Display("model 2")
@@ -491,7 +491,7 @@ public class HandleRequestHandlerTest : CoreTestBase
             }
         });
 
-        await testing.Handle("model", "2", "action", null);
+        await _testing.Handle("model", "2", "action", null);
         var body = "{" +
                    "\"Id\":\"2\"," +
                    "\"Display\":\"model 2\"," +
@@ -501,7 +501,7 @@ public class HandleRequestHandlerTest : CoreTestBase
                    "}" +
                    "}";
 
-        var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
+        var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
         Assert.AreEqual(body, actual);
     }
@@ -515,9 +515,9 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         SetUpRequestBody("{\"arg\":\"3\"}");
 
-        await testing.Handle("model", "2", "action", null);
+        await _testing.Handle("model", "2", "action", null);
 
-        objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
+        _objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
             pvd.ContainsKey("arg") &&
             pvd["arg"].IsList == false &&
             pvd["arg"].Values.Count == 1 &&
@@ -540,7 +540,7 @@ public class HandleRequestHandlerTest : CoreTestBase
             .Data("data", Id("text", "string"))
         );
 
-        await testing.Handle("model", "3", null, null);
+        await _testing.Handle("model", "3", null, null);
         var body = "{" +
                    "\"Id\":\"3\"," +
                    "\"Display\":\"display\"," +
@@ -550,7 +550,7 @@ public class HandleRequestHandlerTest : CoreTestBase
                    "}" +
                    "}";
 
-        var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
+        var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
         Assert.AreEqual(body, actual);
     }
@@ -570,7 +570,7 @@ public class HandleRequestHandlerTest : CoreTestBase
             .Data("data", Id("text", "string"))
         );
 
-        await testing.Handle("model", "3", "viewmodel", null);
+        await _testing.Handle("model", "3", "viewmodel", null);
         var body = "{" +
                    "\"Id\":\"3\"," +
                    "\"Display\":\"display\"," +
@@ -581,7 +581,7 @@ public class HandleRequestHandlerTest : CoreTestBase
                    "}" +
                    "}";
 
-        var actual = Encoding.UTF8.GetString(((MemoryStream)httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
+        var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
         Assert.AreEqual(body, actual);
     }
@@ -595,9 +595,9 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         SetUpRequestBody("{\"arg\":\"3\"}");
 
-        await testing.Handle("model", "2", "action", null);
+        await _testing.Handle("model", "2", "action", null);
 
-        objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
+        _objectService.Verify(os => os.DoAsync(Id("2", "model"), "action", It.Is<Dictionary<string, ParameterValueData>>(pvd =>
             pvd.Count == 0
         )));
     }

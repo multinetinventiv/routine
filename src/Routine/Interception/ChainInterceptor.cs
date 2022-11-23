@@ -3,8 +3,8 @@
 public class ChainInterceptor<TContext> : IInterceptor<TContext>
     where TContext : InterceptionContext
 {
-    private IChainLinkInterceptor<TContext> first;
-    private IChainLinkInterceptor<TContext> last;
+    private IChainLinkInterceptor<TContext> _first;
+    private IChainLinkInterceptor<TContext> _last;
 
     public ChainInterceptor() : this(new List<IInterceptor<TContext>>()) { }
     public ChainInterceptor(IEnumerable<IInterceptor<TContext>> initialList)
@@ -19,37 +19,37 @@ public class ChainInterceptor<TContext> : IInterceptor<TContext>
     {
         var newLink = new AdapterChainLinkInterceptor<TContext>(interceptor);
 
-        if (first == null || last == null)
+        if (_first == null || _last == null)
         {
-            first = last = newLink;
+            _first = _last = newLink;
 
             return;
         }
 
-        last.Next = newLink;
-        last = newLink;
+        _last.Next = newLink;
+        _last = newLink;
     }
 
     public void Merge(ChainInterceptor<TContext> other)
     {
-        if (other.first == null || other.last == null) { return; }
+        if (other._first == null || other._last == null) { return; }
 
-        if (first == null || last == null)
+        if (_first == null || _last == null)
         {
-            first = other.first;
-            last = other.last;
+            _first = other._first;
+            _last = other._last;
 
             return;
         }
 
-        last.Next = other.first;
-        last = other.last;
+        _last.Next = other._first;
+        _last = other._last;
     }
 
     private async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) =>
-        first == null
+        _first == null
             ? await invocation()
-            : await first.InterceptAsync(context, invocation);
+            : await _first.InterceptAsync(context, invocation);
 
     #region IInterceptor<TContext> implementation
 

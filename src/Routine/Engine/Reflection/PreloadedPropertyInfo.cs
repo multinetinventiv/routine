@@ -2,66 +2,66 @@ namespace Routine.Engine.Reflection;
 
 public class PreloadedPropertyInfo : PropertyInfo
 {
-    private string name;
-    private TypeInfo declaringType;
-    private TypeInfo reflectedType;
-    private TypeInfo propertyType;
+    private string _name;
+    private TypeInfo _declaringType;
+    private TypeInfo _reflectedType;
+    private TypeInfo _propertyType;
 
-    private MethodInfo getMethod;
-    private MethodInfo setMethod;
-    private ParameterInfo[] indexParameters;
-    private TypeInfo firstDeclaringType;
+    private MethodInfo _getMethod;
+    private MethodInfo _setMethod;
+    private ParameterInfo[] _indexParameters;
+    private TypeInfo _firstDeclaringType;
 
-    private object[] customAttributes;
+    private object[] _customAttributes;
 
     internal PreloadedPropertyInfo(System.Reflection.PropertyInfo propertyInfo)
         : base(propertyInfo) { }
 
     protected override PropertyInfo Load()
     {
-        name = propertyInfo.Name;
-        declaringType = TypeInfo.Get(propertyInfo.DeclaringType);
-        reflectedType = TypeInfo.Get(propertyInfo.ReflectedType);
-        propertyType = TypeInfo.Get(propertyInfo.PropertyType);
+        _name = _propertyInfo.Name;
+        _declaringType = TypeInfo.Get(_propertyInfo.DeclaringType);
+        _reflectedType = TypeInfo.Get(_propertyInfo.ReflectedType);
+        _propertyType = TypeInfo.Get(_propertyInfo.PropertyType);
 
-        getMethod = propertyInfo.GetGetMethod(true) == null ? null : MethodInfo.Preloaded(propertyInfo.GetGetMethod(true));
-        setMethod = propertyInfo.GetSetMethod(true) == null ? null : MethodInfo.Preloaded(propertyInfo.GetSetMethod(true));
-        indexParameters = propertyInfo.GetIndexParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
+        _getMethod = _propertyInfo.GetGetMethod(true) == null ? null : MethodInfo.Preloaded(_propertyInfo.GetGetMethod(true));
+        _setMethod = _propertyInfo.GetSetMethod(true) == null ? null : MethodInfo.Preloaded(_propertyInfo.GetSetMethod(true));
+        _indexParameters = _propertyInfo.GetIndexParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
 
         if (IsIndexer)
         {
-            firstDeclaringType = DeclaringType;
+            _firstDeclaringType = DeclaringType;
         }
-        else if (getMethod != null)
+        else if (_getMethod != null)
         {
-            firstDeclaringType = getMethod.GetFirstDeclaringType();
+            _firstDeclaringType = _getMethod.GetFirstDeclaringType();
         }
-        else if (setMethod != null)
+        else if (_setMethod != null)
         {
-            firstDeclaringType = setMethod.GetFirstDeclaringType();
+            _firstDeclaringType = _setMethod.GetFirstDeclaringType();
         }
         else
         {
-            firstDeclaringType = DeclaringType;
+            _firstDeclaringType = DeclaringType;
         }
 
         //propertyInfo.GetCustomAttributes(true) does not retrieve attributes from inherited properties.
-        customAttributes = Attribute.GetCustomAttributes(propertyInfo, true).Cast<object>().ToArray();
+        _customAttributes = Attribute.GetCustomAttributes(_propertyInfo, true).Cast<object>().ToArray();
 
         return this;
     }
 
-    public override string Name => name;
-    public override TypeInfo DeclaringType => declaringType;
-    public override TypeInfo ReflectedType => reflectedType;
-    public override TypeInfo PropertyType => propertyType;
+    public override string Name => _name;
+    public override TypeInfo DeclaringType => _declaringType;
+    public override TypeInfo ReflectedType => _reflectedType;
+    public override TypeInfo PropertyType => _propertyType;
 
-    public override MethodInfo GetGetMethod() => getMethod;
-    public override MethodInfo GetSetMethod() => setMethod;
-    public override ParameterInfo[] GetIndexParameters() => indexParameters;
-    public override TypeInfo GetFirstDeclaringType() => firstDeclaringType;
-    public override object GetValue(object target, params object[] index) => getMethod.Invoke(target, index);
-    public override object GetStaticValue(params object[] index) => getMethod.InvokeStatic(index);
+    public override MethodInfo GetGetMethod() => _getMethod;
+    public override MethodInfo GetSetMethod() => _setMethod;
+    public override ParameterInfo[] GetIndexParameters() => _indexParameters;
+    public override TypeInfo GetFirstDeclaringType() => _firstDeclaringType;
+    public override object GetValue(object target, params object[] index) => _getMethod.Invoke(target, index);
+    public override object GetStaticValue(params object[] index) => _getMethod.InvokeStatic(index);
 
     public override void SetValue(object target, object value, params object[] index)
     {
@@ -71,7 +71,7 @@ public class PreloadedPropertyInfo : PropertyInfo
         {
             parameters[i + 1] = index[i];
         }
-        setMethod.Invoke(target, parameters);
+        _setMethod.Invoke(target, parameters);
     }
 
     public override void SetStaticValue(object value, params object[] index)
@@ -82,12 +82,12 @@ public class PreloadedPropertyInfo : PropertyInfo
         {
             parameters[i + 1] = index[i];
         }
-        setMethod.Invoke(null, value, index);
+        _setMethod.Invoke(null, value, index);
     }
 
-    public override object[] GetCustomAttributes() => customAttributes;
+    public override object[] GetCustomAttributes() => _customAttributes;
     public override object[] GetReturnTypeCustomAttributes() =>
-        getMethod == null
+        _getMethod == null
             ? Array.Empty<object>()
-            : getMethod.GetReturnTypeCustomAttributes();
+            : _getMethod.GetReturnTypeCustomAttributes();
 }

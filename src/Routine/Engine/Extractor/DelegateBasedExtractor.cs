@@ -2,12 +2,12 @@
 
 public class DelegateBasedExtractor : ExtractorBase
 {
-    private readonly Func<object, string> extractorDelegate;
+    private readonly Func<object, string> _extractorDelegate;
 
     public DelegateBasedExtractor(Func<object, string> extractorDelegate)
     {
-        this.extractorDelegate = extractorDelegate ?? throw new ArgumentNullException(nameof(extractorDelegate));
+        _extractorDelegate = extractorDelegate ?? throw new ArgumentNullException(nameof(extractorDelegate));
     }
 
-    protected override string Extract(object obj) => extractorDelegate(obj);
+    protected override string Extract(object obj) => _extractorDelegate(obj);
 }

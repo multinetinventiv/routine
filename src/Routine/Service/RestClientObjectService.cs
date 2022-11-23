@@ -5,30 +5,30 @@ namespace Routine.Service;
 
 public class RestClientObjectService : IObjectService
 {
-    private readonly IServiceClientConfiguration serviceClientConfiguration;
-    private readonly IRestClient restClient;
-    private readonly IJsonSerializer serializer;
+    private readonly IServiceClientConfiguration _serviceClientConfiguration;
+    private readonly IRestClient _restClient;
+    private readonly IJsonSerializer _serializer;
 
     public RestClientObjectService(IServiceClientConfiguration serviceClientConfiguration, IRestClient restClient, IJsonSerializer serializer)
     {
-        this.serviceClientConfiguration = serviceClientConfiguration;
-        this.restClient = restClient;
-        this.serializer = serializer;
+        _serviceClientConfiguration = serviceClientConfiguration;
+        _restClient = restClient;
+        _serializer = serializer;
     }
 
-    private readonly object applicationModelLock = new();
-    private volatile ApplicationModel applicationModel;
+    private readonly object _applicationModelLock = new();
+    private volatile ApplicationModel _applicationModel;
     public ApplicationModel ApplicationModel
     {
         get
         {
-            if (applicationModel != null) { return applicationModel; }
+            if (_applicationModel != null) { return _applicationModel; }
 
-            lock (applicationModelLock)
+            lock (_applicationModelLock)
             {
-                if (applicationModel != null) { return applicationModel; }
+                if (_applicationModel != null) { return _applicationModel; }
 
-                return applicationModel = new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
+                return _applicationModel = new((IDictionary<string, object>)Result(Get(Url("ApplicationModel"))));
             }
         }
     }
@@ -81,7 +81,7 @@ public class RestClientObjectService : IObjectService
     {
         var operationModel = GetOperationModel(target, operation);
 
-        var body = serializer.Serialize(parameters.ToDictionary(
+        var body = _serializer.Serialize(parameters.ToDictionary(
             kvp => kvp.Key,
             kvp => Compressor(operationModel.Parameter[kvp.Key].ViewModelId).Compress(kvp.Value)
         ));
@@ -106,18 +106,18 @@ public class RestClientObjectService : IObjectService
 
     private object Result(RestResponse response)
     {
-        foreach (var processor in serviceClientConfiguration.GetResponseHeaderProcessors())
+        foreach (var processor in _serviceClientConfiguration.GetResponseHeaderProcessors())
         {
             processor.Process(response.Headers);
         }
 
-        var result = serializer.DeserializeObject(response.Body);
+        var result = _serializer.DeserializeObject(response.Body);
 
         if (result is IDictionary<string, object> resultDictionary && resultDictionary.ContainsKey("IsException"))
         {
-            var exceptionResult = new ExceptionResult(serializer.Deserialize<ExceptionResultData>(response.Body));
+            var exceptionResult = new ExceptionResult(_serializer.Deserialize<ExceptionResultData>(response.Body));
 
-            throw serviceClientConfiguration.GetException(exceptionResult);
+            throw _serviceClientConfiguration.GetException(exceptionResult);
         }
 
         return result;
@@ -129,50 +129,50 @@ public class RestClientObjectService : IObjectService
             ? $"{referenceData.ModelId}/{referenceData.Id}"
             : $"{referenceData.ModelId}/{referenceData.Id}/{referenceData.ViewModelId}"
         );
-    private string Url(string action) => $"{serviceClientConfiguration.GetServiceUrlBase()}/{action}";
+    private string Url(string action) => $"{_serviceClientConfiguration.GetServiceUrlBase()}/{action}";
 
     private RestResponse Get(string url)
     {
-        try { return restClient.Get(url, BuildRequest(string.Empty)); }
+        try { return _restClient.Get(url, BuildRequest(string.Empty)); }
         catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private async Task<RestResponse> GetAsync(string url)
     {
-        try { return await restClient.GetAsync(url, BuildRequest(string.Empty)); }
+        try { return await _restClient.GetAsync(url, BuildRequest(string.Empty)); }
         catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private RestResponse Post(string url, string body)
     {
-        try { return restClient.Post(url, BuildRequest(body)); }
+        try { return _restClient.Post(url, BuildRequest(body)); }
         catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private async Task<RestResponse> PostAsync(string url, string body)
     {
-        try { return await restClient.PostAsync(url, BuildRequest(body)); }
+        try { return await _restClient.PostAsync(url, BuildRequest(body)); }
         catch (RestRequestException ex) { return Wrap(ex); }
     }
 
     private RestRequest BuildRequest(string body) =>
         new RestRequest(body)
             .WithHeaders(
-                serviceClientConfiguration.GetRequestHeaders()
-                    .ToDictionary(h => h, h => serviceClientConfiguration.GetRequestHeaderValue(h))
+                _serviceClientConfiguration.GetRequestHeaders()
+                    .ToDictionary(h => h, h => _serviceClientConfiguration.GetRequestHeaderValue(h))
             );
 
     private RestResponse Wrap(RestRequestException ex) =>
-        new(serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false)));
+        new(_serializer.Serialize(new ExceptionResult($"Http.{ex.StatusCode}", ex.Message, false)));
 
     private Exception OperationNotFound(string modelId, string operation) =>
-        serviceClientConfiguration.GetException(new(nameof(OperationNotFound),
+        _serviceClientConfiguration.GetException(new(nameof(OperationNotFound),
             $"Given operation ({operation}) was not found in given model ({modelId}). Make sure you are connecting to the correct endpoint.",
             false
         ));
 
     private Exception TypeNotFound(string modelId) =>
-        serviceClientConfiguration.GetException(new(nameof(TypeNotFound),
+        _serviceClientConfiguration.GetException(new(nameof(TypeNotFound),
             $"Given model id ({modelId}) was not found in current application model. Make sure you are connecting to the correct endpoint.",
             false
         ));

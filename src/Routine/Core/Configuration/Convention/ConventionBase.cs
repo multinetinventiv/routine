@@ -2,11 +2,11 @@ namespace Routine.Core.Configuration.Convention;
 
 public abstract class ConventionBase<TFrom, TResult> : IConvention<TFrom, TResult>
 {
-    private Func<TFrom, bool> whenDelegate;
+    private Func<TFrom, bool> _whenDelegate;
 
     protected ConventionBase()
     {
-        whenDelegate = _ => true;
+        _whenDelegate = _ => true;
     }
 
     public IConvention<TFrom, TResult> WhenDefault() => When(default(TFrom));
@@ -14,12 +14,12 @@ public abstract class ConventionBase<TFrom, TResult> : IConvention<TFrom, TResul
 
     public ConventionBase<TFrom, TResult> When(Func<TFrom, bool> whenDelegate)
     {
-        this.whenDelegate = this.whenDelegate.And(whenDelegate);
+        _whenDelegate = _whenDelegate.And(whenDelegate);
 
         return this;
     }
 
-    protected virtual bool AppliesTo(TFrom obj) => whenDelegate(obj);
+    protected virtual bool AppliesTo(TFrom obj) => _whenDelegate(obj);
 
     private TResult SafeApply(TFrom obj)
     {

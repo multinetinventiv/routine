@@ -2,15 +2,15 @@ namespace Routine.Engine.Reflection;
 
 public abstract class BaseTypeInfo : TypeInfo
 {
-    protected readonly Type type;
+    protected readonly Type _type;
 
-    private bool isVoid;
-    private bool isEnum;
-    private bool isArray;
+    private bool _isVoid;
+    private bool _isEnum;
+    private bool _isArray;
 
     protected BaseTypeInfo(Type type)
     {
-        this.type = type;
+        _type = type;
 
         IsPublic = type.IsPublic;
         IsAbstract = type.IsAbstract;
@@ -20,7 +20,7 @@ public abstract class BaseTypeInfo : TypeInfo
         IsPrimitive = type.IsPrimitive;
     }
 
-    public override Type GetActualType() => type;
+    public override Type GetActualType() => _type;
 
     public override bool IsPublic { get; }
     public override bool IsAbstract { get; }
@@ -29,13 +29,13 @@ public abstract class BaseTypeInfo : TypeInfo
     public override bool IsGenericType { get; }
     public override bool IsPrimitive { get; }
 
-    public override bool IsVoid => isVoid;
-    public override bool IsEnum => isEnum;
-    public override bool IsArray => isArray;
+    public override bool IsVoid => _isVoid;
+    public override bool IsEnum => _isEnum;
+    public override bool IsArray => _isArray;
 
-    protected void SetIsVoid(bool isVoid) => this.isVoid = isVoid;
-    protected void SetIsEnum(bool isEnum) => this.isEnum = isEnum;
-    protected void SetIsArray(bool isArray) => this.isArray = isArray;
+    protected void SetIsVoid(bool isVoid) => _isVoid = isVoid;
+    protected void SetIsEnum(bool isEnum) => _isEnum = isEnum;
+    protected void SetIsArray(bool isArray) => _isArray = isArray;
 
     public override List<string> GetEnumNames() => new();
     public override List<object> GetEnumValues() => new();

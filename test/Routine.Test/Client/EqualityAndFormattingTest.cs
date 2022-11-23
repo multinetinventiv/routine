@@ -10,8 +10,8 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model"));
 
-        var left = new Rapplication(mockObjectService.Object);
-        var right = new Rapplication(mockObjectService.Object);
+        var left = new Rapplication(_mockObjectService.Object);
+        var right = new Rapplication(_mockObjectService.Object);
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);
@@ -24,9 +24,9 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model"), Model("model2"));
 
-        var left = new Rapplication(mockObjectService.Object)["model"];
-        var right = new Rapplication(mockObjectService.Object)["model"];
-        var other = new Rapplication(mockObjectService.Object)["model2"];
+        var left = new Rapplication(_mockObjectService.Object)["model"];
+        var right = new Rapplication(_mockObjectService.Object)["model"];
+        var other = new Rapplication(_mockObjectService.Object)["model2"];
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);
@@ -41,9 +41,9 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model").Initializer(), Model("model2").Initializer());
 
-        var left = new Rapplication(mockObjectService.Object)["model"].Initializer;
-        var right = new Rapplication(mockObjectService.Object)["model"].Initializer;
-        var other = new Rapplication(mockObjectService.Object)["model2"].Initializer;
+        var left = new Rapplication(_mockObjectService.Object)["model"].Initializer;
+        var right = new Rapplication(_mockObjectService.Object)["model"].Initializer;
+        var other = new Rapplication(_mockObjectService.Object)["model2"].Initializer;
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);
@@ -58,9 +58,9 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model").Data("data"), Model("model2").Data("data2"));
 
-        var left = new Rapplication(mockObjectService.Object)["model"].Data["data"];
-        var right = new Rapplication(mockObjectService.Object)["model"].Data["data"];
-        var other = new Rapplication(mockObjectService.Object)["model2"].Data["data2"];
+        var left = new Rapplication(_mockObjectService.Object)["model"].Data["data"];
+        var right = new Rapplication(_mockObjectService.Object)["model"].Data["data"];
+        var other = new Rapplication(_mockObjectService.Object)["model2"].Data["data2"];
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);
@@ -75,9 +75,9 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model").Operation("operation"), Model("model2").Operation("operation2"));
 
-        var left = new Rapplication(mockObjectService.Object)["model"].Operation["operation"];
-        var right = new Rapplication(mockObjectService.Object)["model"].Operation["operation"];
-        var other = new Rapplication(mockObjectService.Object)["model2"].Operation["operation2"];
+        var left = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"];
+        var right = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"];
+        var other = new Rapplication(_mockObjectService.Object)["model2"].Operation["operation2"];
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);
@@ -92,9 +92,9 @@ public class EqualityAndFormattingTest : ClientTestBase
     {
         ModelsAre(Model("model").Operation("operation", PModel("arg1")), Model("model2").Operation("operation2", PModel("arg1")));
 
-        var left = new Rapplication(mockObjectService.Object)["model"].Operation["operation"].Parameter["arg1"];
-        var right = new Rapplication(mockObjectService.Object)["model"].Operation["operation"].Parameter["arg1"];
-        var other = new Rapplication(mockObjectService.Object)["model2"].Operation["operation2"].Parameter["arg1"];
+        var left = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"].Parameter["arg1"];
+        var right = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"].Parameter["arg1"];
+        var other = new Rapplication(_mockObjectService.Object)["model2"].Operation["operation2"].Parameter["arg1"];
 
         Assert.AreEqual(left, right);
         Assert.AreNotSame(left, right);

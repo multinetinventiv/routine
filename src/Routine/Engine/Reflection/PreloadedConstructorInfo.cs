@@ -4,37 +4,37 @@ namespace Routine.Engine.Reflection;
 
 public class PreloadedConstructorInfo : ConstructorInfo
 {
-    private bool isPublic;
-    private TypeInfo declaringType;
-    private TypeInfo reflectedType;
+    private bool _isPublic;
+    private TypeInfo _declaringType;
+    private TypeInfo _reflectedType;
 
-    private ParameterInfo[] parameters;
-    private object[] customAttributes;
+    private ParameterInfo[] _parameters;
+    private object[] _customAttributes;
 
-    private IMethodInvoker invoker;
+    private IMethodInvoker _invoker;
 
     internal PreloadedConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
         : base(constructorInfo) { }
 
     protected override ConstructorInfo Load()
     {
-        isPublic = constructorInfo.IsPublic;
-        declaringType = TypeInfo.Get(constructorInfo.DeclaringType);
-        reflectedType = TypeInfo.Get(constructorInfo.ReflectedType);
+        _isPublic = _constructorInfo.IsPublic;
+        _declaringType = TypeInfo.Get(_constructorInfo.DeclaringType);
+        _reflectedType = TypeInfo.Get(_constructorInfo.ReflectedType);
 
-        parameters = constructorInfo.GetParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
-        customAttributes = constructorInfo.GetCustomAttributes(true);
+        _parameters = _constructorInfo.GetParameters().Select(p => ParameterInfo.Preloaded(this, p)).ToArray();
+        _customAttributes = _constructorInfo.GetCustomAttributes(true);
 
-        invoker = constructorInfo.CreateInvoker();
+        _invoker = _constructorInfo.CreateInvoker();
 
         return this;
     }
 
-    public override bool IsPublic => isPublic;
-    public override TypeInfo DeclaringType => declaringType;
-    public override TypeInfo ReflectedType => reflectedType;
+    public override bool IsPublic => _isPublic;
+    public override TypeInfo DeclaringType => _declaringType;
+    public override TypeInfo ReflectedType => _reflectedType;
 
-    public override ParameterInfo[] GetParameters() => parameters;
-    public override object[] GetCustomAttributes() => customAttributes;
-    public override object Invoke(params object[] parameters) => invoker.Invoke(null, parameters);
+    public override ParameterInfo[] GetParameters() => _parameters;
+    public override object[] GetCustomAttributes() => _customAttributes;
+    public override object Invoke(params object[] parameters) => _invoker.Invoke(null, parameters);
 }

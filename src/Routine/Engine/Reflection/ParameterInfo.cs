@@ -5,11 +5,11 @@ public abstract class ParameterInfo : IParameter
     internal static ParameterInfo Reflected(System.Reflection.ParameterInfo parameterInfo) => new ReflectedParameterInfo(parameterInfo).Load();
     internal static ParameterInfo Preloaded(MemberInfo member, System.Reflection.ParameterInfo parameterInfo) => new PreloadedParameterInfo(member, parameterInfo).Load();
 
-    protected readonly System.Reflection.ParameterInfo parameterInfo;
+    protected readonly System.Reflection.ParameterInfo _parameterInfo;
 
     protected ParameterInfo(System.Reflection.ParameterInfo parameterInfo)
     {
-        this.parameterInfo = parameterInfo;
+        _parameterInfo = parameterInfo;
     }
 
     protected abstract ParameterInfo Load();

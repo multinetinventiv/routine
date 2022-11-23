@@ -11,11 +11,11 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
     [Test]
     public async Task Returns_result_of_sync_methods_without_doing_anything()
     {
-        mock.Setup(o => o.StringMethod()).Returns("test");
+        _mock.Setup(o => o.StringMethod()).Returns("test");
 
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.StringMethod));
 
-        var actual = await testing.InvokeAsync(target);
+        var actual = await testing.InvokeAsync(_target);
 
         Assert.AreEqual("test", actual);
     }
@@ -25,20 +25,20 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
     {
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.AsyncVoidMethod));
 
-        var actual = await testing.InvokeAsync(target);
+        var actual = await testing.InvokeAsync(_target);
 
         Assert.IsNull(actual);
-        mock.Verify(o => o.AsyncVoidMethod());
+        _mock.Verify(o => o.AsyncVoidMethod());
     }
 
     [Test]
     public async Task Wraps_and_returns_result_of_the_task_returned()
     {
-        mock.Setup(o => o.AsyncStringMethod()).ReturnsAsync("test");
+        _mock.Setup(o => o.AsyncStringMethod()).ReturnsAsync("test");
 
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.AsyncStringMethod));
 
-        var actual = await testing.InvokeAsync(target);
+        var actual = await testing.InvokeAsync(_target);
 
         Assert.AreEqual("test", actual);
     }
@@ -47,14 +47,14 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
     [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
     public async Task Retest_exception_case_in_an_async_method(string method)
     {
-        mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
-        mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
+        _mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
+        _mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
 
         var testing = InvokerFor<OptimizedClass>(method);
 
         try
         {
-            await testing.InvokeAsync(target);
+            await testing.InvokeAsync(_target);
             Assert.Fail("exception not thrown");
         }
         catch (Exception ex)

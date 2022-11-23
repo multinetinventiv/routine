@@ -13,8 +13,8 @@ public class RestRequest
     public RestRequest(string body)
     {
         Body = body;
-        Headers = new Dictionary<string, string>();
-        UrlParameters = new Dictionary<string, string>();
+        Headers = new();
+        UrlParameters = new();
     }
 
     public RestRequest WithHeaders(IDictionary<string, string> headers)

@@ -9,7 +9,7 @@ namespace Routine.Test.Engine.Context;
 [TestFixture]
 public class DefaultCoreContextTest : CoreTestBase
 {
-    private ICoreContext testing;
+    private ICoreContext _testing;
 
     [SetUp]
     public override void SetUp()
@@ -22,25 +22,25 @@ public class DefaultCoreContextTest : CoreTestBase
             .Locator.Set(c => c.Locator(l => l.Constant(null)))
             .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
 
-        testing = new DefaultCoreContext(codingStyle);
+        _testing = new DefaultCoreContext(codingStyle);
     }
 
     [Test]
     public void Cannot_access_a_domain_type_before_context_is_initialized()
     {
-        Assert.Throws<InvalidOperationException>(() => { var _ = testing.DomainTypes; });
-        Assert.Throws<InvalidOperationException>(() => testing.GetDomainType(type.of<CachedBusiness>()));
+        Assert.Throws<InvalidOperationException>(() => { var _ = _testing.DomainTypes; });
+        Assert.Throws<InvalidOperationException>(() => _testing.GetDomainType(type.of<CachedBusiness>()));
     }
 
     [Test]
     public void Caches_domain_types_by_object_model_id()
     {
-        testing.BuildDomainTypes();
+        _testing.BuildDomainTypes();
 
-        var domainType = testing.GetDomainType(type.of<CachedBusiness>());
+        var domainType = _testing.GetDomainType(type.of<CachedBusiness>());
 
-        var expected = testing.GetDomainType(domainType.Id);
-        var actual = testing.GetDomainType(domainType.Id);
+        var expected = _testing.GetDomainType(domainType.Id);
+        var actual = _testing.GetDomainType(domainType.Id);
 
         Assert.AreSame(expected, actual);
     }
@@ -48,11 +48,11 @@ public class DefaultCoreContextTest : CoreTestBase
     [Test]
     public void Build_domain_types_rebuilds_everytime_it_is_called()
     {
-        testing.BuildDomainTypes();
-        var oldDomainType = testing.GetDomainType(type.of<CachedBusiness>());
+        _testing.BuildDomainTypes();
+        var oldDomainType = _testing.GetDomainType(type.of<CachedBusiness>());
 
-        testing.BuildDomainTypes();
-        var newDomainType = testing.GetDomainType(type.of<CachedBusiness>());
+        _testing.BuildDomainTypes();
+        var newDomainType = _testing.GetDomainType(type.of<CachedBusiness>());
 
         Assert.AreNotSame(oldDomainType, newDomainType);
     }

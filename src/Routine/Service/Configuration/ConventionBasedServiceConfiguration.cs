@@ -22,20 +22,20 @@ public class ConventionBasedServiceConfiguration : LayeredBase<ConventionBasedSe
 
     public ConventionBasedServiceConfiguration()
     {
-        RootPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(RootPath), true);
+        RootPath = new(this, nameof(RootPath), true);
 
-        EnableTestApp = new SingleConfiguration<ConventionBasedServiceConfiguration, bool>(this, nameof(EnableTestApp), true);
-        TestAppPath = new SingleConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(TestAppPath), true);
+        EnableTestApp = new(this, nameof(EnableTestApp), true);
+        TestAppPath = new(this, nameof(TestAppPath), true);
 
-        AllowGet = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, OperationWithObjectModel, bool>(this, nameof(AllowGet), true);
+        AllowGet = new(this, nameof(AllowGet), true);
 
-        RequestHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(RequestHeaders));
-        RequestHeaderProcessors = new ListConfiguration<ConventionBasedServiceConfiguration, IHeaderProcessor>(this, nameof(RequestHeaderProcessors));
+        RequestHeaders = new(this, nameof(RequestHeaders));
+        RequestHeaderProcessors = new(this, nameof(RequestHeaderProcessors));
 
-        ResponseHeaders = new ListConfiguration<ConventionBasedServiceConfiguration, string>(this, nameof(ResponseHeaders));
-        ResponseHeaderValue = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, string, string>(this, nameof(ResponseHeaderValue));
+        ResponseHeaders = new(this, nameof(ResponseHeaders));
+        ResponseHeaderValue = new(this, nameof(ResponseHeaderValue));
 
-        ExceptionResult = new ConventionBasedConfiguration<ConventionBasedServiceConfiguration, Exception, ExceptionResult>(this, nameof(ExceptionResult));
+        ExceptionResult = new(this, nameof(ExceptionResult));
     }
 
     public ConventionBasedServiceConfiguration Merge(ConventionBasedServiceConfiguration other)

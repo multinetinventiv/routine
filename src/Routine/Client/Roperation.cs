@@ -4,29 +4,29 @@ namespace Routine.Client;
 
 public class Roperation : Rparametric
 {
-    private readonly OperationModel model;
+    private readonly OperationModel _model;
 
     public Rtype ResultType { get; }
 
     public Roperation(OperationModel model, Rtype type)
         : base(model.Name, model.GroupCount, model.Parameters, model.Marks, type)
     {
-        this.model = model;
+        _model = model;
 
         ResultType = model.Result.IsVoid
             ? Rtype.Void
             : Application[model.Result.ViewModelId];
     }
 
-    public string Name => model.Name;
-    public bool ResultIsVoid => model.Result.IsVoid;
-    public bool ResultIsList => model.Result.IsList;
+    public string Name => _model.Name;
+    public bool ResultIsVoid => _model.Result.IsVoid;
+    public bool ResultIsList => _model.Result.IsList;
 
     public Rvariable Perform(Robject target, List<Rvariable> parameterVariables)
     {
         var parameterValues = BuildParameters(parameterVariables);
 
-        var resultData = Application.Service.Do(target.ReferenceData, model.Name, parameterValues);
+        var resultData = Application.Service.Do(target.ReferenceData, _model.Name, parameterValues);
 
         return Result(resultData);
     }
@@ -35,7 +35,7 @@ public class Roperation : Rparametric
     {
         var parameterValues = BuildParameters(parameterVariables);
 
-        var resultData = await Application.Service.DoAsync(target.ReferenceData, model.Name, parameterValues);
+        var resultData = await Application.Service.DoAsync(target.ReferenceData, _model.Name, parameterValues);
 
         return Result(resultData);
     }
@@ -62,7 +62,7 @@ public class Roperation : Rparametric
 
     protected bool Equals(Roperation other)
     {
-        return Equals(Type, other.Type) && Equals(model, other.model);
+        return Equals(Type, other.Type) && Equals(_model, other._model);
     }
 
     public override bool Equals(object obj)
@@ -78,7 +78,7 @@ public class Roperation : Rparametric
     {
         unchecked
         {
-            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (_model != null ? _model.GetHashCode() : 0);
         }
     }
 

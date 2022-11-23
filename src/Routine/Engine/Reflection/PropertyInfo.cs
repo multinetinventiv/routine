@@ -5,14 +5,14 @@ public abstract class PropertyInfo : MemberInfo, IProperty
     internal static PropertyInfo Reflected(System.Reflection.PropertyInfo propertyInfo) => new ReflectedPropertyInfo(propertyInfo).Load();
     internal static PropertyInfo Preloaded(System.Reflection.PropertyInfo propertyInfo) => new PreloadedPropertyInfo(propertyInfo).Load();
 
-    protected readonly System.Reflection.PropertyInfo propertyInfo;
+    protected readonly System.Reflection.PropertyInfo _propertyInfo;
 
     protected PropertyInfo(System.Reflection.PropertyInfo propertyInfo)
     {
-        this.propertyInfo = propertyInfo;
+        _propertyInfo = propertyInfo;
     }
 
-    public System.Reflection.PropertyInfo GetActualProperty() => propertyInfo;
+    public System.Reflection.PropertyInfo GetActualProperty() => _propertyInfo;
 
     protected abstract PropertyInfo Load();
 

@@ -14,25 +14,25 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
 {
     #region Setup & Helpers
 
-    private Mock<IObjectService> mock;
-    private IObjectServiceInvoker invoker;
+    private Mock<IObjectService> _mock;
+    private IObjectServiceInvoker _invoker;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        mock = new Mock<IObjectService>();
-        mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
-        mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => objectDictionary[id]);
-        mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => objectDictionary[id]);
+        _mock = new();
+        _mock.Setup(os => os.ApplicationModel).Returns(GetApplicationModel);
+        _mock.Setup(os => os.Get(It.IsAny<ReferenceData>())).Returns((ReferenceData id) => _objectDictionary[id]);
+        _mock.Setup(os => os.GetAsync(It.IsAny<ReferenceData>())).ReturnsAsync((ReferenceData id) => _objectDictionary[id]);
 
-        invoker = new TObjectServiceInvoker();
+        _invoker = new TObjectServiceInvoker();
     }
 
     private InterceptedObjectService Build(
         Func<InterceptionConfigurationBuilder, IInterceptionConfiguration> interceptionConfiguration
-    ) => new(mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
+    ) => new(_mock.Object, interceptionConfiguration(BuildRoutine.InterceptionConfig()));
 
     #endregion
 
@@ -60,7 +60,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
             )))
         );
 
-        invoker.InvokeDo(testing, Id("id", "model"), "operation", Params());
+        _invoker.InvokeDo(testing, Id("id", "model"), "operation", Params());
 
         Assert.IsTrue(hit);
     }
@@ -78,8 +78,8 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         );
 
         var _ = testing.ApplicationModel;
-        invoker.InvokeGet(testing, Id("id"));
-        invoker.InvokeDo(testing, Id("id"), "operation", Params());
+        _invoker.InvokeGet(testing, Id("id"));
+        _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual(3, hitCount);
     }
@@ -100,8 +100,8 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         );
 
         var _ = testing.ApplicationModel;
-        invoker.InvokeGet(testing, Id("id"));
-        invoker.InvokeDo(testing, Id("id"), "operation", Params());
+        _invoker.InvokeGet(testing, Id("id"));
+        _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual(1, hitCount);
     }
@@ -127,9 +127,9 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
             )
         );
 
-        invoker.InvokeDo(testing, Id("id", "model-a"), "operation-a", Params());
-        invoker.InvokeDo(testing, Id("id", "model-a"), "operation-b", Params());
-        invoker.InvokeDo(testing, Id("id", "model-b"), "operation-a", Params());
+        _invoker.InvokeDo(testing, Id("id", "model-a"), "operation-a", Params());
+        _invoker.InvokeDo(testing, Id("id", "model-a"), "operation-b", Params());
+        _invoker.InvokeDo(testing, Id("id", "model-b"), "operation-a", Params());
 
         Assert.AreEqual(1, hitCount);
     }
@@ -150,7 +150,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
             ))
         );
 
-        invoker.InvokeDo(testing, Id("id"), "operation", Params());
+        _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual(2, hitCount);
     }
@@ -172,7 +172,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
             ))
         );
 
-        invoker.InvokeDo(testing, Id("id"), "operation", Params());
+        _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
         Assert.AreEqual("test", expected);
     }

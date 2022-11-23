@@ -4,19 +4,19 @@ namespace Routine.Client;
 
 public class Rinitializer : Rparametric
 {
-    private readonly InitializerModel model;
+    private readonly InitializerModel _model;
 
     public Rinitializer(InitializerModel model, Rtype type)
         : base(Constants.INITIALIZER_ID, model.GroupCount, model.Parameters, model.Marks, type)
     {
-        this.model = model;
+        _model = model;
     }
 
     #region Equality & Hashcode
 
     protected bool Equals(Rinitializer other)
     {
-        return Equals(Type, other.Type) && Equals(model, other.model);
+        return Equals(Type, other.Type) && Equals(_model, other._model);
     }
 
     public override bool Equals(object obj)
@@ -32,7 +32,7 @@ public class Rinitializer : Rparametric
     {
         unchecked
         {
-            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (model != null ? model.GetHashCode() : 0);
+            return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (_model != null ? _model.GetHashCode() : 0);
         }
     }
 

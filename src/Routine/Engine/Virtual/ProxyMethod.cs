@@ -4,11 +4,11 @@ namespace Routine.Engine.Virtual;
 
 public class ProxyMethod : IMethod
 {
-    private readonly IMethod real;
-    private readonly IType parentType;
-    private readonly int parameterOffset;
-    private readonly List<IParameter> parameters;
-    private readonly Func<object, object[], object> targetDelegate;
+    private readonly IMethod _real;
+    private readonly IType _parentType;
+    private readonly int _parameterOffset;
+    private readonly List<IParameter> _parameters;
+    private readonly Func<object, object[], object> _targetDelegate;
 
     public SingleConfiguration<ProxyMethod, string> Name { get; }
 
@@ -18,50 +18,50 @@ public class ProxyMethod : IMethod
     {
         if (parameters == null) { throw new ArgumentNullException(nameof(parameters)); }
 
-        Name = new SingleConfiguration<ProxyMethod, string>(this, nameof(Name), true);
+        Name = new(this, nameof(Name), true);
 
-        this.real = real ?? throw new ArgumentNullException(nameof(real));
-        this.parentType = parentType ?? throw new ArgumentNullException(nameof(parentType));
-        this.targetDelegate = targetDelegate ?? throw new ArgumentNullException(nameof(targetDelegate));
+        _real = real ?? throw new ArgumentNullException(nameof(real));
+        _parentType = parentType ?? throw new ArgumentNullException(nameof(parentType));
+        _targetDelegate = targetDelegate ?? throw new ArgumentNullException(nameof(targetDelegate));
 
-        this.parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
+        _parameters = parameters.Select((p, i) => new ProxyParameter(p, this, i) as IParameter).ToList();
 
-        parameterOffset = this.parameters.Count;
+        _parameterOffset = _parameters.Count;
 
-        this.parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, parameterOffset + i) as IParameter));
+        _parameters.AddRange(real.Parameters.Select((p, i) => new ProxyParameter(p, this, _parameterOffset + i) as IParameter));
 
         Name.Set(real.Name);
     }
 
-    private object PerformOn(object target, object[] parameters) => real.PerformOn(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
-    public async Task<object> PerformOnAsync(object target, params object[] parameters) => await real.PerformOnAsync(targetDelegate(target, parameters), parameters.Skip(parameterOffset).ToArray());
+    private object PerformOn(object target, object[] parameters) => _real.PerformOn(_targetDelegate(target, parameters), parameters.Skip(_parameterOffset).ToArray());
+    public async Task<object> PerformOnAsync(object target, params object[] parameters) => await _real.PerformOnAsync(_targetDelegate(target, parameters), parameters.Skip(_parameterOffset).ToArray());
 
     #region ITypeComponent implementation
 
-    IType ITypeComponent.ParentType => parentType;
+    IType ITypeComponent.ParentType => _parentType;
     string ITypeComponent.Name => Name.Get();
-    object[] ITypeComponent.GetCustomAttributes() => real.GetCustomAttributes();
+    object[] ITypeComponent.GetCustomAttributes() => _real.GetCustomAttributes();
 
     #endregion
 
     #region IParametric implementation
 
-    List<IParameter> IParametric.Parameters => parameters;
+    List<IParameter> IParametric.Parameters => _parameters;
 
     #endregion
 
     #region IReturnable implementation
 
-    IType IReturnable.ReturnType => real.ReturnType;
-    object[] IReturnable.GetReturnTypeCustomAttributes() => real.GetReturnTypeCustomAttributes();
+    IType IReturnable.ReturnType => _real.ReturnType;
+    object[] IReturnable.GetReturnTypeCustomAttributes() => _real.GetReturnTypeCustomAttributes();
 
     #endregion
 
     #region IMethod
 
     object IMethod.PerformOn(object target, params object[] parameters) => PerformOn(target, parameters);
-    bool IMethod.IsPublic => real.IsPublic;
-    IType IMethod.GetDeclaringType(bool firstDeclaringType) => parentType;
+    bool IMethod.IsPublic => _real.IsPublic;
+    IType IMethod.GetDeclaringType(bool firstDeclaringType) => _parentType;
 
     #endregion
 }

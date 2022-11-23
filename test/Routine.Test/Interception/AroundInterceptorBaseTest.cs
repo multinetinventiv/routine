@@ -12,14 +12,14 @@ namespace Routine.Test.Interception;
 public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     where TInvocation : IInvocation, new()
 {
-    private IInvocation invocation;
+    private IInvocation _invocation;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        invocation = new TInvocation();
+        _invocation = new TInvocation();
     }
 
     [Test]
@@ -27,18 +27,18 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.Returns("result");
+        _invocation.Returns("result");
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("result", actual);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -46,15 +46,15 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.FailsWith(new Exception());
+        _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => invocation.Intercept(testing));
+        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsNull(invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsTrue((bool)invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsNull(_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsTrue((bool)_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -62,18 +62,18 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.Returns("actual");
+        _invocation.Returns("actual");
         testing.CancelAndReturn("cancel");
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("cancel", actual);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsNull(invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsNull(_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -81,16 +81,16 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.Returns("actual");
+        _invocation.Returns("actual");
         testing.OverrideActualResultWith("override");
 
-        invocation.Intercept(testing);
+        _invocation.Intercept(testing);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -98,18 +98,18 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.FailsWith(new Exception());
+        _invocation.FailsWith(new Exception());
         testing.HideFailAndReturn("override");
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("override", actual);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsNull(invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsTrue((bool)invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsNull(_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsTrue((bool)_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -117,16 +117,16 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.FailsWith(new ArgumentNullException());
+        _invocation.FailsWith(new ArgumentNullException());
         testing.OverrideExceptionWith(new FormatException());
 
-        Assert.Throws<FormatException>(() => invocation.Intercept(testing));
+        Assert.Throws<FormatException>(() => _invocation.Intercept(testing));
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsNull(invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsTrue((bool)invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsNull(_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsTrue((bool)_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -134,16 +134,16 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.FailsWith(new ArgumentNullException());
+        _invocation.FailsWith(new ArgumentNullException());
 
         try
         {
-            invocation.Intercept(testing);
+            _invocation.Intercept(testing);
         }
         catch (ArgumentNullException ex)
         {
             Console.WriteLine(ex.StackTrace);
-            Assert.IsTrue(ex.StackTrace?.Contains(invocation.ExceptionStackTraceLookupText), ex.StackTrace);
+            Assert.IsTrue(ex.StackTrace?.Contains(_invocation.ExceptionStackTraceLookupText), ex.StackTrace);
         }
     }
 
@@ -154,13 +154,13 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
 
         testing.FailOnBeforeWith(new Exception());
 
-        Assert.Throws<Exception>(() => invocation.Intercept(testing));
+        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
 
-        Assert.IsNull(invocation.Context["before"]);
-        Assert.IsNull(invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsTrue((bool)invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsNull(_invocation.Context["before"]);
+        Assert.IsNull(_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsTrue((bool)_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -170,13 +170,13 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
 
         testing.FailOnSuccessWith(new Exception());
 
-        Assert.Throws<Exception>(() => invocation.Intercept(testing));
+        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsTrue((bool)invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsTrue((bool)_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -184,13 +184,13 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.Intercept(testing);
+        _invocation.Intercept(testing);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -200,25 +200,25 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
 
         testing.When(_ => false);
 
-        invocation.Intercept(testing);
+        _invocation.Intercept(testing);
 
-        Assert.IsNull(invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsNull(invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsNull(invocation.Context["after"]);
+        Assert.IsNull(_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsNull(_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsNull(_invocation.Context["after"]);
 
         testing.When(_ => true);
 
-        invocation.Context["invocation"] = null;
+        _invocation.Context["invocation"] = null;
 
-        invocation.Intercept(testing);
+        _invocation.Intercept(testing);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 
     [Test]
@@ -226,16 +226,16 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
     {
         var testing = new Around();
 
-        invocation.Context["override-base"] = true;
+        _invocation.Context["override-base"] = true;
 
         testing.When(_ => false).WhenContextHas("override-base");
 
-        invocation.Intercept(testing);
+        _invocation.Intercept(testing);
 
-        Assert.IsTrue((bool)invocation.Context["before"]);
-        Assert.IsTrue((bool)invocation.Context["invocation"]);
-        Assert.IsTrue((bool)invocation.Context["success"]);
-        Assert.IsNull(invocation.Context["fail"]);
-        Assert.IsTrue((bool)invocation.Context["after"]);
+        Assert.IsTrue((bool)_invocation.Context["before"]);
+        Assert.IsTrue((bool)_invocation.Context["invocation"]);
+        Assert.IsTrue((bool)_invocation.Context["success"]);
+        Assert.IsNull(_invocation.Context["fail"]);
+        Assert.IsTrue((bool)_invocation.Context["after"]);
     }
 }

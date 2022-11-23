@@ -11,14 +11,14 @@ public class DataCompressor
     private const string DATA_KEY = "Data";
     private const string PARAMS_KEY = "Data";
 
-    private readonly ApplicationModel model;
-    private readonly string knownViewModelId;
+    private readonly ApplicationModel _model;
+    private readonly string _knownViewModelId;
 
     public DataCompressor(ApplicationModel model) : this(model, null) { }
     public DataCompressor(ApplicationModel model, string knownViewModelId)
     {
-        this.model = model;
-        this.knownViewModelId = knownViewModelId;
+        _model = model;
+        _knownViewModelId = knownViewModelId;
     }
 
     public object Compress(ReferenceData source)
@@ -28,10 +28,10 @@ public class DataCompressor
         if (string.IsNullOrEmpty(source.ModelId)) { throw new ArgumentException("ModelId value of a ReferenceData cannot be null or empty. If null value was plannig to be sent, then the given ReferenceData itself should be null"); }
         if (string.IsNullOrEmpty(source.ViewModelId))
         {
-            source.ViewModelId = knownViewModelId;
+            source.ViewModelId = _knownViewModelId;
         }
 
-        if (source.ModelId == knownViewModelId)
+        if (source.ModelId == _knownViewModelId)
         {
             return source.Id;
         }
@@ -42,7 +42,7 @@ public class DataCompressor
             [MODEL_ID_KEY] = source.ModelId
         };
 
-        if (source.ViewModelId != knownViewModelId && source.ViewModelId != source.ModelId)
+        if (source.ViewModelId != _knownViewModelId && source.ViewModelId != source.ModelId)
         {
             result[VIEW_MODEL_ID_KEY] = source.ViewModelId;
         }
@@ -69,7 +69,7 @@ public class DataCompressor
         result[ID_KEY] = source.Id;
         result[DISPLAY_KEY] = source.Display;
 
-        if (source.ModelId != knownViewModelId)
+        if (source.ModelId != _knownViewModelId)
         {
             result[MODEL_ID_KEY] = source.ModelId;
         }
@@ -80,10 +80,10 @@ public class DataCompressor
 
             foreach (var (key, value) in source.Data)
             {
-                var dataModel = GetDataModel(knownViewModelId ?? source.ModelId, key);
+                var dataModel = GetDataModel(_knownViewModelId ?? source.ModelId, key);
                 if (dataModel == null) { continue; }
 
-                dataDict.Add(key, new DataCompressor(model, dataModel.ViewModelId).Compress(value));
+                dataDict.Add(key, new DataCompressor(_model, dataModel.ViewModelId).Compress(value));
             }
 
             result[DATA_KEY] = dataDict;
@@ -114,7 +114,7 @@ public class DataCompressor
         {
             var result = new Dictionary<string, object>();
 
-            if (source.ModelId != knownViewModelId)
+            if (source.ModelId != _knownViewModelId)
             {
                 result.Add(MODEL_ID_KEY, source.ModelId);
             }
@@ -126,7 +126,7 @@ public class DataCompressor
                 var paramModel = GetInitializationParameterModel(source.ModelId, paramName);
                 if (paramModel == null) { continue; }
 
-                data.Add(paramName, new DataCompressor(model, paramModel.ViewModelId).Compress(source.InitializationParameters[paramName]));
+                data.Add(paramName, new DataCompressor(_model, paramModel.ViewModelId).Compress(source.InitializationParameters[paramName]));
             }
 
             result[PARAMS_KEY] = data;
@@ -157,9 +157,9 @@ public class DataCompressor
 
         if (@object is string @string)
         {
-            if (string.IsNullOrEmpty(knownViewModelId)) { throw new ArgumentException("Cannot deserialize a string to a ReferenceData instance when model id is not known", nameof(@object)); }
+            if (string.IsNullOrEmpty(_knownViewModelId)) { throw new ArgumentException("Cannot deserialize a string to a ReferenceData instance when model id is not known", nameof(@object)); }
 
-            return new ReferenceData { Id = @string, ModelId = knownViewModelId, ViewModelId = knownViewModelId };
+            return new ReferenceData { Id = @string, ModelId = _knownViewModelId, ViewModelId = _knownViewModelId };
         }
 
         if (@object is not Dictionary<string, object> dictionary) { throw new ArgumentException("Given parameter value should be null, string or Dictionary<string, object>, but was " + @object, nameof(@object)); }
@@ -173,7 +173,7 @@ public class DataCompressor
 
         if (!dictionary.TryGetValue(MODEL_ID_KEY, out var modelId))
         {
-            modelId = knownViewModelId;
+            modelId = _knownViewModelId;
         }
 
         if (modelId == null) { throw new ArgumentException("ModelId in the given dictionary should not be null when model id is not known"); }
@@ -183,7 +183,7 @@ public class DataCompressor
 
         if (!dictionary.TryGetValue(VIEW_MODEL_ID_KEY, out var viewModelId) || string.IsNullOrEmpty(viewModelId.ToString()))
         {
-            viewModelId = !string.IsNullOrEmpty(knownViewModelId) ? knownViewModelId : result.ModelId;
+            viewModelId = !string.IsNullOrEmpty(_knownViewModelId) ? _knownViewModelId : result.ModelId;
         }
 
         result.ViewModelId = viewModelId.ToString();
@@ -229,7 +229,7 @@ public class DataCompressor
             var dataModel = GetDataModel(reference.ViewModelId, dataKey);
             if (dataModel == null) { continue; }
 
-            result.Data.Add(dataKey, new DataCompressor(model, dataModel.ViewModelId).DecompressVariableData(dataDictionary[dataKey]));
+            result.Data.Add(dataKey, new DataCompressor(_model, dataModel.ViewModelId).DecompressVariableData(dataDictionary[dataKey]));
         }
 
         return result;
@@ -275,7 +275,7 @@ public class DataCompressor
 
         if (!dictionary.TryGetValue(MODEL_ID_KEY, out var modelId))
         {
-            modelId = knownViewModelId;
+            modelId = _knownViewModelId;
         }
 
         if (modelId == null) { throw new ArgumentException("ModelId in the given dictionary should not be null when model id is not known"); }
@@ -304,7 +304,7 @@ public class DataCompressor
             var paramModel = GetInitializationParameterModel(result.ModelId, paramName);
             if (paramModel == null) { continue; }
 
-            result.InitializationParameters[paramName] = new DataCompressor(model, paramModel.ViewModelId)
+            result.InitializationParameters[paramName] = new DataCompressor(_model, paramModel.ViewModelId)
                 .DecompressParameterValueData(parametersDictionary[paramName]);
         }
 
@@ -340,7 +340,7 @@ public class DataCompressor
 
     private ObjectModel GetObjectModel(string modelId)
     {
-        if (!model.Model.TryGetValue(modelId, out var result))
+        if (!_model.Model.TryGetValue(modelId, out var result))
         {
             throw new TypeNotFoundException(modelId);
         }

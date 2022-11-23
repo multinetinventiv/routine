@@ -68,11 +68,11 @@ internal class ReflectionOptimizer
         }
     }
 
-    private readonly List<MethodBase> methods;
+    private readonly List<MethodBase> _methods;
 
     private ReflectionOptimizer(List<MethodBase> methods)
     {
-        this.methods = methods;
+        _methods = methods;
     }
 
     public Dictionary<MethodBase, IMethodInvoker> Optimize()
@@ -85,7 +85,7 @@ internal class ReflectionOptimizer
         compiler.AddReferenceFrom<Task>();
 
         var methodsByName = new Dictionary<string, MethodBase>();
-        foreach (var method in methods)
+        foreach (var method in _methods)
         {
             if (method.ContainsGenericParameters || method.ReflectedType == null) { continue; }
 

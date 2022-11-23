@@ -4,20 +4,20 @@ namespace Routine.Engine.Reflection;
 
 internal class OptimizedTypeInfo : PreloadedTypeInfo
 {
-    private IMethodInvoker defaultConstructorInvoker;
-    private IMethodInvoker listConstructorInvoker;
+    private IMethodInvoker _defaultConstructorInvoker;
+    private IMethodInvoker _listConstructorInvoker;
 
-    private ConstructorInfo[] allConstructors;
-    private PropertyInfo[] allProperties;
-    private PropertyInfo[] allStaticProperties;
-    private MethodInfo[] allMethods;
-    private MethodInfo[] allStaticMethods;
-    private MethodInfo parseMethod;
+    private ConstructorInfo[] _allConstructors;
+    private PropertyInfo[] _allProperties;
+    private PropertyInfo[] _allStaticProperties;
+    private MethodInfo[] _allMethods;
+    private MethodInfo[] _allStaticMethods;
+    private MethodInfo _parseMethod;
 
-    private MemberIndex<string, PropertyInfo> allPropertiesNameIndex;
-    private MemberIndex<string, PropertyInfo> allStaticPropertiesNameIndex;
-    private MemberIndex<string, MethodInfo> allMethodsNameIndex;
-    private MemberIndex<string, MethodInfo> allStaticMethodsNameIndex;
+    private MemberIndex<string, PropertyInfo> _allPropertiesNameIndex;
+    private MemberIndex<string, PropertyInfo> _allStaticPropertiesNameIndex;
+    private MemberIndex<string, MethodInfo> _allMethodsNameIndex;
+    private MemberIndex<string, MethodInfo> _allStaticMethodsNameIndex;
 
     internal OptimizedTypeInfo(Type type)
         : base(type) { }
@@ -26,71 +26,71 @@ internal class OptimizedTypeInfo : PreloadedTypeInfo
     {
         base.Load();
 
-        if (!type.IsAbstract)
+        if (!_type.IsAbstract)
         {
-            var defaultConstructor = type.GetConstructor(Type.EmptyTypes);
+            var defaultConstructor = _type.GetConstructor(Type.EmptyTypes);
             if (defaultConstructor != null)
             {
-                defaultConstructorInvoker = defaultConstructor.CreateInvoker();
+                _defaultConstructorInvoker = defaultConstructor.CreateInvoker();
             }
 
-            var listConstructor = type.GetConstructor(new[] { typeof(int) });
+            var listConstructor = _type.GetConstructor(new[] { typeof(int) });
             if (listConstructor != null)
             {
-                listConstructorInvoker = listConstructor.CreateInvoker();
+                _listConstructorInvoker = listConstructor.CreateInvoker();
             }
         }
 
-        allConstructors = type.GetConstructors(ALL_INSTANCE).Select(ConstructorInfo.Preloaded).ToArray();
+        _allConstructors = _type.GetConstructors(ALL_INSTANCE).Select(ConstructorInfo.Preloaded).ToArray();
 
-        allProperties = type.GetProperties(ALL_INSTANCE).Select(PropertyInfo.Preloaded).ToArray();
-        allPropertiesNameIndex = MemberIndex.Build(allProperties, p => p.Name);
+        _allProperties = _type.GetProperties(ALL_INSTANCE).Select(PropertyInfo.Preloaded).ToArray();
+        _allPropertiesNameIndex = MemberIndex.Build(_allProperties, p => p.Name);
 
-        allStaticProperties = type.GetProperties(ALL_STATIC).Select(PropertyInfo.Preloaded).ToArray();
-        allStaticPropertiesNameIndex = MemberIndex.Build(allStaticProperties, p => p.Name);
+        _allStaticProperties = _type.GetProperties(ALL_STATIC).Select(PropertyInfo.Preloaded).ToArray();
+        _allStaticPropertiesNameIndex = MemberIndex.Build(_allStaticProperties, p => p.Name);
 
-        allMethods = type.GetMethods(ALL_INSTANCE).Where(m => !m.IsSpecialName).Select(MethodInfo.Preloaded).ToArray();
-        allMethodsNameIndex = MemberIndex.Build(allMethods, m => m.Name);
+        _allMethods = _type.GetMethods(ALL_INSTANCE).Where(m => !m.IsSpecialName).Select(MethodInfo.Preloaded).ToArray();
+        _allMethodsNameIndex = MemberIndex.Build(_allMethods, m => m.Name);
 
-        allStaticMethods = type.GetMethods(ALL_STATIC).Where(m => !m.IsSpecialName).Select(MethodInfo.Preloaded).ToArray();
-        allStaticMethodsNameIndex = MemberIndex.Build(allStaticMethods, m => m.Name);
+        _allStaticMethods = _type.GetMethods(ALL_STATIC).Where(m => !m.IsSpecialName).Select(MethodInfo.Preloaded).ToArray();
+        _allStaticMethodsNameIndex = MemberIndex.Build(_allStaticMethods, m => m.Name);
 
-        parseMethod = allStaticMethods.SingleOrDefault(m => m.HasParameters<string>() && m.Returns(this, "Parse"));
+        _parseMethod = _allStaticMethods.SingleOrDefault(m => m.HasParameters<string>() && m.Returns(this, "Parse"));
     }
 
-    public override ConstructorInfo[] GetAllConstructors() => allConstructors;
-    public override PropertyInfo[] GetAllProperties() => allProperties;
-    public override PropertyInfo[] GetAllStaticProperties() => allStaticProperties;
-    public override MethodInfo[] GetAllMethods() => allMethods;
-    public override MethodInfo[] GetAllStaticMethods() => allStaticMethods;
-    protected internal override MethodInfo GetParseMethod() => parseMethod;
+    public override ConstructorInfo[] GetAllConstructors() => _allConstructors;
+    public override PropertyInfo[] GetAllProperties() => _allProperties;
+    public override PropertyInfo[] GetAllStaticProperties() => _allStaticProperties;
+    public override MethodInfo[] GetAllMethods() => _allMethods;
+    public override MethodInfo[] GetAllStaticMethods() => _allStaticMethods;
+    protected internal override MethodInfo GetParseMethod() => _parseMethod;
 
-    public override PropertyInfo GetProperty(string name) => allPropertiesNameIndex.GetFirstOrDefault(name);
-    public override List<PropertyInfo> GetProperties(string name) => allPropertiesNameIndex.GetAll(name);
-    public override PropertyInfo GetStaticProperty(string name) => allStaticPropertiesNameIndex.GetFirstOrDefault(name);
-    public override List<PropertyInfo> GetStaticProperties(string name) => allStaticPropertiesNameIndex.GetAll(name);
-    public override MethodInfo GetMethod(string name) => allMethodsNameIndex.GetFirstOrDefault(name);
-    public override List<MethodInfo> GetMethods(string name) => allMethodsNameIndex.GetAll(name);
-    public override MethodInfo GetStaticMethod(string name) => allStaticMethodsNameIndex.GetFirstOrDefault(name);
-    public override List<MethodInfo> GetStaticMethods(string name) => allStaticMethodsNameIndex.GetAll(name);
+    public override PropertyInfo GetProperty(string name) => _allPropertiesNameIndex.GetFirstOrDefault(name);
+    public override List<PropertyInfo> GetProperties(string name) => _allPropertiesNameIndex.GetAll(name);
+    public override PropertyInfo GetStaticProperty(string name) => _allStaticPropertiesNameIndex.GetFirstOrDefault(name);
+    public override List<PropertyInfo> GetStaticProperties(string name) => _allStaticPropertiesNameIndex.GetAll(name);
+    public override MethodInfo GetMethod(string name) => _allMethodsNameIndex.GetFirstOrDefault(name);
+    public override List<MethodInfo> GetMethods(string name) => _allMethodsNameIndex.GetAll(name);
+    public override MethodInfo GetStaticMethod(string name) => _allStaticMethodsNameIndex.GetFirstOrDefault(name);
+    public override List<MethodInfo> GetStaticMethods(string name) => _allStaticMethodsNameIndex.GetAll(name);
 
     public override object CreateInstance()
     {
-        if (defaultConstructorInvoker == null)
+        if (_defaultConstructorInvoker == null)
         {
             throw new MissingMethodException("Default constructor not found!");
         }
 
-        return defaultConstructorInvoker.Invoke(null);
+        return _defaultConstructorInvoker.Invoke(null);
     }
 
     public override IList CreateListInstance(int length)
     {
-        if (listConstructorInvoker == null)
+        if (_listConstructorInvoker == null)
         {
             throw new MissingMethodException("List constructor not found!");
         }
 
-        return (IList)listConstructorInvoker.Invoke(null, length);
+        return (IList)_listConstructorInvoker.Invoke(null, length);
     }
 }

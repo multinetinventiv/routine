@@ -12,14 +12,14 @@ namespace Routine.Test.Interception;
 public class ChainInterceptorTest<TInvocation> : CoreTestBase
     where TInvocation : IInvocation, new()
 {
-    private IInvocation invocation;
+    private IInvocation _invocation;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        invocation = new TInvocation();
+        _invocation = new TInvocation();
     }
 
     [Test]
@@ -38,16 +38,16 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor;
 
-        invocation.Context.Value = "begin";
+        _invocation.Context.Value = "begin";
 
-        invocation.Returns("actual");
+        _invocation.Returns("actual");
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("actual", actual);
 
-        Assert.AreEqual("begin - before1 - before2 - success2 - after2 - success1 - after1", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - success2 - after2 - success1 - after1", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -66,14 +66,14 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor;
 
-        invocation.Context.Value = "begin";
+        _invocation.Context.Value = "begin";
 
-        invocation.FailsWith(new Exception());
+        _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => invocation.Intercept(testing));
+        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
 
-        Assert.AreEqual("begin - before1 - before2 - fail2 - after2 - fail1 - after1", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - fail2 - after2 - fail1 - after1", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -97,16 +97,16 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor;
 
-        invocation.Context.Value = "begin";
+        _invocation.Context.Value = "begin";
 
-        invocation.FailsWith(new Exception());
+        _invocation.FailsWith(new Exception());
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("result2", actual);
 
-        Assert.AreEqual("begin - before1 - before2 - fail2 (handled) - after2 - success1 - after1", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - fail2 (handled) - after2 - success1 - after1", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -131,14 +131,14 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor;
 
-        invocation.Context.Value = "begin";
+        _invocation.Context.Value = "begin";
 
-        invocation.Returns("actual");
+        _invocation.Returns("actual");
 
-        Assert.Throws<Exception>(() => invocation.Intercept(testing));
+        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
 
-        Assert.AreEqual("begin - before1 - before2 - success2 - after2 - success1 - fail1 - after1", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - success2 - after2 - success1 - fail1 - after1", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -156,11 +156,11 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor1;
 
-        invocation.Context.Value = "begin";
-        invocation.Intercept(testing);
+        _invocation.Context.Value = "begin";
+        _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before1 - before2 - before3 - before4", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - before3 - before4", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -180,11 +180,11 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor1;
 
-        invocation.Context.Value = "begin";
-        invocation.Intercept(testing);
+        _invocation.Context.Value = "begin";
+        _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before1 - before2 - before3 - before4 - before5", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2 - before3 - before4 - before5", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -200,11 +200,11 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor1;
 
-        invocation.Context.Value = "begin";
-        invocation.Intercept(testing);
+        _invocation.Context.Value = "begin";
+        _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before1 - before2", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -220,11 +220,11 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
 
         var testing = interceptor1;
 
-        invocation.Context.Value = "begin";
-        invocation.Intercept(testing);
+        _invocation.Context.Value = "begin";
+        _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before1 - before2", invocation.Context.Value);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual("begin - before1 - before2", _invocation.Context.Value);
+        Assert.AreEqual(1, _invocation.Count);
     }
 
     [Test]
@@ -232,11 +232,11 @@ public class ChainInterceptorTest<TInvocation> : CoreTestBase
     {
         var testing = new ChainInterceptor<Context>();
 
-        invocation.Returns("actual");
+        _invocation.Returns("actual");
 
-        var actual = invocation.Intercept(testing);
+        var actual = _invocation.Intercept(testing);
 
         Assert.AreEqual("actual", actual);
-        Assert.AreEqual(1, invocation.Count);
+        Assert.AreEqual(1, _invocation.Count);
     }
 }

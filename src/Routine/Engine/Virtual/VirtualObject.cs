@@ -2,21 +2,21 @@
 
 public class VirtualObject
 {
-    private readonly VirtualType type;
+    private readonly VirtualType _type;
 
     public string Id { get; }
 
     public VirtualObject(string id, VirtualType type)
     {
         Id = id;
-        this.type = type;
+        _type = type;
     }
 
-    public IType Type => type;
+    public IType Type => _type;
 
-    public override string ToString() => type.ToStringMethod.Get()(this);
+    public override string ToString() => _type.ToStringMethod.Get()(this);
 
-    protected bool Equals(VirtualObject other) => Equals(type, other.type) && string.Equals(Id, other.Id);
+    protected bool Equals(VirtualObject other) => Equals(_type, other._type) && string.Equals(Id, other.Id);
 
     public override bool Equals(object obj)
     {
@@ -31,7 +31,7 @@ public class VirtualObject
     {
         unchecked
         {
-            return ((type != null ? type.GetHashCode() : 0) * 397) ^ (Id != null ? Id.GetHashCode() : 0);
+            return ((_type != null ? _type.GetHashCode() : 0) * 397) ^ (Id != null ? Id.GetHashCode() : 0);
         }
     }
 }

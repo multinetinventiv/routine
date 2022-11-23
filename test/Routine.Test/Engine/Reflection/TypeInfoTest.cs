@@ -10,37 +10,37 @@ namespace Routine.Test.Engine.Reflection;
 [TestFixture]
 public class TypeInfoTest : ReflectionTestBase
 {
-    private Type systemType;
-    private TypeInfo testing;
+    private Type _systemType;
+    private TypeInfo _testing;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        systemType = typeof(TestClass_OOP);
-        testing = TypeInfo.Get(systemType);
+        _systemType = typeof(TestClass_OOP);
+        _testing = TypeInfo.Get(_systemType);
     }
 
     [Test]
     public void Type_is_wrapped_by_TypeInfo()
     {
-        Assert.AreEqual(systemType.Name, testing.Name);
-        Assert.AreEqual(systemType.FullName, testing.FullName);
-        Assert.AreEqual(systemType.Namespace, testing.Namespace);
-        Assert.AreEqual(systemType.BaseType, testing.BaseType.GetActualType());
-        Assert.AreEqual(systemType.IsAbstract, testing.IsAbstract);
-        Assert.AreEqual(systemType.IsInterface, testing.IsInterface);
-        Assert.AreEqual(systemType.IsValueType, testing.IsValueType);
-        Assert.AreEqual(systemType.IsPrimitive, testing.IsPrimitive);
-        Assert.AreEqual(systemType.IsGenericType, testing.IsGenericType);
-        Assert.AreEqual(systemType.IsArray, testing.IsArray);
-        Assert.AreEqual(systemType.IsEnum, testing.IsEnum);
-        Assert.AreEqual(systemType.IsPublic, testing.IsPublic);
+        Assert.AreEqual(_systemType.Name, _testing.Name);
+        Assert.AreEqual(_systemType.FullName, _testing.FullName);
+        Assert.AreEqual(_systemType.Namespace, _testing.Namespace);
+        Assert.AreEqual(_systemType.BaseType, _testing.BaseType.GetActualType());
+        Assert.AreEqual(_systemType.IsAbstract, _testing.IsAbstract);
+        Assert.AreEqual(_systemType.IsInterface, _testing.IsInterface);
+        Assert.AreEqual(_systemType.IsValueType, _testing.IsValueType);
+        Assert.AreEqual(_systemType.IsPrimitive, _testing.IsPrimitive);
+        Assert.AreEqual(_systemType.IsGenericType, _testing.IsGenericType);
+        Assert.AreEqual(_systemType.IsArray, _testing.IsArray);
+        Assert.AreEqual(_systemType.IsEnum, _testing.IsEnum);
+        Assert.AreEqual(_systemType.IsPublic, _testing.IsPublic);
 
-        Assert.IsNotNull(testing.GetConstructor(type.of<string>()));
-        Assert.AreEqual(systemType.GetProperty("PublicProperty")?.Name, testing.GetProperty("PublicProperty").Name);
-        Assert.AreEqual(systemType.GetMethod("ToString")?.Name, testing.GetMethod("ToString").Name);
+        Assert.IsNotNull(_testing.GetConstructor(type.of<string>()));
+        Assert.AreEqual(_systemType.GetProperty("PublicProperty")?.Name, _testing.GetProperty("PublicProperty").Name);
+        Assert.AreEqual(_systemType.GetMethod("ToString")?.Name, _testing.GetMethod("ToString").Name);
     }
 
     [Test]
@@ -162,32 +162,32 @@ public class TypeInfoTest : ReflectionTestBase
     [Test]
     public void TypeInfo_caches_wrapped_properties()
     {
-        Assert.AreSame(testing.Name, testing.Name);
-        Assert.AreSame(testing.FullName, testing.FullName);
-        Assert.AreSame(testing.Namespace, testing.Namespace);
-        Assert.AreSame(testing.BaseType, testing.BaseType);
-        Assert.AreSame(testing.GetAllConstructors(), testing.GetAllConstructors());
-        Assert.AreSame(testing.GetAllProperties(), testing.GetAllProperties());
-        Assert.AreSame(testing.GetAllMethods(), testing.GetAllMethods());
-        Assert.AreSame(testing.GetAllStaticProperties(), testing.GetAllStaticProperties());
-        Assert.AreSame(testing.GetAllStaticMethods(), testing.GetAllStaticMethods());
+        Assert.AreSame(_testing.Name, _testing.Name);
+        Assert.AreSame(_testing.FullName, _testing.FullName);
+        Assert.AreSame(_testing.Namespace, _testing.Namespace);
+        Assert.AreSame(_testing.BaseType, _testing.BaseType);
+        Assert.AreSame(_testing.GetAllConstructors(), _testing.GetAllConstructors());
+        Assert.AreSame(_testing.GetAllProperties(), _testing.GetAllProperties());
+        Assert.AreSame(_testing.GetAllMethods(), _testing.GetAllMethods());
+        Assert.AreSame(_testing.GetAllStaticProperties(), _testing.GetAllStaticProperties());
+        Assert.AreSame(_testing.GetAllStaticMethods(), _testing.GetAllStaticMethods());
         Assert.AreSame(TypeInfo.Get(typeof(TestClass_Attribute)).GetCustomAttributes(), TypeInfo.Get(typeof(TestClass_Attribute)).GetCustomAttributes());
     }
 
     [Test]
     public void TypeInfo_has_one_instance_for_each_Type()
     {
-        Assert.AreSame(testing, TypeInfo.Get(typeof(TestClass_OOP)));
+        Assert.AreSame(_testing, TypeInfo.Get(typeof(TestClass_OOP)));
     }
 
     [Test]
     public void TypeInfo_has_equals_operator_for_IType()
     {
-        IType type = testing;
-        Assert.IsTrue(type == testing);
-        Assert.IsFalse(type != testing);
-        Assert.IsTrue(testing == type);
-        Assert.IsFalse(testing != type);
+        IType type = _testing;
+        Assert.IsTrue(type == _testing);
+        Assert.IsFalse(type != _testing);
+        Assert.IsTrue(_testing == type);
+        Assert.IsFalse(_testing != type);
     }
 
     [Test]

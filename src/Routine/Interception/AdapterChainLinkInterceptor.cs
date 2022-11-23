@@ -3,21 +3,21 @@
 public class AdapterChainLinkInterceptor<TContext> : IChainLinkInterceptor<TContext>
     where TContext : InterceptionContext
 {
-    private readonly IInterceptor<TContext> real;
-    private IChainLinkInterceptor<TContext> next;
+    private readonly IInterceptor<TContext> _real;
+    private IChainLinkInterceptor<TContext> _next;
 
     public AdapterChainLinkInterceptor(IInterceptor<TContext> real)
     {
-        this.real = real;
+        _real = real;
 
-        next = new LastChainLinkInterceptor<TContext>();
+        _next = new LastChainLinkInterceptor<TContext>();
     }
 
     public IChainLinkInterceptor<TContext> Next
     {
-        get => next;
-        set => next = value ?? new LastChainLinkInterceptor<TContext>();
+        get => _next;
+        set => _next = value ?? new LastChainLinkInterceptor<TContext>();
     }
 
-    public async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) => await real.InterceptAsync(context, async () => await next.InterceptAsync(context, invocation));
+    public async Task<object> InterceptAsync(TContext context, Func<Task<object>> invocation) => await _real.InterceptAsync(context, async () => await _next.InterceptAsync(context, invocation));
 }

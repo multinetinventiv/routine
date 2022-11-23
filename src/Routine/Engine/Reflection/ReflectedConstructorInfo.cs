@@ -8,12 +8,12 @@ public class ReflectedConstructorInfo : ConstructorInfo
         : base(constructorInfo) { }
 
     protected override ConstructorInfo Load() => this;
-    public override ParameterInfo[] GetParameters() => constructorInfo.GetParameters().Select(ParameterInfo.Reflected).ToArray();
-    public override object[] GetCustomAttributes() => constructorInfo.GetCustomAttributes(true);
+    public override ParameterInfo[] GetParameters() => _constructorInfo.GetParameters().Select(ParameterInfo.Reflected).ToArray();
+    public override object[] GetCustomAttributes() => _constructorInfo.GetCustomAttributes(true);
 
-    public override object Invoke(params object[] parameters) => new ReflectionMethodInvoker(constructorInfo).Invoke(null, parameters);
+    public override object Invoke(params object[] parameters) => new ReflectionMethodInvoker(_constructorInfo).Invoke(null, parameters);
 
-    public override bool IsPublic => constructorInfo.IsPublic;
-    public override TypeInfo DeclaringType => TypeInfo.Get(constructorInfo.DeclaringType);
-    public override TypeInfo ReflectedType => TypeInfo.Get(constructorInfo.ReflectedType);
+    public override bool IsPublic => _constructorInfo.IsPublic;
+    public override TypeInfo DeclaringType => TypeInfo.Get(_constructorInfo.DeclaringType);
+    public override TypeInfo ReflectedType => TypeInfo.Get(_constructorInfo.ReflectedType);
 }

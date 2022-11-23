@@ -5,8 +5,8 @@ namespace Routine.Engine;
 
 public class DomainOperation : IDomainParametric<IMethod>
 {
-    private readonly ICoreContext ctx;
-    private readonly List<DomainParameter.Group<IMethod>> groups;
+    private readonly ICoreContext _ctx;
+    private readonly List<DomainParameter.Group<IMethod>> _groups;
 
     public string Name { get; }
     public Marks Marks { get; }
@@ -17,15 +17,15 @@ public class DomainOperation : IDomainParametric<IMethod>
 
     public ICollection<DomainParameter> Parameters => Parameter.Values;
 
-    ICoreContext IDomainParametric<IMethod>.Ctx => ctx;
-    int IDomainParametric<IMethod>.NextGroupIndex => groups.Count;
-    void IDomainParametric<IMethod>.AddGroup(IMethod parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => groups.Add(new(parametric, parameters, groupIndex));
+    ICoreContext IDomainParametric<IMethod>.Ctx => _ctx;
+    int IDomainParametric<IMethod>.NextGroupIndex => _groups.Count;
+    void IDomainParametric<IMethod>.AddGroup(IMethod parametric, IEnumerable<DomainParameter> parameters, int groupIndex) => _groups.Add(new(parametric, parameters, groupIndex));
 
     public DomainOperation(ICoreContext ctx, IMethod method)
     {
-        this.ctx = ctx;
+        _ctx = ctx;
 
-        groups = new();
+        _groups = new();
 
         Name = ctx.CodingStyle.GetName(method);
         Marks = new();
@@ -47,20 +47,20 @@ public class DomainOperation : IDomainParametric<IMethod>
 
     public void AddGroup(IMethod method)
     {
-        if (groups.Any() &&
-            !method.ReturnType.Equals(groups.Last().Parametric.ReturnType))
+        if (_groups.Any() &&
+            !method.ReturnType.Equals(_groups.Last().Parametric.ReturnType))
         {
-            throw new ReturnTypesDoNotMatchException(method, groups.Last().Parametric.ReturnType, method.ReturnType);
+            throw new ReturnTypesDoNotMatchException(method, _groups.Last().Parametric.ReturnType, method.ReturnType);
         }
 
-        if (groups.Any(g => g.ContainsSameParameters(method)))
+        if (_groups.Any(g => g.ContainsSameParameters(method)))
         {
             throw new IdenticalSignatureAlreadyAddedException(method);
         }
 
         DomainParameter.AddGroupToTarget(method, this);
 
-        Marks.Join(ctx.CodingStyle.GetMarks(method));
+        Marks.Join(_ctx.CodingStyle.GetMarks(method));
     }
 
     public bool MarkedAs(string mark) => Marks.Has(mark);
@@ -70,7 +70,7 @@ public class DomainOperation : IDomainParametric<IMethod>
         {
             Name = Name,
             Marks = Marks.Set,
-            GroupCount = groups.Count,
+            GroupCount = _groups.Count,
             Parameters = Parameters.Select(p => p.GetModel()).ToList(),
             Result = new()
             {
@@ -96,12 +96,12 @@ public class DomainOperation : IDomainParametric<IMethod>
         return ResultData(result);
     }
 
-    private DomainParameterResolver<IMethod> Resolver(Dictionary<string, ParameterValueData> parameterValues) => new(groups, parameterValues);
+    private DomainParameterResolver<IMethod> Resolver(Dictionary<string, ParameterValueData> parameterValues) => new(_groups, parameterValues);
 
     private VariableData ResultData(object result) =>
         ResultIsVoid
             ? new()
-            : ctx.CreateValueData(result, ResultIsList, ResultType, true);
+            : _ctx.CreateValueData(result, ResultIsList, ResultType, true);
 
     #region Formatting & Equality
 

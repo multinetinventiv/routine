@@ -9,17 +9,17 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
 
     private class TestDataPrototype<T>
     {
-        private readonly Func<T> defaultFunction;
+        private readonly Func<T> _defaultFunction;
 
         public TestDataPrototype(Func<T> defaultFunction)
         {
-            this.defaultFunction = defaultFunction;
+            _defaultFunction = defaultFunction;
         }
 
         public T Create() { return Create(_ => { }); }
         public T Create(Action<T> manipulation)
         {
-            var result = defaultFunction();
+            var result = _defaultFunction();
 
             manipulation(result);
 

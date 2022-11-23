@@ -7,12 +7,12 @@ public class ReflectedParameterInfo : ParameterInfo
 
     protected override ParameterInfo Load() => this;
 
-    public override MemberInfo Member => MemberInfo.Reflected(parameterInfo.Member);
-    public override string Name => parameterInfo.Name;
-    public override TypeInfo ParameterType => TypeInfo.Get(parameterInfo.ParameterType);
-    public override bool IsOptional => parameterInfo.IsOptional;
-    public override bool HasDefaultValue => parameterInfo.HasDefaultValue;
-    public override object DefaultValue => parameterInfo.DefaultValue;
-    public override int Position => parameterInfo.Position;
-    public override object[] GetCustomAttributes() => parameterInfo.GetCustomAttributes(true);
+    public override MemberInfo Member => MemberInfo.Reflected(_parameterInfo.Member);
+    public override string Name => _parameterInfo.Name;
+    public override TypeInfo ParameterType => TypeInfo.Get(_parameterInfo.ParameterType);
+    public override bool IsOptional => _parameterInfo.IsOptional;
+    public override bool HasDefaultValue => _parameterInfo.HasDefaultValue;
+    public override object DefaultValue => _parameterInfo.DefaultValue;
+    public override int Position => _parameterInfo.Position;
+    public override object[] GetCustomAttributes() => _parameterInfo.GetCustomAttributes(true);
 }

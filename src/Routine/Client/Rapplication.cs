@@ -12,17 +12,17 @@ public class Rapplication
         Service = service;
     }
 
-    private readonly object typesLock = new();
-    private Dictionary<string, Rtype> types;
+    private readonly object _typesLock = new();
+    private Dictionary<string, Rtype> _types;
     private void FetchModelIfNecessary()
     {
-        if (types != null) { return; }
+        if (_types != null) { return; }
 
-        lock (typesLock)
+        lock (_typesLock)
         {
-            if (types != null) { return; }
+            if (_types != null) { return; }
 
-            types = Service.ApplicationModel.Models.Select(m => new Rtype(this, m)).ToDictionary(t => t.Id);
+            _types = Service.ApplicationModel.Models.Select(m => new Rtype(this, m)).ToDictionary(t => t.Id);
 
             foreach (var type in Types)
             {
@@ -37,7 +37,7 @@ public class Rapplication
         {
             FetchModelIfNecessary();
 
-            if (!types.TryGetValue(objectModelId, out var result))
+            if (!_types.TryGetValue(objectModelId, out var result))
             {
                 throw new TypeNotFoundException(objectModelId);
             }
@@ -52,7 +52,7 @@ public class Rapplication
         {
             FetchModelIfNecessary();
 
-            return types.Values.ToList();
+            return _types.Values.ToList();
         }
     }
 

@@ -10,15 +10,15 @@ public class VirtualParameterTest : CoreTestBase
 {
     #region Setup & Helpers
 
-    private Mock<IParametric> ownerMock;
-    private IParametric owner;
+    private Mock<IParametric> _ownerMock;
+    private IParametric _owner;
 
     public override void SetUp()
     {
         base.SetUp();
 
-        ownerMock = new Mock<IParametric>();
-        owner = ownerMock.Object;
+        _ownerMock = new();
+        _owner = _ownerMock.Object;
     }
 
     #endregion
@@ -26,18 +26,18 @@ public class VirtualParameterTest : CoreTestBase
     [Test]
     public void Owner_is_what_is_given_as_owner()
     {
-        IParameter testing = new VirtualParameter(owner);
+        IParameter testing = new VirtualParameter(_owner);
 
-        Assert.AreSame(owner, testing.Owner);
+        Assert.AreSame(_owner, testing.Owner);
     }
 
     [Test]
     public void Parent_type_is_owner_s_parent_type()
     {
         var parentTypeMock = new Mock<IType>();
-        ownerMock.Setup(o => o.ParentType).Returns(parentTypeMock.Object);
+        _ownerMock.Setup(o => o.ParentType).Returns(parentTypeMock.Object);
 
-        IParameter testing = new VirtualParameter(owner);
+        IParameter testing = new VirtualParameter(_owner);
 
         Assert.AreSame(parentTypeMock.Object, testing.ParentType);
     }
@@ -45,13 +45,13 @@ public class VirtualParameterTest : CoreTestBase
     [Test]
     public void Name_is_required()
     {
-        IParameter testing = new VirtualParameter(owner)
+        IParameter testing = new VirtualParameter(_owner)
             .Name.Set("virtual")
         ;
 
         Assert.AreEqual("virtual", testing.Name);
 
-        testing = new VirtualParameter(owner);
+        testing = new VirtualParameter(_owner);
 
         Assert.Throws<ConfigurationException>(() => { var dummy = testing.Name; });
     }
@@ -61,13 +61,13 @@ public class VirtualParameterTest : CoreTestBase
     {
         var parameterTypeMock = new Mock<IType>();
 
-        IParameter testing = new VirtualParameter(owner)
+        IParameter testing = new VirtualParameter(_owner)
             .ParameterType.Set(parameterTypeMock.Object)
         ;
 
         Assert.AreSame(parameterTypeMock.Object, testing.ParameterType);
 
-        testing = new VirtualParameter(owner);
+        testing = new VirtualParameter(_owner);
 
         Assert.Throws<ConfigurationException>(() => { var dummy = testing.ParameterType; });
     }
@@ -75,13 +75,13 @@ public class VirtualParameterTest : CoreTestBase
     [Test]
     public void Index_is_optional()
     {
-        IParameter testing = new VirtualParameter(owner)
+        IParameter testing = new VirtualParameter(_owner)
             .Index.Set(2)
         ;
 
         Assert.AreEqual(2, testing.Index);
 
-        testing = new VirtualParameter(owner);
+        testing = new VirtualParameter(_owner);
 
         Assert.AreEqual(0, testing.Index);
     }
@@ -89,7 +89,7 @@ public class VirtualParameterTest : CoreTestBase
     [Test]
     public void Not_supported_features()
     {
-        IParameter testing = new VirtualParameter(owner);
+        IParameter testing = new VirtualParameter(_owner);
 
         Assert.AreEqual(0, testing.GetCustomAttributes().Length);
         Assert.IsFalse(testing.IsOptional);

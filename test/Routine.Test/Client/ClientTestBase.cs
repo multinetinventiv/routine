@@ -7,49 +7,49 @@ namespace Routine.Test.Client;
 
 public abstract class ClientTestBase : CoreTestBase
 {
-    protected Mock<IObjectService> mockObjectService;
+    protected Mock<IObjectService> _mockObjectService;
 
-    protected IClientContext ctx;
-    protected Rapplication testingRapplication;
+    protected IClientContext _ctx;
+    protected Rapplication _testingRapplication;
 
     [SetUp]
     public override void SetUp()
     {
         base.SetUp();
 
-        mockObjectService = new Mock<IObjectService>();
+        _mockObjectService = new Mock<IObjectService>();
 
-        var clientContext = new DefaultClientContext(mockObjectService.Object, new Rapplication(mockObjectService.Object));
+        var clientContext = new DefaultClientContext(_mockObjectService.Object, new Rapplication(_mockObjectService.Object));
 
-        ctx = clientContext;
-        testingRapplication = clientContext.Application;
+        _ctx = clientContext;
+        _testingRapplication = clientContext.Application;
 
-        mockObjectService.Setup(o => o.ApplicationModel)
+        _mockObjectService.Setup(o => o.ApplicationModel)
             .Returns(GetApplicationModel);
-        mockObjectService.Setup(o => o.Get(It.IsAny<ReferenceData>()))
+        _mockObjectService.Setup(o => o.Get(It.IsAny<ReferenceData>()))
             .Returns((ReferenceData ord) => ObjectData(ord));
-        mockObjectService.Setup(o => o.GetAsync(It.IsAny<ReferenceData>()))
+        _mockObjectService.Setup(o => o.GetAsync(It.IsAny<ReferenceData>()))
             .ReturnsAsync((ReferenceData ord) => ObjectData(ord));
-        mockObjectService.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
+        _mockObjectService.Setup(o => o.Do(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
             .Returns(Void());
-        mockObjectService.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
+        _mockObjectService.Setup(o => o.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()))
             .ReturnsAsync(Void());
 
         ModelsAre(Model());
     }
 
-    private ObjectData ObjectData(ReferenceData ord) => objectDictionary[ord];
+    private ObjectData ObjectData(ReferenceData ord) => _objectDictionary[ord];
 
-    protected Rtype Rtyp(string id) => testingRapplication[id];
+    protected Rtype Rtyp(string id) => _testingRapplication[id];
 
-    protected Robject RobjNull() => testingRapplication.NullObject();
+    protected Robject RobjNull() => _testingRapplication.NullObject();
     protected Robject Robj(string id) => Robj(id, DefaultObjectModelId);
     protected Robject Robj(string id, string modelId) => Robj(id, modelId, modelId);
     protected Robject Robj(string id, string actualModelId, string viewModelId) =>
-        testingRapplication.Get(id, actualModelId, viewModelId);
+        _testingRapplication.Get(id, actualModelId, viewModelId);
 
     protected Robject Robj(string modelId, params Rvariable[] initializationParameters) =>
-        testingRapplication.Init(modelId, initializationParameters);
+        _testingRapplication.Init(modelId, initializationParameters);
 
     protected Rvariable Rvar(string name, Robject value) => new(name, value);
     protected Rvariable Rvarlist(string name, IEnumerable<Robject> values) => new(name, values);

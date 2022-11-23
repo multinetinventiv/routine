@@ -12,21 +12,21 @@ public class ReflectionOptimizerSyncTest : ReflectionOptimizerContract
     {
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.AsyncVoidMethod));
 
-        var actual = testing.Invoke(target);
+        var actual = testing.Invoke(_target);
 
         Assert.IsNotInstanceOf<Task>(actual);
         Assert.IsNull(actual);
-        mock.Verify(o => o.AsyncVoidMethod());
+        _mock.Verify(o => o.AsyncVoidMethod());
     }
 
     [Test]
     public void Returns_task_result_for_async_methods_with_return_value()
     {
-        mock.Setup(o => o.AsyncStringMethod()).ReturnsAsync("test");
+        _mock.Setup(o => o.AsyncStringMethod()).ReturnsAsync("test");
 
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.AsyncStringMethod));
 
-        var actual = testing.Invoke(target);
+        var actual = testing.Invoke(_target);
 
         Assert.AreEqual("test", actual);
     }

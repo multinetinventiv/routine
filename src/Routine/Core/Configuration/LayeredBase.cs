@@ -3,36 +3,36 @@
 public class LayeredBase<TConcrete> : ILayered
     where TConcrete : LayeredBase<TConcrete>
 {
-    private Layer currentLayer;
+    private Layer _currentLayer;
 
     protected LayeredBase()
     {
-        currentLayer = Layer.LeastSpecific;
+        _currentLayer = Layer.LeastSpecific;
     }
 
     public TConcrete Override(Func<TConcrete, TConcrete> @override)
     {
-        var oldLayer = currentLayer;
+        var oldLayer = _currentLayer;
 
-        currentLayer = Layer.MostSpecific;
+        _currentLayer = Layer.MostSpecific;
 
         @override((TConcrete)this);
 
-        currentLayer = oldLayer;
+        _currentLayer = oldLayer;
 
         return (TConcrete)this;
     }
 
     public TConcrete NextLayer()
     {
-        currentLayer = currentLayer.MoreSpecific();
+        _currentLayer = _currentLayer.MoreSpecific();
 
         return (TConcrete)this;
     }
 
     #region ILayered implementation
 
-    Layer ILayered.CurrentLayer => currentLayer;
+    Layer ILayered.CurrentLayer => _currentLayer;
 
     #endregion
 }

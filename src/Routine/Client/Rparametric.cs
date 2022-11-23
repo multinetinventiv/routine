@@ -4,7 +4,7 @@ namespace Routine.Client;
 
 public abstract class Rparametric
 {
-    private readonly Dictionary<string, Rparameter> parameters;
+    private readonly Dictionary<string, Rparameter> _parameters;
 
     public Rtype Type { get; }
     public List<List<Rparameter>> Groups { get; }
@@ -16,17 +16,17 @@ public abstract class Rparametric
 
         Type = type;
 
-        parameters = new();
+        _parameters = new();
         Groups = Enumerable.Range(0, groupCount).Select(_ => new List<Rparameter>()).ToList();
 
         foreach (var parameterModel in parameterModels)
         {
-            parameters[parameterModel.Name] = new(parameterModel, this);
+            _parameters[parameterModel.Name] = new(parameterModel, this);
         }
 
-        foreach (var paramId in parameters.Keys)
+        foreach (var paramId in _parameters.Keys)
         {
-            var param = parameters[paramId];
+            var param = _parameters[paramId];
 
             foreach (var group in param.Groups)
             {
@@ -44,8 +44,8 @@ public abstract class Rparametric
     }
 
     public Rapplication Application => Type.Application;
-    public Dictionary<string, Rparameter> Parameter => parameters;
-    public List<Rparameter> Parameters => parameters.Values.ToList();
+    public Dictionary<string, Rparameter> Parameter => _parameters;
+    public List<Rparameter> Parameters => _parameters.Values.ToList();
     public Roperation Operation => this as Roperation;
     public Rinitializer Initializer => this as Rinitializer;
 

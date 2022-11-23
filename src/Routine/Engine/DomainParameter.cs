@@ -61,7 +61,7 @@ public class DomainParameter
                         $"{parameter.Owner.ParentType.Name}.{parameter.Owner.Name}(...,{parameter.Name},...): Given groupIndex ({target.NextGroupIndex}) was already added!");
                 }
 
-                if (!domainParameter.parameter.ParameterType.Equals(parameter.ParameterType))
+                if (!domainParameter._parameter.ParameterType.Equals(parameter.ParameterType))
                 {
                     throw new ParameterTypesDoNotMatchException(
                         parameter,
@@ -81,8 +81,8 @@ public class DomainParameter
 
     #endregion
 
-    private readonly ICoreContext ctx;
-    private readonly IParameter parameter;
+    private readonly ICoreContext _ctx;
+    private readonly IParameter _parameter;
 
     public string Name { get; }
     public DomainType ParameterType { get; }
@@ -91,12 +91,12 @@ public class DomainParameter
     public bool IsList { get; }
     public bool IsOptional { get; }
 
-    private readonly object defaultValue;
+    private readonly object _defaultValue;
 
     private DomainParameter(ICoreContext ctx, IParameter parameter, int initialGroupIndex)
     {
-        this.ctx = ctx;
-        this.parameter = parameter;
+        _ctx = ctx;
+        _parameter = parameter;
 
         Name = ctx.CodingStyle.GetName(parameter);
         ParameterType = ctx.GetDomainType(Fix(parameter.ParameterType));
@@ -105,14 +105,14 @@ public class DomainParameter
         IsList = parameter.ParameterType.CanBeCollection();
         IsOptional = ctx.CodingStyle.IsOptional(parameter);
 
-        defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
+        _defaultValue = ctx.CodingStyle.GetDefaultValue(parameter);
     }
 
     private void AddGroup(IParameter parameter, int groupIndex)
     {
         Groups.Add(groupIndex);
 
-        Marks.Join(ctx.CodingStyle.GetMarks(parameter));
+        Marks.Join(_ctx.CodingStyle.GetMarks(parameter));
     }
 
     public bool MarkedAs(string mark) => Marks.Has(mark);
@@ -126,20 +126,20 @@ public class DomainParameter
             Groups = Groups,
             IsList = IsList,
             IsOptional = IsOptional,
-            DefaultValue = ctx.CreateValueData(defaultValue, IsList, ParameterType, false)
+            DefaultValue = _ctx.CreateValueData(_defaultValue, IsList, ParameterType, false)
         };
 
     internal async Task<object> LocateAsync(ParameterValueData parameterValueData)
     {
         if (!IsList) { return await GetObjectAsync(parameterValueData); }
 
-        var result = parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
+        var result = _parameter.ParameterType.CreateListInstance(parameterValueData.Values.Count);
 
         var objects = await GetObjectsAsync(parameterValueData);
 
         for (var i = 0; i < objects.Count; i++)
         {
-            if (parameter.ParameterType.IsArray)
+            if (_parameter.ParameterType.IsArray)
             {
                 result[i] = objects[i];
             }
@@ -193,14 +193,14 @@ public class DomainParameter
     {
         if (parameterData == null)
         {
-            return ctx.GetDomainType((IType)null);
+            return _ctx.GetDomainType((IType)null);
         }
 
         var domainType = ParameterType;
 
         if (parameterData.ModelId != domainType.Id && !string.IsNullOrEmpty(parameterData.ModelId))
         {
-            domainType = ctx.GetDomainType(parameterData.ModelId);
+            domainType = _ctx.GetDomainType(parameterData.ModelId);
         }
 
         return domainType;

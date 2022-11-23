@@ -8,7 +8,7 @@ public class Rtype
 {
     public static readonly Rtype Void = new();
 
-    private readonly ObjectModel model;
+    private readonly ObjectModel _model;
 
     public Rapplication Application { get; }
 
@@ -22,54 +22,54 @@ public class Rtype
     public Rtype(Rapplication application, ObjectModel model)
     {
         Application = application;
-        this.model = model;
+        _model = model;
 
-        ViewTypes = new List<Rtype>();
-        ActualTypes = new List<Rtype>();
+        ViewTypes = new();
+        ActualTypes = new();
         Initializer = null;
-        Data = new Dictionary<string, Rdata>();
-        Operation = new Dictionary<string, Roperation>();
+        Data = new();
+        Operation = new();
     }
 
     internal void Load()
     {
-        foreach (var viewModelId in model.ViewModelIds)
+        foreach (var viewModelId in _model.ViewModelIds)
         {
             ViewTypes.Add(Application[viewModelId]);
         }
 
-        foreach (var actualModelId in model.ActualModelIds)
+        foreach (var actualModelId in _model.ActualModelIds)
         {
             ActualTypes.Add(Application[actualModelId]);
         }
 
-        if (model.Initializer.GroupCount > 0)
+        if (_model.Initializer.GroupCount > 0)
         {
-            Initializer = new(model.Initializer, this);
+            Initializer = new(_model.Initializer, this);
         }
 
-        foreach (var data in model.Datas)
+        foreach (var data in _model.Datas)
         {
             Data.Add(data.Name, new(data, this));
         }
 
-        foreach (var operation in model.Operations)
+        foreach (var operation in _model.Operations)
         {
             Operation.Add(operation.Name, new(operation, this));
         }
     }
 
-    public string Id => model.Id;
-    public string Name => model.Name;
-    public string Module => model.Module;
-    public bool IsValueType => model.IsValueModel;
-    public bool IsViewType => model.IsViewModel;
+    public string Id => _model.Id;
+    public string Name => _model.Name;
+    public string Module => _model.Module;
+    public bool IsValueType => _model.IsValueModel;
+    public bool IsViewType => _model.IsViewModel;
     public bool IsVoid => Id == Constants.MODEL_ID_VOID;
     public bool Initializable => Initializer != null;
     public List<Rdata> Datas => Data.Values.ToList();
     public List<Roperation> Operations => Operation.Values.ToList();
 
-    public HashSet<string> Marks => model.Marks;
+    public HashSet<string> Marks => _model.Marks;
 
     public bool MarkedAs(string mark) => Marks.Contains(mark);
 
@@ -81,7 +81,7 @@ public class Rtype
     }
 
     public List<Robject> StaticInstances =>
-        model
+        _model
             .StaticInstances
             .Select(od => new Robject(od, Application[od.ModelId], this))
             .ToList();
@@ -92,13 +92,13 @@ public class Rtype
     public Robject Init(params Rvariable[] initializationParameters) => Init(initializationParameters.AsEnumerable());
     public Robject Init(IEnumerable<Rvariable> initializationParameters) => new(initializationParameters, this);
 
-    public override string ToString() => model.Id;
+    public override string ToString() => _model.Id;
 
     #region Equality & Hashcode
 
     protected bool Equals(Rtype other)
     {
-        return Equals(model, other.model);
+        return Equals(_model, other._model);
     }
 
     public override bool Equals(object obj)
@@ -112,7 +112,7 @@ public class Rtype
 
     public override int GetHashCode()
     {
-        return (model != null ? model.GetHashCode() : 0);
+        return (_model != null ? _model.GetHashCode() : 0);
     }
 
     #endregion

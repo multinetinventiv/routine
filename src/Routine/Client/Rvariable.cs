@@ -6,10 +6,10 @@ public class Rvariable
 {
     private const string ANONYMOUS = "__anonymous__";
 
-    private readonly string name;
-    private readonly List<Robject> value;
-    private readonly bool list;
-    private readonly bool @void;
+    private readonly string _name;
+    private readonly List<Robject> _value;
+    private readonly bool _list;
+    private readonly bool _void;
 
     internal Rvariable() : this(false) { }
     internal Rvariable(bool @void) : this(ANONYMOUS, new List<Robject>(), false, @void) { }
@@ -24,17 +24,17 @@ public class Rvariable
     public Rvariable(string name, IEnumerable<Robject> list) : this(name, list, true, false) { }
     private Rvariable(string name, IEnumerable<Robject> value, bool list, bool @void)
     {
-        this.name = name;
-        this.value = value.ToList();
-        this.list = list;
-        this.@void = @void;
+        _name = name;
+        _value = value.ToList();
+        _list = list;
+        _void = @void;
     }
 
     internal VariableData GetValueData() =>
         new()
         {
-            IsList = list,
-            Values = value.Select(robj => new ObjectData
+            IsList = _list,
+            Values = _value.Select(robj => new ObjectData
             {
                 Id = robj.Id,
                 Display = robj.Display
@@ -44,22 +44,22 @@ public class Rvariable
     internal ParameterValueData GetParameterValueData() =>
         new()
         {
-            IsList = list,
-            Values = value.Select(robj => robj.GetParameterData()).ToList()
+            IsList = _list,
+            Values = _value.Select(robj => robj.GetParameterData()).ToList()
         };
 
-    public string Name => name;
-    public bool IsList => list;
-    public bool IsVoid => @void;
+    public string Name => _name;
+    public bool IsList => _list;
+    public bool IsVoid => _void;
     public bool IsNull => Object.IsNull;
 
-    public Robject Object => value.Count <= 0 ? new Robject() : value[0];
-    public List<Robject> List => value;
+    public Robject Object => _value.Count <= 0 ? new() : _value[0];
+    public List<Robject> List => _value;
 
-    public Rvariable CreateAlias(string name) => new(name, value, list, @void);
+    public Rvariable CreateAlias(string name) => new(name, _value, _list, _void);
 
-    public Rvariable ToSingle() => new(name, Object);
-    public Rvariable ToList() => new(name, List);
+    public Rvariable ToSingle() => new(_name, Object);
+    public Rvariable ToList() => new(_name, List);
 
     public T As<T>(Func<Robject, T> converter) => RobjectAs(Object, converter);
     public List<T> AsList<T>(Func<Robject, T> converter) => List.Select(o => RobjectAs(o, converter)).ToList();

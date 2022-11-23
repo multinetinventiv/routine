@@ -5,16 +5,16 @@ public abstract class ConstructorInfo : MethodBase, IConstructor
     internal static ConstructorInfo Reflected(System.Reflection.ConstructorInfo constructor) => new ReflectedConstructorInfo(constructor).Load();
     internal static ConstructorInfo Preloaded(System.Reflection.ConstructorInfo constructor) => new PreloadedConstructorInfo(constructor).Load();
 
-    protected readonly System.Reflection.ConstructorInfo constructorInfo;
+    protected readonly System.Reflection.ConstructorInfo _constructorInfo;
 
     protected ConstructorInfo(System.Reflection.ConstructorInfo constructorInfo)
     {
-        this.constructorInfo = constructorInfo;
+        _constructorInfo = constructorInfo;
     }
 
-    public System.Reflection.ConstructorInfo GetActualConstructor() => constructorInfo;
+    public System.Reflection.ConstructorInfo GetActualConstructor() => _constructorInfo;
 
-    public override string Name => constructorInfo.Name;
+    public override string Name => _constructorInfo.Name;
 
     protected abstract ConstructorInfo Load();
 

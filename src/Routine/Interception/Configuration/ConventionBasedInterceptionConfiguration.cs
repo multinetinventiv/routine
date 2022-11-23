@@ -11,8 +11,8 @@ public class ConventionBasedInterceptionConfiguration : LayeredBase<ConventionBa
 
     internal ConventionBasedInterceptionConfiguration()
     {
-        Interceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, InterceptionTarget, IInterceptor<InterceptionContext>>(this, nameof(Interceptors));
-        ServiceInterceptors = new ConventionBasedListConfiguration<ConventionBasedInterceptionConfiguration, OperationWithObjectModel, IInterceptor<ServiceInterceptionContext>>(this, nameof(ServiceInterceptors));
+        Interceptors = new(this, nameof(Interceptors));
+        ServiceInterceptors = new(this, nameof(ServiceInterceptors));
     }
 
     public ConventionBasedInterceptionConfiguration Merge(ConventionBasedInterceptionConfiguration other)

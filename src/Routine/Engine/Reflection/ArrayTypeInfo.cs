@@ -2,7 +2,7 @@ namespace Routine.Engine.Reflection;
 
 internal class ArrayTypeInfo : PreloadedTypeInfo
 {
-    private TypeInfo elementType;
+    private TypeInfo _elementType;
 
     internal ArrayTypeInfo(Type type) : base(type)
     {
@@ -13,10 +13,10 @@ internal class ArrayTypeInfo : PreloadedTypeInfo
     {
         base.Load();
 
-        elementType = Get(type.GetElementType());
+        _elementType = Get(_type.GetElementType());
     }
 
-    protected internal override TypeInfo GetElementType() => elementType;
+    protected internal override TypeInfo GetElementType() => _elementType;
     public override object CreateInstance() => CreateListInstance(0);
-    public override IList CreateListInstance(int length) => Array.CreateInstance(elementType.GetActualType(), length);
+    public override IList CreateListInstance(int length) => Array.CreateInstance(_elementType.GetActualType(), length);
 }

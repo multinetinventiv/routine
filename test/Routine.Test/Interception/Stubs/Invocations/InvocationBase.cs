@@ -4,36 +4,36 @@ namespace Routine.Test.Interception.Stubs.Invocations;
 
 public abstract class InvocationBase<TResult> : IInvocation
 {
-    protected Context context;
-    private int count;
-    private object result;
-    private Exception exception;
-    protected Func<TResult> invocation;
+    protected Context _context;
+    private int _count;
+    private object _result;
+    private Exception _exception;
+    protected Func<TResult> _invocation;
 
     protected InvocationBase()
     {
-        context = new Context();
-        count = 0;
-        result = null;
-        exception = null;
-        invocation = () =>
+        _context = new();
+        _count = 0;
+        _result = null;
+        _exception = null;
+        _invocation = () =>
         {
-            count++;
+            _count++;
 
-            if (exception != null) { throw exception; }
+            if (_exception != null) { throw _exception; }
 
-            context["invocation"] = true;
+            _context["invocation"] = true;
 
-            return Convert(result);
+            return Convert(_result);
         };
     }
 
-    public Context Context => context;
-    public int Count => count;
+    public Context Context => _context;
+    public int Count => _count;
     public string ExceptionStackTraceLookupText => "InvocationBase`1.<.ctor>";
 
-    public void Returns(object result) => this.result = result;
-    public void FailsWith(Exception exception) => this.exception = exception;
+    public void Returns(object result) => _result = result;
+    public void FailsWith(Exception exception) => _exception = exception;
 
     protected abstract object Intercept(IInterceptor<Context> testing);
     protected abstract TResult Convert(object result);

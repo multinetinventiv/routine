@@ -14,13 +14,13 @@ public class VirtualType : IType
 
     public VirtualType()
     {
-        Name = new SingleConfiguration<VirtualType, string>(this, nameof(Name), true);
-        Namespace = new SingleConfiguration<VirtualType, string>(this, nameof(Namespace), true);
-        IsInterface = new SingleConfiguration<VirtualType, bool>(this, nameof(IsInterface));
-        DefaultInstanceId = new SingleConfiguration<VirtualType, string>(this, nameof(DefaultInstanceId), true);
-        ToStringMethod = new SingleConfiguration<VirtualType, Func<VirtualObject, string>>(this, nameof(ToStringMethod));
-        AssignableTypes = new ListConfiguration<VirtualType, VirtualType>(this, nameof(AssignableTypes));
-        Methods = new ListConfiguration<VirtualType, IMethod>(this, nameof(Methods));
+        Name = new(this, nameof(Name), true);
+        Namespace = new(this, nameof(Namespace), true);
+        IsInterface = new(this, nameof(IsInterface));
+        DefaultInstanceId = new(this, nameof(DefaultInstanceId), true);
+        ToStringMethod = new(this, nameof(ToStringMethod));
+        AssignableTypes = new(this, nameof(AssignableTypes));
+        Methods = new(this, nameof(Methods));
     }
 
     private object Cast(object @object, IType otherType)

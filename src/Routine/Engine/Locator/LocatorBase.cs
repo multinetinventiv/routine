@@ -3,20 +3,20 @@ namespace Routine.Engine.Locator;
 public abstract class LocatorBase<TConcrete> : ILocator
     where TConcrete : LocatorBase<TConcrete>
 {
-    private bool acceptNullResult;
+    private bool _acceptNullResult;
 
     protected LocatorBase()
     {
         AcceptNullResult(true);
     }
 
-    public TConcrete AcceptNullResult(bool acceptNullResult) { this.acceptNullResult = acceptNullResult; return (TConcrete)this; }
+    public TConcrete AcceptNullResult(bool acceptNullResult) { _acceptNullResult = acceptNullResult; return (TConcrete)this; }
 
     private async Task<List<object>> LocateInnerAsync(IType type, List<string> ids)
     {
         var result = await LocateAsync(type, ids) ?? new();
 
-        if (!acceptNullResult && result.Contains(null))
+        if (!_acceptNullResult && result.Contains(null))
         {
             throw new CannotLocateException(type, ids);
         }
