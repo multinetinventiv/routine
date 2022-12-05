@@ -74,7 +74,6 @@ jobs:
             --logger trx \
             --results-directory .coverage \
             --settings test/runsettings.xml
-      - run: ls
       - name: Merge Multiple Test Coverage Report
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: danielpalme/ReportGenerator-GitHub-Action@5.1.12
