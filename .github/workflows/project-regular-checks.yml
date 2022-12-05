@@ -9,6 +9,10 @@ on:
       - 'samples/**'
       - 'Routine.sln'
       - 'Directory.Build.props'
+
+env:
+  MIN_COVERAGE: 53
+
 jobs:
   # outputs matrix json so that windows is only added when head branch is a release branch
   prepare:
@@ -69,7 +73,7 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --logger trx \
             --results-directory .coverage \
-            --settings test/UnitTest/runsettings.xml
+            --settings test/runsettings.xml
       - name: Merge Multiple Test Coverage Report
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: danielpalme/ReportGenerator-GitHub-Action@5.1.12
