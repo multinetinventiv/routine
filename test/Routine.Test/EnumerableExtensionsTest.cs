@@ -3,6 +3,7 @@ namespace Routine.Test;
 [TestFixture]
 public class EnumerableExtensionsTest
 {
+
     [Test]
     public void Test_IEnumerable_ToItemString()
     {
