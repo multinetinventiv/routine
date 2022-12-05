@@ -9,6 +9,10 @@ on:
       - 'samples/**'
       - 'Routine.sln'
       - 'Directory.Build.props'
+
+env:
+  MIN_COVERAGE: 80
+
 jobs:
   # outputs matrix json so that windows is only added when head branch is a release branch
   prepare:
@@ -61,21 +65,36 @@ jobs:
         run: dotnet test -c Release
       - name: Test w/ Coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
+        # If a project is not listed in coverage report,
+        # use '-verbosity:diagnostic --diag:log.log' options
+        # to log collector warnings.
         run: |
           dotnet test -c Release \
-            /p:CollectCoverage=true \
-            /p:SkipAutoProps=true \
-            /p:Exclude=\"[Routine.Samples*]*,[Routine.Test*]*\" \
-            /p:IncludeTestAssembly=false \
-            /p:CoverletOutput=../.coverage/ \
-            /p:MergeWith="../.coverage/coverage.json" \
-            /p:CoverletOutputFormat=\"cobertura,json\" -m:1
+            --collect:"XPlat Code Coverage" \
+            --logger trx \
+            --results-directory .coverage \
+            --settings test/runsettings.xml
+      - name: Merge Multiple Test Coverage Report
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.12
+        with:
+          reports: '.coverage/*/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'Cobertura'
+      - name: Code Coverage Summary Report
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: coveragereport/Cobertura.xml
+          badge: true
+          format: 'markdown'
+          output: 'both'
       - name: Upload Reports
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v3
         with:
           name: coverage-reports
-          path: ./**/.coverage/coverage.cobertura.xml
+          path: code-coverage-results.md
   coverage:
     name: Coverage
     needs: test
@@ -85,14 +104,27 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-reports
-      - name: Publish Report
-        uses: 5monkeys/cobertura-action@master
+      - name: Write to Job Summary
+        run: |
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: ./**/.coverage/coverage.cobertura.xml
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 75
-          fail_below_threshold: true
-          only_changed_files: true
-          show_missing: true
-          link_missing_lines: true
-          report_name: Report
+          recreate: true
+          path: code-coverage-results.md
+      - name: Checking Test Coverage Under Minimum Coverage
+        run: |
+          coverage=$(cat code-coverage-results.md | sed -n '/Code%20Coverage-/p' | sed '/[ a-zA-Z\/()=\.\?%\!]/ s///g' | sed 's/.\{3\}$//' | sed 's/^......//')
+          if test $(($coverage < ${{ env.MIN_COVERAGE }})) = 1
+            then
+              echo ! Coverage is below ${{ env.MIN_COVERAGE }}% ! >> $GITHUB_STEP_SUMMARY
+              exit 1
+          fi
+      - name: Add Coverage PR Comment
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          append: true
+          message: |
+            :heavy_exclamation_mark: Coverage is below ${{ env.MIN_COVERAGE }}% :heavy_exclamation_mark:
+

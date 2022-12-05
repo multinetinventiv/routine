@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[Routine.Samples*]*,[Routine.Test*]*</Exclude>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+
+          <!-- Özellikle false yaptık ki Auto Propertylerin testlerde kullanıldığını görelim -->
+          <SkipAutoProps>false</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
