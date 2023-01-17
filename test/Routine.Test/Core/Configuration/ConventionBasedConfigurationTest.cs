@@ -8,7 +8,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 {
     #region Setup & Helpers
 
-    private Mock<ILayered> _layeredMock;
+    private Mock<ILayered> _layeredMock; 
     private Mock<ILayered> _otherLayeredMock;
 
     private ConventionBasedConfiguration<ILayered, string, string> _testing;
