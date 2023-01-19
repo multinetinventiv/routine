@@ -13,6 +13,7 @@ public abstract class CoreTestBase
     [SetUp]
     public virtual void SetUp()
     {
+        TypeInfo.Clear();
         TypeInfo.SetProxyMatcher(t => t.Name.Contains("Proxy"), t => t.BaseType);
 
         _objectModelDictionary = new();

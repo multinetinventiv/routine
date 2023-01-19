@@ -28,8 +28,6 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
         _otherLayeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
-
-        TypeInfo.Clear();
     }
 
     private void SetMoreSpecificLayer()
@@ -268,16 +266,14 @@ public class ConventionBasedConfigurationTest : CoreTestBase
     }
 
     [Test]
-    public void Bug_pattern_builder_causes_reset_in_proxy_matcher()
+    public void BUG_pattern_builder_causes_reset_in_proxy_matcher()
     {
         var conventionBasedCodingStyle = new ConventionBasedCodingStyle();
-        conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => t.BaseType);
-        var typeBefore = TypeInfo.Get<string>();
+        conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => typeof(object));
 
         BuildRoutine.CodingStylePattern().FromEmpty();
-        var typeAfter = TypeInfo.Get<string>();
+        var typeAfter = type.of<string>();
 
-        Assert.AreEqual(typeBefore, typeAfter);
-
+        Assert.AreEqual(type.of<object>(), typeAfter);
     }
 }
