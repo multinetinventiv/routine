@@ -272,9 +272,21 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => t.BaseType);
         var typeBefore = TypeInfo.Get<string>();
 
-        //BuildRoutine.CodingStylePattern().FromEmpty();
+        BuildRoutine.CodingStylePattern().FromEmpty();
+        var typeAfter = TypeInfo.Get<string>();
+
+        Assert.AreEqual(typeBefore, typeAfter);
+
+    }
+
+    [Test]
+    public void Bug_type_info_clear_causes_reset_in_proxy_matcher()
+    {
+        var conventionBasedCodingStyle = new ConventionBasedCodingStyle();
+        conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => t.BaseType);
+        var typeBefore = TypeInfo.Get<string>();
+
         TypeInfo.Clear();
-        //conventionBasedCodingStyle.AddTypes(typeof(string));
         var typeAfter = TypeInfo.Get<string>();
 
         Assert.AreEqual(typeBefore, typeAfter);
