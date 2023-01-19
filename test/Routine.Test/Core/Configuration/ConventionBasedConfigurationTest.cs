@@ -1,5 +1,6 @@
-﻿using Routine.Core.Configuration.Convention;
-using Routine.Core.Configuration;
+﻿using Routine.Core.Configuration;
+using Routine.Core.Configuration.Convention;
+using Routine.Engine.Configuration.ConventionBased;
 
 namespace Routine.Test.Core.Configuration;
 
@@ -8,7 +9,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 {
     #region Setup & Helpers
 
-    private Mock<ILayered> _layeredMock; 
+    private Mock<ILayered> _layeredMock;
     private Mock<ILayered> _otherLayeredMock;
 
     private ConventionBasedConfiguration<ILayered, string, string> _testing;
@@ -262,5 +263,21 @@ public class ConventionBasedConfigurationTest : CoreTestBase
     {
         //BeginTest();
         Assert.Fail();
+    }
+
+    [Test]
+    public void Bug_pattern_builder_causes_reset_in_proxy_matcher()
+    {
+        var conventionBasedCodingStyle = new ConventionBasedCodingStyle();
+        conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => t.BaseType);
+        var typeBefore = TypeInfo.Get<string>();
+
+        //BuildRoutine.CodingStylePattern().FromEmpty();
+        TypeInfo.Clear();
+        //conventionBasedCodingStyle.AddTypes(typeof(string));
+        var typeAfter = TypeInfo.Get<string>();
+
+        Assert.AreEqual(typeBefore, typeAfter);
+
     }
 }
