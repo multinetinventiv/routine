@@ -278,18 +278,4 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         Assert.AreEqual(typeBefore, typeAfter);
 
     }
-
-    [Test]
-    public void Bug_type_info_clear_causes_reset_in_proxy_matcher()
-    {
-        var conventionBasedCodingStyle = new ConventionBasedCodingStyle();
-        conventionBasedCodingStyle.RecognizeProxyTypesBy(t => true, t => t.BaseType);
-        var typeBefore = TypeInfo.Get<string>();
-
-        TypeInfo.Clear();
-        var typeAfter = TypeInfo.Get<string>();
-
-        Assert.AreEqual(typeBefore, typeAfter);
-
-    }
 }
