@@ -28,6 +28,8 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _layeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
         _otherLayeredMock.Setup(o => o.CurrentLayer).Returns(Layer.LeastSpecific);
+
+        TypeInfo.Clear();
     }
 
     private void SetMoreSpecificLayer()

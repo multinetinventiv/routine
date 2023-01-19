@@ -40,8 +40,6 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
 
     public ConventionBasedCodingStyle()
     {
-        TypeInfo.Clear();
-
         _types = new();
 
         MaxFetchDepth = new(this, nameof(MaxFetchDepth), true);
