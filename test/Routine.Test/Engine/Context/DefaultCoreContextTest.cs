@@ -23,6 +23,8 @@ public class DefaultCoreContextTest : CoreTestBase
             .ValueExtractor.Set(c => c.Value(e => e.By(obj => $"{obj}")));
 
         _testing = new DefaultCoreContext(codingStyle);
+
+        TypeInfo.Clear();
     }
 
     [Test]
