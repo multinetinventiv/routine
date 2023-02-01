@@ -9,7 +9,6 @@ using System.Globalization;
 namespace Routine.Test.Performance;
 
 [TestFixture]
-[Ignore("should be run manually")]
 public class CorePerformanceTest
 {
     #region Setup & Helpers
@@ -108,6 +107,7 @@ public class CorePerformanceTest
     #endregion
 
     [Test]
+    [Ignore("should be run manually")]
     public void ReflectionCore_PropertyAccess()
     {
         const int load = 100000;
@@ -182,6 +182,7 @@ public class CorePerformanceTest
     [TestCase(1000, 10)]
     [TestCase(1000, 100)]
     [TestCase(1000, 1000)]
+    [Ignore("should be run manually")]
     public void GetObjectData_WithListProperty(int load, int subObjCount)
     {
         const double maxEngineOverheadRatio = 5;
@@ -430,6 +431,7 @@ public class CorePerformanceTest
     [TestCase(1000)]
     [TestCase(10000)]
     [TestCase(100000)]
+    [Ignore("should be run manually")]
     public void PerformOperation_LightParameter_HeavyLoad(int load)
     {
         const double maxEngineOverheadRatio = 7.2;
@@ -685,6 +687,7 @@ public class CorePerformanceTest
     [TestCase(10, 1000)]
     [TestCase(10, 10000)]
     [TestCase(10, 100000)]
+    [Ignore("should be run manually")]
     public void PerformOperation_HeavyParameter_LightLoad(int load, int inputCount)
     {
         const double maxEngineOverheadRatio = 7.2;
