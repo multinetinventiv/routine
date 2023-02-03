@@ -144,9 +144,10 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
                 .CreateInvoker();
         }
 
-        if (!waitForOptimization || result is not ProxyMethodInvoker proxy || proxy.Real is not SwitchableMethodInvoker switchable) { return result; }
-
-        WaitForOptimization(result);
+        if (waitForOptimization)
+        {
+            WaitForOptimization(result);
+        }
 
         return result;
     }
