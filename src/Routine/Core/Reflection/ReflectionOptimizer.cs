@@ -7,6 +7,7 @@ internal class ReflectionOptimizer
     public static bool Enabled { get; private set; } = true;
     public static void Disable() => Enabled = false;
     public static void Enable() => Enabled = true;
+    public static event EventHandler Optimized;
 
     private static readonly object OPTIMIZE_LIST_LOCK = new();
     private static readonly HashSet<MethodBase> OPTIMIZE_LIST = new();
@@ -16,8 +17,6 @@ internal class ReflectionOptimizer
 
     public static IMethodInvoker CreateInvoker(MethodBase method)
     {
-        if (!Enabled) { return new ReflectionMethodInvoker(method); }
-
         if (method == null) { throw new ArgumentNullException(nameof(method)); }
 
         AddToOptimizeList(method);
@@ -25,7 +24,6 @@ internal class ReflectionOptimizer
         lock (OPTIMIZE_LIST_LOCK)
         {
             var localOptimizeList = new List<MethodBase>(OPTIMIZE_LIST);
-
             lock (INVOKERS_LOCK)
             {
                 var invokers = new ReflectionOptimizer(localOptimizeList).Optimize();
@@ -60,11 +58,16 @@ internal class ReflectionOptimizer
         }
     }
 
-    public static void ClearOptimizeList()
+    public static void Clear()
     {
         lock (OPTIMIZE_LIST_LOCK)
         {
-            OPTIMIZE_LIST.Clear();
+            lock (INVOKERS_LOCK)
+            {
+
+                OPTIMIZE_LIST.Clear();
+                INVOKERS.Clear();
+            }
         }
     }
 
@@ -119,18 +122,26 @@ internal class ReflectionOptimizer
             {
                 compiler.AddReferenceFrom(methodInfo.ReturnType);
             }
+
+            result.TryAdd(method, new SwitchableMethodInvoker(new ReflectionMethodInvoker(method)));
         }
 
         if (!compiler.HasCode) { return result; }
 
-        var assembly = compiler.Compile();
-
-        foreach (var invokerType in assembly.GetExportedTypes())
+        Task.Run(() =>
         {
-            if (!methodsByName.TryGetValue(invokerType.Name, out var method)) { continue; }
+            var assembly = compiler.Compile();
+            foreach (var invokerType in assembly.GetExportedTypes())
+            {
+                if (!methodsByName.TryGetValue(invokerType.Name, out var method)) { continue; }
+                if (!result.TryGetValue(method, out var invoker)) { continue; }
+                if (invoker is not SwitchableMethodInvoker switchable) { continue; }
 
-            result.TryAdd(method, (IMethodInvoker)Activator.CreateInstance(invokerType));
-        }
+                switchable.Switch((IMethodInvoker)Activator.CreateInstance(invokerType));
+            }
+
+            Optimized?.Invoke(null, EventArgs.Empty);
+        });
 
         return result;
     }

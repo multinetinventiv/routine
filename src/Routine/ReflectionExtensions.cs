@@ -42,28 +42,46 @@ public static class ReflectionExtensions
 
     #region internal Type
 
-    public static string ToCSharpString(this Type source, bool useFullName = true) => source.ToTypeInfo().ToCSharpString(useFullName);
-    public static string ToCSharpString(this IType source, bool useFullName = true)
+    public static string ToCSharpString(this Type source, bool useFullName = true)
     {
-        if (source.IsVoid)
-        {
-            return "void";
-        }
+        if (source == typeof(void)) { return "void"; }
 
         if (!source.IsGenericType)
         {
             if (useFullName)
             {
-                return "global::" + source.FullName.Replace("+", ".");
+                return $"global::{source.FullName.Replace("+", ".")}";
             }
 
             return source.Name;
         }
 
-        var result = (source.Namespace != null && useFullName) ? "global::" + source.Namespace + "." : "";
+        var result = (source.Namespace != null && useFullName) ? $"global::{source.Namespace}." : "";
         result += source.Name.Before("`");
 
-        result += "<" + string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName))) + ">";
+        result += $"<{string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName)))}>";
+
+        return result.Replace("+", ".");
+    }
+
+    public static string ToCSharpString(this IType source, bool useFullName = true)
+    {
+        if (source.IsVoid) { return "void"; }
+
+        if (!source.IsGenericType)
+        {
+            if (useFullName)
+            {
+                return $"global::{source.FullName.Replace("+", ".")}";
+            }
+
+            return source.Name;
+        }
+
+        var result = (source.Namespace != null && useFullName) ? $"global::{source.Namespace}." : "";
+        result += source.Name.Before("`");
+
+        result += $"<{string.Join(",", source.GetGenericArguments().Select(t => t.ToCSharpString(useFullName)))}>";
 
         return result.Replace("+", ".");
     }

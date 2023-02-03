@@ -9,7 +9,6 @@ using System.Globalization;
 namespace Routine.Test.Performance;
 
 [TestFixture]
-[Ignore("should be run manually")]
 public class CorePerformanceTest
 {
     #region Setup & Helpers
@@ -49,6 +48,17 @@ public class CorePerformanceTest
         _rapp = apiCtx.Application;
 
         var _ = _objectService.ApplicationModel;
+
+        var optimized = false;
+        var onOptimized = new EventHandler((_, _) => optimized = true);
+        ReflectionOptimizer.Optimized += onOptimized;
+
+        var obj = new BusinessPerformance();
+        var rprop1 = obj.GetTypeInfo().GetProperty("Id");
+        rprop1.GetValue(obj);
+
+        while(!optimized) { Thread.Sleep(1); }
+        ReflectionOptimizer.Optimized -= onOptimized;
     }
 
     protected void AddToRepository(BusinessPerformance obj)
@@ -90,8 +100,11 @@ public class CorePerformanceTest
 
     private double Run(string name, Action testAction, int count)
     {
-        //first call is not included to let it do its inital loading & caching etc.
-        testAction();
+        var warmUpCount = 10;
+        for (var i = 0; i < warmUpCount; i++)
+        {
+            testAction();
+        }
 
         var timer = Stopwatch.StartNew();
         for (var i = 0; i < count; i++)
@@ -108,72 +121,100 @@ public class CorePerformanceTest
     #endregion
 
     [Test]
+    [Ignore("should be run manually")]
     public void ReflectionCore_PropertyAccess()
     {
-        const int load = 100000;
+        const int load = 1000000;
 
         Console.WriteLine("Load -> " + load);
 
         Console.WriteLine("-------");
         var obj = new BusinessPerformance { Id = 1 };
 
-        Run("Direct Access", () =>
-            {
-                var _ = obj.Id;
-            }, load);
+        Run("Direct Access",
+            () => { var _ = obj.Id; },
+            load
+        );
 
         Console.WriteLine("-------");
 
         var prop = obj.GetType().GetProperty("Id");
-        Run("System.Reflection Cached Access", () =>
-        {
-            var _ = prop?.GetValue(obj, Array.Empty<object>());
-        }, load);
+        Run("System.Reflection Cached Access",
+            () => { var _ = prop?.GetValue(obj); },
+            load
+        );
+
         ReflectionOptimizer.Disable();
         var rprop1 = obj.GetTypeInfo().GetProperty("Id");
-        Run("Routine.Core.Reflection Cached Access (without optimizer) ", () =>
-        {
-            var _ = rprop1.GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Cached Access (without optimizer)",
+            () => { var _ = rprop1.GetValue(obj); },
+            load
+        );
+
         ReflectionOptimizer.Enable();
         var rprop2 = obj.GetTypeInfo().GetProperty("Id");
-        Run("Routine.Core.Reflection Cached Access", () =>
-        {
-            var _ = rprop2.GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Cached Access",
+            () => { var _ = rprop2.GetValue(obj); },
+            load
+        );
+
         Console.WriteLine("-------");
 
-        Run("System.Reflection Access", () =>
-        {
-            var _ = obj.GetType().GetProperty("Id")?.GetValue(obj, Array.Empty<object>());
-        }, load);
+        Run("System.Reflection Access",
+            () => { var _ = obj.GetType().GetProperty("Id").GetValue(obj, Array.Empty<object>()); },
+            load
+        );
+
         ReflectionOptimizer.Disable();
-        Run("Routine.Core.Reflection Access (without optimizer)", () =>
-        {
-            var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Access (without optimizer)",
+            () => { var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj); },
+            load
+        );
+
         ReflectionOptimizer.Enable();
-        Run("Routine.Core.Reflection Access", () =>
-            {
-                var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-            }, load);
+        Run("Routine.Core.Reflection Access",
+            () => { var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj); },
+            load
+        );
 
         Console.WriteLine("-------");
 
-        Run("Routine.Core.Reflection Access -> GetTypeInfo()", () =>
-            {
-                var _ = obj.GetTypeInfo();
-            }, load);
-        var type = obj.GetTypeInfo();
-        Run("Routine.Core.Reflection Access -> GetProperty('Id')", () =>
-            {
-                var _ = type.GetProperty("Id");
-            }, load);
-        var rprop3 = type.GetProperty("Id");
-        Run("Routine.Core.Reflection Access -> GetValue(obj)", () =>
-            {
-                var _ = rprop3.GetValue(obj);
-            }, load);
+        Run("System.Reflection Access -> GetType()",
+            () => { var _ = obj.GetType(); },
+            load
+        );
+        Run("Routine.Core.Reflection Access -> GetTypeInfo()",
+            () => { var _ = obj.GetTypeInfo(); },
+            load
+        );
+
+        Console.WriteLine("-------");
+
+        var type = obj.GetType();
+        Run("System.Reflection Access -> GetProperty('Id')",
+            () => { var _ = type.GetProperty("Id"); },
+            load
+        );
+        var typeInfo = obj.GetTypeInfo();
+        Run("Routine.Core.Reflection Access -> GetProperty('Id')",
+            () => { var _ = typeInfo.GetProperty("Id"); },
+            load
+        );
+
+        Console.WriteLine("-------");
+
+        var prop3 = type.GetProperty("Id");
+        Run("System.Reflection Access -> GetValue(obj)",
+            () => { var _ = prop3.GetValue(obj); },
+            load
+        );
+        var rprop3 = typeInfo.GetProperty("Id");
+        Run("Routine.Core.Reflection Access -> GetValue(obj)",
+            () => { var _ = rprop3.GetValue(obj); },
+            load
+        );
+
+        Console.WriteLine("-------");
     }
 
     [TestCase(100, 10)]
@@ -182,6 +223,7 @@ public class CorePerformanceTest
     [TestCase(1000, 10)]
     [TestCase(1000, 100)]
     [TestCase(1000, 1000)]
+    [Ignore("should be run manually")]
     public void GetObjectData_WithListProperty(int load, int subObjCount)
     {
         const double maxEngineOverheadRatio = 5;
@@ -430,6 +472,7 @@ public class CorePerformanceTest
     [TestCase(1000)]
     [TestCase(10000)]
     [TestCase(100000)]
+    [Ignore("should be run manually")]
     public void PerformOperation_LightParameter_HeavyLoad(int load)
     {
         const double maxEngineOverheadRatio = 7.2;
@@ -685,6 +728,7 @@ public class CorePerformanceTest
     [TestCase(10, 1000)]
     [TestCase(10, 10000)]
     [TestCase(10, 100000)]
+    [Ignore("should be run manually")]
     public void PerformOperation_HeavyParameter_LightLoad(int load, int inputCount)
     {
         const double maxEngineOverheadRatio = 7.2;
