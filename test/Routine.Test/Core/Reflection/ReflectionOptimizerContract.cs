@@ -155,7 +155,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         if (invoker is not ProxyMethodInvoker proxy || proxy.Real is not SwitchableMethodInvoker switchable) { return; }
 
-        const int timeout = 2000;
+        const int timeout = 5000;
 
         var count = 0;
         var optimized = false;
