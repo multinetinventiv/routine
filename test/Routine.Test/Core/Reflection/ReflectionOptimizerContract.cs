@@ -159,12 +159,14 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var count = 0;
         var optimized = switchable.Invoker is not ReflectionMethodInvoker;
-        switchable.Switched += (_, _) => optimized = true;
+        var onOptimized = new EventHandler((_, _) => optimized = true);
+        ReflectionOptimizer.Optimized += onOptimized;
         while (!optimized && count < timeout)
         {
             Thread.Sleep(1);
             count++;
         }
+        ReflectionOptimizer.Optimized -= onOptimized;
     }
 
     #endregion

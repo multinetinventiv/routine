@@ -7,6 +7,7 @@ internal class ReflectionOptimizer
     public static bool Enabled { get; private set; } = true;
     public static void Disable() => Enabled = false;
     public static void Enable() => Enabled = true;
+    public static event EventHandler Optimized;
 
     private static readonly object OPTIMIZE_LIST_LOCK = new();
     private static readonly HashSet<MethodBase> OPTIMIZE_LIST = new();
@@ -138,6 +139,8 @@ internal class ReflectionOptimizer
 
                 switchable.Switch((IMethodInvoker)Activator.CreateInstance(invokerType));
             }
+
+            Optimized?.Invoke(null, EventArgs.Empty);
         });
 
         return result;

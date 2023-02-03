@@ -11,14 +11,7 @@ internal class SwitchableMethodInvoker : IMethodInvoker
         _invoker = invoker;
     }
 
-    public event EventHandler Switched;
-
-    public void Switch(IMethodInvoker invoker)
-    {
-        _invoker = invoker;
-
-        Switched?.Invoke(this, EventArgs.Empty);
-    }
+    public void Switch(IMethodInvoker invoker) => _invoker = invoker;
 
     public object Invoke(object target, params object[] args) => Invoker.Invoke(target, args);
     public async Task<object> InvokeAsync(object target, params object[] args) => await Invoker.InvokeAsync(target, args);

@@ -47,7 +47,7 @@ public abstract class TypeInfo : IType
         TypeInfo._actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
-    private static string KeyOf(Type type) => $"{type.FullName}";
+    private static string KeyOf(Type type) => type.FullName ?? string.Empty;
 
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
