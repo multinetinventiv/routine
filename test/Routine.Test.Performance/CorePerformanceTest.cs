@@ -117,63 +117,84 @@ public class CorePerformanceTest
         Console.WriteLine("-------");
         var obj = new BusinessPerformance { Id = 1 };
 
-        Run("Direct Access", () =>
-            {
-                var _ = obj.Id;
-            }, load);
+        Run("Direct Access",
+            () => { var _ = obj.Id; },
+            load
+        );
 
         Console.WriteLine("-------");
 
         var prop = obj.GetType().GetProperty("Id");
-        Run("System.Reflection Cached Access", () =>
-        {
-            var _ = prop?.GetValue(obj, Array.Empty<object>());
-        }, load);
+        Run("System.Reflection Cached Access",
+            () => { var _ = prop?.GetValue(obj, Array.Empty<object>()); },
+            load
+        );
+
         ReflectionOptimizer.Disable();
         var rprop1 = obj.GetTypeInfo().GetProperty("Id");
-        Run("Routine.Core.Reflection Cached Access (without optimizer) ", () =>
-        {
-            var _ = rprop1.GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Cached Access (without optimizer) ",
+            () => { var _ = rprop1.GetValue(obj); },
+            load
+        );
+
         ReflectionOptimizer.Enable();
         var rprop2 = obj.GetTypeInfo().GetProperty("Id");
-        Run("Routine.Core.Reflection Cached Access", () =>
-        {
-            var _ = rprop2.GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Cached Access",
+            () => { var _ = rprop2.GetValue(obj); },
+            load
+        );
+
         Console.WriteLine("-------");
 
-        Run("System.Reflection Access", () =>
-        {
-            var _ = obj.GetType().GetProperty("Id")?.GetValue(obj, Array.Empty<object>());
-        }, load);
+        Run("System.Reflection Access",
+            () => { var _ = obj.GetType().GetProperty("Id").GetValue(obj, Array.Empty<object>()); },
+            load
+        );
+
         ReflectionOptimizer.Disable();
-        Run("Routine.Core.Reflection Access (without optimizer)", () =>
-        {
-            var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-        }, load);
+        Run("Routine.Core.Reflection Access (without optimizer)",
+            () => { var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj); },
+            load
+        );
+
         ReflectionOptimizer.Enable();
-        Run("Routine.Core.Reflection Access", () =>
-            {
-                var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj);
-            }, load);
+        Run("Routine.Core.Reflection Access",
+            () => { var _ = obj.GetTypeInfo().GetProperty("Id").GetValue(obj); },
+            load
+        );
 
         Console.WriteLine("-------");
 
-        Run("Routine.Core.Reflection Access -> GetTypeInfo()", () =>
-            {
-                var _ = obj.GetTypeInfo();
-            }, load);
-        var type = obj.GetTypeInfo();
-        Run("Routine.Core.Reflection Access -> GetProperty('Id')", () =>
-            {
-                var _ = type.GetProperty("Id");
-            }, load);
-        var rprop3 = type.GetProperty("Id");
-        Run("Routine.Core.Reflection Access -> GetValue(obj)", () =>
-            {
-                var _ = rprop3.GetValue(obj);
-            }, load);
+        Run("System.Reflection Access -> GetType()",
+            () => { var _ = obj.GetType(); },
+            load
+        );
+        Run("Routine.Core.Reflection Access -> GetTypeInfo()",
+            () => { var _ = obj.GetTypeInfo(); },
+            load
+        );
+
+        var type = obj.GetType();
+        Run("System.Reflection Access -> GetProperty('Id')",
+            () => { var _ = type.GetProperty("Id"); },
+            load
+        );
+        var typeInfo = obj.GetTypeInfo();
+        Run("Routine.Core.Reflection Access -> GetProperty('Id')",
+            () => { var _ = typeInfo.GetProperty("Id"); },
+            load
+        );
+
+        var prop3 = type.GetProperty("Id");
+        Run("System.Reflection Access -> GetValue(obj)",
+            () => { var _ = prop3.GetValue(obj); },
+            load
+        );
+        var rprop3 = typeInfo.GetProperty("Id");
+        Run("Routine.Core.Reflection Access -> GetValue(obj)",
+            () => { var _ = rprop3.GetValue(obj); },
+            load
+        );
     }
 
     [TestCase(100, 10)]

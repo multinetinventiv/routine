@@ -20,11 +20,4 @@ run:
 		dotnet run --project samples/Routine.Samples.SmartObject ; \
 	fi
 test:
-	dotnet test \
-		/p:CollectCoverage=true \
-		/p:SkipAutoProps=true \
-		/p:Exclude=\"[Routine.Samples*]*,[Routine.Test*]*\" \
-		/p:IncludeTestAssembly=false \
-		/p:CoverletOutput=../.coverage/ \
-		/p:MergeWith="../.coverage/coverage.json" \
-		/p:CoverletOutputFormat=\"cobertura,json\" -m:1
+	dotnet test

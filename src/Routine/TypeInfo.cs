@@ -11,7 +11,7 @@ public abstract class TypeInfo : IType
     protected const System.Reflection.BindingFlags ALL_STATIC = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
     protected const System.Reflection.BindingFlags ALL_INSTANCE = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
 
-    private static readonly Dictionary<string, TypeInfo> TYPE_CACHE;
+    private static readonly Dictionary<string, TypeInfo> TYPE_CACHE = new();
     private static readonly object OPTIMIZE_LOCK = new();
 
     private static volatile Func<Type, bool> _proxyMatcher;
@@ -19,15 +19,13 @@ public abstract class TypeInfo : IType
 
     static TypeInfo()
     {
-        TYPE_CACHE = new();
-
         SetProxyMatcher(null, null);
     }
 
     public static void Clear()
     {
         TYPE_CACHE.Clear();
-        ReflectionOptimizer.ClearOptimizeList();
+        ReflectionOptimizer.Clear();
 
         SetProxyMatcher(null, null);
     }
@@ -49,17 +47,14 @@ public abstract class TypeInfo : IType
         TypeInfo._actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
-    private static string KeyOf(Type type) => $"{type}";
+    private static string KeyOf(Type type) => $"{type.FullName}";
 
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
     public static TypeInfo Get(Type type) => GetOrCreate(type, false);
     private static TypeInfo GetOrCreate(Type type, bool optimize)
     {
-        if (type == null)
-        {
-            return null;
-        }
+        if (type == null) { return null; }
 
         if (!TYPE_CACHE.TryGetValue(KeyOf(type), out var result))
         {

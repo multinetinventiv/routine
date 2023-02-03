@@ -82,7 +82,7 @@ public class PreloadedPropertyInfo : PropertyInfo
         {
             parameters[i + 1] = index[i];
         }
-        _setMethod.Invoke(null, value, index);
+        _setMethod.Invoke(null, parameters);
     }
 
     public override object[] GetCustomAttributes() => _customAttributes;

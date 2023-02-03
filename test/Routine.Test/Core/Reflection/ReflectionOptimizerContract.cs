@@ -118,31 +118,53 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
         _target = new(_mock.Object);
     }
 
-    protected IMethodInvoker InvokerFor<T>(string methodName) { return InvokerFor<T>(methodName, null); }
-    protected IMethodInvoker InvokerFor<T>(string methodName, int? parameterCount)
+    protected IMethodInvoker InvokerFor<T>(string methodName, int? parameterCount = null, bool waitForOptimization = true)
     {
+        IMethodInvoker result;
         if (methodName.StartsWith("get:"))
         {
-            return typeof(T).GetProperty(methodName.After("get:"), ALL_MEMBERS)
+            result = typeof(T).GetProperty(methodName.After("get:"), ALL_MEMBERS)
                 ?.GetGetMethod().CreateInvoker();
         }
-
-        if (methodName.StartsWith("set:"))
+        else if (methodName.StartsWith("set:"))
         {
-            return typeof(T).GetProperty(methodName.After("set:"), ALL_MEMBERS)
+            result = typeof(T).GetProperty(methodName.After("set:"), ALL_MEMBERS)
                 ?.GetSetMethod().CreateInvoker();
         }
-
-        if (methodName == "new")
+        else if (methodName == "new")
         {
-            return typeof(T).GetConstructors(ALL_INSTANCE_MEMBERS)
+            result = typeof(T).GetConstructors(ALL_INSTANCE_MEMBERS)
                 .FirstOrDefault(ci => parameterCount == null || ci.GetParameters().Length == parameterCount)
                 .CreateInvoker();
         }
+        else
+        {
+            result = typeof(T).GetMethods(ALL_MEMBERS)
+                .FirstOrDefault(mi => mi.Name == methodName && (parameterCount == null || mi.GetParameters().Length == parameterCount))
+                .CreateInvoker();
+        }
 
-        return typeof(T).GetMethods(ALL_MEMBERS)
-            .FirstOrDefault(mi => mi.Name == methodName && (parameterCount == null || mi.GetParameters().Length == parameterCount))
-            .CreateInvoker();
+        if (!waitForOptimization || result is not ProxyMethodInvoker proxy || proxy.Real is not SwitchableMethodInvoker switchable) { return result; }
+
+        WaitForOptimization(result);
+
+        return result;
+    }
+
+    private void WaitForOptimization(IMethodInvoker invoker)
+    {
+        if (invoker is not ProxyMethodInvoker proxy || proxy.Real is not SwitchableMethodInvoker switchable) { return; }
+
+        const int timeout = 2000;
+
+        var count = 0;
+        var optimized = false;
+        switchable.Switched += (_, _) => optimized = true;
+        while (!optimized && count < timeout)
+        {
+            Thread.Sleep(1);
+            count++;
+        }
     }
 
     #endregion
@@ -158,6 +180,21 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         _mock.Verify(o => o.ExplicitVoidMethod(), Times.Once());
         _mock.Verify(o => o.VoidMethod(), Times.Exactly(2));
+    }
+
+    [Test]
+    public void CreateInvoker_returns_a_proxy_invoker_that_has_reflection_invoker_for_app_to_have_faster_startup()
+    {
+        ReflectionOptimizer.Clear();
+
+        var proxy = (ProxyMethodInvoker)InvokerFor<IOptimizedInterface<string>>("VoidMethod", waitForOptimization: false);
+        var switchable = (SwitchableMethodInvoker)proxy.Real;
+
+        Assert.IsInstanceOf<ReflectionMethodInvoker>(switchable.Invoker);
+
+        WaitForOptimization(proxy);
+
+        Assert.IsNotInstanceOf<ReflectionMethodInvoker>(switchable.Invoker);
     }
 
     [Test]
