@@ -158,7 +158,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
         const int timeout = 5000;
 
         var count = 0;
-        var optimized = false;
+        var optimized = switchable.Invoker is not ReflectionMethodInvoker;
         switchable.Switched += (_, _) => optimized = true;
         while (!optimized && count < timeout)
         {
