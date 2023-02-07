@@ -160,6 +160,27 @@ public class TypeInfoTest : ReflectionTestBase
     }
 
     [Test]
+    public void Type_GetGenericArguments_is_wrapped_by_TypeInfo()
+    {
+        var actual = TypeInfo.Get(typeof(TestGenericClass_OOP<>)).GetGenericArguments();
+        var expected = typeof(TestGenericClass_OOP<>).GetGenericArguments();
+
+        Assert.That(actual.Length, Is.EqualTo(expected.Length));
+        Assert.That(actual[0].Name, Is.EqualTo(expected[0].Name));
+    }
+
+    [Test]
+    public void BUG_Second_generic_arguments_access_causes_wrong_type_info_to_be_returned()
+    {
+        TypeInfo.Get(typeof(IEnumerable<>)).GetGenericArguments();
+
+        var actual = TypeInfo.Get(typeof(TestGenericClass_OOP<>)).GetGenericArguments()[0];
+        var expected = typeof(TestGenericClass_OOP<>).GetGenericArguments()[0];
+
+        Assert.That(actual.Name, Is.EqualTo(expected.Name));
+    }
+
+    [Test]
     public void TypeInfo_caches_wrapped_properties()
     {
         Assert.AreSame(_testing.Name, _testing.Name);

@@ -47,14 +47,15 @@ public abstract class TypeInfo : IType
         TypeInfo._actualTypeGetter = actualTypeGetter ?? (t => t);
     }
 
-    private static string KeyOf(Type type) => type.FullName ?? string.Empty;
-
     public static TypeInfo Void() => Get(typeof(void));
     public static TypeInfo Get<T>() => Get(typeof(T));
     public static TypeInfo Get(Type type) => GetOrCreate(type, false);
     private static TypeInfo GetOrCreate(Type type, bool optimize)
     {
         if (type == null) { return null; }
+        if (type.FullName == null) { return new ReflectedTypeInfo(type); }
+
+        string KeyOf(Type type) => type.FullName;
 
         if (!TYPE_CACHE.TryGetValue(KeyOf(type), out var result))
         {

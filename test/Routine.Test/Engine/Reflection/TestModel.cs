@@ -104,6 +104,8 @@ namespace Routine.Test.Engine.Reflection.Domain
 
     public class TestProxyClass_OOP : TestClass_OOP { }
 
+    public class TestGenericClass_OOP<TTemplate_OOP> { }
+
     #endregion
 
     #region Parseable Model
