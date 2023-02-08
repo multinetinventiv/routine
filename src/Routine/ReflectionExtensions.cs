@@ -48,7 +48,7 @@ public static class ReflectionExtensions
 
         if (!source.IsGenericType)
         {
-            if (useFullName)
+            if (useFullName && source.FullName != null)
             {
                 return $"global::{source.FullName.Replace("+", ".")}";
             }
@@ -70,7 +70,7 @@ public static class ReflectionExtensions
 
         if (!source.IsGenericType)
         {
-            if (useFullName)
+            if (useFullName && source.FullName != null)
             {
                 return $"global::{source.FullName.Replace("+", ".")}";
             }
