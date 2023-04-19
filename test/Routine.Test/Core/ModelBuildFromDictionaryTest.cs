@@ -10,11 +10,11 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new ApplicationModel();
 
-        Assert.IsNotNull(testing.Model);
+        Assert.That(testing.Model, Is.Not.Null);
 
         testing = new ApplicationModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Model);
+        Assert.That(testing.Model, Is.Not.Null);
     }
 
     [Test]
@@ -22,23 +22,23 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new ObjectModel();
 
-        Assert.IsNotNull(testing.ActualModelIds);
-        Assert.IsNotNull(testing.Datas);
-        Assert.IsNotNull(testing.Initializer);
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Operations);
-        Assert.IsNotNull(testing.StaticInstances);
-        Assert.IsNotNull(testing.ViewModelIds);
+        Assert.That(testing.ActualModelIds, Is.Not.Null);
+        Assert.That(testing.Datas, Is.Not.Null);
+        Assert.That(testing.Initializer, Is.Not.Null);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Operations, Is.Not.Null);
+        Assert.That(testing.StaticInstances, Is.Not.Null);
+        Assert.That(testing.ViewModelIds, Is.Not.Null);
 
         testing = new ObjectModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.ActualModelIds);
-        Assert.IsNotNull(testing.Datas);
-        Assert.IsNotNull(testing.Initializer);
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Operations);
-        Assert.IsNotNull(testing.StaticInstances);
-        Assert.IsNotNull(testing.ViewModelIds);
+        Assert.That(testing.ActualModelIds, Is.Not.Null);
+        Assert.That(testing.Datas, Is.Not.Null);
+        Assert.That(testing.Initializer, Is.Not.Null);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Operations, Is.Not.Null);
+        Assert.That(testing.StaticInstances, Is.Not.Null);
+        Assert.That(testing.ViewModelIds, Is.Not.Null);
     }
 
     [Test]
@@ -46,13 +46,13 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new InitializerModel();
 
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Parameters);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Parameters, Is.Not.Null);
 
         testing = new InitializerModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Parameters);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Parameters, Is.Not.Null);
     }
 
     [Test]
@@ -60,11 +60,11 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new DataModel();
 
-        Assert.IsNotNull(testing.Marks);
+        Assert.That(testing.Marks, Is.Not.Null);
 
         testing = new DataModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Marks);
+        Assert.That(testing.Marks, Is.Not.Null);
     }
 
     [Test]
@@ -72,15 +72,15 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new OperationModel();
 
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Parameters);
-        Assert.IsNotNull(testing.Result);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Parameters, Is.Not.Null);
+        Assert.That(testing.Result, Is.Not.Null);
 
         testing = new OperationModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Parameters);
-        Assert.IsNotNull(testing.Result);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Parameters, Is.Not.Null);
+        Assert.That(testing.Result, Is.Not.Null);
     }
 
     [Test]
@@ -88,15 +88,15 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new ParameterModel();
 
-        Assert.IsNotNull(testing.DefaultValue);
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Groups);
+        Assert.That(testing.DefaultValue, Is.Not.Null);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Groups, Is.Not.Null);
 
         testing = new ParameterModel(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.DefaultValue);
-        Assert.IsNotNull(testing.Marks);
-        Assert.IsNotNull(testing.Groups);
+        Assert.That(testing.DefaultValue, Is.Not.Null);
+        Assert.That(testing.Marks, Is.Not.Null);
+        Assert.That(testing.Groups, Is.Not.Null);
     }
 
     [Test]
@@ -104,11 +104,11 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new VariableData();
 
-        Assert.IsNotNull(testing.Values);
+        Assert.That(testing.Values, Is.Not.Null);
 
         testing = new VariableData(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Values);
+        Assert.That(testing.Values, Is.Not.Null);
     }
 
     [Test]
@@ -116,17 +116,17 @@ public class ModelBuildFromDictionaryWithFaultToleranceTest
     {
         var testing = new ObjectData();
 
-        Assert.IsNotNull(testing.Data);
+        Assert.That(testing.Data, Is.Not.Null);
 
         testing = new ObjectData(new Dictionary<string, object>());
 
-        Assert.IsNotNull(testing.Data);
+        Assert.That(testing.Data, Is.Not.Null);
     }
 
     [Test]
     public void ResultModel()
     {
-        Assert.DoesNotThrow(() => new ResultModel());
-        Assert.DoesNotThrow(() => new ResultModel(new Dictionary<string, object>()));
+        Assert.That(() => new ResultModel(), Throws.Nothing);
+        Assert.That(() => new ResultModel(new Dictionary<string, object>()), Throws.Nothing);
     }
 }
