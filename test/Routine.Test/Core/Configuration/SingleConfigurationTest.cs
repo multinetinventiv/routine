@@ -12,7 +12,7 @@ public class SingleConfigurationTest : CoreTestBase
 
         testing.Set("expected");
 
-        Assert.AreEqual("expected", testing.Get());
+        Assert.That(testing.Get(), Is.EqualTo("expected"));
     }
 
     [Test]
@@ -24,7 +24,7 @@ public class SingleConfigurationTest : CoreTestBase
         testing.Set("expected2");
         testing.Set("expected3");
 
-        Assert.AreEqual("expected3", testing.Get());
+        Assert.That(testing.Get(), Is.EqualTo("expected3"));
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class SingleConfigurationTest : CoreTestBase
 
         var testingInt = new SingleConfiguration<string, int>("dummy", "test");
 
-        Assert.AreEqual(0, testingInt.Get());
+        Assert.That(testingInt.Get(), Is.EqualTo(0));
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class SingleConfigurationTest : CoreTestBase
     {
         var testing = new SingleConfiguration<string, string>("dummy", "test", true);
 
-        Assert.Throws<ConfigurationException>(() => testing.Get());
+        Assert.That(() => testing.Get(), Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -54,6 +54,6 @@ public class SingleConfigurationTest : CoreTestBase
 
         testing.Set(s => s.Replace("d", "s").Replace("m", "n"));
 
-        Assert.AreEqual("sunny", testing.Get());
+        Assert.That(testing.Get(), Is.EqualTo("sunny"));
     }
 }
