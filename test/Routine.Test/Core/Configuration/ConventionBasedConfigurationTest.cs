@@ -48,7 +48,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
     {
         _testing.Set("convention2");
 
-        Assert.AreEqual("convention2", _testing.Get("dummy"));
+        Assert.That(_testing.Get("dummy"), Is.EqualTo("convention2"));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.IsTrue(ex.Message.Contains("test") && ex.Message.Contains("dummy") && ex.Message.Contains(typeof(string).Name), ex.Message);
+            Assert.That(ex.Message.Contains("test") && ex.Message.Contains("dummy") && ex.Message.Contains(typeof(string).Name), Is.True, ex.Message);
         }
     }
 
@@ -78,7 +78,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException actual)
         {
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
     }
 
@@ -94,7 +94,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.IsTrue(ex.Message.Contains("!!test fail!!"), ex.Message);
+            Assert.That(ex.Message.Contains("!!test fail!!"), Is.True, ex.Message);
         }
     }
 
@@ -106,8 +106,8 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Merge(_testingOther);
 
-        Assert.AreEqual("out1", _testing.Get("in1"));
-        Assert.AreEqual("out2", _testing.Get("dummy"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out1"));
+        Assert.That(_testing.Get("dummy"), Is.EqualTo("out2"));
     }
 
     [Test]
@@ -124,7 +124,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.AreSame(expected, ex.InnerException);
+            Assert.That(ex.InnerException, Is.SameAs(expected));
         }
     }
 
@@ -142,7 +142,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.AreSame(expected, ex);
+            Assert.That(ex, Is.SameAs(expected));
         }
     }
 
@@ -175,8 +175,8 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         _testing.Set("out2", "in1");
         _testing.Set("out3", "in2");
 
-        Assert.AreEqual("out1", _testing.Get("in1"));
-        Assert.AreEqual("out3", _testing.Get("in2"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out1"));
+        Assert.That(_testing.Get("in2"), Is.EqualTo("out3"));
     }
 
     [Test]
@@ -188,7 +188,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Set("out2", "in1");
 
-        Assert.AreEqual("out2", _testing.Get("in1"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out2"));
     }
 
     [Test]
@@ -202,7 +202,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Merge(_testingOther);
 
-        Assert.AreEqual("out2", _testing.Get("in1"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out2"));
     }
 
     [Test]
@@ -216,7 +216,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Merge(_testingOtherConfig);
 
-        Assert.AreEqual("out2", _testing.Get("in1"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out2"));
     }
 
     [Test]
@@ -227,7 +227,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Merge(_testingOtherConfig);
 
-        Assert.AreEqual("out1", _testing.Get("in1"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out1"));
     }
 
     [Test]
@@ -241,7 +241,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Merge(_testingOtherConfig);
 
-        Assert.AreEqual("out2", _testing.Get("in1"));
+        Assert.That(_testing.Get("in1"), Is.EqualTo("out2"));
     }
 
     [Test]
@@ -253,8 +253,8 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         _testing.Set("specific", "in");
 
-        Assert.AreEqual("specific", _testing.Get("in"));
-        Assert.AreEqual("default", _testing.Get("dummy"));
+        Assert.That(_testing.Get("in"), Is.EqualTo("specific"));
+        Assert.That(_testing.Get("dummy"), Is.EqualTo("default"));
     }
 
     [Ignore("")]
@@ -274,6 +274,6 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         BuildRoutine.CodingStylePattern().FromEmpty();
         var typeAfter = type.of<string>();
 
-        Assert.AreEqual(type.of<object>(), typeAfter);
+        Assert.That(typeAfter, Is.EqualTo(type.of<object>()));
     }
 }
