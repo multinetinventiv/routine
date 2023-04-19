@@ -30,18 +30,18 @@ public abstract class ExtractorContract<T> : CoreTestBase
     {
         var testing = CreateConventionByPublicMethod(o => o.Name == "NonExistingMethod");
 
-        Assert.IsFalse(testing.AppliesTo(type.of<ResultClass>()));
+        Assert.That(testing.AppliesTo(type.of<ResultClass>()), Is.False);
     }
     [Test]
     public void PropertyValueExtactor__When_given_filter_finds_inappropriate_method__AppliesTo_returns_false()
     {
         var testing = CreateConventionByPublicMethod(o => o.Name == "ParameterMethod");
 
-        Assert.IsFalse(testing.AppliesTo(type.of<ResultClass>()));
+        Assert.That(testing.AppliesTo(type.of<ResultClass>()), Is.False);
 
         testing = CreateConventionByPublicMethod(o => o.Name == "VoidMethod");
 
-        Assert.IsFalse(testing.AppliesTo(type.of<ResultClass>()));
+        Assert.That(testing.AppliesTo(type.of<ResultClass>()), Is.False);
     }
 
     [Test]
@@ -51,7 +51,7 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual("StringMethod", Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo("StringMethod"));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual("StringMethod", Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo("StringMethod"));
     }
 
     [Test]
@@ -71,7 +71,7 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual("int:1", Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo("int:1"));
     }
 
     [Test]
@@ -81,7 +81,7 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual("StringMethod:int:1", Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo("StringMethod:int:1"));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual(null, Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo(null));
     }
 
     [Test]
@@ -101,6 +101,6 @@ public abstract class ExtractorContract<T> : CoreTestBase
 
         var extractor = testing.Apply(type.of<ResultClass>());
 
-        Assert.AreEqual("StringMethod", Extract(extractor, new ResultClass()));
+        Assert.That(Extract(extractor, new ResultClass()), Is.EqualTo("StringMethod"));
     }
 }

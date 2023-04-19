@@ -17,14 +17,14 @@ public class SingleDelegateLocatorTest
     {
         var actual = await locator.LocateAsync(type.of<string>(), new List<string> { "test1", "test2" });
 
-        Assert.AreEqual("located: test1", actual[0]);
-        Assert.AreEqual("located: test2", actual[1]);
+        Assert.That(actual[0], Is.EqualTo("located: test1"));
+        Assert.That(actual[1], Is.EqualTo("located: test2"));
     }
 
     [Test]
     public void When_no_delegate_was_given__it_throws_ArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().SingleBy(null as Func<IType, string, object>));
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().SingleBy(null as Func<IType, string, Task<object>>));
+        Assert.That(() => BuildRoutine.Locator().SingleBy(null as Func<IType, string, object>), Throws.TypeOf<ArgumentNullException>());
+        Assert.That(() => BuildRoutine.Locator().SingleBy(null as Func<IType, string, Task<object>>), Throws.TypeOf<ArgumentNullException>());
     }
 }

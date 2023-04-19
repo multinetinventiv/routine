@@ -38,7 +38,7 @@ public class ConverterBaseTest : CoreTestBase
         }
         catch (CannotConvertException ex)
         {
-            Assert.AreEqual("inner", ex.InnerException.Message);
+            Assert.That(ex.InnerException.Message, Is.EqualTo("inner"));
         }
     }
 
@@ -47,7 +47,7 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => "success", type.of<int>()) as IConverter;
 
-        Assert.AreEqual("success", testing.Convert(new object(), type.of<object>(), type.of<string>()));
+        Assert.That(testing.Convert(new object(), type.of<object>(), type.of<string>()), Is.EqualTo("success"));
     }
 
     [Test]
@@ -63,7 +63,7 @@ public class ConverterBaseTest : CoreTestBase
         }
         catch (Exception actual)
         {
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
     }
 
@@ -81,7 +81,7 @@ public class ConverterBaseTest : CoreTestBase
         }
         catch (Exception actual)
         {
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
     }
 
@@ -90,6 +90,6 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => "converted", type.of<string>()) as IConverter;
 
-        Assert.AreEqual("converted", testing.Convert("original", type.of<string>(), type.of<string>()));
+        Assert.That(testing.Convert("original", type.of<string>(), type.of<string>()), Is.EqualTo("converted"));
     }
 }

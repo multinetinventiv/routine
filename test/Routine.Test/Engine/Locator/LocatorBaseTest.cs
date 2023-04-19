@@ -40,11 +40,11 @@ public class LocatorBaseTest
         testing.AcceptNullResult(true);
 
         var actual = await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" });
-        Assert.IsNull(actual[0]);
+        Assert.That(actual[0], Is.Null);
 
         testing.AcceptNullResult(false);
 
-        Assert.ThrowsAsync<CannotLocateException>(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
+        Assert.That(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }), Throws.TypeOf<CannotLocateException>());
     }
 
     [Test]
@@ -53,6 +53,6 @@ public class LocatorBaseTest
         var testing = new TestLocator(true);
         var testingInterface = testing as ILocator;
 
-        Assert.ThrowsAsync<CannotLocateException>(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }));
+        Assert.That(async () => await testingInterface.LocateAsync(type.of<string>(), new List<string> { "dummy" }), Throws.TypeOf<CannotLocateException>());
     }
 }

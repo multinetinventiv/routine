@@ -15,7 +15,7 @@ public class TypeCastConverterTest
 
         IConverter converter = BuildRoutine.Converter().ByCasting();
 
-        Assert.AreEqual("success", converter.Convert(0, typeMock.Object, type.of<string>()));
+        Assert.That(converter.Convert(0, typeMock.Object, type.of<string>()), Is.EqualTo("success"));
     }
 
     [Test]
@@ -28,7 +28,7 @@ public class TypeCastConverterTest
 
         IConverter converter = BuildRoutine.Converter().ByCasting();
 
-        Assert.Throws<CannotConvertException>(() => converter.Convert(0, typeMock.Object, type.of<string>()));
+        Assert.That(() => converter.Convert(0, typeMock.Object, type.of<string>()), Throws.TypeOf<CannotConvertException>());
     }
 
     [Test]
@@ -36,12 +36,12 @@ public class TypeCastConverterTest
     {
         IConverter converter = BuildRoutine.Converter().ByCasting(t => !t.CanBe<object>());
 
-        Assert.Throws<CannotConvertException>(() => converter.Convert("test", type.of<string>(), type.of<object>()));
+        Assert.That(() => converter.Convert("test", type.of<string>(), type.of<object>()), Throws.TypeOf<CannotConvertException>());
     }
 
     [Test]
     public void Throws_ArgumentNullException_when_given_view_type_predicate_is_null()
     {
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Converter().ByCasting(null));
+        Assert.That(() => BuildRoutine.Converter().ByCasting(null), Throws.TypeOf<ArgumentNullException>());
     }
 }
