@@ -17,8 +17,8 @@ public class ClientTest : ClientTestBase
 
         var actual = _testingRapplication.Types;
 
-        Assert.That(actual.Any(m => m.Id == "model1"));
-        Assert.That(actual.Any(m => m.Id == "model2"));
+        Assert.That(actual.Any(m => m.Id == "model1"), Is.True);
+        Assert.That(actual.Any(m => m.Id == "model2"), Is.True);
     }
 
     [Test]
@@ -235,7 +235,7 @@ public class ClientTest : ClientTestBase
 
         //accessing list as single returns null if there is no items in the list
         testingRvariable = Rvarlist("testingEmptyList", Array.Empty<Robject>());
-        Assert.That(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
 
         //accessing void as single returns null object
         stubber.SetUp(_mockObjectService,
@@ -244,8 +244,8 @@ public class ClientTest : ClientTestBase
             result: Void()
         );
         testingRvariable = stubber.Perform(obj3, "operation");
-        Assert.That(testingRvariable.IsNull);
-        Assert.That(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.IsNull, Is.True);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
 
         //accessing void as list returns empty list
         Assert.That(testingRvariable.List.Count, Is.EqualTo(0));
@@ -261,8 +261,8 @@ public class ClientTest : ClientTestBase
         var robj = Robj("id", "model");
         var testingRvariable = robj.DataValues[0].Get();
 
-        Assert.That(testingRvariable.IsNull);
-        Assert.That(testingRvariable.ToList().IsNull);
+        Assert.That(testingRvariable.IsNull, Is.True);
+        Assert.That(testingRvariable.ToList().IsNull, Is.True);
     }
 
     [Test]
@@ -275,7 +275,7 @@ public class ClientTest : ClientTestBase
         var robj = Robj("id", "model");
         var testingRvariable = robj.DataValues[0].Get();
 
-        Assert.That(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -445,7 +445,7 @@ public class ClientTest : ClientTestBase
 
         var result = stubber.Perform(Robj("id", "model"), "operation1");
 
-        Assert.That(result.IsVoid);
+        Assert.That(result.IsVoid, Is.True);
     }
 
     [Test]
@@ -461,7 +461,7 @@ public class ClientTest : ClientTestBase
             Object(Id("id", "actual_model", "view_model"))
         );
 
-        Assert.That(Robj("id").IsNaked);
+        Assert.That(Robj("id").IsNaked, Is.True);
         Assert.That(Robj("id", "actual_model", "view_model").IsNaked, Is.False);
     }
 
@@ -504,7 +504,7 @@ public class ClientTest : ClientTestBase
         var paramvar = rparam.CreateVariable(Robj("id_param_value"));
 
         Assert.That(paramvar.Name, Is.EqualTo("param"));
-        Assert.That(paramvar.IsList);
+        Assert.That(paramvar.IsList, Is.True);
     }
 
     [Test]
@@ -523,7 +523,7 @@ public class ClientTest : ClientTestBase
         var root = Robj("id_root", "model");
         var rparam = root.Type.Operations[0].Parameters[0];
 
-        Assert.That(rparam.IsOptional);
+        Assert.That(rparam.IsOptional, Is.True);
         Assert.That(rparam.Default.Object.Id, Is.EqualTo("default"));
     }
 
@@ -662,7 +662,7 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "model");
 
-        Assert.That(testingRobject.Type.MarkedAs("mark"));
+        Assert.That(testingRobject.Type.MarkedAs("mark"), Is.True);
         Assert.That(testingRobject.Type.MarkedAs("nonexistingmark"), Is.False);
     }
 
@@ -683,7 +683,7 @@ public class ClientTest : ClientTestBase
 
         var testingRdata = Robj("id", "model")["data"];
 
-        Assert.That(testingRdata.Data.MarkedAs("mark"));
+        Assert.That(testingRdata.Data.MarkedAs("mark"), Is.True);
         Assert.That(testingRdata.Data.MarkedAs("nonexistingmark"), Is.False);
     }
 
@@ -700,7 +700,7 @@ public class ClientTest : ClientTestBase
 
         var testingRoperation = Robj("id", "model").Type.Operations.Single(o => o.Name == "operation");
 
-        Assert.That(testingRoperation.MarkedAs("mark"));
+        Assert.That(testingRoperation.MarkedAs("mark"), Is.True);
         Assert.That(testingRoperation.MarkedAs("nonexistingmark"), Is.False);
     }
 

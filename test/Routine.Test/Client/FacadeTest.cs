@@ -85,22 +85,22 @@ public class FacadeTest : ClientTestBase
             Model("s-string").IsValue());
 
         var actual = _testingRapplication.NewVar("name", RobjNull());
-        Assert.That(actual.IsNull);
+        Assert.That(actual.IsNull, Is.True);
 
         actual = _testingRapplication.NewVar("name", 0, "s-int-32");
-        Assert.That(!actual.IsNull);
+        Assert.That(!actual.IsNull, Is.True);
         Assert.That(actual.Object.Id, Is.EqualTo("0"));
 
         // ReSharper disable ExpressionIsAlwaysNull
         string nullStringValue = null;
         actual = _testingRapplication.NewVar("name", nullStringValue, "s-string");
-        Assert.That(actual.IsNull);
+        Assert.That(actual.IsNull, Is.True);
 
         actual = _testingRapplication.NewVar("name", nullStringValue, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
-        Assert.That(actual.IsNull);
+        Assert.That(actual.IsNull, Is.True);
 
         actual = _testingRapplication.NewVar("name", nullStringValue, o => _testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
-        Assert.That(actual.IsNull);
+        Assert.That(actual.IsNull, Is.True);
         // ReSharper restore ExpressionIsAlwaysNull
     }
 
@@ -142,22 +142,22 @@ public class FacadeTest : ClientTestBase
             Model("s-string").IsValue());
 
         var actual = _testingRapplication.NewVarList("name", new List<Robject> { RobjNull() });
-        Assert.That(actual.List[0].IsNull);
+        Assert.That(actual.List[0].IsNull, Is.True);
 
         actual = _testingRapplication.NewVarList("name", new List<int> { 0 }, "s-int-32");
-        Assert.That(!actual.List[0].IsNull);
+        Assert.That(!actual.List[0].IsNull, Is.True);
         Assert.That(actual.List[0].Id, Is.EqualTo("0"));
 
         // ReSharper disable ExpressionIsAlwaysNull
         string nullString = null;
         actual = _testingRapplication.NewVarList("name", new List<string> { nullString }, "s-string");
-        Assert.That(actual.List[0].IsNull);
+        Assert.That(actual.List[0].IsNull, Is.True);
 
         actual = _testingRapplication.NewVarList("name", new List<string> { nullString }, o => o.ToString(CultureInfo.InvariantCulture), "s-string");
-        Assert.That(actual.List[0].IsNull);
+        Assert.That(actual.List[0].IsNull, Is.True);
 
         actual = _testingRapplication.NewVarList("name", new List<string> { nullString }, o => _testingRapplication["s-string"].Get(o.ToString(CultureInfo.InvariantCulture)));
-        Assert.That(actual.List[0].IsNull);
+        Assert.That(actual.List[0].IsNull, Is.True);
         // ReSharper restore ExpressionIsAlwaysNull
     }
 }
