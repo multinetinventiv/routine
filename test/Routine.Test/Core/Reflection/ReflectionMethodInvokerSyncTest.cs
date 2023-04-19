@@ -19,7 +19,7 @@ public class ReflectionMethodInvokerSyncTest : ReflectionMethodInvokerContract
 
         testing.Invoke(this, TimeSpan.FromMilliseconds(10), expected);
 
-        Assert.AreEqual(expected, _testTaskAsyncResponse);
+        Assert.That(_testTaskAsyncResponse, Is.EqualTo(expected));
     }
 
     public async Task<string> TestAsync(TimeSpan delay, string response) { await Task.Delay(delay); return response; }
@@ -31,6 +31,6 @@ public class ReflectionMethodInvokerSyncTest : ReflectionMethodInvokerContract
 
         var actual = testing.Invoke(this, TimeSpan.FromMilliseconds(10), "test");
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 }

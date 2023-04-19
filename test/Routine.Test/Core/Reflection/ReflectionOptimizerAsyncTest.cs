@@ -17,7 +17,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
         _mock.Verify(o => o.AsyncVoidMethod());
     }
 
@@ -40,7 +40,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [TestCase(nameof(OptimizedClass.VoidMethod))]
@@ -59,7 +59,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
         }
         catch (Exception ex)
         {
-            Assert.AreEqual("test", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("test"));
         }
     }
 }
