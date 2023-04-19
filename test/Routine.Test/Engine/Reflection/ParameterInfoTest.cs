@@ -22,21 +22,21 @@ public class ParameterInfoTest : ReflectionTestBase
     [Test]
     public void System_ParameterInfo_is_wrapped_by_Routine_ParameterInfo()
     {
-        Assert.AreEqual(_parameterInfo.Name, _testing.Name);
-        Assert.AreSame(_parameterInfo.ParameterType, _testing.ParameterType.GetActualType());
-        Assert.AreEqual(_parameterInfo.Position, _testing.Position);
-        Assert.AreEqual(_parameterInfo.IsOptional, _testing.IsOptional);
-        Assert.AreEqual(_parameterInfo.HasDefaultValue, _testing.HasDefaultValue);
-        Assert.AreEqual(_parameterInfo.DefaultValue, _testing.DefaultValue);
+        Assert.That(_testing.Name, Is.EqualTo(_parameterInfo.Name));
+        Assert.That(_testing.ParameterType.GetActualType(), Is.SameAs(_parameterInfo.ParameterType));
+        Assert.That(_testing.Position, Is.EqualTo(_parameterInfo.Position));
+        Assert.That(_testing.IsOptional, Is.EqualTo(_parameterInfo.IsOptional));
+        Assert.That(_testing.HasDefaultValue, Is.EqualTo(_parameterInfo.HasDefaultValue));
+        Assert.That(_testing.DefaultValue, Is.EqualTo(_parameterInfo.DefaultValue));
     }
 
     [Test]
     public void Routine_ParameterInfo_caches_wrapped_properties()
     {
-        Assert.AreSame(_testing.Name, _testing.Name);
-        Assert.AreSame(_testing.ParameterType, _testing.ParameterType);
-        Assert.AreSame(_testing.GetCustomAttributes(), _testing.GetCustomAttributes());
-        Assert.AreSame(_testing.DefaultValue, _testing.DefaultValue);
+        Assert.That(_testing.Name, Is.SameAs(_testing.Name));
+        Assert.That(_testing.ParameterType, Is.SameAs(_testing.ParameterType));
+        Assert.That(_testing.GetCustomAttributes(), Is.SameAs(_testing.GetCustomAttributes()));
+        Assert.That(_testing.DefaultValue, Is.SameAs(_testing.DefaultValue));
     }
 
     [Test]
@@ -44,15 +44,15 @@ public class ParameterInfoTest : ReflectionTestBase
     {
         var actual = _testing.GetCustomAttributes();
 
-        Assert.AreEqual(2, actual.Length);
-        Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
-        Assert.IsInstanceOf<OptionalAttribute>(actual[1]); // added to optional parameters automatically by compiler
+        Assert.That(actual.Length, Is.EqualTo(2));
+        Assert.That(actual[0], Is.InstanceOf<TestClassAttribute>());
+        Assert.That(actual[1], Is.InstanceOf<OptionalAttribute>()); // added to optional parameters automatically by compiler
     }
 
     [Test]
     public void Extension_Has()
     {
-        Assert.IsTrue(_testing.Has<TestClassAttribute>());
-        Assert.IsTrue(_testing.Has(type.of<TestClassAttribute>()));
+        Assert.That(_testing.Has<TestClassAttribute>(), Is.True);
+        Assert.That(_testing.Has(type.of<TestClassAttribute>()), Is.True);
     }
 }

@@ -23,12 +23,12 @@ public class PropertyInfoTest : ReflectionTestBase
     [Test]
     public void System_PropertyInfo_is_wrapped_by_Routine_PropertyInfo()
     {
-        Assert.AreEqual(_propertyInfo.Name, _testing.Name);
-        Assert.AreEqual(_propertyInfo.GetGetMethod()?.Name, _testing.GetGetMethod().Name);
-        Assert.AreEqual(_propertyInfo.GetSetMethod()?.Name, _testing.GetSetMethod().Name);
-        Assert.AreSame(_propertyInfo.DeclaringType, _testing.DeclaringType.GetActualType());
-        Assert.AreSame(_propertyInfo.ReflectedType, _testing.ReflectedType.GetActualType());
-        Assert.AreSame(_propertyInfo.PropertyType, _testing.PropertyType.GetActualType());
+        Assert.That(_testing.Name, Is.EqualTo(_propertyInfo.Name));
+        Assert.That(_testing.GetGetMethod().Name, Is.EqualTo(_propertyInfo.GetGetMethod()?.Name));
+        Assert.That(_testing.GetSetMethod().Name, Is.EqualTo(_propertyInfo.GetSetMethod()?.Name));
+        Assert.That(_testing.DeclaringType.GetActualType(), Is.SameAs(_propertyInfo.DeclaringType));
+        Assert.That(_testing.ReflectedType.GetActualType(), Is.SameAs(_propertyInfo.ReflectedType));
+        Assert.That(_testing.PropertyType.GetActualType(), Is.SameAs(_propertyInfo.PropertyType));
     }
 
     [Test, SuppressMessage("ReSharper", "PossibleNullReferenceException")]
@@ -42,26 +42,26 @@ public class PropertyInfoTest : ReflectionTestBase
 
         foreach (var parameter in actual)
         {
-            Assert.IsTrue(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), $"{parameter.Name} was not expected in index parameters of {_propertyInfo}");
+            Assert.That(expected.Any(p => p.ParameterType == parameter.ParameterType.GetActualType()), Is.True, $"{parameter.Name} was not expected in index parameters of {_propertyInfo}");
         }
 
         foreach (var parameter in expected)
         {
-            Assert.IsTrue(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), $"{parameter.Name} was expected in index parameters of  {_propertyInfo}");
+            Assert.That(actual.Any(p => p.ParameterType.GetActualType() == parameter.ParameterType), Is.True, $"{parameter.Name} was expected in index parameters of  {_propertyInfo}");
         }
     }
 
     [Test]
     public void Routine_PropertyInfo_caches_wrapped_properties()
     {
-        Assert.AreSame(_testing.Name, _testing.Name);
-        Assert.AreSame(_testing.GetGetMethod(), _testing.GetGetMethod());
-        Assert.AreSame(_testing.GetSetMethod(), _testing.GetSetMethod());
-        Assert.AreSame(_testing.DeclaringType, _testing.DeclaringType);
-        Assert.AreSame(_testing.ReflectedType, _testing.ReflectedType);
-        Assert.AreSame(_testing.PropertyType, _testing.PropertyType);
-        Assert.AreSame(_testing.GetIndexParameters(), _testing.GetIndexParameters());
-        Assert.AreSame(Attribute_Property("Class").GetCustomAttributes(), Attribute_Property("Class").GetCustomAttributes());
+        Assert.That(_testing.Name, Is.SameAs(_testing.Name));
+        Assert.That(_testing.GetGetMethod(), Is.SameAs(_testing.GetGetMethod()));
+        Assert.That(_testing.GetSetMethod(), Is.SameAs(_testing.GetSetMethod()));
+        Assert.That(_testing.DeclaringType, Is.SameAs(_testing.DeclaringType));
+        Assert.That(_testing.ReflectedType, Is.SameAs(_testing.ReflectedType));
+        Assert.That(_testing.PropertyType, Is.SameAs(_testing.PropertyType));
+        Assert.That(_testing.GetIndexParameters(), Is.SameAs(_testing.GetIndexParameters()));
+        Assert.That(Attribute_Property("Class").GetCustomAttributes(), Is.SameAs(Attribute_Property("Class").GetCustomAttributes()));
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class PropertyInfoTest : ReflectionTestBase
             PublicProperty = "expected_get"
         };
 
-        Assert.AreEqual("expected_get", _testing.GetValue(obj));
+        Assert.That(_testing.GetValue(obj), Is.EqualTo("expected_get"));
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class PropertyInfoTest : ReflectionTestBase
 
         TestClass_OOP.PublicStaticProperty = "expected_get";
 
-        Assert.AreEqual("expected_get", _testing.GetStaticValue());
+        Assert.That(_testing.GetStaticValue(), Is.EqualTo("expected_get"));
     }
 
     [Test]
@@ -92,7 +92,7 @@ public class PropertyInfoTest : ReflectionTestBase
 
         _testing.SetValue(obj, "expected_set");
 
-        Assert.AreEqual("expected_set", obj.PublicProperty);
+        Assert.That(obj.PublicProperty, Is.EqualTo("expected_set"));
     }
 
     [Test]
@@ -102,7 +102,7 @@ public class PropertyInfoTest : ReflectionTestBase
 
         _testing.SetStaticValue("expected_set");
 
-        Assert.AreEqual("expected_set", TestClass_OOP.PublicStaticProperty);
+        Assert.That(TestClass_OOP.PublicStaticProperty, Is.EqualTo("expected_set"));
     }
 
     [Test]
@@ -112,30 +112,30 @@ public class PropertyInfoTest : ReflectionTestBase
 
         var actual = _testing.GetCustomAttributes();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+        Assert.That(actual.Length, Is.EqualTo(1));
+        Assert.That(actual[0], Is.InstanceOf<TestClassAttribute>());
 
         _testing = Attribute_Property("Base");
 
         actual = _testing.GetCustomAttributes();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.IsInstanceOf<TestBaseAttribute>(actual[0]);
+        Assert.That(actual.Length, Is.EqualTo(1));
+        Assert.That(actual[0], Is.InstanceOf<TestBaseAttribute>());
 
         _testing = Attribute_Property("Overridden");
 
         actual = _testing.GetCustomAttributes();
 
-        Assert.AreEqual(2, actual.Length);
-        Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
-        Assert.IsInstanceOf<TestBaseAttribute>(actual[1]);
+        Assert.That(actual.Length, Is.EqualTo(2));
+        Assert.That(actual[0], Is.InstanceOf<TestClassAttribute>());
+        Assert.That(actual[1], Is.InstanceOf<TestBaseAttribute>());
 
         _testing = Attribute_InterfaceProperty("Interface");
 
         actual = _testing.GetCustomAttributes();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.IsInstanceOf<TestInterfaceAttribute>(actual[0]);
+        Assert.That(actual.Length, Is.EqualTo(1));
+        Assert.That(actual[0], Is.InstanceOf<TestInterfaceAttribute>());
     }
 
     [Test]
@@ -145,14 +145,14 @@ public class PropertyInfoTest : ReflectionTestBase
 
         var actual = _testing.GetReturnTypeCustomAttributes();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.IsInstanceOf<TestClassAttribute>(actual[0]);
+        Assert.That(actual.Length, Is.EqualTo(1));
+        Assert.That(actual[0], Is.InstanceOf<TestClassAttribute>());
 
         _testing = Attribute_Property("WriteOnly");
 
         actual = _testing.GetReturnTypeCustomAttributes();
 
-        Assert.AreEqual(0, actual.Length);
+        Assert.That(actual.Length, Is.EqualTo(0));
     }
 
     [Test]
@@ -161,8 +161,8 @@ public class PropertyInfoTest : ReflectionTestBase
         var preloaded = type.of<TestClass_OOP>().GetProperty("ExceptionProperty");
         var reflected = type.of<TestOuterDomainType_OOP>().GetProperty("ExceptionProperty");
 
-        Assert.IsInstanceOf<PreloadedPropertyInfo>(preloaded);
-        Assert.IsInstanceOf<ReflectedPropertyInfo>(reflected);
+        Assert.That(preloaded, Is.InstanceOf<PreloadedPropertyInfo>());
+        Assert.That(reflected, Is.InstanceOf<ReflectedPropertyInfo>());
 
         var expectedException = new Exception("expected");
 
@@ -178,7 +178,7 @@ public class PropertyInfoTest : ReflectionTestBase
         }
         catch (Exception ex)
         {
-            Assert.AreSame(expectedException, ex);
+            Assert.That(ex, Is.SameAs(expectedException));
         }
 
         try
@@ -188,7 +188,7 @@ public class PropertyInfoTest : ReflectionTestBase
         }
         catch (Exception ex)
         {
-            Assert.AreSame(expectedException, ex);
+            Assert.That(ex, Is.SameAs(expectedException));
         }
 
         var testSubject2 = new TestOuterDomainType_OOP
@@ -203,7 +203,7 @@ public class PropertyInfoTest : ReflectionTestBase
         }
         catch (Exception ex)
         {
-            Assert.AreSame(expectedException, ex);
+            Assert.That(ex, Is.SameAs(expectedException));
         }
 
         try
@@ -213,78 +213,78 @@ public class PropertyInfoTest : ReflectionTestBase
         }
         catch (Exception ex)
         {
-            Assert.AreSame(expectedException, ex);
+            Assert.That(ex, Is.SameAs(expectedException));
         }
     }
 
     [Test]
     public void Extension_IsPubliclyReadable()
     {
-        Assert.IsTrue(Members_Property("PublicReadOnly").IsPubliclyReadable);
-        Assert.IsFalse(Members_Property("PublicWriteOnly").IsPubliclyReadable);
-        Assert.IsFalse(Members_Property("PrivateGet").IsPubliclyReadable);
+        Assert.That(Members_Property("PublicReadOnly").IsPubliclyReadable, Is.True);
+        Assert.That(Members_Property("PublicWriteOnly").IsPubliclyReadable, Is.False);
+        Assert.That(Members_Property("PrivateGet").IsPubliclyReadable, Is.False);
     }
 
     [Test]
     public void Extension_IsPubliclyWritable()
     {
-        Assert.IsFalse(Members_Property("PublicReadOnly").IsPubliclyWritable);
-        Assert.IsTrue(Members_Property("PublicWriteOnly").IsPubliclyWritable);
-        Assert.IsFalse(Members_Property("PrivateSet").IsPubliclyWritable);
+        Assert.That(Members_Property("PublicReadOnly").IsPubliclyWritable, Is.False);
+        Assert.That(Members_Property("PublicWriteOnly").IsPubliclyWritable, Is.True);
+        Assert.That(Members_Property("PrivateSet").IsPubliclyWritable, Is.False);
     }
 
     [Test]
     public void Extension_IsInherited()
     {
-        Assert.IsFalse(OOP_Property("Public").IsInherited(false, false));
-        Assert.IsFalse(OOP_Property("Overridden").IsInherited(false, false));
-        Assert.IsFalse(OOP_Property("ImplicitInterface").IsInherited(false, false));
-        Assert.IsTrue(OOP_Property("NotOverridden").IsInherited(false, false));
+        Assert.That(OOP_Property("Public").IsInherited(false, false), Is.False);
+        Assert.That(OOP_Property("Overridden").IsInherited(false, false), Is.False);
+        Assert.That(OOP_Property("ImplicitInterface").IsInherited(false, false), Is.False);
+        Assert.That(OOP_Property("NotOverridden").IsInherited(false, false), Is.True);
 
-        Assert.IsFalse(OOP_Property("Public").IsInherited(false, true));
-        Assert.IsTrue(OOP_Property("Overridden").IsInherited(false, true));
-        Assert.IsTrue(OOP_Property("ImplicitInterface").IsInherited(false, true));
-        Assert.IsTrue(OOP_Property("NotOverridden").IsInherited(false, true));
+        Assert.That(OOP_Property("Public").IsInherited(false, true), Is.False);
+        Assert.That(OOP_Property("Overridden").IsInherited(false, true), Is.True);
+        Assert.That(OOP_Property("ImplicitInterface").IsInherited(false, true), Is.True);
+        Assert.That(OOP_Property("NotOverridden").IsInherited(false, true), Is.True);
 
-        Assert.IsFalse(OOP_Property("Public").IsInherited(true, false));
-        Assert.IsFalse(OOP_Property("Overridden").IsInherited(true, false));
-        Assert.IsFalse(OOP_Property("OtherNamespace").IsInherited(true, false));
+        Assert.That(OOP_Property("Public").IsInherited(true, false), Is.False);
+        Assert.That(OOP_Property("Overridden").IsInherited(true, false), Is.False);
+        Assert.That(OOP_Property("OtherNamespace").IsInherited(true, false), Is.False);
 
-        Assert.IsFalse(OOP_Property("Public").IsInherited(true, true));
-        Assert.IsFalse(OOP_Property("Overridden").IsInherited(true, true));
-        Assert.IsTrue(OOP_Property("OtherNamespace").IsInherited(true, true));
+        Assert.That(OOP_Property("Public").IsInherited(true, true), Is.False);
+        Assert.That(OOP_Property("Overridden").IsInherited(true, true), Is.False);
+        Assert.That(OOP_Property("OtherNamespace").IsInherited(true, true), Is.True);
     }
 
     [Test]
     public void Extension_IsIndexer()
     {
-        Assert.IsFalse(OOP_Property("Public").IsIndexer);
-        Assert.IsTrue(OOP_Property("Item").IsIndexer);
+        Assert.That(OOP_Property("Public").IsIndexer, Is.False);
+        Assert.That(OOP_Property("Item").IsIndexer, Is.True);
     }
 
     [Test]
     public void Extension_Returns()
     {
-        Assert.IsTrue(Members_Property("String").Returns(type.of<object>()));
-        Assert.IsFalse(Members_Property("Int").Returns(type.of<string>()));
+        Assert.That(Members_Property("String").Returns(type.of<object>()), Is.True);
+        Assert.That(Members_Property("Int").Returns(type.of<string>()), Is.False);
 
-        Assert.IsTrue(Members_Property("StringList").ReturnsCollection());
-        Assert.IsTrue(Members_Property("StringList").ReturnsCollection(type.of<object>()));
-        Assert.IsFalse(Members_Property("NonGenericList").ReturnsCollection(type.of<string>()));
+        Assert.That(Members_Property("StringList").ReturnsCollection(), Is.True);
+        Assert.That(Members_Property("StringList").ReturnsCollection(type.of<object>()), Is.True);
+        Assert.That(Members_Property("NonGenericList").ReturnsCollection(type.of<string>()), Is.False);
 
         //generics
-        Assert.IsTrue(Members_Property("String").Returns<string>());
-        Assert.IsTrue(Members_Property("StringList").ReturnsCollection<string>());
+        Assert.That(Members_Property("String").Returns<string>(), Is.True);
+        Assert.That(Members_Property("StringList").ReturnsCollection<string>(), Is.True);
 
         //with name parameter
-        Assert.IsFalse(Members_Property("String").Returns(type.of<string>(), "Wrong.*"));
-        Assert.IsFalse(Members_Property("StringList").ReturnsCollection(type.of<string>(), "Wrong.*"));
+        Assert.That(Members_Property("String").Returns(type.of<string>(), "Wrong.*"), Is.False);
+        Assert.That(Members_Property("StringList").ReturnsCollection(type.of<string>(), "Wrong.*"), Is.False);
     }
 
     [Test]
     public void Extension_Has()
     {
-        Assert.IsTrue(Attribute_Property("Class").Has<TestClassAttribute>());
-        Assert.IsTrue(Attribute_Property("Class").Has(type.of<TestClassAttribute>()));
+        Assert.That(Attribute_Property("Class").Has<TestClassAttribute>(), Is.True);
+        Assert.That(Attribute_Property("Class").Has(type.of<TestClassAttribute>()), Is.True);
     }
 }

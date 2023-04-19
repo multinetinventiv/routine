@@ -28,7 +28,7 @@ public class VirtualMethodTest : CoreTestBase
     {
         IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.AreSame(_parentType, testing.ParentType);
+        Assert.That(testing.ParentType, Is.SameAs(_parentType));
     }
 
     [Test]
@@ -36,8 +36,8 @@ public class VirtualMethodTest : CoreTestBase
     {
         IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.AreSame(_parentType, testing.GetDeclaringType(false));
-        Assert.AreSame(_parentType, testing.GetDeclaringType(true));
+        Assert.That(testing.GetDeclaringType(false), Is.SameAs(_parentType));
+        Assert.That(testing.GetDeclaringType(true), Is.SameAs(_parentType));
     }
 
     [Test]
@@ -45,7 +45,7 @@ public class VirtualMethodTest : CoreTestBase
     {
         IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.IsTrue(testing.IsPublic);
+        Assert.That(testing.IsPublic, Is.True);
     }
 
     [Test]
@@ -55,11 +55,11 @@ public class VirtualMethodTest : CoreTestBase
             .Name.Set("virtual")
         ;
 
-        Assert.AreEqual("virtual", testing.Name);
+        Assert.That(testing.Name, Is.EqualTo("virtual"));
 
         testing = new VirtualMethod(_parentType);
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.Name; });
+        Assert.That(() => { var dummy = testing.Name; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -71,11 +71,11 @@ public class VirtualMethodTest : CoreTestBase
             .ReturnType.Set(typeMock.Object)
         ;
 
-        Assert.AreSame(typeMock.Object, testing.ReturnType);
+        Assert.That(testing.ReturnType, Is.SameAs(typeMock.Object));
 
         testing = new VirtualMethod(_parentType);
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.ReturnType; });
+        Assert.That(() => { var dummy = testing.ReturnType; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("test");
 
-        Assert.AreEqual("virtual -> test", actual);
+        Assert.That(actual, Is.EqualTo("virtual -> test"));
     }
 
     [Test]
@@ -100,7 +100,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((target, _) => $"virtual -> {target}")
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn(3));
+        Assert.That(() => testing.PerformOn(3), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -114,11 +114,11 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("test");
 
-        Assert.AreEqual("virtual -> test", actual);
+        Assert.That(actual, Is.EqualTo("virtual -> test"));
 
         actual = testing.PerformOn(3);
 
-        Assert.AreEqual("virtual -> 3", actual);
+        Assert.That(actual, Is.EqualTo("virtual -> 3"));
     }
 
     [Test]
@@ -130,7 +130,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((target, _) => $"virtual -> {target}")
         ;
 
-        Assert.Throws<NullReferenceException>(() => testing.PerformOn(null));
+        Assert.That(() => testing.PerformOn(null), Throws.TypeOf<NullReferenceException>());
     }
 
     [Test]
@@ -150,8 +150,8 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn(new VirtualObject("test", vt));
 
-        Assert.AreEqual("virtual -> test", actual);
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn("dummy"));
+        Assert.That(actual, Is.EqualTo("virtual -> test"));
+        Assert.That(() => testing.PerformOn("dummy"), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -163,7 +163,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => 3)
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn("dummy"));
+        Assert.That(() => testing.PerformOn("dummy"), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -185,11 +185,11 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("1");
 
-        Assert.AreEqual(1, actual);
+        Assert.That(actual, Is.EqualTo(1));
 
         actual = testing.PerformOn("test");
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -203,7 +203,7 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("test");
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -225,8 +225,8 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("null");
 
-        Assert.IsNull(actual);
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn("not null"));
+        Assert.That(actual, Is.Null);
+        Assert.That(() => testing.PerformOn("not null"), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -238,7 +238,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => null)
         ;
 
-        Assert.Throws<NullReferenceException>(() => testing.PerformOn("test"));
+        Assert.That(() => testing.PerformOn("test"), Throws.TypeOf<NullReferenceException>());
     }
 
     [Test]
@@ -266,8 +266,8 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("test");
 
-        Assert.AreEqual(new VirtualObject("test", vt), actual);
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn("dummy"));
+        Assert.That(actual, Is.EqualTo(new VirtualObject("test", vt)));
+        Assert.That(() => testing.PerformOn("dummy"), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -295,20 +295,20 @@ public class VirtualMethodTest : CoreTestBase
                 $"{target}: {parameters[0]} {(int)parameters[1]} {((int[])parameters[2]).ToItemString()}")
         ;
 
-        Assert.AreEqual(3, testing.Parameters.Count);
-        Assert.AreEqual("param1", testing.Parameters[0].Name);
-        Assert.AreEqual(0, testing.Parameters[0].Index);
-        Assert.AreEqual(type.of<string>(), testing.Parameters[0].ParameterType);
-        Assert.AreEqual("param2", testing.Parameters[1].Name);
-        Assert.AreEqual(1, testing.Parameters[1].Index);
-        Assert.AreEqual(type.of<int>(), testing.Parameters[1].ParameterType);
-        Assert.AreEqual("param3", testing.Parameters[2].Name);
-        Assert.AreEqual(2, testing.Parameters[2].Index);
-        Assert.AreEqual(type.of<int[]>(), testing.Parameters[2].ParameterType);
+        Assert.That(testing.Parameters.Count, Is.EqualTo(3));
+        Assert.That(testing.Parameters[0].Name, Is.EqualTo("param1"));
+        Assert.That(testing.Parameters[0].Index, Is.EqualTo(0));
+        Assert.That(testing.Parameters[0].ParameterType, Is.EqualTo(type.of<string>()));
+        Assert.That(testing.Parameters[1].Name, Is.EqualTo("param2"));
+        Assert.That(testing.Parameters[1].Index, Is.EqualTo(1));
+        Assert.That(testing.Parameters[1].ParameterType, Is.EqualTo(type.of<int>()));
+        Assert.That(testing.Parameters[2].Name, Is.EqualTo("param3"));
+        Assert.That(testing.Parameters[2].Index, Is.EqualTo(2));
+        Assert.That(testing.Parameters[2].ParameterType, Is.EqualTo(type.of<int[]>()));
 
         var actual = testing.PerformOn("test", "arg1", 1, new[] { 2, 3 });
 
-        Assert.AreEqual("test: arg1 1 [2,3]", actual);
+        Assert.That(actual, Is.EqualTo("test: arg1 1 [2,3]"));
     }
 
     [Test]
@@ -330,8 +330,8 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => "success")
         ;
 
-        Assert.Throws<InvalidOperationException>(() => testing.PerformOn("test", "less"));
-        Assert.Throws<InvalidOperationException>(() => testing.PerformOn("test", "arg1", 1, "more"));
+        Assert.That(() => testing.PerformOn("test", "less"), Throws.TypeOf<InvalidOperationException>());
+        Assert.That(() => testing.PerformOn("test", "arg1", 1, "more"), Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
@@ -348,8 +348,8 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => "success")
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.PerformOn("test", 1));
-        Assert.AreEqual("success", testing.PerformOn("test", "arg1"));
+        Assert.That(() => testing.PerformOn("test", 1), Throws.TypeOf<InvalidCastException>());
+        Assert.That(testing.PerformOn("test", "arg1"), Is.EqualTo("success"));
     }
 
     [Test]
@@ -366,7 +366,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => "success")
         ;
 
-        Assert.AreEqual("success", testing.PerformOn("test", new object[] { null }));
+        Assert.That(testing.PerformOn("test", new object[] { null }), Is.EqualTo("success"));
     }
 
     [Test]
@@ -383,7 +383,7 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => "success")
         ;
 
-        Assert.Throws<NullReferenceException>(() => testing.PerformOn("test", new object[] { null }));
+        Assert.That(() => testing.PerformOn("test", new object[] { null }), Throws.TypeOf<NullReferenceException>());
     }
 
     [Test]
@@ -400,8 +400,8 @@ public class VirtualMethodTest : CoreTestBase
             .Body.Set((_, _) => "success")
         ;
 
-        Assert.AreEqual("success", testing.PerformOn("test", "arg1"));
-        Assert.AreEqual("success", testing.PerformOn("test", 1));
+        Assert.That(testing.PerformOn("test", "arg1"), Is.EqualTo("success"));
+        Assert.That(testing.PerformOn("test", 1), Is.EqualTo("success"));
     }
 
     [Test]
@@ -423,7 +423,7 @@ public class VirtualMethodTest : CoreTestBase
 
         var actual = testing.PerformOn("target", "arg1");
 
-        Assert.AreEqual("virtual -> target arg1", actual);
+        Assert.That(actual, Is.EqualTo("virtual -> target arg1"));
     }
 
     [Test]
@@ -431,7 +431,7 @@ public class VirtualMethodTest : CoreTestBase
     {
         IMethod testing = new VirtualMethod(_parentType);
 
-        Assert.AreEqual(0, testing.GetCustomAttributes().Length);
-        Assert.AreEqual(0, testing.GetReturnTypeCustomAttributes().Length);
+        Assert.That(testing.GetCustomAttributes().Length, Is.EqualTo(0));
+        Assert.That(testing.GetReturnTypeCustomAttributes().Length, Is.EqualTo(0));
     }
 }

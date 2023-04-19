@@ -14,26 +14,26 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<string>(), real);
 
-        Assert.AreEqual(real.IsPublic, proxy.IsPublic);
-        Assert.AreEqual(real.Name, proxy.Name);
+        Assert.That(proxy.IsPublic, Is.EqualTo(real.IsPublic));
+        Assert.That(proxy.Name, Is.EqualTo(real.Name));
 
-        Assert.AreEqual(real.Parameters.Count, proxy.Parameters.Count);
+        Assert.That(proxy.Parameters.Count, Is.EqualTo(real.Parameters.Count));
         for (int i = 0; i < real.Parameters.Count; i++)
         {
-            Assert.AreEqual(real.Parameters[i].Name, proxy.Parameters[i].Name);
-            Assert.AreEqual(real.Parameters[i].Index, proxy.Parameters[i].Index);
-            Assert.AreEqual(real.Parameters[i].ParameterType, proxy.Parameters[i].ParameterType);
+            Assert.That(proxy.Parameters[i].Name, Is.EqualTo(real.Parameters[i].Name));
+            Assert.That(proxy.Parameters[i].Index, Is.EqualTo(real.Parameters[i].Index));
+            Assert.That(proxy.Parameters[i].ParameterType, Is.EqualTo(real.Parameters[i].ParameterType));
         }
 
-        Assert.AreEqual(real.ReturnType, proxy.ReturnType);
+        Assert.That(proxy.ReturnType, Is.EqualTo(real.ReturnType));
 
-        Assert.AreEqual(real.GetCustomAttributes().Length, proxy.GetCustomAttributes().Length);
+        Assert.That(proxy.GetCustomAttributes().Length, Is.EqualTo(real.GetCustomAttributes().Length));
         for (int i = 0; i < real.GetCustomAttributes().Length; i++)
         {
             var realAttr = real.GetCustomAttributes()[i];
             var proxyAttr = proxy.GetCustomAttributes()[i];
 
-            Assert.AreEqual(realAttr, proxyAttr);
+            Assert.That(proxyAttr, Is.EqualTo(realAttr));
         }
     }
 
@@ -44,7 +44,7 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<string>(), real).Name.Set("Overridden");
 
-        Assert.AreEqual("Overridden", proxy.Name);
+        Assert.That(proxy.Name, Is.EqualTo("Overridden"));
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(expected, real);
 
-        Assert.AreSame(expected, proxy.ParentType);
+        Assert.That(proxy.ParentType, Is.SameAs(expected));
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class ProxyMethodTest : CoreTestBase
 
         foreach (var parameter in proxy.Parameters)
         {
-            Assert.AreSame(expected, parameter.ParentType);
+            Assert.That(parameter.ParentType, Is.SameAs(expected));
         }
     }
 
@@ -80,8 +80,8 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(expected, real);
 
-        Assert.AreSame(expected, proxy.GetDeclaringType(false));
-        Assert.AreSame(expected, proxy.GetDeclaringType(true));
+        Assert.That(proxy.GetDeclaringType(false), Is.SameAs(expected));
+        Assert.That(proxy.GetDeclaringType(true), Is.SameAs(expected));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<string>(), real);
 
-        Assert.AreEqual("inserttest", proxy.PerformOn("test", 0, "insert"));
+        Assert.That(proxy.PerformOn("test", 0, "insert"), Is.EqualTo("inserttest"));
     }
 
     [Test]
@@ -100,7 +100,7 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString());
 
-        Assert.AreEqual("insertt", proxy.PerformOn('t', 0, "insert"));
+        Assert.That(proxy.PerformOn('t', 0, "insert"), Is.EqualTo("insertt"));
     }
 
     [Test]
@@ -113,15 +113,15 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString(), parameterMock.Object);
 
-        Assert.AreEqual(real.Parameters.Count + 1, proxy.Parameters.Count);
-        Assert.AreEqual("additional", proxy.Parameters[0].Name);
-        Assert.AreEqual(0, proxy.Parameters[0].Index);
-        Assert.AreEqual(type.of<string>(), proxy.Parameters[0].ParameterType);
+        Assert.That(proxy.Parameters.Count, Is.EqualTo(real.Parameters.Count + 1));
+        Assert.That(proxy.Parameters[0].Name, Is.EqualTo("additional"));
+        Assert.That(proxy.Parameters[0].Index, Is.EqualTo(0));
+        Assert.That(proxy.Parameters[0].ParameterType, Is.EqualTo(type.of<string>()));
         for (int i = 0; i < real.Parameters.Count; i++)
         {
-            Assert.AreEqual(real.Parameters[i].Name, proxy.Parameters[i + 1].Name);
-            Assert.AreEqual(real.Parameters[i].Index + 1, proxy.Parameters[i + 1].Index);
-            Assert.AreEqual(real.Parameters[i].ParameterType, proxy.Parameters[i + 1].ParameterType);
+            Assert.That(proxy.Parameters[i + 1].Name, Is.EqualTo(real.Parameters[i].Name));
+            Assert.That(proxy.Parameters[i + 1].Index, Is.EqualTo(real.Parameters[i].Index + 1));
+            Assert.That(proxy.Parameters[i + 1].ParameterType, Is.EqualTo(real.Parameters[i].ParameterType));
         }
     }
 
@@ -133,7 +133,7 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<char>(), real, (o, _) => o.ToString(), parameterMock.Object);
 
-        Assert.AreEqual("insertt", proxy.PerformOn('t', "dummy", 0, "insert"));
+        Assert.That(proxy.PerformOn('t', "dummy", 0, "insert"), Is.EqualTo("insertt"));
     }
 
     [Test]
@@ -144,6 +144,6 @@ public class ProxyMethodTest : CoreTestBase
         IMethod real = type.of<string>().GetMethod("Insert");
         IMethod proxy = new ProxyMethod(type.of<char>(), real, (_, p) => p[0], parameterMock.Object);
 
-        Assert.AreEqual("inserttest", proxy.PerformOn('t', "test", 0, "insert"));
+        Assert.That(proxy.PerformOn('t', "test", 0, "insert"), Is.EqualTo("inserttest"));
     }
 }

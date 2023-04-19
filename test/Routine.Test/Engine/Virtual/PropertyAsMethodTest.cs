@@ -28,7 +28,7 @@ public class PropertyAsMethodTest : CoreTestBase
     [Test]
     public void Property_cannot_be_null()
     {
-        Assert.Throws<ArgumentNullException>(() => new PropertyAsMethod(null));
+        Assert.That(() => new PropertyAsMethod(null), Throws.TypeOf<ArgumentNullException>());
     }
 
     [Test]

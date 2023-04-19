@@ -28,7 +28,7 @@ public class VirtualParameterTest : CoreTestBase
     {
         IParameter testing = new VirtualParameter(_owner);
 
-        Assert.AreSame(_owner, testing.Owner);
+        Assert.That(testing.Owner, Is.SameAs(_owner));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class VirtualParameterTest : CoreTestBase
 
         IParameter testing = new VirtualParameter(_owner);
 
-        Assert.AreSame(parentTypeMock.Object, testing.ParentType);
+        Assert.That(testing.ParentType, Is.SameAs(parentTypeMock.Object));
     }
 
     [Test]
@@ -49,11 +49,11 @@ public class VirtualParameterTest : CoreTestBase
             .Name.Set("virtual")
         ;
 
-        Assert.AreEqual("virtual", testing.Name);
+        Assert.That(testing.Name, Is.EqualTo("virtual"));
 
         testing = new VirtualParameter(_owner);
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.Name; });
+        Assert.That(() => { var dummy = testing.Name; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -65,11 +65,11 @@ public class VirtualParameterTest : CoreTestBase
             .ParameterType.Set(parameterTypeMock.Object)
         ;
 
-        Assert.AreSame(parameterTypeMock.Object, testing.ParameterType);
+        Assert.That(testing.ParameterType, Is.SameAs(parameterTypeMock.Object));
 
         testing = new VirtualParameter(_owner);
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.ParameterType; });
+        Assert.That(() => { var dummy = testing.ParameterType; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -79,11 +79,11 @@ public class VirtualParameterTest : CoreTestBase
             .Index.Set(2)
         ;
 
-        Assert.AreEqual(2, testing.Index);
+        Assert.That(testing.Index, Is.EqualTo(2));
 
         testing = new VirtualParameter(_owner);
 
-        Assert.AreEqual(0, testing.Index);
+        Assert.That(testing.Index, Is.EqualTo(0));
     }
 
     [Test]
@@ -91,9 +91,9 @@ public class VirtualParameterTest : CoreTestBase
     {
         IParameter testing = new VirtualParameter(_owner);
 
-        Assert.AreEqual(0, testing.GetCustomAttributes().Length);
-        Assert.IsFalse(testing.IsOptional);
-        Assert.IsFalse(testing.HasDefaultValue);
-        Assert.IsNull(testing.DefaultValue);
+        Assert.That(testing.GetCustomAttributes().Length, Is.EqualTo(0));
+        Assert.That(testing.IsOptional, Is.False);
+        Assert.That(testing.HasDefaultValue, Is.False);
+        Assert.That(testing.DefaultValue, Is.Null);
     }
 }

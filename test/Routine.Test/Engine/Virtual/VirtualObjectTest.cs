@@ -17,8 +17,8 @@ public class VirtualObjectTest
     {
         var testing = new VirtualObject("virtual", VirtualType("type"));
 
-        Assert.AreEqual("type", testing.Type.Name);
-        Assert.AreEqual("virtual", testing.Id);
+        Assert.That(testing.Type.Name, Is.EqualTo("type"));
+        Assert.That(testing.Id, Is.EqualTo("virtual"));
     }
 
     [Test]
@@ -26,7 +26,7 @@ public class VirtualObjectTest
     {
         var testing = new VirtualObject("virtual", VirtualType().ToStringMethod.Set(o => o.Id));
 
-        Assert.AreEqual("virtual", testing.ToString());
+        Assert.That(testing.ToString(), Is.EqualTo("virtual"));
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class VirtualObjectTest
         var testing1 = new VirtualObject("virtual", type);
         var testing2 = new VirtualObject("virtual", type);
 
-        Assert.AreEqual(testing1, testing2);
-        Assert.AreEqual(testing1.GetHashCode(), testing2.GetHashCode());
+        Assert.That(testing2, Is.EqualTo(testing1));
+        Assert.That(testing2.GetHashCode(), Is.EqualTo(testing1.GetHashCode()));
     }
 }

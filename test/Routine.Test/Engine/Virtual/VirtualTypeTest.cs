@@ -13,7 +13,7 @@ public class VirtualTypeTest : CoreTestBase
     {
         IType testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsTrue(testing.IsPublic);
+        Assert.That(testing.IsPublic, Is.True);
     }
 
     [Test]
@@ -21,7 +21,7 @@ public class VirtualTypeTest : CoreTestBase
     {
         IType testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsFalse(testing.IsArray);
+        Assert.That(testing.IsArray, Is.False);
     }
 
     [Test]
@@ -29,7 +29,7 @@ public class VirtualTypeTest : CoreTestBase
     {
         IType testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsFalse(testing.IsVoid);
+        Assert.That(testing.IsVoid, Is.False);
     }
 
     [Test]
@@ -39,11 +39,11 @@ public class VirtualTypeTest : CoreTestBase
             .Name.Set("Test")
         ;
 
-        Assert.AreEqual("Test", testing.Name);
+        Assert.That(testing.Name, Is.EqualTo("Test"));
 
         testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.Name; });
+        Assert.That(() => { var dummy = testing.Name; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -53,11 +53,11 @@ public class VirtualTypeTest : CoreTestBase
             .Namespace.Set("Routine")
         ;
 
-        Assert.AreEqual("Routine", testing.Namespace);
+        Assert.That(testing.Namespace, Is.EqualTo("Routine"));
 
         testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.Throws<ConfigurationException>(() => { var dummy = testing.Namespace; });
+        Assert.That(() => { var dummy = testing.Namespace; }, Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class VirtualTypeTest : CoreTestBase
             .Namespace.Set("Routine")
         ;
 
-        Assert.AreEqual("Routine.Test", testing.FullName);
+        Assert.That(testing.FullName, Is.EqualTo("Routine.Test"));
     }
 
     [Test]
@@ -78,11 +78,11 @@ public class VirtualTypeTest : CoreTestBase
             .IsInterface.Set(true)
         ;
 
-        Assert.IsTrue(testing.IsInterface);
+        Assert.That(testing.IsInterface, Is.True);
 
         testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsFalse(testing.IsInterface);
+        Assert.That(testing.IsInterface, Is.False);
     }
 
     [Test]
@@ -94,8 +94,8 @@ public class VirtualTypeTest : CoreTestBase
 
         var actual = testing.CreateInstance();
 
-        Assert.IsInstanceOf<VirtualObject>(actual);
-        Assert.AreEqual("default", ((VirtualObject)actual).Id);
+        Assert.That(actual, Is.InstanceOf<VirtualObject>());
+        Assert.That(((VirtualObject)actual).Id, Is.EqualTo("default"));
     }
 
     [Test]
@@ -109,7 +109,7 @@ public class VirtualTypeTest : CoreTestBase
 
         var actual = testing.CreateInstance();
 
-        Assert.AreEqual("default (Namespace.Name)", actual.ToString());
+        Assert.That(actual.ToString(), Is.EqualTo("default (Namespace.Name)"));
     }
 
     [Test]
@@ -121,8 +121,8 @@ public class VirtualTypeTest : CoreTestBase
             .Methods.Add(mockMethod.Object)
         ;
 
-        Assert.AreEqual(1, testing.Methods.Count);
-        Assert.AreSame(mockMethod.Object, testing.Methods[0]);
+        Assert.That(testing.Methods.Count, Is.EqualTo(1));
+        Assert.That(testing.Methods[0], Is.SameAs(mockMethod.Object));
     }
 
     [Test]
@@ -130,8 +130,8 @@ public class VirtualTypeTest : CoreTestBase
     {
         IType testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsTrue(testing.CanBe(type.of<object>()));
-        Assert.IsFalse(testing.CanBe(type.of<string>()));
+        Assert.That(testing.CanBe(type.of<object>()), Is.True);
+        Assert.That(testing.CanBe(type.of<string>()), Is.False);
     }
 
     [Test]
@@ -142,15 +142,15 @@ public class VirtualTypeTest : CoreTestBase
             .Namespace.Set("Routine")
         ;
 
-        Assert.AreEqual("Routine.Virtual", testing.ToString());
+        Assert.That(testing.ToString(), Is.EqualTo("Routine.Virtual"));
 
         IType clone = BuildRoutine.VirtualType().FromBasic()
             .Name.Set("Virtual")
             .Namespace.Set("Routine")
         ;
 
-        Assert.AreEqual(testing.GetHashCode(), clone.GetHashCode());
-        Assert.AreEqual(testing, clone);
+        Assert.That(clone.GetHashCode(), Is.EqualTo(testing.GetHashCode()));
+        Assert.That(clone, Is.EqualTo(testing));
     }
 
     [Test]
@@ -166,8 +166,8 @@ public class VirtualTypeTest : CoreTestBase
             )
         ;
 
-        Assert.AreEqual(1, testing.AssignableTypes.Count);
-        Assert.AreEqual("IVirtual", testing.AssignableTypes[0].Name);
+        Assert.That(testing.AssignableTypes.Count, Is.EqualTo(1));
+        Assert.That(testing.AssignableTypes[0].Name, Is.EqualTo("IVirtual"));
     }
 
     [Test]
@@ -184,8 +184,8 @@ public class VirtualTypeTest : CoreTestBase
             .AssignableTypes.Add(virtualInterface)
         ;
 
-        Assert.IsTrue(testing.CanBe(virtualInterface));
-        Assert.IsFalse(testing.CanBe(type.of<string>()));
+        Assert.That(testing.CanBe(virtualInterface), Is.True);
+        Assert.That(testing.CanBe(type.of<string>()), Is.False);
     }
 
     [Test]
@@ -205,7 +205,7 @@ public class VirtualTypeTest : CoreTestBase
 
         var instance = testing.CreateInstance();
 
-        Assert.AreSame(instance, testing.Cast(instance, virtualInterface));
+        Assert.That(testing.Cast(instance, virtualInterface), Is.SameAs(instance));
     }
 
     [Test]
@@ -219,7 +219,7 @@ public class VirtualTypeTest : CoreTestBase
 
         var instance = testing.CreateInstance();
 
-        Assert.AreSame(instance, testing.Cast(instance, type.of<object>()));
+        Assert.That(testing.Cast(instance, type.of<object>()), Is.SameAs(instance));
     }
 
     [Test]
@@ -237,7 +237,7 @@ public class VirtualTypeTest : CoreTestBase
             .AssignableTypes.Add(virtualInterface)
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.Cast("string", virtualInterface));
+        Assert.That(() => testing.Cast("string", virtualInterface), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -249,7 +249,7 @@ public class VirtualTypeTest : CoreTestBase
             .Namespace.Set("Routine")
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.Cast(testing.CreateInstance(), type.of<string>()));
+        Assert.That(() => testing.Cast(testing.CreateInstance(), type.of<string>()), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -266,7 +266,7 @@ public class VirtualTypeTest : CoreTestBase
             .Namespace.Set("Routine")
         ;
 
-        Assert.Throws<InvalidCastException>(() => testing.Cast(testing.CreateInstance(), virtualInterface));
+        Assert.That(() => testing.Cast(testing.CreateInstance(), virtualInterface), Throws.TypeOf<InvalidCastException>());
     }
 
     [Test]
@@ -274,22 +274,22 @@ public class VirtualTypeTest : CoreTestBase
     {
         IType testing = BuildRoutine.VirtualType().FromBasic();
 
-        Assert.IsNull(testing.ParentType);
-        Assert.AreEqual(0, testing.GetCustomAttributes().Length);
-        Assert.IsFalse(testing.IsAbstract);
-        Assert.IsFalse(testing.IsEnum);
-        Assert.IsFalse(testing.IsGenericType);
-        Assert.IsFalse(testing.IsPrimitive);
-        Assert.IsFalse(testing.IsValueType);
-        Assert.AreEqual(type.of<object>(), testing.BaseType);
-        Assert.AreEqual(0, testing.GetGenericArguments().Count);
-        Assert.IsNull(testing.GetElementType());
-        Assert.IsNull(testing.GetParseMethod());
-        Assert.AreEqual(0, testing.GetEnumNames().Count);
-        Assert.AreEqual(0, testing.GetEnumValues().Count);
-        Assert.IsNull(testing.GetEnumUnderlyingType());
-        Assert.Throws<NotSupportedException>(() => testing.CreateListInstance(10));
-        Assert.AreEqual(0, testing.Constructors.Count);
-        Assert.AreEqual(0, testing.Properties.Count);
+        Assert.That(testing.ParentType, Is.Null);
+        Assert.That(testing.GetCustomAttributes().Length, Is.EqualTo(0));
+        Assert.That(testing.IsAbstract, Is.False);
+        Assert.That(testing.IsEnum, Is.False);
+        Assert.That(testing.IsGenericType, Is.False);
+        Assert.That(testing.IsPrimitive, Is.False);
+        Assert.That(testing.IsValueType, Is.False);
+        Assert.That(testing.BaseType, Is.EqualTo(type.of<object>()));
+        Assert.That(testing.GetGenericArguments().Count, Is.EqualTo(0));
+        Assert.That(testing.GetElementType(), Is.Null);
+        Assert.That(testing.GetParseMethod(), Is.Null);
+        Assert.That(testing.GetEnumNames().Count, Is.EqualTo(0));
+        Assert.That(testing.GetEnumValues().Count, Is.EqualTo(0));
+        Assert.That(testing.GetEnumUnderlyingType(), Is.Null);
+        Assert.That(() => testing.CreateListInstance(10), Throws.TypeOf<NotSupportedException>());
+        Assert.That(testing.Constructors.Count, Is.EqualTo(0));
+        Assert.That(testing.Properties.Count, Is.EqualTo(0));
     }
 }
