@@ -35,7 +35,7 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
 
     private void AssertDoesNotEqualAndHasDifferentHashCode<T>(T left, T right)
     {
-        Assert.That(left.Equals(right), Is.True, $"{left} and {right} should not be equal");
+        Assert.That(left.Equals(right), Is.False, $"{left} and {right} should not be equal");
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(right.GetHashCode()));
     }
 
