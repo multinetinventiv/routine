@@ -16,7 +16,7 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>();
 
-        Assert.IsTrue(testing.AppliesTo("any"));
+        Assert.That(testing.AppliesTo("any"), Is.True);
     }
 
     [Test]
@@ -24,8 +24,8 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>().When(o => o == "valid");
 
-        Assert.IsTrue(testing.AppliesTo("valid"));
-        Assert.IsFalse(testing.AppliesTo("invalid"));
+        Assert.That(testing.AppliesTo("valid"), Is.True);
+        Assert.That(testing.AppliesTo("invalid"), Is.False);
     }
 
     [Test]
@@ -46,8 +46,8 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>().When(o => o.Contains("valid")).When(o => !o.Contains("in"));
 
-        Assert.IsTrue(testing.AppliesTo("valid"));
-        Assert.IsFalse(testing.AppliesTo("invalid"));
+        Assert.That(testing.AppliesTo("valid"), Is.True);
+        Assert.That(testing.AppliesTo("invalid"), Is.False);
     }
 
     [Test]
@@ -55,8 +55,8 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>().When("match");
 
-        Assert.IsTrue(testing.AppliesTo("match"));
-        Assert.IsFalse(testing.AppliesTo("nomatch"));
+        Assert.That(testing.AppliesTo("match"), Is.True);
+        Assert.That(testing.AppliesTo("nomatch"), Is.False);
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>().WhenDefault();
 
-        Assert.IsTrue(testing.AppliesTo(null));
-        Assert.IsFalse(testing.AppliesTo("string"));
+        Assert.That(testing.AppliesTo(null), Is.True);
+        Assert.That(testing.AppliesTo("string"), Is.False);
     }
 }
