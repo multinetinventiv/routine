@@ -30,10 +30,10 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
     [Test]
@@ -47,10 +47,10 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
     [Test]
@@ -64,10 +64,10 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
     [Test]
@@ -81,10 +81,10 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
     [Test]
@@ -98,10 +98,10 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
     [Test]
@@ -115,9 +115,9 @@ public class EqualityAndFormattingTest : ClientTestBase
 
         Assert.That(right, Is.EqualTo(left));
         Assert.That(right, Is.Not.SameAs(left));
-        Assert.That(right, Is.Not.EqualTo(other));
+        Assert.That(left, Is.Not.EqualTo(other));
 
         Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
-        Assert.That(right.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 }
