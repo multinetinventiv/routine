@@ -13,10 +13,10 @@ public class EqualityAndFormattingTest : ClientTestBase
         var left = new Rapplication(_mockObjectService.Object);
         var right = new Rapplication(_mockObjectService.Object);
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
     }
 
     [Test]
@@ -28,11 +28,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = new Rapplication(_mockObjectService.Object)["model"];
         var other = new Rapplication(_mockObjectService.Object)["model2"];
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
@@ -45,11 +45,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = new Rapplication(_mockObjectService.Object)["model"].Initializer;
         var other = new Rapplication(_mockObjectService.Object)["model2"].Initializer;
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
@@ -62,11 +62,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = new Rapplication(_mockObjectService.Object)["model"].Data["data"];
         var other = new Rapplication(_mockObjectService.Object)["model2"].Data["data2"];
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
@@ -79,11 +79,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"];
         var other = new Rapplication(_mockObjectService.Object)["model2"].Operation["operation2"];
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
@@ -96,11 +96,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = new Rapplication(_mockObjectService.Object)["model"].Operation["operation"].Parameter["arg1"];
         var other = new Rapplication(_mockObjectService.Object)["model2"].Operation["operation2"].Parameter["arg1"];
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 
@@ -113,11 +113,11 @@ public class EqualityAndFormattingTest : ClientTestBase
         var right = Robj("value", "model");
         var other = Robj("value2", "model");
 
-        Assert.That(right, Is.EqualTo(left));
-        Assert.That(right, Is.Not.SameAs(left));
+        Assert.That(left, Is.EqualTo(right));
+        Assert.That(left, Is.Not.SameAs(right));
         Assert.That(left, Is.Not.EqualTo(other));
 
-        Assert.That(right.GetHashCode(), Is.EqualTo(left.GetHashCode()));
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
         Assert.That(left.GetHashCode(), Is.Not.EqualTo(other.GetHashCode()));
     }
 }
