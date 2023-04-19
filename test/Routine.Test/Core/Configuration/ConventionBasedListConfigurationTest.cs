@@ -53,9 +53,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
     }
 
     [Test]
@@ -66,11 +66,11 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(4, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
-        Assert.AreEqual("result3", actual[2]);
-        Assert.AreEqual("result4", actual[3]);
+        Assert.That(actual.Count, Is.EqualTo(4));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
+        Assert.That(actual[2], Is.EqualTo("result3"));
+        Assert.That(actual[3], Is.EqualTo("result4"));
     }
 
     [Test]
@@ -81,10 +81,10 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(3, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
-        Assert.AreEqual("result3", actual[2]);
+        Assert.That(actual.Count, Is.EqualTo(3));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
+        Assert.That(actual[2], Is.EqualTo("result3"));
     }
 
     [Test]
@@ -95,9 +95,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result3", actual[0]);
-        Assert.AreEqual("result4", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result3"));
+        Assert.That(actual[1], Is.EqualTo("result4"));
     }
 
     [Test]
@@ -110,9 +110,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
     }
 
     [Test]
@@ -128,7 +128,7 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(0, actual.Count);
+        Assert.That(actual.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.AreSame(expected, ex.InnerException);
+            Assert.That(ex.InnerException, Is.SameAs(expected));
         }
     }
 
@@ -192,7 +192,7 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
         }
         catch (ConfigurationException ex)
         {
-            Assert.AreSame(expected, ex);
+            Assert.That(ex, Is.SameAs(expected));
         }
     }
 
@@ -204,11 +204,11 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(4, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
-        Assert.AreEqual("result3", actual[2]);
-        Assert.AreEqual("result4", actual[3]);
+        Assert.That(actual.Count, Is.EqualTo(4));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
+        Assert.That(actual[2], Is.EqualTo("result3"));
+        Assert.That(actual[3], Is.EqualTo("result4"));
     }
 
     [Test]
@@ -222,11 +222,11 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(4, actual.Count);
-        Assert.AreEqual("result3", actual[0]);
-        Assert.AreEqual("result4", actual[1]);
-        Assert.AreEqual("result1", actual[2]);
-        Assert.AreEqual("result2", actual[3]);
+        Assert.That(actual.Count, Is.EqualTo(4));
+        Assert.That(actual[0], Is.EqualTo("result3"));
+        Assert.That(actual[1], Is.EqualTo("result4"));
+        Assert.That(actual[2], Is.EqualTo("result1"));
+        Assert.That(actual[3], Is.EqualTo("result2"));
     }
 
     [Test]
@@ -242,9 +242,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result2", actual[0]);
-        Assert.AreEqual("result1", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result2"));
+        Assert.That(actual[1], Is.EqualTo("result1"));
     }
 
     [Test]
@@ -260,9 +260,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result2", actual[0]);
-        Assert.AreEqual("result1", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result2"));
+        Assert.That(actual[1], Is.EqualTo("result1"));
     }
 
     [Test]
@@ -275,9 +275,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result1", actual[0]);
-        Assert.AreEqual("result2", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result1"));
+        Assert.That(actual[1], Is.EqualTo("result2"));
     }
 
     [Test]
@@ -293,9 +293,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
 
         var actual = _testing.Get(type.of<string>());
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("result2", actual[0]);
-        Assert.AreEqual("result1", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("result2"));
+        Assert.That(actual[1], Is.EqualTo("result1"));
     }
 
     [Ignore("")]
