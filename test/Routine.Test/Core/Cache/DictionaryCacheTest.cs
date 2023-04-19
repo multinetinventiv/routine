@@ -22,7 +22,7 @@ public class DictionaryCacheTest
 
         var actual = _testing["test"];
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class DictionaryCacheTest
     {
         var actual = _testing["test"];
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -38,8 +38,8 @@ public class DictionaryCacheTest
     {
         _testing.Add("exists", new object());
 
-        Assert.IsTrue(_testing.Contains("exists"));
-        Assert.IsFalse(_testing.Contains("doesn't exist"));
+        Assert.That(_testing.Contains("exists"), Is.True);
+        Assert.That(_testing.Contains("doesn't exist"), Is.False);
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class DictionaryCacheTest
 
         _testing.Add("test", expected);
 
-        Assert.AreEqual(expected, _testing["test"]);
+        Assert.That(_testing["test"], Is.EqualTo(expected));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class DictionaryCacheTest
         _testing.Add("test", old);
         _testing.Add("test", @new);
 
-        Assert.AreEqual(@new, _testing["test"]);
+        Assert.That(_testing["test"], Is.EqualTo(@new));
     }
 
     [Test]
@@ -71,12 +71,12 @@ public class DictionaryCacheTest
 
         _testing.Remove("test");
 
-        Assert.IsFalse(_testing.Contains("test"));
+        Assert.That(_testing.Contains("test"), Is.False);
     }
 
     [Test]
     public void Remove_does_not_do_anything_when_non_existing_key_is_removed()
     {
-        Assert.DoesNotThrow(() => _testing.Remove("non existing"));
+        Assert.That(() => _testing.Remove("non existing"), Throws.Nothing);
     }
 }
