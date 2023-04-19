@@ -17,7 +17,7 @@ public class ReflectionMethodInvokerAsyncTest : ReflectionMethodInvokerContract
 
         var actual = await testing.InvokeAsync(this, "test");
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class ReflectionMethodInvokerAsyncTest : ReflectionMethodInvokerContract
 
         var actual = await testing.InvokeAsync(this, TimeSpan.FromMilliseconds(10), "test");
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class ReflectionMethodInvokerAsyncTest : ReflectionMethodInvokerContract
         }
         catch (Exception actual)
         {
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
     }
 }
