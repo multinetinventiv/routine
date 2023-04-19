@@ -16,11 +16,11 @@ public class ListConfigurationTest : CoreTestBase
 
         var actual = testing.Get();
 
-        Assert.AreEqual(4, actual.Count);
-        Assert.AreEqual("1", actual[0]);
-        Assert.AreEqual("2", actual[1]);
-        Assert.AreEqual("3", actual[2]);
-        Assert.AreEqual("4", actual[3]);
+        Assert.That(actual.Count, Is.EqualTo(4));
+        Assert.That(actual[0], Is.EqualTo("1"));
+        Assert.That(actual[1], Is.EqualTo("2"));
+        Assert.That(actual[2], Is.EqualTo("3"));
+        Assert.That(actual[3], Is.EqualTo("4"));
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class ListConfigurationTest : CoreTestBase
 
         var actual = testing.Get();
 
-        Assert.AreEqual(0, actual.Count);
+        Assert.That(actual.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -46,11 +46,11 @@ public class ListConfigurationTest : CoreTestBase
 
         var actual = testing.Get();
 
-        Assert.AreEqual(4, actual.Count);
-        Assert.AreEqual("1", actual[0]);
-        Assert.AreEqual("2", actual[1]);
-        Assert.AreEqual("3", actual[2]);
-        Assert.AreEqual("4", actual[3]);
+        Assert.That(actual.Count, Is.EqualTo(4));
+        Assert.That(actual[0], Is.EqualTo("1"));
+        Assert.That(actual[1], Is.EqualTo("2"));
+        Assert.That(actual[2], Is.EqualTo("3"));
+        Assert.That(actual[3], Is.EqualTo("4"));
     }
 
     [Test]
@@ -61,9 +61,9 @@ public class ListConfigurationTest : CoreTestBase
         testing.Add("1", "2");
         var actual = testing.Get();
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("1", actual[0]);
-        Assert.AreEqual("2", actual[1]);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0], Is.EqualTo("1"));
+        Assert.That(actual[1], Is.EqualTo("2"));
     }
 
     [Test]
@@ -76,12 +76,12 @@ public class ListConfigurationTest : CoreTestBase
 
         var actual = testing.Get();
 
-        Assert.AreEqual(6, actual.Count);
-        Assert.AreEqual("d", actual[0]);
-        Assert.AreEqual("u", actual[1]);
-        Assert.AreEqual("m", actual[2]);
-        Assert.AreEqual("m", actual[3]);
-        Assert.AreEqual("y", actual[4]);
-        Assert.AreEqual("sunny", actual[5]);
+        Assert.That(actual.Count, Is.EqualTo(6));
+        Assert.That(actual[0], Is.EqualTo("d"));
+        Assert.That(actual[1], Is.EqualTo("u"));
+        Assert.That(actual[2], Is.EqualTo("m"));
+        Assert.That(actual[3], Is.EqualTo("m"));
+        Assert.That(actual[4], Is.EqualTo("y"));
+        Assert.That(actual[5], Is.EqualTo("sunny"));
     }
 }
