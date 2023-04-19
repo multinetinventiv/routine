@@ -628,7 +628,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressReferenceData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid"",""ViewModelId"":""vmid""}"));
 
-        Assert.AreEqual(Id("id", "mid", "vmid"), actual);
+        Assert.That(actual, Is.EqualTo(Id("id", "mid", "vmid")));
     }
 
     [Test]
@@ -638,7 +638,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressReferenceData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid""}"));
 
-        Assert.AreEqual(Id("id", "mid", "mid"), actual);
+        Assert.That(actual, Is.EqualTo(Id("id", "mid", "mid")));
     }
 
     [Test]
@@ -648,7 +648,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressReferenceData(Deserialize(@"""id"""));
 
-        Assert.AreEqual(Id("id", "mid"), actual);
+        Assert.That(actual, Is.EqualTo(Id("id", "mid")));
     }
 
     [Test]
@@ -658,7 +658,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressReferenceData(Deserialize(@""""""));
 
-        Assert.AreEqual(Id("", "mid"), actual);
+        Assert.That(actual, Is.EqualTo(Id("", "mid")));
     }
 
     [Test]
@@ -668,13 +668,13 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressReferenceData(Deserialize(@"{""Id"":null,""ModelId"":""mid""}"));
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
     public void When_decompressing__ObjectReferenceData_throws_ArgumentException_when_only_id_is_given_and_model_id_is_not_known()
     {
-        Assert.Throws<ArgumentException>(() => Compressor().DecompressReferenceData(Deserialize(@"""id""")));
+        Assert.That(() => Compressor().DecompressReferenceData(Deserialize(@"""id""")), Throws.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -682,7 +682,7 @@ public class DataCompressorTest : CoreTestBase
     {
         var actual = Compressor().DecompressReferenceData(Deserialize("null"));
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -690,7 +690,7 @@ public class DataCompressorTest : CoreTestBase
     {
         var actual = Compressor().DecompressReferenceData(Deserialize(""));
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -700,7 +700,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressObjectData(Deserialize(@"{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}"));
 
-        Assert.AreEqual(Object(Id("id", "mid")).Display("value").Build().Item2, actual);
+        Assert.That(actual, Is.EqualTo(Object(Id("id", "mid")).Display("value").Build().Item2));
     }
 
     [Test]
@@ -710,7 +710,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressObjectData(Deserialize(@"{""Id"":""id"",""ModelId"":""mid""}"));
 
-        Assert.AreEqual(Object(Id("id", "mid")).Display("id").Build().Item2, actual);
+        Assert.That(actual, Is.EqualTo(Object(Id("id", "mid")).Display("id").Build().Item2));
     }
 
     [Test]
@@ -718,7 +718,7 @@ public class DataCompressorTest : CoreTestBase
     {
         var actual = Compressor().DecompressObjectData(Deserialize("null"));
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -728,13 +728,13 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressObjectData(Deserialize(@"""id"""));
 
-        Assert.AreEqual(Object(Id("id", "mid")).Display("id").Build().Item2, actual);
+        Assert.That(actual, Is.EqualTo(Object(Id("id", "mid")).Display("id").Build().Item2));
     }
 
     [Test]
     public void When_decompressing__ObjectData_throws_ArgumentException_when_only_id_string_is_available_and_model_id_is_not_known()
     {
-        Assert.Throws<ArgumentException>(() => Compressor().DecompressObjectData(Deserialize(@"""id""")));
+        Assert.That(() => Compressor().DecompressObjectData(Deserialize(@"""id""")), Throws.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -757,7 +757,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressVariableData(Deserialize(@"[{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}]"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -781,7 +781,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressVariableData(Deserialize(@"{""Id"":""id"",""Display"":""value"",""ModelId"":""mid""}"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -805,7 +805,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressVariableData(Deserialize(@"""id"""));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -819,13 +819,13 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressVariableData(Deserialize("null"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
     public void When_decompressing__VariableData_throws_ArgumentException_when_only_id_string_is_given_and_model_id_is_not_known()
     {
-        Assert.Throws<ArgumentException>(() => Compressor().DecompressVariableData(Deserialize(@"""id""")));
+        Assert.That(() => Compressor().DecompressVariableData(Deserialize(@"""id""")), Throws.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -856,7 +856,7 @@ public class DataCompressorTest : CoreTestBase
                 }"
         ));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -886,7 +886,7 @@ public class DataCompressorTest : CoreTestBase
                 }"
         ));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -897,7 +897,7 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterData { Id = "id", ModelId = "mid" };
         var actual = Compressor().DecompressParameterData(Deserialize("{\"Id\":\"id\",\"ModelId\":\"mid\"}"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -908,7 +908,7 @@ public class DataCompressorTest : CoreTestBase
         var expected = new ParameterData { Id = "id", ModelId = "mid" };
         var actual = Compressor("mid").DecompressParameterData(Deserialize("\"id\""));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -916,7 +916,7 @@ public class DataCompressorTest : CoreTestBase
     {
         var actual = Compressor().DecompressParameterData(Deserialize("null"));
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
     }
 
     [Test]
@@ -935,7 +935,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressParameterValueData(Deserialize("[\"id\"]"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -954,7 +954,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressParameterValueData(Deserialize("\"id\""));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -968,13 +968,13 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor("mid").DecompressParameterValueData(Deserialize("null"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
     public void When_decompressing__ParameterData_throws_ArgumentException_when_given_string_does_not_contain_model_id_and_model_id_is_not_known()
     {
-        Assert.Throws<ArgumentException>(() => Compressor().DecompressParameterValueData(Deserialize("\"id\"")));
+        Assert.That(() => Compressor().DecompressParameterValueData(Deserialize("\"id\"")), Throws.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -989,7 +989,7 @@ public class DataCompressorTest : CoreTestBase
 
         var actual = Compressor().DecompressParameterData(Deserialize("{\"ModelId\":\"mid\"}"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -1047,7 +1047,7 @@ public class DataCompressorTest : CoreTestBase
                    }
                 }"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -1085,7 +1085,7 @@ public class DataCompressorTest : CoreTestBase
                    }
                 }"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -1129,6 +1129,6 @@ public class DataCompressorTest : CoreTestBase
                    }
                 }"));
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 }
