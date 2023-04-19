@@ -94,7 +94,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj"));
 
-            Assert.AreEqual("obj", actual.Id);
+            Assert.That(actual.Id, Is.EqualTo("obj"));
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace Routine.Test.Engine
             }
             catch (ConfigurationException ex)
             {
-                Assert.IsInstanceOf<CannotConvertException>(ex.InnerException);
+                Assert.That(ex.InnerException, Is.InstanceOf<CannotConvertException>());
             }
         }
 
@@ -126,7 +126,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.AreEqual("obj", actual.Id);
+            Assert.That(actual.Id, Is.EqualTo("obj"));
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj"));
 
-            Assert.AreEqual("Obj Title", actual.Display);
+            Assert.That(actual.Display, Is.EqualTo("Obj Title"));
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.AreEqual("view value", actual.Display);
+            Assert.That(actual.Display, Is.EqualTo("view value"));
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.AreEqual("Obj Title", actual.Display);
+            Assert.That(actual.Display, Is.EqualTo("Obj Title"));
         }
 
         [Test]
@@ -174,8 +174,8 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("sample", VALUE_OMID));
 
-            Assert.AreEqual("sample", actual.Id);
-            Assert.AreEqual("sample", actual.Display);
+            Assert.That(actual.Id, Is.EqualTo("sample"));
+            Assert.That(actual.Display, Is.EqualTo("sample"));
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.AreEqual("Converted Obj Title", actual.Display);
+            Assert.That(actual.Display, Is.EqualTo("Converted Obj Title"));
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.AreEqual("Obj Title", actual.Display);
+            Assert.That(actual.Display, Is.EqualTo("Obj Title"));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace Routine.Test.Engine
 
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
 
-            Assert.IsTrue(actual.Data.ContainsKey("SubData"));
+            Assert.That(actual.Data.ContainsKey("SubData"), Is.True);
         }
 
         [Test]
@@ -247,7 +247,7 @@ namespace Routine.Test.Engine
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualSubdata = actual.Data["SubData"].Values[0];
 
-            Assert.AreEqual("sub_obj_converted", actualSubdata.Id);
+            Assert.That(actualSubdata.Id, Is.EqualTo("sub_obj_converted"));
         }
 
         [Test]
@@ -258,8 +258,8 @@ namespace Routine.Test.Engine
             var actual = _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_OMID));
             var actualData = actual.Data["SubData"];
 
-            Assert.AreEqual("sub_obj", actualData.Values[0].Id);
-            Assert.AreEqual("Sub Obj Title", actualData.Values[0].Display);
+            Assert.That(actualData.Values[0].Id, Is.EqualTo("sub_obj"));
+            Assert.That(actualData.Values[0].Display, Is.EqualTo("Sub Obj Title"));
         }
 
         [Test]
@@ -271,8 +271,8 @@ namespace Routine.Test.Engine
             var title = actual.Data["Title"];
             var nullableInt = actual.Data["NullableInt"];
 
-            Assert.AreEqual(new VariableData(), title);
-            Assert.AreEqual(new VariableData(), nullableInt);
+            Assert.That(title, Is.EqualTo(new VariableData()));
+            Assert.That(nullableInt, Is.EqualTo(new VariableData()));
         }
 
         [Test]
@@ -297,10 +297,10 @@ namespace Routine.Test.Engine
             var actual = _invoker.InvokeGet(_testing, Id("obj"));
             var actualData = actual.Data["SubDatas"];
 
-            Assert.AreEqual("sub1_1", actualData.Values[0].Data["Items"].Values[0].Id);
-            Assert.AreEqual("sub1_2", actualData.Values[0].Data["Items"].Values[1].Id);
-            Assert.AreEqual("sub2_1", actualData.Values[1].Data["Items"].Values[0].Id);
-            Assert.AreEqual("sub2_2", actualData.Values[1].Data["Items"].Values[1].Id);
+            Assert.That(actualData.Values[0].Data["Items"].Values[0].Id, Is.EqualTo("sub1_1"));
+            Assert.That(actualData.Values[0].Data["Items"].Values[1].Id, Is.EqualTo("sub1_2"));
+            Assert.That(actualData.Values[1].Data["Items"].Values[0].Id, Is.EqualTo("sub2_1"));
+            Assert.That(actualData.Values[1].Data["Items"].Values[1].Id, Is.EqualTo("sub2_2"));
         }
 
         [Test]
@@ -313,9 +313,9 @@ namespace Routine.Test.Engine
             var actual = _invoker.InvokeGet(_testing, Id("obj"));
             var actualDataValue = actual.Data["NotLocatable"].Values[0];
 
-            Assert.IsTrue(actualDataValue.Data.ContainsKey("Title"), "Member was not fetched eagerly");
-            Assert.AreEqual("fetched eagerly", actualDataValue.Data["Title"].Values[0].Id);
-            Assert.AreEqual(string.Empty, actualDataValue.Id);
+            Assert.That(actualDataValue.Data.ContainsKey("Title"), Is.True, "Member was not fetched eagerly");
+            Assert.That(actualDataValue.Data["Title"].Values[0].Id, Is.EqualTo("fetched eagerly"));
+            Assert.That(actualDataValue.Id, Is.EqualTo(string.Empty));
         }
 
         [Test]
@@ -336,13 +336,13 @@ namespace Routine.Test.Engine
 
             var actualSubNotlocatable = actualNotlocatable.Data["SubData"].Values[0];
 
-            Assert.AreEqual("sub not locatable", actualSubNotlocatable.Display);
-            Assert.IsTrue(actualSubNotlocatable.Data.ContainsKey("SubData"), "Member was not fetched eagerly, instance was not locatable and supposed to be fetched eagerly");
+            Assert.That(actualSubNotlocatable.Display, Is.EqualTo("sub not locatable"));
+            Assert.That(actualSubNotlocatable.Data.ContainsKey("SubData"), Is.True, "Member was not fetched eagerly, instance was not locatable and supposed to be fetched eagerly");
 
             var actualSubBusinessdata = actualSubNotlocatable.Data["SubData"].Values[0];
 
-            Assert.AreEqual("sub_businessdata", actualSubBusinessdata.Id);
-            Assert.IsFalse(actualSubBusinessdata.Data.ContainsKey("SubData"), "Member was fetched eagerly, instance was locatable and not supposed to be fetched eagerly");
+            Assert.That(actualSubBusinessdata.Id, Is.EqualTo("sub_businessdata"));
+            Assert.That(actualSubBusinessdata.Data.ContainsKey("SubData"), Is.False, "Member was fetched eagerly, instance was locatable and not supposed to be fetched eagerly");
         }
 
         [Test]
@@ -356,7 +356,7 @@ namespace Routine.Test.Engine
 
             AddToRepository(rootBusinessdata);
 
-            Assert.Throws<MaxFetchDepthExceededException>(() => _invoker.InvokeGet(_testing, Id("root_businessdata")));
+            Assert.That(() => _invoker.InvokeGet(_testing, Id("root_businessdata")), Throws.TypeOf<MaxFetchDepthExceededException>());
         }
     }
 }
