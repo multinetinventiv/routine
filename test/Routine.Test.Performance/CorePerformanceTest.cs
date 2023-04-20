@@ -465,8 +465,8 @@ public class CorePerformanceTest
                 }, load);
         #endregion
 
-        Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
-        Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
+        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
+        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
     }
 
     [TestCase(1000)]
@@ -719,8 +719,8 @@ public class CorePerformanceTest
 
         #endregion
 
-        Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
-        Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
+        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
+        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
     }
 
     [TestCase(10, 10)]
@@ -1002,7 +1002,7 @@ public class CorePerformanceTest
 
         #endregion
 
-        Assert.LessOrEqual(engineTime / manuelTime, maxEngineOverheadRatio, "Engine over manuel is above expected");
-        Assert.LessOrEqual(clientTime / engineTime, maxClientOverheadRatio, "Client over engine is above expected");
+        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
+        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
     }
 }

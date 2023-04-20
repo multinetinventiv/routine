@@ -193,7 +193,7 @@ namespace Routine.Test.Engine
                 .Convert(cb => cb
                     .By(type.of<IBusinessOperation>, (o, _) =>
                     {
-                        Assert.AreSame(_businessObj, o);
+                        Assert.That(o, Is.SameAs(_businessObj));
 
                         return convertedBusinessObj;
                     }))

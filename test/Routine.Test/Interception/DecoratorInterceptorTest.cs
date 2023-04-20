@@ -34,9 +34,9 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             before: () => "test string",
-            success: actual => Assert.AreEqual("test string", actual),
-            fail: actual => Assert.AreEqual("test string", actual),
-            after: actual => Assert.AreEqual("test string", actual)
+            success: actual => Assert.That(actual, Is.EqualTo("test string")),
+            fail: actual => Assert.That(actual, Is.EqualTo("test string")),
+            after: actual => Assert.That(actual, Is.EqualTo("test string"))
         );
 
         _invocation.Intercept(testing);
@@ -51,16 +51,16 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             before: () => "interceptor1",
-            success: actual => Assert.AreEqual("interceptor1", actual),
-            fail: actual => Assert.AreEqual("interceptor1", actual),
-            after: actual => Assert.AreEqual("interceptor1", actual)
+            success: actual => Assert.That(actual, Is.EqualTo("interceptor1")),
+            fail: actual => Assert.That(actual, Is.EqualTo("interceptor1")),
+            after: actual => Assert.That(actual, Is.EqualTo("interceptor1"))
         );
 
         var testingOther = _builder.Build(
             before: () => 2,
-            success: actual => Assert.AreEqual(2, actual),
-            fail: actual => Assert.AreEqual(2, actual),
-            after: actual => Assert.AreEqual(2, actual)
+            success: actual => Assert.That(actual, Is.EqualTo(2)),
+            fail: actual => Assert.That(actual, Is.EqualTo(2)),
+            after: actual => Assert.That(actual, Is.EqualTo(2))
         );
 
         _invocation.Intercept(testing);
@@ -84,9 +84,9 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             beforeCtx: ctx => ctx["value"] as string,
-            successCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
-            failCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
-            afterCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual)
+            successCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"])),
+            failCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"])),
+            afterCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"]))
         );
 
         _invocation.Context["value"] = "dummy";

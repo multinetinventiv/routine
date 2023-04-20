@@ -32,7 +32,7 @@ public class SingleConfigurationTest : CoreTestBase
     {
         var testing = new SingleConfiguration<string, string>("dummy", "test");
 
-        Assert.IsNull(testing.Get());
+        Assert.That(testing.Get(), Is.Null);
 
         var testingInt = new SingleConfiguration<string, int>("dummy", "test");
 
