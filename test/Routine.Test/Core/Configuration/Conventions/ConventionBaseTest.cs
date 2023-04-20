@@ -33,12 +33,7 @@ public class ConventionBaseTest : CoreTestBase
     {
         IConvention<string, string> testing = new TestConvention<string>().When(o => o == "valid");
 
-        try
-        {
-            testing.Apply(null);
-            Assert.Fail("exception not thrown");
-        }
-        catch (ConfigurationException) { }
+        Assert.That(() => testing.Apply(null), Throws.TypeOf<ConfigurationException>());
     }
 
     [Test]

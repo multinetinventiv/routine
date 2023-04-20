@@ -54,15 +54,12 @@ public class ConventionBasedConfigurationTest : CoreTestBase
     [Test]
     public void Throws_ConfigurationException_when_none_of_the_conventions_is_applicable_for_given_input()
     {
-        try
-        {
-            _testing.Get("dummy");
-            Assert.Fail("exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex.Message.Contains("test") && ex.Message.Contains("dummy") && ex.Message.Contains(typeof(string).Name), Is.True, ex.Message);
-        }
+        Assert.That(() => _testing.Get("dummy"),
+            Throws.TypeOf<ConfigurationException>()
+                .With.Property("Message").Contains("dummy")
+                .With.Property("Message").Contains("test")
+                .With.Property("Message").Contains(typeof(string).Name)
+        );
     }
 
     [Test]
@@ -71,15 +68,7 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         var expected = new ConfigurationException();
         _testing.OnFailThrow(expected);
 
-        try
-        {
-            _testing.Get("dummy");
-            Assert.Fail("exception not thrown");
-        }
-        catch (ConfigurationException actual)
-        {
-            Assert.That(actual, Is.SameAs(expected));
-        }
+        Assert.That(() => _testing.Get("dummy"), Throws.TypeOf<ConfigurationException>().With.SameAs(expected));
     }
 
     [Test]
@@ -87,15 +76,9 @@ public class ConventionBasedConfigurationTest : CoreTestBase
     {
         _testing.OnFailThrow(o => new ConfigurationException("!!test fail!!", o));
 
-        try
-        {
-            _testing.Get("dummy");
-            Assert.Fail("exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex.Message.Contains("!!test fail!!"), Is.True, ex.Message);
-        }
+        Assert.That(() => _testing.Get("dummy"),
+            Throws.TypeOf<ConfigurationException>()
+                .With.Property("Message").Contains("!!test fail!!"));
     }
 
     [Test]
@@ -116,16 +99,9 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         var expected = new Exception("inner");
         _testing.Set(c => c.By(_ => throw expected));
 
-        try
-        {
-            _testing.Get("dummy");
-
-            Assert.Fail("Exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex.InnerException, Is.SameAs(expected));
-        }
+        Assert.That(() => _testing.Get("dummy"),
+            Throws.TypeOf<ConfigurationException>().With.InnerException.SameAs(expected)
+        );
     }
 
     [Test]
@@ -134,16 +110,9 @@ public class ConventionBasedConfigurationTest : CoreTestBase
         var expected = new ConfigurationException();
         _testing.Set(c => c.By(_ => throw expected));
 
-        try
-        {
-            _testing.Get("dummy");
-
-            Assert.Fail("Exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex, Is.SameAs(expected));
-        }
+        Assert.That(() => _testing.Get("dummy"),
+            Throws.TypeOf<ConfigurationException>().With.SameAs(expected)
+        );
     }
 
     [Test]

@@ -166,16 +166,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
         var expected = new Exception("inner");
         _testing.Add(c => c.By(_ => throw expected));
 
-        try
-        {
-            _testing.Get(type.of<string>());
-
-            Assert.Fail("Exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex.InnerException, Is.SameAs(expected));
-        }
+        Assert.That(() => _testing.Get(type.of<string>()),
+            Throws.TypeOf<ConfigurationException>().With.InnerException.SameAs(expected)
+        );
     }
 
     [Test]
@@ -184,16 +177,9 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
         var expected = new ConfigurationException();
         _testing.Add(c => c.By(_ => throw expected));
 
-        try
-        {
-            _testing.Get(type.of<string>());
-
-            Assert.Fail("Exception not thrown");
-        }
-        catch (ConfigurationException ex)
-        {
-            Assert.That(ex, Is.SameAs(expected));
-        }
+        Assert.That(() => _testing.Get(type.of<string>()),
+            Throws.TypeOf<ConfigurationException>().With.SameAs(expected)
+        );
     }
 
     [Test]
