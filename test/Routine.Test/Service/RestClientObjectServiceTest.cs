@@ -61,7 +61,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         var actual = _testing.ApplicationModel;
 
         _mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), RestRequest.Empty), Times.Once());
-        Assert.AreEqual(0, actual.Models.Count);
+        Assert.That(actual.Models.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         _mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), It.IsAny<RestRequest>()), Times.Once());
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 
     [Test]
@@ -87,7 +87,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         var actual = _invoker.InvokeGet(_testing, Id("3", "model"));
 
-        Assert.AreEqual("Test", actual.Display);
+        Assert.That(actual.Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         var actual = _invoker.InvokeGet(_testing, Id("3", "model", "viewmodel"));
 
-        Assert.AreEqual("Test", actual.Display);
+        Assert.That(actual.Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -113,7 +113,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
     {
         var actual = _invoker.InvokeGet(_testing, Null());
 
-        Assert.AreEqual(null, actual);
+        Assert.That(actual, Is.Null);
         _mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
@@ -205,8 +205,8 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
                 }
             });
 
-        Assert.AreEqual("5", actual.Values[0].Id);
-        Assert.AreEqual("Test", actual.Values[0].Display);
+        Assert.That(actual.Values[0].Id, Is.EqualTo("5"));
+        Assert.That(actual.Values[0].Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -214,7 +214,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
     {
         var actual = _invoker.InvokeDo(_testing, Null(), "doesn't matter", new());
 
-        Assert.AreEqual(new VariableData(), actual);
+        Assert.That(actual, Is.EqualTo(new VariableData()));
         _mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
@@ -297,7 +297,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("message", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("message"));
         }
 
         _stubber.SetUpPost(_mock,
@@ -312,7 +312,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("message", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("message"));
         }
     }
 
@@ -337,7 +337,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("server message", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("server message"));
         }
 
         _stubber.SetUpPost(_mock,
@@ -352,7 +352,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("server message", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("server message"));
         }
     }
 
@@ -373,7 +373,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("operation", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("operation"));
         }
 
         try
@@ -383,7 +383,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         }
         catch (TestException ex)
         {
-            Assert.AreEqual("type", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("type"));
         }
     }
 }

@@ -15,13 +15,13 @@ public class PredefinedHeaderProcessorTest
                 .For("header")
                 .Do(header =>
                 {
-                    Assert.AreEqual("header value", header);
+                    Assert.That(header, Is.EqualTo("header value"));
                     processed = true;
                 });
 
         testing.Process(new Dictionary<string, string> { { "header", "header value" } });
 
-        Assert.IsTrue(processed);
+        Assert.That(processed, Is.True);
     }
 
     [Test]
@@ -34,8 +34,8 @@ public class PredefinedHeaderProcessorTest
                 .For("header1", "header2")
                 .Do((header1, header2) =>
                 {
-                    Assert.AreEqual("header value 1", header1);
-                    Assert.AreEqual("header value 2", header2);
+                    Assert.That(header1, Is.EqualTo("header value 1"));
+                    Assert.That(header2, Is.EqualTo("header value 2"));
                     processed = true;
                 });
 
@@ -45,7 +45,7 @@ public class PredefinedHeaderProcessorTest
             {"header3", "header value 3"}
         });
 
-        Assert.IsTrue(processed);
+        Assert.That(processed, Is.True);
     }
 
     [Test]
@@ -58,8 +58,8 @@ public class PredefinedHeaderProcessorTest
                 .For("header1", "header2")
                 .Do((header1, header2) =>
                 {
-                    Assert.AreEqual("header value 1", header1);
-                    Assert.AreEqual(string.Empty, header2);
+                    Assert.That(header1, Is.EqualTo("header value 1"));
+                    Assert.That(header2, Is.EqualTo(string.Empty));
                     processed = true;
                 });
 
@@ -67,6 +67,6 @@ public class PredefinedHeaderProcessorTest
             {"header1", "header value 1"}
         });
 
-        Assert.IsTrue(processed);
+        Assert.That(processed, Is.True);
     }
 }

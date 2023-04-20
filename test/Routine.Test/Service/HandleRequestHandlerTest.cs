@@ -285,8 +285,8 @@ public class HandleRequestHandlerTest : CoreTestBase
         await _testing.Handle("model", "3", "post", null);
 
         _objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), "post", It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.MethodNotAllowed));
     }
 
     [Test]
@@ -298,13 +298,13 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         _request.Setup(r => r.Method).Returns("DELETE");
         await _testing.Handle("model", "action", null, null);
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.MethodNotAllowed));
 
         _request.Setup(r => r.Method).Returns("PUT");
         await _testing.Handle("model", "action", null, null);
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext.Response);
-        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.That(_httpContextAccessor.Object.HttpContext.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.MethodNotAllowed));
 
         _objectService.Verify(os => os.DoAsync(It.IsAny<ReferenceData>(), It.IsAny<string>(), It.IsAny<Dictionary<string, ParameterValueData>>()), Times.Never());
         _objectService.Verify(os => os.GetAsync(It.IsAny<ReferenceData>()), Times.Never());
@@ -315,9 +315,9 @@ public class HandleRequestHandlerTest : CoreTestBase
     {
         await _testing.Handle("nonexistingmodel", null, null, null);
 
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
-        Assert.IsTrue(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), "StatusDescription should contain given model id");
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), Is.True, "StatusDescription should contain given model id");
     }
 
     [Test]
@@ -329,9 +329,9 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         var statusDescription = _httpContextAccessor.Object.HttpContext?.Response.Headers["X-Status-Description"].ToString();
 
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
-        Assert.IsTrue(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"),
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"), Is.True,
             "Status description should contain available model ids");
     }
 
@@ -346,9 +346,10 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         await _testing.Handle("model", "action", null, null);
 
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
-        Assert.IsTrue(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
+            Is.True,
             "Status description should contain given model id");
     }
 
@@ -363,8 +364,8 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         await _testing.Handle("model", "action", null, null);
 
-        Assert.IsNotNull(_httpContextAccessor.Object.HttpContext?.Response);
-        Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode);
+        Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
+        Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -433,7 +434,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         await _testing.Handle("model", "3", null, null);
 
-        Assert.AreEqual("value", _responseHeaders["test"]);
+        Assert.That(_responseHeaders["test"], Is.EqualTo("value"));
     }
 
     [Test]
@@ -469,7 +470,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
-        Assert.AreEqual(body, actual);
+        Assert.That(actual, Is.EqualTo(body));
     }
 
     [Test]
@@ -503,7 +504,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
-        Assert.AreEqual(body, actual);
+        Assert.That(actual, Is.EqualTo(body));
     }
 
     [Test]
@@ -552,7 +553,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
-        Assert.AreEqual(body, actual);
+        Assert.That(actual, Is.EqualTo(body));
     }
 
     [Test]
@@ -583,7 +584,7 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         var actual = Encoding.UTF8.GetString(((MemoryStream)_httpContextAccessor.Object.HttpContext?.Response.Body)?.ToArray());
 
-        Assert.AreEqual(body, actual);
+        Assert.That(actual, Is.EqualTo(body));
     }
 
     [Test]
