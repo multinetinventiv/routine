@@ -43,13 +43,13 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before - success - after", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("begin - before - success - after"));
 
         _invocation.Context.Value = "begin";
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
-        Assert.AreEqual("begin - before - fail - after", _invocation.Context.Value);
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
+        Assert.That(_invocation.Context.Value, Is.EqualTo("begin - before - fail - after"));
     }
 
     [Test]
@@ -74,14 +74,14 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Intercept(testing);
 
-        Assert.AreEqual("begin - before - success - after", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("begin - before - success - after"));
 
         _invocation.Context.Value = "begin";
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
 
-        Assert.AreEqual("begin - before - fail - after", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("begin - before - fail - after"));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Intercept(testing);
 
-        Assert.AreEqual("before", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("before"));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Intercept(testing);
 
-        Assert.AreEqual("success", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("success"));
     }
 
     [Test]
@@ -111,9 +111,9 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
 
-        Assert.AreEqual("fail", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("fail"));
     }
 
     [Test]
@@ -123,6 +123,6 @@ public class AroundInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Intercept(testing);
 
-        Assert.AreEqual("after", _invocation.Context.Value);
+        Assert.That(_invocation.Context.Value, Is.EqualTo("after"));
     }
 }

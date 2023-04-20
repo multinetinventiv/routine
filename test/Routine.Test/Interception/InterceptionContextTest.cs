@@ -13,7 +13,7 @@ public class InterceptionContextTest
             ["key"] = "value"
         };
 
-        Assert.AreEqual("value", testing["key"]);
+        Assert.That(testing["key"], Is.EqualTo("value"));
     }
 
     [Test]
@@ -21,6 +21,6 @@ public class InterceptionContextTest
     {
         var testing = new InterceptionContext("test");
 
-        Assert.IsNull(testing["key"]);
+        Assert.That(testing["key"], Is.Null);
     }
 }

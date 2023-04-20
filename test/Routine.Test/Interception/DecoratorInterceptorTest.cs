@@ -43,7 +43,7 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
@@ -95,7 +95,7 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
@@ -110,6 +110,6 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Context["value"] = "dummy";
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 }
