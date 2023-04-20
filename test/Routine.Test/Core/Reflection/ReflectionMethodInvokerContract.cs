@@ -54,15 +54,9 @@ public abstract class ReflectionMethodInvokerContract
 
         var testing = InvokerFor(method);
 
-        try
-        {
-            Invoke(testing, this, expected);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.That(actual, Is.SameAs(expected));
-        }
+        Assert.That(() => Invoke(testing, this, expected),
+            Throws.Exception.With.SameAs(expected)
+        );
     }
 
     [TestCase(nameof(Throw))]
@@ -73,16 +67,9 @@ public abstract class ReflectionMethodInvokerContract
 
         var testing = InvokerFor(method);
 
-        try
-        {
-            Invoke(testing, this, expected);
-            Assert.Fail("exception not thrown");
-        }
-        catch (CustomException actual)
-        {
-            Console.WriteLine(actual.StackTrace);
-
-            Assert.That(actual.StackTrace.Contains($"{nameof(ReflectionMethodInvokerContract)}.{method}"), Is.True, actual.StackTrace);
-        }
+        Assert.That(() => Invoke(testing, this, expected),
+            Throws.TypeOf<CustomException>()
+                .With.Property("StackTrace").Contains($"{nameof(ReflectionMethodInvokerContract)}.{method}")
+        );
     }
 }

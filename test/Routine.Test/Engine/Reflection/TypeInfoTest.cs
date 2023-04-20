@@ -261,12 +261,9 @@ public class TypeInfoTest : ReflectionTestBase
     [Test]
     public void When_creating_instance_TypeInfo_throws_MissingMethodException_when_object_does_not_have_default_constructor()
     {
-        try
-        {
-            TypeInfo.Get(typeof(TestClassWithoutDefaultConstructor_OOP)).CreateInstance();
-            Assert.Fail("exception not thrown");
-        }
-        catch (MissingMethodException) { }
+        Assert.That(() => TypeInfo.Get(typeof(TestClassWithoutDefaultConstructor_OOP)).CreateInstance(),
+            Throws.TypeOf<MissingMethodException>()
+        );
     }
 
     [Test]

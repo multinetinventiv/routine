@@ -168,25 +168,12 @@ public class MethodInfoTest : ReflectionTestBase
 
         var expectedException = new Exception("expected");
 
-        try
-        {
-            preloaded.Invoke(new TestClass_OOP(), expectedException);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
-
-        try
-        {
-            reflected.Invoke(new TestOuterDomainType_OOP(), expectedException);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
+        Assert.That(() => preloaded.Invoke(new TestClass_OOP(), expectedException),
+            Throws.Exception.SameAs(expectedException)
+        );
+        Assert.That(() => reflected.Invoke(new TestOuterDomainType_OOP(), expectedException),
+            Throws.Exception.SameAs(expectedException)
+        );
     }
 
     [Test]

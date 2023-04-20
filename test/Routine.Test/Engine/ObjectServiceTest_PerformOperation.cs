@@ -213,12 +213,9 @@ namespace Routine.Test.Engine
         {
             SetUpObject("id");
 
-            try
-            {
-                _invoker.InvokeDo(_testing, Id("id"), "NonExistingOperation", Params());
-                Assert.Fail("exception not thrown");
-            }
-            catch (OperationDoesNotExistException) { }
+            Assert.That(() => _invoker.InvokeDo(_testing, Id("id"), "NonExistingOperation", Params()),
+                Throws.Exception.TypeOf<OperationDoesNotExistException>()
+            );
         }
 
         [Test]

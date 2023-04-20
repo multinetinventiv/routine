@@ -214,15 +214,10 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void CreateInvoker_throws_ArgumentException_when_null_is_given()
     {
-        try
-        {
-            InvokerFor<IOptimizedInterface<string>>("NonExistingMethod");
-            Assert.Fail("exception not thrown");
-        }
-        catch (ArgumentNullException ex)
-        {
-            Assert.That(ex.ParamName, Is.EqualTo("method"), ex.ToString());
-        }
+        Assert.That(() => InvokerFor<IOptimizedInterface<string>>("NonExistingMethod"),
+            Throws.Exception
+                .With.Property("ParamName").EqualTo("method")
+        );
     }
 
     [Test]
@@ -273,19 +268,12 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Method_invoker_does_not_check_parameter_compatibility_and_let_IndexOutOfRangeException_or_InvalidCastException_to_be_thrown()
     {
-        try
-        {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target);
-            Assert.Fail("exception not thrown");
-        }
-        catch (IndexOutOfRangeException) { }
-
-        try
-        {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, 0);
-            Assert.Fail("exception not thrown");
-        }
-        catch (InvalidCastException) { }
+        Assert.That(() => Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target),
+            Throws.TypeOf<IndexOutOfRangeException>()
+        );
+        Assert.That(() => Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, 0),
+            Throws.TypeOf<InvalidCastException>()
+        );
     }
 
     [Test]
@@ -462,14 +450,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var testing = InvokerFor<OptimizedClass>(method);
 
-        try
-        {
-            Invoke(testing, _target);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("test"));
-        }
+        Assert.That(() => Invoke(testing, _target),
+            Throws.Exception.With.Property("Message").EqualTo("test")
+        );
     }
 }

@@ -102,15 +102,10 @@ namespace Routine.Test.Engine
         {
             AddToRepository(new BusinessData { Id = "obj" });
 
-            try
-            {
-                _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID));
-                Assert.Fail("exception not thrown");
-            }
-            catch (ConfigurationException ex)
-            {
-                Assert.That(ex.InnerException, Is.InstanceOf<CannotConvertException>());
-            }
+            Assert.That(() => _invoker.InvokeGet(_testing, Id("obj", ACTUAL_OMID, VIEW_WITH_NO_IMPLEMENTOR_OMID)),
+                Throws.Exception.TypeOf<ConfigurationException>()
+                .With.InnerException.InstanceOf<CannotConvertException>()
+            );
         }
 
         [Test]

@@ -31,15 +31,10 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => throw new Exception("inner"), type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<int>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (CannotConvertException ex)
-        {
-            Assert.That(ex.InnerException.Message, Is.EqualTo("inner"));
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<int>()),
+            Throws.Exception.TypeOf<CannotConvertException>()
+            .With.InnerException.Property("Message").EqualTo("inner")
+        );
     }
 
     [Test]
@@ -56,15 +51,9 @@ public class ConverterBaseTest : CoreTestBase
         var expected = new CannotConvertException(new object(), type.of<string>());
         var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<string>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.That(actual, Is.SameAs(expected));
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<int>()),
+            Throws.Exception.With.SameAs(expected)
+        );
     }
 
     [Test]
@@ -74,15 +63,9 @@ public class ConverterBaseTest : CoreTestBase
 
         var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<string>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.That(actual, Is.SameAs(expected));
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<string>()),
+            Throws.Exception.SameAs(expected)
+        );
     }
 
     [Test]

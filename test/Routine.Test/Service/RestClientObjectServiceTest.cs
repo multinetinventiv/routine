@@ -290,30 +290,18 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
             response: @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
         );
 
-        try
-        {
-            _invoker.InvokeGet(_testing, Id("3", "model"));
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("message"));
-        }
+        Assert.That(() => _invoker.InvokeGet(_testing, Id("3", "model")),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("message")
+        );
 
         _stubber.SetUpPost(_mock,
             url: $"{URL_BASE}/model/3/action",
             response: new RestResponse(@"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}")
         );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "action", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("message"));
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "action", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("message")
+        );
     }
 
     [Test]
@@ -330,30 +318,18 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         ModelsAre(Model("model").Operation("action"));
 
-        try
-        {
-            _invoker.InvokeGet(_testing, Id("3", "model"));
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("server message"));
-        }
+        Assert.That(() => _invoker.InvokeGet(_testing, Id("3", "model")),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("server message")
+        );
 
         _stubber.SetUpPost(_mock,
             url: $"{URL_BASE}/model/3/action",
             exception: HttpNotFound("server message")
         );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "action", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("server message"));
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "action", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("server message")
+        );
     }
 
     [Test]
@@ -366,24 +342,12 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         ModelsAre(Model("model"));
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "nonexistingaction", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("operation"));
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "nonexistingaction", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("operation")
+        );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "nonexistingmodel"), "nonexistingaction", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.That(ex.Message, Is.EqualTo("type"));
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "nonexistingmodel"), "nonexistingaction", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("type")
+        );
     }
 }

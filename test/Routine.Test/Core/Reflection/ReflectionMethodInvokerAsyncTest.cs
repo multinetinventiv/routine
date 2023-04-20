@@ -31,20 +31,15 @@ public class ReflectionMethodInvokerAsyncTest : ReflectionMethodInvokerContract
     }
 
     [Test]
-    public async Task Retesting_ThrowAsync_case_in_an_async_method__because_base_contract_tests_it_in_a_sync_method()
+    public void Retesting_ThrowAsync_case_in_an_async_method__because_base_contract_tests_it_in_a_sync_method()
     {
         var expected = new CustomException("message");
 
         var testing = InvokerFor(nameof(ThrowAsync));
 
-        try
-        {
-            await testing.InvokeAsync(this, expected);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.That(actual, Is.SameAs(expected));
-        }
+        Assert.That(async () => await testing.InvokeAsync(this, expected),
+            Throws.Exception
+                .With.SameAs(expected)
+        );
     }
 }

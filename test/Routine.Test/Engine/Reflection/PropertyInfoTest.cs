@@ -171,50 +171,24 @@ public class PropertyInfoTest : ReflectionTestBase
             Exception = expectedException
         };
 
-        try
-        {
-            preloaded.GetValue(testSubject1);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
-
-        try
-        {
-            preloaded.SetValue(testSubject1, string.Empty);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
+        Assert.That(() => preloaded.GetValue(testSubject1),
+            Throws.Exception.SameAs(expectedException)
+        );
+        Assert.That(() => preloaded.SetValue(testSubject1, string.Empty),
+            Throws.Exception.SameAs(expectedException)
+        );
 
         var testSubject2 = new TestOuterDomainType_OOP
         {
             Exception = expectedException
         };
 
-        try
-        {
-            reflected.GetValue(testSubject2);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
-
-        try
-        {
-            reflected.SetValue(testSubject2, string.Empty);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.That(ex, Is.SameAs(expectedException));
-        }
+        Assert.That(() => reflected.GetValue(testSubject2),
+            Throws.Exception.SameAs(expectedException)
+        );
+        Assert.That(() => reflected.SetValue(testSubject2, string.Empty),
+            Throws.Exception.SameAs(expectedException)
+        );
     }
 
     [Test]
