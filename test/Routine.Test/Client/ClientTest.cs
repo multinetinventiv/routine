@@ -290,7 +290,7 @@ public class ClientTest : ClientTestBase
 
         Assert.That(testingRobject.DataValues.Count, Is.EqualTo(0));
         Assert.That(testingRobject.Type, Is.Null);
-        Assert.That(stubber.Perform(testingRobject, "some non existing operation").IsNull);
+        Assert.That(stubber.Perform(testingRobject, "some non existing operation").IsNull, Is.True);
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -395,6 +395,7 @@ public class ClientTest : ClientTestBase
             Robj("data_model",
                 Rvar("param1", Robj("id_data_param1"))
             );
+
         Assert.That(() => { var _ = robj.Display; }, Throws.TypeOf<RobjectIsInitializedOnClientException>(), "exception not thrown");
     }
 
