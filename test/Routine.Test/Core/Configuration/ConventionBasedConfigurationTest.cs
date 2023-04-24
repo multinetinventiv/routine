@@ -78,7 +78,8 @@ public class ConventionBasedConfigurationTest : CoreTestBase
 
         Assert.That(() => _testing.Get("dummy"),
             Throws.TypeOf<ConfigurationException>()
-                .With.Property("Message").Contains("!!test fail!!"));
+                .With.Property("Message").Contains("!!test fail!!")
+        );
     }
 
     [Test]

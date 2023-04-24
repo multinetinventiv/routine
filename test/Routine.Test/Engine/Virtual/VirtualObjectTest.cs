@@ -37,7 +37,7 @@ public class VirtualObjectTest
         var testing1 = new VirtualObject("virtual", type);
         var testing2 = new VirtualObject("virtual", type);
 
-        Assert.That(testing2, Is.EqualTo(testing1));
-        Assert.That(testing2.GetHashCode(), Is.EqualTo(testing1.GetHashCode()));
+        Assert.That(testing1, Is.EqualTo(testing2));
+        Assert.That(testing1.GetHashCode(), Is.EqualTo(testing2.GetHashCode()));
     }
 }

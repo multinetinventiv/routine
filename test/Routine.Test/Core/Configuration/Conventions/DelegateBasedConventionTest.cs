@@ -19,7 +19,7 @@ public class DelegateBasedConventionTest : CoreTestBase
     public void When_no_delegate_was_given_returns_default_value()
     {
         IConvention<int, string> testing1 = new DelegateBasedConvention<int, string>();
-        Assert.That(testing1.Apply(1), Is.EqualTo(null));
+        Assert.That(testing1.Apply(1), Is.Null);
 
         IConvention<string, int> testing2 = new DelegateBasedConvention<string, int>();
         Assert.That(testing2.Apply("string"), Is.EqualTo(0));

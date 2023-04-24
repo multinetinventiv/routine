@@ -102,7 +102,7 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     public void When_variable_could_not_be_retrieved_during_before_delegate__fail_and_after_are_skipped()
     {
         var testing = _builder.Build(
-            before: () => Throw<string>(new Exception(message: "should be throw")),
+            before: () => Throw<string>(new Exception(message: "expected")),
             success: _ => Throw<string>(new Exception(message: "should not be called")),
             fail: _ => Throw<string>(new Exception(message: "should be skipped")),
             after: _ => Throw<string>(new Exception(message: "should be skipped"))
@@ -110,6 +110,6 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.Context["value"] = "dummy";
 
-        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>().With.Property("Message").EqualTo("should be throw"));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>().With.Property("Message").EqualTo("expected"));
     }
 }

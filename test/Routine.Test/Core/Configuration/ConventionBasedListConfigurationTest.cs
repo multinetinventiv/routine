@@ -132,10 +132,8 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
     }
 
     [Test]
-    [Ignore("")]
-    public void Can_override_certain_list_even_if_there_exists_other_applicable_conventions()
-    {
-    }
+    [Ignore("Not yet planned")]
+    public void Can_override_certain_list_even_if_there_exists_other_applicable_conventions() { }
 
     [Test]
     public void When_set__convention_result_is_cached_for_a_given_input()
@@ -283,10 +281,7 @@ public class ConventionBasedListConfigurationTest : CoreTestBase
         Assert.That(actual[1], Is.EqualTo("result1"));
     }
 
-    [Ignore("")]
     [Test]
-    public void BUG_when_pattern_uses_override_throws_argument_out_of_range()
-    {
-        //BeginTest();
-    }
+    [Ignore("Not yet planned")]
+    public void BUG_when_pattern_uses_override_throws_argument_out_of_range() { }
 }

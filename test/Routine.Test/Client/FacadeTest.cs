@@ -88,7 +88,7 @@ public class FacadeTest : ClientTestBase
         Assert.That(actual.IsNull, Is.True);
 
         actual = _testingRapplication.NewVar("name", 0, "s-int-32");
-        Assert.That(!actual.IsNull, Is.True);
+        Assert.That(actual.IsNull, Is.False);
         Assert.That(actual.Object.Id, Is.EqualTo("0"));
 
         // ReSharper disable ExpressionIsAlwaysNull
@@ -145,7 +145,7 @@ public class FacadeTest : ClientTestBase
         Assert.That(actual.List[0].IsNull, Is.True);
 
         actual = _testingRapplication.NewVarList("name", new List<int> { 0 }, "s-int-32");
-        Assert.That(!actual.List[0].IsNull, Is.True);
+        Assert.That(actual.List[0].IsNull, Is.False);
         Assert.That(actual.List[0].Id, Is.EqualTo("0"));
 
         // ReSharper disable ExpressionIsAlwaysNull

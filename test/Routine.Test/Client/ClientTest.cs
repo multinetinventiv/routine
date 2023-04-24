@@ -396,7 +396,7 @@ public class ClientTest : ClientTestBase
                 Rvar("param1", Robj("id_data_param1"))
             );
 
-        Assert.That(() => { var _ = robj.Display; }, Throws.TypeOf<RobjectIsInitializedOnClientException>(), "exception not thrown");
+        Assert.That(() => { var _ = robj.Display; }, Throws.TypeOf<RobjectIsInitializedOnClientException>());
     }
 
     [Test]

@@ -249,8 +249,8 @@ public class CorePerformanceTest
         });
         #endregion
 
-        #region manuel
-        var manuelTime = Run("manuel", () =>
+        #region manual
+        var manualTime = Run("manual", () =>
                 {
                     var ord = new ReferenceData
                     {
@@ -465,8 +465,8 @@ public class CorePerformanceTest
                 }, load);
         #endregion
 
-        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
-        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
+        Assert.That(engineTime / manualTime, Is.LessThanOrEqualTo(maxEngineOverheadRatio), "Engine over manual is above expected");
+        Assert.That(clientTime / engineTime, Is.LessThanOrEqualTo(maxClientOverheadRatio), "Client over engine is above expected");
     }
 
     [TestCase(1000)]
@@ -492,8 +492,8 @@ public class CorePerformanceTest
         AddToRepository(obj);
         #endregion
 
-        #region manuel
-        var manuelTime = Run("manuel", () =>
+        #region manual
+        var manualTime = Run("manual", () =>
             {
                 var ord = new ReferenceData
                 {
@@ -719,8 +719,8 @@ public class CorePerformanceTest
 
         #endregion
 
-        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
-        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
+        Assert.That(engineTime / manualTime, Is.LessThanOrEqualTo(maxEngineOverheadRatio), "Engine over manual is above expected");
+        Assert.That(clientTime / engineTime, Is.LessThanOrEqualTo(maxClientOverheadRatio), "Client over engine is above expected");
     }
 
     [TestCase(10, 10)]
@@ -751,8 +751,8 @@ public class CorePerformanceTest
 
         #endregion
 
-        #region manuel
-        var manuelTime = Run("manuel", () =>
+        #region manual
+        var manualTime = Run("manual", () =>
         {
             var parameters = new Dictionary<string, ParameterValueData>
             {
@@ -1002,7 +1002,7 @@ public class CorePerformanceTest
 
         #endregion
 
-        Assert.That(maxEngineOverheadRatio, Is.LessThanOrEqualTo(engineTime / manuelTime), "Engine over manuel is above expected");
-        Assert.That(maxClientOverheadRatio, Is.LessThanOrEqualTo(clientTime / engineTime), "Client over engine is above expected");
+        Assert.That(engineTime / manualTime, Is.LessThanOrEqualTo(maxEngineOverheadRatio), "Engine over manual is above expected");
+        Assert.That(clientTime / engineTime, Is.LessThanOrEqualTo(maxClientOverheadRatio), "Client over engine is above expected");
     }
 }
