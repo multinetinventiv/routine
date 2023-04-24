@@ -40,13 +40,13 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
     }
 
     private void AssertToStringHasTypeName<T>(T unitUnderTest) =>
-        Assert.That(unitUnderTest.ToString()?.Contains(typeof(T).Name), Is.True, $"{WrongToString(unitUnderTest.ToString())}, Expected: {typeof(T).Name}");
+        Assert.That($"{unitUnderTest}", Contains.Substring(typeof(T).Name), $"{WrongToString(unitUnderTest.ToString())}, Expected:{typeof(T).Name}");
 
     private void AssertToStringHasProperty<T>(T unitUnderTest, string propertyName) =>
-        Assert.That(unitUnderTest.ToString()?.Contains($"{propertyName}: "), Is.True, $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: ");
+        Assert.That($"{unitUnderTest}", Contains.Substring($"{propertyName}: "), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: ");
 
     private void AssertToStringHasPropertyAndItsValue<T>(T unitUnderTest, string propertyName, object propertyValue) =>
-        Assert.That(unitUnderTest.ToString()?.Contains($"{propertyName}: {propertyValue}"), Is.True, $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: {propertyValue}");
+        Assert.That($"{unitUnderTest}", Contains.Substring($"{propertyName}: {propertyValue}"), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: {propertyValue}");
 
     private string WrongToString(string toString) => $"Wrong ToString: {toString}";
 

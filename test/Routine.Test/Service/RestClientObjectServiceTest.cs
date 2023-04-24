@@ -61,6 +61,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         var actual = _testing.ApplicationModel;
 
         _mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), RestRequest.Empty), Times.Once());
+
         Assert.That(actual.Models.Count, Is.EqualTo(0));
     }
 

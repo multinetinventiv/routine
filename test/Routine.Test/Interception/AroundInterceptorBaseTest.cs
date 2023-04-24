@@ -1,9 +1,8 @@
 ﻿using Routine.Test.Core;
 using Routine.Test.Interception.Stubs.Interceptors;
-
 using AsyncInvocation = Routine.Test.Interception.Stubs.Invocations.Async;
-using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
 using IInvocation = Routine.Test.Interception.Stubs.Invocations.IInvocation;
+using SyncInvocation = Routine.Test.Interception.Stubs.Invocations.Sync;
 
 namespace Routine.Test.Interception;
 
@@ -143,7 +142,7 @@ public class AroundInterceptorBaseTest<TInvocation> : CoreTestBase
         catch (ArgumentNullException ex)
         {
             Console.WriteLine(ex.StackTrace);
-            Assert.That(ex.StackTrace?.Contains(_invocation.ExceptionStackTraceLookupText), Is.True, ex.StackTrace);
+            Assert.That(ex.StackTrace, Contains.Substring(_invocation.ExceptionStackTraceLookupText), ex.StackTrace);
         }
     }
 

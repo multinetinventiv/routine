@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Moq.Language.Flow;
-using Routine.Core.Rest;
 using Routine.Core;
+using Routine.Core.Rest;
+using Routine.Service;
 using Routine.Service.Configuration;
 using Routine.Service.RequestHandlers;
-using Routine.Service;
 using Routine.Test.Core;
 using System.Linq.Expressions;
 using System.Net;
@@ -317,7 +317,11 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
         Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"), Is.True, "StatusDescription should contain given model id");
+        Assert.That(
+            _httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString(),
+            Contains.Substring("nonexistingmodel"),
+            "StatusDescription should contain given model id"
+        );
     }
 
     [Test]
@@ -331,8 +335,8 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
         Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(statusDescription.Contains("prefix1.model") && statusDescription.Contains("prefix2.model"), Is.True,
-            "Status description should contain available model ids");
+        Assert.That(statusDescription, Contains.Substring("prefix1.model"), "Status description should contain available model ids: prefix1.model");
+        Assert.That(statusDescription, Contains.Substring("prefix2.model"), "Status description should contain available model ids: prefix2.model");
     }
 
     [Test]
@@ -348,9 +352,11 @@ public class HandleRequestHandlerTest : CoreTestBase
 
         Assert.That(_httpContextAccessor.Object.HttpContext?.Response, Is.Not.Null);
         Assert.That((HttpStatusCode)_httpContextAccessor.Object.HttpContext.Response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(_httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString().Contains("nonexistingmodel"),
-            Is.True,
-            "Status description should contain given model id");
+        Assert.That(
+            _httpContextAccessor.Object.HttpContext.Response.Headers["X-Status-Description"].ToString(),
+            Contains.Substring("nonexistingmodel"),
+            "Status description should contain given model id"
+        );
     }
 
     [Test]
