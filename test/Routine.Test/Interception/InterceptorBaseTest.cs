@@ -14,7 +14,7 @@ public class InterceptorBaseTest
 
         var actual = testing.Intercept(new Context(), () => expected);
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 
     [Test]
@@ -25,6 +25,6 @@ public class InterceptorBaseTest
 
         var actual = await testing.InterceptAsync(new Context(), () => Task.FromResult(expected));
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 }

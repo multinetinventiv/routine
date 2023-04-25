@@ -31,15 +31,10 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => throw new Exception("inner"), type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<int>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (CannotConvertException ex)
-        {
-            Assert.AreEqual("inner", ex.InnerException.Message);
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<int>()),
+            Throws.Exception.TypeOf<CannotConvertException>()
+            .With.InnerException.Property("Message").EqualTo("inner")
+        );
     }
 
     [Test]
@@ -47,7 +42,7 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => "success", type.of<int>()) as IConverter;
 
-        Assert.AreEqual("success", testing.Convert(new object(), type.of<object>(), type.of<string>()));
+        Assert.That(testing.Convert(new object(), type.of<object>(), type.of<string>()), Is.EqualTo("success"));
     }
 
     [Test]
@@ -56,15 +51,9 @@ public class ConverterBaseTest : CoreTestBase
         var expected = new CannotConvertException(new object(), type.of<string>());
         var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<string>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.AreSame(expected, actual);
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<int>()),
+            Throws.Exception.With.SameAs(expected)
+        );
     }
 
     [Test]
@@ -74,15 +63,9 @@ public class ConverterBaseTest : CoreTestBase
 
         var testing = new TestConverter(() => throw expected, type.of<string>()) as IConverter;
 
-        try
-        {
-            testing.Convert(new object(), type.of<object>(), type.of<string>());
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.AreSame(expected, actual);
-        }
+        Assert.That(() => testing.Convert(new object(), type.of<object>(), type.of<string>()),
+            Throws.Exception.SameAs(expected)
+        );
     }
 
     [Test]
@@ -90,6 +73,6 @@ public class ConverterBaseTest : CoreTestBase
     {
         var testing = new TestConverter(() => "converted", type.of<string>()) as IConverter;
 
-        Assert.AreEqual("converted", testing.Convert("original", type.of<string>(), type.of<string>()));
+        Assert.That(testing.Convert("original", type.of<string>(), type.of<string>()), Is.EqualTo("converted"));
     }
 }

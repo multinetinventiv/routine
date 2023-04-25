@@ -14,8 +14,8 @@ public class ReflectionOptimizerSyncTest : ReflectionOptimizerContract
 
         var actual = testing.Invoke(_target);
 
-        Assert.IsNotInstanceOf<Task>(actual);
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Not.InstanceOf<Task>());
+        Assert.That(actual, Is.Null);
         _mock.Verify(o => o.AsyncVoidMethod());
     }
 
@@ -28,6 +28,6 @@ public class ReflectionOptimizerSyncTest : ReflectionOptimizerContract
 
         var actual = testing.Invoke(_target);
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 }

@@ -47,13 +47,13 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         var testing = Build(ic => ic.FromBasic()
             .Interceptors.Add(c => c.Interceptor(i => i.Before(ctx =>
                 {
-                    Assert.AreEqual($"{InterceptionTarget.Do}", ctx.Target);
-                    Assert.IsInstanceOf<ServiceInterceptionContext>(ctx);
+                    Assert.That(ctx.Target, Is.EqualTo($"{InterceptionTarget.Do}"));
+                    Assert.That(ctx, Is.InstanceOf<ServiceInterceptionContext>());
 
                     var sCtx = (ServiceInterceptionContext)ctx;
-                    Assert.AreEqual(Id("id", "model"), sCtx.TargetReference);
-                    Assert.AreEqual("model", sCtx.Model.Id);
-                    Assert.AreEqual("operation", sCtx.OperationName);
+                    Assert.That(sCtx.TargetReference, Is.EqualTo(Id("id", "model")));
+                    Assert.That(sCtx.Model.Id, Is.EqualTo("model"));
+                    Assert.That(sCtx.OperationName, Is.EqualTo("operation"));
 
                     hit = true;
                 }
@@ -62,7 +62,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
 
         _invoker.InvokeDo(testing, Id("id", "model"), "operation", Params());
 
-        Assert.IsTrue(hit);
+        Assert.That(hit, Is.True);
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         _invoker.InvokeGet(testing, Id("id"));
         _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-        Assert.AreEqual(3, hitCount);
+        Assert.That(hitCount, Is.EqualTo(3));
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         _invoker.InvokeGet(testing, Id("id"));
         _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-        Assert.AreEqual(1, hitCount);
+        Assert.That(hitCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -131,7 +131,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         _invoker.InvokeDo(testing, Id("id", "model-a"), "operation-b", Params());
         _invoker.InvokeDo(testing, Id("id", "model-b"), "operation-a", Params());
 
-        Assert.AreEqual(1, hitCount);
+        Assert.That(hitCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -143,7 +143,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
         var hitCount = 0;
         var testing = Build(ic => ic.FromBasic()
             .ServiceInterceptors.Add(c => c.Interceptor(i => i
-                .Before(() => Assert.AreEqual(1, hitCount++))
+                .Before(() => Assert.That(hitCount++, Is.EqualTo(1)))
             ))
             .Interceptors.Add(c => c.Interceptor(i => i
                 .Before(() => hitCount++)
@@ -152,7 +152,7 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
 
         _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-        Assert.AreEqual(2, hitCount);
+        Assert.That(hitCount, Is.EqualTo(2));
     }
 
     [Test]
@@ -174,6 +174,6 @@ public class InterceptedObjectServiceTest_Do<TObjectServiceInvoker> : CoreTestBa
 
         _invoker.InvokeDo(testing, Id("id"), "operation", Params());
 
-        Assert.AreEqual("test", expected);
+        Assert.That(expected, Is.EqualTo("test"));
     }
 }

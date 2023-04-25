@@ -39,8 +39,8 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         var testing = Build(ic => ic.FromBasic()
             .Interceptors.Add(c => c.Interceptor(i => i.Before(ctx =>
                 {
-                    Assert.AreEqual($"{InterceptionTarget.ApplicationModel}", ctx.Target);
-                    Assert.IsInstanceOf<InterceptionContext>(ctx);
+                    Assert.That(ctx.Target, Is.EqualTo($"{InterceptionTarget.ApplicationModel}"));
+                    Assert.That(ctx, Is.InstanceOf<InterceptionContext>());
 
                     hit = true;
                 }
@@ -49,7 +49,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
 
         var _ = testing.ApplicationModel;
 
-        Assert.IsTrue(hit);
+        Assert.That(hit, Is.True);
     }
 
     [Test]
@@ -63,12 +63,12 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         var testing = Build(ic => ic.FromBasic()
             .Interceptors.Add(c => c.Interceptor(i => i.Before(ctx =>
                 {
-                    Assert.AreEqual($"{InterceptionTarget.Get}", ctx.Target);
-                    Assert.IsInstanceOf<ObjectReferenceInterceptionContext>(ctx);
+                    Assert.That(ctx.Target, Is.EqualTo($"{InterceptionTarget.Get}"));
+                    Assert.That(ctx, Is.InstanceOf<ObjectReferenceInterceptionContext>());
 
                     var orCtx = (ObjectReferenceInterceptionContext)ctx;
-                    Assert.AreEqual(Id("id", "model"), orCtx.TargetReference);
-                    Assert.AreEqual("model", orCtx.Model.Id);
+                    Assert.That(orCtx.TargetReference, Is.EqualTo(Id("id", "model")));
+                    Assert.That(orCtx.Model.Id, Is.EqualTo("model"));
 
                     hit = true;
                 }
@@ -77,7 +77,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
 
         _invoker.InvokeGet(testing, Id("id", "model"));
 
-        Assert.IsTrue(hit);
+        Assert.That(hit, Is.True);
     }
 
     [Test]
@@ -95,7 +95,7 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         var _ = testing.ApplicationModel;
         _invoker.InvokeGet(testing, Id("id"));
 
-        Assert.AreEqual(2, hitCount);
+        Assert.That(hitCount, Is.EqualTo(2));
     }
 
     [Test]
@@ -115,6 +115,6 @@ public class InterceptedObjectServiceTest<TObjectServiceInvoker> : CoreTestBase
         var _ = testing.ApplicationModel;
         _invoker.InvokeGet(testing, Id("id"));
 
-        Assert.AreEqual(1, hitCount);
+        Assert.That(hitCount, Is.EqualTo(1));
     }
 }

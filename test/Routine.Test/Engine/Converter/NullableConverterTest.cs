@@ -10,13 +10,13 @@ public class NullableConverterTest
     {
         IConverter converter = BuildRoutine.Converter().ToNullable();
 
-        Assert.AreEqual(type.of<int?>(), converter.GetTargetTypes(type.of<int>())[0]);
+        Assert.That(converter.GetTargetTypes(type.of<int>())[0], Is.EqualTo(type.of<int?>()));
 
         var actual = converter.Convert(3, type.of<int>(), type.of<int?>());
 
         int? expected = 3;
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -24,8 +24,8 @@ public class NullableConverterTest
     {
         IConverter converter = BuildRoutine.Converter().ToNullable();
 
-        Assert.IsEmpty(converter.GetTargetTypes(type.ofvoid()));
-        Assert.IsEmpty(converter.GetTargetTypes(type.of<string>()));
-        Assert.IsEmpty(converter.GetTargetTypes(type.of<int?>()));
+        Assert.That(converter.GetTargetTypes(type.ofvoid()), Is.Empty);
+        Assert.That(converter.GetTargetTypes(type.of<string>()), Is.Empty);
+        Assert.That(converter.GetTargetTypes(type.of<int?>()), Is.Empty);
     }
 }

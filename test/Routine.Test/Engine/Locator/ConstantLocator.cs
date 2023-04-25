@@ -11,7 +11,7 @@ public class ConstantLocator
 
         var actual = await locator.LocateAsync(type.of<string>(), new List<string> { string.Empty, string.Empty });
 
-        Assert.AreEqual("constant", actual[0]);
-        Assert.AreEqual("constant", actual[1]);
+        Assert.That(actual[0], Is.EqualTo("constant"));
+        Assert.That(actual[1], Is.EqualTo("constant"));
     }
 }

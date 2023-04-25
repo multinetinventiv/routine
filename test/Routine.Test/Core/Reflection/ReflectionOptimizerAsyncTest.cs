@@ -17,7 +17,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
         _mock.Verify(o => o.AsyncVoidMethod());
     }
 
@@ -40,26 +40,21 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
 
         var actual = await testing.InvokeAsync(_target);
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [TestCase(nameof(OptimizedClass.VoidMethod))]
     [TestCase(nameof(OptimizedClass.AsyncVoidMethod))]
-    public async Task Retest_exception_case_in_an_async_method(string method)
+    public void Retest_exception_case_in_an_async_method(string method)
     {
         _mock.Setup(m => m.VoidMethod()).Throws(new Exception("test"));
         _mock.Setup(m => m.AsyncVoidMethod()).ThrowsAsync(new Exception("test"));
 
         var testing = InvokerFor<OptimizedClass>(method);
 
-        try
-        {
-            await testing.InvokeAsync(_target);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.AreEqual("test", ex.Message);
-        }
+        Assert.That(async () => await testing.InvokeAsync(_target),
+            Throws.Exception
+                .With.Property("Message").EqualTo("test")
+        );
     }
 }

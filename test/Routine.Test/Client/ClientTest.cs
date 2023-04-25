@@ -17,8 +17,8 @@ public class ClientTest : ClientTestBase
 
         var actual = _testingRapplication.Types;
 
-        Assert.IsTrue(actual.Any(m => m.Id == "model1"));
-        Assert.IsTrue(actual.Any(m => m.Id == "model2"));
+        Assert.That(actual.Any(m => m.Id == "model1"), Is.True);
+        Assert.That(actual.Any(m => m.Id == "model2"), Is.True);
     }
 
     [Test]
@@ -29,7 +29,7 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "actualModel", "viewModel");
 
-        Assert.AreEqual("value", testingRobject.Display);
+        Assert.That(testingRobject.Display, Is.EqualTo("value"));
     }
 
     [Test]
@@ -52,8 +52,8 @@ public class ClientTest : ClientTestBase
 
         var testingRtype = Rtyp("model");
 
-        Assert.AreEqual("model", testingRtype.Id);
-        Assert.AreEqual("module", testingRtype.Module);
+        Assert.That(testingRtype.Id, Is.EqualTo("model"));
+        Assert.That(testingRtype.Module, Is.EqualTo("module"));
     }
 
     [Test]
@@ -67,9 +67,9 @@ public class ClientTest : ClientTestBase
 
         var testingRtype = Rtyp("actualModel");
 
-        Assert.AreEqual(2, testingRtype.ViewTypes.Count);
-        Assert.AreEqual("viewModel1", testingRtype.ViewTypes[0].Id);
-        Assert.AreEqual("viewModel2", testingRtype.ViewTypes[1].Id);
+        Assert.That(testingRtype.ViewTypes.Count, Is.EqualTo(2));
+        Assert.That(testingRtype.ViewTypes[0].Id, Is.EqualTo("viewModel1"));
+        Assert.That(testingRtype.ViewTypes[1].Id, Is.EqualTo("viewModel2"));
     }
 
     [Test]
@@ -83,9 +83,9 @@ public class ClientTest : ClientTestBase
 
         var testingRtype = Rtyp("viewModel");
 
-        Assert.AreEqual(2, testingRtype.ActualTypes.Count);
-        Assert.AreEqual("actualModel1", testingRtype.ActualTypes[0].Id);
-        Assert.AreEqual("actualModel2", testingRtype.ActualTypes[1].Id);
+        Assert.That(testingRtype.ActualTypes.Count, Is.EqualTo(2));
+        Assert.That(testingRtype.ActualTypes[0].Id, Is.EqualTo("actualModel1"));
+        Assert.That(testingRtype.ActualTypes[1].Id, Is.EqualTo("actualModel2"));
     }
 
     [Test]
@@ -100,11 +100,11 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "actualModel", "viewModel");
 
-        Assert.AreEqual("id", testingRobject.Id);
-        Assert.AreEqual("actualModel", testingRobject.ActualType.Id);
-        Assert.AreEqual("value", testingRobject.Display);
-        Assert.AreEqual("viewModel", testingRobject.ViewType.Id);
-        Assert.AreEqual("viewModule", testingRobject.Type.Module);
+        Assert.That(testingRobject.Id, Is.EqualTo("id"));
+        Assert.That(testingRobject.ActualType.Id, Is.EqualTo("actualModel"));
+        Assert.That(testingRobject.Display, Is.EqualTo("value"));
+        Assert.That(testingRobject.ViewType.Id, Is.EqualTo("viewModel"));
+        Assert.That(testingRobject.Type.Module, Is.EqualTo("viewModule"));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -128,11 +128,11 @@ public class ClientTest : ClientTestBase
         var data1 = testingRobject.DataValues[0];
         var data2 = testingRobject.DataValues[1];
 
-        Assert.AreEqual("data1", data1.Data.Name);
-        Assert.AreEqual("id1", stubber.Get(data1).Object.Id);
+        Assert.That(data1.Data.Name, Is.EqualTo("data1"));
+        Assert.That(stubber.Get(data1).Object.Id, Is.EqualTo("id1"));
 
-        Assert.AreEqual("data2", data2.Data.Name);
-        Assert.AreEqual("id2", stubber.Get(data2).Object.Id);
+        Assert.That(data2.Data.Name, Is.EqualTo("data2"));
+        Assert.That(stubber.Get(data2).Object.Id, Is.EqualTo("id2"));
 
         stubber.VerifyGet(_mockObjectService);
     }
@@ -181,7 +181,7 @@ public class ClientTest : ClientTestBase
         var testingRobject = Robj("id", "model");
         stubber.Get(testingRobject.DataValues[0]);
 
-        Assert.AreEqual("value", testingRobject.Display);
+        Assert.That(testingRobject.Display, Is.EqualTo("value"));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -226,16 +226,16 @@ public class ClientTest : ClientTestBase
 
         //accessing single as list returns a list with that single object
         var testingRvariable = Rvar("testingSingle", obj1);
-        Assert.AreEqual(1, testingRvariable.List.Count);
-        Assert.AreEqual("id1", testingRvariable.List[0].Id);
+        Assert.That(testingRvariable.List.Count, Is.EqualTo(1));
+        Assert.That(testingRvariable.List[0].Id, Is.EqualTo("id1"));
 
         //accessing list as single returns the first item
         testingRvariable = Rvarlist("testingList", new[] { obj1, obj2 });
-        Assert.AreEqual("id1", testingRvariable.Object.Id);
+        Assert.That(testingRvariable.Object.Id, Is.EqualTo("id1"));
 
         //accessing list as single returns null if there is no items in the list
         testingRvariable = Rvarlist("testingEmptyList", Array.Empty<Robject>());
-        Assert.IsTrue(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
 
         //accessing void as single returns null object
         stubber.SetUp(_mockObjectService,
@@ -244,11 +244,11 @@ public class ClientTest : ClientTestBase
             result: Void()
         );
         testingRvariable = stubber.Perform(obj3, "operation");
-        Assert.IsTrue(testingRvariable.IsNull);
-        Assert.IsTrue(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.IsNull, Is.True);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
 
         //accessing void as list returns empty list
-        Assert.AreEqual(0, testingRvariable.List.Count);
+        Assert.That(testingRvariable.List.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -261,8 +261,8 @@ public class ClientTest : ClientTestBase
         var robj = Robj("id", "model");
         var testingRvariable = robj.DataValues[0].Get();
 
-        Assert.IsTrue(testingRvariable.IsNull);
-        Assert.IsTrue(testingRvariable.ToList().IsNull);
+        Assert.That(testingRvariable.IsNull, Is.True);
+        Assert.That(testingRvariable.ToList().IsNull, Is.True);
     }
 
     [Test]
@@ -275,7 +275,7 @@ public class ClientTest : ClientTestBase
         var robj = Robj("id", "model");
         var testingRvariable = robj.DataValues[0].Get();
 
-        Assert.IsTrue(testingRvariable.Object.IsNull);
+        Assert.That(testingRvariable.Object.IsNull, Is.True);
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -288,9 +288,9 @@ public class ClientTest : ClientTestBase
         var robj = Robj("id", "model");
         var testingRobject = stubber.Get(robj.DataValues[0]).Object;
 
-        Assert.AreEqual(0, testingRobject.DataValues.Count);
-        Assert.IsNull(testingRobject.Type);
-        Assert.IsTrue(stubber.Perform(testingRobject, "some non existing operation").IsNull);
+        Assert.That(testingRobject.DataValues.Count, Is.EqualTo(0));
+        Assert.That(testingRobject.Type, Is.Null);
+        Assert.That(stubber.Perform(testingRobject, "some non existing operation").IsNull, Is.True);
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -328,7 +328,7 @@ public class ClientTest : ClientTestBase
             Rvar("param2", Robj("id_param2"))
         );
 
-        Assert.AreEqual("id_result", result.Object.Id);
+        Assert.That(result.Object.Id, Is.EqualTo("id_result"));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -383,7 +383,7 @@ public class ClientTest : ClientTestBase
             )
         );
 
-        Assert.AreEqual("id_result", result.Object.Id);
+        Assert.That(result.Object.Id, Is.EqualTo("id_result"));
     }
 
     [Test]
@@ -396,7 +396,7 @@ public class ClientTest : ClientTestBase
                 Rvar("param1", Robj("id_data_param1"))
             );
 
-        Assert.Throws<RobjectIsInitializedOnClientException>(() => { var _ = robj.Display; }, "exception not thrown");
+        Assert.That(() => { var _ = robj.Display; }, Throws.TypeOf<RobjectIsInitializedOnClientException>());
     }
 
     [Test]
@@ -409,7 +409,7 @@ public class ClientTest : ClientTestBase
                 Rvar("param1", Robj("id_data_param1"))
             );
 
-        Assert.IsNull(robj.Id);
+        Assert.That(robj.Id, Is.Null);
     }
 
     [Test]
@@ -427,8 +427,8 @@ public class ClientTest : ClientTestBase
                 Rvar("param1", Robj("id_data_param1"))
             );
 
-        Assert.AreEqual(robj1, robj1);
-        Assert.AreNotEqual(robj1, robj2);
+        Assert.That(robj1, Is.EqualTo(robj1));
+        Assert.That(robj2, Is.Not.EqualTo(robj1));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -446,7 +446,7 @@ public class ClientTest : ClientTestBase
 
         var result = stubber.Perform(Robj("id", "model"), "operation1");
 
-        Assert.IsTrue(result.IsVoid);
+        Assert.That(result.IsVoid, Is.True);
     }
 
     [Test]
@@ -462,8 +462,8 @@ public class ClientTest : ClientTestBase
             Object(Id("id", "actual_model", "view_model"))
         );
 
-        Assert.IsTrue(Robj("id").IsNaked);
-        Assert.IsFalse(Robj("id", "actual_model", "view_model").IsNaked);
+        Assert.That(Robj("id").IsNaked, Is.True);
+        Assert.That(Robj("id", "actual_model", "view_model").IsNaked, Is.False);
     }
 
     [Test]
@@ -481,9 +481,9 @@ public class ClientTest : ClientTestBase
             Object(Id("id2", "domain_model2"))
         );
 
-        Assert.IsTrue(Robj("id", "value_model").Type.IsValueType);
-        Assert.IsFalse(Robj("id1", "domain_model1").Type.IsValueType);
-        Assert.IsFalse(Robj("id2", "domain_model2").Type.IsValueType);
+        Assert.That(Robj("id", "value_model").Type.IsValueType, Is.True);
+        Assert.That(Robj("id1", "domain_model1").Type.IsValueType, Is.False);
+        Assert.That(Robj("id2", "domain_model2").Type.IsValueType, Is.False);
     }
 
     [Test]
@@ -504,8 +504,8 @@ public class ClientTest : ClientTestBase
 
         var paramvar = rparam.CreateVariable(Robj("id_param_value"));
 
-        Assert.AreEqual("param", paramvar.Name);
-        Assert.IsTrue(paramvar.IsList);
+        Assert.That(paramvar.Name, Is.EqualTo("param"));
+        Assert.That(paramvar.IsList, Is.True);
     }
 
     [Test]
@@ -524,8 +524,8 @@ public class ClientTest : ClientTestBase
         var root = Robj("id_root", "model");
         var rparam = root.Type.Operations[0].Parameters[0];
 
-        Assert.IsTrue(rparam.IsOptional);
-        Assert.AreEqual("default", rparam.Default.Object.Id);
+        Assert.That(rparam.IsOptional, Is.True);
+        Assert.That(rparam.Default.Object.Id, Is.EqualTo("default"));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -538,7 +538,7 @@ public class ClientTest : ClientTestBase
         var robj = Robj("value", "model");
 
         var actual = robj.Display;
-        Assert.AreEqual("value", actual);
+        Assert.That(actual, Is.EqualTo("value"));
         stubber.VerifyGet(_mockObjectService, Times.Never());
 
         stubber.Load(robj);
@@ -553,7 +553,7 @@ public class ClientTest : ClientTestBase
             Model("actual").ViewModelIds("view")
         );
 
-        Assert.Throws<CannotCreateRobjectException>(() => Robj("dummy", "view"));
+        Assert.That(() => Robj("dummy", "view"), Throws.TypeOf<CannotCreateRobjectException>());
     }
 
     [Test]
@@ -577,9 +577,9 @@ public class ClientTest : ClientTestBase
         var robjActual = Robj("id", "actual");
         var robjView = robjActual.As(Rtyp("view"));
 
-        Assert.AreEqual("id", robjView.Id);
-        Assert.AreEqual("view", robjView.Type.Id);
-        Assert.AreEqual("from view", robjView["Text"].Get().Object.Id);
+        Assert.That(robjView.Id, Is.EqualTo("id"));
+        Assert.That(robjView.Type.Id, Is.EqualTo("view"));
+        Assert.That(robjView["Text"].Get().Object.Id, Is.EqualTo("from view"));
     }
 
     [Test]
@@ -595,7 +595,7 @@ public class ClientTest : ClientTestBase
 
         var robjActual = Robj("id", "actual2");
 
-        Assert.Throws<CannotCreateRobjectException>(() => robjActual.As(Rtyp("view")));
+        Assert.That(() => robjActual.As(Rtyp("view")), Throws.TypeOf<CannotCreateRobjectException>());
     }
 
     [Test]
@@ -605,7 +605,7 @@ public class ClientTest : ClientTestBase
 
         ObjectsAre(Object(Id("value", "model")));
 
-        Assert.Throws<TypeNotFoundException>(() => Robj("value", "model"));
+        Assert.That(() => Robj("value", "model"), Throws.TypeOf<TypeNotFoundException>());
     }
 
     [Test]
@@ -620,11 +620,11 @@ public class ClientTest : ClientTestBase
 
         var actual = Rtyp("model").StaticInstances;
 
-        Assert.AreEqual(2, actual.Count);
-        Assert.AreEqual("id1", actual[0].Id);
-        Assert.AreEqual("value 1", actual[0].Display);
-        Assert.AreEqual("id2", actual[1].Id);
-        Assert.AreEqual("value 2", actual[1].Display);
+        Assert.That(actual.Count, Is.EqualTo(2));
+        Assert.That(actual[0].Id, Is.EqualTo("id1"));
+        Assert.That(actual[0].Display, Is.EqualTo("value 1"));
+        Assert.That(actual[1].Id, Is.EqualTo("id2"));
+        Assert.That(actual[1].Display, Is.EqualTo("value 2"));
     }
 
     [TestCaseSource(nameof(Stubbers))]
@@ -643,14 +643,14 @@ public class ClientTest : ClientTestBase
         stubber.Get(testingRobject["data1"]);
         var value1 = testingRobject.Display;
 
-        Assert.AreEqual("value", value1);
+        Assert.That(value1, Is.EqualTo("value"));
 
         testingRobject.Invalidate();
 
         stubber.Get(testingRobject["data1"]);
         var value2 = testingRobject.Display;
 
-        Assert.AreEqual("value", value2);
+        Assert.That(value2, Is.EqualTo("value"));
         stubber.VerifyGet(_mockObjectService, Times.Exactly(2));
     }
 
@@ -663,8 +663,8 @@ public class ClientTest : ClientTestBase
 
         var testingRobject = Robj("id", "model");
 
-        Assert.IsTrue(testingRobject.Type.MarkedAs("mark"));
-        Assert.IsFalse(testingRobject.Type.MarkedAs("nonexistingmark"));
+        Assert.That(testingRobject.Type.MarkedAs("mark"), Is.True);
+        Assert.That(testingRobject.Type.MarkedAs("nonexistingmark"), Is.False);
     }
 
     [Test]
@@ -684,8 +684,8 @@ public class ClientTest : ClientTestBase
 
         var testingRdata = Robj("id", "model")["data"];
 
-        Assert.IsTrue(testingRdata.Data.MarkedAs("mark"));
-        Assert.IsFalse(testingRdata.Data.MarkedAs("nonexistingmark"));
+        Assert.That(testingRdata.Data.MarkedAs("mark"), Is.True);
+        Assert.That(testingRdata.Data.MarkedAs("nonexistingmark"), Is.False);
     }
 
     [Test]
@@ -701,8 +701,8 @@ public class ClientTest : ClientTestBase
 
         var testingRoperation = Robj("id", "model").Type.Operations.Single(o => o.Name == "operation");
 
-        Assert.IsTrue(testingRoperation.MarkedAs("mark"));
-        Assert.IsFalse(testingRoperation.MarkedAs("nonexistingmark"));
+        Assert.That(testingRoperation.MarkedAs("mark"), Is.True);
+        Assert.That(testingRoperation.MarkedAs("nonexistingmark"), Is.False);
     }
 
     [Test]
@@ -719,7 +719,7 @@ public class ClientTest : ClientTestBase
                 })
             );
 
-        Assert.Throws<InvalidOperationException>(() => Rtyp("model2"));
+        Assert.That(() => Rtyp("model2"), Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
@@ -741,11 +741,11 @@ public class ClientTest : ClientTestBase
 
         var groups = rop.Groups;
 
-        Assert.AreEqual(3, groups.Count);
-        Assert.AreEqual("param1", groups[0][0].Name);
-        Assert.AreEqual("param1", groups[1][0].Name);
-        Assert.AreEqual("param2", groups[1][1].Name);
-        Assert.AreEqual("param2", groups[2][0].Name);
+        Assert.That(groups.Count, Is.EqualTo(3));
+        Assert.That(groups[0][0].Name, Is.EqualTo("param1"));
+        Assert.That(groups[1][0].Name, Is.EqualTo("param1"));
+        Assert.That(groups[1][1].Name, Is.EqualTo("param2"));
+        Assert.That(groups[2][0].Name, Is.EqualTo("param2"));
     }
 
     [Test]
@@ -753,6 +753,6 @@ public class ClientTest : ClientTestBase
     {
         ModelsAre(Model("model").Initializer(1, PModel("id", 0, 1)));
 
-        Assert.Throws<InvalidOperationException>(() => Rtyp("model"));
+        Assert.That(() => Rtyp("model"), Throws.TypeOf<InvalidOperationException>());
     }
 }

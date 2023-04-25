@@ -50,9 +50,9 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel;
 
-            Assert.IsTrue(actual.Models.Any(m => m.Id == typeof(BusinessModel1).FullName), $"BusinessModel1 not found in {actual.Models.ToItemString()}");
-            Assert.IsTrue(actual.Models.Any(m => m.Id == typeof(IBusinessModel2).FullName), $"BusinessModel2 not found in {actual.Models.ToItemString()}");
-            Assert.IsFalse(actual.Models.Any(m => m.Id.EndsWith("BusinesssModel3")), $"BusinessModel3 is private, shouldn't be in {actual.Models.ToItemString()}");
+            Assert.That(actual.Models.Any(m => m.Id == typeof(BusinessModel1).FullName), Is.True, $"BusinessModel1 not found in {actual.Models.ToItemString()}");
+            Assert.That(actual.Models.Any(m => m.Id == typeof(IBusinessModel2).FullName), Is.True, $"BusinessModel2 not found in {actual.Models.ToItemString()}");
+            Assert.That(actual.Models.Any(m => m.Id.EndsWith("BusinesssModel3")), Is.False, $"BusinessModel3 is private, shouldn't be in {actual.Models.ToItemString()}");
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel;
 
-            Assert.IsFalse(actual.Models.Any(m => m.Id == "Int64"), $"Int64 found in {actual.Models.ToItemString()}");
+            Assert.That(actual.Models.Any(m => m.Id == "Int64"), Is.False, $"Int64 found in {actual.Models.ToItemString()}");
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace Routine.Test.Engine
             var expected = _testing.ApplicationModel;
             var actual = _testing.ApplicationModel;
 
-            Assert.AreSame(expected, actual);
+            Assert.That(actual, Is.SameAs(expected));
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Models.First(m => m.Name == "BusinessModel1");
 
-            Assert.IsTrue(actual.Datas.Any(m => m.Name == "PropertyWithLaterAddedType"));
+            Assert.That(actual.Datas.Any(m => m.Name == "PropertyWithLaterAddedType"), Is.True);
         }
     }
 }

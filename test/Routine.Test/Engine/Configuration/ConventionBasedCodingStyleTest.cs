@@ -12,14 +12,14 @@ public class ConventionBasedCodingStyleTest
     {
         var testing = BuildRoutine.CodingStyle().FromBasic() as ICodingStyle;
 
-        Assert.AreEqual("Int32?", testing.GetName(type.of<int?>()));
-        Assert.AreEqual("System", testing.GetModule(type.of<int?>()));
+        Assert.That(testing.GetName(type.of<int?>()), Is.EqualTo("Int32?"));
+        Assert.That(testing.GetModule(type.of<int?>()), Is.EqualTo("System"));
 
-        Assert.AreEqual("DateTime?", testing.GetName(type.of<DateTime?>()));
-        Assert.AreEqual("System", testing.GetModule(type.of<DateTime?>()));
+        Assert.That(testing.GetName(type.of<DateTime?>()), Is.EqualTo("DateTime?"));
+        Assert.That(testing.GetModule(type.of<DateTime?>()), Is.EqualTo("System"));
 
-        Assert.AreEqual("Text?", testing.GetName(type.of<Text?>()));
-        Assert.AreEqual("Routine.Test", testing.GetModule(type.of<Text?>()));
+        Assert.That(testing.GetName(type.of<Text?>()), Is.EqualTo("Text?"));
+        Assert.That(testing.GetModule(type.of<Text?>()), Is.EqualTo("Routine.Test"));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class ConventionBasedCodingStyleTest
     {
         var testing = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(int)) as ICodingStyle;
 
-        Assert.IsTrue(testing.ContainsType(type.of<int?>()));
+        Assert.That(testing.ContainsType(type.of<int?>()), Is.True);
     }
 
     public class AClassWithNullableReferenceType
@@ -47,11 +47,11 @@ public class ConventionBasedCodingStyleTest
 
         var datas = ((ICodingStyle)testing).GetDatas(type.of<AClassWithNullableReferenceType>());
 
-        Assert.AreEqual(2, datas.Count);
-        Assert.AreEqual(nameof(AClassWithNullableReferenceType.NullableString), datas[0].Name);
-        Assert.AreEqual("System.String", datas[0].ReturnType.FullName);
-        Assert.AreEqual(nameof(AClassWithNullableReferenceType.NotNullableString), datas[1].Name);
-        Assert.AreEqual("System.String", datas[1].ReturnType.FullName);
+        Assert.That(datas.Count, Is.EqualTo(2));
+        Assert.That(datas[0].Name, Is.EqualTo(nameof(AClassWithNullableReferenceType.NullableString)));
+        Assert.That(datas[0].ReturnType.FullName, Is.EqualTo("System.String"));
+        Assert.That(datas[1].Name, Is.EqualTo(nameof(AClassWithNullableReferenceType.NotNullableString)));
+        Assert.That(datas[1].ReturnType.FullName, Is.EqualTo("System.String"));
     }
 
     public ref struct ARefStruct { }
@@ -61,7 +61,7 @@ public class ConventionBasedCodingStyleTest
     {
         var testing = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(ARefStruct)) as ICodingStyle;
 
-        Assert.IsFalse(testing.ContainsType(TypeInfo.Get(typeof(ARefStruct))));
+        Assert.That(testing.ContainsType(TypeInfo.Get(typeof(ARefStruct))), Is.False);
     }
 
     public record ARecord(string Data);
@@ -79,14 +79,14 @@ public class ConventionBasedCodingStyleTest
         var initializers = ((ICodingStyle)testing).GetInitializers(type.of<ARecord>());
         var datas = ((ICodingStyle)testing).GetDatas(type.of<ARecord>());
 
-        Assert.AreEqual(1, initializers.Count);
-        Assert.AreEqual(1, initializers[0].Parameters.Count);
-        Assert.AreEqual(nameof(ARecord.Data), initializers[0].Parameters[0].Name);
-        Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
+        Assert.That(initializers.Count, Is.EqualTo(1));
+        Assert.That(initializers[0].Parameters.Count, Is.EqualTo(1));
+        Assert.That(initializers[0].Parameters[0].Name, Is.EqualTo(nameof(ARecord.Data)));
+        Assert.That(initializers[0].Parameters[0].ParameterType, Is.EqualTo(type.of<string>()));
 
-        Assert.AreEqual(1, datas.Count);
-        Assert.AreEqual(nameof(ARecord.Data), datas[0].Name);
-        Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
+        Assert.That(datas.Count, Is.EqualTo(1));
+        Assert.That(datas[0].Name, Is.EqualTo(nameof(ARecord.Data)));
+        Assert.That(datas[0].ReturnType, Is.EqualTo(type.of<string>()));
     }
 
     public readonly struct AReadonlyStruct
@@ -112,14 +112,14 @@ public class ConventionBasedCodingStyleTest
         var initializers = ((ICodingStyle)testing).GetInitializers(type.of<AReadonlyStruct>());
         var datas = ((ICodingStyle)testing).GetDatas(type.of<AReadonlyStruct>());
 
-        Assert.AreEqual(1, initializers.Count);
-        Assert.AreEqual(1, initializers[0].Parameters.Count);
-        Assert.AreEqual("data", initializers[0].Parameters[0].Name);
-        Assert.AreEqual(type.of<string>(), initializers[0].Parameters[0].ParameterType);
+        Assert.That(initializers.Count, Is.EqualTo(1));
+        Assert.That(initializers[0].Parameters.Count, Is.EqualTo(1));
+        Assert.That(initializers[0].Parameters[0].Name, Is.EqualTo("data"));
+        Assert.That(initializers[0].Parameters[0].ParameterType, Is.EqualTo(type.of<string>()));
 
-        Assert.AreEqual(1, datas.Count);
-        Assert.AreEqual(nameof(AReadonlyStruct.Data), datas[0].Name);
-        Assert.AreEqual(type.of<string>(), datas[0].ReturnType);
+        Assert.That(datas.Count, Is.EqualTo(1));
+        Assert.That(datas[0].Name, Is.EqualTo(nameof(AReadonlyStruct.Data)));
+        Assert.That(datas[0].ReturnType, Is.EqualTo(type.of<string>()));
     }
 
     public interface IAnInterface { public string DefaultMethodOp() => "data"; }
@@ -136,7 +136,7 @@ public class ConventionBasedCodingStyleTest
 
         var operations = ((ICodingStyle)testing).GetOperations(type.of<IAnInterface>());
 
-        Assert.AreEqual(1, operations.Count);
-        Assert.AreEqual(nameof(IAnInterface.DefaultMethodOp), operations[0].Name);
+        Assert.That(operations.Count, Is.EqualTo(1));
+        Assert.That(operations[0].Name, Is.EqualTo(nameof(IAnInterface.DefaultMethodOp)));
     }
 }

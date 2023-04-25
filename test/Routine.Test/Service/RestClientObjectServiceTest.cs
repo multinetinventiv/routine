@@ -61,7 +61,8 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
         var actual = _testing.ApplicationModel;
 
         _mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), RestRequest.Empty), Times.Once());
-        Assert.AreEqual(0, actual.Models.Count);
+
+        Assert.That(actual.Models.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -72,7 +73,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         _mock.Verify(rc => rc.Get(It.Is<string>(url => url.EndsWith("/ApplicationModel")), It.IsAny<RestRequest>()), Times.Once());
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 
     [Test]
@@ -87,7 +88,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         var actual = _invoker.InvokeGet(_testing, Id("3", "model"));
 
-        Assert.AreEqual("Test", actual.Display);
+        Assert.That(actual.Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -105,7 +106,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         var actual = _invoker.InvokeGet(_testing, Id("3", "model", "viewmodel"));
 
-        Assert.AreEqual("Test", actual.Display);
+        Assert.That(actual.Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -113,7 +114,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
     {
         var actual = _invoker.InvokeGet(_testing, Null());
 
-        Assert.AreEqual(null, actual);
+        Assert.That(actual, Is.Null);
         _mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
@@ -205,8 +206,8 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
                 }
             });
 
-        Assert.AreEqual("5", actual.Values[0].Id);
-        Assert.AreEqual("Test", actual.Values[0].Display);
+        Assert.That(actual.Values[0].Id, Is.EqualTo("5"));
+        Assert.That(actual.Values[0].Display, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -214,7 +215,7 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
     {
         var actual = _invoker.InvokeDo(_testing, Null(), "doesn't matter", new());
 
-        Assert.AreEqual(new VariableData(), actual);
+        Assert.That(actual, Is.EqualTo(new VariableData()));
         _mock.Verify(rc => rc.Get(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.GetAsync(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
         _mock.Verify(rc => rc.Post(It.IsAny<string>(), It.IsAny<RestRequest>()), Times.Never());
@@ -290,30 +291,18 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
             response: @"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}"
         );
 
-        try
-        {
-            _invoker.InvokeGet(_testing, Id("3", "model"));
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("message", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeGet(_testing, Id("3", "model")),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("message")
+        );
 
         _stubber.SetUpPost(_mock,
             url: $"{URL_BASE}/model/3/action",
             response: new RestResponse(@"{""IsException"":""true"",""Type"":""type"",""Handled"":""true"",""Message"":""message""}")
         );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "action", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("message", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "action", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("message")
+        );
     }
 
     [Test]
@@ -330,30 +319,18 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         ModelsAre(Model("model").Operation("action"));
 
-        try
-        {
-            _invoker.InvokeGet(_testing, Id("3", "model"));
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("server message", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeGet(_testing, Id("3", "model")),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("server message")
+        );
 
         _stubber.SetUpPost(_mock,
             url: $"{URL_BASE}/model/3/action",
             exception: HttpNotFound("server message")
         );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "action", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("server message", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "action", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("server message")
+        );
     }
 
     [Test]
@@ -366,24 +343,12 @@ public class RestClientObjectServiceTest<TRestClientStubber, TObjectServiceInvok
 
         ModelsAre(Model("model"));
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "model"), "nonexistingaction", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("operation", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "model"), "nonexistingaction", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("operation")
+        );
 
-        try
-        {
-            _invoker.InvokeDo(_testing, Id("3", "nonexistingmodel"), "nonexistingaction", new());
-            Assert.Fail("exception not thrown");
-        }
-        catch (TestException ex)
-        {
-            Assert.AreEqual("type", ex.Message);
-        }
+        Assert.That(() => _invoker.InvokeDo(_testing, Id("3", "nonexistingmodel"), "nonexistingaction", new()),
+            Throws.TypeOf<TestException>().With.Property("Message").EqualTo("type")
+        );
     }
 }

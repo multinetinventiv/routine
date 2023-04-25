@@ -30,8 +30,8 @@ public class DefaultCoreContextTest : CoreTestBase
     [Test]
     public void Cannot_access_a_domain_type_before_context_is_initialized()
     {
-        Assert.Throws<InvalidOperationException>(() => { var _ = _testing.DomainTypes; });
-        Assert.Throws<InvalidOperationException>(() => _testing.GetDomainType(type.of<CachedBusiness>()));
+        Assert.That(() => { var _ = _testing.DomainTypes; }, Throws.TypeOf<InvalidOperationException>());
+        Assert.That(() => _testing.GetDomainType(type.of<CachedBusiness>()), Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class DefaultCoreContextTest : CoreTestBase
         var expected = _testing.GetDomainType(domainType.Id);
         var actual = _testing.GetDomainType(domainType.Id);
 
-        Assert.AreSame(expected, actual);
+        Assert.That(actual, Is.SameAs(expected));
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class DefaultCoreContextTest : CoreTestBase
         _testing.BuildDomainTypes();
         var newDomainType = _testing.GetDomainType(type.of<CachedBusiness>());
 
-        Assert.AreNotSame(oldDomainType, newDomainType);
+        Assert.That(newDomainType, Is.Not.SameAs(oldDomainType));
     }
 
     [Test]
@@ -65,10 +65,10 @@ public class DefaultCoreContextTest : CoreTestBase
         var codingStyle = BuildRoutine.CodingStyle().FromBasic().AddTypes(typeof(CachedBusiness));
         var proxyOverAProperty = (ProxyTypeInfo)type.of<CachedBusiness>().GetProperty(nameof(CachedBusiness.LaterAddedType)).PropertyType;
 
-        Assert.IsInstanceOf<ReflectedTypeInfo>(proxyOverAProperty.Real);
+        Assert.That(proxyOverAProperty.Real, Is.InstanceOf<ReflectedTypeInfo>());
 
         codingStyle.AddTypes(typeof(LaterAddedType));
 
-        Assert.IsInstanceOf<OptimizedTypeInfo>(proxyOverAProperty.Real);
+        Assert.That(proxyOverAProperty.Real, Is.InstanceOf<OptimizedTypeInfo>());
     }
 }

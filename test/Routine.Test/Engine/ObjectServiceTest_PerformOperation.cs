@@ -193,7 +193,7 @@ namespace Routine.Test.Engine
                 .Convert(cb => cb
                     .By(type.of<IBusinessOperation>, (o, _) =>
                     {
-                        Assert.AreSame(_businessObj, o);
+                        Assert.That(o, Is.SameAs(_businessObj));
 
                         return convertedBusinessObj;
                     }))
@@ -213,12 +213,9 @@ namespace Routine.Test.Engine
         {
             SetUpObject("id");
 
-            try
-            {
-                _invoker.InvokeDo(_testing, Id("id"), "NonExistingOperation", Params());
-                Assert.Fail("exception not thrown");
-            }
-            catch (OperationDoesNotExistException) { }
+            Assert.That(() => _invoker.InvokeDo(_testing, Id("id"), "NonExistingOperation", Params()),
+                Throws.Exception.TypeOf<OperationDoesNotExistException>()
+            );
         }
 
         [Test]
@@ -230,10 +227,10 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "GetResult", Params());
 
-            Assert.IsNotNull(result.Values[0]);
-            Assert.AreEqual("title", result.Values[0].Display);
-            Assert.AreEqual("id", result.Values[0].Id);
-            Assert.AreEqual(ACTUAL_OMID, result.Values[0].ModelId);
+            Assert.That(result.Values[0], Is.Not.Null);
+            Assert.That(result.Values[0].Display, Is.EqualTo("title"));
+            Assert.That(result.Values[0].Id, Is.EqualTo("id"));
+            Assert.That(result.Values[0].ModelId, Is.EqualTo(ACTUAL_OMID));
         }
 
         [Test]
@@ -245,9 +242,9 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "AsyncOp", Params());
 
-            Assert.IsNotNull(result.Values[0]);
-            Assert.AreEqual("async result", result.Values[0].Id);
-            Assert.AreEqual("System.String", result.Values[0].ModelId);
+            Assert.That(result.Values[0], Is.Not.Null);
+            Assert.That(result.Values[0].Id, Is.EqualTo("async result"));
+            Assert.That(result.Values[0].ModelId, Is.EqualTo("System.String"));
         }
 
         [Test]
@@ -259,7 +256,7 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "GetResult", Params());
 
-            Assert.AreEqual(new VariableData(), result);
+            Assert.That(result, Is.EqualTo(new VariableData()));
         }
 
         [Test]
@@ -271,7 +268,7 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "NullableParameterOp", Params());
 
-            Assert.AreEqual(new VariableData(), result);
+            Assert.That(result, Is.EqualTo(new VariableData()));
         }
 
         [Test]
@@ -283,14 +280,14 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "GetListResult", Params());
 
-            Assert.IsTrue(result.IsList);
-            Assert.AreEqual(2, result.Values.Count);
+            Assert.That(result.IsList, Is.True);
+            Assert.That(result.Values.Count, Is.EqualTo(2));
 
-            Assert.AreEqual("a", result.Values[0].Id);
-            Assert.AreEqual("a", result.Values[0].Display);
-            Assert.AreEqual("System.String", result.Values[0].ModelId);
+            Assert.That(result.Values[0].Id, Is.EqualTo("a"));
+            Assert.That(result.Values[0].Display, Is.EqualTo("a"));
+            Assert.That(result.Values[0].ModelId, Is.EqualTo("System.String"));
 
-            Assert.AreEqual("b", result.Values[1].Id);
+            Assert.That(result.Values[1].Id, Is.EqualTo("b"));
         }
 
         [Test]
@@ -302,14 +299,14 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "GetArrayResult", Params());
 
-            Assert.IsTrue(result.IsList);
-            Assert.AreEqual(2, result.Values.Count);
+            Assert.That(result.IsList, Is.True);
+            Assert.That(result.Values.Count, Is.EqualTo(2));
 
-            Assert.AreEqual("a", result.Values[0].Id);
-            Assert.AreEqual("a", result.Values[0].Display);
-            Assert.AreEqual("System.String", result.Values[0].ModelId);
+            Assert.That(result.Values[0].Id, Is.EqualTo("a"));
+            Assert.That(result.Values[0].Display, Is.EqualTo("a"));
+            Assert.That(result.Values[0].ModelId, Is.EqualTo("System.String"));
 
-            Assert.AreEqual("b", result.Values[1].Id);
+            Assert.That(result.Values[1].Id, Is.EqualTo("b"));
         }
 
         [Test]
@@ -543,8 +540,8 @@ namespace Routine.Test.Engine
 
             var result = _invoker.InvokeDo(_testing, Id("id"), "GetResult", Params());
 
-            Assert.IsTrue(result.Values[0].Data.ContainsKey("Title"));
-            Assert.AreEqual("title", result.Values[0].Data["Title"].Values[0].Id);
+            Assert.That(result.Values[0].Data.ContainsKey("Title"), Is.True);
+            Assert.That(result.Values[0].Data["Title"].Values[0].Id, Is.EqualTo("title"));
         }
 
         [Test]
@@ -810,7 +807,7 @@ namespace Routine.Test.Engine
                 Param("input", Id("test", "System.String"))
             ));
 
-            Assert.AreEqual("ping: test", result.Values[0].Id);
+            Assert.That(result.Values[0].Id, Is.EqualTo("ping: test"));
         }
     }
 }

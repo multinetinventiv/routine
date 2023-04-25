@@ -21,7 +21,7 @@ public abstract class ReflectionMethodInvokerContract
 
         var actual = Invoke(testing, this, "test");
 
-        Assert.AreEqual("test", actual);
+        Assert.That(actual, Is.EqualTo("test"));
     }
 
     [Test]
@@ -31,7 +31,7 @@ public abstract class ReflectionMethodInvokerContract
 
         var actual = Invoke(testing, null, 'x', 3); // new string('x', 3)
 
-        Assert.AreEqual("xxx", actual);
+        Assert.That(actual, Is.EqualTo("xxx"));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public abstract class ReflectionMethodInvokerContract
     {
         var testing = InvokerFor(nameof(Test));
 
-        Assert.Throws<NullReferenceException>(() => Invoke(testing, null, string.Empty));
+        Assert.That(() => Invoke(testing, null, string.Empty), Throws.TypeOf<NullReferenceException>());
     }
 
     public class CustomException : Exception { public CustomException(string message) : base(message) { } }
@@ -54,15 +54,9 @@ public abstract class ReflectionMethodInvokerContract
 
         var testing = InvokerFor(method);
 
-        try
-        {
-            Invoke(testing, this, expected);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception actual)
-        {
-            Assert.AreSame(expected, actual);
-        }
+        Assert.That(() => Invoke(testing, this, expected),
+            Throws.Exception.With.SameAs(expected)
+        );
     }
 
     [TestCase(nameof(Throw))]
@@ -73,16 +67,9 @@ public abstract class ReflectionMethodInvokerContract
 
         var testing = InvokerFor(method);
 
-        try
-        {
-            Invoke(testing, this, expected);
-            Assert.Fail("exception not thrown");
-        }
-        catch (CustomException actual)
-        {
-            Console.WriteLine(actual.StackTrace);
-
-            Assert.IsTrue(actual.StackTrace.Contains($"{nameof(ReflectionMethodInvokerContract)}.{method}"), actual.StackTrace);
-        }
+        Assert.That(() => Invoke(testing, this, expected),
+            Throws.TypeOf<CustomException>()
+                .With.Property("StackTrace").Contains($"{nameof(ReflectionMethodInvokerContract)}.{method}")
+        );
     }
 }

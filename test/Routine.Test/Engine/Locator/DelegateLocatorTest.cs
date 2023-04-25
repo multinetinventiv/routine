@@ -17,14 +17,14 @@ public class DelegateLocatorTest
     {
         var actual = await locator.LocateAsync(type.of<string>(), new List<string> { "test1", "test2" });
 
-        Assert.AreEqual("located: test1", actual[0]);
-        Assert.AreEqual("located: test2", actual[1]);
+        Assert.That(actual[0], Is.EqualTo("located: test1"));
+        Assert.That(actual[1], Is.EqualTo("located: test2"));
     }
 
     [Test]
     public void When_no_delegate_was_given__it_throws_ArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().By(null as Func<IType, List<string>, IEnumerable>));
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().By(null as Func<IType, List<string>, Task<IEnumerable>>));
+        Assert.That(() => BuildRoutine.Locator().By(null as Func<IType, List<string>, IEnumerable>), Throws.TypeOf<ArgumentNullException>());
+        Assert.That(() => BuildRoutine.Locator().By(null as Func<IType, List<string>, Task<IEnumerable>>), Throws.TypeOf<ArgumentNullException>());
     }
 }

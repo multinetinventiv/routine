@@ -6,116 +6,116 @@ public class StringExtensionsTest
     [Test]
     public void Test_String_ToUpperInitial()
     {
-        Assert.AreEqual("Lower", "lower".ToUpperInitial());
-        Assert.AreEqual("Upper", "Upper".ToUpperInitial());
-        Assert.AreEqual("Invariant", "invariant".ToUpperInitial());
-        Assert.AreEqual("I", "i".ToUpperInitial());
-        Assert.AreEqual("", "".ToUpperInitial());
+        Assert.That("lower".ToUpperInitial(), Is.EqualTo("Lower"));
+        Assert.That("Upper".ToUpperInitial(), Is.EqualTo("Upper"));
+        Assert.That("invariant".ToUpperInitial(), Is.EqualTo("Invariant"));
+        Assert.That("i".ToUpperInitial(), Is.EqualTo("I"));
+        Assert.That("".ToUpperInitial(), Is.EqualTo(""));
     }
 
     [Test]
     public void Test_String_ToLowerInitial()
     {
-        Assert.AreEqual("lower", "lower".ToLowerInitial());
-        Assert.AreEqual("upper", "Upper".ToLowerInitial());
-        Assert.AreEqual("invariant", "Invariant".ToLowerInitial());
-        Assert.AreEqual("i", "I".ToLowerInitial());
-        Assert.AreEqual("", "".ToLowerInitial());
+        Assert.That("lower".ToLowerInitial(), Is.EqualTo("lower"));
+        Assert.That("Upper".ToLowerInitial(), Is.EqualTo("upper"));
+        Assert.That("Invariant".ToLowerInitial(), Is.EqualTo("invariant"));
+        Assert.That("I".ToLowerInitial(), Is.EqualTo("i"));
+        Assert.That("".ToLowerInitial(), Is.EqualTo(""));
     }
 
     [Test]
     public void Test_String_SplitCamelCase()
     {
-        Assert.AreEqual("camel Case", "camelCase".SplitCamelCase());
-        Assert.AreEqual("Pascal Case", "PascalCase".SplitCamelCase());
-        Assert.AreEqual("PASCAL Case", "PASCALCase".SplitCamelCase());
-        Assert.AreEqual("Number 00 Case", "Number00Case".SplitCamelCase());
+        Assert.That("camelCase".SplitCamelCase(), Is.EqualTo("camel Case"));
+        Assert.That("PascalCase".SplitCamelCase(), Is.EqualTo("Pascal Case"));
+        Assert.That("PASCALCase".SplitCamelCase(), Is.EqualTo("PASCAL Case"));
+        Assert.That("Number00Case".SplitCamelCase(), Is.EqualTo("Number 00 Case"));
 
-        Assert.AreEqual("camel-Case", "camelCase".SplitCamelCase('-'));
-        Assert.AreEqual("Pascal-Case", "PascalCase".SplitCamelCase('-'));
-        Assert.AreEqual("PASCAL-Case", "PASCALCase".SplitCamelCase('-'));
-        Assert.AreEqual("Number-00-Case", "Number00Case".SplitCamelCase('-'));
+        Assert.That("camelCase".SplitCamelCase('-'), Is.EqualTo("camel-Case"));
+        Assert.That("PascalCase".SplitCamelCase('-'), Is.EqualTo("Pascal-Case"));
+        Assert.That("PASCALCase".SplitCamelCase('-'), Is.EqualTo("PASCAL-Case"));
+        Assert.That("Number00Case".SplitCamelCase('-'), Is.EqualTo("Number-00-Case"));
     }
 
     [Test]
     public void Test_String_SnakeCaseToCamelCase()
     {
-        Assert.AreEqual("snakeCase", "snake_case".SnakeCaseToCamelCase());
-        Assert.AreEqual("snakeCase", "snake_Case".SnakeCaseToCamelCase());
-        Assert.AreEqual("SnakeCase", "Snake_Case".SnakeCaseToCamelCase());
-        Assert.AreEqual("camelCase", "camelCase".SnakeCaseToCamelCase());
-        Assert.AreEqual("SNAKECase", "SNAKE_case".SnakeCaseToCamelCase());
-        Assert.AreEqual("snake00Case", "snake_00_case".SnakeCaseToCamelCase());
+        Assert.That("snake_case".SnakeCaseToCamelCase(), Is.EqualTo("snakeCase"));
+        Assert.That("snake_Case".SnakeCaseToCamelCase(), Is.EqualTo("snakeCase"));
+        Assert.That("Snake_Case".SnakeCaseToCamelCase(), Is.EqualTo("SnakeCase"));
+        Assert.That("camelCase".SnakeCaseToCamelCase(), Is.EqualTo("camelCase"));
+        Assert.That("SNAKE_case".SnakeCaseToCamelCase(), Is.EqualTo("SNAKECase"));
+        Assert.That("snake_00_case".SnakeCaseToCamelCase(), Is.EqualTo("snake00Case"));
 
-        Assert.AreEqual("snakeCase", "snake-case".SnakeCaseToCamelCase('-'));
-        Assert.AreEqual("snakeCase", "snake-Case".SnakeCaseToCamelCase('-'));
-        Assert.AreEqual("SnakeCase", "Snake-Case".SnakeCaseToCamelCase('-'));
-        Assert.AreEqual("camelCase", "camelCase".SnakeCaseToCamelCase('-'));
-        Assert.AreEqual("SNAKECase", "SNAKE-case".SnakeCaseToCamelCase('-'));
-        Assert.AreEqual("snake00Case", "snake-00-case".SnakeCaseToCamelCase('-'));
+        Assert.That("snake-case".SnakeCaseToCamelCase('-'), Is.EqualTo("snakeCase"));
+        Assert.That("snake-Case".SnakeCaseToCamelCase('-'), Is.EqualTo("snakeCase"));
+        Assert.That("Snake-Case".SnakeCaseToCamelCase('-'), Is.EqualTo("SnakeCase"));
+        Assert.That("camelCase".SnakeCaseToCamelCase('-'), Is.EqualTo("camelCase"));
+        Assert.That("SNAKE-case".SnakeCaseToCamelCase('-'), Is.EqualTo("SNAKECase"));
+        Assert.That("snake-00-case".SnakeCaseToCamelCase('-'), Is.EqualTo("snake00Case"));
     }
 
     [Test]
     public void Test_String_Before()
     {
-        Assert.AreEqual("a", "a".Before("."));
-        Assert.AreEqual("a", "a.b".Before("."));
-        Assert.AreEqual("a", "a.b.c".Before("."));
+        Assert.That("a".Before("."), Is.EqualTo("a"));
+        Assert.That("a.b".Before("."), Is.EqualTo("a"));
+        Assert.That("a.b.c".Before("."), Is.EqualTo("a"));
 
-        Assert.AreEqual("a", "a".BeforeLast("."));
-        Assert.AreEqual("a", "a.b".BeforeLast("."));
-        Assert.AreEqual("a.b", "a.b.c".BeforeLast("."));
+        Assert.That("a".BeforeLast("."), Is.EqualTo("a"));
+        Assert.That("a.b".BeforeLast("."), Is.EqualTo("a"));
+        Assert.That("a.b.c".BeforeLast("."), Is.EqualTo("a.b"));
 
-        Assert.AreEqual(".", ".a.a".Before("A", StringComparison.OrdinalIgnoreCase));
-        Assert.AreEqual(".a.", ".a.a".BeforeLast("A", StringComparison.OrdinalIgnoreCase));
+        Assert.That(".a.a".Before("A", StringComparison.OrdinalIgnoreCase), Is.EqualTo("."));
+        Assert.That(".a.a".BeforeLast("A", StringComparison.OrdinalIgnoreCase), Is.EqualTo(".a."));
 
-        Assert.AreEqual("Reference", "ReferenceCoreX".Before("Core"));
-        Assert.AreEqual("Reference", "ReferenceCore".Before("Core"));
+        Assert.That("ReferenceCoreX".Before("Core"), Is.EqualTo("Reference"));
+        Assert.That("ReferenceCore".Before("Core"), Is.EqualTo("Reference"));
     }
 
     [Test]
     public void Test_String_After()
     {
-        Assert.AreEqual("a", "a".After("."));
-        Assert.AreEqual("b", "a.b".After("."));
-        Assert.AreEqual("b.c", "a.b.c".After("."));
+        Assert.That("a".After("."), Is.EqualTo("a"));
+        Assert.That("a.b".After("."), Is.EqualTo("b"));
+        Assert.That("a.b.c".After("."), Is.EqualTo("b.c"));
 
-        Assert.AreEqual("a", "a".AfterLast("."));
-        Assert.AreEqual("b", "a.b".AfterLast("."));
-        Assert.AreEqual("c", "a.b.c".AfterLast("."));
+        Assert.That("a".AfterLast("."), Is.EqualTo("a"));
+        Assert.That("a.b".AfterLast("."), Is.EqualTo("b"));
+        Assert.That("a.b.c".AfterLast("."), Is.EqualTo("c"));
 
-        Assert.AreEqual(".a.", "a.a.".After("A", StringComparison.OrdinalIgnoreCase));
-        Assert.AreEqual(".", "a.a.".AfterLast("A", StringComparison.OrdinalIgnoreCase));
+        Assert.That("a.a.".After("A", StringComparison.OrdinalIgnoreCase), Is.EqualTo(".a."));
+        Assert.That("a.a.".AfterLast("A", StringComparison.OrdinalIgnoreCase), Is.EqualTo("."));
 
-        Assert.AreEqual("Reference", "CoreReference".After("Core"));
-        Assert.AreEqual("Reference", "XCoreReference".After("Core"));
+        Assert.That("CoreReference".After("Core"), Is.EqualTo("Reference"));
+        Assert.That("XCoreReference".After("Core"), Is.EqualTo("Reference"));
     }
 
     [Test]
     public void Test_String_SurroundWith()
     {
-        Assert.AreEqual("'a'", "a".SurroundWith("'"));
-        Assert.AreEqual("[a]", "a".SurroundWith("[", "]"));
-        Assert.AreEqual("''", ((string)null).SurroundWith("'"));
+        Assert.That("a".SurroundWith("'"), Is.EqualTo("'a'"));
+        Assert.That("a".SurroundWith("[", "]"), Is.EqualTo("[a]"));
+        Assert.That(((string)null).SurroundWith("'"), Is.EqualTo("''"));
     }
 
     [Test]
     public void Test_String_Append()
     {
-        Assert.AreEqual("a.suffix", "a".Append(".suffix"));
+        Assert.That("a".Append(".suffix"), Is.EqualTo("a.suffix"));
     }
 
     [Test]
     public void Test_String_Prepend()
     {
-        Assert.AreEqual("prefix.a", "a".Prepend("prefix."));
+        Assert.That("a".Prepend("prefix."), Is.EqualTo("prefix.a"));
     }
 
     [Test]
     public void Test_String_Matches()
     {
-        Assert.IsTrue("test".Matches(".es."));
-        Assert.IsFalse("test".Matches("es."));
-        Assert.IsFalse("test".Matches(".es"));
+        Assert.That("test".Matches(".es."), Is.True);
+        Assert.That("test".Matches("es."), Is.False);
+        Assert.That("test".Matches(".es"), Is.False);
     }
 }

@@ -193,11 +193,11 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
         var proxy = (ProxyMethodInvoker)InvokerFor<IOptimizedInterface<string>>("VoidMethod", waitForOptimization: false);
         var switchable = (SwitchableMethodInvoker)proxy.Real;
 
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(switchable.Invoker);
+        Assert.That(switchable.Invoker, Is.InstanceOf<ReflectionMethodInvoker>());
 
         WaitForOptimization(proxy);
 
-        Assert.IsNotInstanceOf<ReflectionMethodInvoker>(switchable.Invoker);
+        Assert.That(switchable.Invoker, Is.Not.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -207,22 +207,17 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var invoker = InvokerFor<OptimizedClass>("VoidMethod") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(invoker);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(invoker.Real);
+        Assert.That(invoker, Is.Not.Null);
+        Assert.That(invoker.Real, Is.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
     public void CreateInvoker_throws_ArgumentException_when_null_is_given()
     {
-        try
-        {
-            InvokerFor<IOptimizedInterface<string>>("NonExistingMethod");
-            Assert.Fail("exception not thrown");
-        }
-        catch (ArgumentNullException ex)
-        {
-            Assert.AreEqual("method", ex.ParamName, ex.ToString());
-        }
+        Assert.That(() => InvokerFor<IOptimizedInterface<string>>("NonExistingMethod"),
+            Throws.Exception
+                .With.Property("ParamName").EqualTo("method")
+        );
     }
 
     [Test]
@@ -230,7 +225,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("VoidMethod"), _target);
 
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
         _mock.Verify(o => o.VoidMethod(), Times.Once());
     }
 
@@ -241,7 +236,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var actual = Invoke(InvokerFor<OptimizedClass>("StringMethod"), _target);
 
-        Assert.AreEqual("result", actual);
+        Assert.That(actual, Is.EqualTo("result"));
     }
 
     [Test]
@@ -273,19 +268,12 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     [Test]
     public void Method_invoker_does_not_check_parameter_compatibility_and_let_IndexOutOfRangeException_or_InvalidCastException_to_be_thrown()
     {
-        try
-        {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target);
-            Assert.Fail("exception not thrown");
-        }
-        catch (IndexOutOfRangeException) { }
-
-        try
-        {
-            Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, 0);
-            Assert.Fail("exception not thrown");
-        }
-        catch (InvalidCastException) { }
+        Assert.That(() => Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target),
+            Throws.TypeOf<IndexOutOfRangeException>()
+        );
+        Assert.That(() => Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target, 0),
+            Throws.TypeOf<InvalidCastException>()
+        );
     }
 
     [Test]
@@ -307,7 +295,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var actual = Invoke(InvokerFor<IOptimizedInterface<string>>("GenericReturnMethod"), _target) as string;
 
-        Assert.AreEqual("result", actual);
+        Assert.That(actual, Is.EqualTo("result"));
     }
 
     [Test]
@@ -329,7 +317,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var actual = Invoke(InvokerFor<OptimizedClass>("get:StringProperty"), _target);
 
-        Assert.AreEqual("result", actual);
+        Assert.That(actual, Is.EqualTo("result"));
     }
 
     [Test]
@@ -345,8 +333,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var invoker = typeof(Struct).GetProperty("Property")?.GetSetMethod().CreateInvoker() as ProxyMethodInvoker;
 
-        Assert.IsNotNull(invoker);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(invoker.Real);
+        Assert.That(invoker, Is.Not.Null);
+        Assert.That(invoker.Real, Is.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -356,7 +344,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var actual = Invoke(InvokerFor<OptimizedClass>("get:Item"), _target, "key", 0);
 
-        Assert.AreEqual("result", actual);
+        Assert.That(actual, Is.EqualTo("result"));
     }
 
     [Test]
@@ -371,7 +359,7 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     public void Test_create_object()
     {
         var actual = Invoke(InvokerFor<OptimizedClass>("new"), null, _mock.Object);
-        Assert.IsInstanceOf<OptimizedClass>(actual);
+        Assert.That(actual, Is.InstanceOf<OptimizedClass>());
     }
 
     [Test]
@@ -379,13 +367,13 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var proxy = InvokerFor<OptimizedClass>("NonPublicVoidMethod") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(proxy);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy.Real, Is.InstanceOf<ReflectionMethodInvoker>());
 
         proxy = InvokerFor<OptimizedClass>("VoidMethod") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(proxy);
-        Assert.IsNotInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy.Real, Is.Not.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -393,8 +381,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var proxy = InvokerFor<Uri>("HexUnescape") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(proxy);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy.Real, Is.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -402,8 +390,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var proxy = InvokerFor<Record>("<Clone>$") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(proxy);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy.Real, Is.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -411,8 +399,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         var proxy = InvokerFor<Record>("set:Data") as ProxyMethodInvoker;
 
-        Assert.IsNotNull(proxy);
-        Assert.IsInstanceOf<ReflectionMethodInvoker>(proxy.Real);
+        Assert.That(proxy, Is.Not.Null);
+        Assert.That(proxy.Real, Is.InstanceOf<ReflectionMethodInvoker>());
     }
 
     [Test]
@@ -462,14 +450,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
 
         var testing = InvokerFor<OptimizedClass>(method);
 
-        try
-        {
-            Invoke(testing, _target);
-            Assert.Fail("exception not thrown");
-        }
-        catch (Exception ex)
-        {
-            Assert.AreEqual("test", ex.Message);
-        }
+        Assert.That(() => Invoke(testing, _target),
+            Throws.Exception.With.Property("Message").EqualTo("test")
+        );
     }
 }

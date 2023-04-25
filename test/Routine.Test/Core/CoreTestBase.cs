@@ -27,9 +27,9 @@ public abstract class CoreTestBase
 
     protected void AssertJsonEquals(string expected, string actual)
     {
-        Assert.AreEqual(
-            JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(expected)),
-            JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(actual))
+        Assert.That(
+            JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(actual)),
+            Is.EqualTo(JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(expected)))
         );
     }
 

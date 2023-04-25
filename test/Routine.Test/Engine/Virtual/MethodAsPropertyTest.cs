@@ -25,7 +25,7 @@ public class MethodAsPropertyTest : CoreTestBase
     [Test]
     public void Method_cannot_be_null()
     {
-        Assert.Throws<ArgumentNullException>(() => new MethodAsProperty(null));
+        Assert.That(() => new MethodAsProperty(null), Throws.TypeOf<ArgumentNullException>());
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class MethodAsPropertyTest : CoreTestBase
     {
         var method = type.of<MethodAsPropertyTest>().GetMethod(nameof(Void_method_are_not_allowed));
 
-        Assert.Throws<ArgumentException>(() => new MethodAsProperty(method));
+        Assert.That(() => new MethodAsProperty(method), Throws.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -80,6 +80,6 @@ public class MethodAsPropertyTest : CoreTestBase
     public void Parameter_length_must_match_required_number_of_parameters()
     {
         IMethod method = type.of<string>().GetMethods(nameof(string.Substring)).First();
-        Assert.Throws<ArgumentException>(() => new MethodAsProperty(method));
+        Assert.That(() => new MethodAsProperty(method), Throws.TypeOf<ArgumentException>());
     }
 }

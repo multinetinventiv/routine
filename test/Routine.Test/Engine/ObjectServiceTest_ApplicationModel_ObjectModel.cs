@@ -131,7 +131,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model["Module.BusinessModel"];
 
-            Assert.AreEqual("Module", actual.Module);
+            Assert.That(actual.Module, Is.EqualTo("Module"));
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model["Test.BM"];
 
-            Assert.AreEqual("BM", actual.Name);
+            Assert.That(actual.Name, Is.EqualTo("BM"));
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model["Module.BM"];
 
-            Assert.AreEqual("Module.BM", actual.Id);
+            Assert.That(actual.Id, Is.EqualTo("Module.BM"));
         }
 
         [Test]
@@ -169,11 +169,11 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model["BM"];
 
-            Assert.AreEqual("BM", actual.Id);
+            Assert.That(actual.Id, Is.EqualTo("BM"));
 
             actual = _testing.ApplicationModel.Model["BVM"];
 
-            Assert.AreEqual("BVM", actual.Id);
+            Assert.That(actual.Id, Is.EqualTo("BVM"));
         }
 
         [Test]
@@ -187,11 +187,11 @@ namespace Routine.Test.Engine
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var vam = _testing.ApplicationModel.Model[TESTED_VAM_ID];
 
-            Assert.IsFalse(om.Marks.Contains("value"));
-            Assert.IsTrue(vam.Marks.Contains("value"));
+            Assert.That(om.Marks.Contains("value"), Is.False);
+            Assert.That(vam.Marks.Contains("value"), Is.True);
 
-            Assert.IsTrue(om.Marks.Contains("all"));
-            Assert.IsTrue(vam.Marks.Contains("all"));
+            Assert.That(om.Marks.Contains("all"), Is.True);
+            Assert.That(vam.Marks.Contains("all"), Is.True);
         }
 
         [Test]
@@ -199,7 +199,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model["System.String"];
 
-            Assert.IsTrue(actual.IsValueModel);
+            Assert.That(actual.IsValueModel, Is.True);
         }
 
         [Test]
@@ -207,10 +207,10 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_EM_ID].StaticInstances;
 
-            Assert.AreEqual(3, actual.Count);
-            Assert.AreEqual("Item1", actual[0].Id);
-            Assert.AreEqual("Item2", actual[1].Id);
-            Assert.AreEqual("Item3", actual[2].Id);
+            Assert.That(actual.Count, Is.EqualTo(3));
+            Assert.That(actual[0].Id, Is.EqualTo("Item1"));
+            Assert.That(actual[1].Id, Is.EqualTo("Item2"));
+            Assert.That(actual[2].Id, Is.EqualTo("Item3"));
         }
 
         [Test]
@@ -218,8 +218,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_VAM_ID];
 
-            Assert.AreEqual(0, actual.Datas.Count);
-            Assert.AreEqual(0, actual.Operations.Count);
+            Assert.That(actual.Datas.Count, Is.EqualTo(0));
+            Assert.That(actual.Operations.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -227,7 +227,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_VIM_ID];
 
-            Assert.IsTrue(actual.IsViewModel);
+            Assert.That(actual.IsViewModel, Is.True);
         }
 
         [Test]
@@ -240,7 +240,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.ViewModelIds.Contains(TESTED_VIM_ID));
+            Assert.That(actual.ViewModelIds.Contains(TESTED_VIM_ID), Is.True);
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.ViewModelIds.Any(vmid => vmid.Contains("IIgnoredModel")));
+            Assert.That(actual.ViewModelIds.Any(vmid => vmid.Contains("IIgnoredModel")), Is.False);
         }
 
         [Test]
@@ -266,7 +266,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_VIM_ID];
 
-            Assert.IsTrue(actual.ActualModelIds.Contains(TESTED_OM_ID));
+            Assert.That(actual.ActualModelIds.Contains(TESTED_OM_ID), Is.True);
         }
 
         [Test]
@@ -276,7 +276,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_VIM2_ID];
 
-            Assert.IsFalse(actual.ActualModelIds.Contains(TESTED_VIM_ID));
+            Assert.That(actual.ActualModelIds.Contains(TESTED_VIM_ID), Is.False);
         }
 
         [Test]
@@ -289,8 +289,8 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.ViewModelIds.Contains(TESTED_OM_ID));
-            Assert.IsFalse(actual.ActualModelIds.Contains(TESTED_OM_ID));
+            Assert.That(actual.ViewModelIds.Contains(TESTED_OM_ID), Is.False);
+            Assert.That(actual.ActualModelIds.Contains(TESTED_OM_ID), Is.False);
         }
 
         [Test]
@@ -298,7 +298,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.Greater(actual.Initializer.GroupCount, 0);
+            Assert.That(actual.Initializer.GroupCount, Is.GreaterThan(0));
         }
 
         [Test]
@@ -310,7 +310,7 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.IsTrue(actual.Initializer.Marks.Contains("parametric"));
+            Assert.That(actual.Initializer.Marks.Contains("parametric"), Is.True);
         }
 
         [Test]
@@ -322,11 +322,12 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.IsFalse(actual.Initializer.Parameters.Any(p => p.ViewModelId.Contains("Ignored")),
+            Assert.That(actual.Initializer.Parameters.Any(p => p.ViewModelId.Contains("Ignored")),
+                Is.False,
                 "Initializers that accept an 'Ignored' type as a parameter should have been excluded: " +
                 $"{string.Join(", ", actual.Initializer.Parameters.Where(p => p.ViewModelId.Contains("Ignored")).Select(p => p.Name))}"
             );
-            Assert.AreEqual(2, actual.Initializer.GroupCount);
+            Assert.That(actual.Initializer.GroupCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -334,10 +335,10 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Datas.Any(m => m.Name == "Id"));
-            Assert.AreEqual("System.Int32", actual.Datas.Single(m => m.Name == "Id").ViewModelId);
-            Assert.IsTrue(actual.Datas.Any(m => m.Name == "List"));
-            Assert.AreEqual("System.String", actual.Datas.Single(m => m.Name == "List").ViewModelId);
+            Assert.That(actual.Datas.Any(m => m.Name == "Id"), Is.True);
+            Assert.That(actual.Datas.Single(m => m.Name == "Id").ViewModelId, Is.EqualTo("System.Int32"));
+            Assert.That(actual.Datas.Any(m => m.Name == "List"), Is.True);
+            Assert.That(actual.Datas.Single(m => m.Name == "List").ViewModelId, Is.EqualTo("System.String"));
         }
 
         [Test]
@@ -349,8 +350,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(om.Datas.Single(m => m.Name == "Id").Marks.Contains("heavy"));
-            Assert.IsTrue(om.Datas.Single(m => m.Name == "List").Marks.Contains("heavy"));
+            Assert.That(om.Datas.Single(m => m.Name == "Id").Marks.Contains("heavy"), Is.False);
+            Assert.That(om.Datas.Single(m => m.Name == "List").Marks.Contains("heavy"), Is.True);
         }
 
         [Test]
@@ -358,8 +359,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Datas.Single(m => m.Name == "Id").IsList);
-            Assert.IsTrue(actual.Datas.Single(m => m.Name == "List").IsList);
+            Assert.That(actual.Datas.Single(m => m.Name == "Id").IsList, Is.False);
+            Assert.That(actual.Datas.Single(m => m.Name == "List").IsList, Is.True);
         }
 
         [Test]
@@ -367,7 +368,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Datas.Any(d => d.ViewModelId.Contains("Ignored")),
+            Assert.That(actual.Datas.Any(d => d.ViewModelId.Contains("Ignored")),
+                Is.False,
                 "Properties that returns an 'Ignored' type should have been excluded: " +
                 $"{string.Join(", ", actual.Datas.Where(d => d.ViewModelId.Contains("Ignored")).Select(d => d.Name))}"
             );
@@ -378,12 +380,12 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operations.Any(o => o.Name == "VoidOp"));
-            Assert.AreEqual(MODEL_ID_VOID, actual.Operations.Single(o => o.Name == "VoidOp").Result.ViewModelId);
-            Assert.IsTrue(actual.Operations.Any(o => o.Name == "StringOp"));
-            Assert.AreEqual("System.String", actual.Operations.Single(o => o.Name == "StringOp").Result.ViewModelId);
-            Assert.IsTrue(actual.Operations.Any(o => o.Name == "ListOp"));
-            Assert.AreEqual("System.String", actual.Operations.Single(o => o.Name == "ListOp").Result.ViewModelId);
+            Assert.That(actual.Operations.Any(o => o.Name == "VoidOp"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "VoidOp").Result.ViewModelId, Is.EqualTo(MODEL_ID_VOID));
+            Assert.That(actual.Operations.Any(o => o.Name == "StringOp"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Result.ViewModelId, Is.EqualTo("System.String"));
+            Assert.That(actual.Operations.Any(o => o.Name == "ListOp"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Result.ViewModelId, Is.EqualTo("System.String"));
         }
 
         [Test]
@@ -395,9 +397,9 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "VoidOp").Marks.Contains("heavy"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Marks.Contains("heavy"));
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Marks.Contains("heavy"));
+            Assert.That(om.Operations.Single(o => o.Name == "VoidOp").Marks.Contains("heavy"), Is.False);
+            Assert.That(om.Operations.Single(o => o.Name == "StringOp").Marks.Contains("heavy"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "ListOp").Marks.Contains("heavy"), Is.False);
         }
 
         [Test]
@@ -405,9 +407,9 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operation["VoidOp"].Result.IsVoid);
-            Assert.IsFalse(actual.Operation["StringOp"].Result.IsVoid);
-            Assert.IsFalse(actual.Operation["ListOp"].Result.IsVoid);
+            Assert.That(actual.Operation["VoidOp"].Result.IsVoid, Is.True);
+            Assert.That(actual.Operation["StringOp"].Result.IsVoid, Is.False);
+            Assert.That(actual.Operation["ListOp"].Result.IsVoid, Is.False);
         }
 
         [Test]
@@ -415,9 +417,9 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "VoidOp").Result.IsList);
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "StringOp").Result.IsList);
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "ListOp").Result.IsList);
+            Assert.That(actual.Operations.Single(o => o.Name == "VoidOp").Result.IsList, Is.False);
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Result.IsList, Is.False);
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Result.IsList, Is.True);
         }
 
         [Test]
@@ -425,7 +427,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID].Operation["AsyncVoidOp"];
 
-            Assert.IsTrue(actual.Result.IsVoid);
+            Assert.That(actual.Result.IsVoid, Is.True);
         }
 
         [Test]
@@ -433,7 +435,7 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID].Operation["AsyncStringOp"];
 
-            Assert.AreEqual("System.String", actual.Result.ViewModelId);
+            Assert.That(actual.Result.ViewModelId, Is.EqualTo("System.String"));
         }
 
         [Test]
@@ -441,7 +443,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Operations.Any(o => o.Result.ViewModelId.Contains("Ignored")),
+            Assert.That(actual.Operations.Any(o => o.Result.ViewModelId.Contains("Ignored")),
+                Is.False,
                 "Operations that returns an 'Ignored' type should have been excluded: " +
                 $"{string.Join(", ", actual.Operations.Where(o => o.Result.ViewModelId.Contains("Ignored")).Select(o => o.Name))}"
             );
@@ -452,11 +455,11 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.AreEqual(2, actual.Initializer.Parameters.Count);
-            Assert.AreEqual("data", actual.Initializer.Parameters[0].Name);
-            Assert.AreEqual("System.String", actual.Initializer.Parameters[0].ViewModelId);
-            Assert.AreEqual("i", actual.Initializer.Parameters[1].Name);
-            Assert.AreEqual("System.Int32", actual.Initializer.Parameters[1].ViewModelId);
+            Assert.That(actual.Initializer.Parameters.Count, Is.EqualTo(2));
+            Assert.That(actual.Initializer.Parameters[0].Name, Is.EqualTo("data"));
+            Assert.That(actual.Initializer.Parameters[0].ViewModelId, Is.EqualTo("System.String"));
+            Assert.That(actual.Initializer.Parameters[1].Name, Is.EqualTo("i"));
+            Assert.That(actual.Initializer.Parameters[1].ViewModelId, Is.EqualTo("System.Int32"));
         }
 
         [Test]
@@ -464,13 +467,13 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.AreEqual(0, actual.Operations.Single(o => o.Name == "VoidOp").Parameters.Count);
-            Assert.AreEqual(1, actual.Operations.Single(o => o.Name == "StringOp").Parameters.Count);
-            Assert.AreEqual("list", actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].Name);
-            Assert.AreEqual("System.String", actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].ViewModelId);
-            Assert.AreEqual(1, actual.Operations.Single(o => o.Name == "ListOp").Parameters.Count);
-            Assert.AreEqual("boolParam", actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].Name);
-            Assert.AreEqual("System.Boolean", actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].ViewModelId);
+            Assert.That(actual.Operations.Single(o => o.Name == "VoidOp").Parameters.Count, Is.EqualTo(0));
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Parameters.Count, Is.EqualTo(1));
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].Name, Is.EqualTo("list"));
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].ViewModelId, Is.EqualTo("System.String"));
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Parameters.Count, Is.EqualTo(1));
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].Name, Is.EqualTo("boolParam"));
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].ViewModelId, Is.EqualTo("System.Boolean"));
         }
 
         [Test]
@@ -478,7 +481,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsFalse(actual.Operations.Any(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))),
+            Assert.That(actual.Operations.Any(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))),
+                Is.False,
                 "Operations that accept an 'Ignored' type as a parameter should have been excluded: " +
                 $"{string.Join(", ", actual.Operations.Where(o => o.Parameters.Any(p => p.ViewModelId.Contains("Ignored"))).Select(o => o.Name))}"
             );
@@ -489,8 +493,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].IsList);
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].IsList);
+            Assert.That(actual.Operations.Single(o => o.Name == "StringOp").Parameters[0].IsList, Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "ListOp").Parameters[0].IsList, Is.False);
         }
 
         [Test]
@@ -498,9 +502,9 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID].Operations.Single(o => o.Name == "OptionalParameterOp");
 
-            Assert.IsFalse(actual.Parameters[0].IsOptional);
-            Assert.IsTrue(actual.Parameters[1].IsOptional);
-            Assert.AreEqual("default", actual.Parameters[1].DefaultValue.Values[0].Id);
+            Assert.That(actual.Parameters[0].IsOptional, Is.False);
+            Assert.That(actual.Parameters[1].IsOptional, Is.True);
+            Assert.That(actual.Parameters[1].DefaultValue.Values[0].Id, Is.EqualTo("default"));
         }
 
         [Test]
@@ -508,8 +512,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID].Operations.Single(o => o.Name == "NullableParameterOp");
 
-            Assert.AreEqual("System.Int32?", actual.Parameters[0].ViewModelId);
-            Assert.AreEqual("System.Int32?", actual.Result.ViewModelId);
+            Assert.That(actual.Parameters[0].ViewModelId, Is.EqualTo("System.Int32?"));
+            Assert.That(actual.Result.ViewModelId, Is.EqualTo("System.Int32?"));
         }
 
         [Test]
@@ -521,8 +525,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "StringOp").Parameters[0].Marks.Contains("list"));
-            Assert.IsFalse(om.Operations.Single(o => o.Name == "ListOp").Parameters[0].Marks.Contains("list"));
+            Assert.That(om.Operations.Single(o => o.Name == "StringOp").Parameters[0].Marks.Contains("list"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "ListOp").Parameters[0].Marks.Contains("list"), Is.False);
         }
 
         [Test]
@@ -530,8 +534,8 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.AreEqual(new List<int> { 0, 1 }, actual.Initializer.Parameters.Single(p => p.Name == "data").Groups);
-            Assert.AreEqual(new List<int> { 1 }, actual.Initializer.Parameters.Single(p => p.Name == "i").Groups);
+            Assert.That(actual.Initializer.Parameters.Single(p => p.Name == "data").Groups, Is.EqualTo(new List<int> { 0, 1 }));
+            Assert.That(actual.Initializer.Parameters.Single(p => p.Name == "i").Groups, Is.EqualTo(new List<int> { 1 }));
         }
 
         [Test]
@@ -543,9 +547,9 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.IsTrue(actual.Initializer.Marks.Contains("ovr-1"));
-            Assert.IsTrue(actual.Initializer.Marks.Contains("ovr-2"));
-            Assert.AreEqual(2, actual.Initializer.Marks.Count);
+            Assert.That(actual.Initializer.Marks.Contains("ovr-1"), Is.True);
+            Assert.That(actual.Initializer.Marks.Contains("ovr-2"), Is.True);
+            Assert.That(actual.Initializer.Marks.Count, Is.EqualTo(2));
         }
 
         [Test]
@@ -553,12 +557,12 @@ namespace Routine.Test.Engine
         {
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operations.Any(m => m.Name.Contains("OverloadOp")));
-            Assert.IsFalse(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Any(p => p.Groups.Contains(0)));
-            Assert.AreEqual(new List<int> { 1, 3, 4 }, actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s").Groups);
-            Assert.AreEqual(new List<int> { 2, 3 }, actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "i").Groups);
-            Assert.AreEqual(new List<int> { 4 }, actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s1").Groups);
-            Assert.AreEqual(new List<int> { 4 }, actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "i1").Groups);
+            Assert.That(actual.Operations.Any(m => m.Name.Contains("OverloadOp")), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Any(p => p.Groups.Contains(0)), Is.False);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s").Groups, Is.EqualTo(new List<int> { 1, 3, 4 }));
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "i").Groups, Is.EqualTo(new List<int> { 2, 3 }));
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s1").Groups, Is.EqualTo(new List<int> { 4 }));
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "i1").Groups, Is.EqualTo(new List<int> { 4 }));
         }
 
         [Test]
@@ -567,7 +571,7 @@ namespace Routine.Test.Engine
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var operation = actual.Operations.Single(o => o.Name == "OverloadOpWithSecondParamUnknown");
 
-            Assert.AreEqual(operation.GroupCount, operation.Parameters.Single(p => p.Name == "value").Groups.Count);
+            Assert.That(operation.Parameters.Single(p => p.Name == "value").Groups.Count, Is.EqualTo(operation.GroupCount));
         }
 
         [Test]
@@ -576,8 +580,8 @@ namespace Routine.Test.Engine
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var operation = actual.Operations.Single(o => o.Name == "OverloadOpWithDifferentParamTypeWithSameName");
 
-            Assert.AreEqual(1, operation.GroupCount);
-            Assert.IsFalse(operation.Parameters.Any(p => p.Name == "param2"), "param2 should not exist, because its overload has been skipped");
+            Assert.That(operation.GroupCount, Is.EqualTo(1));
+            Assert.That(operation.Parameters.Any(p => p.Name == "param2"), Is.False, "param2 should not exist, because its overload has been skipped");
         }
 
         [Test]
@@ -586,8 +590,8 @@ namespace Routine.Test.Engine
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var actual = om.Operations.Single(o => o.Name == "OverloadOp");
 
-            Assert.AreEqual(5, actual.GroupCount);
-            Assert.IsTrue(actual.Result.IsVoid);
+            Assert.That(actual.GroupCount, Is.EqualTo(5));
+            Assert.That(actual.Result.IsVoid, Is.True);
         }
 
         [Test]
@@ -601,11 +605,11 @@ namespace Routine.Test.Engine
 
             var actual = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-0"));
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-1"));
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-2"));
-            Assert.IsTrue(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-3"));
-            Assert.AreEqual(4, actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Count);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-0"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-1"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-2"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Contains("ovr-3"), Is.True);
+            Assert.That(actual.Operations.Single(o => o.Name == "OverloadOp").Marks.Count, Is.EqualTo(4));
         }
 
         [Test]
@@ -620,10 +624,10 @@ namespace Routine.Test.Engine
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var actual = om.Operations.Single(o => o.Name == "OverloadOp").Parameters.Single(p => p.Name == "s");
 
-            Assert.IsTrue(actual.Marks.Contains("ovr-1"));
-            Assert.IsTrue(actual.Marks.Contains("ovr-2"));
-            Assert.IsTrue(actual.Marks.Contains("ovr-3"));
-            Assert.AreEqual(3, actual.Marks.Count);
+            Assert.That(actual.Marks.Contains("ovr-1"), Is.True);
+            Assert.That(actual.Marks.Contains("ovr-2"), Is.True);
+            Assert.That(actual.Marks.Contains("ovr-3"), Is.True);
+            Assert.That(actual.Marks.Count, Is.EqualTo(3));
         }
 
         [Test]
@@ -632,13 +636,13 @@ namespace Routine.Test.Engine
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var actual = om.Operations.Single(o => o.Name == "OverloadOp");
 
-            Assert.AreEqual(5, actual.GroupCount);
-            Assert.IsFalse(actual.Parameters.Any(p => p.ViewModelId == "s-boolean" && p.Name == "s"));
+            Assert.That(actual.GroupCount, Is.EqualTo(5));
+            Assert.That(actual.Parameters.Any(p => p.ViewModelId == "s-boolean" && p.Name == "s"), Is.False);
 
             om = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.AreEqual(2, om.Initializer.GroupCount);
-            Assert.IsFalse(om.Initializer.Parameters.Any(p => p.ViewModelId == "s-int-32" && p.Name == "data"));
+            Assert.That(om.Initializer.GroupCount, Is.EqualTo(2));
+            Assert.That(om.Initializer.Parameters.Any(p => p.ViewModelId == "s-int-32" && p.Name == "data"), Is.False);
         }
 
         [Test]
@@ -647,7 +651,7 @@ namespace Routine.Test.Engine
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
             var actual = om.Operations.Single(o => o.Name == "OverloadOpBug");
 
-            Assert.AreEqual(2, actual.GroupCount);
+            Assert.That(actual.GroupCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -661,8 +665,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.AreEqual(1, om.Operations.Single(o => o.Name == "VoidOp").GroupCount);
-            Assert.AreEqual(1, om.Operations.Single(o => o.Name == "StringOp").GroupCount);
+            Assert.That(om.Operations.Single(o => o.Name == "VoidOp").GroupCount, Is.EqualTo(1));
+            Assert.That(om.Operations.Single(o => o.Name == "StringOp").GroupCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -689,7 +693,7 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_DM_ID];
 
-            Assert.AreEqual(2, om.Initializer.GroupCount);
+            Assert.That(om.Initializer.GroupCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -701,7 +705,7 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.AreEqual("Virtual", om.Name);
+            Assert.That(om.Name, Is.EqualTo("Virtual"));
         }
 
         [Test]
@@ -715,7 +719,7 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.IsTrue(om.Marks.Contains("virtual"));
+            Assert.That(om.Marks.Contains("virtual"), Is.True);
         }
 
         [Test]
@@ -731,8 +735,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.AreEqual(1, om.StaticInstances.Count);
-            Assert.AreEqual("Instance", om.StaticInstances[0].Id);
+            Assert.That(om.StaticInstances.Count, Is.EqualTo(1));
+            Assert.That(om.StaticInstances[0].Id, Is.EqualTo("Instance"));
         }
 
         [Test]
@@ -755,13 +759,13 @@ namespace Routine.Test.Engine
 
             var vom = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.AreEqual(1, vom.ViewModelIds.Count);
-            Assert.AreEqual(TESTED_VVIM_ID, vom.ViewModelIds[0]);
+            Assert.That(vom.ViewModelIds.Count, Is.EqualTo(1));
+            Assert.That(vom.ViewModelIds[0], Is.EqualTo(TESTED_VVIM_ID));
 
             var vvim = _testing.ApplicationModel.Model[TESTED_VVIM_ID];
 
-            Assert.AreEqual(1, vvim.ActualModelIds.Count);
-            Assert.AreEqual(TESTED_VOM_ID, vvim.ActualModelIds[0]);
+            Assert.That(vvim.ActualModelIds.Count, Is.EqualTo(1));
+            Assert.That(vvim.ActualModelIds[0], Is.EqualTo(TESTED_VOM_ID));
         }
 
         [Test]
@@ -777,8 +781,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.IsTrue(om.Operations.Any(o => o.Name == "VoidOp"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "VoidOp").Parameters.Any(p => p.Name == "businessModel" && p.ViewModelId == TESTED_OM_ID));
+            Assert.That(om.Operations.Any(o => o.Name == "VoidOp"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "VoidOp").Parameters.Any(p => p.Name == "businessModel" && p.ViewModelId == TESTED_OM_ID), Is.True);
         }
 
         [Test]
@@ -790,8 +794,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(om.Operations.Any(o => o.Name == "Insert"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "Insert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
+            Assert.That(om.Operations.Any(o => o.Name == "Insert"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "Insert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"), Is.True);
         }
 
         [Test]
@@ -807,8 +811,8 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(om.Operations.Any(o => o.Name == "OverriddenInsert"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "OverriddenInsert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"));
+            Assert.That(om.Operations.Any(o => o.Name == "OverriddenInsert"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "OverriddenInsert").Parameters.Any(p => p.Name == "str" && p.ViewModelId == "System.String"), Is.True);
         }
 
         [Test]
@@ -820,9 +824,9 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_OM_ID];
 
-            Assert.IsTrue(om.Operations.Any(o => o.Name == "Ping"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
-            Assert.AreEqual("System.String", om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId);
+            Assert.That(om.Operations.Any(o => o.Name == "Ping"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId, Is.EqualTo("System.String"));
         }
 
         [Test]
@@ -839,9 +843,9 @@ namespace Routine.Test.Engine
 
             var om = _testing.ApplicationModel.Model[TESTED_VOM_ID];
 
-            Assert.IsTrue(om.Operations.Any(o => o.Name == "Ping"));
-            Assert.IsTrue(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"));
-            Assert.AreEqual("System.String", om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId);
+            Assert.That(om.Operations.Any(o => o.Name == "Ping"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "Ping").Parameters.Any(p => p.Name == "input" && p.ViewModelId == "System.String"), Is.True);
+            Assert.That(om.Operations.Single(o => o.Name == "Ping").Result.ViewModelId, Is.EqualTo("System.String"));
         }
     }
 }

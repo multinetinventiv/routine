@@ -15,14 +15,14 @@ public class SingletonLocatorTest
     {
         var actual = await locator.LocateAsync(type.of<string>(), new List<string> { string.Empty, string.Empty });
 
-        Assert.AreEqual("located: System.String", actual[0]);
-        Assert.AreEqual("located: System.String", actual[1]);
+        Assert.That(actual[0], Is.EqualTo("located: System.String"));
+        Assert.That(actual[1], Is.EqualTo("located: System.String"));
     }
 
     [Test]
     public void When_no_delegate_was_given__it_throws_ArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().Singleton(null as Func<IType, IEnumerable>));
-        Assert.Throws<ArgumentNullException>(() => BuildRoutine.Locator().Singleton(null as Func<IType, Task<IEnumerable>>));
+        Assert.That(() => BuildRoutine.Locator().Singleton(null as Func<IType, IEnumerable>), Throws.TypeOf<ArgumentNullException>());
+        Assert.That(() => BuildRoutine.Locator().Singleton(null as Func<IType, Task<IEnumerable>>), Throws.TypeOf<ArgumentNullException>());
     }
 }

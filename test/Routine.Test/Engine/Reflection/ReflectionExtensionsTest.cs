@@ -88,75 +88,75 @@ public class ReflectionExtensionsTest : CoreTestBase
     [Test]
     public void Test_ToCSharpString()
     {
-        Assert.AreEqual("global::System.Nullable<global::System.Int32>", typeof(int?).ToCSharpString());
-        Assert.AreEqual("Nullable<Int32>", typeof(int?).ToCSharpString(false));
+        Assert.That(typeof(int?).ToCSharpString(), Is.EqualTo("global::System.Nullable<global::System.Int32>"));
+        Assert.That(typeof(int?).ToCSharpString(false), Is.EqualTo("Nullable<Int32>"));
     }
 
     [Test]
     public void Test_CanParse()
     {
-        Assert.IsTrue(typeof(int).CanParse());
-        Assert.IsTrue(typeof(ParseableEvenIfThereAreOverloads).CanParse());
+        Assert.That(typeof(int).CanParse(), Is.True);
+        Assert.That(typeof(ParseableEvenIfThereAreOverloads).CanParse(), Is.True);
 
-        Assert.IsFalse(typeof(NotParseableBecauseMethodDoesNotReturnItsOwnInstance).CanParse());
-        Assert.IsFalse(typeof(NotParseableBecauseMethodDoesNotAcceptStringParameter).CanParse());
-        Assert.IsFalse(typeof(NotParseableBecauseMethodIsNotStatic).CanParse());
-        Assert.IsFalse(typeof(NotParseableBecauseMethodDoesNotHaveOneParameter).CanParse());
+        Assert.That(typeof(NotParseableBecauseMethodDoesNotReturnItsOwnInstance).CanParse(), Is.False);
+        Assert.That(typeof(NotParseableBecauseMethodDoesNotAcceptStringParameter).CanParse(), Is.False);
+        Assert.That(typeof(NotParseableBecauseMethodIsNotStatic).CanParse(), Is.False);
+        Assert.That(typeof(NotParseableBecauseMethodDoesNotHaveOneParameter).CanParse(), Is.False);
     }
 
     [Test]
     public void Test_IsNullable()
     {
-        Assert.IsTrue(typeof(int?).IsNullable());
-        Assert.IsFalse(typeof(int).IsNullable());
-        Assert.IsFalse(typeof(List<int>).IsNullable());
+        Assert.That(typeof(int?).IsNullable(), Is.True);
+        Assert.That(typeof(int).IsNullable(), Is.False);
+        Assert.That(typeof(List<int>).IsNullable(), Is.False);
     }
 
     [Test]
     public void Test_IParametric_HasParameters()
     {
-        Assert.IsTrue(Method(type.ofvoid()).HasNoParameters());
-        Assert.IsTrue(Method(type.ofvoid(), type.of<string>()).HasParameters<string>());
-        Assert.IsTrue(Method(type.ofvoid(), type.of<string>(), type.of<int>()).HasParameters<string, int>());
-        Assert.IsTrue(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>()).HasParameters<string, int, double>());
-        Assert.IsTrue(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>(), type.of<decimal>()).HasParameters<string, int, double, decimal>());
+        Assert.That(Method(type.ofvoid()).HasNoParameters(), Is.True);
+        Assert.That(Method(type.ofvoid(), type.of<string>()).HasParameters<string>(), Is.True);
+        Assert.That(Method(type.ofvoid(), type.of<string>(), type.of<int>()).HasParameters<string, int>(), Is.True);
+        Assert.That(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>()).HasParameters<string, int, double>(), Is.True);
+        Assert.That(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>(), type.of<decimal>()).HasParameters<string, int, double, decimal>(), Is.True);
 
-        Assert.IsFalse(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>()).HasParameters<string, int>());
+        Assert.That(Method(type.ofvoid(), type.of<string>(), type.of<int>(), type.of<double>()).HasParameters<string, int>(), Is.False);
     }
 
     [Test]
     public void Test_IParametric_ReturnsVoid()
     {
-        Assert.IsTrue(Method(type.ofvoid()).ReturnsVoid());
-        Assert.IsFalse(Method(type.of<string>()).ReturnsVoid());
+        Assert.That(Method(type.ofvoid()).ReturnsVoid(), Is.True);
+        Assert.That(Method(type.of<string>()).ReturnsVoid(), Is.False);
     }
 
     [Test]
     public void Test_IReturnable_Returns()
     {
-        Assert.IsTrue(Method(type.of<string>()).Returns(type.of<object>()));
-        Assert.IsFalse(Method(type.of<int>()).Returns(type.of<string>()));
+        Assert.That(Method(type.of<string>()).Returns(type.of<object>()), Is.True);
+        Assert.That(Method(type.of<int>()).Returns(type.of<string>()), Is.False);
 
-        Assert.IsTrue(Method(type.of<List<string>>()).ReturnsCollection());
-        Assert.IsTrue(Method(type.of<List<string>>()).ReturnsCollection(type.of<object>()));
-        Assert.IsFalse(Method(type.of<IList>()).ReturnsCollection(type.of<string>()));
+        Assert.That(Method(type.of<List<string>>()).ReturnsCollection(), Is.True);
+        Assert.That(Method(type.of<List<string>>()).ReturnsCollection(type.of<object>()), Is.True);
+        Assert.That(Method(type.of<IList>()).ReturnsCollection(type.of<string>()), Is.False);
 
         //generic
-        Assert.IsTrue(Method(type.of<string>()).Returns<string>());
-        Assert.IsTrue(Method(type.of<List<string>>()).ReturnsCollection<string>());
+        Assert.That(Method(type.of<string>()).Returns<string>(), Is.True);
+        Assert.That(Method(type.of<List<string>>()).ReturnsCollection<string>(), Is.True);
 
         //with name parameter
-        Assert.IsFalse(Method("Right", type.of<string>()).Returns(type.of<string>(), "Wrong"));
-        Assert.IsFalse(Method("Right", type.of<List<string>>()).ReturnsCollection(type.of<string>(), "Wrong"));
+        Assert.That(Method("Right", type.of<string>()).Returns(type.of<string>(), "Wrong"), Is.False);
+        Assert.That(Method("Right", type.of<List<string>>()).ReturnsCollection(type.of<string>(), "Wrong"), Is.False);
     }
 
     [Test]
     public void Test_ITypeComponent_Has()
     {
-        Assert.IsTrue(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has<AttributeUsageAttribute>());
-        Assert.IsTrue(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has(type.of<AttributeUsageAttribute>()));
+        Assert.That(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has<AttributeUsageAttribute>(), Is.True);
+        Assert.That(TypeComponent(new AttributeUsageAttribute(AttributeTargets.Method)).Has(type.of<AttributeUsageAttribute>()), Is.True);
 
-        Assert.IsFalse(TypeComponent().Has<AttributeUsageAttribute>());
-        Assert.IsFalse(TypeComponent().Has(type.of<AttributeUsageAttribute>()));
+        Assert.That(TypeComponent().Has<AttributeUsageAttribute>(), Is.False);
+        Assert.That(TypeComponent().Has(type.of<AttributeUsageAttribute>()), Is.False);
     }
 }

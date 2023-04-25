@@ -34,16 +34,16 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             before: () => "test string",
-            success: actual => Assert.AreEqual("test string", actual),
-            fail: actual => Assert.AreEqual("test string", actual),
-            after: actual => Assert.AreEqual("test string", actual)
+            success: actual => Assert.That(actual, Is.EqualTo("test string")),
+            fail: actual => Assert.That(actual, Is.EqualTo("test string")),
+            after: actual => Assert.That(actual, Is.EqualTo("test string"))
         );
 
         _invocation.Intercept(testing);
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
@@ -51,16 +51,16 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             before: () => "interceptor1",
-            success: actual => Assert.AreEqual("interceptor1", actual),
-            fail: actual => Assert.AreEqual("interceptor1", actual),
-            after: actual => Assert.AreEqual("interceptor1", actual)
+            success: actual => Assert.That(actual, Is.EqualTo("interceptor1")),
+            fail: actual => Assert.That(actual, Is.EqualTo("interceptor1")),
+            after: actual => Assert.That(actual, Is.EqualTo("interceptor1"))
         );
 
         var testingOther = _builder.Build(
             before: () => 2,
-            success: actual => Assert.AreEqual(2, actual),
-            fail: actual => Assert.AreEqual(2, actual),
-            after: actual => Assert.AreEqual(2, actual)
+            success: actual => Assert.That(actual, Is.EqualTo(2)),
+            fail: actual => Assert.That(actual, Is.EqualTo(2)),
+            after: actual => Assert.That(actual, Is.EqualTo(2))
         );
 
         _invocation.Intercept(testing);
@@ -76,7 +76,7 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
@@ -84,9 +84,9 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
     {
         var testing = _builder.Build(
             beforeCtx: ctx => ctx["value"] as string,
-            successCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
-            failCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual),
-            afterCtx: (ctx, actual) => Assert.AreSame(ctx["value"], actual)
+            successCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"])),
+            failCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"])),
+            afterCtx: (ctx, actual) => Assert.That(actual, Is.SameAs(ctx["value"]))
         );
 
         _invocation.Context["value"] = "dummy";
@@ -95,21 +95,21 @@ public class DecoratorInterceptorTest<TBuilder, TInvocation> : CoreTestBase
 
         _invocation.FailsWith(new Exception());
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>());
     }
 
     [Test]
     public void When_variable_could_not_be_retrieved_during_before_delegate__fail_and_after_are_skipped()
     {
         var testing = _builder.Build(
-            before: () => Throw<string>(new Exception()),
-            success: _ => Assert.Fail("should not be called"),
-            fail: _ => Assert.Fail("should be skipped"),
-            after: _ => Assert.Fail("should be skipped")
+            before: () => Throw<string>(new Exception(message: "expected")),
+            success: _ => Throw<string>(new Exception(message: "should not be called")),
+            fail: _ => Throw<string>(new Exception(message: "should be skipped")),
+            after: _ => Throw<string>(new Exception(message: "should be skipped"))
         );
 
         _invocation.Context["value"] = "dummy";
 
-        Assert.Throws<Exception>(() => _invocation.Intercept(testing));
+        Assert.That(() => _invocation.Intercept(testing), Throws.TypeOf<Exception>().With.Property("Message").EqualTo("expected"));
     }
 }

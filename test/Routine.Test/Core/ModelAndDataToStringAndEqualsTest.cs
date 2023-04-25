@@ -29,24 +29,24 @@ public class ModelAndDataToStringAndEqualsTest : CoreTestBase
 
     private void AssertEqualsAndHasSameHashCode<T>(T left, T right)
     {
-        Assert.IsTrue(left.Equals(right), $"{left} and {right} should be equal");
-        Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
+        Assert.That(left.Equals(right), Is.True, $"{left} and {right} should be equal");
+        Assert.That(left.GetHashCode(), Is.EqualTo(right.GetHashCode()));
     }
 
     private void AssertDoesNotEqualAndHasDifferentHashCode<T>(T left, T right)
     {
-        Assert.IsFalse(left.Equals(right), $"{left} and {right} should not be equal");
-        Assert.AreNotEqual(left.GetHashCode(), right.GetHashCode());
+        Assert.That(left.Equals(right), Is.False, $"{left} and {right} should not be equal");
+        Assert.That(left.GetHashCode(), Is.Not.EqualTo(right.GetHashCode()));
     }
 
     private void AssertToStringHasTypeName<T>(T unitUnderTest) =>
-        Assert.IsTrue(unitUnderTest.ToString()?.Contains(typeof(T).Name), $"{WrongToString(unitUnderTest.ToString())}, Expected: {typeof(T).Name}");
+        Assert.That($"{unitUnderTest}", Contains.Substring(typeof(T).Name), $"{WrongToString(unitUnderTest.ToString())}, Expected:{typeof(T).Name}");
 
     private void AssertToStringHasProperty<T>(T unitUnderTest, string propertyName) =>
-        Assert.IsTrue(unitUnderTest.ToString()?.Contains($"{propertyName}: "), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: ");
+        Assert.That($"{unitUnderTest}", Contains.Substring($"{propertyName}: "), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: ");
 
     private void AssertToStringHasPropertyAndItsValue<T>(T unitUnderTest, string propertyName, object propertyValue) =>
-        Assert.IsTrue(unitUnderTest.ToString()?.Contains($"{propertyName}: {propertyValue}"), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: {propertyValue}");
+        Assert.That($"{unitUnderTest}", Contains.Substring($"{propertyName}: {propertyValue}"), $"{WrongToString(unitUnderTest.ToString())}, Expected: {propertyName}: {propertyValue}");
 
     private string WrongToString(string toString) => $"Wrong ToString: {toString}";
 
