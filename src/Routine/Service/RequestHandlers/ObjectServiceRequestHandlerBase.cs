@@ -36,7 +36,7 @@ public abstract class ObjectServiceRequestHandlerBase : RequestHandlerBase
                 var responseHeaderValue = ServiceContext.ServiceConfiguration.GetResponseHeaderValue(responseHeader);
                 if (!string.IsNullOrEmpty(responseHeaderValue))
                 {
-                    HttpContext.Response.Headers.Add(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
+                    HttpContext.Response.Headers.Append(responseHeader, HttpUtility.UrlEncode(responseHeaderValue));
                 }
             }
 

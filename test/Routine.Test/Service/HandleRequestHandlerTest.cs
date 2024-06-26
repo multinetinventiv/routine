@@ -382,7 +382,7 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model"));
         ObjectsAre(Object(Id("3", "model")));
 
-        _requestHeaders.Add("test", "value");
+        _requestHeaders.Append("test", "value");
 
         _config.RequestHeaders.Add("test");
         _config.RequestHeaderProcessors.Add(header.Object);
@@ -402,7 +402,7 @@ public class HandleRequestHandlerTest : CoreTestBase
         ModelsAre(Model("model").Operation("action"));
         ObjectsAre(Object(Id("3", "model")));
 
-        _requestHeaders.Add("test", "value");
+        _requestHeaders.Append("test", "value");
 
         _config.RequestHeaders.Add("test");
         _config.RequestHeaderProcessors.Add(header.Object);
@@ -419,7 +419,7 @@ public class HandleRequestHandlerTest : CoreTestBase
     {
         var header = new Mock<IHeaderProcessor>();
 
-        _requestHeaders.Add("test", "value");
+        _requestHeaders.Append("test", "value");
 
         _config.RequestHeaders.Add("test");
         _config.RequestHeaderProcessors.Add(header.Object);
