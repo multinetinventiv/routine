@@ -233,7 +233,9 @@ public abstract class TypeInfo : IType
     #endregion
 }
 
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 public static class type
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 {
     public static TypeInfo of<T>() => TypeInfo.Get<T>();
     public static TypeInfo ofvoid() => TypeInfo.Void();
