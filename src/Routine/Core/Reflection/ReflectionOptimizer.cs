@@ -82,6 +82,12 @@ internal class ReflectionOptimizer
     {
         var result = new Dictionary<MethodBase, IMethodInvoker>();
 
+        if (_methods.Count == 0)
+        {
+            Optimized?.Invoke(null, EventArgs.Empty);
+            return result;
+        }
+
         var compiler = new CodeCompiler();
 
         compiler.AddReferenceFrom<IMethodInvoker>();
@@ -104,11 +110,11 @@ internal class ReflectionOptimizer
                 continue;
             }
 
-            var template = new OptimizedMethodInvokerTemplate(method);
-
-            methodsByName[template.InvokerTypeName] = method;
-
-            compiler.AddCode(template.Render());
+            using (var template = new OptimizedMethodInvokerTemplate(method))
+            {
+                methodsByName[template.InvokerTypeName] = method;
+                compiler.AddCode(template.Render());
+            }
 
             compiler.AddReferenceFrom(method.ReflectedType);
             compiler.AddReferenceFrom(method.DeclaringType);

@@ -1,24 +1,25 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Microsoft.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
 namespace Routine.Core.Reflection;
 
-public class CodeCompiler
+internal class CodeCompiler
 {
     private readonly StringBuilder _code = new();
     private readonly Dictionary<string, MetadataReference> _references = new();
+    private HashSet<Type> _visits = new();
 
-    public bool HasCode => _code.Length > 0;
+    internal bool HasCode => _code.Length > 0;
 
-    public void AddCode(string code)
+    internal void AddCode(string code)
     {
         _code.AppendLine(code);
     }
 
-    public void AddReference(Assembly assembly)
+    internal void AddReference(Assembly assembly)
     {
         if (_references.ContainsKey(assembly.Location)) { return; }
 
@@ -30,9 +31,36 @@ public class CodeCompiler
         }
     }
 
-    public void AddReferenceFrom<T>() => AddReferenceFrom(typeof(T));
-    public void AddReferenceFrom(Type type) => RecursiveAddReferenceFrom(type, new HashSet<Type>());
-    private void RecursiveAddReferenceFrom(Type type, HashSet<Type> visits)
+    internal void AddReferenceFrom<T>() => AddReferenceFrom(typeof(T));
+
+    internal void AddReferenceFrom(Type type) => RecursiveAddReferenceFrom(type, ref _visits);
+
+    internal Assembly Compile()
+    {
+        var compilation = CSharpCompilation.Create(
+            assemblyName: Path.GetRandomFileName(),
+            syntaxTrees: new[]
+            {
+                CSharpSyntaxTree.ParseText(text: $"{_code}")
+            },
+            references: _references.Values,
+            options: new CSharpCompilationOptions(
+                outputKind: OutputKind.DynamicallyLinkedLibrary,
+                optimizationLevel: OptimizationLevel.Release,
+                platform: Platform.AnyCpu
+            )
+        );
+
+        using var ms = new MemoryStream();
+        var results = compilation.Emit(peStream: ms);
+
+        ValidateCompilerResults(result: results);
+        ms.Position = 0;
+        _visits.Clear();
+        return Assembly.Load(rawAssembly: ms.ToArray());
+    }
+
+    private void RecursiveAddReferenceFrom(Type type, ref HashSet<Type> visits)
     {
         if (type == null) { return; }
         if (visits.Contains(type)) { return; }
@@ -45,36 +73,16 @@ public class CodeCompiler
         {
             foreach (var genericArg in type.GetGenericArguments())
             {
-                RecursiveAddReferenceFrom(genericArg, visits);
+                RecursiveAddReferenceFrom(genericArg, ref visits);
             }
         }
 
-        RecursiveAddReferenceFrom(type.BaseType, visits);
+        RecursiveAddReferenceFrom(type.BaseType, ref visits);
 
         foreach (var interfaceType in type.GetInterfaces())
         {
-            RecursiveAddReferenceFrom(interfaceType, visits);
+            RecursiveAddReferenceFrom(interfaceType, ref visits);
         }
-    }
-
-    public Assembly Compile()
-    {
-        var compilation = CSharpCompilation.Create(
-            Path.GetRandomFileName(),
-            syntaxTrees: new[] { CSharpSyntaxTree.ParseText($"{_code}") },
-            references: _references.Values,
-            options: new(OutputKind.DynamicallyLinkedLibrary)
-        );
-
-        using var ms = new MemoryStream();
-
-        var results = compilation.Emit(ms);
-
-        ValidateCompilerResults(results);
-
-        ms.Seek(0, SeekOrigin.Begin);
-
-        return Assembly.Load(ms.ToArray());
     }
 
     private void ValidateCompilerResults(EmitResult result)

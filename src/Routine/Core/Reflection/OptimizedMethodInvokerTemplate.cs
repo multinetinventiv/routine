@@ -2,39 +2,39 @@
 
 namespace Routine.Core.Reflection;
 
-public class OptimizedMethodInvokerTemplate
+public class OptimizedMethodInvokerTemplate : IDisposable
 {
     private readonly MethodBase _method;
     private readonly InvocationType _invocationType;
+    private readonly string _referenceId;
 
     public OptimizedMethodInvokerTemplate(MethodBase method)
     {
         _method = method;
-
         _invocationType = ResolveInvocationType();
+        _referenceId = $"{_method.GetHashCode()}".Replace(" ", string.Empty).Replace("-", string.Empty);
     }
 
     public string InvokerTypeName => Name;
     public string Render() => $@"
-namespace {Namespace}
-{{
-    public class {Name} : {NameOf<IMethodInvoker>()}
-    {{
-        public object Invoke(object target, params object[] args)
+        namespace {Namespace}
         {{
-            {Invocation}
-        }}
+            public class {Name} : {NameOf<IMethodInvoker>()}
+            {{
+                public object Invoke(object target, params object[] args)
+                {{
+                    {Invocation}
+                }}
 
-        public async {NameOf<Task<object>>()} InvokeAsync(object target, params object[] args)
-        {{
-            {AsyncInvocation}
-        }}
-    }}
-}}
-";
+                public async {NameOf<Task<object>>()} InvokeAsync(object target, params object[] args)
+                {{
+                    {AsyncInvocation}
+                }}
+            }}
+        }}";
 
     private string Namespace => _method.ReflectedType?.Namespace;
-    private string Name => $"{Fix(NameOf(_method.ReflectedType))}_{MethodName}_Invoker_{_method.GetHashCode()}";
+    private string Name => $"{Fix(NameOf(_method.ReflectedType))}_{MethodName}_Invoker_{_referenceId}";
 
     private string Invocation => _invocationType switch
     {
@@ -71,7 +71,7 @@ namespace {Namespace}
             }}
 
             return null;
-",
+        ",
         InvocationType.HasReturnType => $"return {Target}.{MethodName}({Parameters});",
         InvocationType.HasReturnTypeAsync => $@"
             var task = {Target}.{MethodName}({Parameters});
@@ -90,7 +90,7 @@ namespace {Namespace}
             }}
 
             return task.Result;
-",
+        ",
         _ => throw new NotSupportedException($"Cannot render an optimized method invoker for method: {_method}")
     };
 
@@ -179,4 +179,10 @@ namespace {Namespace}
     private static string Fix(string typeName) => typeName.AfterLast(".").Replace("<", "_").Replace(">", "_");
     private static string NameOf<T>() => NameOf(typeof(T));
     private static string NameOf(Type type) => type.ToCSharpString();
+
+    public void Dispose()
+    {
+        // TODO release managed resources here
+        GC.SuppressFinalize(this);
+    }
 }
