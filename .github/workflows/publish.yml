@@ -73,7 +73,7 @@ jobs:
             -o "package" \
             -c Release
       - name: Upload Package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: package/Routine.${{ needs.check-version.outputs.version }}.nupkg
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: package
       - name: Push

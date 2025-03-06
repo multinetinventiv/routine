@@ -2,7 +2,7 @@
 
 namespace Routine.Core.Reflection;
 
-public class OptimizedMethodInvokerTemplate : IDisposable
+public sealed class OptimizedMethodInvokerTemplate : IDisposable
 {
     private readonly MethodBase _method;
     private readonly InvocationType _invocationType;
@@ -180,9 +180,18 @@ public class OptimizedMethodInvokerTemplate : IDisposable
     private static string NameOf<T>() => NameOf(typeof(T));
     private static string NameOf(Type type) => type.ToCSharpString();
 
+    private void ReleaseUnmanagedResources()
+    {
+    }
+
     public void Dispose()
     {
-        // TODO release managed resources here
+        ReleaseUnmanagedResources();
         GC.SuppressFinalize(this);
+    }
+
+    ~OptimizedMethodInvokerTemplate()
+    {
+        ReleaseUnmanagedResources();
     }
 }
