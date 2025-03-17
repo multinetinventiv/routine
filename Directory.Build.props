@@ -22,7 +22,7 @@
 
     <PropertyGroup>
         <Product>Routine</Product>
-        <Version>8.0.0</Version>
+        <Version>8.0.1-rc</Version>
         <Authors>inventiv</Authors>
         <Company>inventiv</Company>
         <Copyright>Copyright (c) 2016-2024 inventiv</Copyright>
