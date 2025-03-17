@@ -21,7 +21,6 @@ public class ReflectionOptimizerAsyncTest : ReflectionOptimizerContract
     }
 
     [Test]
-    [Ignore(".net8 upgrade")]
     public async Task Awaits_async_methods()
     {
         var testing = InvokerFor<OptimizedClass>(nameof(OptimizedClass.AsyncVoidMethod));

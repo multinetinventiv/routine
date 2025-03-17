@@ -156,15 +156,15 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     {
         if (invoker is not ProxyMethodInvoker proxy || proxy.Real is not SwitchableMethodInvoker switchable) { return; }
 
-        const int timeout = 100;
+        //const int timeout = 100;
 
         var count = 0;
         var optimized = switchable.Invoker is not ReflectionMethodInvoker;
         var onOptimized = new EventHandler((_, _) => optimized = true);
         ReflectionOptimizer.Optimized += onOptimized;
-        while (!optimized && count < timeout)
+        while (!optimized)
         {
-            Thread.Sleep(1);
+            Thread.SpinWait(1);
             count++;
         }
         ReflectionOptimizer.Optimized -= onOptimized;
@@ -186,7 +186,6 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     }
 
     [Test]
-    [Ignore(".net8 upgrade")]
     public void CreateInvoker_returns_a_proxy_invoker_that_has_reflection_invoker_for_app_to_have_faster_startup()
     {
         ReflectionOptimizer.Clear();
@@ -197,6 +196,8 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
         Assert.That(switchable.Invoker, Is.InstanceOf<ReflectionMethodInvoker>());
 
         WaitForOptimization(proxy);
+
+        Assert.That(switchable.Invoker, Is.InstanceOf<IMethodInvoker>());
 
         Assert.That(switchable.Invoker, Is.Not.InstanceOf<ReflectionMethodInvoker>());
     }
@@ -267,7 +268,6 @@ public abstract class ReflectionOptimizerContract : CoreTestBase
     }
 
     [Test]
-    [Ignore(".net8 upgrade")]
     public void Method_invoker_does_not_check_parameter_compatibility_and_let_IndexOutOfRangeException_or_InvalidCastException_to_be_thrown()
     {
         Assert.That(() => Invoke(InvokerFor<OptimizedClass>("OneParameterVoidMethod"), _target),
