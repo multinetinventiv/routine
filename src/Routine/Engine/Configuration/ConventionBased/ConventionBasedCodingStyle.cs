@@ -129,7 +129,7 @@ public class ConventionBasedCodingStyle : LayeredBase<ConventionBasedCodingStyle
     }
 
     public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly) => AddTypes(assembly, _ => true);
-    public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly, Func<Type, bool> typeFilter) => AddTypes(assembly.GetTypes().Where(typeFilter));
+    public ConventionBasedCodingStyle AddTypes(System.Reflection.Assembly assembly, Func<Type, bool> typeFilter) => AddTypes(assembly.GetTypes().Where(t => t != assembly.EntryPoint?.DeclaringType && typeFilter(t)));
     public ConventionBasedCodingStyle AddTypes(IEnumerable<Type> types) => AddTypes(types.ToArray());
     public ConventionBasedCodingStyle AddTypes(params Type[] types)
     {
