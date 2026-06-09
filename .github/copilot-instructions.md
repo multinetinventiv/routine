@@ -14,7 +14,7 @@ dotnet test --filter "FullyQualifiedName~ObjectServiceTest_PerformOperation"
 dotnet test --filter "Name=ShouldReturnApplicationModel"
 ```
 
-All projects target **net10.0**, use **C# 14**, and have `TreatWarningsAsErrors=true`. No warnings are allowed.
+All projects target **net10.0**, use **C# 13**, and have `TreatWarningsAsErrors=true`. No warnings are allowed.
 
 ## Architecture overview
 
